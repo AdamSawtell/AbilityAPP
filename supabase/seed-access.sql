@@ -12,10 +12,10 @@ on conflict (id) do update set
 insert into public.app_user (id, username, email, first_name, last_name, phone, active, employee_bp_id, notes)
 values
   ('user-superuser', 'SuperUser', 'superuser@abilityerp.local', 'Super', 'User', '', true, null, 'Full access administrator (AbilityERP SuperUser equivalent)'),
-  ('user-isla', 'IslaRobinson', 'isla.robinson@abilityerp.local', 'Isla', 'Robinson', '', true, null, 'Intake and client coordination'),
-  ('user-gabriela', 'GabrielaWilson', 'gabriela.wilson@abilityerp.local', 'Gabriela', 'Wilson', '', true, null, 'Enquiry processing')
+  ('user-isla', 'IslaRobinson', 'isla.robinson@abilityerp.local', 'Isla', 'Robinson', '', true, 'emp-isla', 'Intake and client coordination'),
+  ('user-gabriela', 'GabrielaWilson', 'gabriela.wilson@abilityerp.local', 'Gabriela', 'Wilson', '', true, 'emp-gabriela', 'Enquiry processing')
 on conflict (id) do update set
-  username = excluded.username, email = excluded.email, first_name = excluded.first_name, last_name = excluded.last_name, phone = excluded.phone, active = excluded.active, notes = excluded.notes;
+  username = excluded.username, email = excluded.email, first_name = excluded.first_name, last_name = excluded.last_name, phone = excluded.phone, active = excluded.active, employee_bp_id = excluded.employee_bp_id, notes = excluded.notes;
 
 insert into public.app_user_role (user_id, role_id)
 values
@@ -31,6 +31,13 @@ values
   ('role-admin', 'home'),
   ('role-admin', 'enquiries'),
   ('role-admin', 'clients'),
+  ('role-admin', 'employees'),
+  ('role-admin', 'employee-overview'),
+  ('role-admin', 'employee-contact'),
+  ('role-admin', 'employee-employment'),
+  ('role-admin', 'employee-credentials-assigned'),
+  ('role-admin', 'employee-locations'),
+  ('role-admin', 'employee-system-access'),
   ('role-admin', 'products'),
   ('role-admin', 'price-lists'),
   ('role-admin', 'service-agreements'),
@@ -52,5 +59,6 @@ delete from public.app_role_process where role_id in ('role-admin', 'role-intake
 insert into public.app_role_process (role_id, process_id)
 values
   ('role-admin', 'enquiry-to-client'),
+  ('role-admin', 'assign-employee-credential'),
   ('role-intake', 'enquiry-to-client')
 on conflict do nothing;

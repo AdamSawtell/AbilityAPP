@@ -4,6 +4,8 @@ import { normalizeClient } from "@/lib/client";
 import type { ContractRecord } from "@/lib/contract";
 import { normalizeContract } from "@/lib/contract";
 import type { EnquiryRecord } from "@/lib/enquiry";
+import type { EmployeeRecord } from "@/lib/employee";
+import { normalizeEmployee } from "@/lib/employee";
 import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { normalizePriceList } from "@/lib/product";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
@@ -15,6 +17,8 @@ import {
   clientToRow,
   contractFromRow,
   contractToRow,
+  employeeFromRow,
+  employeeToRow,
   enquiryFromRow,
   enquiryToRow,
   planDocumentFromRow,
@@ -35,6 +39,8 @@ import {
   type ContractAuditRowDb,
   type ContractRow,
   type EnquiryRow,
+  type EmployeeRow,
+  type EmployeeCredentialRowDb,
   type PlanAssessmentDocumentRow,
   type PriceListLineRow,
   type PriceListRow,
@@ -54,6 +60,7 @@ export type AppData = {
   serviceAgreements: ServiceAgreementRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
+  employees: EmployeeRecord[];
 };
 
 async function replaceChildRows(
@@ -83,6 +90,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supportPlansRes,
     goalsRes,
     planDocsRes,
+    employeesRes,
+    employeeCredsRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("client").select("*").order("search_key"),
@@ -99,6 +108,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("support_plan").select("*").order("document_no"),
     supabase.from("support_plan_goal").select("*").order("line_no"),
     supabase.from("plan_assessment_document").select("*").order("document_no"),
+    supabase.from("employee").select("*").order("last_name").order("first_name"),
+    supabase.from("employee_credential").select("*").order("line_no"),
   ]);
 
   const firstError =
@@ -116,7 +127,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     auditRes.error ??
     supportPlansRes.error ??
     goalsRes.error ??
-    planDocsRes.error;
+    planDocsRes.error ??
+    employeesRes.error ??
+    employeeCredsRes.error;
 
   if (firstError) throw firstError;
 
@@ -127,6 +140,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
   const goalsByPlan = groupBy(goalsRes.data as SupportPlanGoalRow[], "support_plan_id");
+  const credsByEmployee = groupBy(employeeCredsRes.data as EmployeeCredentialRowDb[], "employee_id");
 
   return {
     enquiries: ((enquiriesRes.data ?? []) as EnquiryRow[]).map(enquiryFromRow),
@@ -154,6 +168,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
       normalizeSupportPlan(supportPlanFromRow(row, goalsByPlan.get(row.id) ?? []))
     ),
     planDocuments: ((planDocsRes.data ?? []) as PlanAssessmentDocumentRow[]).map(planDocumentFromRow),
+    employees: ((employeesRes.data ?? []) as EmployeeRow[]).map((row) =>
+      normalizeEmployee(employeeFromRow(row, credsByEmployee.get(row.id) ?? []))
+    ),
   };
 }
 
@@ -344,4 +361,33 @@ export async function savePlanDocument(supabase: SupabaseClient, record: PlanAss
     support_plan_id: record.supportPlanId?.trim() ? record.supportPlanId : null,
   });
   if (error) throw error;
+}
+
+export async function saveEmployee(supabase: SupabaseClient, record: EmployeeRecord) {
+  const normalized = normalizeEmployee(record);
+  const { error } = await supabase.from("employee").upsert(employeeToRow(normalized));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "employee_credential", "employee_id", normalized.id);
+
+  if (normalized.credentials.length) {
+    const { error: credError } = await supabase.from("employee_credential").insert(
+      normalized.credentials.map((c) => ({
+        id: c.id,
+        employee_id: normalized.id,
+        line_no: c.lineNo,
+        credential_type: c.credentialType,
+        credential_number: c.credentialNumber,
+        issuing_body: c.issuingBody,
+        issue_date: c.issueDate || null,
+        expiry_date: c.expiryDate || null,
+        status: c.status,
+        document_ref: c.documentRef,
+        notes: c.notes,
+        created_by: c.createdBy,
+        updated_by: c.updatedBy,
+      }))
+    );
+    if (credError) throw credError;
+  }
 }

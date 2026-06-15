@@ -40,12 +40,12 @@ lines.push("values");
 lines.push(
   SEED_USERS.map(
     (u) =>
-      `  (${sqlString(u.id)}, ${sqlString(u.username)}, ${sqlString(u.email)}, ${sqlString(u.firstName)}, ${sqlString(u.lastName)}, ${sqlString(u.phone)}, ${u.active}, null, ${sqlString(u.notes)})`
+      `  (${sqlString(u.id)}, ${sqlString(u.username)}, ${sqlString(u.email)}, ${sqlString(u.firstName)}, ${sqlString(u.lastName)}, ${sqlString(u.phone)}, ${u.active}, ${u.employeeBpId ? sqlString(u.employeeBpId) : "null"}, ${sqlString(u.notes)})`
   ).join(",\n")
 );
 lines.push("on conflict (id) do update set");
 lines.push(
-  "  username = excluded.username, email = excluded.email, first_name = excluded.first_name, last_name = excluded.last_name, phone = excluded.phone, active = excluded.active, notes = excluded.notes;"
+  "  username = excluded.username, email = excluded.email, first_name = excluded.first_name, last_name = excluded.last_name, phone = excluded.phone, active = excluded.active, employee_bp_id = excluded.employee_bp_id, notes = excluded.notes;"
 );
 lines.push("");
 

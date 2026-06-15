@@ -15,6 +15,7 @@ When you add or change app behaviour, also:
    - Reference lists: `npm run supabase:seed`
    - Entities: `npm run supabase:seed-entities`
    - Users/roles: `npm run supabase:seed-access`
+   - Employees: `npm run supabase:seed-employees`
 5. Add new **windows** to `web/src/lib/access/catalog.ts` when shipping a new module.
 
 Do **not** rely on the Supabase SQL editor for routine schema work. Migrations in Git are the source of truth.
@@ -39,6 +40,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `app_user_role` | User ↔ role (many-to-many) |
 | `app_role_window` | Role ↔ menu window |
 | `app_role_process` | Role ↔ business process |
+| `employee` | Staff / business partner (employee) |
 
 ## Not built yet (needs migration when added)
 

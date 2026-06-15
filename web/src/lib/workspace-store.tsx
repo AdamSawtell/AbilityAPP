@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-export type WorkspaceTabKind = "client" | "enquiry";
+export type WorkspaceTabKind = "client" | "enquiry" | "employee";
 
 export type WorkspaceTab = {
   key: string;
@@ -17,6 +17,7 @@ type WorkspaceStore = {
   tabs: WorkspaceTab[];
   openClient: (recordId: string, label: string, subtitle?: string) => void;
   openEnquiry: (recordId: string, label: string, subtitle?: string) => void;
+  openEmployee: (recordId: string, label: string, subtitle?: string) => void;
   closeTab: (key: string) => string;
   setTabDirty: (key: string, dirty: boolean) => void;
   touchTab: (key: string, label: string, subtitle?: string) => void;
@@ -92,6 +93,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [upsertTab]
   );
 
+  const openEmployee = useCallback(
+    (recordId: string, label: string, subtitle?: string) => {
+      upsertTab({ key: tabKey("employee", recordId), kind: "employee", recordId, label, subtitle });
+    },
+    [upsertTab]
+  );
+
   const closeTab = useCallback((key: string): string => {
     let nextHref = "/";
     setTabs((prev) => {
@@ -102,9 +110,15 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         nextHref =
           fallback.kind === "client"
             ? `/clients/${fallback.recordId}`
-            : `/enquiries/${fallback.recordId}`;
+            : fallback.kind === "employee"
+              ? `/employees/${fallback.recordId}`
+              : `/enquiries/${fallback.recordId}`;
       } else {
-        nextHref = key.startsWith("client:") ? "/clients" : "/enquiries";
+        nextHref = key.startsWith("client:")
+          ? "/clients"
+          : key.startsWith("employee:")
+            ? "/employees"
+            : "/enquiries";
       }
       return remaining;
     });
@@ -122,8 +136,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ tabs, openClient, openEnquiry, closeTab, setTabDirty, touchTab }),
-    [tabs, openClient, openEnquiry, closeTab, setTabDirty, touchTab]
+    () => ({ tabs, openClient, openEnquiry, openEmployee, closeTab, setTabDirty, touchTab }),
+    [tabs, openClient, openEnquiry, openEmployee, closeTab, setTabDirty, touchTab]
   );
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;

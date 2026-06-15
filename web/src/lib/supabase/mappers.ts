@@ -2,6 +2,7 @@
 
 import type { ClientRecord } from "@/lib/client";
 import type { ContractRecord } from "@/lib/contract";
+import type { EmployeeRecord, EmployeeCredentialRow } from "@/lib/employee";
 import type { EnquiryRecord } from "@/lib/enquiry";
 import type {
   PriceListLine,
@@ -917,5 +918,108 @@ export function planDocumentFromRow(row: PlanAssessmentDocumentRow): PlanAssessm
     documentStatus: row.document_status,
     documentDeveloper: row.document_developer,
     supportPlanId: row.support_plan_id ?? "",
+  };
+}
+
+// --- Employee ---
+
+export type EmployeeRow = {
+  id: string;
+  search_key: string;
+  business_partner_group: string;
+  name: string;
+  first_name: string;
+  last_name: string;
+  preferred_name: string;
+  middle_name: string;
+  email: string;
+  phone: string;
+  mobile: string;
+  job_title: string;
+  department: string;
+  employment_status: string;
+  start_date: string | null;
+  end_date: string | null;
+  created_by: string;
+  updated_by: string;
+};
+
+export type EmployeeCredentialRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  credential_type: string;
+  credential_number: string;
+  issuing_body: string;
+  issue_date: string | null;
+  expiry_date: string | null;
+  status: string;
+  document_ref: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function employeeCredentialFromRow(row: EmployeeCredentialRowDb): EmployeeCredentialRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    credentialType: row.credential_type,
+    credentialNumber: row.credential_number,
+    issuingBody: row.issuing_body,
+    issueDate: strDate(row.issue_date),
+    expiryDate: strDate(row.expiry_date),
+    status: row.status,
+    documentRef: row.document_ref,
+    notes: row.notes,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+export function employeeFromRow(row: EmployeeRow, credentials: EmployeeCredentialRowDb[] = []): EmployeeRecord {
+  return {
+    id: row.id,
+    searchKey: row.search_key,
+    businessPartnerGroup: row.business_partner_group,
+    name: row.name,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    preferredName: row.preferred_name,
+    middleName: row.middle_name,
+    email: row.email,
+    phone: row.phone,
+    mobile: row.mobile,
+    jobTitle: row.job_title,
+    department: row.department,
+    employmentStatus: row.employment_status,
+    startDate: strDate(row.start_date),
+    endDate: strDate(row.end_date),
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    credentials: credentials.map(employeeCredentialFromRow),
+  };
+}
+
+export function employeeToRow(record: EmployeeRecord): EmployeeRow {
+  return {
+    id: record.id,
+    search_key: record.searchKey,
+    business_partner_group: record.businessPartnerGroup || "Employee",
+    name: record.name,
+    first_name: record.firstName,
+    last_name: record.lastName,
+    preferred_name: record.preferredName,
+    middle_name: record.middleName,
+    email: record.email,
+    phone: record.phone,
+    mobile: record.mobile,
+    job_title: record.jobTitle,
+    department: record.department,
+    employment_status: record.employmentStatus,
+    start_date: toDate(record.startDate),
+    end_date: toDate(record.endDate),
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
   };
 }

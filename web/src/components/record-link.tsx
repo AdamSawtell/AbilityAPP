@@ -54,3 +54,47 @@ export function EnquiryRecordLink({
     </Link>
   );
 }
+
+export function EmployeeRecordLink({
+  id,
+  searchKey,
+  name,
+  className,
+  children,
+}: {
+  id: string;
+  searchKey: string;
+  name: string;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  const { openEmployee } = useWorkspace();
+
+  return (
+    <Link
+      href={`/employees/${id}`}
+      className={className}
+      onClick={() => openEmployee(id, searchKey, name)}
+    >
+      {children ?? searchKey}
+    </Link>
+  );
+}
+
+export function UserAdminLink({
+  userId,
+  label,
+  className,
+  children,
+}: {
+  userId: string;
+  label: string;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <Link href={`/admin/users?user=${userId}`} className={className}>
+      {children ?? label}
+    </Link>
+  );
+}

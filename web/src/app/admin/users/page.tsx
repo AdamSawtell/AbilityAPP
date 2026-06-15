@@ -1,9 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { UsersAdminView } from "@/components/admin/users-page";
 import { useAuth } from "@/lib/auth-store";
+
+function UsersAdminPageContent() {
+  const searchParams = useSearchParams();
+  const focusUserId = searchParams.get("user");
+  const prefillEmployeeId = searchParams.get("employee");
+
+  return (
+    <UsersAdminView
+      key={`${focusUserId ?? ""}-${prefillEmployeeId ?? ""}`}
+      focusUserId={focusUserId}
+      prefillEmployeeId={prefillEmployeeId}
+    />
+  );
+}
 
 export default function AdminUsersPage() {
   const { canWindow } = useAuth();
@@ -14,5 +28,9 @@ export default function AdminUsersPage() {
   }, [canWindow, router]);
 
   if (!canWindow("admin-users")) return null;
-  return <UsersAdminView />;
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-slate-500">Loading…</div>}>
+      <UsersAdminPageContent />
+    </Suspense>
+  );
 }

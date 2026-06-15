@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { usePathname, useRouter } from "next/navigation";
 import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/types";
 import { displayName, userInitials } from "@/lib/access/types";
+import { canAccessWindow, processById } from "@/lib/access/catalog";
 import { SEED_ROLES, SEED_USERS } from "@/lib/access/seed";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
@@ -181,8 +182,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [session, users, roles, resolveAccess]
   );
 
-  const canWindow = useCallback((key: string) => session?.windowKeys.includes(key) ?? false, [session]);
-  const canProcess = useCallback((processId: string) => session?.processIds.includes(processId) ?? false, [session]);
+  const canWindow = useCallback(
+    (key: string) => (session ? canAccessWindow(session.windowKeys, key) : false),
+    [session]
+  );
+  const canProcess = useCallback(
+    (processId: string) => {
+      if (!session?.processIds.includes(processId)) return false;
+      const proc = processById(processId);
+      if (proc?.parentWindowKey && !canAccessWindow(session.windowKeys, proc.parentWindowKey)) return false;
+      return true;
+    },
+    [session]
+  );
 
   const upsertUser = useCallback(
     async (user: AppUserRecord) => {

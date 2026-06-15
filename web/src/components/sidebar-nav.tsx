@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { clientTabGroups } from "@/lib/client";
+import { employeeTabGroups } from "@/lib/employee";
+import { windowKeyForEmployeeTab } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useWorkspace } from "@/lib/workspace-store";
 
@@ -33,15 +35,18 @@ const mainLinks = [
   },
 ];
 
+const peopleLinks = [
+  {
+    href: "/employees",
+    label: "Employees",
+    windowKey: "employees",
+    match: (path: string) => path.startsWith("/employees"),
+  },
+];
+
 const serviceLinks = [
   { href: "/products", label: "Products", windowKey: "products", match: (path: string) => path.startsWith("/products") },
   { href: "/price-lists", label: "Price lists", windowKey: "price-lists", match: (path: string) => path.startsWith("/price-lists") },
-  {
-    href: "/service-agreements",
-    label: "Service agreements",
-    windowKey: "service-agreements",
-    match: (path: string) => path.startsWith("/service-agreements"),
-  },
 ];
 
 const adminLinks = [
@@ -80,6 +85,13 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     );
   }
+  if (name === "employee") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+      </svg>
+    );
+  }
   return (
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
@@ -95,11 +107,13 @@ export function SidebarNav() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     enquiries: true,
     clients: true,
+    people: true,
     services: true,
     admin: false,
   });
 
   const visibleMainLinks = mainLinks.filter((l) => canWindow(l.windowKey));
+  const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
 
@@ -107,8 +121,13 @@ export function SidebarNav() {
   const activeClientId = clientMatch?.[1];
   const activeClientTab = searchParams.get("tab") ?? "Overview";
 
+  const employeeMatch = pathname.match(/^\/employees\/([^/]+)/);
+  const activeEmployeeId = employeeMatch?.[1];
+  const activeEmployeeTab = searchParams.get("tab") ?? "Overview";
+
   const openClients = useMemo(() => tabs.filter((t) => t.kind === "client"), [tabs]);
   const openEnquiries = useMemo(() => tabs.filter((t) => t.kind === "enquiry"), [tabs]);
+  const openEmployees = useMemo(() => tabs.filter((t) => t.kind === "employee"), [tabs]);
 
   function toggleSection(key: string) {
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -121,7 +140,12 @@ export function SidebarNav() {
         const sectionKey = link.kind;
         const isExpandable = Boolean(sectionKey);
         const isOpen = sectionKey ? expanded[sectionKey] !== false : false;
-        const openItems = sectionKey === "client" ? openClients : sectionKey === "enquiry" ? openEnquiries : [];
+        const openItems =
+          sectionKey === "client"
+            ? openClients
+            : sectionKey === "enquiry"
+              ? openEnquiries
+              : [];
 
         return (
           <div key={link.href}>
@@ -193,7 +217,9 @@ export function SidebarNav() {
                       const href =
                         tab.kind === "client"
                           ? `/clients/${tab.recordId}`
-                          : `/enquiries/${tab.recordId}`;
+                          : tab.kind === "employee"
+                            ? `/employees/${tab.recordId}`
+                            : `/enquiries/${tab.recordId}`;
                       const tabActive = pathname === href || pathname.startsWith(`${href}?`);
                       return (
                         <Link
@@ -242,6 +268,109 @@ export function SidebarNav() {
           </div>
         );
       })}
+
+      {visiblePeopleLinks.length > 0 ? (
+        <div className="mt-2 border-t border-slate-200 pt-3">
+          <div className="flex items-center gap-0.5">
+            <span className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600">
+              <span className="text-slate-400">
+                <NavIcon name="employee" />
+              </span>
+              People
+            </span>
+            <button
+              type="button"
+              onClick={() => toggleSection("people")}
+              className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              aria-label="Toggle People menu"
+            >
+              <svg
+                className={`h-4 w-4 transition ${expanded.people !== false ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+          </div>
+          {expanded.people !== false ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              {visiblePeopleLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
+                    link.match(pathname)
+                      ? "bg-indigo-50 text-indigo-900 ring-1 ring-indigo-200/60"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {openEmployees.length > 0 ? (
+                <div className="pt-1">
+                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Open
+                  </p>
+                  {openEmployees.map((tab) => {
+                    const href = `/employees/${tab.recordId}`;
+                    const tabActive = pathname === href || pathname.startsWith(`${href}?`);
+                    return (
+                      <Link
+                        key={tab.key}
+                        href={href}
+                        className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs ${
+                          tabActive
+                            ? "bg-white font-medium text-slate-900 shadow-sm ring-1 ring-slate-200"
+                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                        }`}
+                      >
+                        <span className="truncate">{tab.label}</span>
+                        {tab.dirty ? (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                        ) : null}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
+              {activeEmployeeId && canWindow("employees") ? (
+                <div className="border-t border-slate-100 pt-2">
+                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    This employee
+                  </p>
+                  {employeeTabGroups
+                    .flatMap((g) => g.tabs)
+                    .filter((tab) => {
+                      const windowKey = windowKeyForEmployeeTab(tab);
+                      return !windowKey || canWindow(windowKey);
+                    })
+                    .map((tab) => {
+                    const href = `/employees/${activeEmployeeId}?tab=${encodeURIComponent(tab)}`;
+                    const tabActive = activeEmployeeTab === tab;
+                    return (
+                      <Link
+                        key={tab}
+                        href={href}
+                        className={`block truncate rounded-md px-2 py-1.5 text-xs ${
+                          tabActive
+                            ? "bg-indigo-50 font-medium text-indigo-900"
+                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                        }`}
+                      >
+                        {tab}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {visibleServiceLinks.length > 0 ? (
       <div className="mt-2 border-t border-slate-200 pt-3">

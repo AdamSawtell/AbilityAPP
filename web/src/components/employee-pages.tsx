@@ -1,0 +1,127 @@
+"use client";
+
+import Link from "next/link";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { AppShell } from "@/components/app-shell";
+import { EmployeeList } from "@/components/employee-list";
+import { EmployeeTabbedView } from "@/components/employee-view";
+import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useAuth } from "@/lib/auth-store";
+import { useData } from "@/lib/data-store";
+import type { EmployeeCredentialRow, EmployeeRecord } from "@/lib/employee";
+import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
+
+function EmployeeTabbedViewFallback() {
+  return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
+}
+
+export function EmployeeListView() {
+  const { employees } = useData();
+  return <EmployeeList records={employees} />;
+}
+
+export function EmployeeDetailView({ id }: { id: string }) {
+  const { employees, upsertEmployee } = useData();
+  const { users } = useAuth();
+  const { openEmployee, setTabDirty, touchTab } = useWorkspace();
+  const stored = employees.find((e) => e.id === id);
+  const [draft, setDraft] = useState<EmployeeRecord | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const employee = draft ?? stored ?? null;
+  const hasUnsavedChanges = Boolean(draft);
+  const tabKey = workspaceKey("employee", id);
+
+  const linkedUser = useMemo(
+    () => users.find((u) => u.employeeBpId === id),
+    [users, id]
+  );
+
+  useEffect(() => {
+    if (!stored) return;
+    openEmployee(stored.id, stored.searchKey, stored.name);
+  }, [id, stored, openEmployee]);
+
+  useEffect(() => {
+    setTabDirty(tabKey, hasUnsavedChanges);
+  }, [tabKey, hasUnsavedChanges, setTabDirty]);
+
+  useEffect(() => {
+    if (employee) touchTab(tabKey, employee.searchKey, employee.name);
+  }, [employee, tabKey, touchTab]);
+
+  if (!employee) {
+    return (
+      <AppShell
+        title="Employee not found"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Employees", href: "/employees" },
+          { label: "Not found" },
+        ]}
+      >
+        <p className="text-slate-600">No employee with ID {id}.</p>
+        <Link href="/employees" className="mt-4 inline-block text-[#b51266] hover:underline">
+          Back to employees
+        </Link>
+      </AppShell>
+    );
+  }
+
+  function onFieldChange(key: keyof EmployeeRecord, value: string) {
+    const base = draft ?? stored;
+    if (!base) return;
+    const next = { ...base, [key]: value, updatedBy: "SuperUser" };
+    if (key === "firstName" || key === "lastName") {
+      next.name = `${key === "firstName" ? value : next.firstName} ${key === "lastName" ? value : next.lastName}`.trim();
+    }
+    setDraft(next);
+    setSaved(false);
+  }
+
+  function onCredentialsChange(rows: EmployeeCredentialRow[]) {
+    const base = draft ?? stored;
+    if (!base) return;
+    setDraft({ ...base, credentials: rows, updatedBy: "SuperUser" });
+    setSaved(false);
+  }
+
+  function onSave() {
+    if (!employee) return;
+    upsertEmployee(employee);
+    setDraft(null);
+    setSaved(true);
+  }
+
+  function onDiscard() {
+    setDraft(null);
+    setSaved(false);
+  }
+
+  return (
+    <>
+      <AppShell
+        title={employee.name}
+        subtitle={`${employee.searchKey} · ${employee.jobTitle || "Employee"}`}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Employees", href: "/employees" },
+          { label: employee.searchKey },
+        ]}
+      >
+        <Suspense fallback={<EmployeeTabbedViewFallback />}>
+          <EmployeeTabbedView
+            employee={employee}
+            linkedUser={linkedUser}
+            onChange={onFieldChange}
+            onCredentialsChange={onCredentialsChange}
+          />
+        </Suspense>
+
+        {saved ? <p className="mt-4 text-sm text-emerald-700">Changes saved.</p> : null}
+      </AppShell>
+
+      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+    </>
+  );
+}

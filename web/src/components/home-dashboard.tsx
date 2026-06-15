@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
+import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 
 function SummaryCard({
@@ -18,12 +19,14 @@ function SummaryCard({
   count: number;
   description: string;
   href: string;
-  accent: "pink" | "emerald";
+  accent: "pink" | "emerald" | "indigo";
 }) {
   const styles =
     accent === "pink"
       ? "from-[#d4147a]/10 to-[#fdf2f8] ring-[#f9a8d4]/50 hover:ring-[#d4147a]/40"
-      : "from-emerald-500/10 to-emerald-50 ring-emerald-200/60 hover:ring-emerald-300";
+      : accent === "indigo"
+        ? "from-indigo-500/10 to-indigo-50 ring-indigo-200/60 hover:ring-indigo-300"
+        : "from-emerald-500/10 to-emerald-50 ring-emerald-200/60 hover:ring-emerald-300";
 
   return (
     <Link
@@ -44,7 +47,9 @@ function SummaryCard({
 }
 
 export function HomeDashboard() {
-  const { enquiries, clients } = useData();
+  const { enquiries, clients, employees } = useData();
+  const { canWindow, session } = useAuth();
+  const showEmployees = canWindow("employees");
 
   const openEnquiries = useMemo(
     () => enquiries.filter((e) => !e.status.startsWith("5_")).length,
@@ -60,7 +65,10 @@ export function HomeDashboard() {
   const recentClients = useMemo(() => clients.slice(0, 5), [clients]);
 
   return (
-    <AppShell title="Home" subtitle="Welcome back, SuperUser. Pick up where you left off.">
+    <AppShell
+      title="Home"
+      subtitle={`Welcome back${session?.displayName ? `, ${session.displayName}` : ""}. Pick up where you left off.`}
+    >
       <div className="mb-8 flex flex-wrap gap-3">
         <Link
           href="/enquiries/new"
@@ -80,9 +88,17 @@ export function HomeDashboard() {
         >
           Browse clients
         </Link>
+        {showEmployees ? (
+          <Link
+            href="/employees"
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            Browse employees
+          </Link>
+        ) : null}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className={`grid gap-6 ${showEmployees ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
         <SummaryCard
           title="Enquiries"
           count={enquiries.length}
@@ -97,6 +113,15 @@ export function HomeDashboard() {
           href="/clients"
           accent="emerald"
         />
+        {showEmployees ? (
+          <SummaryCard
+            title="Employees"
+            count={employees.length}
+            description="Staff and contractors"
+            href="/employees"
+            accent="indigo"
+          />
+        ) : null}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-medium text-slate-600">Today</p>
           <p className="mt-2 text-lg font-semibold text-slate-900">

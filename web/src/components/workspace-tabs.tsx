@@ -11,8 +11,14 @@ export function WorkspaceTabs() {
 
   if (tabs.length === 0) return null;
 
+  function tabHref(tab: (typeof tabs)[number]) {
+    if (tab.kind === "client") return `/clients/${tab.recordId}`;
+    if (tab.kind === "employee") return `/employees/${tab.recordId}`;
+    return `/enquiries/${tab.recordId}`;
+  }
+
   function isActive(tab: (typeof tabs)[number]) {
-    const href = tab.kind === "client" ? `/clients/${tab.recordId}` : `/enquiries/${tab.recordId}`;
+    const href = tabHref(tab);
     return pathname === href || pathname.startsWith(`${href}?`);
   }
 
@@ -33,25 +39,27 @@ export function WorkspaceTabs() {
           Open
         </span>
         {tabs.map((tab) => {
-          const href = tab.kind === "client" ? `/clients/${tab.recordId}` : `/enquiries/${tab.recordId}`;
+          const href = tabHref(tab);
           const active = isActive(tab);
+          const activeStyles =
+            tab.kind === "client"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900 shadow-sm"
+              : tab.kind === "employee"
+                ? "border-indigo-200 bg-indigo-50 text-indigo-900 shadow-sm"
+                : "border-[#f9a8d4] bg-[#fdf2f8] text-[#b51266] shadow-sm";
+          const dotColor =
+            tab.kind === "client" ? "bg-emerald-500" : tab.kind === "employee" ? "bg-indigo-500" : "bg-[#d4147a]";
           return (
             <Link
               key={tab.key}
               href={href}
               className={`group inline-flex max-w-[200px] shrink-0 items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition ${
                 active
-                  ? tab.kind === "client"
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-900 shadow-sm"
-                    : "border-[#f9a8d4] bg-[#fdf2f8] text-[#b51266] shadow-sm"
+                  ? activeStyles
                   : "border-transparent bg-slate-50 text-slate-600 hover:border-slate-200 hover:bg-white hover:text-slate-900"
               }`}
             >
-              <span
-                className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                  tab.kind === "client" ? "bg-emerald-500" : "bg-[#d4147a]"
-                }`}
-              />
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotColor}`} />
               <span className="min-w-0 truncate font-medium">{tab.label}</span>
               {tab.dirty ? <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" title="Unsaved" /> : null}
               <button

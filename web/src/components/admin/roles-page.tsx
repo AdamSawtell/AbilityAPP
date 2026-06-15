@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { ACCESS_PROCESSES, ACCESS_WINDOWS } from "@/lib/access/catalog";
+import { ACCESS_PROCESSES, ACCESS_WINDOWS, childWindows } from "@/lib/access/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
 import { useAuth } from "@/lib/auth-store";
 
@@ -54,10 +54,17 @@ export function RolesAdminView() {
   function toggleWindow(key: string) {
     if (!record) return;
     const has = record.windowKeys.includes(key);
-    setDraft({
-      ...record,
-      windowKeys: has ? record.windowKeys.filter((k) => k !== key) : [...record.windowKeys, key],
-    });
+    const win = ACCESS_WINDOWS.find((w) => w.key === key);
+    let nextKeys = has
+      ? record.windowKeys.filter((k) => k !== key)
+      : [...record.windowKeys, key];
+
+    if (has && win && !win.parentWindowKey) {
+      const dependents = childWindows(key).map((c) => c.key);
+      nextKeys = nextKeys.filter((k) => !dependents.includes(k));
+    }
+
+    setDraft({ ...record, windowKeys: nextKeys });
   }
 
   function toggleProcess(id: string) {
@@ -143,34 +150,63 @@ export function RolesAdminView() {
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 className="mb-3 text-sm font-semibold text-slate-900">Windows / functions</h2>
                 <p className="mb-4 text-xs text-slate-500">
-                  Only assigned windows appear in the sidebar for users signed in with this role.
+                  Top-level windows appear in the sidebar. Dependent windows (indented) are tabs or sub-functions
+                  inside a parent — e.g. Credentials Assigned requires Employees.
                 </p>
-                {[...windowsByGroup.entries()].map(([group, items]) => (
+                {[...windowsByGroup.entries()].map(([group, items]) => {
+                  const topLevel = items.filter((w) => !w.parentWindowKey);
+                  return (
                   <div key={group} className="mb-4">
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{group}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {items.map((w) => (
-                        <label
-                          key={w.key}
-                          title={w.abilityErpName}
-                          className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
-                            record.windowKeys.includes(w.key)
-                              ? "border-[#d4147a] bg-[#fdf2f8] text-[#b51266]"
-                              : "border-slate-200 text-slate-600"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={record.windowKeys.includes(w.key)}
-                            onChange={() => toggleWindow(w.key)}
-                          />
-                          {w.label}
-                        </label>
+                    <div className="space-y-2">
+                      {topLevel.map((w) => (
+                        <div key={w.key}>
+                          <label
+                            title={w.abilityErpName}
+                            className={`inline-flex cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                              record.windowKeys.includes(w.key)
+                                ? "border-[#d4147a] bg-[#fdf2f8] text-[#b51266]"
+                                : "border-slate-200 text-slate-600"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              className="sr-only"
+                              checked={record.windowKeys.includes(w.key)}
+                              onChange={() => toggleWindow(w.key)}
+                            />
+                            {w.label}
+                          </label>
+                          {childWindows(w.key).length > 0 ? (
+                            <div className="ml-4 mt-2 flex flex-wrap gap-2 border-l border-slate-200 pl-3">
+                              {childWindows(w.key).map((child) => (
+                                <label
+                                  key={child.key}
+                                  title={child.abilityErpName}
+                                  className={`inline-flex cursor-pointer rounded-lg border px-2.5 py-1.5 text-xs ${
+                                    record.windowKeys.includes(child.key)
+                                      ? "border-indigo-300 bg-indigo-50 text-indigo-900"
+                                      : "border-slate-200 text-slate-500"
+                                  } ${!record.windowKeys.includes(w.key) ? "opacity-50" : ""}`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    className="sr-only"
+                                    disabled={!record.windowKeys.includes(w.key)}
+                                    checked={record.windowKeys.includes(child.key)}
+                                    onChange={() => toggleWindow(child.key)}
+                                  />
+                                  {child.label}
+                                </label>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
                       ))}
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </section>
 
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">

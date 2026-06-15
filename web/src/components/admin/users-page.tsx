@@ -2,21 +2,75 @@
 
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { EmployeePicker } from "@/components/employee-picker";
+import { EmployeeRecordLink } from "@/components/record-link";
 import type { AppUserRecord } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
 import { useAuth } from "@/lib/auth-store";
+import { useData } from "@/lib/data-store";
+import type { EmployeeRecord } from "@/lib/employee";
 
 function newUserId() {
   return `user-${Date.now()}`;
 }
 
-export function UsersAdminView() {
+function buildInitialState(
+  users: AppUserRecord[],
+  employees: EmployeeRecord[],
+  focusUserId: string | null,
+  prefillEmployeeId: string | null
+): { activeId: string | null; draft: AppUserRecord | null } {
+  if (focusUserId) {
+    const user = users.find((u) => u.id === focusUserId);
+    if (user) return { activeId: user.id, draft: { ...user, roleIds: [...user.roleIds] } };
+  }
+  if (prefillEmployeeId) {
+    const existing = users.find((u) => u.employeeBpId === prefillEmployeeId);
+    if (existing) {
+      return { activeId: existing.id, draft: { ...existing, roleIds: [...existing.roleIds] } };
+    }
+    const emp = employees.find((e) => e.id === prefillEmployeeId);
+    if (emp) {
+      const user: AppUserRecord = {
+        id: newUserId(),
+        username: `${emp.firstName}${emp.lastName}`.replace(/\s/g, ""),
+        email: emp.email,
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+        phone: emp.mobile || emp.phone,
+        active: true,
+        employeeBpId: emp.id,
+        notes: "",
+        roleIds: [],
+      };
+      return { activeId: user.id, draft: user };
+    }
+  }
+  return { activeId: users[0]?.id ?? null, draft: null };
+}
+
+export function UsersAdminView({
+  focusUserId = null,
+  prefillEmployeeId = null,
+}: {
+  focusUserId?: string | null;
+  prefillEmployeeId?: string | null;
+}) {
   const { users, roles, upsertUser } = useAuth();
-  const [activeId, setActiveId] = useState<string | null>(users[0]?.id ?? null);
-  const [draft, setDraft] = useState<AppUserRecord | null>(null);
+  const { employees } = useData();
+  const initial = buildInitialState(users, employees, focusUserId, prefillEmployeeId);
+  const [activeId, setActiveId] = useState<string | null>(initial.activeId);
+  const [draft, setDraft] = useState<AppUserRecord | null>(initial.draft);
 
   const record = draft ?? users.find((u) => u.id === activeId) ?? null;
   const roleNameById = useMemo(() => new Map(roles.map((r) => [r.id, r.name])), [roles]);
+  const userIdByEmployeeId = useMemo(
+    () => new Map(users.filter((u) => u.employeeBpId).map((u) => [u.employeeBpId, u.id])),
+    [users]
+  );
+  const linkedEmployee = record?.employeeBpId
+    ? employees.find((e) => e.id === record.employeeBpId)
+    : undefined;
 
   function openUser(id: string) {
     const user = users.find((u) => u.id === id);
@@ -60,7 +114,7 @@ export function UsersAdminView() {
   return (
     <AppShell
       title="Users"
-      subtitle="Application users. Each user can have one or more roles. Employee records will link here later."
+      subtitle="Application users linked to employee records. Assign roles to control menus and processes."
       breadcrumbs={[
         { label: "Home", href: "/" },
         { label: "Admin", href: "/admin/users" },
@@ -78,24 +132,32 @@ export function UsersAdminView() {
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-2 lg:col-span-1">
-          {users.map((u) => (
-            <button
-              key={u.id}
-              type="button"
-              onClick={() => openUser(u.id)}
-              className={`flex w-full flex-col rounded-xl border px-4 py-3 text-left ${
-                activeId === u.id
-                  ? "border-[#f9a8d4] bg-[#fdf2f8]"
-                  : "border-slate-200 bg-white hover:bg-slate-50"
-              }`}
-            >
-              <span className="font-medium text-slate-900">{displayName(u)}</span>
-              <span className="text-xs text-slate-500">{u.username}</span>
-              <span className="mt-1 text-xs text-slate-400">
-                {u.roleIds.map((id) => roleNameById.get(id)).filter(Boolean).join(", ") || "No roles"}
-              </span>
-            </button>
-          ))}
+          {users.map((u) => {
+            const emp = u.employeeBpId ? employees.find((e) => e.id === u.employeeBpId) : undefined;
+            return (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => openUser(u.id)}
+                className={`flex w-full flex-col rounded-xl border px-4 py-3 text-left ${
+                  activeId === u.id
+                    ? "border-[#f9a8d4] bg-[#fdf2f8]"
+                    : "border-slate-200 bg-white hover:bg-slate-50"
+                }`}
+              >
+                <span className="font-medium text-slate-900">{displayName(u)}</span>
+                <span className="text-xs text-slate-500">{u.username}</span>
+                {emp ? (
+                  <span className="mt-1 text-xs text-slate-400">
+                    Employee: {emp.searchKey} — {emp.name}
+                  </span>
+                ) : null}
+                <span className="mt-1 text-xs text-slate-400">
+                  {u.roleIds.map((id) => roleNameById.get(id)).filter(Boolean).join(", ") || "No roles"}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="lg:col-span-2">
@@ -107,12 +169,29 @@ export function UsersAdminView() {
                 <Field label="First name" value={record.firstName} onChange={(v) => setDraft({ ...record, firstName: v })} />
                 <Field label="Last name" value={record.lastName} onChange={(v) => setDraft({ ...record, lastName: v })} />
                 <Field label="Phone" value={record.phone} onChange={(v) => setDraft({ ...record, phone: v })} />
-                <Field
-                  label="Employee BP id (future)"
-                  value={record.employeeBpId}
-                  onChange={(v) => setDraft({ ...record, employeeBpId: v })}
-                />
               </div>
+
+              <div className="mt-4">
+                <EmployeePicker
+                  employees={employees}
+                  value={record.employeeBpId}
+                  onChange={(employeeBpId) => setDraft({ ...record, employeeBpId })}
+                  linkedUserId={record.id}
+                  userIdByEmployeeId={userIdByEmployeeId}
+                />
+                {linkedEmployee ? (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Open employee record:{" "}
+                    <EmployeeRecordLink
+                      id={linkedEmployee.id}
+                      searchKey={linkedEmployee.searchKey}
+                      name={linkedEmployee.name}
+                      className="text-[#b51266] hover:underline"
+                    />
+                  </p>
+                ) : null}
+              </div>
+
               <label className="mt-4 flex items-center gap-2 text-sm text-slate-700">
                 <input
                   type="checkbox"

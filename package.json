@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "supabase:seed": "cd web && npx tsx ../scripts/generate-reference-seed.mjs",
     "supabase:seed-entities": "cd web && npx tsx ../scripts/generate-entity-seed.mjs",
-    "supabase:seed-access": "cd web && npx tsx ../scripts/generate-access-seed.mjs"
+    "supabase:seed-access": "cd web && npx tsx ../scripts/generate-access-seed.mjs",
+    "supabase:seed-employees": "cd web && npx tsx ../scripts/generate-employee-seed.mjs"
   },
   "keywords": [],
   "author": "",
