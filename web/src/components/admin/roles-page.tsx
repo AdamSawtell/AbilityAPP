@@ -34,6 +34,7 @@ export function RolesAdminView() {
       ...role,
       windowKeys: [...role.windowKeys],
       processIds: [...role.processIds],
+      taskTypePermissions: [...(role.taskTypePermissions ?? [])],
     });
   }
 
@@ -46,6 +47,7 @@ export function RolesAdminView() {
       active: true,
       windowKeys: [],
       processIds: [],
+      taskTypePermissions: [],
     };
     setActiveId(role.id);
     setDraft(role);
@@ -151,7 +153,7 @@ export function RolesAdminView() {
                 <h2 className="mb-3 text-sm font-semibold text-slate-900">Windows / functions</h2>
                 <p className="mb-4 text-xs text-slate-500">
                   Top-level windows appear in the sidebar. Dependent windows (indented) are tabs or sub-functions
-                  inside a parent — e.g. Credentials Assigned requires Employees.
+                  inside a parent — e.g. Overview under Clients, or Credentials Assigned under Employees.
                 </p>
                 {[...windowsByGroup.entries()].map(([group, items]) => {
                   const topLevel = items.filter((w) => !w.parentWindowKey);

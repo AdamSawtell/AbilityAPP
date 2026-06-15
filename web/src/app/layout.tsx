@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AuthGate, AuthProvider } from "@/lib/auth-store";
 import { DataProvider } from "@/lib/data-store";
 import { ReferenceDataProvider } from "@/lib/config-store";
+import { TaskTypeProvider } from "@/lib/task-type-store";
 import { WorkspaceProvider } from "@/lib/workspace-store";
 import "./globals.css";
 
@@ -32,9 +33,11 @@ export default function RootLayout({
         <AuthProvider>
           <AuthGate>
             <ReferenceDataProvider>
-              <DataProvider>
-                <WorkspaceProvider>{children}</WorkspaceProvider>
-              </DataProvider>
+              <TaskTypeProvider>
+                <DataProvider>
+                  <WorkspaceProvider>{children}</WorkspaceProvider>
+                </DataProvider>
+              </TaskTypeProvider>
             </ReferenceDataProvider>
           </AuthGate>
         </AuthProvider>

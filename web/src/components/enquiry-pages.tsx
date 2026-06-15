@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EnquiryForm } from "@/components/enquiry-form";
+import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { ClientRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { detailTabsForRole } from "@/lib/access/catalog";
 import { useConvertEnquiry, useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
@@ -15,9 +17,10 @@ import { formSections, type EnquiryRecord } from "@/lib/enquiry";
 
 export function EnquiryDetailView({ id }: { id: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { enquiries, updateEnquiry, getClientByEnquiryId } = useData();
   const convert = useConvertEnquiry();
-  const { canProcess } = useAuth();
+  const { canProcess, session } = useAuth();
   const { openEnquiry, setTabDirty } = useWorkspace();
   const stored = enquiries.find((r) => r.id === id);
   const linkedClient = getClientByEnquiryId(id);
@@ -58,6 +61,10 @@ export function EnquiryDetailView({ id }: { id: string }) {
 
   const isConverted = record.status.startsWith("4_") || Boolean(linkedClient);
   const participantName = `${record.firstName} ${record.lastName}`.trim();
+  const allowedTabs = detailTabsForRole("enquiries", session?.windowKeys ?? []);
+  const defaultTab = allowedTabs[0] ?? "Enquiry details";
+  const requestedTab = searchParams.get("tab") ?? defaultTab;
+  const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
 
   function onChange(key: keyof EnquiryRecord, value: string) {
     const base = draft ?? stored;
@@ -145,7 +152,15 @@ export function EnquiryDetailView({ id }: { id: string }) {
             </span>
           ) : null}
         </div>
-        <EnquiryForm record={record} sections={formSections} onChange={onChange} />
+        <EnquiryForm record={record} sections={formSections} onChange={onChange} activeSection={activeTab} />
+
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <RecordTasksPanel
+            entityType="enquiry"
+            entityId={record.id}
+            entityLabel={`${record.documentNo} — ${participantName}`}
+          />
+        </div>
       </AppShell>
 
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />

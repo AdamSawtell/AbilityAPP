@@ -5,6 +5,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EmployeeList } from "@/components/employee-list";
 import { EmployeeTabbedView } from "@/components/employee-view";
+import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -125,6 +126,14 @@ export function EmployeeDetailView({ id }: { id: string }) {
             onLeaveEntitlementsChange={(leaveEntitlements) => patchDraft({ leaveEntitlements })}
           />
         </Suspense>
+
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <RecordTasksPanel
+            entityType="employee"
+            entityId={employee.id}
+            entityLabel={`${employee.searchKey} — ${employee.name}`}
+          />
+        </div>
 
         {saved ? <p className="mt-4 text-sm text-emerald-700">Changes saved.</p> : null}
       </AppShell>

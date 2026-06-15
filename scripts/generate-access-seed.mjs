@@ -74,6 +74,32 @@ if (roleProcesses.length) {
   lines.push(roleProcesses.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.process_id)})`).join(",\n"));
   lines.push("on conflict do nothing;");
 }
+lines.push("");
+
+const roleTaskTypes = SEED_ROLES.flatMap((r) =>
+  (r.taskTypePermissions ?? []).map((p) => ({
+    role_id: r.id,
+    task_type_id: p.taskTypeId,
+    can_see: p.canSee,
+    can_select: p.canSelect,
+    can_create: p.canCreate,
+  }))
+);
+lines.push("delete from public.app_role_task_type where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
+if (roleTaskTypes.length) {
+  lines.push("insert into public.app_role_task_type (role_id, task_type_id, can_see, can_select, can_create)");
+  lines.push("values");
+  lines.push(
+    roleTaskTypes
+      .map(
+        (r) =>
+          `  (${sqlString(r.role_id)}, ${sqlString(r.task_type_id)}, ${r.can_see}, ${r.can_select}, ${r.can_create})`
+      )
+      .join(",\n")
+  );
+  lines.push("on conflict (role_id, task_type_id) do update set");
+  lines.push("  can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;");
+}
 
 writeFileSync(join(root, "supabase", "seed-access.sql"), lines.join("\n"), "utf8");
 console.log("Wrote supabase/seed-access.sql");

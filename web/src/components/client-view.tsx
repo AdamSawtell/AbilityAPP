@@ -5,6 +5,9 @@ import { ClientLocationsPanel } from "@/components/client-locations-panel";
 import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pages";
 import { ClientPlanAssessmentPanel, ClientSupportPlanPanel } from "@/components/support-plan-panels";
 import { LineItemTable } from "@/components/line-item-table";
+import { RecordTasksPanel } from "@/components/record-tasks-panel";
+import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
+import { useAuth } from "@/lib/auth-store";
 import {
   activityTableConfig,
   alertTableConfig,
@@ -153,8 +156,25 @@ export function ClientTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") ?? "Overview";
+  const { session, canWindow } = useAuth();
+
+  const allowedTabs = detailTabsForRole("clients", session?.windowKeys ?? []);
+  const defaultTab = allowedTabs[0] ?? "Overview";
+  const requestedTab = searchParams.get("tab") ?? defaultTab;
+  const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
   const tableTab = activeTab in clientTabTableConfigs ? (activeTab as ClientTabWithTable) : null;
+
+  const visibleGroups = clientTabGroups
+    .map((group) => ({
+      ...group,
+      tabs: group.tabs.filter((tab) => allowedTabs.includes(tab)),
+    }))
+    .filter((group) => group.tabs.length > 0);
+
+  function canClientTab(tab: string) {
+    const key = windowKeyForDetailTab("clients", tab);
+    return key ? canWindow(key) : false;
+  }
 
   function setActiveTab(tab: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -166,7 +186,7 @@ export function ClientTabbedView({
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
       <nav className="hidden shrink-0 lg:block lg:w-52 xl:w-56">
         <div className="space-y-5 rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-          {clientTabGroups.map((group) => (
+          {visibleGroups.map((group) => (
             <div key={group.label}>
               <p className="mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 {group.label}
@@ -202,7 +222,22 @@ export function ClientTabbedView({
       </nav>
 
       <div className="min-w-0 flex-1">
-        {activeTab === "Overview" ? (
+        <div className="mb-4 flex flex-wrap gap-2 lg:hidden">
+          {allowedTabs.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                activeTab === tab ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "Overview" && canClientTab("Overview") ? (
           <div className="rounded-xl border border-slate-200 bg-white p-5">
             <h3 className="mb-4 text-sm font-semibold text-slate-900">Core details</h3>
             <p className="mb-4 text-sm text-slate-500">
@@ -212,11 +247,11 @@ export function ClientTabbedView({
           </div>
         ) : null}
 
-        {activeTab === "Full profile" ? (
+        {activeTab === "Full profile" && canClientTab("Full profile") ? (
           <ClientFullProfileForm client={client} onChange={onChange} />
         ) : null}
 
-        {tableTab === "Alerts" ? (
+        {tableTab === "Alerts" && canClientTab("Alerts") ? (
           <LineItemTable
             config={alertTableConfig}
             rows={client.alerts}
@@ -224,7 +259,7 @@ export function ClientTabbedView({
           />
         ) : null}
 
-        {tableTab === "Activity" ? (
+        {tableTab === "Activity" && canClientTab("Activity") ? (
           <LineItemTable
             config={activityTableConfig}
             rows={client.activity}
@@ -232,19 +267,25 @@ export function ClientTabbedView({
           />
         ) : null}
 
-        {activeTab === "Locations" ? (
+        {activeTab === "Locations" && canClientTab("Locations") ? (
           <ClientLocationsPanel
             locations={client.locations}
             onChange={(rows) => onLineItemsChange("locations", rows)}
           />
         ) : null}
 
-        {activeTab === "Support Plan" ? <ClientSupportPlanPanel clientId={client.id} /> : null}
+        {activeTab === "Support Plan" && canClientTab("Support Plan") ? <ClientSupportPlanPanel clientId={client.id} /> : null}
 
-        {activeTab === "Plan & Assessment" ? <ClientPlanAssessmentPanel clientId={client.id} /> : null}
+        {activeTab === "Plan & Assessment" && canClientTab("Plan & Assessment") ? (
+          <ClientPlanAssessmentPanel clientId={client.id} />
+        ) : null}
 
-        {activeTab === "Service agreements" ? (
+        {activeTab === "Service agreements" && canClientTab("Service agreements") ? (
           <ClientServiceAgreementsPanel clientId={client.id} clientName={client.name} searchKey={client.searchKey} />
+        ) : null}
+
+        {activeTab === "Requests" && canClientTab("Requests") ? (
+          <RecordTasksPanel entityType="client" entityId={client.id} entityLabel={`${client.searchKey} — ${client.name}`} />
         ) : null}
 
         {activeTab !== "Overview" &&
@@ -253,7 +294,9 @@ export function ClientTabbedView({
         activeTab !== "Support Plan" &&
         activeTab !== "Plan & Assessment" &&
         activeTab !== "Service agreements" &&
-        !tableTab ? (
+        activeTab !== "Requests" &&
+        !tableTab &&
+        canClientTab(activeTab) ? (
           <ComingSoonPanel tab={activeTab} />
         ) : null}
       </div>

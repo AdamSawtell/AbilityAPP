@@ -7,6 +7,7 @@ import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { taskCountsForSession, visibleTaskViews } from "@/lib/task-access";
 
 function SummaryCard({
   title,
@@ -47,9 +48,13 @@ function SummaryCard({
 }
 
 export function HomeDashboard() {
-  const { enquiries, clients, employees } = useData();
+  const { enquiries, clients, employees, tasks } = useData();
   const { canWindow, session } = useAuth();
   const showEmployees = canWindow("employees");
+  const taskViews = session ? visibleTaskViews(session.windowKeys) : [];
+  const taskCounts = session ? taskCountsForSession(tasks, session) : null;
+  const showTasks = taskViews.length > 0;
+  const openTaskCount = taskCounts ? taskCounts.assignedToMe + taskCounts.myRole : 0;
 
   const openEnquiries = useMemo(
     () => enquiries.filter((e) => !e.status.startsWith("5_")).length,
@@ -96,7 +101,52 @@ export function HomeDashboard() {
             Browse employees
           </Link>
         ) : null}
+        {showTasks ? (
+          <Link
+            href="/tasks/assigned-to-me"
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            My tasks{openTaskCount > 0 ? ` (${openTaskCount})` : ""}
+          </Link>
+        ) : null}
       </div>
+
+      {showTasks && taskCounts ? (
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <SummaryCard
+            title="Assigned to me"
+            count={taskCounts.assignedToMe}
+            description="Open tasks waiting on you"
+            href="/tasks/assigned-to-me"
+            accent="pink"
+          />
+          <SummaryCard
+            title="To my role"
+            count={taskCounts.myRole}
+            description={`Tasks for ${session?.activeRoleName ?? "your role"}`}
+            href="/tasks/my-role"
+            accent="indigo"
+          />
+          {taskViews.some((v) => v.key === "all") ? (
+            <SummaryCard
+              title="All active tasks"
+              count={taskCounts.all}
+              description="Everything you can see"
+              href="/tasks/all"
+              accent="emerald"
+            />
+          ) : null}
+          {taskViews.some((v) => v.key === "past") ? (
+            <SummaryCard
+              title="Past tasks"
+              count={taskCounts.past}
+              description="Completed and cancelled"
+              href="/tasks/past"
+              accent="emerald"
+            />
+          ) : null}
+        </div>
+      ) : null}
 
       <div className={`grid gap-6 ${showEmployees ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
         <SummaryCard

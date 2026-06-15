@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
+import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { newLineId } from "@/lib/client-line-tables";
 import { formatContractDate } from "@/lib/contract";
@@ -145,6 +146,10 @@ export function PriceListDetailView({ id }: { id: string }) {
           onChange={(rows) => onChange("lines", rows)}
         />
         {saved && !hasUnsavedChanges ? <p className="mt-4 text-sm text-emerald-700">Saved</p> : null}
+
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <RecordTasksPanel entityType="price-list" entityId={list.id} entityLabel={list.name} />
+        </div>
       </AppShell>
       <UnsavedChangesBar
         visible={hasUnsavedChanges}

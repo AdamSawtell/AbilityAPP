@@ -40,6 +40,9 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `app_user_role` | User ↔ role (many-to-many) |
 | `app_role_window` | Role ↔ menu window |
 | `app_role_process` | Role ↔ business process |
+| `app_task` | Tasks / requests (assignable work items) |
+| `app_task_type` | Configurable task types (Review, Approve, Check, …) |
+| `app_role_task_type` | Role ↔ task type (see / select / create) |
 | `employee` | Staff / business partner (employee) |
 | `employee_location` | Employee addresses (primary flag) |
 | `employee_emergency_contact` | Emergency contacts & next of kin |

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useReferenceData } from "@/lib/config-store";
 import type { ProductRecord } from "@/lib/product";
@@ -194,6 +195,15 @@ export function ProductDetailView({ id }: { id: string }) {
             />
           </label>
         </div>
+
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <RecordTasksPanel
+            entityType="product"
+            entityId={product.id}
+            entityLabel={`${product.searchKey} — ${product.name}`}
+          />
+        </div>
+
         {saved && !hasUnsavedChanges ? <p className="mt-4 text-sm text-emerald-700">Saved</p> : null}
       </AppShell>
       <UnsavedChangesBar

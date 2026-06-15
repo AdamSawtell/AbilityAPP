@@ -1,5 +1,15 @@
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
-import { ALL_PROCESS_IDS, ALL_WINDOW_KEYS } from "@/lib/access/catalog";
+import { ALL_PROCESS_IDS, ALL_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
+import { windowKeysWithDependents } from "@/lib/access/detail-windows";
+import {
+  fullTaskTypePermissions,
+  INITIAL_TASK_TYPES,
+  mergeTaskTypePermissions,
+  permissionsForTypes,
+} from "@/lib/task-type";
+
+const TASK_ACCESS = [...TASK_WINDOW_KEYS];
+const ALL_TASK_TYPE_IDS = INITIAL_TASK_TYPES.map((t) => t.id);
 
 export const SEED_USERS: AppUserRecord[] = [
   {
@@ -49,6 +59,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
     active: true,
     windowKeys: [...ALL_WINDOW_KEYS],
     processIds: [...ALL_PROCESS_IDS],
+    taskTypePermissions: fullTaskTypePermissions(ALL_TASK_TYPE_IDS),
   },
   {
     id: "role-intake",
@@ -56,8 +67,9 @@ export const SEED_ROLES: AppRoleRecord[] = [
     name: "Intake Coordinator",
     description: "Enquiries and convert-to-client process",
     active: true,
-    windowKeys: ["home", "enquiries", "clients"],
-    processIds: ["enquiry-to-client"],
+    windowKeys: ["home", ...TASK_ACCESS, ...windowKeysWithDependents("enquiries", "clients")],
+    processIds: ["enquiry-to-client", "assign-task", "action-task"],
+    taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
   },
   {
     id: "role-coordinator",
@@ -65,7 +77,37 @@ export const SEED_ROLES: AppRoleRecord[] = [
     name: "Support Coordinator",
     description: "Client records and service catalog (no admin)",
     active: true,
-    windowKeys: ["home", "clients", "products", "price-lists", "service-agreements"],
-    processIds: [],
+    windowKeys: ["home", ...TASK_ACCESS, ...windowKeysWithDependents("clients", "products", "price-lists", "service-agreements")],
+    processIds: ["assign-task", "action-task"],
+    taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   },
 ];
+
+/** Ensure seed roles keep task windows when the DB or cached session predates a catalog update. */
+export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
+  const seed = SEED_ROLES.find((r) => r.id === role.id);
+  if (!seed) {
+    return {
+      ...role,
+      taskTypePermissions: mergeTaskTypePermissions(role.taskTypePermissions, ALL_TASK_TYPE_IDS),
+    };
+  }
+
+  const taskKeys = TASK_WINDOW_KEYS.filter((k) => seed.windowKeys.includes(k));
+  const taskProcs = ["assign-task", "action-task"].filter((p) => seed.processIds.includes(p));
+  const windowKeys = [...new Set([...role.windowKeys, ...taskKeys])];
+  const processIds = [...new Set([...role.processIds, ...taskProcs])];
+  const taskTypePermissions = mergeTaskTypePermissions(
+    role.taskTypePermissions?.length ? role.taskTypePermissions : seed.taskTypePermissions,
+    ALL_TASK_TYPE_IDS
+  );
+
+  if (
+    windowKeys.length === role.windowKeys.length &&
+    processIds.length === role.processIds.length &&
+    taskTypePermissions.length === (role.taskTypePermissions?.length ?? 0)
+  ) {
+    return { ...role, taskTypePermissions };
+  }
+  return { ...role, windowKeys, processIds, taskTypePermissions };
+}

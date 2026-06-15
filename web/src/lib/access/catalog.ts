@@ -6,33 +6,70 @@
  * window — e.g. Credentials Assigned on Business Partner (Employee).
  */
 
-export type AccessWindowGroup = "Core" | "People" | "Services" | "Admin";
+import {
+  CLIENT_DEPENDENT_WINDOWS,
+  CONTRACT_DEPENDENT_WINDOWS,
+  EMPLOYEE_DEPENDENT_WINDOWS,
+  ENQUIRY_DEPENDENT_WINDOWS,
+  PRICE_LIST_DEPENDENT_WINDOWS,
+  PRODUCT_DEPENDENT_WINDOWS,
+  SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
+} from "@/lib/access/detail-windows";
+import type { AccessProcess, AccessWindow } from "@/lib/access/catalog-types";
 
-export type AccessWindow = {
-  key: string;
-  label: string;
-  group: AccessWindowGroup;
-  /** Sidebar route; omit for tab-only dependent windows */
-  href?: string;
-  abilityErpName?: string;
-  /** Parent window required for access (AbilityERP dependent window) */
-  parentWindowKey?: string;
-  /** Employee detail tab label when this window maps to a tab */
-  employeeTab?: string;
-  /** False for dependent tab windows — they do not appear in the main sidebar */
-  showInSidebar?: boolean;
-};
+export type { AccessProcess, AccessWindow, AccessWindowGroup } from "@/lib/access/catalog-types";
 
-export type AccessProcess = {
-  id: string;
-  label: string;
-  description: string;
-  /** Optional parent window for process visibility */
-  parentWindowKey?: string;
-};
-
-export const ACCESS_WINDOWS: AccessWindow[] = [
+const PARENT_WINDOWS: AccessWindow[] = [
   { key: "home", label: "Home", group: "Core", href: "/", showInSidebar: true },
+];
+
+const TASK_WINDOWS: AccessWindow[] = [
+  {
+    key: "tasks",
+    label: "Tasks",
+    group: "Core",
+    abilityErpName: "Request",
+    showInSidebar: false,
+  },
+  {
+    key: "tasks-assigned-to-me",
+    label: "Assigned to me",
+    group: "Core",
+    href: "/tasks/assigned-to-me",
+    parentWindowKey: "tasks",
+    abilityErpName: "Request — Assigned to me",
+    showInSidebar: false,
+  },
+  {
+    key: "tasks-for-my-role",
+    label: "To my role",
+    group: "Core",
+    href: "/tasks/my-role",
+    parentWindowKey: "tasks",
+    abilityErpName: "Request — To my role",
+    showInSidebar: false,
+  },
+  {
+    key: "tasks-all",
+    label: "All tasks",
+    group: "Core",
+    href: "/tasks/all",
+    parentWindowKey: "tasks",
+    abilityErpName: "Request — All",
+    showInSidebar: false,
+  },
+  {
+    key: "tasks-past",
+    label: "Past",
+    group: "Core",
+    href: "/tasks/past",
+    parentWindowKey: "tasks",
+    abilityErpName: "Request — Past",
+    showInSidebar: false,
+  },
+];
+
+const MODULE_WINDOWS: AccessWindow[] = [
   {
     key: "enquiries",
     label: "Enquiries",
@@ -57,134 +94,6 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
     abilityErpName: "Business Partner (Employee)",
     showInSidebar: true,
   },
-  // --- Employee dependent windows (tabs on BP Employee) ---
-  {
-    key: "employee-overview",
-    label: "Overview",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Overview",
-    abilityErpName: "Business Partner (Employee) — Overview",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-contact",
-    label: "Contact",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Contact",
-    abilityErpName: "Business Partner (Employee) — Contact",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-employment",
-    label: "Employment",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Employment",
-    abilityErpName: "Business Partner (Employee) — Employment",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-credentials-assigned",
-    label: "Credentials Assigned",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Credentials Assigned",
-    abilityErpName: "Credentials Assigned",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-locations",
-    label: "Address",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Address",
-    abilityErpName: "Business Partner (Employee) — Location",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-emergency-contacts",
-    label: "Emergency contacts",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Emergency contacts",
-    abilityErpName: "Emergency contacts",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-work-rights",
-    label: "Work rights",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Work rights",
-    abilityErpName: "Work rights",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-payroll",
-    label: "Payroll",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Payroll",
-    abilityErpName: "Payroll / bank",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-leave",
-    label: "Leave",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Leave",
-    abilityErpName: "Leave entitlements",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-alerts",
-    label: "Alerts",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Alerts",
-    abilityErpName: "Employee alerts",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-documents",
-    label: "Documents",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Documents",
-    abilityErpName: "HR documents",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-activity",
-    label: "Activity",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Activity",
-    abilityErpName: "Employee activity",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-skills",
-    label: "Skills & languages",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "Skills & languages",
-    abilityErpName: "Skills & languages",
-    showInSidebar: false,
-  },
-  {
-    key: "employee-system-access",
-    label: "System access",
-    group: "People",
-    parentWindowKey: "employees",
-    employeeTab: "System access",
-    abilityErpName: "User / Role link",
-    showInSidebar: false,
-  },
-  // --- Services ---
   {
     key: "products",
     label: "Products",
@@ -241,7 +150,37 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
     abilityErpName: "Role",
     showInSidebar: true,
   },
+  {
+    key: "admin-task-management",
+    label: "Task management",
+    group: "Admin",
+    href: "/admin/task-management",
+    abilityErpName: "Request type / Task management",
+    showInSidebar: true,
+  },
 ];
+
+export const ACCESS_WINDOWS: AccessWindow[] = [
+  ...PARENT_WINDOWS,
+  ...TASK_WINDOWS,
+  MODULE_WINDOWS[0],
+  ...ENQUIRY_DEPENDENT_WINDOWS,
+  MODULE_WINDOWS[1],
+  ...CLIENT_DEPENDENT_WINDOWS,
+  MODULE_WINDOWS[2],
+  ...EMPLOYEE_DEPENDENT_WINDOWS,
+  MODULE_WINDOWS[3],
+  ...PRODUCT_DEPENDENT_WINDOWS,
+  MODULE_WINDOWS[4],
+  ...PRICE_LIST_DEPENDENT_WINDOWS,
+  MODULE_WINDOWS[5],
+  ...SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
+  MODULE_WINDOWS[6],
+  ...CONTRACT_DEPENDENT_WINDOWS,
+  ...MODULE_WINDOWS.slice(7),
+];
+
+export const TASK_WINDOW_KEYS = TASK_WINDOWS.map((w) => w.key);
 
 export const ACCESS_PROCESSES: AccessProcess[] = [
   {
@@ -255,12 +194,22 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     description: "Add or update credentials assigned on an employee record",
     parentWindowKey: "employee-credentials-assigned",
   },
+  {
+    id: "assign-task",
+    label: "Assign task",
+    description: "Create and assign a task on a record (user or role)",
+  },
+  {
+    id: "action-task",
+    label: "Action task",
+    description: "Start, complete or cancel tasks assigned to you or your role",
+  },
 ];
 
 export const ALL_WINDOW_KEYS = ACCESS_WINDOWS.map((w) => w.key);
 export const ALL_PROCESS_IDS = ACCESS_PROCESSES.map((p) => p.id);
 
-export const EMPLOYEE_DEPENDENT_WINDOWS = ACCESS_WINDOWS.filter((w) => w.parentWindowKey === "employees");
+export { EMPLOYEE_DEPENDENT_WINDOWS, CLIENT_DEPENDENT_WINDOWS };
 
 export function windowByKey(key: string) {
   return ACCESS_WINDOWS.find((w) => w.key === key);
@@ -288,13 +237,23 @@ export function sidebarWindows(windowKeys: string[]) {
   );
 }
 
-export function employeeTabsForRole(windowKeys: string[]) {
-  if (!canAccessWindow(windowKeys, "employees")) return [];
-  return EMPLOYEE_DEPENDENT_WINDOWS.filter((w) => w.employeeTab && canAccessWindow(windowKeys, w.key)).map(
-    (w) => w.employeeTab!
-  );
+export function detailTabsForRole(parentWindowKey: string, windowKeys: string[]): string[] {
+  if (!canAccessWindow(windowKeys, parentWindowKey)) return [];
+  return childWindows(parentWindowKey)
+    .filter((w) => w.detailTab && canAccessWindow(windowKeys, w.key))
+    .map((w) => w.detailTab!);
 }
 
+export function windowKeyForDetailTab(parentWindowKey: string, tab: string) {
+  return childWindows(parentWindowKey).find((w) => w.detailTab === tab)?.key;
+}
+
+/** @deprecated Use detailTabsForRole("employees", windowKeys) */
+export function employeeTabsForRole(windowKeys: string[]) {
+  return detailTabsForRole("employees", windowKeys);
+}
+
+/** @deprecated Use windowKeyForDetailTab("employees", tab) */
 export function windowKeyForEmployeeTab(tab: string) {
-  return EMPLOYEE_DEPENDENT_WINDOWS.find((w) => w.employeeTab === tab)?.key;
+  return windowKeyForDetailTab("employees", tab);
 }

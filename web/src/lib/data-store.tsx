@@ -29,6 +29,15 @@ import {
   normalizeEmployee,
   type EmployeeRecord,
 } from "@/lib/employee";
+import {
+  createTask,
+  describeAssignee,
+  initialTasks as seedTasks,
+  logTaskUpdate,
+  normalizeTask,
+  type TaskEntityType,
+  type TaskRecord,
+} from "@/lib/task";
 import { convertEnquiryToClient } from "@/lib/convert";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
@@ -53,6 +62,7 @@ type DataStore = {
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
+  tasks: TaskRecord[];
   source: "supabase" | "local";
   addEnquiry: (record: EnquiryRecord) => EnquiryRecord;
   updateEnquiry: (record: EnquiryRecord) => void;
@@ -71,6 +81,14 @@ type DataStore = {
   getServiceAgreementsByClientId: (clientId: string) => ServiceAgreementRecord[];
   getSupportPlanByClientId: (clientId: string) => SupportPlanRecord | undefined;
   getPlanDocumentsByClientId: (clientId: string) => PlanAssessmentDocument[];
+  upsertTask: (task: TaskRecord) => void;
+  addTask: (
+    partial: Omit<TaskRecord, "id" | "documentNo" | "updates">,
+    options?: { assigneeDisplayName?: string }
+  ) => TaskRecord;
+  mutateTask: (id: string, mutator: (task: TaskRecord) => TaskRecord) => void;
+  getTasksByEntity: (entityType: TaskEntityType, entityId: string) => TaskRecord[];
+  getTaskById: (id: string) => TaskRecord | undefined;
 };
 
 const DataContext = createContext<DataStore | null>(null);
@@ -86,6 +104,7 @@ type Persisted = {
   supportPlans?: SupportPlanRecord[];
   planDocuments?: PlanAssessmentDocument[];
   employees?: EmployeeRecord[];
+  tasks?: TaskRecord[];
 };
 
 function seedData(): Required<Persisted> {
@@ -99,6 +118,7 @@ function seedData(): Required<Persisted> {
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
     employees: seedEmployees.map(normalizeEmployee),
+    tasks: seedTasks.map(normalizeTask),
   };
 }
 
@@ -129,6 +149,7 @@ function loadLocal(): Required<Persisted> {
       supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
       employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
+      tasks: (parsed.tasks ?? seedTasks).map(normalizeTask),
     };
   } catch {
     localStorage.removeItem(STORAGE_KEY);
@@ -156,6 +177,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(defaults.supportPlans);
   const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
   const [employees, setEmployees] = useState<EmployeeRecord[]>(defaults.employees);
+  const [tasks, setTasks] = useState<TaskRecord[]>(defaults.tasks);
   const [hydrated, setHydrated] = useState(false);
   const [source, setSource] = useState<"supabase" | "local">("local");
 
@@ -177,6 +199,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setSupportPlans(data.supportPlans);
             setPlanDocuments(data.planDocuments);
             setEmployees(data.employees);
+            setTasks(loadLocal().tasks);
             setSource("supabase");
             setHydrated(true);
             return;
@@ -197,6 +220,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setSupportPlans(data.supportPlans);
         setPlanDocuments(data.planDocuments);
         setEmployees(data.employees);
+        setTasks(data.tasks);
         setSource("local");
         setHydrated(true);
       }
@@ -223,6 +247,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       supportPlans,
       planDocuments,
       employees,
+      tasks,
     });
   }, [
     enquiries,
@@ -234,6 +259,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     supportPlans,
     planDocuments,
     employees,
+    tasks,
     hydrated,
     source,
   ]);
@@ -409,6 +435,58 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [planDocuments]
   );
 
+  const upsertTask = useCallback((task: TaskRecord) => {
+    const normalized = normalizeTask(task);
+    setTasks((prev) => {
+      const exists = prev.some((t) => t.id === normalized.id);
+      return exists ? prev.map((t) => (t.id === normalized.id ? normalized : t)) : [...prev, normalized];
+    });
+  }, []);
+
+  const addTask = useCallback(
+    (
+      partial: Omit<TaskRecord, "id" | "documentNo" | "updates">,
+      options?: { assigneeDisplayName?: string }
+    ) => {
+      let created!: TaskRecord;
+      setTasks((prev) => {
+        const base = createTask({ ...partial, updates: [] }, prev);
+        const assignee = options?.assigneeDisplayName
+          ? `${partial.assignmentType === "user" ? "user" : "role"} ${options.assigneeDisplayName}`
+          : describeAssignee(base);
+        created = logTaskUpdate(base, {
+          byUserId: partial.createdByUserId,
+          byName: partial.createdBy,
+          action: "created",
+          summary: `Created and assigned to ${assignee}`,
+          detail: partial.entityLabel
+            ? `Linked to ${partial.entityLabel}.`
+            : partial.description || "",
+        });
+        return [...prev, created];
+      });
+      return created;
+    },
+    []
+  );
+
+  const mutateTask = useCallback((id: string, mutator: (task: TaskRecord) => TaskRecord) => {
+    setTasks((prev) =>
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        return normalizeTask(mutator(t));
+      })
+    );
+  }, []);
+
+  const getTasksByEntity = useCallback(
+    (entityType: TaskEntityType, entityId: string) =>
+      tasks.filter((t) => t.entityType === entityType && t.entityId === entityId),
+    [tasks]
+  );
+
+  const getTaskById = useCallback((id: string) => tasks.find((t) => t.id === id), [tasks]);
+
   const value = useMemo(
     () => ({
       enquiries,
@@ -420,6 +498,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       supportPlans,
       planDocuments,
       employees,
+      tasks,
       source,
       addEnquiry,
       updateEnquiry,
@@ -438,6 +517,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getServiceAgreementsByClientId,
       getSupportPlanByClientId,
       getPlanDocumentsByClientId,
+      upsertTask,
+      addTask,
+      mutateTask,
+      getTasksByEntity,
+      getTaskById,
     }),
     [
       enquiries,
@@ -449,6 +533,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       supportPlans,
       planDocuments,
       employees,
+      tasks,
       source,
       addEnquiry,
       updateEnquiry,
@@ -467,6 +552,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getServiceAgreementsByClientId,
       getSupportPlanByClientId,
       getPlanDocumentsByClientId,
+      upsertTask,
+      addTask,
+      mutateTask,
+      getTasksByEntity,
+      getTaskById,
     ]
   );
 

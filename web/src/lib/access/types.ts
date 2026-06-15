@@ -11,6 +11,13 @@ export type AppUserRecord = {
   roleIds: string[];
 };
 
+export type TaskTypePermission = {
+  taskTypeId: string;
+  canSee: boolean;
+  canSelect: boolean;
+  canCreate: boolean;
+};
+
 export type AppRoleRecord = {
   id: string;
   roleKey: string;
@@ -19,6 +26,7 @@ export type AppRoleRecord = {
   active: boolean;
   windowKeys: string[];
   processIds: string[];
+  taskTypePermissions: TaskTypePermission[];
 };
 
 export type AuthSession = {
@@ -30,6 +38,7 @@ export type AuthSession = {
   activeRoleName: string;
   windowKeys: string[];
   processIds: string[];
+  taskTypePermissions: TaskTypePermission[];
 };
 
 export function displayName(user: Pick<AppUserRecord, "firstName" | "lastName" | "username">) {

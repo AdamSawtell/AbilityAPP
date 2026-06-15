@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
+import type { AppRoleRecord, AppUserRecord, TaskTypePermission } from "@/lib/access/types";
 
 type UserRow = {
   id: string;
@@ -36,7 +36,12 @@ function userFromRow(row: UserRow, roleIds: string[]): AppUserRecord {
   };
 }
 
-function roleFromRow(row: RoleRow, windowKeys: string[], processIds: string[]): AppRoleRecord {
+function roleFromRow(
+  row: RoleRow,
+  windowKeys: string[],
+  processIds: string[],
+  taskTypePermissions: TaskTypePermission[]
+): AppRoleRecord {
   return {
     id: row.id,
     roleKey: row.role_key,
@@ -45,6 +50,7 @@ function roleFromRow(row: RoleRow, windowKeys: string[], processIds: string[]): 
     active: row.active,
     windowKeys,
     processIds,
+    taskTypePermissions,
   };
 }
 
@@ -69,14 +75,16 @@ export async function fetchUsers(supabase: SupabaseClient): Promise<AppUserRecor
 }
 
 export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecord[]> {
-  const [rolesRes, windowsRes, processesRes] = await Promise.all([
+  const [rolesRes, windowsRes, processesRes, taskTypesRes] = await Promise.all([
     supabase.from("app_role").select("*").order("name"),
     supabase.from("app_role_window").select("role_id, window_key"),
     supabase.from("app_role_process").select("role_id, process_id"),
+    supabase.from("app_role_task_type").select("role_id, task_type_id, can_see, can_select, can_create"),
   ]);
   if (rolesRes.error) throw rolesRes.error;
   if (windowsRes.error) throw windowsRes.error;
   if (processesRes.error) throw processesRes.error;
+  if (taskTypesRes.error && taskTypesRes.error.code !== "42P01") throw taskTypesRes.error;
 
   const windowsByRole = new Map<string, string[]>();
   for (const row of windowsRes.data ?? []) {
@@ -92,8 +100,25 @@ export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecor
     processesByRole.set(row.role_id, list);
   }
 
+  const taskTypesByRole = new Map<string, TaskTypePermission[]>();
+  for (const row of taskTypesRes.data ?? []) {
+    const list = taskTypesByRole.get(row.role_id) ?? [];
+    list.push({
+      taskTypeId: row.task_type_id,
+      canSee: row.can_see,
+      canSelect: row.can_select,
+      canCreate: row.can_create,
+    });
+    taskTypesByRole.set(row.role_id, list);
+  }
+
   return ((rolesRes.data ?? []) as RoleRow[]).map((row) =>
-    roleFromRow(row, windowsByRole.get(row.id) ?? [], processesByRole.get(row.id) ?? [])
+    roleFromRow(
+      row,
+      windowsByRole.get(row.id) ?? [],
+      processesByRole.get(row.id) ?? [],
+      taskTypesByRole.get(row.id) ?? []
+    )
   );
 }
 
@@ -145,20 +170,42 @@ export async function saveRole(supabase: SupabaseClient, role: AppRoleRecord) {
     );
     if (pErr) throw pErr;
   }
+
+  await supabase.from("app_role_task_type").delete().eq("role_id", role.id);
+  if (role.taskTypePermissions.length) {
+    const { error: ttErr } = await supabase.from("app_role_task_type").insert(
+      role.taskTypePermissions.map((p) => ({
+        role_id: role.id,
+        task_type_id: p.taskTypeId,
+        can_see: p.canSee,
+        can_select: p.canSelect,
+        can_create: p.canCreate,
+      }))
+    );
+    if (ttErr && ttErr.code !== "42P01") throw ttErr;
+  }
 }
 
 export async function resolveRoleAccess(
   supabase: SupabaseClient,
   roleId: string
-): Promise<{ windowKeys: string[]; processIds: string[] }> {
-  const [windowsRes, processesRes] = await Promise.all([
+): Promise<{ windowKeys: string[]; processIds: string[]; taskTypePermissions: TaskTypePermission[] }> {
+  const [windowsRes, processesRes, taskTypesRes] = await Promise.all([
     supabase.from("app_role_window").select("window_key").eq("role_id", roleId),
     supabase.from("app_role_process").select("process_id").eq("role_id", roleId),
+    supabase.from("app_role_task_type").select("task_type_id, can_see, can_select, can_create").eq("role_id", roleId),
   ]);
   if (windowsRes.error) throw windowsRes.error;
   if (processesRes.error) throw processesRes.error;
+  if (taskTypesRes.error && taskTypesRes.error.code !== "42P01") throw taskTypesRes.error;
   return {
     windowKeys: (windowsRes.data ?? []).map((r) => r.window_key),
     processIds: (processesRes.data ?? []).map((r) => r.process_id),
+    taskTypePermissions: (taskTypesRes.data ?? []).map((r) => ({
+      taskTypeId: r.task_type_id,
+      canSee: r.can_see,
+      canSelect: r.can_select,
+      canCreate: r.can_create,
+    })),
   };
 }

@@ -2,6 +2,8 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LineItemTable } from "@/components/line-item-table";
+import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
+import { useAuth } from "@/lib/auth-store";
 import { useReferenceData } from "@/lib/config-store";
 import type { ContractRecord } from "@/lib/contract";
 import {
@@ -80,8 +82,18 @@ export function ContractTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") ?? "Overview";
+  const { session, canWindow } = useAuth();
+
+  const allowedTabs = detailTabsForRole("contracts", session?.windowKeys ?? []);
+  const defaultTab = allowedTabs[0] ?? "Overview";
+  const requestedTab = searchParams.get("tab") ?? defaultTab;
+  const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
   const tableTab = activeTab in contractTabTableConfigs ? (activeTab as ContractTabWithTable) : null;
+
+  function canContractTab(tab: string) {
+    const key = windowKeyForDetailTab("contracts", tab);
+    return key ? canWindow(key) : false;
+  }
 
   function setActiveTab(tab: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -93,7 +105,9 @@ export function ContractTabbedView({
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
       <nav className="shrink-0 lg:w-44">
         <div className="space-y-1 rounded-xl border border-slate-200 bg-slate-50/80 p-2">
-          {contractTabs.map((tab) => (
+          {contractTabs
+            .filter((tab) => allowedTabs.includes(tab))
+            .map((tab) => (
             <button
               key={tab}
               type="button"
@@ -116,7 +130,22 @@ export function ContractTabbedView({
       </nav>
 
       <div className="min-w-0 flex-1 space-y-6">
-        {activeTab === "Overview" ? (
+        <div className="flex flex-wrap gap-2 lg:hidden">
+          {allowedTabs.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                activeTab === tab ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "Overview" && canContractTab("Overview") ? (
           <>
             <section className="rounded-xl border-2 border-[#f9a8d4]/40 bg-[#fdf2f8]/30 p-5">
               <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[#b51266]">Key dates</h3>
@@ -147,7 +176,7 @@ export function ContractTabbedView({
           </>
         ) : null}
 
-        {tableTab === "Audit" ? (
+        {tableTab === "Audit" && canContractTab("Audit") ? (
           <LineItemTable
             config={auditTableConfig}
             rows={contract.audit}

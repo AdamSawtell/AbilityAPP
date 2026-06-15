@@ -2,10 +2,10 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/types";
+import type { AppRoleRecord, AppUserRecord, AuthSession, TaskTypePermission } from "@/lib/access/types";
 import { displayName, userInitials } from "@/lib/access/types";
 import { canAccessWindow, processById } from "@/lib/access/catalog";
-import { SEED_ROLES, SEED_USERS } from "@/lib/access/seed";
+import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   fetchRoles,
@@ -41,7 +41,11 @@ function loadSession(): AuthSession | null {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw?.trim()) return null;
-    return JSON.parse(raw) as AuthSession;
+    const parsed = JSON.parse(raw) as AuthSession;
+    return {
+      ...parsed,
+      taskTypePermissions: parsed.taskTypePermissions ?? [],
+    };
   } catch {
     return null;
   }
@@ -59,7 +63,7 @@ function persistSession(session: AuthSession | null) {
 async function buildSession(
   user: AppUserRecord,
   role: AppRoleRecord,
-  resolveAccess: (roleId: string) => Promise<{ windowKeys: string[]; processIds: string[] }>
+  resolveAccess: (roleId: string) => Promise<{ windowKeys: string[]; processIds: string[]; taskTypePermissions: TaskTypePermission[] }>
 ): Promise<AuthSession> {
   const access = await resolveAccess(role.id);
   return {
@@ -71,6 +75,7 @@ async function buildSession(
     activeRoleName: role.name,
     windowKeys: access.windowKeys,
     processIds: access.processIds,
+    taskTypePermissions: access.taskTypePermissions,
   };
 }
 
@@ -82,12 +87,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [source, setSource] = useState<"supabase" | "local">("local");
 
   const resolveAccess = useCallback(async (roleId: string) => {
+    let windowKeys: string[] = [];
+    let processIds: string[] = [];
+    let taskTypePermissions: TaskTypePermission[] = [];
+
     if (source === "supabase" && isSupabaseConfigured()) {
       const supabase = createClient();
-      return resolveRoleAccess(supabase, roleId);
+      const access = await resolveRoleAccess(supabase, roleId);
+      windowKeys = access.windowKeys;
+      processIds = access.processIds;
+      taskTypePermissions = access.taskTypePermissions;
+    } else {
+      const role = roles.find((r) => r.id === roleId);
+      windowKeys = role?.windowKeys ?? [];
+      processIds = role?.processIds ?? [];
+      taskTypePermissions = role?.taskTypePermissions ?? [];
     }
-    const role = roles.find((r) => r.id === roleId);
-    return { windowKeys: role?.windowKeys ?? [], processIds: role?.processIds ?? [] };
+
+    const seed = SEED_ROLES.find((r) => r.id === roleId);
+    if (seed) {
+      const merged = withSeedTaskAccess({ ...seed, windowKeys, processIds, taskTypePermissions });
+      return {
+        windowKeys: merged.windowKeys,
+        processIds: merged.processIds,
+        taskTypePermissions: merged.taskTypePermissions,
+      };
+    }
+
+    return { windowKeys, processIds, taskTypePermissions };
   }, [roles, source]);
 
   useEffect(() => {
@@ -102,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const [dbUsers, dbRoles] = await Promise.all([fetchUsers(supabase), fetchRoles(supabase)]);
           if (!cancelled && dbUsers.length) {
             setUsers(dbUsers);
-            setRoles(dbRoles);
+            setRoles(dbRoles.map(withSeedTaskAccess));
             setSource("supabase");
 
             if (saved) {
@@ -124,17 +151,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!cancelled) {
         setUsers(SEED_USERS);
-        setRoles(SEED_ROLES);
+        setRoles(SEED_ROLES.map(withSeedTaskAccess));
         setSource("local");
         if (saved) {
           const user = SEED_USERS.find((u) => u.id === saved.userId);
           const role = SEED_ROLES.find((r) => r.id === saved.activeRoleId);
           if (user && role && user.roleIds.includes(role.id)) {
-            setSession({
+            const merged = withSeedTaskAccess(role);
+            const next = {
               ...saved,
-              windowKeys: role.windowKeys,
-              processIds: role.processIds,
-            });
+              windowKeys: merged.windowKeys,
+              processIds: merged.processIds,
+              taskTypePermissions: merged.taskTypePermissions,
+            };
+            setSession(next);
+            persistSession(next);
           }
         }
         setHydrated(true);
@@ -149,6 +180,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!hydrated || !session) return;
+
+    void (async () => {
+      const access = await resolveAccess(session.activeRoleId);
+      const keysMatch =
+        access.windowKeys.length === session.windowKeys.length &&
+        access.windowKeys.every((k) => session.windowKeys.includes(k));
+      const procsMatch =
+        access.processIds.length === session.processIds.length &&
+        access.processIds.every((p) => session.processIds.includes(p));
+      const taskTypesMatch =
+        access.taskTypePermissions.length === (session.taskTypePermissions?.length ?? 0) &&
+        access.taskTypePermissions.every((p) =>
+          session.taskTypePermissions?.some(
+            (s) =>
+              s.taskTypeId === p.taskTypeId &&
+              s.canSee === p.canSee &&
+              s.canSelect === p.canSelect &&
+              s.canCreate === p.canCreate
+          )
+        );
+      if (keysMatch && procsMatch && taskTypesMatch) return;
+
+      const next = {
+        ...session,
+        windowKeys: access.windowKeys,
+        processIds: access.processIds,
+        taskTypePermissions: access.taskTypePermissions,
+      };
+      setSession(next);
+      persistSession(next);
+    })();
+    // Refresh cached session access when the active role changes — not on every session field update.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- session.windowKeys is what we're syncing
+  }, [hydrated, session?.activeRoleId, session?.userId, resolveAccess]);
 
   const login = useCallback(
     async (userId: string, roleId: string) => {
@@ -219,7 +287,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await saveRole(createClient(), role);
       }
       if (session?.activeRoleId === role.id) {
-        const next = { ...session, windowKeys: role.windowKeys, processIds: role.processIds };
+        const next = {
+          ...session,
+          windowKeys: role.windowKeys,
+          processIds: role.processIds,
+          taskTypePermissions: role.taskTypePermissions,
+        };
         setSession(next);
         persistSession(next);
       }

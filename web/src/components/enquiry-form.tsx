@@ -62,16 +62,21 @@ export function EnquiryForm({
   record,
   sections,
   onChange,
+  activeSection,
 }: {
   record: EnquiryRecord;
   sections: FormSection[];
   onChange: (key: keyof EnquiryRecord, value: string) => void;
+  activeSection?: string | null;
 }) {
+  const visibleSections = activeSection ? sections.filter((s) => s.title === activeSection) : sections;
+
   return (
     <div className="space-y-6">
-      {sections.map((section) => (
+      {visibleSections.map((section) => (
         <section
           key={section.title}
+          id={`enquiry-section-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
           className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
         >
           <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-3">

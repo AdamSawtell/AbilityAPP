@@ -6,6 +6,7 @@ import { Suspense, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ContractDateTimeline } from "@/components/contract-date-timeline";
 import { ContractTabbedView } from "@/components/contract-view";
+import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { ClientRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { formatContractDate, type ContractRecord } from "@/lib/contract";
@@ -227,6 +228,14 @@ export function ContractDetailView({ id }: { id: string }) {
           <Suspense fallback={<ContractFormFallback />}>
             <ContractTabbedView contract={contract} onChange={onChange} onLineItemsChange={onLineItemsChange} />
           </Suspense>
+        </div>
+
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <RecordTasksPanel
+            entityType="contract"
+            entityId={contract.id}
+            entityLabel={`${contract.documentNo} — ${contract.name}`}
+          />
         </div>
       </AppShell>
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
