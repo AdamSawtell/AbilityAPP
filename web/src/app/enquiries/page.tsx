@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EnquiryList } from "@/components/enquiry-list";
 import { useData } from "@/lib/data-store";
+
+function EnquiryListFallback() {
+  return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading enquiries…</div>;
+}
 
 export default function EnquiriesPage() {
   const { enquiries } = useData();
@@ -11,7 +16,7 @@ export default function EnquiriesPage() {
   return (
     <AppShell
       title="Enquiries"
-      subtitle="Client and employee intake. Convert to a client when ready."
+      subtitle="Active intake records. Convert to a client when ready."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Enquiries" }]}
       audit={{ moduleLabel: "Enquiries" }}
       actions={
@@ -23,7 +28,9 @@ export default function EnquiriesPage() {
         </Link>
       }
     >
-      <EnquiryList records={enquiries} />
+      <Suspense fallback={<EnquiryListFallback />}>
+        <EnquiryList records={enquiries} />
+      </Suspense>
     </AppShell>
   );
 }

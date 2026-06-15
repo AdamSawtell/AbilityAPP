@@ -1,5 +1,6 @@
 import type { EnquiryRecord } from "@/lib/enquiry";
 import type { ClientActivityRow, ClientAlertRow, ClientLocationRow } from "@/lib/client-line-tables";
+import { transferActivitiesToClient } from "@/lib/client-line-tables";
 import { clientDropdowns } from "@/lib/reference-data";
 
 export { clientDropdowns };
@@ -388,7 +389,7 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
           },
         ]
       : [],
-    activity: [],
+    activity: transferActivitiesToClient(enquiry.activity ?? []),
     locations: [],
   };
 }

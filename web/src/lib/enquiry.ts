@@ -1,5 +1,8 @@
 import model from "@/data/enquiry-model.json";
 import { enquiryDropdowns } from "@/lib/reference-data";
+import type { ClientActivityRow } from "@/lib/client-line-tables";
+
+export type EnquiryActivityRow = ClientActivityRow;
 
 export type EnquiryRecord = {
   id: string;
@@ -28,6 +31,7 @@ export type EnquiryRecord = {
   other: string;
   createdBy: string;
   updatedBy: string;
+  activity: EnquiryActivityRow[];
 };
 
 export type FieldDef = {
@@ -43,12 +47,30 @@ export type FormSection = {
   fields: FieldDef[];
 };
 
+export const enquiryTabs = ["Enquiry details", "Participant", "Support needs", "Activity"] as const;
+
+export type EnquiryTab = (typeof enquiryTabs)[number];
+
+export const enquiryTabGroups: { label: string; tabs: EnquiryTab[] }[] = [
+  { label: "Record", tabs: ["Enquiry details", "Participant", "Support needs"] },
+  { label: "Work", tabs: ["Activity"] },
+];
+
 export const enquiryModel = model;
 export const listColumns = model.listColumns;
 export const queryNames = model.queryNames;
 export const formSections = model.formSections as FormSection[];
 export const dropdowns = enquiryDropdowns;
-export const initialRecords = model.records as EnquiryRecord[];
+
+export function normalizeEnquiry(record: EnquiryRecord): EnquiryRecord {
+  const activity = (record.activity ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+  }));
+  return { ...record, activity };
+}
+
+export const initialRecords = (model.records as EnquiryRecord[]).map(normalizeEnquiry);
 
 export function formatDisplayDate(iso: string) {
   if (!iso) return "—";
@@ -93,6 +115,7 @@ export function emptyEnquiry(): EnquiryRecord {
     other: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
+    activity: [],
   };
 }
 
@@ -110,12 +133,12 @@ export function createEnquiry(
   existing: EnquiryRecord[]
 ): EnquiryRecord {
   const { id, documentNo } = nextEnquiryId(existing);
-  return {
+  return normalizeEnquiry({
     ...emptyEnquiry(),
     ...partial,
     id,
     documentNo,
-    createdBy: "SuperUser",
-    updatedBy: "SuperUser",
-  };
+    createdBy: partial.createdBy || "SuperUser",
+    updatedBy: partial.updatedBy || "SuperUser",
+  });
 }

@@ -38,6 +38,7 @@ import {
   type ClientRow,
   type ContractAuditRowDb,
   type ContractRow,
+  type EnquiryActivityRowDb,
   type EnquiryRow,
   type EmployeeRow,
   type EmployeeCredentialRowDb,
@@ -83,6 +84,7 @@ async function replaceChildRows(
 export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const [
     enquiriesRes,
+    enquiryActivityRes,
     clientsRes,
     alertsRes,
     activityRes,
@@ -108,6 +110,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     employeeLeaveRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
+    supabase.from("enquiry_activity").select("*").order("line_no"),
     supabase.from("client").select("*").order("search_key"),
     supabase.from("client_alert").select("*").order("line_no"),
     supabase.from("client_activity").select("*").order("line_no"),
@@ -135,6 +138,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
 
   const firstError =
     enquiriesRes.error ??
+    enquiryActivityRes.error ??
     clientsRes.error ??
     alertsRes.error ??
     activityRes.error ??
@@ -161,6 +165,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
 
   if (firstError) throw firstError;
 
+  const activityByEnquiry = groupBy(enquiryActivityRes.data as EnquiryActivityRowDb[], "enquiry_id");
   const alertsByClient = groupBy(alertsRes.data as ClientAlertRow[], "client_id");
   const activityByClient = groupBy(activityRes.data as ClientActivityRowDb[], "client_id");
   const locationsByClient = groupBy(locationsRes.data as ClientLocationRowDb[], "client_id");
@@ -178,7 +183,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const leaveByEmployee = groupBy(employeeLeaveRes.data as EmployeeLeaveEntitlementRowDb[], "employee_id");
 
   return {
-    enquiries: ((enquiriesRes.data ?? []) as EnquiryRow[]).map(enquiryFromRow),
+    enquiries: ((enquiriesRes.data ?? []) as EnquiryRow[]).map((row) =>
+      enquiryFromRow(row, activityByEnquiry.get(row.id) ?? [])
+    ),
     clients: ((clientsRes.data ?? []) as ClientRow[]).map((row) =>
       normalizeClient(
         clientFromRow(
@@ -234,6 +241,24 @@ function groupBy<T extends Record<string, unknown>>(rows: T[], key: keyof T) {
 export async function saveEnquiry(supabase: SupabaseClient, record: EnquiryRecord) {
   const { error } = await supabase.from("enquiry").upsert(enquiryToRow(record));
   if (error) throw error;
+
+  await replaceChildRows(supabase, "enquiry_activity", "enquiry_id", record.id);
+
+  if (record.activity.length) {
+    const { error: activityError } = await supabase.from("enquiry_activity").insert(
+      record.activity.map((a) => ({
+        id: a.id,
+        enquiry_id: record.id,
+        line_no: a.lineNo,
+        activity_date: a.date || null,
+        activity_type: a.activityType,
+        subject: a.subject,
+        description: a.description,
+        created_by: a.createdBy,
+      }))
+    );
+    if (activityError) throw activityError;
+  }
 }
 
 export async function saveClient(supabase: SupabaseClient, record: ClientRecord) {

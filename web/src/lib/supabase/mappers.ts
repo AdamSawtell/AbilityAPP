@@ -14,6 +14,7 @@ import type {
   EmployeeSkillRow,
 } from "@/lib/employee";
 import type { EnquiryRecord } from "@/lib/enquiry";
+import { normalizeEnquiry } from "@/lib/enquiry";
 import type {
   PriceListLine,
   PriceListRecord,
@@ -77,8 +78,19 @@ export type EnquiryRow = {
   updated_by: string;
 };
 
-export function enquiryFromRow(row: EnquiryRow): EnquiryRecord {
-  return {
+export type EnquiryActivityRowDb = {
+  id: string;
+  enquiry_id: string;
+  line_no: number;
+  activity_date: string | null;
+  activity_type: string;
+  subject: string;
+  description: string;
+  created_by: string;
+};
+
+export function enquiryFromRow(row: EnquiryRow, activity: EnquiryActivityRowDb[] = []): EnquiryRecord {
+  return normalizeEnquiry({
     id: row.id,
     documentNo: row.document_no,
     dateReceived: strDate(row.date_received),
@@ -105,7 +117,16 @@ export function enquiryFromRow(row: EnquiryRow): EnquiryRecord {
     other: row.other,
     createdBy: row.created_by,
     updatedBy: row.updated_by,
-  };
+    activity: activity.map((a) => ({
+      id: a.id,
+      lineNo: a.line_no,
+      date: strDate(a.activity_date),
+      activityType: a.activity_type,
+      subject: a.subject,
+      description: a.description,
+      createdBy: a.created_by,
+    })),
+  });
 }
 
 export function enquiryToRow(record: EnquiryRecord): EnquiryRow {

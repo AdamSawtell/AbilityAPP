@@ -1,27 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
-import { EnquiryForm } from "@/components/enquiry-form";
-import { RecordTasksPanel } from "@/components/record-tasks-panel";
+import { EnquiryTabbedView } from "@/components/enquiry-view";
 import { ClientRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
-import { detailTabsForRole } from "@/lib/access/catalog";
 import { useConvertEnquiry, useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
-import { formSections, type EnquiryRecord } from "@/lib/enquiry";
+import type { EnquiryActivityRow, EnquiryRecord } from "@/lib/enquiry";
 import { auditMetaFrom } from "@/lib/audit";
+
+function EnquiryTabbedViewFallback() {
+  return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
+}
 
 export function EnquiryDetailView({ id }: { id: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { enquiries, updateEnquiry, getClientByEnquiryId } = useData();
   const convert = useConvertEnquiry();
-  const { canProcess, session } = useAuth();
+  const { canProcess } = useAuth();
   const { openEnquiry, setTabDirty } = useWorkspace();
   const stored = enquiries.find((r) => r.id === id);
   const linkedClient = getClientByEnquiryId(id);
@@ -62,15 +64,18 @@ export function EnquiryDetailView({ id }: { id: string }) {
 
   const isConverted = record.status.startsWith("4_") || Boolean(linkedClient);
   const participantName = `${record.firstName} ${record.lastName}`.trim();
-  const allowedTabs = detailTabsForRole("enquiries", session?.windowKeys ?? []);
-  const defaultTab = allowedTabs[0] ?? "Enquiry details";
-  const requestedTab = searchParams.get("tab") ?? defaultTab;
-  const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
 
   function onChange(key: keyof EnquiryRecord, value: string) {
     const base = draft ?? stored;
     if (!base) return;
     setDraft({ ...base, [key]: value, updatedBy: "SuperUser" });
+    setSaved(false);
+  }
+
+  function onActivityChange(rows: EnquiryActivityRow[]) {
+    const base = draft ?? stored;
+    if (!base) return;
+    setDraft({ ...base, activity: rows, updatedBy: "SuperUser" });
     setSaved(false);
   }
 
@@ -90,7 +95,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
     setConverting(true);
     const client = convert(id);
     if (client) {
-      router.push(`/clients/${client.id}`);
+      router.push(`/clients/${client.id}?tab=${encodeURIComponent("Activity")}`);
     }
     setConverting(false);
   }
@@ -146,26 +151,28 @@ export function EnquiryDetailView({ id }: { id: string }) {
           {saved && !hasUnsavedChanges ? <span className="text-sm text-emerald-700">Saved</span> : null}
           {linkedClient ? (
             <span className="text-sm text-slate-600">
-            Linked client:{" "}
-            <ClientRecordLink
-              id={linkedClient.id}
-              searchKey={linkedClient.searchKey}
-              name={linkedClient.name}
-              className="text-[#b51266] hover:underline"
-            >
-              {linkedClient.searchKey} — {linkedClient.name}
-            </ClientRecordLink>
+              Linked client:{" "}
+              <ClientRecordLink
+                id={linkedClient.id}
+                searchKey={linkedClient.searchKey}
+                name={linkedClient.name}
+                className="text-[#b51266] hover:underline"
+              >
+                {linkedClient.searchKey} — {linkedClient.name}
+              </ClientRecordLink>
             </span>
           ) : null}
         </div>
-        <EnquiryForm record={record} sections={formSections} onChange={onChange} activeSection={activeTab} />
 
-        <div className="mt-8 border-t border-slate-200 pt-8">
-          <RecordTasksPanel
-            entityType="enquiry"
-            entityId={record.id}
-            entityLabel={`${record.documentNo} — ${participantName}`}
-          />
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <Suspense fallback={<EnquiryTabbedViewFallback />}>
+            <EnquiryTabbedView
+              record={record}
+              participantName={participantName}
+              onChange={onChange}
+              onActivityChange={onActivityChange}
+            />
+          </Suspense>
         </div>
       </AppShell>
 

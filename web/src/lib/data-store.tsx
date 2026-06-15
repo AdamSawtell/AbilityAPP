@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { createEnquiry, initialRecords as seedEnquiries, type EnquiryRecord } from "@/lib/enquiry";
+import { createEnquiry, initialRecords as seedEnquiries, normalizeEnquiry, type EnquiryRecord } from "@/lib/enquiry";
 import { initialClients as seedClients, normalizeClient, type ClientRecord } from "@/lib/client";
 import { createContract, initialContracts as seedContracts, normalizeContract, type ContractRecord } from "@/lib/contract";
 import {
@@ -90,6 +90,13 @@ type DataStore = {
     options?: { assigneeDisplayName?: string }
   ) => TaskRecord;
   mutateTask: (id: string, mutator: (task: TaskRecord) => TaskRecord) => void;
+  relinkEntityTasks: (
+    fromType: TaskEntityType,
+    fromId: string,
+    toType: TaskEntityType,
+    toId: string,
+    toLabel: string
+  ) => void;
   getTasksByEntity: (entityType: TaskEntityType, entityId: string) => TaskRecord[];
   getTaskById: (id: string) => TaskRecord | undefined;
 };
@@ -143,7 +150,7 @@ function loadLocal(): Required<Persisted> {
       return defaults;
     }
     return {
-      enquiries: parsed.enquiries,
+      enquiries: parsed.enquiries.map(normalizeEnquiry),
       clients: parsed.clients.map(normalizeClient),
       contracts: (parsed.contracts ?? seedContracts).map(normalizeContract),
       products: parsed.products ?? seedProducts,
@@ -528,6 +535,29 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const relinkEntityTasks = useCallback(
+    (
+      fromType: TaskEntityType,
+      fromId: string,
+      toType: TaskEntityType,
+      toId: string,
+      toLabel: string
+    ) => {
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.entityType !== fromType || t.entityId !== fromId) return t;
+          return normalizeTask({
+            ...t,
+            entityType: toType,
+            entityId: toId,
+            entityLabel: toLabel,
+          });
+        })
+      );
+    },
+    []
+  );
+
   const getTasksByEntity = useCallback(
     (entityType: TaskEntityType, entityId: string) =>
       tasks.filter((t) => t.entityType === entityType && t.entityId === entityId),
@@ -569,6 +599,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertTask,
       addTask,
       mutateTask,
+      relinkEntityTasks,
       getTasksByEntity,
       getTaskById,
     }),
@@ -604,6 +635,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertTask,
       addTask,
       mutateTask,
+      relinkEntityTasks,
       getTasksByEntity,
       getTaskById,
     ]
@@ -627,7 +659,7 @@ export function useData() {
 }
 
 export function useConvertEnquiry() {
-  const { enquiries, clients, updateEnquiry, upsertClient } = useData();
+  const { enquiries, clients, updateEnquiry, upsertClient, relinkEntityTasks } = useData();
 
   return (enquiryId: string): ClientRecord | null => {
     const enquiry = enquiries.find((e) => e.id === enquiryId);
@@ -645,6 +677,13 @@ export function useConvertEnquiry() {
     };
     updateEnquiry(updatedEnquiry);
     upsertClient(client);
+    relinkEntityTasks(
+      "enquiry",
+      enquiryId,
+      "client",
+      client.id,
+      `${client.searchKey} — ${client.name}`
+    );
     logRecordAudit(
       "enquiry",
       enquiryId,

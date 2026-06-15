@@ -171,3 +171,16 @@ export type ClientTabWithTable = keyof typeof clientTabTableConfigs;
 export function renumberLines<TRow extends { id: string; lineNo: number }>(rows: TRow[]): TRow[] {
   return rows.map((row, index) => ({ ...row, lineNo: index + 1 }));
 }
+
+export function transferActivitiesToClient(
+  sourceActivities: ClientActivityRow[],
+  existingClientActivities: ClientActivityRow[] = []
+): ClientActivityRow[] {
+  if (!sourceActivities.length) return existingClientActivities;
+  const transferred = sourceActivities.map((row, index) => ({
+    ...row,
+    id: newLineId("activity"),
+    lineNo: existingClientActivities.length + index + 1,
+  }));
+  return renumberLines([...existingClientActivities, ...transferred]);
+}

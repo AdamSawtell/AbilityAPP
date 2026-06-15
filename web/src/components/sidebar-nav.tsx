@@ -1,13 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
-import { clientTabGroups } from "@/lib/client";
-import { employeeTabGroups } from "@/lib/employee";
-import { contractTabs } from "@/lib/contract-fields";
-import { ENQUIRY_DETAIL_TABS } from "@/lib/access/detail-windows";
-import { windowKeyForDetailTab } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { taskCountsForSession } from "@/lib/task-access";
@@ -159,7 +154,6 @@ function SectionHeader({
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { tabs } = useWorkspace();
   const { session, canWindow } = useAuth();
   const { tasks } = useData();
@@ -186,19 +180,6 @@ export function SidebarNav() {
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
-
-  const enquiryMatch = pathname.match(/^\/enquiries\/([^/]+)/);
-  const activeEnquiryId = enquiryMatch?.[1];
-  const activeEnquiryTab = searchParams.get("tab") ?? "Enquiry details";
-  const clientMatch = pathname.match(/^\/clients\/([^/]+)/);
-  const activeClientId = clientMatch?.[1];
-  const activeClientTab = searchParams.get("tab") ?? "Overview";
-  const contractMatch = pathname.match(/^\/contracts\/([^/]+)/);
-  const activeContractId = contractMatch?.[1];
-  const activeContractTab = searchParams.get("tab") ?? "Overview";
-  const employeeMatch = pathname.match(/^\/employees\/([^/]+)/);
-  const activeEmployeeId = employeeMatch?.[1];
-  const activeEmployeeTab = searchParams.get("tab") ?? "Overview";
 
   const openClients = useMemo(() => tabs.filter((t) => t.kind === "client"), [tabs]);
   const openEnquiries = useMemo(() => tabs.filter((t) => t.kind === "enquiry"), [tabs]);
@@ -283,7 +264,7 @@ export function SidebarNav() {
           {isOpen("enquiries") ? (
             <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
               <Link href="/enquiries" className={subLinkClass(pathname === "/enquiries")}>
-                All enquiries
+                Active enquiries
               </Link>
 
               {openEnquiries.length > 0 ? (
@@ -304,34 +285,6 @@ export function SidebarNav() {
                       >
                         <span className="truncate">{tab.label}</span>
                         {tab.dirty ? <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" /> : null}
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : null}
-
-              {activeEnquiryId ? (
-                <div className="border-t border-slate-100 pt-2">
-                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                    This enquiry
-                  </p>
-                  {ENQUIRY_DETAIL_TABS.filter((tab) => {
-                    const windowKey = windowKeyForDetailTab("enquiries", tab);
-                    return !windowKey || canWindow(windowKey);
-                  }).map((tab) => {
-                    const href = `/enquiries/${activeEnquiryId}?tab=${encodeURIComponent(tab)}`;
-                    const tabActive = activeEnquiryTab === tab;
-                    return (
-                      <Link
-                        key={tab}
-                        href={href}
-                        className={`block truncate rounded-md px-2 py-1.5 text-xs ${
-                          tabActive
-                            ? "bg-[#fdf2f8] font-medium text-[#b51266]"
-                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                        }`}
-                      >
-                        {tab}
                       </Link>
                     );
                   })}
@@ -390,37 +343,6 @@ export function SidebarNav() {
                   })}
                 </div>
               ) : null}
-
-              {activeClientId ? (
-                <div className="border-t border-slate-100 pt-2">
-                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                    This client
-                  </p>
-                  {clientTabGroups
-                    .flatMap((g) => g.tabs)
-                    .filter((tab) => {
-                      const windowKey = windowKeyForDetailTab("clients", tab);
-                      return !windowKey || canWindow(windowKey);
-                    })
-                    .map((tab) => {
-                      const href = `/clients/${activeClientId}?tab=${encodeURIComponent(tab)}`;
-                      const tabActive = activeClientTab === tab;
-                      return (
-                        <Link
-                          key={tab}
-                          href={href}
-                          className={`block truncate rounded-md px-2 py-1.5 text-xs ${
-                            tabActive
-                              ? "bg-[#fdf2f8] font-medium text-[#b51266]"
-                              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                          }`}
-                        >
-                          {tab}
-                        </Link>
-                      );
-                    })}
-                </div>
-              ) : null}
             </div>
           ) : null}
         </div>
@@ -473,36 +395,6 @@ export function SidebarNav() {
                   })}
                 </div>
               ) : null}
-              {activeEmployeeId && canWindow("employees") ? (
-                <div className="border-t border-slate-100 pt-2">
-                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                    This employee
-                  </p>
-                  {employeeTabGroups
-                    .flatMap((g) => g.tabs)
-                    .filter((tab) => {
-                      const windowKey = windowKeyForDetailTab("employees", tab);
-                      return !windowKey || canWindow(windowKey);
-                    })
-                    .map((tab) => {
-                      const href = `/employees/${activeEmployeeId}?tab=${encodeURIComponent(tab)}`;
-                      const tabActive = activeEmployeeTab === tab;
-                      return (
-                        <Link
-                          key={tab}
-                          href={href}
-                          className={`block truncate rounded-md px-2 py-1.5 text-xs ${
-                            tabActive
-                              ? "bg-indigo-50 font-medium text-indigo-900"
-                              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                          }`}
-                        >
-                          {tab}
-                        </Link>
-                      );
-                    })}
-                </div>
-              ) : null}
             </div>
           ) : null}
         </div>
@@ -540,35 +432,6 @@ export function SidebarNav() {
                   {link.label}
                 </Link>
               ))}
-              {activeContractId && canWindow("contracts") ? (
-                <div className="border-t border-slate-100 pt-2">
-                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                    This contract
-                  </p>
-                  {contractTabs
-                    .filter((tab) => {
-                      const windowKey = windowKeyForDetailTab("contracts", tab);
-                      return !windowKey || canWindow(windowKey);
-                    })
-                    .map((tab) => {
-                      const href = `/contracts/${activeContractId}?tab=${encodeURIComponent(tab)}`;
-                      const tabActive = activeContractTab === tab;
-                      return (
-                        <Link
-                          key={tab}
-                          href={href}
-                          className={`block truncate rounded-md px-2 py-1.5 text-xs ${
-                            tabActive
-                              ? "bg-[#fdf2f8] font-medium text-[#b51266]"
-                              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                          }`}
-                        >
-                          {tab}
-                        </Link>
-                      );
-                    })}
-                </div>
-              ) : null}
             </div>
           ) : null}
         </div>

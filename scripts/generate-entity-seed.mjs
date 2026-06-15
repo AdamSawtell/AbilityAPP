@@ -88,6 +88,22 @@ addInsert(
   "(id)"
 );
 
+const enquiryActivityRows = enquiries.flatMap((e) =>
+  (e.activity ?? []).map((a) => {
+    const v = [
+      sqlString(a.id), sqlString(e.id), String(a.lineNo), sqlDate(a.date),
+      sqlString(a.activityType), sqlString(a.subject), sqlString(a.description), sqlString(a.createdBy),
+    ];
+    return `  (${v.join(", ")})`;
+  })
+);
+addInsert(
+  "enquiry_activity",
+  ["id", "enquiry_id", "line_no", "activity_date", "activity_type", "subject", "description", "created_by"],
+  enquiryActivityRows,
+  "(id)"
+);
+
 // Price lists
 addInsert(
   "price_list",

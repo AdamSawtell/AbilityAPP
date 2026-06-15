@@ -3,7 +3,9 @@ import { contractTabs } from "@/lib/contract-fields";
 import { employeeTabGroups } from "@/lib/employee";
 import type { AccessWindow, AccessWindowGroup } from "@/lib/access/catalog-types";
 
-export const ENQUIRY_DETAIL_TABS = ["Enquiry details", "Participant", "Support needs", "Audit"] as const;
+import { enquiryTabs } from "@/lib/enquiry";
+
+export const ENQUIRY_DETAIL_TABS = enquiryTabs;
 export const PRODUCT_DETAIL_TABS = ["Overview", "Pricing"] as const;
 export const PRICE_LIST_DETAIL_TABS = ["Overview", "Lines"] as const;
 export const SERVICE_AGREEMENT_DETAIL_TABS = ["Overview", "Lines"] as const;

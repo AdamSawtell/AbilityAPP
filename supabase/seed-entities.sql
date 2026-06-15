@@ -37,6 +37,18 @@ on conflict (id) do update set
   created_by = excluded.created_by,
   updated_by = excluded.updated_by;
 
+insert into public.enquiry_activity (id, enquiry_id, line_no, activity_date, activity_type, subject, description, created_by)
+values
+  ('ea-1000025-1', '1000025', 1, '2022-12-05', 'Phone call', 'Initial intake call', 'Discussed in-home support requirements with Samuel.', 'Gabriela Wilson')
+on conflict (id) do update set
+  enquiry_id = excluded.enquiry_id,
+  line_no = excluded.line_no,
+  activity_date = excluded.activity_date,
+  activity_type = excluded.activity_type,
+  subject = excluded.subject,
+  description = excluded.description,
+  created_by = excluded.created_by;
+
 insert into public.price_list (id, name, schema_name, base_price_list_id, valid_from, currency, created_by, updated_by)
 values
   ('pl-ndis-2024', 'NDIS Price List 2024-25', 'NDIS', '', '2024-07-01', 'AUD', 'Isla Robinson', 'SuperUser')
