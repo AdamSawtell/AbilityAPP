@@ -153,7 +153,7 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   ],
   livingArrangement: ["Lives Alone", "Lives with Family", "Lives with Friends/Housemates"],
   salesRepresentative: [
-    "AbilityERP",
+    "AbilityAPP",
     "Gabriela Wilson",
     "Isla Robinson",
     "Michael Smith",

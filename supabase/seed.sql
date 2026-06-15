@@ -128,7 +128,7 @@ insert into public.reference_option (list_id, value, label, sort_order, active)
 select l.id, v.value, v.label, v.sort_order, true
 from public.reference_list l
 cross join (values
-  ('AbilityERP', 'AbilityERP', 0),
+  ('AbilityAPP', 'AbilityAPP', 0),
   ('Gabriela Wilson', 'Gabriela Wilson', 1),
   ('Isla Robinson', 'Isla Robinson', 2),
   ('Michael Smith', 'Michael Smith', 3),

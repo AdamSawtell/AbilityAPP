@@ -1,5 +1,5 @@
 /**
- * Tasks (AbilityERP "Requests") — work items assigned to a user or role,
+ * Tasks — work items assigned to a user or role,
  * usually linked to a record (service agreement, client, enquiry, etc.).
  */
 

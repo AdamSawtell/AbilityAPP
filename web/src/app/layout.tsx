@@ -4,6 +4,7 @@ import { AuthGate, AuthProvider } from "@/lib/auth-store";
 import { DataProvider } from "@/lib/data-store";
 import { ReferenceDataProvider } from "@/lib/config-store";
 import { TaskTypeProvider } from "@/lib/task-type-store";
+import { OrganizationProvider } from "@/lib/organization-store";
 import { WorkspaceProvider } from "@/lib/workspace-store";
 import "./globals.css";
 
@@ -18,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AbilityERP Clone",
-  description: "NDIS ERP workspace for enquiries and clients",
+  title: "AbilityAPP",
+  description: "NDIS provider workspace for enquiries, clients, and service delivery",
 };
 
 export default function RootLayout({
@@ -35,7 +36,9 @@ export default function RootLayout({
             <ReferenceDataProvider>
               <TaskTypeProvider>
                 <DataProvider>
-                  <WorkspaceProvider>{children}</WorkspaceProvider>
+                  <OrganizationProvider>
+                    <WorkspaceProvider>{children}</WorkspaceProvider>
+                  </OrganizationProvider>
                 </DataProvider>
               </TaskTypeProvider>
             </ReferenceDataProvider>

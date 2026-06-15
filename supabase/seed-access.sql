@@ -3,7 +3,7 @@
 
 insert into public.app_role (id, role_key, name, description, active)
 values
-  ('role-admin', 'AbilityERP_Admin', 'AbilityERP Admin', 'Full system access — all windows and processes', true),
+  ('role-admin', 'AbilityAPP_Admin', 'AbilityAPP Admin', 'Full system access — all windows and processes', true),
   ('role-intake', 'Intake_Coordinator', 'Intake Coordinator', 'Enquiries and convert-to-client process', true),
   ('role-coordinator', 'Support_Coordinator', 'Support Coordinator', 'Client records and service catalog (no admin)', true)
 on conflict (id) do update set
@@ -11,7 +11,7 @@ on conflict (id) do update set
 
 insert into public.app_user (id, username, email, first_name, last_name, phone, active, employee_bp_id, notes)
 values
-  ('user-superuser', 'SuperUser', 'superuser@abilityerp.local', 'Super', 'User', '', true, null, 'Full access administrator (AbilityERP SuperUser equivalent)'),
+  ('user-superuser', 'SuperUser', 'superuser@abilityapp.local', 'Super', 'User', '', true, null, 'Full access administrator (AbilityAPP SuperUser equivalent)'),
   ('user-isla', 'IslaRobinson', 'isla.robinson@abilityerp.local', 'Isla', 'Robinson', '', true, 'emp-isla', 'Intake and client coordination'),
   ('user-gabriela', 'GabrielaWilson', 'gabriela.wilson@abilityerp.local', 'Gabriela', 'Wilson', '', true, 'emp-gabriela', 'Enquiry processing')
 on conflict (id) do update set
@@ -84,6 +84,7 @@ values
   ('role-admin', 'contracts'),
   ('role-admin', 'contract-overview'),
   ('role-admin', 'contract-audit'),
+  ('role-admin', 'admin-organization'),
   ('role-admin', 'admin-reference-data'),
   ('role-admin', 'admin-users'),
   ('role-admin', 'admin-roles'),

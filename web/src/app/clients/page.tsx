@@ -1,3 +1,5 @@
+"use client";
+
 import { AppShell } from "@/components/app-shell";
 import { ClientListView } from "@/components/client-pages";
 

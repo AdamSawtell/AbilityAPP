@@ -10,7 +10,8 @@ export type AuditEntityType =
   | "service-agreement"
   | "support-plan"
   | "plan-document"
-  | "task";
+  | "task"
+  | "organization";
 
 export type AuditAction = "created" | "updated" | "deleted" | "converted" | "assigned" | "status_changed" | "imported";
 
@@ -64,6 +65,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   "support-plan": "Support plan",
   "plan-document": "Plan document",
   task: "Task",
+  organization: "Organisation",
 };
 
 export const auditActionLabels: Record<AuditAction, string> = {

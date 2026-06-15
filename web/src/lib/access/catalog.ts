@@ -127,6 +127,14 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "admin-organization",
+    label: "Organisation",
+    group: "Admin",
+    href: "/admin/organization",
+    abilityErpName: "Client Organization",
+    showInSidebar: true,
+  },
+  {
     key: "admin-reference-data",
     label: "Reference data",
     group: "Admin",

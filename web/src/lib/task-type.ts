@@ -1,5 +1,5 @@
 /**
- * Configurable task types (AbilityERP request types) — Review, Approve, Check, etc.
+ * Configurable task types — Review, Approve, Check, etc.
  */
 
 export type TaskTypeRecord = {

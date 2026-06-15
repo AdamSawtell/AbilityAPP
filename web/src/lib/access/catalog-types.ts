@@ -7,7 +7,7 @@ export type AccessWindow = {
   /** Sidebar route; omit for tab-only dependent windows */
   href?: string;
   abilityErpName?: string;
-  /** Parent window required for access (AbilityERP dependent window) */
+  /** Parent window required for access (dependent window) */
   parentWindowKey?: string;
   /** Detail tab label when this window maps to a tab on a parent record */
   detailTab?: string;

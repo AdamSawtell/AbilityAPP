@@ -82,7 +82,7 @@ export function RecordTasksPanel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-slate-900">Tasks</h3>
-          <p className="text-sm text-slate-500">Assign work to a user or role — AbilityERP requests.</p>
+          <p className="text-sm text-slate-500">Assign work to a user or role — AbilityAPP tasks.</p>
         </div>
         {canAssign ? (
           <button

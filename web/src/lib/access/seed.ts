@@ -15,13 +15,13 @@ export const SEED_USERS: AppUserRecord[] = [
   {
     id: "user-superuser",
     username: "SuperUser",
-    email: "superuser@abilityerp.local",
+    email: "superuser@abilityapp.local",
     firstName: "Super",
     lastName: "User",
     phone: "",
     active: true,
     employeeBpId: "",
-    notes: "Full access administrator (AbilityERP SuperUser equivalent)",
+    notes: "Full access administrator (AbilityAPP SuperUser equivalent)",
     roleIds: ["role-admin"],
   },
   {
@@ -53,8 +53,8 @@ export const SEED_USERS: AppUserRecord[] = [
 export const SEED_ROLES: AppRoleRecord[] = [
   {
     id: "role-admin",
-    roleKey: "AbilityERP_Admin",
-    name: "AbilityERP Admin",
+    roleKey: "AbilityAPP_Admin",
+    name: "AbilityAPP Admin",
     description: "Full system access — all windows and processes",
     active: true,
     windowKeys: [...ALL_WINDOW_KEYS],

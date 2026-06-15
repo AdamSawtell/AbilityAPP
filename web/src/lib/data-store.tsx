@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createEnquiry, initialRecords as seedEnquiries, normalizeEnquiry, type EnquiryRecord } from "@/lib/enquiry";
 import { initialClients as seedClients, normalizeClient, type ClientRecord } from "@/lib/client";
 import { createContract, initialContracts as seedContracts, normalizeContract, type ContractRecord } from "@/lib/contract";
@@ -39,7 +39,7 @@ import {
   type TaskRecord,
 } from "@/lib/task";
 import { convertEnquiryToClient } from "@/lib/convert";
-import { persistRecordAudit } from "@/lib/audit-mutation";
+import { persistRecordAudit, type AuditLogOptions } from "@/lib/audit-mutation";
 import { logRecordAudit } from "@/lib/audit-log";
 import { stampRecordAudit } from "@/lib/audit";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -68,8 +68,8 @@ type DataStore = {
   tasks: TaskRecord[];
   source: "supabase" | "local";
   addEnquiry: (record: EnquiryRecord) => EnquiryRecord;
-  updateEnquiry: (record: EnquiryRecord) => void;
-  upsertClient: (client: ClientRecord) => void;
+  updateEnquiry: (record: EnquiryRecord, audit?: AuditLogOptions) => void;
+  upsertClient: (client: ClientRecord, audit?: AuditLogOptions) => void;
   addContract: (record: ContractRecord) => ContractRecord;
   upsertContract: (contract: ContractRecord) => void;
   upsertProduct: (product: ProductRecord) => void;
@@ -103,6 +103,14 @@ type DataStore = {
 
 const DataContext = createContext<DataStore | null>(null);
 const STORAGE_KEY = "abilityerp-clone-data";
+
+function useSyncRef<T>(value: T) {
+  const ref = useRef(value);
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref;
+}
 
 type Persisted = {
   enquiries: EnquiryRecord[];
@@ -190,6 +198,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<TaskRecord[]>(defaults.tasks);
   const [hydrated, setHydrated] = useState(false);
   const [source, setSource] = useState<"supabase" | "local">("local");
+
+  const enquiriesRef = useSyncRef(enquiries);
+  const clientsRef = useSyncRef(clients);
+  const contractsRef = useSyncRef(contracts);
+  const productsRef = useSyncRef(products);
+  const priceListsRef = useSyncRef(priceLists);
+  const serviceAgreementsRef = useSyncRef(serviceAgreements);
+  const supportPlansRef = useSyncRef(supportPlans);
+  const employeesRef = useSyncRef(employees);
 
   useEffect(() => {
     let cancelled = false;
@@ -285,177 +302,152 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addEnquiry = useCallback(
     (partial: EnquiryRecord) => {
-      let created!: EnquiryRecord;
-      setEnquiries((prev) => {
-        const next = createEnquiry(partial, prev);
-        created = persistRecordAudit("enquiry", next, true, {
-          summary: `Enquiry ${next.documentNo} created`,
-        });
-        return [...prev, created];
-      });
+      const prev = enquiriesRef.current;
+      const next = createEnquiry(partial, prev);
+      const created = persistRecordAudit("enquiry", next, true);
+      setEnquiries((current) => [...current, created]);
       void persistRemote((supabase) => saveEnquiry(supabase, created));
       return created;
     },
-    [persistRemote]
+    [persistRemote, enquiriesRef]
   );
 
   const updateEnquiry = useCallback(
-    (record: EnquiryRecord) => {
-      let stamped!: EnquiryRecord;
-      setEnquiries((prev) => {
-        stamped = persistRecordAudit("enquiry", record, false, {
-          summary: `Enquiry ${record.documentNo} updated`,
-        });
-        return prev.map((e) => (e.id === stamped.id ? stamped : e));
-      });
+    (record: EnquiryRecord, audit?: AuditLogOptions) => {
+      const before = enquiriesRef.current.find((e) => e.id === record.id);
+      const stamped = persistRecordAudit("enquiry", record, false, before, audit);
+      setEnquiries((prev) => prev.map((e) => (e.id === stamped.id ? stamped : e)));
       void persistRemote((supabase) => saveEnquiry(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, enquiriesRef]
   );
 
   const upsertClient = useCallback(
-    (client: ClientRecord) => {
-      let stamped!: ClientRecord;
-      setClients((prev) => {
-        const normalized = normalizeClient(client);
-        const exists = prev.some((c) => c.id === normalized.id);
-        stamped = persistRecordAudit("client", normalized, !exists, {
-          summary: exists ? `Client ${normalized.searchKey} updated` : `Client ${normalized.searchKey} created`,
-        });
-        return exists ? prev.map((c) => (c.id === stamped.id ? stamped : c)) : [...prev, stamped];
-      });
+    (client: ClientRecord, audit?: AuditLogOptions) => {
+      const prev = clientsRef.current;
+      const normalized = normalizeClient(client);
+      const before = prev.find((c) => c.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("client", normalized, !exists, before, audit);
+      setClients((current) =>
+        exists ? current.map((c) => (c.id === stamped.id ? stamped : c)) : [...current, stamped]
+      );
       void persistRemote((supabase) => saveClient(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, clientsRef]
   );
 
   const addContract = useCallback(
     (partial: ContractRecord) => {
-      let created!: ContractRecord;
-      setContracts((prev) => {
-        const next = createContract(partial, prev);
-        created = persistRecordAudit("contract", next, true, {
-          summary: `Contract ${next.documentNo} created`,
-        });
-        return [...prev, created];
-      });
+      const prev = contractsRef.current;
+      const next = createContract(partial, prev);
+      const created = persistRecordAudit("contract", next, true);
+      setContracts((current) => [...current, created]);
       void persistRemote((supabase) => saveContract(supabase, created));
       return created;
     },
-    [persistRemote]
+    [persistRemote, contractsRef]
   );
 
   const upsertContract = useCallback(
     (contract: ContractRecord) => {
-      let stamped!: ContractRecord;
-      setContracts((prev) => {
-        const normalized = normalizeContract(contract);
-        const exists = prev.some((c) => c.id === normalized.id);
-        stamped = persistRecordAudit("contract", normalized, !exists, {
-          summary: exists ? `Contract ${normalized.documentNo} updated` : `Contract ${normalized.documentNo} created`,
-        });
-        return exists ? prev.map((c) => (c.id === stamped.id ? stamped : c)) : [...prev, stamped];
-      });
+      const prev = contractsRef.current;
+      const normalized = normalizeContract(contract);
+      const before = prev.find((c) => c.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("contract", normalized, !exists, before);
+      setContracts((current) =>
+        exists ? current.map((c) => (c.id === stamped.id ? stamped : c)) : [...current, stamped]
+      );
       void persistRemote((supabase) => saveContract(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, contractsRef]
   );
 
   const upsertProduct = useCallback(
     (product: ProductRecord) => {
-      let stamped!: ProductRecord;
-      setProducts((prev) => {
-        const exists = prev.some((p) => p.id === product.id);
-        stamped = persistRecordAudit("product", product, !exists, {
-          summary: exists ? `Product ${product.name} updated` : `Product ${product.name} created`,
-        });
-        return exists ? prev.map((p) => (p.id === stamped.id ? stamped : p)) : [...prev, stamped];
-      });
+      const prev = productsRef.current;
+      const before = prev.find((p) => p.id === product.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("product", product, !exists, before);
+      setProducts((current) =>
+        exists ? current.map((p) => (p.id === stamped.id ? stamped : p)) : [...current, stamped]
+      );
       void persistRemote((supabase) => saveProduct(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, productsRef]
   );
 
   const upsertPriceList = useCallback(
     (list: PriceListRecord) => {
-      let stamped!: PriceListRecord;
-      setPriceLists((prev) => {
-        const normalized = normalizePriceList(list);
-        const exists = prev.some((p) => p.id === normalized.id);
-        stamped = persistRecordAudit("price-list", normalized, !exists, {
-          summary: exists ? `Price list ${normalized.name} updated` : `Price list ${normalized.name} created`,
-        });
-        return exists ? prev.map((p) => (p.id === stamped.id ? stamped : p)) : [...prev, stamped];
-      });
+      const prev = priceListsRef.current;
+      const normalized = normalizePriceList(list);
+      const before = prev.find((p) => p.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("price-list", normalized, !exists, before);
+      setPriceLists((current) =>
+        exists ? current.map((p) => (p.id === stamped.id ? stamped : p)) : [...current, stamped]
+      );
       void persistRemote((supabase) => savePriceList(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, priceListsRef]
   );
 
   const upsertServiceAgreement = useCallback(
     (record: ServiceAgreementRecord) => {
-      let stamped!: ServiceAgreementRecord;
-      setServiceAgreements((prev) => {
-        const normalized = normalizeServiceAgreement(record);
-        const exists = prev.some((r) => r.id === normalized.id);
-        stamped = persistRecordAudit("service-agreement", normalized, !exists, {
-          summary: exists
-            ? `Service agreement ${normalized.searchKey} updated`
-            : `Service agreement ${normalized.searchKey} created`,
-        });
-        return exists ? prev.map((r) => (r.id === stamped.id ? stamped : r)) : [...prev, stamped];
-      });
+      const prev = serviceAgreementsRef.current;
+      const normalized = normalizeServiceAgreement(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("service-agreement", normalized, !exists, before);
+      setServiceAgreements((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
       void persistRemote((supabase) => saveServiceAgreement(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, serviceAgreementsRef]
   );
 
   const upsertSupportPlan = useCallback(
     (record: SupportPlanRecord) => {
-      let stamped!: SupportPlanRecord;
-      setSupportPlans((prev) => {
-        const normalized = normalizeSupportPlan(record);
-        const exists = prev.some((r) => r.id === normalized.id);
-        stamped = persistRecordAudit("support-plan", normalized, !exists, {
-          summary: exists ? `Support plan updated` : `Support plan created`,
-        });
-        return exists ? prev.map((r) => (r.id === stamped.id ? stamped : r)) : [...prev, stamped];
-      });
+      const prev = supportPlansRef.current;
+      const normalized = normalizeSupportPlan(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("support-plan", normalized, !exists, before);
+      setSupportPlans((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
       void persistRemote((supabase) => saveSupportPlan(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, supportPlansRef]
   );
 
   const upsertEmployee = useCallback(
     (record: EmployeeRecord) => {
-      let stamped!: EmployeeRecord;
-      setEmployees((prev) => {
-        const normalized = normalizeEmployee(record);
-        const exists = prev.some((e) => e.id === normalized.id);
-        stamped = persistRecordAudit("employee", normalized, !exists, {
-          summary: exists ? `Employee ${normalized.searchKey} updated` : `Employee ${normalized.searchKey} created`,
-        });
-        return exists ? prev.map((e) => (e.id === stamped.id ? stamped : e)) : [...prev, stamped];
-      });
+      const prev = employeesRef.current;
+      const normalized = normalizeEmployee(record);
+      const before = prev.find((e) => e.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("employee", normalized, !exists, before);
+      setEmployees((current) =>
+        exists ? current.map((e) => (e.id === stamped.id ? stamped : e)) : [...current, stamped]
+      );
       void persistRemote((supabase) => saveEmployee(supabase, stamped));
     },
-    [persistRemote]
+    [persistRemote, employeesRef]
   );
 
   const addEmployee = useCallback(
     (partial: EmployeeRecord) => {
-      let created!: EmployeeRecord;
-      setEmployees((prev) => {
-        const next = createEmployee(partial, prev);
-        created = persistRecordAudit("employee", next, true, {
-          summary: `Employee ${next.searchKey} created`,
-        });
-        return [...prev, created];
-      });
+      const prev = employeesRef.current;
+      const next = createEmployee(partial, prev);
+      const created = persistRecordAudit("employee", next, true);
+      setEmployees((current) => [...current, created]);
       void persistRemote((supabase) => saveEmployee(supabase, created));
       return created;
     },
-    [persistRemote]
+    [persistRemote, employeesRef]
   );
 
   const getEmployeeById = useCallback(
@@ -675,8 +667,12 @@ export function useConvertEnquiry() {
         enquiry.outcome || `Converted to client ${client.searchKey} on ${new Date().toLocaleDateString("en-AU")}.`,
       updatedBy: "SuperUser",
     };
-    updateEnquiry(updatedEnquiry);
-    upsertClient(client);
+    updateEnquiry(updatedEnquiry, { skip: true });
+    upsertClient(client, {
+      action: "converted",
+      summary: `Client ${client.searchKey} created from enquiry ${enquiry.documentNo}`,
+      detail: client.name,
+    });
     relinkEntityTasks(
       "enquiry",
       enquiryId,
@@ -690,15 +686,7 @@ export function useConvertEnquiry() {
       "converted",
       `Enquiry ${enquiry.documentNo} converted to client`,
       { byUserId: "", byName: updatedEnquiry.updatedBy },
-      `Client ${client.searchKey} — ${client.name}`
-    );
-    logRecordAudit(
-      "client",
-      client.id,
-      "converted",
-      `Client created from enquiry ${enquiry.documentNo}`,
-      { byUserId: "", byName: client.updatedBy },
-      client.name
+      `Status: ${enquiry.status} → 4_Converted\nClient: ${client.searchKey} — ${client.name}`
     );
     return client;
   };

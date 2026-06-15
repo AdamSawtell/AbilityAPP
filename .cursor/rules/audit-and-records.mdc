@@ -1,0 +1,51 @@
+---
+description: Mandatory audit footer on every page and line tables on every record — non-negotiable
+alwaysApply: true
+---
+
+# Audit trail and record tables (required)
+
+These requirements are **not optional**. Every new page and record must ship with them.
+
+## 1. Audit footer on every `AppShell` page
+
+Every view wrapped in `AppShell` **must** pass the `audit` prop.
+
+### List / admin / hub pages (no single record id)
+
+```tsx
+<AppShell title="…" audit={{ moduleLabel: "Enquiries" }}>
+```
+
+### Record detail / singleton config pages
+
+```tsx
+import { auditMetaFrom } from "@/lib/audit";
+
+<AppShell
+  audit={{
+    entityType: "organization",
+    entityId: record.id,
+    meta: auditMetaFrom(stored ?? record),
+  }}
+>
+```
+
+**Checklist**
+
+- [ ] `audit` prop on every `AppShell` — never omit
+- [ ] Detail/singleton pages use `entityType` + `entityId` + `meta` (not only `moduleLabel`)
+- [ ] New types in `web/src/lib/audit.ts` and field labels in `web/src/lib/audit-diff.ts`
+- [ ] Saves call `persistRecordAudit()` outside React `setState` updaters
+
+## 2. Line tables on every record
+
+Repeating child data needs line table config, Supabase child table + migration, data-api/mappers, and a record tab UI.
+
+## 3. Handoff verification
+
+1. Footer visible on the page
+2. Save logs one audit event with field detail in **Full audit trail**
+3. Line tables persist after refresh
+
+See also: `record-audit-footer.tsx`, `audit-mutation.ts`, `record-line-table.tsx`.

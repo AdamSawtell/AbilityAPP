@@ -6,6 +6,8 @@ import { SidebarNav } from "@/components/sidebar-nav";
 import { SessionFooter } from "@/components/session-footer";
 import { RecordAuditFooter } from "@/components/record-audit-footer";
 import type { AppShellAuditProps } from "@/lib/audit";
+import { organizationDisplayName } from "@/lib/organization";
+import { useOrganization } from "@/lib/organization-store";
 import { WorkspaceTabs } from "@/components/workspace-tabs";
 
 export type Breadcrumb = {
@@ -32,16 +34,28 @@ export function AppShell({
   audit?: AppShellAuditProps;
   children: React.ReactNode;
 }) {
+  const { organization } = useOrganization();
+  const orgName = organizationDisplayName(organization);
+
   return (
     <div className="flex min-h-screen bg-[#f4f6f8] text-slate-900">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
         <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-100 px-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4147a] to-[#b51266] text-sm font-bold text-white shadow-sm">
-              a
-            </span>
-            <span className="text-lg font-semibold tracking-tight">
-              Ability<span className="text-[#d4147a]">ERP</span>
+          <Link href="/" className="flex min-w-0 items-center gap-2.5" title={orgName}>
+            {organization.logoUrl?.trim() ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={organization.logoUrl}
+                alt=""
+                className="h-9 w-9 shrink-0 rounded-xl object-contain ring-1 ring-slate-200"
+              />
+            ) : (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4147a] to-[#b51266] text-sm font-bold text-white shadow-sm">
+                a
+              </span>
+            )}
+            <span className="truncate text-lg font-semibold tracking-tight">
+              Ability<span className="text-[#d4147a]">APP</span>
             </span>
           </Link>
         </div>

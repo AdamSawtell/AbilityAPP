@@ -25,6 +25,12 @@ const serviceLinks = [
 
 const adminLinks = [
   {
+    href: "/admin/organization",
+    label: "Organisation",
+    windowKey: "admin-organization",
+    match: (path: string) => path.startsWith("/admin/organization"),
+  },
+  {
     href: "/admin/reference-data",
     label: "Reference data",
     windowKey: "admin-reference-data",
