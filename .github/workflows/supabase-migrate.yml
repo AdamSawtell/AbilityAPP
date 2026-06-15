@@ -58,14 +58,16 @@ jobs:
             echo "Using SUPABASE_ACCESS_TOKEN + SUPABASE_DB_PASSWORD."
             use_link
           else
-            echo "::error title=Supabase credentials not found in GitHub Actions::"
-            echo "Add ONE repository secret (recommended):"
-            echo "  SUPABASE_DB_URL — copy from Supabase → Project Settings → Database → Connect → URI (Session pooler, port 5432)"
-            echo "Or add BOTH repository secrets:"
-            echo "  SUPABASE_ACCESS_TOKEN — https://supabase.com/dashboard/account/tokens"
-            echo "  SUPABASE_DB_PASSWORD — your database password"
+            echo "::warning title=Supabase credentials not configured::"
+            echo "Skipping migrate/seed — no GitHub Actions secrets found for this repository."
             echo ""
-            echo "Important: use the Secrets tab, NOT Variables:"
+            echo "Add ONE repository secret (recommended):"
+            echo "  Name:  SUPABASE_DB_URL"
+            echo "  Value: Postgres URI from Supabase → Database → Connect → URI (Session pooler, port 5432)"
+            echo ""
+            echo "Must be under Secrets (not Variables):"
             echo "  https://github.com/${{ github.repository }}/settings/secrets/actions"
-            exit 1
+            echo ""
+            echo "Database is unchanged. This job exits successfully to avoid failure emails."
+            exit 0
           fi

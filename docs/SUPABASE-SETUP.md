@@ -54,9 +54,9 @@ postgresql://postgres.yonkaaylolrdsjfgpvyp:YOUR_PASSWORD@aws-0-ap-southeast-2.po
 | `SUPABASE_ACCESS_TOKEN` | Personal access token from [Account → Tokens](https://supabase.com/dashboard/account/tokens) |
 | `SUPABASE_DB_PASSWORD` | Database password |
 
-If the workflow still fails in ~5 seconds, the secret is almost always on the **Variables** tab by mistake, or under the wrong repository name.
+If the workflow still fails in ~5 seconds, the secret is almost always on the **Variables** tab by mistake, added as an **organisation** secret without granting this repo access, or under a different repository.
 
-After adding secrets, re-run: [Actions → Supabase migrations → Run workflow](https://github.com/AdamSawtell/AbilityAPP/actions/workflows/supabase-migrate.yml).
+When no secrets are configured, the workflow **skips** migrate/seed and completes successfully (no failure email). Once `SUPABASE_DB_URL` is added, the next run will apply migrations and seeds.
 
 ## Manual commands
 
