@@ -1,0 +1,242 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { AppShell } from "@/components/app-shell";
+import { ACCESS_PROCESSES, ACCESS_WINDOWS } from "@/lib/access/catalog";
+import type { AppRoleRecord } from "@/lib/access/types";
+import { useAuth } from "@/lib/auth-store";
+
+function newRoleId() {
+  return `role-${Date.now()}`;
+}
+
+export function RolesAdminView() {
+  const { roles, upsertRole } = useAuth();
+  const [activeId, setActiveId] = useState<string | null>(roles[0]?.id ?? null);
+  const [draft, setDraft] = useState<AppRoleRecord | null>(null);
+
+  const record = draft ?? roles.find((r) => r.id === activeId) ?? null;
+  const windowsByGroup = useMemo(() => {
+    const map = new Map<string, typeof ACCESS_WINDOWS>();
+    for (const w of ACCESS_WINDOWS) {
+      const list = map.get(w.group) ?? [];
+      list.push(w);
+      map.set(w.group, list);
+    }
+    return map;
+  }, []);
+
+  function openRole(id: string) {
+    const role = roles.find((r) => r.id === id);
+    if (!role) return;
+    setActiveId(id);
+    setDraft({
+      ...role,
+      windowKeys: [...role.windowKeys],
+      processIds: [...role.processIds],
+    });
+  }
+
+  function addRole() {
+    const role: AppRoleRecord = {
+      id: newRoleId(),
+      roleKey: "",
+      name: "",
+      description: "",
+      active: true,
+      windowKeys: [],
+      processIds: [],
+    };
+    setActiveId(role.id);
+    setDraft(role);
+  }
+
+  function toggleWindow(key: string) {
+    if (!record) return;
+    const has = record.windowKeys.includes(key);
+    setDraft({
+      ...record,
+      windowKeys: has ? record.windowKeys.filter((k) => k !== key) : [...record.windowKeys, key],
+    });
+  }
+
+  function toggleProcess(id: string) {
+    if (!record) return;
+    const has = record.processIds.includes(id);
+    setDraft({
+      ...record,
+      processIds: has ? record.processIds.filter((p) => p !== id) : [...record.processIds, id],
+    });
+  }
+
+  async function save() {
+    if (!record?.roleKey.trim() || !record.name.trim()) return;
+    await upsertRole(record);
+    setDraft(null);
+  }
+
+  return (
+    <AppShell
+      title="Roles"
+      subtitle="Roles control which windows and processes a user can see when signed in with that role."
+      breadcrumbs={[
+        { label: "Home", href: "/" },
+        { label: "Admin", href: "/admin/roles" },
+        { label: "Roles" },
+      ]}
+      actions={
+        <button
+          type="button"
+          onClick={addRole}
+          className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
+        >
+          Add role
+        </button>
+      }
+    >
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-2 lg:col-span-1">
+          {roles.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => openRole(r.id)}
+              className={`flex w-full flex-col rounded-xl border px-4 py-3 text-left ${
+                activeId === r.id
+                  ? "border-[#f9a8d4] bg-[#fdf2f8]"
+                  : "border-slate-200 bg-white hover:bg-slate-50"
+              }`}
+            >
+              <span className="font-medium text-slate-900">{r.name}</span>
+              <span className="text-xs text-slate-500">{r.roleKey}</span>
+              <span className="mt-1 text-xs text-slate-400">
+                {r.windowKeys.length} windows · {r.processIds.length} processes
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="lg:col-span-2">
+          {record ? (
+            <div className="space-y-6">
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Role key" value={record.roleKey} onChange={(v) => setDraft({ ...record, roleKey: v })} />
+                  <Field label="Name" value={record.name} onChange={(v) => setDraft({ ...record, name: v })} />
+                </div>
+                <textarea
+                  className="mt-4 min-h-[72px] w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Description"
+                  value={record.description}
+                  onChange={(e) => setDraft({ ...record, description: e.target.value })}
+                />
+                <label className="mt-4 flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={record.active}
+                    onChange={(e) => setDraft({ ...record, active: e.target.checked })}
+                  />
+                  Active
+                </label>
+              </div>
+
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 className="mb-3 text-sm font-semibold text-slate-900">Windows / functions</h2>
+                <p className="mb-4 text-xs text-slate-500">
+                  Only assigned windows appear in the sidebar for users signed in with this role.
+                </p>
+                {[...windowsByGroup.entries()].map(([group, items]) => (
+                  <div key={group} className="mb-4">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{group}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {items.map((w) => (
+                        <label
+                          key={w.key}
+                          title={w.abilityErpName}
+                          className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                            record.windowKeys.includes(w.key)
+                              ? "border-[#d4147a] bg-[#fdf2f8] text-[#b51266]"
+                              : "border-slate-200 text-slate-600"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={record.windowKeys.includes(w.key)}
+                            onChange={() => toggleWindow(w.key)}
+                          />
+                          {w.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </section>
+
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 className="mb-3 text-sm font-semibold text-slate-900">Processes</h2>
+                <p className="mb-4 text-xs text-slate-500">
+                  Assigned processes are available as actions (e.g. Convert to client) for this role only.
+                </p>
+                <div className="space-y-2">
+                  {ACCESS_PROCESSES.map((p) => (
+                    <label
+                      key={p.id}
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 ${
+                        record.processIds.includes(p.id)
+                          ? "border-[#d4147a] bg-[#fdf2f8]"
+                          : "border-slate-200"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={record.processIds.includes(p.id)}
+                        onChange={() => toggleProcess(p.id)}
+                      />
+                      <span>
+                        <span className="block text-sm font-medium text-slate-900">{p.label}</span>
+                        <span className="text-xs text-slate-500">{p.description}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <button
+                type="button"
+                onClick={() => void save()}
+                className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
+              >
+                Save role
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">Select a role or add a new one.</p>
+          )}
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#d4147a]"
+      />
+    </div>
+  );
+}

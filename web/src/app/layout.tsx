@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AuthGate, AuthProvider } from "@/lib/auth-store";
 import { DataProvider } from "@/lib/data-store";
 import { ReferenceDataProvider } from "@/lib/config-store";
 import { WorkspaceProvider } from "@/lib/workspace-store";
@@ -28,11 +29,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
-        <ReferenceDataProvider>
-          <DataProvider>
-            <WorkspaceProvider>{children}</WorkspaceProvider>
-          </DataProvider>
-        </ReferenceDataProvider>
+        <AuthProvider>
+          <AuthGate>
+            <ReferenceDataProvider>
+              <DataProvider>
+                <WorkspaceProvider>{children}</WorkspaceProvider>
+              </DataProvider>
+            </ReferenceDataProvider>
+          </AuthGate>
+        </AuthProvider>
       </body>
     </html>
   );

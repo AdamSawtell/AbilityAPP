@@ -9,6 +9,7 @@ import { ClientRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useConvertEnquiry, useData } from "@/lib/data-store";
+import { useAuth } from "@/lib/auth-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import { formSections, type EnquiryRecord } from "@/lib/enquiry";
 
@@ -16,6 +17,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
   const router = useRouter();
   const { enquiries, updateEnquiry, getClientByEnquiryId } = useData();
   const convert = useConvertEnquiry();
+  const { canProcess } = useAuth();
   const { openEnquiry, setTabDirty } = useWorkspace();
   const stored = enquiries.find((r) => r.id === id);
   const linkedClient = getClientByEnquiryId(id);
@@ -112,7 +114,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
               >
                 View client
               </ClientRecordLink>
-            ) : (
+            ) : canProcess("enquiry-to-client") ? (
               <button
                 type="button"
                 disabled={converting || isConverted || hasUnsavedChanges}
@@ -122,7 +124,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
               >
                 {isConverted ? "Converted" : converting ? "Converting…" : "Convert to client"}
               </button>
-            )}
+            ) : null}
           </>
         }
       >

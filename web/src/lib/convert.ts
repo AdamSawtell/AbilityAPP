@@ -1,3 +1,6 @@
+/**
+ * Process: enquiry-to-client (see docs/processes/01-enquiry-to-client.md)
+ */
 import { emptyClientFromEnquiry, type ClientRecord } from "@/lib/client";
 import type { EnquiryRecord } from "@/lib/enquiry";
 

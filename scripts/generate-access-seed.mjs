@@ -1,0 +1,79 @@
+/**
+ * Generates supabase/seed-access.sql
+ * Run: cd web && npx tsx ../scripts/generate-access-seed.mjs
+ */
+import { writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+const { SEED_USERS, SEED_ROLES } = await import(
+  pathToFileURL(join(root, "web", "src", "lib", "access", "seed.ts")).href
+);
+
+function sqlString(value) {
+  if (value === null || value === undefined) return "''";
+  return `'${String(value).replace(/'/g, "''")}'`;
+}
+
+const lines = [
+  "-- Users, roles, and access seed",
+  "-- Re-run: npm run supabase:seed-access",
+  "",
+];
+
+lines.push("insert into public.app_role (id, role_key, name, description, active)");
+lines.push("values");
+lines.push(
+  SEED_ROLES.map(
+    (r) =>
+      `  (${sqlString(r.id)}, ${sqlString(r.roleKey)}, ${sqlString(r.name)}, ${sqlString(r.description)}, ${r.active})`
+  ).join(",\n")
+);
+lines.push("on conflict (id) do update set");
+lines.push("  role_key = excluded.role_key, name = excluded.name, description = excluded.description, active = excluded.active;");
+lines.push("");
+
+lines.push("insert into public.app_user (id, username, email, first_name, last_name, phone, active, employee_bp_id, notes)");
+lines.push("values");
+lines.push(
+  SEED_USERS.map(
+    (u) =>
+      `  (${sqlString(u.id)}, ${sqlString(u.username)}, ${sqlString(u.email)}, ${sqlString(u.firstName)}, ${sqlString(u.lastName)}, ${sqlString(u.phone)}, ${u.active}, null, ${sqlString(u.notes)})`
+  ).join(",\n")
+);
+lines.push("on conflict (id) do update set");
+lines.push(
+  "  username = excluded.username, email = excluded.email, first_name = excluded.first_name, last_name = excluded.last_name, phone = excluded.phone, active = excluded.active, notes = excluded.notes;"
+);
+lines.push("");
+
+const userRoles = SEED_USERS.flatMap((u) => u.roleIds.map((role_id) => ({ user_id: u.id, role_id })));
+lines.push("insert into public.app_user_role (user_id, role_id)");
+lines.push("values");
+lines.push(userRoles.map((r) => `  (${sqlString(r.user_id)}, ${sqlString(r.role_id)})`).join(",\n"));
+lines.push("on conflict do nothing;");
+lines.push("");
+
+const roleWindows = SEED_ROLES.flatMap((r) => r.windowKeys.map((window_key) => ({ role_id: r.id, window_key })));
+lines.push("delete from public.app_role_window where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
+if (roleWindows.length) {
+  lines.push("insert into public.app_role_window (role_id, window_key)");
+  lines.push("values");
+  lines.push(roleWindows.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.window_key)})`).join(",\n"));
+  lines.push("on conflict do nothing;");
+}
+lines.push("");
+
+const roleProcesses = SEED_ROLES.flatMap((r) => r.processIds.map((process_id) => ({ role_id: r.id, process_id })));
+lines.push("delete from public.app_role_process where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
+if (roleProcesses.length) {
+  lines.push("insert into public.app_role_process (role_id, process_id)");
+  lines.push("values");
+  lines.push(roleProcesses.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.process_id)})`).join(",\n"));
+  lines.push("on conflict do nothing;");
+}
+
+writeFileSync(join(root, "supabase", "seed-access.sql"), lines.join("\n"), "utf8");
+console.log("Wrote supabase/seed-access.sql");

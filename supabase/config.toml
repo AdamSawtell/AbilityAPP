@@ -20,7 +20,7 @@ enabled = true
 
 [db.seed]
 enabled = true
-sql_paths = ["./seed.sql", "./seed-entities.sql"]
+sql_paths = ["./seed.sql", "./seed-entities.sql", "./seed-access.sql"]
 
 [studio]
 enabled = true

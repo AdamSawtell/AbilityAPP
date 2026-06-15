@@ -49,6 +49,8 @@ localStorage.removeItem('abilityerp-reference-data')
 - **Service agreements** — linked to clients and products
 - **Admin** — reference data for configurable dropdowns
 
+**Core processes** (workflows such as enquiry → client): [docs/processes/README.md](docs/processes/README.md)
+
 Service bookings and a shared database (Supabase) are on the roadmap.
 
 ## Supabase

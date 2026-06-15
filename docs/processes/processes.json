@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "description": "Machine-readable index of AbilityAPP core processes. Human summary: docs/processes/README.md",
+  "processes": [
+    {
+      "number": 1,
+      "id": "enquiry-to-client",
+      "name": "Enquiry to client",
+      "status": "live",
+      "summary": "Converts an enquiry into a new support receiver client, links them, sets enquiry status to Converted, and opens the client record.",
+      "doc": "docs/processes/01-enquiry-to-client.md",
+      "trigger": "User clicks Convert to client on an enquiry detail page",
+      "entryPoints": [
+        "web/src/components/enquiry-pages.tsx",
+        "web/src/lib/data-store.tsx"
+      ],
+      "logic": [
+        "web/src/lib/convert.ts",
+        "web/src/lib/client.ts"
+      ],
+      "tables": ["enquiry", "client", "client_alert"]
+    }
+  ]
+}

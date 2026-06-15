@@ -10,6 +10,18 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 **Every feature from here needs a DB update.** Read [../docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) before adding fields, entities, or tabs.
 
+## Core processes
+
+Documented in [../docs/processes/README.md](../docs/processes/README.md).  
+Index: [../docs/processes/processes.json](../docs/processes/processes.json).
+
+When you add or change a business process (workflow, conversion, approval, etc.):
+
+1. Add or update a numbered file in `docs/processes/`.
+2. Update the table in `docs/processes/README.md` and `docs/processes/processes.json`.
+
+**Process 1 (live):** Enquiry → Client (`enquiry-to-client`).
+
 - Migrations: `supabase/migrations/`
 - App data layer: `web/src/lib/supabase/` (`mappers.ts`, `data-api.ts`)
 - UI state: `web/src/lib/data-store.tsx` (loads/saves via Supabase when env vars are set)

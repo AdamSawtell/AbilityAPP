@@ -6,7 +6,7 @@ on:
     paths:
       - "supabase/migrations/**"
       - "supabase/seed.sql"
-      - "supabase/seed-entities.sql"
+      - "supabase/seed-access.sql"
   workflow_dispatch:
 
 jobs:
@@ -34,3 +34,6 @@ jobs:
 
       - name: Apply entity seed
         run: supabase db query --linked -f supabase/seed-entities.sql
+
+      - name: Apply access seed
+        run: supabase db query --linked -f supabase/seed-access.sql

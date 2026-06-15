@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { clientTabGroups } from "@/lib/client";
+import { useAuth } from "@/lib/auth-store";
 import { useWorkspace } from "@/lib/workspace-store";
 
 const mainLinks = [
@@ -11,12 +12,14 @@ const mainLinks = [
     href: "/",
     label: "Home",
     icon: "home",
+    windowKey: "home",
     match: (path: string) => path === "/",
   },
   {
     href: "/enquiries",
     label: "Enquiries",
     icon: "enquiry",
+    windowKey: "enquiries",
     match: (path: string) => path.startsWith("/enquiries"),
     kind: "enquiry" as const,
   },
@@ -24,17 +27,19 @@ const mainLinks = [
     href: "/clients",
     label: "Clients",
     icon: "client",
+    windowKey: "clients",
     match: (path: string) => path.startsWith("/clients"),
     kind: "client" as const,
   },
 ];
 
 const serviceLinks = [
-  { href: "/products", label: "Products", match: (path: string) => path.startsWith("/products") },
-  { href: "/price-lists", label: "Price lists", match: (path: string) => path.startsWith("/price-lists") },
+  { href: "/products", label: "Products", windowKey: "products", match: (path: string) => path.startsWith("/products") },
+  { href: "/price-lists", label: "Price lists", windowKey: "price-lists", match: (path: string) => path.startsWith("/price-lists") },
   {
     href: "/service-agreements",
     label: "Service agreements",
+    windowKey: "service-agreements",
     match: (path: string) => path.startsWith("/service-agreements"),
   },
 ];
@@ -43,7 +48,20 @@ const adminLinks = [
   {
     href: "/admin/reference-data",
     label: "Reference data",
-    match: (path: string) => path.startsWith("/admin"),
+    windowKey: "admin-reference-data",
+    match: (path: string) => path.startsWith("/admin/reference-data"),
+  },
+  {
+    href: "/admin/users",
+    label: "Users",
+    windowKey: "admin-users",
+    match: (path: string) => path.startsWith("/admin/users"),
+  },
+  {
+    href: "/admin/roles",
+    label: "Roles",
+    windowKey: "admin-roles",
+    match: (path: string) => path.startsWith("/admin/roles"),
   },
 ];
 
@@ -73,12 +91,17 @@ export function SidebarNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { tabs } = useWorkspace();
+  const { canWindow } = useAuth();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     enquiries: true,
     clients: true,
     services: true,
     admin: false,
   });
+
+  const visibleMainLinks = mainLinks.filter((l) => canWindow(l.windowKey));
+  const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
+  const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
 
   const clientMatch = pathname.match(/^\/clients\/([^/]+)/);
   const activeClientId = clientMatch?.[1];
@@ -93,7 +116,7 @@ export function SidebarNav() {
 
   return (
     <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
-      {mainLinks.map((link) => {
+      {visibleMainLinks.map((link) => {
         const active = link.match(pathname);
         const sectionKey = link.kind;
         const isExpandable = Boolean(sectionKey);
@@ -148,7 +171,7 @@ export function SidebarNav() {
                 >
                   All {link.label.toLowerCase()}
                 </Link>
-                {sectionKey === "client" ? (
+                {sectionKey === "client" && canWindow("service-agreements") ? (
                   <Link
                     href="/service-agreements"
                     className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
@@ -220,6 +243,7 @@ export function SidebarNav() {
         );
       })}
 
+      {visibleServiceLinks.length > 0 ? (
       <div className="mt-2 border-t border-slate-200 pt-3">
         <div className="flex items-center gap-0.5">
           <span className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600">
@@ -249,7 +273,7 @@ export function SidebarNav() {
         </div>
         {expanded.services !== false ? (
           <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
-            {serviceLinks.map((link) => (
+            {visibleServiceLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -265,7 +289,9 @@ export function SidebarNav() {
           </div>
         ) : null}
       </div>
+      ) : null}
 
+      {visibleAdminLinks.length > 0 ? (
       <div className="mt-2 border-t border-slate-200 pt-3">
         <div className="flex items-center gap-0.5">
           <span className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600">
@@ -296,7 +322,7 @@ export function SidebarNav() {
         </div>
         {expanded.admin ? (
           <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
-            {adminLinks.map((link) => (
+            {visibleAdminLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -312,6 +338,7 @@ export function SidebarNav() {
           </div>
         ) : null}
       </div>
+      ) : null}
     </nav>
   );
 }

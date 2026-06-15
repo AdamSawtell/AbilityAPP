@@ -14,9 +14,12 @@ When you add or change app behaviour, also:
 4. Regenerate seed SQL if sample data changed:
    - Reference lists: `npm run supabase:seed`
    - Entities: `npm run supabase:seed-entities`
-5. Push to `main` — CI runs `supabase db push` and reapplies seeds.
+   - Users/roles: `npm run supabase:seed-access`
+5. Add new **windows** to `web/src/lib/access/catalog.ts` when shipping a new module.
 
 Do **not** rely on the Supabase SQL editor for routine schema work. Migrations in Git are the source of truth.
+
+6. Push to `main` — CI runs `supabase db push` and reapplies seeds.
 
 ## Current schema
 
@@ -31,6 +34,11 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `contract` / `contract_audit` | Legacy contracts module |
 | `support_plan` / `support_plan_goal` | Support plans |
 | `plan_assessment_document` | Plan & assessment documents |
+| `app_user` | Application login users |
+| `app_role` | Security roles |
+| `app_user_role` | User ↔ role (many-to-many) |
+| `app_role_window` | Role ↔ menu window |
+| `app_role_process` | Role ↔ business process |
 
 ## Not built yet (needs migration when added)
 

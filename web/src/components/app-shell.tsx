@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { SidebarNav } from "@/components/sidebar-nav";
+import { SessionFooter } from "@/components/session-footer";
 import { WorkspaceTabs } from "@/components/workspace-tabs";
 
 export type Breadcrumb = {
@@ -47,17 +48,7 @@ export function AppShell({
           </Suspense>
         </div>
 
-        <div className="shrink-0 border-t border-slate-100 p-4">
-          <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#d4147a]/10 text-sm font-semibold text-[#b51266]">
-              SU
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-slate-900">SuperUser</p>
-              <p className="truncate text-xs text-slate-500">AbilityERP Admin</p>
-            </div>
-          </div>
-        </div>
+        <SessionFooter />
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col pl-64">
