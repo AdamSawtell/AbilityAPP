@@ -2,7 +2,17 @@
 
 import type { ClientRecord } from "@/lib/client";
 import type { ContractRecord } from "@/lib/contract";
-import type { EmployeeRecord, EmployeeCredentialRow } from "@/lib/employee";
+import type {
+  EmployeeRecord,
+  EmployeeActivityRow,
+  EmployeeAlertRow,
+  EmployeeCredentialRow,
+  EmployeeDocumentRow,
+  EmployeeEmergencyContactRow,
+  EmployeeLeaveEntitlementRow,
+  EmployeeLocationRow,
+  EmployeeSkillRow,
+} from "@/lib/employee";
 import type { EnquiryRecord } from "@/lib/enquiry";
 import type {
   PriceListLine,
@@ -938,10 +948,148 @@ export type EmployeeRow = {
   job_title: string;
   department: string;
   employment_status: string;
+  employment_type: string;
   start_date: string | null;
   end_date: string | null;
+  probation_end_date: string | null;
+  confirmation_date: string | null;
+  notice_days: number | null;
+  site_branch: string;
+  cost_centre: string;
+  gender: string;
+  birthday: string | null;
+  employee_number: string;
+  reports_to_id: string | null;
+  manager_name: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  driver_licence_class: string;
+  driver_licence_expiry: string | null;
+  visa_subclass: string;
+  visa_expiry: string | null;
+  work_rights_notes: string;
+  bank_name: string;
+  bank_bsb: string;
+  bank_account_number: string;
+  pay_method: string;
+  tfn: string;
+  tax_declaration: string;
+  super_fund: string;
+  super_member_number: string;
+  standard_hours_per_week: number | null;
+  fte: number | null;
+  leave_policy: string;
+  medical_restrictions_notes: string;
+  notes: string;
   created_by: string;
   updated_by: string;
+};
+
+export type EmployeeChildRows = {
+  credentials?: EmployeeCredentialRowDb[];
+  locations?: EmployeeLocationRowDb[];
+  emergencyContacts?: EmployeeEmergencyContactRowDb[];
+  alerts?: EmployeeAlertRowDb[];
+  skills?: EmployeeSkillRowDb[];
+  documents?: EmployeeDocumentRowDb[];
+  activities?: EmployeeActivityRowDb[];
+  leaveEntitlements?: EmployeeLeaveEntitlementRowDb[];
+};
+
+export type EmployeeLocationRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  name: string;
+  address_type: string;
+  address1: string;
+  address2: string;
+  address3: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  primary_address: string;
+  active: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  access_notes: string;
+  description: string;
+};
+
+export type EmployeeEmergencyContactRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  contact_type: string;
+  name: string;
+  relationship: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  call_order: number;
+  primary_contact: string;
+  notes: string;
+};
+
+export type EmployeeAlertRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  alert_type: string;
+  show_as_alert: string;
+  name: string;
+  description: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  source: string;
+};
+
+export type EmployeeSkillRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  skill_type: string;
+  name: string;
+  proficiency: string;
+  notes: string;
+};
+
+export type EmployeeDocumentRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  document_type: string;
+  name: string;
+  document_ref: string;
+  issue_date: string | null;
+  expiry_date: string | null;
+  status: string;
+  notes: string;
+};
+
+export type EmployeeActivityRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  activity_date: string | null;
+  activity_type: string;
+  subject: string;
+  description: string;
+  created_by: string;
+};
+
+export type EmployeeLeaveEntitlementRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  leave_type: string;
+  entitlement_days: number;
+  balance_days: number;
+  accrual_notes: string;
 };
 
 export type EmployeeCredentialRowDb = {
@@ -960,6 +1108,109 @@ export type EmployeeCredentialRowDb = {
   updated_by: string;
 };
 
+export function employeeLocationFromRow(row: EmployeeLocationRowDb): EmployeeLocationRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    name: row.name,
+    addressType: row.address_type,
+    address1: row.address1,
+    address2: row.address2,
+    address3: row.address3,
+    city: row.city,
+    state: row.state,
+    postcode: row.postcode,
+    country: row.country,
+    phone: row.phone,
+    mobile: row.mobile,
+    email: row.email,
+    primaryAddress: row.primary_address,
+    active: row.active,
+    validFrom: strDate(row.valid_from),
+    validTo: strDate(row.valid_to),
+    accessNotes: row.access_notes,
+    description: row.description,
+  };
+}
+
+export function employeeEmergencyContactFromRow(row: EmployeeEmergencyContactRowDb): EmployeeEmergencyContactRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    contactType: row.contact_type,
+    name: row.name,
+    relationship: row.relationship,
+    phone: row.phone,
+    mobile: row.mobile,
+    email: row.email,
+    callOrder: row.call_order,
+    primaryContact: row.primary_contact,
+    notes: row.notes,
+  };
+}
+
+export function employeeAlertFromRow(row: EmployeeAlertRowDb): EmployeeAlertRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    alertType: row.alert_type,
+    showAsAlert: row.show_as_alert,
+    name: row.name,
+    description: row.description,
+    validFrom: strDate(row.valid_from),
+    validTo: strDate(row.valid_to),
+    source: row.source,
+  };
+}
+
+export function employeeSkillFromRow(row: EmployeeSkillRowDb): EmployeeSkillRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    skillType: row.skill_type,
+    name: row.name,
+    proficiency: row.proficiency,
+    notes: row.notes,
+  };
+}
+
+export function employeeDocumentFromRow(row: EmployeeDocumentRowDb): EmployeeDocumentRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    documentType: row.document_type,
+    name: row.name,
+    documentRef: row.document_ref,
+    issueDate: strDate(row.issue_date),
+    expiryDate: strDate(row.expiry_date),
+    status: row.status,
+    notes: row.notes,
+  };
+}
+
+export function employeeActivityFromRow(row: EmployeeActivityRowDb): EmployeeActivityRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    date: strDate(row.activity_date),
+    activityType: row.activity_type,
+    subject: row.subject,
+    description: row.description,
+    createdBy: row.created_by,
+  };
+}
+
+export function employeeLeaveEntitlementFromRow(row: EmployeeLeaveEntitlementRowDb): EmployeeLeaveEntitlementRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    leaveType: row.leave_type,
+    entitlementDays: Number(row.entitlement_days) || 0,
+    balanceDays: Number(row.balance_days) || 0,
+    accrualNotes: row.accrual_notes,
+  };
+}
+
 export function employeeCredentialFromRow(row: EmployeeCredentialRowDb): EmployeeCredentialRow {
   return {
     id: row.id,
@@ -977,7 +1228,7 @@ export function employeeCredentialFromRow(row: EmployeeCredentialRowDb): Employe
   };
 }
 
-export function employeeFromRow(row: EmployeeRow, credentials: EmployeeCredentialRowDb[] = []): EmployeeRecord {
+export function employeeFromRow(row: EmployeeRow, children: EmployeeChildRows = {}): EmployeeRecord {
   return {
     id: row.id,
     searchKey: row.search_key,
@@ -993,11 +1244,46 @@ export function employeeFromRow(row: EmployeeRow, credentials: EmployeeCredentia
     jobTitle: row.job_title,
     department: row.department,
     employmentStatus: row.employment_status,
+    employmentType: row.employment_type ?? "",
     startDate: strDate(row.start_date),
     endDate: strDate(row.end_date),
+    probationEndDate: strDate(row.probation_end_date),
+    confirmationDate: strDate(row.confirmation_date),
+    noticeDays: row.notice_days != null ? String(row.notice_days) : "",
+    siteBranch: row.site_branch ?? "",
+    costCentre: row.cost_centre ?? "",
+    gender: row.gender,
+    birthday: strDate(row.birthday),
+    employeeNumber: row.employee_number,
+    reportsToId: row.reports_to_id ?? "",
+    driverLicenceClass: row.driver_licence_class ?? "",
+    driverLicenceExpiry: strDate(row.driver_licence_expiry),
+    visaSubclass: row.visa_subclass ?? "",
+    visaExpiry: strDate(row.visa_expiry),
+    workRightsNotes: row.work_rights_notes ?? "",
+    bankName: row.bank_name ?? "",
+    bankBsb: row.bank_bsb ?? "",
+    bankAccountNumber: row.bank_account_number ?? "",
+    payMethod: row.pay_method ?? "",
+    tfn: row.tfn ?? "",
+    taxDeclaration: row.tax_declaration ?? "",
+    superFund: row.super_fund ?? "",
+    superMemberNumber: row.super_member_number ?? "",
+    standardHoursPerWeek: row.standard_hours_per_week != null ? String(row.standard_hours_per_week) : "",
+    fte: row.fte != null ? String(row.fte) : "",
+    leavePolicy: row.leave_policy ?? "",
+    medicalRestrictionsNotes: row.medical_restrictions_notes ?? "",
+    notes: row.notes,
     createdBy: row.created_by,
     updatedBy: row.updated_by,
-    credentials: credentials.map(employeeCredentialFromRow),
+    credentials: (children.credentials ?? []).map(employeeCredentialFromRow),
+    locations: (children.locations ?? []).map(employeeLocationFromRow),
+    emergencyContacts: (children.emergencyContacts ?? []).map(employeeEmergencyContactFromRow),
+    alerts: (children.alerts ?? []).map(employeeAlertFromRow),
+    skills: (children.skills ?? []).map(employeeSkillFromRow),
+    documents: (children.documents ?? []).map(employeeDocumentFromRow),
+    activities: (children.activities ?? []).map(employeeActivityFromRow),
+    leaveEntitlements: (children.leaveEntitlements ?? []).map(employeeLeaveEntitlementFromRow),
   };
 }
 
@@ -1017,8 +1303,39 @@ export function employeeToRow(record: EmployeeRecord): EmployeeRow {
     job_title: record.jobTitle,
     department: record.department,
     employment_status: record.employmentStatus,
+    employment_type: record.employmentType,
     start_date: toDate(record.startDate),
     end_date: toDate(record.endDate),
+    probation_end_date: toDate(record.probationEndDate),
+    confirmation_date: toDate(record.confirmationDate),
+    notice_days: record.noticeDays?.trim() ? Number(record.noticeDays) : null,
+    site_branch: record.siteBranch,
+    cost_centre: record.costCentre,
+    gender: record.gender,
+    birthday: toDate(record.birthday),
+    employee_number: record.employeeNumber,
+    reports_to_id: record.reportsToId?.trim() ? record.reportsToId : null,
+    manager_name: "",
+    emergency_contact_name: "",
+    emergency_contact_phone: "",
+    driver_licence_class: record.driverLicenceClass,
+    driver_licence_expiry: toDate(record.driverLicenceExpiry),
+    visa_subclass: record.visaSubclass,
+    visa_expiry: toDate(record.visaExpiry),
+    work_rights_notes: record.workRightsNotes,
+    bank_name: record.bankName,
+    bank_bsb: record.bankBsb,
+    bank_account_number: record.bankAccountNumber,
+    pay_method: record.payMethod,
+    tfn: record.tfn,
+    tax_declaration: record.taxDeclaration,
+    super_fund: record.superFund,
+    super_member_number: record.superMemberNumber,
+    standard_hours_per_week: record.standardHoursPerWeek?.trim() ? Number(record.standardHoursPerWeek) : null,
+    fte: record.fte?.trim() ? Number(record.fte) : null,
+    leave_policy: record.leavePolicy,
+    medical_restrictions_notes: record.medicalRestrictionsNotes,
+    notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { EmployeeRecordLink } from "@/components/record-link";
+import { complianceSummary } from "@/lib/employee-compliance";
 import {
   departmentOptions,
   employmentStatusOptions,
@@ -9,6 +10,27 @@ import {
 } from "@/lib/employee";
 
 const PAGE_SIZE = 50;
+
+function ComplianceBadge({ employee }: { employee: EmployeeRecord }) {
+  const summary = complianceSummary(employee);
+  if (summary.level === "ok") {
+    return (
+      <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-800 ring-1 ring-emerald-200">
+        Compliant
+      </span>
+    );
+  }
+  const styles =
+    summary.level === "critical"
+      ? "bg-red-50 text-red-800 ring-red-200"
+      : "bg-amber-50 text-amber-800 ring-amber-200";
+  const label = summary.level === "critical" ? "Action needed" : "Expiring";
+  return (
+    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${styles}`} title={summary.messages.join("; ")}>
+      {label}
+    </span>
+  );
+}
 
 function EmployeeStatusBadge({ status }: { status: string }) {
   const styles =
@@ -129,13 +151,14 @@ export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
               <th className="px-4 py-3 font-medium">Job title</th>
               <th className="px-4 py-3 font-medium">Department</th>
               <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Compliance</th>
               <th className="px-4 py-3 font-medium">Email</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                   No employees match your filters.
                 </td>
               </tr>
@@ -155,6 +178,9 @@ export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
                   <td className="px-4 py-3 text-slate-600">{record.department || "—"}</td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <EmployeeStatusBadge status={record.employmentStatus} />
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <ComplianceBadge employee={record} />
                   </td>
                   <td className="max-w-[220px] truncate px-4 py-3 text-slate-600" title={record.email}>
                     {record.email || "—"}

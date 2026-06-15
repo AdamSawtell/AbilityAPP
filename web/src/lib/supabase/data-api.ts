@@ -41,6 +41,13 @@ import {
   type EnquiryRow,
   type EmployeeRow,
   type EmployeeCredentialRowDb,
+  type EmployeeLocationRowDb,
+  type EmployeeEmergencyContactRowDb,
+  type EmployeeAlertRowDb,
+  type EmployeeSkillRowDb,
+  type EmployeeDocumentRowDb,
+  type EmployeeActivityRowDb,
+  type EmployeeLeaveEntitlementRowDb,
   type PlanAssessmentDocumentRow,
   type PriceListLineRow,
   type PriceListRow,
@@ -92,6 +99,13 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     planDocsRes,
     employeesRes,
     employeeCredsRes,
+    employeeLocsRes,
+    employeeEcRes,
+    employeeAlertsRes,
+    employeeSkillsRes,
+    employeeDocsRes,
+    employeeActsRes,
+    employeeLeaveRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("client").select("*").order("search_key"),
@@ -110,6 +124,13 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("plan_assessment_document").select("*").order("document_no"),
     supabase.from("employee").select("*").order("last_name").order("first_name"),
     supabase.from("employee_credential").select("*").order("line_no"),
+    supabase.from("employee_location").select("*").order("line_no"),
+    supabase.from("employee_emergency_contact").select("*").order("line_no"),
+    supabase.from("employee_alert").select("*").order("line_no"),
+    supabase.from("employee_skill").select("*").order("line_no"),
+    supabase.from("employee_document").select("*").order("line_no"),
+    supabase.from("employee_activity").select("*").order("line_no"),
+    supabase.from("employee_leave_entitlement").select("*").order("line_no"),
   ]);
 
   const firstError =
@@ -129,7 +150,14 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     goalsRes.error ??
     planDocsRes.error ??
     employeesRes.error ??
-    employeeCredsRes.error;
+    employeeCredsRes.error ??
+    employeeLocsRes.error ??
+    employeeEcRes.error ??
+    employeeAlertsRes.error ??
+    employeeSkillsRes.error ??
+    employeeDocsRes.error ??
+    employeeActsRes.error ??
+    employeeLeaveRes.error;
 
   if (firstError) throw firstError;
 
@@ -141,6 +169,13 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
   const goalsByPlan = groupBy(goalsRes.data as SupportPlanGoalRow[], "support_plan_id");
   const credsByEmployee = groupBy(employeeCredsRes.data as EmployeeCredentialRowDb[], "employee_id");
+  const locsByEmployee = groupBy(employeeLocsRes.data as EmployeeLocationRowDb[], "employee_id");
+  const ecByEmployee = groupBy(employeeEcRes.data as EmployeeEmergencyContactRowDb[], "employee_id");
+  const alertsByEmployee = groupBy(employeeAlertsRes.data as EmployeeAlertRowDb[], "employee_id");
+  const skillsByEmployee = groupBy(employeeSkillsRes.data as EmployeeSkillRowDb[], "employee_id");
+  const docsByEmployee = groupBy(employeeDocsRes.data as EmployeeDocumentRowDb[], "employee_id");
+  const actsByEmployee = groupBy(employeeActsRes.data as EmployeeActivityRowDb[], "employee_id");
+  const leaveByEmployee = groupBy(employeeLeaveRes.data as EmployeeLeaveEntitlementRowDb[], "employee_id");
 
   return {
     enquiries: ((enquiriesRes.data ?? []) as EnquiryRow[]).map(enquiryFromRow),
@@ -169,7 +204,18 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     planDocuments: ((planDocsRes.data ?? []) as PlanAssessmentDocumentRow[]).map(planDocumentFromRow),
     employees: ((employeesRes.data ?? []) as EmployeeRow[]).map((row) =>
-      normalizeEmployee(employeeFromRow(row, credsByEmployee.get(row.id) ?? []))
+      normalizeEmployee(
+        employeeFromRow(row, {
+          credentials: credsByEmployee.get(row.id) ?? [],
+          locations: locsByEmployee.get(row.id) ?? [],
+          emergencyContacts: ecByEmployee.get(row.id) ?? [],
+          alerts: alertsByEmployee.get(row.id) ?? [],
+          skills: skillsByEmployee.get(row.id) ?? [],
+          documents: docsByEmployee.get(row.id) ?? [],
+          activities: actsByEmployee.get(row.id) ?? [],
+          leaveEntitlements: leaveByEmployee.get(row.id) ?? [],
+        })
+      )
     ),
   };
 }
@@ -389,5 +435,145 @@ export async function saveEmployee(supabase: SupabaseClient, record: EmployeeRec
       }))
     );
     if (credError) throw credError;
+  }
+
+  await replaceChildRows(supabase, "employee_location", "employee_id", normalized.id);
+
+  if (normalized.locations.length) {
+    const { error: locError } = await supabase.from("employee_location").insert(
+      normalized.locations.map((l) => ({
+        id: l.id,
+        employee_id: normalized.id,
+        line_no: l.lineNo,
+        name: l.name,
+        address_type: l.addressType,
+        address1: l.address1,
+        address2: l.address2,
+        address3: l.address3,
+        city: l.city,
+        state: l.state,
+        postcode: l.postcode,
+        country: l.country,
+        phone: l.phone,
+        mobile: l.mobile,
+        email: l.email,
+        primary_address: l.primaryAddress,
+        active: l.active,
+        valid_from: l.validFrom || null,
+        valid_to: l.validTo || null,
+        access_notes: l.accessNotes,
+        description: l.description,
+      }))
+    );
+    if (locError) throw locError;
+  }
+
+  await replaceChildRows(supabase, "employee_emergency_contact", "employee_id", normalized.id);
+  if (normalized.emergencyContacts.length) {
+    const { error } = await supabase.from("employee_emergency_contact").insert(
+      normalized.emergencyContacts.map((c) => ({
+        id: c.id,
+        employee_id: normalized.id,
+        line_no: c.lineNo,
+        contact_type: c.contactType,
+        name: c.name,
+        relationship: c.relationship,
+        phone: c.phone,
+        mobile: c.mobile,
+        email: c.email,
+        call_order: c.callOrder,
+        primary_contact: c.primaryContact,
+        notes: c.notes,
+      }))
+    );
+    if (error) throw error;
+  }
+
+  const manualAlerts = normalized.alerts.filter((a) => a.source !== "System");
+  await replaceChildRows(supabase, "employee_alert", "employee_id", normalized.id);
+  if (manualAlerts.length) {
+    const { error } = await supabase.from("employee_alert").insert(
+      manualAlerts.map((a) => ({
+        id: a.id,
+        employee_id: normalized.id,
+        line_no: a.lineNo,
+        alert_type: a.alertType,
+        show_as_alert: a.showAsAlert,
+        name: a.name,
+        description: a.description,
+        valid_from: a.validFrom || null,
+        valid_to: a.validTo || null,
+        source: a.source || "Manual",
+      }))
+    );
+    if (error) throw error;
+  }
+
+  await replaceChildRows(supabase, "employee_skill", "employee_id", normalized.id);
+  if (normalized.skills.length) {
+    const { error } = await supabase.from("employee_skill").insert(
+      normalized.skills.map((s) => ({
+        id: s.id,
+        employee_id: normalized.id,
+        line_no: s.lineNo,
+        skill_type: s.skillType,
+        name: s.name,
+        proficiency: s.proficiency,
+        notes: s.notes,
+      }))
+    );
+    if (error) throw error;
+  }
+
+  await replaceChildRows(supabase, "employee_document", "employee_id", normalized.id);
+  if (normalized.documents.length) {
+    const { error } = await supabase.from("employee_document").insert(
+      normalized.documents.map((d) => ({
+        id: d.id,
+        employee_id: normalized.id,
+        line_no: d.lineNo,
+        document_type: d.documentType,
+        name: d.name,
+        document_ref: d.documentRef,
+        issue_date: d.issueDate || null,
+        expiry_date: d.expiryDate || null,
+        status: d.status,
+        notes: d.notes,
+      }))
+    );
+    if (error) throw error;
+  }
+
+  await replaceChildRows(supabase, "employee_activity", "employee_id", normalized.id);
+  if (normalized.activities.length) {
+    const { error } = await supabase.from("employee_activity").insert(
+      normalized.activities.map((a) => ({
+        id: a.id,
+        employee_id: normalized.id,
+        line_no: a.lineNo,
+        activity_date: a.date || null,
+        activity_type: a.activityType,
+        subject: a.subject,
+        description: a.description,
+        created_by: a.createdBy,
+      }))
+    );
+    if (error) throw error;
+  }
+
+  await replaceChildRows(supabase, "employee_leave_entitlement", "employee_id", normalized.id);
+  if (normalized.leaveEntitlements.length) {
+    const { error } = await supabase.from("employee_leave_entitlement").insert(
+      normalized.leaveEntitlements.map((l) => ({
+        id: l.id,
+        employee_id: normalized.id,
+        line_no: l.lineNo,
+        leave_type: l.leaveType,
+        entitlement_days: l.entitlementDays,
+        balance_days: l.balanceDays,
+        accrual_notes: l.accrualNotes,
+      }))
+    );
+    if (error) throw error;
   }
 }

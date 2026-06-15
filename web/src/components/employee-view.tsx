@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { EmployeeAddressesPanel, PrimaryAddressSummary } from "@/components/employee-addresses-panel";
+import {
+  EmployeeEmergencyContactsPanel,
+  PrimaryEmergencyContactSummary,
+} from "@/components/employee-emergency-contacts-panel";
+import { EmployeePicker } from "@/components/employee-picker";
 import { LineItemTable } from "@/components/line-item-table";
 import { UserAdminLink } from "@/components/record-link";
 import {
@@ -11,18 +17,43 @@ import {
 import { useAuth } from "@/lib/auth-store";
 import type { AppUserRecord } from "@/lib/access/types";
 import {
+  complianceSummary,
+  managerName,
+  mergedEmployeeAlerts,
+  primaryEmergencyContact,
+} from "@/lib/employee-compliance";
+import {
   credentialStatusOptions,
   credentialTableConfig,
   credentialTypeOptions,
+  employeeActivityTableConfig,
+  employeeAlertTableConfig,
+  employeeDocumentTableConfig,
+  employeeLeaveTableConfig,
+  employeeSkillTableConfig,
 } from "@/lib/employee-line-tables";
 import {
   employeeContactFields,
   employeeEmploymentFields,
+  employeeLeaveFields,
   employeeOverviewFields,
+  employeePayrollFields,
   employeeProfileFields,
   employeeTabGroups,
+  employeeWorkRightsFields,
+  employmentTypeOptions,
+  genderOptions,
+  payMethodOptions,
+  primaryEmployeeLocation,
+  type EmployeeActivityRow,
+  type EmployeeAlertRow,
   type EmployeeCredentialRow,
+  type EmployeeDocumentRow,
+  type EmployeeEmergencyContactRow,
+  type EmployeeLeaveEntitlementRow,
+  type EmployeeLocationRow,
   type EmployeeRecord,
+  type EmployeeSkillRow,
 } from "@/lib/employee";
 
 const inputClass =
@@ -40,7 +71,31 @@ function Field({
   onChange: (key: keyof EmployeeRecord, value: string) => void;
 }) {
   const field = fieldMeta.get(fieldKey);
-  if (!field) return null;
+  if (!field) {
+    const label = fieldKey
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (s) => s.toUpperCase());
+    return (
+      <label className="block">
+        <span className="mb-1.5 block text-xs font-medium text-slate-600">{label}</span>
+        <input
+          className={inputClass}
+          value={employee[fieldKey] as string}
+          onChange={(e) => onChange(fieldKey, e.target.value)}
+        />
+      </label>
+    );
+  }
+
+  const options =
+    field.options ??
+    (fieldKey === "gender"
+      ? genderOptions
+      : fieldKey === "employmentType"
+        ? employmentTypeOptions
+        : fieldKey === "payMethod"
+          ? payMethodOptions
+          : []);
 
   return (
     <label className="block">
@@ -52,7 +107,7 @@ function Field({
           onChange={(e) => onChange(fieldKey, e.target.value)}
         >
           <option value="">—</option>
-          {field.options?.map((opt) => (
+          {options.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
             </option>
@@ -96,14 +151,21 @@ function FieldSection({
   );
 }
 
-function ComingSoonPanel({ tab }: { tab: string }) {
+function ComplianceBanner({ employee }: { employee: EmployeeRecord }) {
+  const summary = complianceSummary(employee);
+  if (summary.level === "ok") return null;
+  const styles =
+    summary.level === "critical"
+      ? "border-red-200 bg-red-50 text-red-900"
+      : "border-amber-200 bg-amber-50 text-amber-900";
   return (
-    <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
-      <p className="text-sm font-medium text-slate-700">{tab}</p>
-      <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-        This tab is registered in the window catalog. Line-item editing will follow the same pattern as Credentials
-        Assigned.
-      </p>
+    <div className={`rounded-xl border px-4 py-3 text-sm ${styles}`}>
+      <p className="font-medium">{summary.level === "critical" ? "Compliance action required" : "Compliance warning"}</p>
+      <ul className="mt-1 list-inside list-disc">
+        {summary.messages.map((m) => (
+          <li key={m}>{m}</li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -147,19 +209,42 @@ function SystemAccessPanel({
 
 function tabCount(employee: EmployeeRecord, tab: string): number | null {
   if (tab === "Credentials Assigned") return employee.credentials.length;
+  if (tab === "Address") return employee.locations.length;
+  if (tab === "Emergency contacts") return employee.emergencyContacts.length;
+  if (tab === "Alerts") return mergedEmployeeAlerts(employee).length;
+  if (tab === "Skills & languages") return employee.skills.length;
+  if (tab === "Documents") return employee.documents.length;
+  if (tab === "Activity") return employee.activities.length;
+  if (tab === "Leave") return employee.leaveEntitlements.length;
   return null;
 }
 
 export function EmployeeTabbedView({
   employee,
+  allEmployees,
   linkedUser,
   onChange,
   onCredentialsChange,
+  onLocationsChange,
+  onEmergencyContactsChange,
+  onAlertsChange,
+  onSkillsChange,
+  onDocumentsChange,
+  onActivitiesChange,
+  onLeaveEntitlementsChange,
 }: {
   employee: EmployeeRecord;
+  allEmployees: EmployeeRecord[];
   linkedUser?: AppUserRecord;
   onChange: (key: keyof EmployeeRecord, value: string) => void;
   onCredentialsChange: (rows: EmployeeCredentialRow[]) => void;
+  onLocationsChange: (rows: EmployeeLocationRow[]) => void;
+  onEmergencyContactsChange: (rows: EmployeeEmergencyContactRow[]) => void;
+  onAlertsChange: (rows: EmployeeAlertRow[]) => void;
+  onSkillsChange: (rows: EmployeeSkillRow[]) => void;
+  onDocumentsChange: (rows: EmployeeDocumentRow[]) => void;
+  onActivitiesChange: (rows: EmployeeActivityRow[]) => void;
+  onLeaveEntitlementsChange: (rows: EmployeeLeaveEntitlementRow[]) => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -186,6 +271,35 @@ export function EmployeeTabbedView({
 
   const canEditCredentials = canWindow("employee-credentials-assigned");
   const canAssignCredential = canProcess("assign-employee-credential");
+  const primary = primaryEmployeeLocation(employee);
+  const emergency = primaryEmergencyContact(employee);
+  const addressTabHref = `${pathname}?tab=${encodeURIComponent("Address")}`;
+  const emergencyTabHref = `${pathname}?tab=${encodeURIComponent("Emergency contacts")}`;
+  const managerEmployees = allEmployees.filter((e) => e.id !== employee.id);
+  const displayAlerts = mergedEmployeeAlerts(employee);
+  const manualAlerts = employee.alerts.filter((a) => a.source !== "System");
+  const systemAlerts = displayAlerts.filter((a) => a.source === "System");
+
+  const employeeDropdowns = {
+    credentialType: [...credentialTypeOptions],
+    credentialStatus: [...credentialStatusOptions],
+    employeeAlertType: ["Compliance", "Operational", "HR", "Safety", "Other"],
+    showAsAlert: ["No", "Yes"],
+    employeeSkillType: ["Language", "Skill", "Specialisation"],
+    skillProficiency: ["Basic", "Intermediate", "Advanced", "Native", "Fluent"],
+    employeeDocumentType: [
+      "Employment contract",
+      "Position description",
+      "Photo ID",
+      "Right to work",
+      "Signed policy",
+      "Qualification",
+      "Other",
+    ],
+    employeeDocumentStatus: ["Current", "Expiring soon", "Expired", "Archived"],
+    employeeActivityType: ["Note", "Onboarding", "Training", "Performance review", "Incident", "Other"],
+    leaveType: ["Annual leave", "Personal / carer's leave", "Long service leave", "Parental leave", "Unpaid leave"],
+  };
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -229,6 +343,8 @@ export function EmployeeTabbedView({
       </nav>
 
       <div className="min-w-0 flex-1 space-y-4">
+        <ComplianceBanner employee={employee} />
+
         <div className="flex flex-wrap gap-2 lg:hidden">
           {allowedTabs.map((tab) => (
             <button
@@ -236,9 +352,7 @@ export function EmployeeTabbedView({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
-                activeTab === tab
-                  ? "bg-indigo-100 text-indigo-900"
-                  : "bg-slate-100 text-slate-600"
+                activeTab === tab ? "bg-indigo-100 text-indigo-900" : "bg-slate-100 text-slate-600"
               }`}
             >
               {tab}
@@ -247,33 +361,108 @@ export function EmployeeTabbedView({
         </div>
 
         {activeTab === "Overview" && canWindow("employee-overview") ? (
-          <FieldSection
-            title="Overview"
-            description="Core employee identity and status."
-            keys={employeeOverviewFields}
-            employee={employee}
-            onChange={onChange}
-          />
+          <div className="space-y-4">
+            <FieldSection
+              title="Overview"
+              description="Core employee identity and status."
+              keys={employeeOverviewFields}
+              employee={employee}
+              onChange={onChange}
+            />
+            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <EmployeePicker
+                employees={managerEmployees}
+                value={employee.reportsToId}
+                onChange={(id) => onChange("reportsToId", id)}
+                label="Reports to"
+                allowClear
+              />
+              {employee.reportsToId ? (
+                <p className="mt-2 text-xs text-slate-500">Manager: {managerName(employee, allEmployees)}</p>
+              ) : null}
+            </div>
+            <PrimaryAddressSummary primary={primary} addressTabHref={addressTabHref} />
+            <PrimaryEmergencyContactSummary contact={emergency} tabHref={emergencyTabHref} />
+            <label className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes</span>
+              <textarea
+                className={`${inputClass} min-h-[100px] resize-y`}
+                value={employee.notes}
+                onChange={(e) => onChange("notes", e.target.value)}
+              />
+            </label>
+          </div>
         ) : null}
 
         {activeTab === "Contact" && canWindow("employee-contact") ? (
-          <FieldSection
-            title="Contact"
-            description="How to reach this employee."
-            keys={employeeContactFields}
-            employee={employee}
-            onChange={onChange}
+          <div className="space-y-4">
+            <FieldSection
+              title="Contact"
+              description="How to reach this employee."
+              keys={employeeContactFields}
+              employee={employee}
+              onChange={onChange}
+            />
+            <PrimaryAddressSummary primary={primary} addressTabHref={addressTabHref} />
+            <PrimaryEmergencyContactSummary contact={emergency} tabHref={emergencyTabHref} />
+          </div>
+        ) : null}
+
+        {activeTab === "Emergency contacts" && canWindow("employee-emergency-contacts") ? (
+          <EmployeeEmergencyContactsPanel
+            contacts={employee.emergencyContacts}
+            onChange={onEmergencyContactsChange}
           />
         ) : null}
 
         {activeTab === "Employment" && canWindow("employee-employment") ? (
           <FieldSection
             title="Employment"
-            description="Role, department, and employment dates."
+            description="Role, department, employment type, and key dates."
             keys={employeeEmploymentFields}
             employee={employee}
             onChange={onChange}
           />
+        ) : null}
+
+        {activeTab === "Work rights" && canWindow("employee-work-rights") ? (
+          <div className="space-y-4">
+            <FieldSection
+              title="Work rights"
+              description="Driver licence, visa, and work eligibility. Medical restrictions are sensitive — limit access by role."
+              keys={employeeWorkRightsFields}
+              employee={employee}
+              onChange={onChange}
+            />
+          </div>
+        ) : null}
+
+        {activeTab === "Payroll" && canWindow("employee-payroll") ? (
+          <FieldSection
+            title="Payroll"
+            description="Bank and tax details for salary disbursement. Restricted to payroll roles in production."
+            keys={employeePayrollFields}
+            employee={employee}
+            onChange={onChange}
+          />
+        ) : null}
+
+        {activeTab === "Leave" && canWindow("employee-leave") ? (
+          <div className="space-y-4">
+            <FieldSection
+              title="Leave policy"
+              description="Standard hours and leave policy assignment."
+              keys={employeeLeaveFields}
+              employee={employee}
+              onChange={onChange}
+            />
+            <LineItemTable
+              config={employeeLeaveTableConfig}
+              rows={employee.leaveEntitlements}
+              onChange={onLeaveEntitlementsChange}
+              dropdowns={employeeDropdowns}
+            />
+          </div>
         ) : null}
 
         {activeTab === "Credentials Assigned" && canEditCredentials ? (
@@ -282,7 +471,7 @@ export function EmployeeTabbedView({
               <div>
                 <h3 className="text-sm font-semibold text-slate-900">Credentials assigned</h3>
                 <p className="text-sm text-slate-500">
-                  Checks, licences, and qualifications held by this employee.
+                  Checks, licences, and qualifications. Status updates from expiry dates on save.
                 </p>
               </div>
               {!canAssignCredential ? (
@@ -295,16 +484,70 @@ export function EmployeeTabbedView({
               config={credentialTableConfig}
               rows={employee.credentials}
               onChange={canAssignCredential ? onCredentialsChange : () => {}}
-              dropdowns={{
-                credentialType: [...credentialTypeOptions],
-                credentialStatus: [...credentialStatusOptions],
-              }}
+              dropdowns={employeeDropdowns}
             />
           </div>
         ) : null}
 
-        {activeTab === "Locations" && canWindow("employee-locations") ? (
-          <ComingSoonPanel tab="Locations" />
+        {activeTab === "Alerts" && canWindow("employee-alerts") ? (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Alerts</h3>
+              <p className="text-sm text-slate-500">
+                Manual flags plus system-generated compliance alerts from credentials and work rights.
+              </p>
+            </div>
+            {systemAlerts.length > 0 ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">System alerts</p>
+                <ul className="mt-2 space-y-2">
+                  {systemAlerts.map((a) => (
+                    <li key={a.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
+                      <p className="font-medium text-slate-900">{a.name}</p>
+                      <p className="text-slate-600">{a.description}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            <LineItemTable
+              config={employeeAlertTableConfig}
+              rows={manualAlerts}
+              onChange={onAlertsChange}
+              dropdowns={employeeDropdowns}
+            />
+          </div>
+        ) : null}
+
+        {activeTab === "Skills & languages" && canWindow("employee-skills") ? (
+          <LineItemTable
+            config={employeeSkillTableConfig}
+            rows={employee.skills}
+            onChange={onSkillsChange}
+            dropdowns={employeeDropdowns}
+          />
+        ) : null}
+
+        {activeTab === "Documents" && canWindow("employee-documents") ? (
+          <LineItemTable
+            config={employeeDocumentTableConfig}
+            rows={employee.documents}
+            onChange={onDocumentsChange}
+            dropdowns={employeeDropdowns}
+          />
+        ) : null}
+
+        {activeTab === "Activity" && canWindow("employee-activity") ? (
+          <LineItemTable
+            config={employeeActivityTableConfig}
+            rows={employee.activities}
+            onChange={onActivitiesChange}
+            dropdowns={employeeDropdowns}
+          />
+        ) : null}
+
+        {activeTab === "Address" && canWindow("employee-locations") ? (
+          <EmployeeAddressesPanel locations={employee.locations} onChange={onLocationsChange} />
         ) : null}
 
         {activeTab === "System access" && canWindow("employee-system-access") ? (

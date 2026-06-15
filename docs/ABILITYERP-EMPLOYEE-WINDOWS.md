@@ -9,9 +9,17 @@ Business Partner (Employee) in AbilityERP is a **parent window**. Tabs and sub-f
 | `employees` | Business Partner (Employee) | Parent — sidebar | — |
 | `employee-overview` | Employee header | Dependent | Overview |
 | `employee-contact` | Contact | Dependent | Contact |
+| `employee-locations` | **Address** | Dependent | Address (1..n, one primary) |
+| `employee-emergency-contacts` | Emergency contacts | Dependent | Emergency contacts (1..n, primary) |
 | `employee-employment` | Employment | Dependent | Employment |
+| `employee-work-rights` | Work rights | Dependent | Work rights (visa, licence) |
+| `employee-payroll` | Payroll | Dependent | Payroll (bank / tax / super) |
+| `employee-leave` | Leave | Dependent | Leave (policy + entitlements) |
 | `employee-credentials-assigned` | **Credentials Assigned** | Dependent | Credentials Assigned |
-| `employee-locations` | Location | Dependent | Locations |
+| `employee-alerts` | Alerts | Dependent | Alerts (manual + system compliance) |
+| `employee-documents` | HR documents | Dependent | Documents |
+| `employee-activity` | Activity | Dependent | Activity |
+| `employee-skills` | Skills & languages | Dependent | Skills & languages |
 | `employee-system-access` | User link | Dependent | System access |
 
 Catalog source: `web/src/lib/access/catalog.ts`
@@ -22,8 +30,6 @@ Catalog source: `web/src/lib/access/catalog.ts`
 |------------|-------|-----------------|
 | `assign-employee-credential` | Assign employee credential | `employee-credentials-assigned` |
 
-Users with the credentials tab but not the assign process can view credentials (read-only UI planned).
-
 ## Access rules
 
 1. **Sidebar:** only `showInSidebar: true` windows (e.g. `employees`).
@@ -32,7 +38,16 @@ Users with the credentials tab but not the assign process can view credentials (
 
 ## Data
 
-- `employee` — header / profile
-- `employee_credential` — Credentials Assigned line table
+- `employee` — header / profile (reports-to link, employment type, payroll, work rights)
+- `employee_location` — Address tab
+- `employee_emergency_contact` — Emergency contacts tab
+- `employee_alert` — Manual alerts (system alerts derived from credential/visa expiry)
+- `employee_credential` — Credentials Assigned
+- `employee_skill` — Skills & languages
+- `employee_document` — HR documents
+- `employee_activity` — Activity timeline
+- `employee_leave_entitlement` — Leave balances per type
+
+Compliance helpers: `web/src/lib/employee-compliance.ts` (expiry status, merged alerts, list badges).
 
 Regenerate seeds: `npm run supabase:seed-employees` then `npm run supabase:seed-access`

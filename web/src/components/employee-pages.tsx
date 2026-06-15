@@ -8,8 +8,8 @@ import { EmployeeTabbedView } from "@/components/employee-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
-import type { EmployeeCredentialRow, EmployeeRecord } from "@/lib/employee";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
+import type { EmployeeRecord } from "@/lib/employee";
 
 function EmployeeTabbedViewFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
@@ -68,6 +68,13 @@ export function EmployeeDetailView({ id }: { id: string }) {
     );
   }
 
+  function patchDraft(patch: Partial<EmployeeRecord>) {
+    const base = draft ?? stored;
+    if (!base) return;
+    setDraft({ ...base, ...patch, updatedBy: "SuperUser" });
+    setSaved(false);
+  }
+
   function onFieldChange(key: keyof EmployeeRecord, value: string) {
     const base = draft ?? stored;
     if (!base) return;
@@ -76,13 +83,6 @@ export function EmployeeDetailView({ id }: { id: string }) {
       next.name = `${key === "firstName" ? value : next.firstName} ${key === "lastName" ? value : next.lastName}`.trim();
     }
     setDraft(next);
-    setSaved(false);
-  }
-
-  function onCredentialsChange(rows: EmployeeCredentialRow[]) {
-    const base = draft ?? stored;
-    if (!base) return;
-    setDraft({ ...base, credentials: rows, updatedBy: "SuperUser" });
     setSaved(false);
   }
 
@@ -112,9 +112,17 @@ export function EmployeeDetailView({ id }: { id: string }) {
         <Suspense fallback={<EmployeeTabbedViewFallback />}>
           <EmployeeTabbedView
             employee={employee}
+            allEmployees={employees}
             linkedUser={linkedUser}
             onChange={onFieldChange}
-            onCredentialsChange={onCredentialsChange}
+            onCredentialsChange={(credentials) => patchDraft({ credentials })}
+            onLocationsChange={(locations) => patchDraft({ locations })}
+            onEmergencyContactsChange={(emergencyContacts) => patchDraft({ emergencyContacts })}
+            onAlertsChange={(alerts) => patchDraft({ alerts })}
+            onSkillsChange={(skills) => patchDraft({ skills })}
+            onDocumentsChange={(documents) => patchDraft({ documents })}
+            onActivitiesChange={(activities) => patchDraft({ activities })}
+            onLeaveEntitlementsChange={(leaveEntitlements) => patchDraft({ leaveEntitlements })}
           />
         </Suspense>
 

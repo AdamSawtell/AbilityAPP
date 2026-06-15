@@ -1,3 +1,5 @@
+import { syncCredentialStatuses } from "@/lib/employee-compliance";
+
 export type EmployeeCredentialRow = {
   id: string;
   lineNo: number;
@@ -11,6 +13,95 @@ export type EmployeeCredentialRow = {
   notes: string;
   createdBy: string;
   updatedBy: string;
+};
+
+export type EmployeeLocationRow = {
+  id: string;
+  lineNo: number;
+  name: string;
+  addressType: string;
+  address1: string;
+  address2: string;
+  address3: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  primaryAddress: string;
+  active: string;
+  validFrom: string;
+  validTo: string;
+  accessNotes: string;
+  description: string;
+};
+
+export type EmployeeEmergencyContactRow = {
+  id: string;
+  lineNo: number;
+  contactType: string;
+  name: string;
+  relationship: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  callOrder: number;
+  primaryContact: string;
+  notes: string;
+};
+
+export type EmployeeAlertRow = {
+  id: string;
+  lineNo: number;
+  alertType: string;
+  showAsAlert: string;
+  name: string;
+  description: string;
+  validFrom: string;
+  validTo: string;
+  source: string;
+};
+
+export type EmployeeSkillRow = {
+  id: string;
+  lineNo: number;
+  skillType: string;
+  name: string;
+  proficiency: string;
+  notes: string;
+};
+
+export type EmployeeDocumentRow = {
+  id: string;
+  lineNo: number;
+  documentType: string;
+  name: string;
+  documentRef: string;
+  issueDate: string;
+  expiryDate: string;
+  status: string;
+  notes: string;
+};
+
+export type EmployeeActivityRow = {
+  id: string;
+  lineNo: number;
+  date: string;
+  activityType: string;
+  subject: string;
+  description: string;
+  createdBy: string;
+};
+
+export type EmployeeLeaveEntitlementRow = {
+  id: string;
+  lineNo: number;
+  leaveType: string;
+  entitlementDays: number;
+  balanceDays: number;
+  accrualNotes: string;
 };
 
 export type EmployeeRecord = {
@@ -28,11 +119,46 @@ export type EmployeeRecord = {
   jobTitle: string;
   department: string;
   employmentStatus: string;
+  employmentType: string;
   startDate: string;
   endDate: string;
+  probationEndDate: string;
+  confirmationDate: string;
+  noticeDays: string;
+  siteBranch: string;
+  costCentre: string;
+  gender: string;
+  birthday: string;
+  employeeNumber: string;
+  reportsToId: string;
+  driverLicenceClass: string;
+  driverLicenceExpiry: string;
+  visaSubclass: string;
+  visaExpiry: string;
+  workRightsNotes: string;
+  bankName: string;
+  bankBsb: string;
+  bankAccountNumber: string;
+  payMethod: string;
+  tfn: string;
+  taxDeclaration: string;
+  superFund: string;
+  superMemberNumber: string;
+  standardHoursPerWeek: string;
+  fte: string;
+  leavePolicy: string;
+  medicalRestrictionsNotes: string;
+  notes: string;
   createdBy: string;
   updatedBy: string;
   credentials: EmployeeCredentialRow[];
+  locations: EmployeeLocationRow[];
+  emergencyContacts: EmployeeEmergencyContactRow[];
+  alerts: EmployeeAlertRow[];
+  skills: EmployeeSkillRow[];
+  documents: EmployeeDocumentRow[];
+  activities: EmployeeActivityRow[];
+  leaveEntitlements: EmployeeLeaveEntitlementRow[];
 };
 
 export type EmployeeTabGroup = {
@@ -40,47 +166,78 @@ export type EmployeeTabGroup = {
   tabs: string[];
 };
 
-/** Tab layout on Business Partner (Employee) — each tab maps to a dependent window in catalog.ts */
 export const employeeTabGroups: EmployeeTabGroup[] = [
   {
     label: "Employee",
-    tabs: ["Overview", "Contact", "Employment"],
+    tabs: ["Overview", "Contact", "Address", "Emergency contacts", "Employment", "Work rights", "Payroll", "Leave"],
   },
   {
     label: "Compliance",
-    tabs: ["Credentials Assigned"],
+    tabs: ["Credentials Assigned", "Alerts"],
+  },
+  {
+    label: "HR file",
+    tabs: ["Documents", "Activity", "Skills & languages"],
   },
   {
     label: "Organisation",
-    tabs: ["Locations", "System access"],
+    tabs: ["System access"],
   },
 ];
 
 export const employeeOverviewFields: (keyof EmployeeRecord)[] = [
   "searchKey",
-  "name",
+  "employeeNumber",
   "firstName",
   "lastName",
   "preferredName",
+  "gender",
+  "birthday",
   "employmentStatus",
   "businessPartnerGroup",
 ];
 
-export const employeeContactFields: (keyof EmployeeRecord)[] = [
-  "email",
-  "phone",
-  "mobile",
-  "middleName",
-];
+export const employeeContactFields: (keyof EmployeeRecord)[] = ["email", "phone", "mobile", "middleName"];
 
 export const employeeEmploymentFields: (keyof EmployeeRecord)[] = [
+  "employmentType",
   "jobTitle",
   "department",
+  "siteBranch",
+  "costCentre",
   "startDate",
+  "probationEndDate",
+  "confirmationDate",
+  "noticeDays",
   "endDate",
 ];
 
+export const employeeWorkRightsFields: (keyof EmployeeRecord)[] = [
+  "driverLicenceClass",
+  "driverLicenceExpiry",
+  "visaSubclass",
+  "visaExpiry",
+  "workRightsNotes",
+  "medicalRestrictionsNotes",
+];
+
+export const employeePayrollFields: (keyof EmployeeRecord)[] = [
+  "payMethod",
+  "bankName",
+  "bankBsb",
+  "bankAccountNumber",
+  "tfn",
+  "taxDeclaration",
+  "superFund",
+  "superMemberNumber",
+];
+
+export const employeeLeaveFields: (keyof EmployeeRecord)[] = ["leavePolicy", "standardHoursPerWeek", "fte"];
+
+export const genderOptions = ["Female", "Male", "Non-binary", "Prefer not to say", "Other"] as const;
 export const employmentStatusOptions = ["Active", "On leave", "Terminated"] as const;
+export const employmentTypeOptions = ["Full-time", "Part-time", "Casual", "Contractor", "Volunteer"] as const;
+export const payMethodOptions = ["Bank", "Cash", "Cheque"] as const;
 
 export const departmentOptions = [
   "Executive",
@@ -102,6 +259,17 @@ export const employeeListColumns = [
   { key: "email" as const, label: "Email" },
 ];
 
+const emptyLineCollections = {
+  credentials: [] as EmployeeCredentialRow[],
+  locations: [] as EmployeeLocationRow[],
+  emergencyContacts: [] as EmployeeEmergencyContactRow[],
+  alerts: [] as EmployeeAlertRow[],
+  skills: [] as EmployeeSkillRow[],
+  documents: [] as EmployeeDocumentRow[],
+  activities: [] as EmployeeActivityRow[],
+  leaveEntitlements: [] as EmployeeLeaveEntitlementRow[],
+};
+
 export const initialEmployees: EmployeeRecord[] = [
   {
     id: "emp-isla",
@@ -118,10 +286,186 @@ export const initialEmployees: EmployeeRecord[] = [
     jobTitle: "Support Coordinator",
     department: "Client services",
     employmentStatus: "Active",
+    employmentType: "Full-time",
     startDate: "2019-03-01",
     endDate: "",
+    probationEndDate: "2019-09-01",
+    confirmationDate: "2019-09-15",
+    noticeDays: "4",
+    siteBranch: "Adelaide HQ",
+    costCentre: "CC-CLIENT",
+    gender: "Female",
+    birthday: "1988-06-12",
+    employeeNumber: "EMP-1001",
+    reportsToId: "emp-michael",
+    driverLicenceClass: "C",
+    driverLicenceExpiry: "2027-08-01",
+    visaSubclass: "",
+    visaExpiry: "",
+    workRightsNotes: "Australian citizen",
+    bankName: "Commonwealth Bank",
+    bankBsb: "065-000",
+    bankAccountNumber: "12345678",
+    payMethod: "Bank",
+    tfn: "",
+    taxDeclaration: "Tax-free threshold claimed",
+    superFund: "Australian Super",
+    superMemberNumber: "AS-88421",
+    standardHoursPerWeek: "38",
+    fte: "1",
+    leavePolicy: "Standard award — 4 weeks annual",
+    medicalRestrictionsNotes: "",
+    notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
+    locations: [
+      {
+        id: "loc-isla-home",
+        lineNo: 1,
+        name: "Home",
+        addressType: "Home",
+        address1: "12 Ward Street",
+        address2: "",
+        address3: "",
+        city: "Adelaide",
+        state: "SA",
+        postcode: "5000",
+        country: "Australia",
+        phone: "08 8294 1100",
+        mobile: "0412 111 222",
+        email: "isla.robinson@abilityerp.local",
+        primaryAddress: "Yes",
+        active: "Yes",
+        validFrom: "2019-03-01",
+        validTo: "",
+        accessNotes: "",
+        description: "",
+      },
+      {
+        id: "loc-isla-postal",
+        lineNo: 2,
+        name: "Postal",
+        addressType: "Postal",
+        address1: "PO Box 442",
+        address2: "",
+        address3: "",
+        city: "Adelaide",
+        state: "SA",
+        postcode: "5001",
+        country: "Australia",
+        phone: "",
+        mobile: "",
+        email: "",
+        primaryAddress: "No",
+        active: "Yes",
+        validFrom: "2019-03-01",
+        validTo: "",
+        accessNotes: "",
+        description: "",
+      },
+    ],
+    emergencyContacts: [
+      {
+        id: "ec-isla-james",
+        lineNo: 1,
+        contactType: "Emergency",
+        name: "James Robinson",
+        relationship: "Spouse",
+        phone: "",
+        mobile: "0411 999 888",
+        email: "james.robinson@example.com",
+        callOrder: 1,
+        primaryContact: "Yes",
+        notes: "",
+      },
+      {
+        id: "ec-isla-mary",
+        lineNo: 2,
+        contactType: "Next of kin",
+        name: "Mary Robinson",
+        relationship: "Parent",
+        phone: "08 8294 2200",
+        mobile: "",
+        email: "",
+        callOrder: 2,
+        primaryContact: "No",
+        notes: "",
+      },
+    ],
+    alerts: [
+      {
+        id: "alert-isla-supervision",
+        lineNo: 1,
+        alertType: "Operational",
+        showAsAlert: "Yes",
+        name: "New team member supervision",
+        description: "Pair with senior coordinator for complex behaviour support cases until Q3 review.",
+        validFrom: "2025-01-01",
+        validTo: "2025-09-30",
+        source: "Manual",
+      },
+    ],
+    skills: [
+      { id: "skill-isla-en", lineNo: 1, skillType: "Language", name: "English", proficiency: "Native", notes: "" },
+      {
+        id: "skill-isla-coord",
+        lineNo: 2,
+        skillType: "Specialisation",
+        name: "Support coordination",
+        proficiency: "Advanced",
+        notes: "",
+      },
+      {
+        id: "skill-isla-autism",
+        lineNo: 3,
+        skillType: "Specialisation",
+        name: "Autism support",
+        proficiency: "Intermediate",
+        notes: "",
+      },
+    ],
+    documents: [
+      {
+        id: "doc-isla-contract",
+        lineNo: 1,
+        documentType: "Employment contract",
+        name: "Permanent employment agreement",
+        documentRef: "DOC-EMP-ISLA-2019",
+        issueDate: "2019-03-01",
+        expiryDate: "",
+        status: "Current",
+        notes: "",
+      },
+    ],
+    activities: [
+      {
+        id: "act-isla-onboard",
+        lineNo: 1,
+        date: "2019-03-01",
+        activityType: "Onboarding",
+        subject: "Induction completed",
+        description: "Policy pack signed, systems access provisioned.",
+        createdBy: "SuperUser",
+      },
+    ],
+    leaveEntitlements: [
+      {
+        id: "leave-isla-annual",
+        lineNo: 1,
+        leaveType: "Annual leave",
+        entitlementDays: 20,
+        balanceDays: 14.5,
+        accrualNotes: "Accrued per award",
+      },
+      {
+        id: "leave-isla-personal",
+        lineNo: 2,
+        leaveType: "Personal / carer's leave",
+        entitlementDays: 10,
+        balanceDays: 8,
+        accrualNotes: "",
+      },
+    ],
     credentials: [
       {
         id: "cred-isla-wwcc",
@@ -168,10 +512,94 @@ export const initialEmployees: EmployeeRecord[] = [
     jobTitle: "Intake Officer",
     department: "Intake",
     employmentStatus: "Active",
+    employmentType: "Part-time",
     startDate: "2020-06-15",
     endDate: "",
+    probationEndDate: "",
+    confirmationDate: "2020-12-01",
+    noticeDays: "2",
+    siteBranch: "Adelaide HQ",
+    costCentre: "CC-INTAKE",
+    gender: "Female",
+    birthday: "1992-02-20",
+    employeeNumber: "EMP-1002",
+    reportsToId: "emp-michael",
+    driverLicenceClass: "",
+    driverLicenceExpiry: "",
+    visaSubclass: "482",
+    visaExpiry: "2026-07-15",
+    workRightsNotes: "Sponsored visa — monitor expiry",
+    bankName: "",
+    bankBsb: "",
+    bankAccountNumber: "",
+    payMethod: "Bank",
+    tfn: "",
+    taxDeclaration: "",
+    superFund: "",
+    superMemberNumber: "",
+    standardHoursPerWeek: "22",
+    fte: "0.58",
+    leavePolicy: "Part-time pro-rata",
+    medicalRestrictionsNotes: "",
+    notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
+    locations: [
+      {
+        id: "loc-gab-home",
+        lineNo: 1,
+        name: "Home",
+        addressType: "Home",
+        address1: "8 King William Street",
+        address2: "Unit 4",
+        address3: "",
+        city: "Adelaide",
+        state: "SA",
+        postcode: "5000",
+        country: "Australia",
+        phone: "",
+        mobile: "0413 222 333",
+        email: "gabriela.wilson@abilityerp.local",
+        primaryAddress: "Yes",
+        active: "Yes",
+        validFrom: "2020-06-15",
+        validTo: "",
+        accessNotes: "",
+        description: "",
+      },
+    ],
+    emergencyContacts: [
+      {
+        id: "ec-gab-maria",
+        lineNo: 1,
+        contactType: "Emergency",
+        name: "Maria Wilson",
+        relationship: "Parent",
+        phone: "",
+        mobile: "0412 555 444",
+        email: "",
+        callOrder: 1,
+        primaryContact: "Yes",
+        notes: "",
+      },
+    ],
+    alerts: [],
+    skills: [
+      { id: "skill-gab-en", lineNo: 1, skillType: "Language", name: "English", proficiency: "Native", notes: "" },
+      { id: "skill-gab-es", lineNo: 2, skillType: "Language", name: "Spanish", proficiency: "Fluent", notes: "" },
+    ],
+    documents: [],
+    activities: [],
+    leaveEntitlements: [
+      {
+        id: "leave-gab-annual",
+        lineNo: 1,
+        leaveType: "Annual leave",
+        entitlementDays: 11.6,
+        balanceDays: 6,
+        accrualNotes: "Pro-rata part-time",
+      },
+    ],
     credentials: [
       {
         id: "cred-gab-wwcc",
@@ -204,11 +632,39 @@ export const initialEmployees: EmployeeRecord[] = [
     jobTitle: "Team Leader",
     department: "Support coordination",
     employmentStatus: "Active",
+    employmentType: "Full-time",
     startDate: "2018-01-10",
     endDate: "",
+    probationEndDate: "",
+    confirmationDate: "",
+    noticeDays: "",
+    siteBranch: "Adelaide HQ",
+    costCentre: "CC-CLIENT",
+    gender: "",
+    birthday: "",
+    employeeNumber: "EMP-1003",
+    reportsToId: "",
+    driverLicenceClass: "",
+    driverLicenceExpiry: "",
+    visaSubclass: "",
+    visaExpiry: "",
+    workRightsNotes: "",
+    bankName: "",
+    bankBsb: "",
+    bankAccountNumber: "",
+    payMethod: "",
+    tfn: "",
+    taxDeclaration: "",
+    superFund: "",
+    superMemberNumber: "",
+    standardHoursPerWeek: "38",
+    fte: "1",
+    leavePolicy: "",
+    medicalRestrictionsNotes: "",
+    notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
-    credentials: [],
+    ...emptyLineCollections,
   },
   {
     id: "emp-oliver",
@@ -225,11 +681,55 @@ export const initialEmployees: EmployeeRecord[] = [
     jobTitle: "Support Worker",
     department: "Operations",
     employmentStatus: "Active",
+    employmentType: "Casual",
     startDate: "2021-09-01",
     endDate: "",
+    probationEndDate: "",
+    confirmationDate: "",
+    noticeDays: "",
+    siteBranch: "Northern",
+    costCentre: "CC-OPS",
+    gender: "",
+    birthday: "",
+    employeeNumber: "EMP-1004",
+    reportsToId: "emp-michael",
+    driverLicenceClass: "C",
+    driverLicenceExpiry: "2026-07-01",
+    visaSubclass: "",
+    visaExpiry: "",
+    workRightsNotes: "",
+    bankName: "",
+    bankBsb: "",
+    bankAccountNumber: "",
+    payMethod: "Bank",
+    tfn: "",
+    taxDeclaration: "",
+    superFund: "",
+    superMemberNumber: "",
+    standardHoursPerWeek: "",
+    fte: "0",
+    leavePolicy: "Casual — no paid leave accrual",
+    medicalRestrictionsNotes: "",
+    notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
-    credentials: [],
+    ...emptyLineCollections,
+    credentials: [
+      {
+        id: "cred-oliver-fa",
+        lineNo: 1,
+        credentialType: "First Aid Certificate",
+        credentialNumber: "FA-22001",
+        issuingBody: "St John Ambulance",
+        issueDate: "2024-07-01",
+        expiryDate: "2026-07-01",
+        status: "Expiring soon",
+        documentRef: "",
+        notes: "Renew before rostering community shifts",
+        createdBy: "SuperUser",
+        updatedBy: "SuperUser",
+      },
+    ],
   },
   {
     id: "emp-rose",
@@ -246,11 +746,39 @@ export const initialEmployees: EmployeeRecord[] = [
     jobTitle: "Plan Developer",
     department: "Client services",
     employmentStatus: "Active",
+    employmentType: "Full-time",
     startDate: "2017-11-20",
     endDate: "",
+    probationEndDate: "",
+    confirmationDate: "",
+    noticeDays: "",
+    siteBranch: "",
+    costCentre: "",
+    gender: "",
+    birthday: "",
+    employeeNumber: "",
+    reportsToId: "",
+    driverLicenceClass: "",
+    driverLicenceExpiry: "",
+    visaSubclass: "",
+    visaExpiry: "",
+    workRightsNotes: "",
+    bankName: "",
+    bankBsb: "",
+    bankAccountNumber: "",
+    payMethod: "",
+    tfn: "",
+    taxDeclaration: "",
+    superFund: "",
+    superMemberNumber: "",
+    standardHoursPerWeek: "",
+    fte: "",
+    leavePolicy: "",
+    medicalRestrictionsNotes: "",
+    notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
-    credentials: [],
+    ...emptyLineCollections,
   },
   {
     id: "emp-jessica",
@@ -267,24 +795,78 @@ export const initialEmployees: EmployeeRecord[] = [
     jobTitle: "Contract Administrator",
     department: "Finance",
     employmentStatus: "Active",
+    employmentType: "Full-time",
     startDate: "2022-02-01",
     endDate: "",
+    probationEndDate: "",
+    confirmationDate: "",
+    noticeDays: "",
+    siteBranch: "",
+    costCentre: "",
+    gender: "",
+    birthday: "",
+    employeeNumber: "",
+    reportsToId: "",
+    driverLicenceClass: "",
+    driverLicenceExpiry: "",
+    visaSubclass: "",
+    visaExpiry: "",
+    workRightsNotes: "",
+    bankName: "",
+    bankBsb: "",
+    bankAccountNumber: "",
+    payMethod: "",
+    tfn: "",
+    taxDeclaration: "",
+    superFund: "",
+    superMemberNumber: "",
+    standardHoursPerWeek: "",
+    fte: "",
+    leavePolicy: "",
+    medicalRestrictionsNotes: "",
+    notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
-    credentials: [],
+    ...emptyLineCollections,
   },
 ];
+
+export function formatEmployeeAddress(loc: EmployeeLocationRow): string {
+  const line = [loc.address1, loc.address2, loc.address3].filter(Boolean).join(", ");
+  const locality = [loc.city, loc.state, loc.postcode].filter(Boolean).join(" ");
+  return [line, locality, loc.country].filter(Boolean).join(" · ") || "—";
+}
+
+export function primaryEmployeeLocation(employee: EmployeeRecord): EmployeeLocationRow | undefined {
+  return (
+    employee.locations.find((l) => l.primaryAddress === "Yes" && l.active === "Yes") ??
+    employee.locations.find((l) => l.primaryAddress === "Yes") ??
+    employee.locations[0]
+  );
+}
+
+function renumber<T extends { lineNo: number }>(rows: T[]): T[] {
+  return rows.map((row, index) => ({ ...row, lineNo: index + 1 }));
+}
 
 export function normalizeEmployee(record: EmployeeRecord): EmployeeRecord {
   const name =
     record.name?.trim() ||
     `${record.firstName} ${record.lastName}`.trim() ||
     record.searchKey;
-  const credentials = (record.credentials ?? []).map((row, index) => ({
-    ...row,
-    lineNo: row.lineNo ?? index + 1,
-  }));
-  return { ...record, name, businessPartnerGroup: record.businessPartnerGroup || "Employee", credentials };
+  return {
+    ...record,
+    name,
+    businessPartnerGroup: record.businessPartnerGroup || "Employee",
+    credentials: syncCredentialStatuses(renumber(record.credentials ?? [])),
+    locations: renumber(record.locations ?? []),
+    emergencyContacts: renumber(record.emergencyContacts ?? []),
+    alerts: renumber(record.alerts ?? []),
+    skills: renumber(record.skills ?? []),
+    documents: renumber(record.documents ?? []),
+    activities: renumber(record.activities ?? []),
+    leaveEntitlements: renumber(record.leaveEntitlements ?? []),
+  };
 }
 
 export function createEmployee(
@@ -306,13 +888,20 @@ export function createEmployee(
     createdBy: partial.createdBy || "SuperUser",
     updatedBy: partial.updatedBy || "SuperUser",
     credentials: partial.credentials ?? [],
+    locations: partial.locations ?? [],
+    emergencyContacts: partial.emergencyContacts ?? [],
+    alerts: partial.alerts ?? [],
+    skills: partial.skills ?? [],
+    documents: partial.documents ?? [],
+    activities: partial.activities ?? [],
+    leaveEntitlements: partial.leaveEntitlements ?? [],
   });
 }
 
 export function employeeProfileFields(): {
   key: keyof EmployeeRecord;
   label: string;
-  type: "text" | "email" | "tel" | "date" | "select";
+  type: "text" | "email" | "tel" | "date" | "select" | "number";
   options?: readonly string[];
 }[] {
   return [
@@ -321,13 +910,18 @@ export function employeeProfileFields(): {
     { key: "lastName", label: "Last name", type: "text" },
     { key: "preferredName", label: "Preferred name", type: "text" },
     { key: "middleName", label: "Middle name", type: "text" },
+    { key: "gender", label: "Gender", type: "select", options: genderOptions },
+    { key: "birthday", label: "Date of birth", type: "date" },
+    { key: "employeeNumber", label: "Employee number", type: "text" },
     { key: "email", label: "Email", type: "email" },
     { key: "phone", label: "Phone", type: "tel" },
     { key: "mobile", label: "Mobile", type: "tel" },
+    { key: "employmentType", label: "Employment type", type: "select", options: employmentTypeOptions },
     { key: "jobTitle", label: "Job title", type: "text" },
     { key: "department", label: "Department", type: "select", options: departmentOptions },
     { key: "employmentStatus", label: "Employment status", type: "select", options: employmentStatusOptions },
     { key: "startDate", label: "Start date", type: "date" },
     { key: "endDate", label: "End date", type: "date" },
+    { key: "notes", label: "Notes", type: "text" },
   ];
 }

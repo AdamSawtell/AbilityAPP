@@ -80,6 +80,17 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   auditAction: { label: "Audit action", group: "Contracts" },
   // General
   yesNo: { label: "Yes / No", group: "General" },
+  employeeAlertType: { label: "Employee alert type", group: "General" },
+  employeeSkillType: { label: "Employee skill type", group: "General" },
+  skillProficiency: { label: "Skill proficiency", group: "General" },
+  employeeDocumentType: { label: "Employee document type", group: "General" },
+  employeeActivityType: { label: "Employee activity type", group: "General" },
+  leaveType: { label: "Leave type", group: "General" },
+  employeeDocumentStatus: { label: "Employee document status", group: "General" },
+  contactRelationship: { label: "Contact relationship", group: "General" },
+  emergencyContactType: { label: "Emergency contact type", group: "General" },
+  employmentType: { label: "Employment type", group: "General" },
+  payMethod: { label: "Pay method", group: "General" },
 };
 
 export type ReferenceDataKey = keyof typeof referenceDataMeta;
@@ -302,6 +313,25 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   ],
   contractTerm: ["Fixed", "Ongoing"],
   auditAction: ["Created", "Updated", "Reviewed", "Renewed", "Terminated"],
+  employeeAlertType: ["Compliance", "Operational", "HR", "Safety", "Other"],
+  employeeSkillType: ["Language", "Skill", "Specialisation"],
+  skillProficiency: ["Basic", "Intermediate", "Advanced", "Native", "Fluent"],
+  employeeDocumentType: [
+    "Employment contract",
+    "Position description",
+    "Photo ID",
+    "Right to work",
+    "Signed policy",
+    "Qualification",
+    "Other",
+  ],
+  employeeActivityType: ["Note", "Onboarding", "Training", "Performance review", "Incident", "Other"],
+  leaveType: ["Annual leave", "Personal / carer's leave", "Long service leave", "Parental leave", "Unpaid leave"],
+  employeeDocumentStatus: ["Current", "Expiring soon", "Expired", "Archived"],
+  contactRelationship: ["Spouse", "Partner", "Parent", "Sibling", "Child", "Friend", "Other"],
+  emergencyContactType: ["Emergency", "Next of kin"],
+  employmentType: ["Full-time", "Part-time", "Casual", "Contractor", "Volunteer"],
+  payMethod: ["Bank", "Cash", "Cheque"],
 };
 
 /** @deprecated Use useReferenceData().getOptions instead */

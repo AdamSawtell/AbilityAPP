@@ -10,6 +10,17 @@ import { employeeProfileFields, type EmployeeRecord } from "@/lib/employee";
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
 
+const emptyCollections = {
+  credentials: [],
+  locations: [],
+  emergencyContacts: [],
+  alerts: [],
+  skills: [],
+  documents: [],
+  activities: [],
+  leaveEntitlements: [],
+};
+
 export default function NewEmployeePage() {
   const router = useRouter();
   const { addEmployee } = useData();
@@ -28,11 +39,39 @@ export default function NewEmployeePage() {
     jobTitle: "",
     department: "",
     employmentStatus: "Active",
+    employmentType: "Full-time",
     startDate: "",
     endDate: "",
+    probationEndDate: "",
+    confirmationDate: "",
+    noticeDays: "",
+    siteBranch: "",
+    costCentre: "",
+    gender: "",
+    birthday: "",
+    employeeNumber: "",
+    reportsToId: "",
+    driverLicenceClass: "",
+    driverLicenceExpiry: "",
+    visaSubclass: "",
+    visaExpiry: "",
+    workRightsNotes: "",
+    bankName: "",
+    bankBsb: "",
+    bankAccountNumber: "",
+    payMethod: "Bank",
+    tfn: "",
+    taxDeclaration: "",
+    superFund: "",
+    superMemberNumber: "",
+    standardHoursPerWeek: "",
+    fte: "",
+    leavePolicy: "",
+    medicalRestrictionsNotes: "",
+    notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
-    credentials: [],
+    ...emptyCollections,
   });
   const [error, setError] = useState("");
 

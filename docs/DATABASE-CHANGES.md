@@ -41,6 +41,14 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `app_role_window` | Role ↔ menu window |
 | `app_role_process` | Role ↔ business process |
 | `employee` | Staff / business partner (employee) |
+| `employee_location` | Employee addresses (primary flag) |
+| `employee_emergency_contact` | Emergency contacts & next of kin |
+| `employee_alert` | Employee alerts (manual; system alerts derived in app) |
+| `employee_credential` | Credentials assigned lines |
+| `employee_skill` | Skills & languages |
+| `employee_document` | HR documents |
+| `employee_activity` | Employee activity log |
+| `employee_leave_entitlement` | Leave entitlements / balances |
 
 ## Not built yet (needs migration when added)
 
