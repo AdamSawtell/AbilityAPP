@@ -33,13 +33,25 @@ In Amplify → **Environment variables**, add the same two `NEXT_PUBLIC_*` value
 
 ## GitHub secrets (for auto-migrate)
 
-Repo → **Settings → Secrets and variables → Actions**:
+Repo → **Settings → Secrets and variables → Actions** → **New repository secret**:
 
 | Secret | Value |
 |--------|--------|
 | `SUPABASE_ACCESS_TOKEN` | Personal access token from [Account → Tokens](https://supabase.com/dashboard/account/tokens) |
-| `SUPABASE_PROJECT_REF` | `yonkaaylolrdsjfgpvyp` |
-| `SUPABASE_DB_PASSWORD` | Database password from project creation (used by CLI in CI) |
+| `SUPABASE_DB_PASSWORD` | Database password from project creation (Settings → Database; reset if you do not have it) |
+
+`SUPABASE_PROJECT_REF` is set in the workflow (`yonkaaylolrdsjfgpvyp`) — you do not need a secret for it.
+
+Both secrets above are required. If any are missing, the **Supabase migrations** workflow fails within a few seconds and GitHub emails you.
+
+After adding secrets, re-run the workflow: **Actions → Supabase migrations → Run workflow**, or push any commit that touches `supabase/migrations/`.
+
+### Workflow failed emails
+
+1. Open [Actions → Supabase migrations](https://github.com/AdamSawtell/AbilityAPP/actions/workflows/supabase-migrate.yml).
+2. Click the failed run → expand **Verify GitHub secrets** or **Link Supabase project** for the error.
+3. Most common fix: add or correct the three secrets above.
+4. Optional: GitHub → **Settings → Notifications** → uncheck **Actions** if you do not want failure emails (fixing secrets is still recommended).
 
 ## Manual commands
 
