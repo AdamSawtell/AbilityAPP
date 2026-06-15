@@ -24,7 +24,7 @@ const { initialSupportPlans, initialPlanDocuments } = await import(
 );
 
 function sqlString(value) {
-  if (value === null || value === undefined || value === "") return "null";
+  if (value === null || value === undefined) return "''";
   return `'${String(value).replace(/'/g, "''")}'`;
 }
 
@@ -152,7 +152,7 @@ addInsert(
   ],
   initialClients.map((c) => {
     const v = [
-      sqlString(c.id), sqlString(c.enquiryId || null), sqlString(c.searchKey),
+      sqlString(c.id), c.enquiryId?.trim() ? sqlString(c.enquiryId) : "null", sqlString(c.searchKey),
       sqlString(c.businessPartnerGroup), sqlString(c.name), sqlString(c.riskAlerts),
       sqlString(c.consentAlertList), sqlString(c.firstName), sqlString(c.preferredName),
       sqlString(c.lastName), sqlString(c.middleName), sqlString(c.email), sqlString(c.phone),
@@ -278,7 +278,7 @@ addInsert(
   ],
   initialContracts.map((c) => {
     const v = [
-      sqlString(c.id), sqlString(c.documentNo), sqlString(c.clientId || null),
+      sqlString(c.id), sqlString(c.documentNo), c.clientId?.trim() ? sqlString(c.clientId) : "null",
       sqlString(c.businessPartnerName), sqlString(c.contractType), sqlString(c.name),
       sqlString(c.description), sqlString(c.contractTerm), sqlDate(c.executionDate),
       sqlDate(c.startDate), sqlDate(c.endDate), sqlDate(c.reviewDate), sqlString(c.reference),
