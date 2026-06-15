@@ -6,7 +6,7 @@ import { useReferenceDataAdmin } from "@/lib/config-store";
 import { referenceDataMeta, type ReferenceDataGroup } from "@/lib/reference-data";
 
 export function ReferenceDataAdminView() {
-  const { catalog, keysByGroup, setOptions, resetKey, resetAll } = useReferenceDataAdmin();
+  const { catalog, keysByGroup, setOptions, resetKey, resetAll, source } = useReferenceDataAdmin();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
 
@@ -29,16 +29,22 @@ export function ReferenceDataAdminView() {
   return (
     <AppShell
       title="Reference data"
-      subtitle="Configure dropdown options used across clients, support plans, products, and services."
+      subtitle={
+        source === "supabase"
+          ? "Options are stored in Supabase and shared across devices."
+          : "Configure dropdown options used across clients, support plans, products, and services."
+      }
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin/reference-data" }, { label: "Reference data" }]}
       actions={
-        <button
-          type="button"
-          onClick={resetAll}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-        >
-          Reset all to defaults
-        </button>
+        source === "local" ? (
+          <button
+            type="button"
+            onClick={resetAll}
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            Reset all to defaults
+          </button>
+        ) : null
       }
     >
       <div className="grid gap-6 lg:grid-cols-3">
@@ -84,13 +90,15 @@ export function ReferenceDataAdminView() {
                     <p className="mt-1 text-sm text-slate-500">{referenceDataMeta[activeKey].description}</p>
                   ) : null}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => resetKey(activeKey)}
-                  className="text-sm font-medium text-slate-600 hover:text-[#b51266]"
-                >
-                  Reset to default
-                </button>
+                {source === "local" ? (
+                  <button
+                    type="button"
+                    onClick={() => resetKey(activeKey)}
+                    className="text-sm font-medium text-slate-600 hover:text-[#b51266]"
+                  >
+                    Reset to default
+                  </button>
+                ) : null}
               </div>
               <p className="mb-2 text-xs text-slate-500">One option per line</p>
               <textarea

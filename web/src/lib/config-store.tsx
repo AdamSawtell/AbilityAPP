@@ -7,6 +7,8 @@ import {
   type ReferenceDataCatalog,
   type ReferenceDataGroup,
 } from "@/lib/reference-data";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { fetchReferenceCatalog, replaceReferenceOptions } from "@/lib/supabase/reference-data";
 
 type ReferenceDataStore = {
   catalog: ReferenceDataCatalog;
@@ -14,16 +16,19 @@ type ReferenceDataStore = {
   setOptions: (key: string, options: string[]) => void;
   resetKey: (key: string) => void;
   resetAll: () => void;
+  source: "supabase" | "local";
 };
 
 const ReferenceDataContext = createContext<ReferenceDataStore | null>(null);
 const STORAGE_KEY = "abilityerp-reference-data";
 
-function mergeCatalog(overrides: ReferenceDataCatalog): ReferenceDataCatalog {
-  const merged = { ...defaultReferenceData };
+function mergeCatalog(
+  base: ReferenceDataCatalog,
+  overrides: ReferenceDataCatalog
+): ReferenceDataCatalog {
+  const merged = { ...base };
   for (const [key, options] of Object.entries(overrides)) {
     if (!Array.isArray(options) || !options.length) continue;
-    // Legacy localStorage key from before clientStatus split
     if (key === "status") {
       merged.clientStatus = options;
     } else {
@@ -46,46 +51,105 @@ function loadOverrides(): ReferenceDataCatalog {
 }
 
 export function ReferenceDataProvider({ children }: { children: React.ReactNode }) {
+  const [remoteCatalog, setRemoteCatalog] = useState<ReferenceDataCatalog | null>(null);
   const [overrides, setOverrides] = useState<ReferenceDataCatalog>({});
   const [hydrated, setHydrated] = useState(false);
+  const [source, setSource] = useState<"supabase" | "local">("local");
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function hydrate() {
+      const localOverrides = loadOverrides();
+      setOverrides(localOverrides);
+
+      if (isSupabaseConfigured()) {
+        try {
+          const supabase = createClient();
+          const catalog = await fetchReferenceCatalog(supabase);
+          if (!cancelled && Object.keys(catalog).length) {
+            setRemoteCatalog(catalog);
+            setSource("supabase");
+            setHydrated(true);
+            return;
+          }
+        } catch {
+          // fall back to bundled defaults
+        }
+      }
+
+      if (!cancelled) {
+        setRemoteCatalog(null);
+        setSource("local");
+        setHydrated(true);
+      }
+    }
+
     queueMicrotask(() => {
-      setOverrides(loadOverrides());
-      setHydrated(true);
+      void hydrate();
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || source === "supabase") return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
     } catch {
       // ignore
     }
-  }, [overrides, hydrated]);
+  }, [overrides, hydrated, source]);
 
-  const catalog = useMemo(() => mergeCatalog(overrides), [overrides]);
+  const baseCatalog = remoteCatalog ?? defaultReferenceData;
+  const catalog = useMemo(() => mergeCatalog(baseCatalog, overrides), [baseCatalog, overrides]);
 
-  const getOptions = useCallback((key: string) => catalog[key] ?? defaultReferenceData[key] ?? [], [catalog]);
+  const getOptions = useCallback(
+    (key: string) => catalog[key] ?? defaultReferenceData[key] ?? [],
+    [catalog]
+  );
 
-  const setOptions = useCallback((key: string, options: string[]) => {
-    setOverrides((prev) => ({ ...prev, [key]: options.filter((o) => o.trim()) }));
-  }, []);
+  const setOptions = useCallback(
+    (key: string, options: string[]) => {
+      const trimmed = options.filter((o) => o.trim());
 
-  const resetKey = useCallback((key: string) => {
-    setOverrides((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-  }, []);
+      if (source === "supabase" && isSupabaseConfigured()) {
+        void (async () => {
+          const supabase = createClient();
+          await replaceReferenceOptions(supabase, key, trimmed);
+          const next = await fetchReferenceCatalog(supabase);
+          setRemoteCatalog(next);
+        })();
+        return;
+      }
 
-  const resetAll = useCallback(() => setOverrides({}), []);
+      setOverrides((prev) => ({ ...prev, [key]: trimmed }));
+    },
+    [source]
+  );
+
+  const resetKey = useCallback(
+    (key: string) => {
+      if (source === "supabase") return;
+      setOverrides((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    },
+    [source]
+  );
+
+  const resetAll = useCallback(() => {
+    if (source === "supabase") return;
+    setOverrides({});
+  }, [source]);
 
   const value = useMemo(
-    () => ({ catalog, getOptions, setOptions, resetKey, resetAll }),
-    [catalog, getOptions, setOptions, resetKey, resetAll]
+    () => ({ catalog, getOptions, setOptions, resetKey, resetAll, source }),
+    [catalog, getOptions, setOptions, resetKey, resetAll, source]
   );
 
   if (!hydrated) {
@@ -106,7 +170,7 @@ export function useReferenceData() {
 }
 
 export function useReferenceDataAdmin() {
-  const { catalog, setOptions, resetKey, resetAll } = useReferenceData();
+  const { catalog, setOptions, resetKey, resetAll, source } = useReferenceData();
   const keysByGroup = useMemo(() => {
     const groups = new Map<ReferenceDataGroup, string[]>();
     for (const key of Object.keys(referenceDataMeta)) {
@@ -117,5 +181,5 @@ export function useReferenceDataAdmin() {
     }
     return groups;
   }, []);
-  return { catalog, keysByGroup, setOptions, resetKey, resetAll };
+  return { catalog, keysByGroup, setOptions, resetKey, resetAll, source };
 }

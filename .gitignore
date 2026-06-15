@@ -36,3 +36,7 @@ discovery/*.txt
 
 # Vercel
 .vercel
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
