@@ -93,6 +93,7 @@ export function RolesAdminView() {
         { label: "Admin", href: "/admin/roles" },
         { label: "Roles" },
       ]}
+      audit={{ moduleLabel: "Role administration" }}
       actions={
         <button
           type="button"

@@ -36,8 +36,9 @@ function PermissionToggle({
 }
 
 export function TaskManagementAdminView() {
-  const { roles, upsertRole } = useAuth();
+  const { roles, upsertRole, canWindow } = useAuth();
   const { taskTypes, upsertTaskType, resetTaskTypes } = useTaskTypes();
+  const hasAccess = canWindow("admin-task-management");
 
   const [typeDraft, setTypeDraft] = useState<TaskTypeRecord | null>(null);
   const [activeTypeId, setActiveTypeId] = useState<string | null>(taskTypes[0]?.id ?? null);
@@ -53,6 +54,16 @@ export function TaskManagementAdminView() {
     if (!roleRecord) return [];
     return mergeTaskTypePermissions(roleRecord.taskTypePermissions, sortedTypes.map((t) => t.id));
   }, [roleRecord, sortedTypes]);
+
+  if (!hasAccess) {
+    return (
+      <AppShell title="Task management" audit={{ moduleLabel: "Task type administration" }}>
+        <p className="text-sm text-slate-600">
+          You do not have access to task administration. Ask an administrator to grant the Task management window for your role.
+        </p>
+      </AppShell>
+    );
+  }
 
   function openType(id: string) {
     const type = sortedTypes.find((t) => t.id === id);
@@ -121,6 +132,7 @@ export function TaskManagementAdminView() {
         { label: "Admin", href: "/admin/task-management" },
         { label: "Task management" },
       ]}
+      audit={{ moduleLabel: "Task type administration" }}
       actions={
         <button
           type="button"

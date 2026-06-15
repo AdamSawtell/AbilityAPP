@@ -1,5 +1,5 @@
-import { TaskListView } from "@/components/task-pages";
+import { redirect } from "next/navigation";
 
 export default function TasksPastPage() {
-  return <TaskListView view="past" />;
+  redirect("/tasks?scope=past");
 }

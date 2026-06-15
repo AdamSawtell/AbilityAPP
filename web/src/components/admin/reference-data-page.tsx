@@ -35,6 +35,7 @@ export function ReferenceDataAdminView() {
           : "Configure dropdown options used across clients, support plans, products, and services."
       }
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin/reference-data" }, { label: "Reference data" }]}
+      audit={{ moduleLabel: "Reference data administration" }}
       actions={
         source === "local" ? (
           <button

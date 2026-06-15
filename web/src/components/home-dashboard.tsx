@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { taskCountsForSession, visibleTaskViews } from "@/lib/task-access";
+import { taskDashboardStats } from "@/lib/task-hub";
 
 function SummaryCard({
   title,
@@ -53,6 +54,7 @@ export function HomeDashboard() {
   const showEmployees = canWindow("employees");
   const taskViews = session ? visibleTaskViews(session.windowKeys) : [];
   const taskCounts = session ? taskCountsForSession(tasks, session) : null;
+  const taskStats = session ? taskDashboardStats(tasks, session) : null;
   const showTasks = taskViews.length > 0;
   const openTaskCount = taskCounts ? taskCounts.assignedToMe + taskCounts.myRole : 0;
 
@@ -73,6 +75,7 @@ export function HomeDashboard() {
     <AppShell
       title="Home"
       subtitle={`Welcome back${session?.displayName ? `, ${session.displayName}` : ""}. Pick up where you left off.`}
+      audit={{ moduleLabel: "Home dashboard" }}
     >
       <div className="mb-8 flex flex-wrap gap-3">
         <Link
@@ -103,48 +106,47 @@ export function HomeDashboard() {
         ) : null}
         {showTasks ? (
           <Link
-            href="/tasks/assigned-to-me"
+            href="/tasks"
             className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
           >
-            My tasks{openTaskCount > 0 ? ` (${openTaskCount})` : ""}
+            Tasks
+            {taskStats?.overdue
+              ? ` (${taskStats.overdue} overdue)`
+              : openTaskCount > 0
+                ? ` (${openTaskCount})`
+                : ""}
           </Link>
         ) : null}
       </div>
 
-      {showTasks && taskCounts ? (
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <SummaryCard
-            title="Assigned to me"
-            count={taskCounts.assignedToMe}
-            description="Open tasks waiting on you"
-            href="/tasks/assigned-to-me"
-            accent="pink"
-          />
-          <SummaryCard
-            title="To my role"
-            count={taskCounts.myRole}
-            description={`Tasks for ${session?.activeRoleName ?? "your role"}`}
-            href="/tasks/my-role"
-            accent="indigo"
-          />
-          {taskViews.some((v) => v.key === "all") ? (
-            <SummaryCard
-              title="All active tasks"
-              count={taskCounts.all}
-              description="Everything you can see"
-              href="/tasks/all"
-              accent="emerald"
-            />
-          ) : null}
-          {taskViews.some((v) => v.key === "past") ? (
-            <SummaryCard
-              title="Past tasks"
-              count={taskCounts.past}
-              description="Completed and cancelled"
-              href="/tasks/past"
-              accent="emerald"
-            />
-          ) : null}
+      {showTasks && taskCounts && taskStats ? (
+        <div className="mb-8">
+          <Link
+            href="/tasks"
+            className="group block overflow-hidden rounded-2xl bg-gradient-to-br from-[#d4147a]/10 via-[#fdf2f8] to-white p-6 shadow-sm ring-1 ring-[#f9a8d4]/50 transition hover:shadow-md hover:ring-[#d4147a]/40"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Your tasks</p>
+                <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+                  {openTaskCount} open
+                  {taskStats.overdue > 0 ? (
+                    <span className="ml-3 text-lg font-semibold text-red-700">{taskStats.overdue} overdue</span>
+                  ) : null}
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  {taskCounts.assignedToMe} assigned to you · {taskCounts.myRole} for {session?.activeRoleName ?? "your role"}
+                  {taskStats.dueToday > 0 ? ` · ${taskStats.dueToday} due today` : ""}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-[#b51266] transition-all group-hover:gap-2">
+                Open task hub
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+              </span>
+            </div>
+          </Link>
         </div>
       ) : null}
 

@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { TaskActivityTimeline } from "@/components/task-activity-timeline";
 import { TaskForm, type TaskFormValues } from "@/components/task-form";
+import { TaskHubView } from "@/components/task-hub-view";
 import { useAuth } from "@/lib/auth-store";
 import { displayName } from "@/lib/access/types";
 import { useData } from "@/lib/data-store";
-import {
-  filterTasksForView,
-  taskAssignedToRole,
-  taskAssignedToUser,
-  TASK_LIST_VIEWS,
-  visibleTaskViews,
-  type TaskListView,
-} from "@/lib/task-access";
+import { auditMetaFromTask, taskUpdatesToAuditEvents } from "@/lib/audit";
+import { taskAssignedToRole, taskAssignedToUser, type TaskListView } from "@/lib/task-access";
 import { useTaskTypes } from "@/lib/task-type-store";
 import { canSeeTaskType } from "@/lib/task-type-access";
 import {
@@ -46,28 +41,6 @@ function statusPill(status: TaskRecord["status"]) {
   );
 }
 
-function TaskRow({ task }: { task: TaskRecord }) {
-  const { getTaskTypeName } = useTaskTypes();
-  return (
-    <Link
-      href={`/tasks/${task.id}`}
-      className="flex flex-col gap-2 px-5 py-4 hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div className="min-w-0">
-        <p className="font-medium text-slate-900">{task.title}</p>
-        <p className="mt-0.5 text-sm text-slate-500">
-          {task.documentNo} · {getTaskTypeName(task.taskTypeId)}
-          {task.entityLabel ? ` · ${task.entityLabel}` : null}
-        </p>
-      </div>
-      <div className="flex shrink-0 flex-wrap items-center gap-2">
-        {statusPill(task.status)}
-        {task.dueDate ? <span className="text-xs text-slate-500">Due {task.dueDate}</span> : null}
-      </div>
-    </Link>
-  );
-}
-
 function canManageTask(
   task: TaskRecord,
   session: { userId: string; activeRoleId: string },
@@ -83,82 +56,7 @@ function canManageTask(
 }
 
 export function TaskListView({ view }: { view: TaskListView }) {
-  const { tasks } = useData();
-  const { session, canWindow, canProcess } = useAuth();
-  const meta = TASK_LIST_VIEWS.find((v) => v.key === view)!;
-  const views = visibleTaskViews(session?.windowKeys ?? []);
-
-  const rows = useMemo(() => {
-    if (!session) return [];
-    return filterTasksForView(tasks, view, session).sort((a, b) => {
-      const aActive = isActiveTask(a) ? 0 : 1;
-      const bActive = isActiveTask(b) ? 0 : 1;
-      if (aActive !== bActive) return aActive - bActive;
-      return (b.dueDate || "").localeCompare(a.dueDate || "");
-    });
-  }, [tasks, view, session]);
-
-  if (!canWindow(meta.windowKey)) {
-    return (
-      <AppShell title="Tasks" subtitle="You do not have access to this task list.">
-        <p className="text-sm text-slate-600">Ask an administrator to grant the {meta.label} window for your role.</p>
-      </AppShell>
-    );
-  }
-
-  return (
-    <AppShell
-      title="Tasks"
-      subtitle={meta.description}
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Tasks" },
-        { label: meta.label },
-      ]}
-      actions={
-        canProcess("assign-task") ? (
-          <Link
-            href="/tasks/new"
-            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
-          >
-            New task
-          </Link>
-        ) : null
-      }
-    >
-      <div className="mb-6 flex flex-wrap gap-2">
-        {views.map((v) => (
-          <Link
-            key={v.key}
-            href={v.href}
-            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-              v.key === view ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/60" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            {v.label}
-          </Link>
-        ))}
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-3">
-          <h2 className="text-sm font-semibold text-slate-900">
-            {meta.label}
-            <span className="ml-2 font-normal text-slate-500">({rows.length})</span>
-          </h2>
-        </div>
-        {rows.length ? (
-          <div className="divide-y divide-slate-100">
-            {rows.map((task) => (
-              <TaskRow key={task.id} task={task} />
-            ))}
-          </div>
-        ) : (
-          <p className="px-5 py-10 text-center text-sm text-slate-500">No tasks in this list.</p>
-        )}
-      </div>
-    </AppShell>
-  );
+  return <TaskHubView initialScope={view} />;
 }
 
 export function TaskCreateView() {
@@ -215,11 +113,12 @@ export function TaskCreateView() {
       subtitle="Assign work to any user or role, optionally linked to a record."
       breadcrumbs={[
         { label: "Home", href: "/" },
-        { label: "Tasks", href: "/tasks/assigned-to-me" },
+        { label: "Tasks", href: "/tasks" },
         { label: "New task" },
       ]}
+      audit={{ moduleLabel: "New task" }}
     >
-      <TaskForm onSubmit={handleCreate} onCancel={() => router.push("/tasks/assigned-to-me")} />
+      <TaskForm onSubmit={handleCreate} onCancel={() => router.push("/tasks")} />
     </AppShell>
   );
 }
@@ -239,7 +138,7 @@ export function TaskDetailView({ id }: { id: string }) {
   if (!task || !session || !canSeeTaskType(session, task.taskTypeId)) {
     return (
       <AppShell title="Task not found">
-        <Link href="/tasks/assigned-to-me" className="text-[#b51266] hover:underline">
+        <Link href="/tasks" className="text-[#b51266] hover:underline">
           Back to tasks
         </Link>
       </AppShell>
@@ -349,9 +248,15 @@ export function TaskDetailView({ id }: { id: string }) {
       subtitle={`${liveTask.documentNo} · ${getTaskTypeName(liveTask.taskTypeId)}`}
       breadcrumbs={[
         { label: "Home", href: "/" },
-        { label: "Tasks", href: "/tasks/assigned-to-me" },
+        { label: "Tasks", href: "/tasks" },
         { label: liveTask.documentNo },
       ]}
+      audit={{
+        entityType: "task",
+        entityId: liveTask.id,
+        meta: auditMetaFromTask(liveTask),
+        extraEvents: taskUpdatesToAuditEvents(liveTask.updates),
+      }}
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">

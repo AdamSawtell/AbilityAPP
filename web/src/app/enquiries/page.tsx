@@ -13,6 +13,7 @@ export default function EnquiriesPage() {
       title="Enquiries"
       subtitle="Client and employee intake. Convert to a client when ready."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Enquiries" }]}
+      audit={{ moduleLabel: "Enquiries" }}
       actions={
         <Link
           href="/enquiries/new"

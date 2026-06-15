@@ -8,6 +8,7 @@ import { ClientTabbedView } from "@/components/client-view";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useData } from "@/lib/data-store";
+import { auditMetaFrom } from "@/lib/audit";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { ClientLineCollectionKey } from "@/lib/client-line-tables";
 import type { ClientRecord } from "@/lib/client";
@@ -177,6 +178,15 @@ export function ClientDetailView({ id }: { id: string }) {
               />
             ) : null}
           </>
+        }
+        audit={
+          stored
+            ? {
+                entityType: "client",
+                entityId: stored.id,
+                meta: auditMetaFrom(stored),
+              }
+            : undefined
         }
       >
         <ClientCoreSummary client={client} />

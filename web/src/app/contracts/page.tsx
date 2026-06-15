@@ -7,6 +7,7 @@ export default function ContractsPage() {
       title="Contracts"
       subtitle="Service agreements and commercial contracts. Start, end, and review dates drive renewals."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Contracts" }]}
+      audit={{ moduleLabel: "Contracts" }}
     >
       <ContractListView />
     </AppShell>

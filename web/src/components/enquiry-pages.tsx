@@ -14,6 +14,7 @@ import { useConvertEnquiry, useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import { formSections, type EnquiryRecord } from "@/lib/enquiry";
+import { auditMetaFrom } from "@/lib/audit";
 
 export function EnquiryDetailView({ id }: { id: string }) {
   const router = useRouter();
@@ -134,6 +135,11 @@ export function EnquiryDetailView({ id }: { id: string }) {
             ) : null}
           </>
         }
+        audit={{
+          entityType: "enquiry",
+          entityId: record.id,
+          meta: auditMetaFrom(stored ?? record),
+        }}
       >
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <StatusBadge status={record.status} />

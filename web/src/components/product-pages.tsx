@@ -8,6 +8,7 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useReferenceData } from "@/lib/config-store";
 import type { ProductRecord } from "@/lib/product";
 import { useData } from "@/lib/data-store";
+import { auditMetaFrom } from "@/lib/audit";
 
 function Field({
   label,
@@ -120,6 +121,15 @@ export function ProductDetailView({ id }: { id: string }) {
           <Link href="/products" className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
             Back
           </Link>
+        }
+        audit={
+          stored
+            ? {
+                entityType: "product",
+                entityId: stored.id,
+                meta: auditMetaFrom(stored),
+              }
+            : undefined
         }
       >
         {priceLine ? (

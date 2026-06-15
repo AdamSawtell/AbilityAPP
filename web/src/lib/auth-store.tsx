@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               const user = dbUsers.find((u) => u.id === saved.userId);
               const role = dbRoles.find((r) => r.id === saved.activeRoleId);
               if (user?.active && role?.active && user.roleIds.includes(role.id)) {
-                const next = await buildSession(user, role, (id) => resolveRoleAccess(supabase, id));
+                const next = await buildSession(user, withSeedTaskAccess(role), resolveAccess);
                 setSession(next);
                 persistSession(next);
               }
@@ -188,7 +188,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const access = await resolveAccess(session.activeRoleId);
       const keysMatch =
         access.windowKeys.length === session.windowKeys.length &&
-        access.windowKeys.every((k) => session.windowKeys.includes(k));
+        access.windowKeys.every((k) => session.windowKeys.includes(k)) &&
+        session.windowKeys.every((k) => access.windowKeys.includes(k));
       const procsMatch =
         access.processIds.length === session.processIds.length &&
         access.processIds.every((p) => session.processIds.includes(p));

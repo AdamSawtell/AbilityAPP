@@ -1,5 +1,5 @@
-import { TaskListView } from "@/components/task-pages";
+import { redirect } from "next/navigation";
 
 export default function TasksAssignedToMePage() {
-  return <TaskListView view="assigned-to-me" />;
+  redirect("/tasks?scope=assigned-to-me");
 }

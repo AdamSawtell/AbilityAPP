@@ -7,6 +7,7 @@ export default function ClientsPage() {
       title="Clients"
       subtitle="People receiving support through your organisation."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Clients" }]}
+      audit={{ moduleLabel: "Clients" }}
     >
       <ClientListView />
     </AppShell>

@@ -10,6 +10,7 @@ import { newLineId } from "@/lib/client-line-tables";
 import { formatContractDate } from "@/lib/contract";
 import type { PriceListLine, PriceListRecord } from "@/lib/product";
 import { useData } from "@/lib/data-store";
+import { auditMetaFrom } from "@/lib/audit";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -118,6 +119,11 @@ export function PriceListDetailView({ id }: { id: string }) {
             Back
           </Link>
         }
+        audit={{
+          entityType: "price-list",
+          entityId: list.id,
+          meta: auditMetaFrom(stored ?? list),
+        }}
       >
         <div className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
           <label>

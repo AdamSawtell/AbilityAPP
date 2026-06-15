@@ -7,6 +7,7 @@ export default function ProductsPage() {
       title="Products"
       subtitle="NDIS support products and services. Assign a price list to each product."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Products" }]}
+      audit={{ moduleLabel: "Products" }}
     >
       <ProductListView />
     </AppShell>

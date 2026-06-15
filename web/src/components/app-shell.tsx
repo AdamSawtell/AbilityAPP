@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { SessionFooter } from "@/components/session-footer";
+import { RecordAuditFooter } from "@/components/record-audit-footer";
+import type { AppShellAuditProps } from "@/lib/audit";
 import { WorkspaceTabs } from "@/components/workspace-tabs";
 
 export type Breadcrumb = {
@@ -20,12 +22,14 @@ export function AppShell({
   subtitle,
   breadcrumbs,
   actions,
+  audit,
   children,
 }: {
   title: string;
   subtitle?: string;
   breadcrumbs?: Breadcrumb[];
   actions?: React.ReactNode;
+  audit?: AppShellAuditProps;
   children: React.ReactNode;
 }) {
   return (
@@ -79,6 +83,7 @@ export function AppShell({
             {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
           </div>
           {children}
+          {audit ? <RecordAuditFooter {...audit} /> : null}
         </main>
       </div>
     </div>

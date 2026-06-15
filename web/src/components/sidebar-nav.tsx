@@ -10,7 +10,8 @@ import { ENQUIRY_DETAIL_TABS } from "@/lib/access/detail-windows";
 import { windowKeyForDetailTab } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
-import { taskCountsForSession, visibleTaskViews, TASK_LIST_VIEWS } from "@/lib/task-access";
+import { taskCountsForSession } from "@/lib/task-access";
+import { taskDashboardStats } from "@/lib/task-hub";
 import { useWorkspace } from "@/lib/workspace-store";
 
 const peopleLinks = [
@@ -160,15 +161,11 @@ export function SidebarNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { tabs } = useWorkspace();
-  const { session, canWindow, canProcess } = useAuth();
+  const { session, canWindow } = useAuth();
   const { tasks } = useData();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const showHome = canWindow("home");
-  const taskViews = useMemo(
-    () => (session ? visibleTaskViews(session.windowKeys) : []),
-    [session]
-  );
   const taskCounts = useMemo(
     () => (session ? taskCountsForSession(tasks, session) : { assignedToMe: 0, myRole: 0, all: 0, past: 0 }),
     [tasks, session]
@@ -178,7 +175,12 @@ export function SidebarNav() {
     canWindow("tasks-for-my-role") ||
     canWindow("tasks-all") ||
     canWindow("tasks-past");
+  const taskStats = useMemo(
+    () => (session ? taskDashboardStats(tasks, session) : null),
+    [tasks, session]
+  );
   const openTaskCount = taskCounts.assignedToMe + taskCounts.myRole;
+  const taskBadge = taskStats?.overdue ? taskStats.overdue : openTaskCount > 0 ? openTaskCount : 0;
   const showEnquiries = canWindow("enquiries");
   const showClients = canWindow("clients");
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
@@ -207,7 +209,7 @@ export function SidebarNav() {
   }
 
   function isOpen(key: string) {
-    if (key === "tasks" && (pathname.startsWith("/tasks") || pathname === "/tasks/new")) return true;
+    if (key === "admin" && pathname.startsWith("/admin")) return true;
     return expanded[key] === true;
   }
 
@@ -235,69 +237,36 @@ export function SidebarNav() {
       ) : null}
 
       {showTasks ? (
-        <div className={showHome ? "mt-2 border-t border-slate-200 pt-3" : ""}>
-          <SectionHeader
-            label="Tasks"
-            icon={
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c1.07.013 2.008.714 2.007 1.64v6.694a2.25 2.25 0 0 1-2.25 2.25h-1.5m-6.75 0H4.5A2.25 2.25 0 0 1 2.25 12v-1.5m16.5 0H21m-3.75 0H21m-9.75 0H9"
-                />
-              </svg>
-            }
-            sectionKey="tasks"
-            open={isOpen("tasks")}
-            onToggle={toggleSection}
-            href="/tasks/assigned-to-me"
-            active={pathname.startsWith("/tasks")}
-            badge={openTaskCount}
-          />
-          {isOpen("tasks") ? (
-            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
-              {canProcess("assign-task") ? (
-                <Link
-                  href="/tasks/new"
-                  className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
-                    pathname === "/tasks/new"
-                      ? "bg-[#fdf2f8] font-medium text-[#b51266]"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                  }`}
-                >
-                  New task
-                </Link>
-              ) : null}
-              {(taskViews.length ? taskViews : TASK_LIST_VIEWS.filter((v) => canWindow(v.windowKey))).map((view) => {
-                const count =
-                  view.key === "assigned-to-me"
-                    ? taskCounts.assignedToMe
-                    : view.key === "my-role"
-                      ? taskCounts.myRole
-                      : view.key === "all"
-                        ? taskCounts.all
-                        : taskCounts.past;
-                const active = pathname === view.href || pathname.startsWith(`${view.href}/`);
-                return (
-                  <Link
-                    key={view.key}
-                    href={view.href}
-                    className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs font-medium ${
-                      active ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                    }`}
-                  >
-                    <span>{view.label}</span>
-                    {count > 0 ? (
-                      <span className="rounded-full bg-[#fdf2f8] px-1.5 py-0.5 text-[10px] font-semibold text-[#b51266] ring-1 ring-[#f9a8d4]/50">
-                        {count}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
-            </div>
+        <Link
+          href="/tasks"
+          className={`mt-2 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
+            pathname === "/tasks" || (pathname.startsWith("/tasks") && pathname !== "/tasks/new")
+              ? "bg-[#fdf2f8] text-[#b51266]"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          }`}
+        >
+          <span className={pathname.startsWith("/tasks") ? "text-[#d4147a]" : "text-slate-400"}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c1.07.013 2.008.714 2.007 1.64v6.694a2.25 2.25 0 0 1-2.25 2.25h-1.5m-6.75 0H4.5A2.25 2.25 0 0 1 2.25 12v-1.5m16.5 0H21m-3.75 0H21m-9.75 0H9"
+              />
+            </svg>
+          </span>
+          Tasks
+          {taskBadge > 0 ? (
+            <span
+              className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
+                taskStats?.overdue
+                  ? "bg-red-100 text-red-700 ring-1 ring-red-200"
+                  : "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/50"
+              }`}
+            >
+              {taskBadge}
+            </span>
           ) : null}
-        </div>
+        </Link>
       ) : null}
 
       {showEnquiries ? (

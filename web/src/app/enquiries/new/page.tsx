@@ -37,6 +37,7 @@ export default function NewEnquiryPage() {
         { label: "Enquiries", href: "/enquiries" },
         { label: "New" },
       ]}
+      audit={{ moduleLabel: "New enquiry" }}
       actions={
         <>
           <Link

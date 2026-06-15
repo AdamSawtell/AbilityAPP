@@ -120,6 +120,7 @@ export function UsersAdminView({
         { label: "Admin", href: "/admin/users" },
         { label: "Users" },
       ]}
+      audit={{ moduleLabel: "User administration" }}
       actions={
         <button
           type="button"

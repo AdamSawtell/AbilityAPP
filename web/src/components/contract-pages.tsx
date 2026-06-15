@@ -12,6 +12,7 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { formatContractDate, type ContractRecord } from "@/lib/contract";
 import type { ContractLineCollectionKey } from "@/lib/contract-line-tables";
 import { useData } from "@/lib/data-store";
+import { auditMetaFrom } from "@/lib/audit";
 
 function ContractFormFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
@@ -221,6 +222,11 @@ export function ContractDetailView({ id }: { id: string }) {
             ) : null}
           </>
         }
+        audit={{
+          entityType: "contract",
+          entityId: contract.id,
+          meta: auditMetaFrom(stored ?? contract),
+        }}
       >
         <ContractDateTimeline contract={contract} />
         {saved && !hasUnsavedChanges ? <p className="mb-4 text-sm text-emerald-700">Saved</p> : null}
@@ -301,6 +307,7 @@ export function NewContractView({ clientId }: { clientId?: string }) {
         { label: "Contracts", href: "/contracts" },
         { label: "New" },
       ]}
+      audit={{ moduleLabel: "New contract" }}
       actions={
         <>
           <Link

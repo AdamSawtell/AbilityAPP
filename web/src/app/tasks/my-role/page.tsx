@@ -1,5 +1,5 @@
-import { TaskListView } from "@/components/task-pages";
+import { redirect } from "next/navigation";
 
 export default function TasksMyRolePage() {
-  return <TaskListView view="my-role" />;
+  redirect("/tasks?scope=my-role");
 }

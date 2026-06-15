@@ -7,6 +7,7 @@ export default function PriceListsPage() {
       title="Price lists"
       subtitle="NDIS price lists with product prices. Products reference a list for their rates."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Price lists" }]}
+      audit={{ moduleLabel: "Price lists" }}
     >
       <PriceListListView />
     </AppShell>

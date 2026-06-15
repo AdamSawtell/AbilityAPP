@@ -83,7 +83,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
   },
 ];
 
-/** Ensure seed roles keep task windows when the DB or cached session predates a catalog update. */
+/** Ensure seed roles keep catalog windows when the DB or cached session predates a catalog update. */
 export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
   const seed = SEED_ROLES.find((r) => r.id === role.id);
   if (!seed) {
@@ -93,10 +93,8 @@ export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
     };
   }
 
-  const taskKeys = TASK_WINDOW_KEYS.filter((k) => seed.windowKeys.includes(k));
-  const taskProcs = ["assign-task", "action-task"].filter((p) => seed.processIds.includes(p));
-  const windowKeys = [...new Set([...role.windowKeys, ...taskKeys])];
-  const processIds = [...new Set([...role.processIds, ...taskProcs])];
+  const windowKeys = [...new Set([...role.windowKeys, ...seed.windowKeys])];
+  const processIds = [...new Set([...role.processIds, ...seed.processIds])];
   const taskTypePermissions = mergeTaskTypePermissions(
     role.taskTypePermissions?.length ? role.taskTypePermissions : seed.taskTypePermissions,
     ALL_TASK_TYPE_IDS
@@ -105,7 +103,8 @@ export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
   if (
     windowKeys.length === role.windowKeys.length &&
     processIds.length === role.processIds.length &&
-    taskTypePermissions.length === (role.taskTypePermissions?.length ?? 0)
+    taskTypePermissions.length === (role.taskTypePermissions?.length ?? 0) &&
+    role.windowKeys.every((k) => windowKeys.includes(k))
   ) {
     return { ...role, taskTypePermissions };
   }

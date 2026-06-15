@@ -1,5 +1,5 @@
-import { TaskListView } from "@/components/task-pages";
+import { redirect } from "next/navigation";
 
 export default function TasksAllPage() {
-  return <TaskListView view="all" />;
+  redirect("/tasks?scope=all");
 }

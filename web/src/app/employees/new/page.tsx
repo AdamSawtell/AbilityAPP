@@ -104,6 +104,7 @@ export default function NewEmployeePage() {
         { label: "Employees", href: "/employees" },
         { label: "New" },
       ]}
+      audit={{ moduleLabel: "New employee" }}
       actions={
         <>
           <Link

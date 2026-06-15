@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { EmployeeRecord } from "@/lib/employee";
+import { auditMetaFrom } from "@/lib/audit";
 
 function EmployeeTabbedViewFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
@@ -109,6 +110,15 @@ export function EmployeeDetailView({ id }: { id: string }) {
           { label: "Employees", href: "/employees" },
           { label: employee.searchKey },
         ]}
+        audit={
+          stored
+            ? {
+                entityType: "employee",
+                entityId: stored.id,
+                meta: auditMetaFrom(stored),
+              }
+            : undefined
+        }
       >
         <Suspense fallback={<EmployeeTabbedViewFallback />}>
           <EmployeeTabbedView

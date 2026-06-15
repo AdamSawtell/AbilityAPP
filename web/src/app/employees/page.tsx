@@ -8,6 +8,7 @@ export default function EmployeesPage() {
       title="Employees"
       subtitle="Staff and contractors in your organisation. Link each person to a system user for login access."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Employees" }]}
+      audit={{ moduleLabel: "Employees" }}
       actions={
         <Link
           href="/employees/new"
