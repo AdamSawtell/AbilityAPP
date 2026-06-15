@@ -1,3 +1,4 @@
+# Requires GitHub secrets: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD
 name: Supabase migrations
 
 on:
