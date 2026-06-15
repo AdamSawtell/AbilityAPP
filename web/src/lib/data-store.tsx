@@ -24,6 +24,17 @@ import {
   type SupportPlanRecord,
 } from "@/lib/support-plan";
 import { convertEnquiryToClient } from "@/lib/convert";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import {
+  fetchAllData,
+  saveClient,
+  saveContract,
+  saveEnquiry,
+  savePriceList,
+  saveProduct,
+  saveServiceAgreement,
+  saveSupportPlan,
+} from "@/lib/supabase/data-api";
 
 type DataStore = {
   enquiries: EnquiryRecord[];
@@ -34,6 +45,7 @@ type DataStore = {
   serviceAgreements: ServiceAgreementRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
+  source: "supabase" | "local";
   addEnquiry: (record: EnquiryRecord) => EnquiryRecord;
   updateEnquiry: (record: EnquiryRecord) => void;
   upsertClient: (client: ClientRecord) => void;
@@ -64,21 +76,8 @@ type Persisted = {
   planDocuments?: PlanAssessmentDocument[];
 };
 
-function isPersisted(value: unknown): value is Persisted {
-  if (!value || typeof value !== "object") return false;
-  const v = value as Persisted;
-  return Array.isArray(v.enquiries) && Array.isArray(v.clients);
-}
-
-function load(): Required<Omit<Persisted, never>> & {
-  enquiries: EnquiryRecord[];
-  clients: ClientRecord[];
-  contracts: ContractRecord[];
-  products: ProductRecord[];
-  priceLists: PriceListRecord[];
-  serviceAgreements: ServiceAgreementRecord[];
-} {
-  const defaults = {
+function seedData(): Required<Persisted> {
+  return {
     enquiries: seedEnquiries,
     clients: seedClients,
     contracts: seedContracts,
@@ -88,6 +87,16 @@ function load(): Required<Omit<Persisted, never>> & {
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
   };
+}
+
+function isPersisted(value: unknown): value is Persisted {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Persisted;
+  return Array.isArray(v.enquiries) && Array.isArray(v.clients);
+}
+
+function loadLocal(): Required<Persisted> {
+  const defaults = seedData();
   if (typeof window === "undefined") return defaults;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -113,114 +122,216 @@ function load(): Required<Omit<Persisted, never>> & {
   }
 }
 
+function persistLocal(data: Required<Persisted>) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // ignore quota errors
+  }
+}
+
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(seedEnquiries);
-  const [clients, setClients] = useState<ClientRecord[]>(seedClients);
-  const [contracts, setContracts] = useState<ContractRecord[]>(seedContracts);
-  const [products, setProducts] = useState<ProductRecord[]>(seedProducts);
-  const [priceLists, setPriceLists] = useState<PriceListRecord[]>(seedPriceLists.map(normalizePriceList));
-  const [serviceAgreements, setServiceAgreements] = useState<ServiceAgreementRecord[]>(
-    seedServiceAgreements.map(normalizeServiceAgreement)
-  );
-  const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(
-    seedSupportPlans.map(normalizeSupportPlan)
-  );
-  const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(seedPlanDocuments);
+  const defaults = seedData();
+  const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(defaults.enquiries);
+  const [clients, setClients] = useState<ClientRecord[]>(defaults.clients);
+  const [contracts, setContracts] = useState<ContractRecord[]>(defaults.contracts);
+  const [products, setProducts] = useState<ProductRecord[]>(defaults.products);
+  const [priceLists, setPriceLists] = useState<PriceListRecord[]>(defaults.priceLists);
+  const [serviceAgreements, setServiceAgreements] = useState<ServiceAgreementRecord[]>(defaults.serviceAgreements);
+  const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(defaults.supportPlans);
+  const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
   const [hydrated, setHydrated] = useState(false);
+  const [source, setSource] = useState<"supabase" | "local">("local");
 
   useEffect(() => {
-    queueMicrotask(() => {
-      const data = load();
-      setEnquiries(data.enquiries);
-      setClients(data.clients);
-      setContracts(data.contracts);
-      setProducts(data.products);
-      setPriceLists(data.priceLists);
-      setServiceAgreements(data.serviceAgreements);
-      setSupportPlans(data.supportPlans);
-      setPlanDocuments(data.planDocuments);
-      setHydrated(true);
-    });
-  }, []);
+    let cancelled = false;
 
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ enquiries, clients, contracts, products, priceLists, serviceAgreements, supportPlans, planDocuments })
-      );
-    } catch {
-      // ignore quota errors
+    async function hydrate() {
+      if (isSupabaseConfigured()) {
+        try {
+          const supabase = createClient();
+          const data = await fetchAllData(supabase);
+          if (!cancelled && data.enquiries.length) {
+            setEnquiries(data.enquiries);
+            setClients(data.clients);
+            setContracts(data.contracts);
+            setProducts(data.products);
+            setPriceLists(data.priceLists);
+            setServiceAgreements(data.serviceAgreements);
+            setSupportPlans(data.supportPlans);
+            setPlanDocuments(data.planDocuments);
+            setSource("supabase");
+            setHydrated(true);
+            return;
+          }
+        } catch {
+          // fall back to local seed / localStorage
+        }
+      }
+
+      if (!cancelled) {
+        const data = loadLocal();
+        setEnquiries(data.enquiries);
+        setClients(data.clients);
+        setContracts(data.contracts);
+        setProducts(data.products);
+        setPriceLists(data.priceLists);
+        setServiceAgreements(data.serviceAgreements);
+        setSupportPlans(data.supportPlans);
+        setPlanDocuments(data.planDocuments);
+        setSource("local");
+        setHydrated(true);
+      }
     }
-  }, [enquiries, clients, contracts, products, priceLists, serviceAgreements, supportPlans, planDocuments, hydrated]);
 
-  const addEnquiry = useCallback((partial: EnquiryRecord) => {
-    let created!: EnquiryRecord;
-    setEnquiries((prev) => {
-      created = createEnquiry(partial, prev);
-      return [...prev, created];
+    queueMicrotask(() => {
+      void hydrate();
     });
-    return created;
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const updateEnquiry = useCallback((record: EnquiryRecord) => {
-    setEnquiries((prev) => prev.map((e) => (e.id === record.id ? record : e)));
-  }, []);
-
-  const upsertClient = useCallback((client: ClientRecord) => {
-    setClients((prev) => {
-      const exists = prev.some((c) => c.id === client.id);
-      return exists ? prev.map((c) => (c.id === client.id ? client : c)) : [...prev, client];
+  useEffect(() => {
+    if (!hydrated || source === "supabase") return;
+    persistLocal({
+      enquiries,
+      clients,
+      contracts,
+      products,
+      priceLists,
+      serviceAgreements,
+      supportPlans,
+      planDocuments,
     });
-  }, []);
+  }, [
+    enquiries,
+    clients,
+    contracts,
+    products,
+    priceLists,
+    serviceAgreements,
+    supportPlans,
+    planDocuments,
+    hydrated,
+    source,
+  ]);
 
-  const addContract = useCallback((partial: ContractRecord) => {
-    let created!: ContractRecord;
-    setContracts((prev) => {
-      created = createContract(partial, prev);
-      return [...prev, created];
-    });
-    return created;
-  }, []);
+  const persistRemote = useCallback(
+    async (fn: (supabase: ReturnType<typeof createClient>) => Promise<void>) => {
+      if (source !== "supabase" || !isSupabaseConfigured()) return;
+      const supabase = createClient();
+      await fn(supabase);
+    },
+    [source]
+  );
 
-  const upsertContract = useCallback((contract: ContractRecord) => {
-    setContracts((prev) => {
-      const exists = prev.some((c) => c.id === contract.id);
-      return exists ? prev.map((c) => (c.id === contract.id ? contract : c)) : [...prev, contract];
-    });
-  }, []);
+  const addEnquiry = useCallback(
+    (partial: EnquiryRecord) => {
+      let created!: EnquiryRecord;
+      setEnquiries((prev) => {
+        created = createEnquiry(partial, prev);
+        return [...prev, created];
+      });
+      void persistRemote((supabase) => saveEnquiry(supabase, created));
+      return created;
+    },
+    [persistRemote]
+  );
 
-  const upsertProduct = useCallback((product: ProductRecord) => {
-    setProducts((prev) => {
-      const exists = prev.some((p) => p.id === product.id);
-      return exists ? prev.map((p) => (p.id === product.id ? product : p)) : [...prev, product];
-    });
-  }, []);
+  const updateEnquiry = useCallback(
+    (record: EnquiryRecord) => {
+      setEnquiries((prev) => prev.map((e) => (e.id === record.id ? record : e)));
+      void persistRemote((supabase) => saveEnquiry(supabase, record));
+    },
+    [persistRemote]
+  );
 
-  const upsertPriceList = useCallback((list: PriceListRecord) => {
-    setPriceLists((prev) => {
+  const upsertClient = useCallback(
+    (client: ClientRecord) => {
+      const normalized = normalizeClient(client);
+      setClients((prev) => {
+        const exists = prev.some((c) => c.id === normalized.id);
+        return exists ? prev.map((c) => (c.id === normalized.id ? normalized : c)) : [...prev, normalized];
+      });
+      void persistRemote((supabase) => saveClient(supabase, normalized));
+    },
+    [persistRemote]
+  );
+
+  const addContract = useCallback(
+    (partial: ContractRecord) => {
+      let created!: ContractRecord;
+      setContracts((prev) => {
+        created = createContract(partial, prev);
+        return [...prev, created];
+      });
+      void persistRemote((supabase) => saveContract(supabase, created));
+      return created;
+    },
+    [persistRemote]
+  );
+
+  const upsertContract = useCallback(
+    (contract: ContractRecord) => {
+      const normalized = normalizeContract(contract);
+      setContracts((prev) => {
+        const exists = prev.some((c) => c.id === normalized.id);
+        return exists ? prev.map((c) => (c.id === normalized.id ? normalized : c)) : [...prev, normalized];
+      });
+      void persistRemote((supabase) => saveContract(supabase, normalized));
+    },
+    [persistRemote]
+  );
+
+  const upsertProduct = useCallback(
+    (product: ProductRecord) => {
+      setProducts((prev) => {
+        const exists = prev.some((p) => p.id === product.id);
+        return exists ? prev.map((p) => (p.id === product.id ? product : p)) : [...prev, product];
+      });
+      void persistRemote((supabase) => saveProduct(supabase, product));
+    },
+    [persistRemote]
+  );
+
+  const upsertPriceList = useCallback(
+    (list: PriceListRecord) => {
       const normalized = normalizePriceList(list);
-      const exists = prev.some((p) => p.id === normalized.id);
-      return exists ? prev.map((p) => (p.id === normalized.id ? normalized : p)) : [...prev, normalized];
-    });
-  }, []);
+      setPriceLists((prev) => {
+        const exists = prev.some((p) => p.id === normalized.id);
+        return exists ? prev.map((p) => (p.id === normalized.id ? normalized : p)) : [...prev, normalized];
+      });
+      void persistRemote((supabase) => savePriceList(supabase, normalized));
+    },
+    [persistRemote]
+  );
 
-  const upsertServiceAgreement = useCallback((record: ServiceAgreementRecord) => {
-    setServiceAgreements((prev) => {
+  const upsertServiceAgreement = useCallback(
+    (record: ServiceAgreementRecord) => {
       const normalized = normalizeServiceAgreement(record);
-      const exists = prev.some((r) => r.id === normalized.id);
-      return exists ? prev.map((r) => (r.id === normalized.id ? normalized : r)) : [...prev, normalized];
-    });
-  }, []);
+      setServiceAgreements((prev) => {
+        const exists = prev.some((r) => r.id === normalized.id);
+        return exists ? prev.map((r) => (r.id === normalized.id ? normalized : r)) : [...prev, normalized];
+      });
+      void persistRemote((supabase) => saveServiceAgreement(supabase, normalized));
+    },
+    [persistRemote]
+  );
 
-  const upsertSupportPlan = useCallback((record: SupportPlanRecord) => {
-    setSupportPlans((prev) => {
+  const upsertSupportPlan = useCallback(
+    (record: SupportPlanRecord) => {
       const normalized = normalizeSupportPlan(record);
-      const exists = prev.some((r) => r.id === normalized.id);
-      return exists ? prev.map((r) => (r.id === normalized.id ? normalized : r)) : [...prev, normalized];
-    });
-  }, []);
+      setSupportPlans((prev) => {
+        const exists = prev.some((r) => r.id === normalized.id);
+        return exists ? prev.map((r) => (r.id === normalized.id ? normalized : r)) : [...prev, normalized];
+      });
+      void persistRemote((supabase) => saveSupportPlan(supabase, normalized));
+    },
+    [persistRemote]
+  );
 
   const getClientByEnquiryId = useCallback(
     (enquiryId: string) => clients.find((c) => c.enquiryId === enquiryId),
@@ -238,7 +349,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const getSupportPlanByClientId = useCallback(
-    (clientId: string) => supportPlans.find((r) => r.clientId === clientId && r.active) ?? supportPlans.find((r) => r.clientId === clientId),
+    (clientId: string) =>
+      supportPlans.find((r) => r.clientId === clientId && r.active) ??
+      supportPlans.find((r) => r.clientId === clientId),
     [supportPlans]
   );
 
@@ -257,6 +370,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceAgreements,
       supportPlans,
       planDocuments,
+      source,
       addEnquiry,
       updateEnquiry,
       upsertClient,
@@ -281,6 +395,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceAgreements,
       supportPlans,
       planDocuments,
+      source,
       addEnquiry,
       updateEnquiry,
       upsertClient,

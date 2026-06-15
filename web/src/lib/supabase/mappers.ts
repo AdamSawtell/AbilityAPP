@@ -1,0 +1,921 @@
+/** Map between Postgres snake_case rows and app camelCase records. */
+
+import type { ClientRecord } from "@/lib/client";
+import type { ContractRecord } from "@/lib/contract";
+import type { EnquiryRecord } from "@/lib/enquiry";
+import type {
+  PriceListLine,
+  PriceListRecord,
+  ProductRecord,
+} from "@/lib/product";
+import type { ServiceAgreementLine, ServiceAgreementRecord } from "@/lib/service-agreement";
+import type {
+  PlanAssessmentDocument,
+  SupportPlanGoalLine,
+  SupportPlanRecord,
+} from "@/lib/support-plan";
+
+export function strDate(value: string | null | undefined): string {
+  if (!value) return "";
+  return value.slice(0, 10);
+}
+
+export function toDate(value: string): string | null {
+  return value?.trim() ? value.trim() : null;
+}
+
+export function strMoney(value: number | string | null | undefined): string {
+  if (value === null || value === undefined || value === "") return "";
+  return String(value);
+}
+
+export function toMoney(value: string): number | null {
+  if (!value?.trim()) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+// --- Enquiry ---
+
+export type EnquiryRow = {
+  id: string;
+  document_no: string;
+  date_received: string | null;
+  date_next_action: string | null;
+  status: string;
+  first_name: string;
+  last_name: string;
+  funding_body: string;
+  disability: string;
+  services: string;
+  is_enquiry_for_self: string;
+  third_party_consent: string;
+  relationship_type: string;
+  phone: string;
+  email: string;
+  birthday: string | null;
+  gender: string;
+  preferred_communication_method: string;
+  bp_name: string;
+  enquiry_source: string;
+  description: string;
+  outcome: string;
+  additional_disability_information: string;
+  other: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function enquiryFromRow(row: EnquiryRow): EnquiryRecord {
+  return {
+    id: row.id,
+    documentNo: row.document_no,
+    dateReceived: strDate(row.date_received),
+    dateNextAction: strDate(row.date_next_action),
+    status: row.status,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    fundingBody: row.funding_body,
+    disability: row.disability,
+    services: row.services,
+    isEnquiryForSelf: row.is_enquiry_for_self,
+    thirdPartyConsent: row.third_party_consent,
+    relationshipType: row.relationship_type,
+    phone: row.phone,
+    email: row.email,
+    birthday: strDate(row.birthday),
+    gender: row.gender,
+    preferredCommunicationMethod: row.preferred_communication_method,
+    bpName: row.bp_name,
+    enquirySource: row.enquiry_source,
+    description: row.description,
+    outcome: row.outcome,
+    additionalDisabilityInformation: row.additional_disability_information,
+    other: row.other,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+export function enquiryToRow(record: EnquiryRecord): EnquiryRow {
+  return {
+    id: record.id,
+    document_no: record.documentNo,
+    date_received: toDate(record.dateReceived),
+    date_next_action: toDate(record.dateNextAction),
+    status: record.status,
+    first_name: record.firstName,
+    last_name: record.lastName,
+    funding_body: record.fundingBody,
+    disability: record.disability,
+    services: record.services,
+    is_enquiry_for_self: record.isEnquiryForSelf,
+    third_party_consent: record.thirdPartyConsent,
+    relationship_type: record.relationshipType,
+    phone: record.phone,
+    email: record.email,
+    birthday: toDate(record.birthday),
+    gender: record.gender,
+    preferred_communication_method: record.preferredCommunicationMethod,
+    bp_name: record.bpName,
+    enquiry_source: record.enquirySource,
+    description: record.description,
+    outcome: record.outcome,
+    additional_disability_information: record.additionalDisabilityInformation,
+    other: record.other,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+// --- Client ---
+
+export type ClientRow = {
+  id: string;
+  enquiry_id: string | null;
+  search_key: string;
+  business_partner_group: string;
+  name: string;
+  risk_alerts: string;
+  consent_alert_list: string;
+  first_name: string;
+  preferred_name: string;
+  last_name: string;
+  middle_name: string;
+  email: string;
+  phone: string;
+  status: string;
+  birthday: string | null;
+  is_estimated_age: boolean;
+  gender: string;
+  decision_making: string;
+  lgbtiqa: string;
+  living_arrangement: string;
+  sales_representative: string;
+  services: string;
+  funding_body: string;
+  funding_body_number: string;
+  transitioned_to_pace: string | null;
+  date_support_commencement: string | null;
+  date_support_ceased: string | null;
+  aboriginal_torres_strait_islander: string;
+  cultural_affiliation: string;
+  disability: string;
+  additional_disability_information: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type ClientAlertRow = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  alert_type: string;
+  show_as_alert: string;
+  name: string;
+  description: string;
+  valid_from: string | null;
+  valid_to: string | null;
+};
+
+export type ClientActivityRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  activity_date: string | null;
+  activity_type: string;
+  subject: string;
+  description: string;
+  created_by: string;
+};
+
+export type ClientLocationRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  name: string;
+  address_type: string;
+  address1: string;
+  address2: string;
+  address3: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  post_to_address: string;
+  invoice_address: string;
+  ship_to_address: string;
+  service_delivery_address: string;
+  active: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  access_notes: string;
+  description: string;
+};
+
+export function clientFromRow(
+  row: ClientRow,
+  alerts: ClientAlertRow[],
+  activity: ClientActivityRowDb[],
+  locations: ClientLocationRowDb[]
+): ClientRecord {
+  return {
+    id: row.id,
+    enquiryId: row.enquiry_id ?? "",
+    searchKey: row.search_key,
+    businessPartnerGroup: row.business_partner_group,
+    name: row.name,
+    riskAlerts: row.risk_alerts,
+    consentAlertList: row.consent_alert_list,
+    firstName: row.first_name,
+    preferredName: row.preferred_name,
+    lastName: row.last_name,
+    middleName: row.middle_name,
+    email: row.email,
+    phone: row.phone,
+    status: row.status,
+    birthday: strDate(row.birthday),
+    isEstimatedAge: row.is_estimated_age,
+    gender: row.gender,
+    decisionMaking: row.decision_making,
+    lgbtiqa: row.lgbtiqa,
+    livingArrangement: row.living_arrangement,
+    salesRepresentative: row.sales_representative,
+    services: row.services,
+    fundingBody: row.funding_body,
+    fundingBodyNumber: row.funding_body_number,
+    transitionedToPace: strDate(row.transitioned_to_pace),
+    dateSupportCommencement: strDate(row.date_support_commencement),
+    dateSupportCeased: strDate(row.date_support_ceased),
+    aboriginalTorresStraitIslander: row.aboriginal_torres_strait_islander,
+    culturalAffiliation: row.cultural_affiliation,
+    disability: row.disability,
+    additionalDisabilityInformation: row.additional_disability_information,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    alerts: alerts.map((a) => ({
+      id: a.id,
+      lineNo: a.line_no,
+      alertType: a.alert_type,
+      showAsAlert: a.show_as_alert,
+      name: a.name,
+      description: a.description,
+      validFrom: strDate(a.valid_from),
+      validTo: strDate(a.valid_to),
+    })),
+    activity: activity.map((a) => ({
+      id: a.id,
+      lineNo: a.line_no,
+      date: strDate(a.activity_date),
+      activityType: a.activity_type,
+      subject: a.subject,
+      description: a.description,
+      createdBy: a.created_by,
+    })),
+    locations: locations.map((l) => ({
+      id: l.id,
+      lineNo: l.line_no,
+      name: l.name,
+      addressType: l.address_type,
+      address1: l.address1,
+      address2: l.address2,
+      address3: l.address3,
+      city: l.city,
+      state: l.state,
+      postcode: l.postcode,
+      country: l.country,
+      phone: l.phone,
+      mobile: l.mobile,
+      email: l.email,
+      postToAddress: l.post_to_address,
+      invoiceAddress: l.invoice_address,
+      shipToAddress: l.ship_to_address,
+      serviceDeliveryAddress: l.service_delivery_address,
+      active: l.active,
+      validFrom: strDate(l.valid_from),
+      validTo: strDate(l.valid_to),
+      accessNotes: l.access_notes,
+      description: l.description,
+    })),
+  };
+}
+
+export function clientToRow(record: ClientRecord): ClientRow {
+  return {
+    id: record.id,
+    enquiry_id: record.enquiryId?.trim() ? record.enquiryId : null,
+    search_key: record.searchKey,
+    business_partner_group: record.businessPartnerGroup,
+    name: record.name,
+    risk_alerts: record.riskAlerts,
+    consent_alert_list: record.consentAlertList,
+    first_name: record.firstName,
+    preferred_name: record.preferredName,
+    last_name: record.lastName,
+    middle_name: record.middleName,
+    email: record.email,
+    phone: record.phone,
+    status: record.status,
+    birthday: toDate(record.birthday),
+    is_estimated_age: record.isEstimatedAge,
+    gender: record.gender,
+    decision_making: record.decisionMaking,
+    lgbtiqa: record.lgbtiqa,
+    living_arrangement: record.livingArrangement,
+    sales_representative: record.salesRepresentative,
+    services: record.services,
+    funding_body: record.fundingBody,
+    funding_body_number: record.fundingBodyNumber,
+    transitioned_to_pace: toDate(record.transitionedToPace),
+    date_support_commencement: toDate(record.dateSupportCommencement),
+    date_support_ceased: toDate(record.dateSupportCeased),
+    aboriginal_torres_strait_islander: record.aboriginalTorresStraitIslander,
+    cultural_affiliation: record.culturalAffiliation,
+    disability: record.disability,
+    additional_disability_information: record.additionalDisabilityInformation,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+// --- Product & price list ---
+
+export type ProductRow = {
+  id: string;
+  search_key: string;
+  name: string;
+  description: string;
+  product_category: string;
+  uom: string;
+  product_type: string;
+  active: boolean;
+  sold: boolean;
+  price_list_id: string | null;
+  ndis_support_item: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type PriceListRow = {
+  id: string;
+  name: string;
+  schema_name: string;
+  base_price_list_id: string;
+  valid_from: string | null;
+  currency: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type PriceListLineRow = {
+  id: string;
+  price_list_id: string;
+  line_no: number;
+  product_id: string | null;
+  list_price: number | null;
+  standard_price: number | null;
+  limit_price: number | null;
+};
+
+export function productFromRow(row: ProductRow): ProductRecord {
+  return {
+    id: row.id,
+    searchKey: row.search_key,
+    name: row.name,
+    description: row.description,
+    productCategory: row.product_category,
+    uom: row.uom,
+    productType: row.product_type,
+    active: row.active,
+    sold: row.sold,
+    priceListId: row.price_list_id ?? "",
+    ndisSupportItem: row.ndis_support_item || undefined,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+export function productToRow(record: ProductRecord): ProductRow {
+  return {
+    id: record.id,
+    search_key: record.searchKey,
+    name: record.name,
+    description: record.description,
+    product_category: record.productCategory,
+    uom: record.uom,
+    product_type: record.productType,
+    active: record.active,
+    sold: record.sold,
+    price_list_id: record.priceListId?.trim() ? record.priceListId : null,
+    ndis_support_item: record.ndisSupportItem ?? "",
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function priceListFromRow(row: PriceListRow, lines: PriceListLineRow[]): PriceListRecord {
+  return {
+    id: row.id,
+    name: row.name,
+    schema: row.schema_name,
+    basePriceListId: row.base_price_list_id,
+    validFrom: strDate(row.valid_from),
+    currency: row.currency,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    lines: lines.map(
+      (line): PriceListLine => ({
+        id: line.id,
+        lineNo: line.line_no,
+        productId: line.product_id ?? "",
+        listPrice: strMoney(line.list_price),
+        standardPrice: strMoney(line.standard_price),
+        limitPrice: strMoney(line.limit_price),
+      })
+    ),
+  };
+}
+
+export function priceListToRow(record: PriceListRecord): PriceListRow {
+  return {
+    id: record.id,
+    name: record.name,
+    schema_name: record.schema,
+    base_price_list_id: record.basePriceListId,
+    valid_from: toDate(record.validFrom),
+    currency: record.currency,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function priceListLineToRow(listId: string, line: PriceListLine): PriceListLineRow {
+  return {
+    id: line.id,
+    price_list_id: listId,
+    line_no: line.lineNo,
+    product_id: line.productId?.trim() ? line.productId : null,
+    list_price: toMoney(line.listPrice),
+    standard_price: toMoney(line.standardPrice),
+    limit_price: toMoney(line.limitPrice),
+  };
+}
+
+// --- Service agreement ---
+
+export type ServiceAgreementRow = {
+  id: string;
+  search_key: string;
+  name: string;
+  description: string;
+  client_id: string | null;
+  price_list_id: string | null;
+  term: string;
+  status: string;
+  execution_date: string | null;
+  contract_date: string | null;
+  finish_date: string | null;
+  review_date: string | null;
+  total_planned_amount: number | null;
+  created_by: string;
+  updated_by: string;
+};
+
+export type ServiceAgreementLineRow = {
+  id: string;
+  service_agreement_id: string;
+  line_no: number;
+  product_id: string | null;
+  name: string;
+  description: string;
+  planned_price: number | null;
+  registration_group: string;
+  funding_type: string;
+  funding_body: string;
+  funding_management_type: string;
+  budget_rules: string;
+};
+
+export function serviceAgreementFromRow(
+  row: ServiceAgreementRow,
+  lines: ServiceAgreementLineRow[]
+): ServiceAgreementRecord {
+  return {
+    id: row.id,
+    searchKey: row.search_key,
+    name: row.name,
+    description: row.description,
+    clientId: row.client_id ?? "",
+    priceListId: row.price_list_id ?? "",
+    term: row.term,
+    status: row.status,
+    executionDate: strDate(row.execution_date),
+    contractDate: strDate(row.contract_date),
+    finishDate: strDate(row.finish_date),
+    reviewDate: strDate(row.review_date),
+    totalPlannedAmount: strMoney(row.total_planned_amount),
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    lines: lines.map(
+      (line): ServiceAgreementLine => ({
+        id: line.id,
+        lineNo: line.line_no,
+        productId: line.product_id ?? "",
+        name: line.name,
+        description: line.description,
+        plannedPrice: strMoney(line.planned_price),
+        registrationGroup: line.registration_group,
+        fundingType: line.funding_type,
+        fundingBody: line.funding_body,
+        fundingManagementType: line.funding_management_type,
+        budgetRules: line.budget_rules,
+      })
+    ),
+  };
+}
+
+export function serviceAgreementToRow(record: ServiceAgreementRecord): ServiceAgreementRow {
+  return {
+    id: record.id,
+    search_key: record.searchKey,
+    name: record.name,
+    description: record.description,
+    client_id: record.clientId?.trim() ? record.clientId : null,
+    price_list_id: record.priceListId?.trim() ? record.priceListId : null,
+    term: record.term,
+    status: record.status,
+    execution_date: toDate(record.executionDate),
+    contract_date: toDate(record.contractDate),
+    finish_date: toDate(record.finishDate),
+    review_date: toDate(record.reviewDate),
+    total_planned_amount: toMoney(record.totalPlannedAmount),
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function serviceAgreementLineToRow(
+  agreementId: string,
+  line: ServiceAgreementLine
+): ServiceAgreementLineRow {
+  return {
+    id: line.id,
+    service_agreement_id: agreementId,
+    line_no: line.lineNo,
+    product_id: line.productId?.trim() ? line.productId : null,
+    name: line.name,
+    description: line.description,
+    planned_price: toMoney(line.plannedPrice),
+    registration_group: line.registrationGroup,
+    funding_type: line.fundingType,
+    funding_body: line.fundingBody,
+    funding_management_type: line.fundingManagementType,
+    budget_rules: line.budgetRules,
+  };
+}
+
+// --- Contract ---
+
+export type ContractRow = {
+  id: string;
+  document_no: string;
+  client_id: string | null;
+  business_partner_name: string;
+  contract_type: string;
+  name: string;
+  description: string;
+  contract_term: string;
+  execution_date: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  review_date: string | null;
+  reference: string;
+  project: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type ContractAuditRowDb = {
+  id: string;
+  contract_id: string;
+  line_no: number;
+  audit_date: string | null;
+  changed_by: string;
+  action: string;
+  description: string;
+};
+
+export function contractFromRow(row: ContractRow, audit: ContractAuditRowDb[]): ContractRecord {
+  return {
+    id: row.id,
+    documentNo: row.document_no,
+    clientId: row.client_id ?? "",
+    businessPartnerName: row.business_partner_name,
+    contractType: row.contract_type,
+    name: row.name,
+    description: row.description,
+    contractTerm: row.contract_term,
+    executionDate: strDate(row.execution_date),
+    startDate: strDate(row.start_date),
+    endDate: strDate(row.end_date),
+    reviewDate: strDate(row.review_date),
+    reference: row.reference,
+    project: row.project,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    audit: audit.map((a) => ({
+      id: a.id,
+      lineNo: a.line_no,
+      auditDate: strDate(a.audit_date),
+      changedBy: a.changed_by,
+      action: a.action,
+      description: a.description,
+    })),
+  };
+}
+
+export function contractToRow(record: ContractRecord): ContractRow {
+  return {
+    id: record.id,
+    document_no: record.documentNo,
+    client_id: record.clientId?.trim() ? record.clientId : null,
+    business_partner_name: record.businessPartnerName,
+    contract_type: record.contractType,
+    name: record.name,
+    description: record.description,
+    contract_term: record.contractTerm,
+    execution_date: toDate(record.executionDate),
+    start_date: toDate(record.startDate),
+    end_date: toDate(record.endDate),
+    review_date: toDate(record.reviewDate),
+    reference: record.reference,
+    project: record.project,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+// --- Support plan ---
+
+export type SupportPlanRow = {
+  id: string;
+  client_id: string;
+  document_no: string;
+  description: string;
+  provided_to_receiver: string | null;
+  execution_date: string | null;
+  active: boolean;
+  important_to_me: string;
+  how_supported: string;
+  hobbies: string;
+  cultural_needs: string;
+  likes: string;
+  dislikes: string;
+  about_other: string;
+  primary_language: string;
+  interpreter_required: string;
+  communication_method: string;
+  medication_required: string;
+  medication_details: string;
+  known_allergies: string;
+  medical_history: string;
+  behaviour_support_required: string;
+  behaviour_description: string;
+  strategies: string;
+  relaxation: string;
+  stress_cause: string;
+  morning: string;
+  daytime: string;
+  afternoon: string;
+  evening_night: string;
+  weekly: string;
+  activity_attendance: boolean;
+  activity_details: string;
+  personal_care: boolean;
+  dressing: string;
+  hair_care: string;
+  menstrual_management: string;
+  oral_hygiene: string;
+  nail_care: string;
+  shaving: string;
+  sleeping: string;
+  toilet_use: string;
+  showering: string;
+  personal_care_other: string;
+  household_support_required: boolean;
+  cooking: string;
+  cleaning: string;
+  gardening: string;
+  laundry: string;
+  make_bed: string;
+  grocery: string;
+  mobility_support_required: string;
+  mobility_detail: string;
+  eating_drinking_support: string;
+  dietary_allergies: string;
+  favourite_foods: string;
+  disliked_foods: string;
+  meal_other: string;
+  transport_arrangements: string;
+  financial_arrangement: string;
+  financial_arrangement_details: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type SupportPlanGoalRow = {
+  id: string;
+  support_plan_id: string;
+  line_no: number;
+  name: string;
+  goal_number: string;
+  goal_term: string;
+  goal_type: string;
+  goal: string;
+  support_required: string;
+  start_date: string | null;
+  end_date: string | null;
+};
+
+export type PlanAssessmentDocumentRow = {
+  id: string;
+  client_id: string;
+  document_no: string;
+  document_type: string;
+  plan_type: string;
+  assessment_type: string;
+  review_date: string | null;
+  date_received: string | null;
+  document_status: string;
+  document_developer: string;
+  support_plan_id: string | null;
+};
+
+export function supportPlanFromRow(row: SupportPlanRow, goals: SupportPlanGoalRow[]): SupportPlanRecord {
+  return {
+    id: row.id,
+    clientId: row.client_id,
+    documentNo: row.document_no,
+    description: row.description,
+    providedToReceiver: strDate(row.provided_to_receiver),
+    executionDate: strDate(row.execution_date),
+    active: row.active,
+    importantToMe: row.important_to_me,
+    howSupported: row.how_supported,
+    hobbies: row.hobbies,
+    culturalNeeds: row.cultural_needs,
+    likes: row.likes,
+    dislikes: row.dislikes,
+    aboutOther: row.about_other,
+    primaryLanguage: row.primary_language,
+    interpreterRequired: row.interpreter_required,
+    communicationMethod: row.communication_method,
+    medicationRequired: row.medication_required,
+    medicationDetails: row.medication_details,
+    knownAllergies: row.known_allergies,
+    medicalHistory: row.medical_history,
+    behaviourSupportRequired: row.behaviour_support_required,
+    behaviourDescription: row.behaviour_description,
+    strategies: row.strategies,
+    relaxation: row.relaxation,
+    stressCause: row.stress_cause,
+    morning: row.morning,
+    daytime: row.daytime,
+    afternoon: row.afternoon,
+    eveningNight: row.evening_night,
+    weekly: row.weekly,
+    activityAttendance: row.activity_attendance,
+    activityDetails: row.activity_details,
+    personalCare: row.personal_care,
+    dressing: row.dressing,
+    hairCare: row.hair_care,
+    menstrualManagement: row.menstrual_management,
+    oralHygiene: row.oral_hygiene,
+    nailCare: row.nail_care,
+    shaving: row.shaving,
+    sleeping: row.sleeping,
+    toiletUse: row.toilet_use,
+    showering: row.showering,
+    personalCareOther: row.personal_care_other,
+    householdSupportRequired: row.household_support_required,
+    cooking: row.cooking,
+    cleaning: row.cleaning,
+    gardening: row.gardening,
+    laundry: row.laundry,
+    makeBed: row.make_bed,
+    grocery: row.grocery,
+    mobilitySupportRequired: row.mobility_support_required,
+    mobilityDetail: row.mobility_detail,
+    eatingDrinkingSupport: row.eating_drinking_support,
+    dietaryAllergies: row.dietary_allergies,
+    favouriteFoods: row.favourite_foods,
+    dislikedFoods: row.disliked_foods,
+    mealOther: row.meal_other,
+    transportArrangements: row.transport_arrangements,
+    financialArrangement: row.financial_arrangement,
+    financialArrangementDetails: row.financial_arrangement_details,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    goals: goals.map(
+      (g): SupportPlanGoalLine => ({
+        id: g.id,
+        lineNo: g.line_no,
+        name: g.name,
+        goalNumber: g.goal_number,
+        goalTerm: g.goal_term,
+        goalType: g.goal_type,
+        goal: g.goal,
+        supportRequired: g.support_required,
+        startDate: strDate(g.start_date),
+        endDate: strDate(g.end_date),
+      })
+    ),
+  };
+}
+
+export function supportPlanToRow(record: SupportPlanRecord): SupportPlanRow {
+  return {
+    id: record.id,
+    client_id: record.clientId,
+    document_no: record.documentNo,
+    description: record.description,
+    provided_to_receiver: toDate(record.providedToReceiver),
+    execution_date: toDate(record.executionDate),
+    active: record.active,
+    important_to_me: record.importantToMe,
+    how_supported: record.howSupported,
+    hobbies: record.hobbies,
+    cultural_needs: record.culturalNeeds,
+    likes: record.likes,
+    dislikes: record.dislikes,
+    about_other: record.aboutOther,
+    primary_language: record.primaryLanguage,
+    interpreter_required: record.interpreterRequired,
+    communication_method: record.communicationMethod,
+    medication_required: record.medicationRequired,
+    medication_details: record.medicationDetails,
+    known_allergies: record.knownAllergies,
+    medical_history: record.medicalHistory,
+    behaviour_support_required: record.behaviourSupportRequired,
+    behaviour_description: record.behaviourDescription,
+    strategies: record.strategies,
+    relaxation: record.relaxation,
+    stress_cause: record.stressCause,
+    morning: record.morning,
+    daytime: record.daytime,
+    afternoon: record.afternoon,
+    evening_night: record.eveningNight,
+    weekly: record.weekly,
+    activity_attendance: record.activityAttendance,
+    activity_details: record.activityDetails,
+    personal_care: record.personalCare,
+    dressing: record.dressing,
+    hair_care: record.hairCare,
+    menstrual_management: record.menstrualManagement,
+    oral_hygiene: record.oralHygiene,
+    nail_care: record.nailCare,
+    shaving: record.shaving,
+    sleeping: record.sleeping,
+    toilet_use: record.toiletUse,
+    showering: record.showering,
+    personal_care_other: record.personalCareOther,
+    household_support_required: record.householdSupportRequired,
+    cooking: record.cooking,
+    cleaning: record.cleaning,
+    gardening: record.gardening,
+    laundry: record.laundry,
+    make_bed: record.makeBed,
+    grocery: record.grocery,
+    mobility_support_required: record.mobilitySupportRequired,
+    mobility_detail: record.mobilityDetail,
+    eating_drinking_support: record.eatingDrinkingSupport,
+    dietary_allergies: record.dietaryAllergies,
+    favourite_foods: record.favouriteFoods,
+    disliked_foods: record.dislikedFoods,
+    meal_other: record.mealOther,
+    transport_arrangements: record.transportArrangements,
+    financial_arrangement: record.financialArrangement,
+    financial_arrangement_details: record.financialArrangementDetails,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function planDocumentFromRow(row: PlanAssessmentDocumentRow): PlanAssessmentDocument {
+  return {
+    id: row.id,
+    clientId: row.client_id,
+    documentNo: row.document_no,
+    documentType: row.document_type,
+    planType: row.plan_type,
+    assessmentType: row.assessment_type,
+    reviewDate: strDate(row.review_date),
+    dateReceived: strDate(row.date_received),
+    documentStatus: row.document_status,
+    documentDeveloper: row.document_developer,
+    supportPlanId: row.support_plan_id ?? "",
+  };
+}

@@ -53,6 +53,6 @@ Service bookings and a shared database (Supabase) are on the roadmap.
 
 ## Supabase
 
-Schema migrations live in `supabase/migrations/`. GitHub Actions applies them on push to `main`. See [docs/SUPABASE-SETUP.md](docs/SUPABASE-SETUP.md).
+Schema migrations live in `supabase/migrations/`. GitHub Actions applies them on push to `main`. See [docs/SUPABASE-SETUP.md](docs/SUPABASE-SETUP.md) and **[docs/DATABASE-CHANGES.md](docs/DATABASE-CHANGES.md)** (required reading for new features).
 
 Local: copy `web/.env.example` to `web/.env.local` and add your Supabase URL + anon key.

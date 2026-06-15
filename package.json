@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "supabase:seed": "cd web && npx tsx ../scripts/generate-reference-seed.mjs"
+    "supabase:seed": "cd web && npx tsx ../scripts/generate-reference-seed.mjs",
+    "supabase:seed-entities": "cd web && npx tsx ../scripts/generate-entity-seed.mjs"
   },
   "keywords": [],
   "author": "",
