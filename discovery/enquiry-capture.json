@@ -1,0 +1,299 @@
+{
+  "capturedAt": "2026-06-15T08:41:00.296Z",
+  "infoWindow": {
+    "title": "Menu",
+    "fields": [
+      {
+        "label": "SuperUser@AbilityERP.*/AbilityERP Admin",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Document No",
+        "type": "text",
+        "value": "1000025"
+      },
+      {
+        "label": "Date received",
+        "type": "date",
+        "value": "05/12/2022"
+      },
+      {
+        "label": "Is Enquiry For Self",
+        "type": "dropdown",
+        "value": "Yes"
+      },
+      {
+        "label": "3rd Party Consent",
+        "type": "dropdown",
+        "value": "ReceivedRequested"
+      },
+      {
+        "label": "Relationship Type",
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "label": "Other",
+        "type": "textarea",
+        "value": ""
+      },
+      {
+        "label": "First Name",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Phone",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Preferred Communication Method",
+        "type": "dropdown",
+        "value": "EmailPhone CallSMS"
+      },
+      {
+        "label": "BP Name",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Email",
+        "type": "text",
+        "value": "ryans@email.com"
+      },
+      {
+        "label": "Birthday",
+        "type": "date",
+        "value": "14/02/2000"
+      },
+      {
+        "label": "Gender",
+        "type": "dropdown",
+        "value": "Male"
+      },
+      {
+        "label": "Funding Body",
+        "type": "dropdown",
+        "value": "NDIS - National Disability Insurance Scheme"
+      },
+      {
+        "label": "Disability",
+        "type": "dropdown",
+        "value": "PD - Spinal Cord Injury"
+      },
+      {
+        "label": "Additional Disability Information",
+        "type": "textarea",
+        "value": ""
+      },
+      {
+        "label": "Services",
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "label": "Enquiry Source",
+        "type": "dropdown",
+        "value": "Phone Call"
+      },
+      {
+        "label": "Description",
+        "type": "textarea",
+        "value": "Samuel enquired for an In Home Support that takes place 4 hours a day, 5 days a week,"
+      },
+      {
+        "label": "Status",
+        "type": "dropdown",
+        "value": "1_Initial Enquiry"
+      },
+      {
+        "label": "Outcome",
+        "type": "textarea",
+        "value": "Reviewed and discussed the process with Samuel over a phone call."
+      },
+      {
+        "label": "Created By",
+        "type": "text",
+        "value": "Gabriela Wilson"
+      },
+      {
+        "label": "Updated By",
+        "type": "text",
+        "value": "SuperUser"
+      }
+    ],
+    "listColumns": [
+      "",
+      "",
+      ""
+    ],
+    "listRows": [
+      [
+        "Enquiry",
+        "",
+        ""
+      ],
+      [
+        "Enquiry Source",
+        "",
+        ""
+      ]
+    ],
+    "bodySnippet": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Home Enquiry: 1000025 Enquiry 1/16 Status Date next action First Name Last Name Funding Body Disability Services 1_Initial Enquiry 22/05/2023 Samuel Ryan NDIS - National Disability Insurance Scheme PD - Spinal Cord Injury Asistance with Self Care Activities; Community, Social an... 4_Converted 22/05/2023 Jim Bo DSOA - Disability Support for Older Australians SD - Hearing Impairment Short Term Accommodation; <1000010>; 4_Converted 23/05/2023 Bryan Jackson NDIS - National Disability Insurance Scheme PD - Multiple Sclerosis Asistance with Self Care Activities; <1000010>; 1_Initial Enquiry 25/05/2023 Janice Williams NDIS - National Disability Insurance Scheme PD - Acquired Brain Injury Asistance with Self Care Activities; 1_Initial Enquiry 29/05/2023 Gerald Anderson DSOA - Disability Support for Older Australians PD - Stroke Asistance with Self Care Activities; 2_To be processed 30/05/2023 Jacob Turner NDIS - National Disability Insurance Scheme PD - Absent Limb or Reduced Limb Function Supported Independent Living; 2_To be processed 31/05/2023 Elisse Walker NDIS - National Disability Insurance Scheme ID - Down Syndrome Asistance with Self Care Activities; 1_Initial Enquiry 31/05/2023 Jenny Harris NDIS - National Disability Insurance Scheme PD - Paraplegia Supported Independent Living; 2_To be processed 31/05/2023 Chester Robinson NDIS - National Disability Insurance Scheme PD - Multiple Sclerosis Asistance with Self Care Activities; 1_Initial Enquiry 27/05/2024 Ava Brown NDIS - National Disability Insurance Scheme ID - Autism Group and Centre Based Activities; 4_Converted 08/10/2025 Jacko Baptist NDIS - National Disability Insurance Scheme PSD - Bipolar Disorder Capacity Building ; Short Term Accommodation; Support Coo... 4_Converted Rose Ni NDIS - National Disability Insurance Scheme ID - Autism Asistance with Self Care Activities; Community, Social an... 4_Converted John James Collins NDIS - National Disability Insurance Scheme ID - Developmental Delay Supported Independent Living; 4_Converted Matt Law 4_Converted Matilda Smith NDIS - National Disability Insurance Scheme ID - Autism Community, Social and Civic Activities; 4_Converted Jessica Smithson NDIS - National Disability Insurance Scheme ID - Autism Short Term Accommodation;"
+  },
+  "detailPanel": {
+    "title": "Menu",
+    "fields": [
+      {
+        "label": "SuperUser@AbilityERP.*/AbilityERP Admin",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Document No",
+        "type": "text",
+        "value": "1000025"
+      },
+      {
+        "label": "Date received",
+        "type": "date",
+        "value": "05/12/2022"
+      },
+      {
+        "label": "Is Enquiry For Self",
+        "type": "dropdown",
+        "value": "Yes"
+      },
+      {
+        "label": "3rd Party Consent",
+        "type": "dropdown",
+        "value": "ReceivedRequested"
+      },
+      {
+        "label": "Relationship Type",
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "label": "Other",
+        "type": "textarea",
+        "value": ""
+      },
+      {
+        "label": "First Name",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Phone",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Preferred Communication Method",
+        "type": "dropdown",
+        "value": "EmailPhone CallSMS"
+      },
+      {
+        "label": "BP Name",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "label": "Email",
+        "type": "text",
+        "value": "ryans@email.com"
+      },
+      {
+        "label": "Birthday",
+        "type": "date",
+        "value": "14/02/2000"
+      },
+      {
+        "label": "Gender",
+        "type": "dropdown",
+        "value": "Male"
+      },
+      {
+        "label": "Funding Body",
+        "type": "dropdown",
+        "value": "NDIS - National Disability Insurance Scheme"
+      },
+      {
+        "label": "Disability",
+        "type": "dropdown",
+        "value": "PD - Spinal Cord Injury"
+      },
+      {
+        "label": "Additional Disability Information",
+        "type": "textarea",
+        "value": ""
+      },
+      {
+        "label": "Services",
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "label": "Enquiry Source",
+        "type": "dropdown",
+        "value": "Phone Call"
+      },
+      {
+        "label": "Description",
+        "type": "textarea",
+        "value": "Samuel enquired for an In Home Support that takes place 4 hours a day, 5 days a week,"
+      },
+      {
+        "label": "Status",
+        "type": "dropdown",
+        "value": "1_Initial Enquiry"
+      },
+      {
+        "label": "Outcome",
+        "type": "textarea",
+        "value": "Reviewed and discussed the process with Samuel over a phone call."
+      },
+      {
+        "label": "Created By",
+        "type": "text",
+        "value": "Gabriela Wilson"
+      },
+      {
+        "label": "Updated By",
+        "type": "text",
+        "value": "SuperUser"
+      }
+    ],
+    "listColumns": [
+      "",
+      "",
+      ""
+    ],
+    "listRows": [
+      [
+        "Enquiry",
+        "",
+        ""
+      ],
+      [
+        "Enquiry Source",
+        "",
+        ""
+      ]
+    ],
+    "bodySnippet": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Home Enquiry: 1000025 Enquiry: 1000025 Enquiry 1/16 Status Date next action First Name Last Name Funding Body Disability Services 1_Initial Enquiry 22/05/2023 Samuel Ryan NDIS - National Disability Insurance Scheme PD - Spinal Cord Injury Asistance with Self Care Activities; Community, Social an... 4_Converted 22/05/2023 Jim Bo DSOA - Disability Support for Older Australians SD - Hearing Impairment Short Term Accommodation; <1000010>; 4_Converted 23/05/2023 Bryan Jackson NDIS - National Disability Insurance Scheme PD - Multiple Sclerosis Asistance with Self Care Activities; <1000010>; 1_Initial Enquiry 25/05/2023 Janice Williams NDIS - National Disability Insurance Scheme PD - Acquired Brain Injury Asistance with Self Care Activities; 1_Initial Enquiry 29/05/2023 Gerald Anderson DSOA - Disability Support for Older Australians PD - Stroke Asistance with Self Care Activities; 2_To be processed 30/05/2023 Jacob Turner NDIS - National Disability Insurance Scheme PD - Absent Limb or Reduced Limb Function Supported Independent Living; 2_To be processed 31/05/2023 Elisse Walker NDIS - National Disability Insurance Scheme ID - Down Syndrome Asistance with Self Care Activities; 1_Initial Enquiry 31/05/2023 Jenny Harris NDIS - National Disability Insurance Scheme PD - Paraplegia Supported Independent Living; 2_To be processed 31/05/2023 Chester Robinson NDIS - National Disability Insurance Scheme PD - Multiple Sclerosis Asistance with Self Care Activities; 1_Initial Enquiry 27/05/2024 Ava Brown NDIS - National Disability Insurance Scheme ID - Autism Group and Centre Based Activities; 4_Converted 08/10/2025 Jacko Baptist NDIS - National Disability Insurance Scheme PSD - Bipolar Disorder Capacity Building ; Short Term Accommodation; Support Coo... 4_Converted Rose Ni NDIS - National Disability Insurance Scheme ID - Autism Asistance with Self Care Activities; Community, Social an... 4_Converted John James Collins NDIS - National Disability Insurance Scheme ID - Developmental Delay Supported Independent Living; 4_Converted Matt Law 4_Converted Matilda Smith NDIS - National Disability Insurance Scheme ID - Autism Community, Social and Civic Activities; 4_Converted Jessica Smithson NDIS - National Disability Insurance Scheme ID - Autism Short Term Accommodation;",
+    "dropdowns": [
+      {
+        "field": "field-11",
+        "options": [
+          "Closed Enquiries",
+          "Open Enquiries"
+        ]
+      }
+    ]
+  },
+  "dropdownOptions": []
+}

@@ -1,0 +1,344 @@
+/**
+ * Reference data — configurable dropdown options used across the app.
+ *
+ * **Database target (when you add Supabase or similar):**
+ * - `reference_list` — id, key, label, group, description, sort_order
+ * - `reference_option` — id, list_id, value, label, sort_order, active, org_id
+ *
+ * Seed `reference_list` / `reference_option` from `defaultReferenceData`, then load via API.
+ * Admin edits write to the DB; the UI keeps using `useReferenceData().getOptions(key)`.
+ * localStorage overrides in `config-store.tsx` are a dev-only stand-in until then.
+ */
+
+export type ReferenceDataGroup =
+  | "Client"
+  | "Enquiry"
+  | "Support plan"
+  | "Products & services"
+  | "Contracts"
+  | "General";
+
+export type ReferenceDataMeta = {
+  label: string;
+  group: ReferenceDataGroup;
+  description?: string;
+};
+
+export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
+  // Client
+  clientStatus: { label: "Client status", group: "Client" },
+  gender: { label: "Gender", group: "Client", description: "Shared with enquiries" },
+  decisionMaking: { label: "Decision making", group: "Client" },
+  livingArrangement: { label: "Living arrangement", group: "Client" },
+  salesRepresentative: { label: "Sales representative", group: "Client" },
+  fundingBody: { label: "Funding body", group: "Client", description: "Shared with enquiries" },
+  aboriginalTorresStraitIslander: { label: "Aboriginal / Torres Strait Islander", group: "Client" },
+  culturalAffiliation: { label: "Cultural affiliation", group: "Client" },
+  disability: { label: "Disability", group: "Client", description: "Shared with enquiries" },
+  businessPartnerGroup: { label: "Business partner group", group: "Client" },
+  lgbtiqa: { label: "LGBTIQA+", group: "Client" },
+  alertType: { label: "Alert type", group: "Client" },
+  showAsAlert: { label: "Show as alert", group: "Client", description: "Yes / No" },
+  activityType: { label: "Activity type", group: "Client" },
+  addressType: { label: "Address type", group: "Client" },
+  australianState: { label: "State / territory", group: "Client" },
+  country: { label: "Country", group: "Client" },
+  // Enquiry
+  enquiryStatus: { label: "Enquiry status", group: "Enquiry" },
+  enquirySource: { label: "Enquiry source", group: "Enquiry" },
+  isEnquiryForSelf: { label: "Is enquiry for self", group: "Enquiry" },
+  thirdPartyConsent: { label: "3rd party consent", group: "Enquiry" },
+  relationshipType: { label: "Relationship type", group: "Enquiry" },
+  preferredCommunicationMethod: { label: "Preferred communication method", group: "Enquiry" },
+  enquiryQuery: { label: "Enquiry saved queries", group: "Enquiry", description: "List filters" },
+  // Support plan
+  primaryLanguage: { label: "Primary language", group: "Support plan" },
+  financialArrangement: { label: "Financial arrangement", group: "Support plan" },
+  goalNumber: { label: "Goal number", group: "Support plan" },
+  goalTerm: { label: "Goal term", group: "Support plan" },
+  goalType: { label: "Goal type", group: "Support plan" },
+  documentType: { label: "Plan document type", group: "Support plan" },
+  planType: { label: "Plan type", group: "Support plan" },
+  documentStatus: { label: "Document status", group: "Support plan" },
+  assessmentType: { label: "Assessment type", group: "Support plan" },
+  progressReviewType: { label: "Progress review type", group: "Support plan" },
+  goalProgress: { label: "Goal progress", group: "Support plan" },
+  // Products & services
+  productCategory: { label: "Product category", group: "Products & services" },
+  uom: { label: "Unit of measure", group: "Products & services" },
+  productType: { label: "Product type", group: "Products & services" },
+  serviceAgreementTerm: { label: "Service agreement term", group: "Products & services" },
+  serviceAgreementStatus: { label: "Service agreement status", group: "Products & services" },
+  fundingType: { label: "Funding type", group: "Products & services" },
+  fundingManagementType: { label: "Funding management type", group: "Products & services" },
+  budgetRules: { label: "Budget rules", group: "Products & services" },
+  registrationGroup: { label: "NDIS registration group", group: "Products & services" },
+  claimType: { label: "Claim type", group: "Products & services" },
+  // Contracts
+  contractType: { label: "Contract type", group: "Contracts" },
+  contractTerm: { label: "Contract term", group: "Contracts" },
+  auditAction: { label: "Audit action", group: "Contracts" },
+  // General
+  yesNo: { label: "Yes / No", group: "General" },
+};
+
+export type ReferenceDataKey = keyof typeof referenceDataMeta;
+
+export type ReferenceDataCatalog = Record<string, string[]>;
+
+const ndisRegistrationGroups = [
+  "Assistance Animals",
+  "Assistance In Coordinating Or Managing Life Stages And Trans",
+  "Assistance With Daily Life Tasks In A Group Or Shared Living",
+  "Assistance With Travel/Transport Arrangements",
+  "Assistance to Access and Maintain Employment or higher educa",
+  "Assistive Equipment For Recreation",
+  "Assistive Products For Household Tasks",
+  "Assistive Products For Personal Care And Safety",
+  "Communication And Information Equipment",
+  "Community Nursing Care",
+  "Customised Prosthetics (includes Orthotics)",
+  "Daily Personal Activities",
+  "Development Of Daily Living And Life Skills",
+  "Early Intervention Supports For Early Childhood",
+  "Exercise Physiology & Personal Well-being Activities",
+  "Group And Centre Based Activities",
+  "Hearing Equipment",
+  "Hearing Services",
+  "High Intensity Daily Personal Activities",
+  "Home Modification Design And Construction",
+  "Household Tasks",
+  "Innovative Community Participation",
+  "Interpreting And Translation",
+  "Management of Funding for Supports",
+  "Participation In Community And Social And Civic Activities",
+  "Personal Mobility Equipment",
+  "Specialised Disability Accommodation",
+  "Specialised Driver Training",
+  "Specialised Hearing Services",
+  "Specialised Supported Employment",
+  "Specialist Positive Behaviour Support",
+  "Supported Independent Living",
+  "Support Coordination",
+  "Therapeutic Supports",
+  "Vehicle Modifications",
+  "Vision Equipment",
+];
+
+export const defaultReferenceData: ReferenceDataCatalog = {
+  clientStatus: [
+    "1_Prospect",
+    "2_Active receiving support",
+    "3_Active with additional service request",
+    "4_Actively exiting",
+    "5_Inactive",
+    "6_Deceased",
+  ],
+  gender: ["Female", "Male", "Non-binary", "Prefer not to say", "Other"],
+  decisionMaking: [
+    "Legal order in place appointing guardian/decision maker",
+    "Makes all decisions",
+    "Supported to make decisions",
+  ],
+  livingArrangement: ["Lives Alone", "Lives with Family", "Lives with Friends/Housemates"],
+  salesRepresentative: [
+    "AbilityERP",
+    "Gabriela Wilson",
+    "Isla Robinson",
+    "Michael Smith",
+    "Oliver Williams",
+    "Rose Dash",
+  ],
+  fundingBody: [
+    "Commonwealth Home Support Programme (CHSP)",
+    "DSOA - Disability Support for Older Australians",
+    "NDIS - National Disability Insurance Scheme",
+    "RTWSA - Return to Work SA",
+    "Self-funded",
+    "Other",
+  ],
+  aboriginalTorresStraitIslander: [
+    "Aboriginal",
+    "Aboriginal and Torres Straight Islander",
+    "Neither",
+    "Torres Straight Islander",
+  ],
+  culturalAffiliation: [
+    "Australian",
+    "Australian Aboriginal",
+    "Australian South Sea Islander",
+    "Cook Islander",
+    "Fijian",
+    "Hawaiian",
+    "I-Kiribati",
+    "Maori",
+    "Melanesian and Papuan, nec",
+    "Micronesian, nec",
+    "Nauruan",
+    "New Caledonian",
+    "New Zealander",
+    "Ni-Vanuatu",
+    "Niuean",
+    "Norfolk Islander",
+    "Papua New Guinean",
+    "Pitcairn",
+    "Polynesian, nec",
+    "Samoan",
+    "Solomon Islander",
+    "Tahitian",
+    "Tokelauan",
+    "Tongan",
+    "Torres Strait Islander",
+    "Tuvaluan",
+    "Other",
+  ],
+  disability: [
+    "PD - Spinal Cord Injury",
+    "PD - Acquired Brain Injury",
+    "PD - Multiple Sclerosis",
+    "PD - Stroke",
+    "PD - Absent Limb or Reduced Limb Function",
+    "PD - Paraplegia",
+    "SD - Hearing Impairment",
+    "ID - Autism",
+    "ID - Down Syndrome",
+    "ID - Developmental Delay",
+    "PSD - Bipolar Disorder",
+  ],
+  businessPartnerGroup: ["Support Receiver", "Support Provider", "Referrer", "Other"],
+  lgbtiqa: ["Yes", "No", "Prefer not to say"],
+  alertType: ["Allergy", "Choking Risk", "Incident", "Legal", "Other", "Temporary Alert"],
+  showAsAlert: ["No", "Yes"],
+  activityType: ["Note", "Phone call", "Email", "Meeting", "Visit", "Incident", "Other"],
+  addressType: ["Home", "Postal", "SIL residence", "Work", "Temporary accommodation", "Other"],
+  australianState: ["SA", "NSW", "VIC", "QLD", "WA", "TAS", "NT", "ACT"],
+  country: ["Australia", "New Zealand"],
+  enquiryStatus: [
+    "1_Initial Enquiry",
+    "2_To be processed",
+    "3_In progress",
+    "4_Converted",
+    "5_Closed",
+  ],
+  enquirySource: ["Phone Call", "Email", "Website", "Referral", "Walk-in", "Other"],
+  isEnquiryForSelf: ["Yes", "No"],
+  thirdPartyConsent: ["Received", "Requested", "ReceivedRequested", "Not required"],
+  relationshipType: ["Parent", "Guardian", "Carer", "Support coordinator", "Other"],
+  preferredCommunicationMethod: ["Email", "Phone Call", "SMS"],
+  enquiryQuery: ["Open Enquiries", "Closed Enquiries"],
+  yesNo: ["No", "Yes"],
+  primaryLanguage: [
+    "English",
+    "Auslan",
+    "Arabic",
+    "Cantonese",
+    "Mandarin",
+    "Vietnamese",
+    "Hindi",
+    "Greek",
+    "Italian",
+    "Other",
+  ],
+  financialArrangement: [
+    "Manages own finances",
+    "Plan managed",
+    "Nominee manages finances",
+    "NDIA manages",
+  ],
+  goalNumber: [
+    "1-One",
+    "2-Two",
+    "3-Three",
+    "4-Four",
+    "5-Five",
+    "6-Six",
+    "7-Seven",
+    "8-Eight",
+    "9-Nine",
+    "10-Ten",
+  ],
+  goalTerm: ["Short Term Goal", "Medium/Long Term Goal"],
+  goalType: ["NDIS Goal", "Personal Goal"],
+  documentType: ["Plan", "Assessment"],
+  planType: ["Support Plan", "Care Plan", "NDIS Plan"],
+  documentStatus: ["Draft", "In Progress", "Published", "Archived"],
+  assessmentType: [
+    "Comprehensive Aged Care Assessment (ACAT)",
+    "Functional Capacity Assessment",
+    "Health Assessments",
+    "Low-level Age Care assessment (RAS)",
+    "Pedi-CAT Assessment",
+    "Risk Assessment",
+    "Risk Assessment - Restrictive Practice",
+    "Social Assessments",
+  ],
+  progressReviewType: ["Progress Review", "Final Goal Review", "Self-assessment Review"],
+  goalProgress: ["No Progress", "Some Progress", "Almost Achieved", "Achieved"],
+  productCategory: [
+    "Asistance with Self Care Activities",
+    "Capacity Building Community, Social and Civic Activities",
+    "Group and Centre Based Activities",
+    "Short Term Accommodation",
+    "Supported Independent Living",
+    "Support Coordination",
+    "Therapy",
+    "Transport",
+    "Administration",
+  ],
+  uom: ["Hour", "Each", "Day", "Week", "Month", "Km", "Minutes", "Work Day", "Working Month", "Year"],
+  productType: ["Service", "Item", "Resource", "Asset"],
+  serviceAgreementTerm: ["Fixed Term", "Ongoing"],
+  serviceAgreementStatus: ["Draft", "Active", "Completed", "Cancelled"],
+  fundingType: ["Funding Body", "Self Funded"],
+  fundingManagementType: ["Portal Managed", "Plan Managed", "Self Managed"],
+  budgetRules: ["Strict Limit", "Warning", "Allow over budget"],
+  registrationGroup: ndisRegistrationGroups,
+  claimType: ["NDIS", "Self Funded", "Other"],
+  contractType: [
+    "Supplier Contract",
+    "Tenancy Agreeement",
+    "NDIS Service Agreement",
+    "Employee Contract",
+  ],
+  contractTerm: ["Fixed", "Ongoing"],
+  auditAction: ["Created", "Updated", "Reviewed", "Renewed", "Terminated"],
+};
+
+/** @deprecated Use useReferenceData().getOptions instead */
+export const clientDropdowns = {
+  clientStatus: defaultReferenceData.clientStatus,
+  status: defaultReferenceData.clientStatus,
+  gender: defaultReferenceData.gender,
+  decisionMaking: defaultReferenceData.decisionMaking,
+  livingArrangement: defaultReferenceData.livingArrangement,
+  salesRepresentative: defaultReferenceData.salesRepresentative,
+  fundingBody: defaultReferenceData.fundingBody,
+  aboriginalTorresStraitIslander: defaultReferenceData.aboriginalTorresStraitIslander,
+  culturalAffiliation: defaultReferenceData.culturalAffiliation,
+  disability: defaultReferenceData.disability,
+  alertType: defaultReferenceData.alertType,
+  showAsAlert: defaultReferenceData.showAsAlert,
+  activityType: defaultReferenceData.activityType,
+};
+
+/** @deprecated Use useReferenceData().getOptions instead */
+export const enquiryDropdowns = {
+  enquiryStatus: defaultReferenceData.enquiryStatus,
+  status: defaultReferenceData.enquiryStatus,
+  enquirySource: defaultReferenceData.enquirySource,
+  isEnquiryForSelf: defaultReferenceData.isEnquiryForSelf,
+  thirdPartyConsent: defaultReferenceData.thirdPartyConsent,
+  relationshipType: defaultReferenceData.relationshipType,
+  preferredCommunicationMethod: defaultReferenceData.preferredCommunicationMethod,
+  gender: defaultReferenceData.gender,
+  fundingBody: defaultReferenceData.fundingBody,
+  disability: defaultReferenceData.disability,
+};
+
+export function referenceDataGroups(): ReferenceDataGroup[] {
+  return [...new Set(Object.values(referenceDataMeta).map((m) => m.group))];
+}
+
+export function referenceDataKeys(): ReferenceDataKey[] {
+  return Object.keys(referenceDataMeta) as ReferenceDataKey[];
+}

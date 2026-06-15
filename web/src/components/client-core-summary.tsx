@@ -1,0 +1,158 @@
+"use client";
+
+import Link from "next/link";
+import { useData } from "@/lib/data-store";
+import type { ClientRecord } from "@/lib/client";
+import { formatLocationAddress } from "@/lib/client-line-tables";
+import { formatContractDate } from "@/lib/contract";
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function statusLabel(status: string) {
+  return status.replace(/^\d+_/, "").replace(/_/g, " ");
+}
+
+export function ClientCoreSummary({ client }: { client: ClientRecord }) {
+  const { getServiceAgreementsByClientId, getSupportPlanByClientId } = useData();
+  const supportPlan = getSupportPlanByClientId(client.id);
+  const agreements = getServiceAgreementsByClientId(client.id);
+  const primaryAgreement = agreements[0];
+  const activeAlerts = client.alerts.filter((a) => a.showAsAlert === "Yes").length;
+  const postToLocation = client.locations?.find((l) => l.postToAddress === "Yes" && l.active === "Yes");
+  const serviceLocation = client.locations?.find((l) => l.serviceDeliveryAddress === "Yes" && l.active === "Yes");
+
+  return (
+    <div className="mb-6 space-y-4">
+      {supportPlan ? (
+        <Link
+          href={`/clients/${client.id}?tab=Support%20Plan`}
+          className="block overflow-hidden rounded-2xl border border-[#f9a8d4]/70 bg-gradient-to-br from-[#fdf2f8] via-white to-violet-50/40 shadow-md ring-1 ring-[#f9a8d4]/40 transition hover:shadow-lg"
+        >
+          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#b51266]">Support plan</p>
+              <h3 className="mt-1 text-xl font-semibold text-slate-900">Document {supportPlan.documentNo}</h3>
+              <p className="mt-2 line-clamp-2 max-w-2xl text-sm text-slate-600">{supportPlan.description}</p>
+              <p className="mt-2 text-sm text-slate-500">
+                Provided {formatContractDate(supportPlan.providedToReceiver)} · {supportPlan.goals.length} goals
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200">
+              {supportPlan.active ? "Active plan" : "Inactive"}
+            </span>
+          </div>
+        </Link>
+      ) : null}
+
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-[#fdf2f8]/40 shadow-sm">
+        <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex gap-4">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d4147a] to-[#b51266] text-lg font-bold text-white shadow-md">
+              {initials(client.name) || "?"}
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-xl font-semibold tracking-tight text-slate-900">{client.name}</h2>
+              <p className="mt-0.5 text-sm text-slate-500">
+                {client.searchKey}
+                {client.preferredName && client.preferredName !== client.firstName
+                  ? ` · goes by ${client.preferredName}`
+                  : ""}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200 ring-inset">
+                  {statusLabel(client.status)}
+                </span>
+                {client.alerts.length > 0 ? (
+                  <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900 ring-1 ring-amber-200 ring-inset">
+                    {client.alerts.length} alert{client.alerts.length === 1 ? "" : "s"}
+                    {activeAlerts > 0 ? ` · ${activeAlerts} active` : ""}
+                  </span>
+                ) : null}
+                {!supportPlan ? (
+                  <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 ring-inset">
+                    No support plan
+                  </span>
+                ) : null}
+                {agreements.length > 0 ? (
+                  <span className="inline-flex rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-900 ring-1 ring-violet-200 ring-inset">
+                    {agreements.length} service agreement{agreements.length === 1 ? "" : "s"}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          <dl className="grid min-w-[220px] gap-3 text-sm sm:text-right">
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Funding</dt>
+              <dd className="mt-0.5 font-medium text-slate-800">{client.fundingBody || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Disability</dt>
+              <dd className="mt-0.5 text-slate-700">{client.disability || "—"}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="grid border-t border-slate-100 bg-slate-50/60 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="border-b border-slate-100 px-5 py-3 sm:border-b-0 sm:border-r">
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Email</p>
+            <p className="mt-0.5 truncate text-sm text-slate-800">{client.email || "—"}</p>
+          </div>
+          <div className="border-b border-slate-100 px-5 py-3 sm:border-b-0 sm:border-r">
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Phone</p>
+            <p className="mt-0.5 text-sm text-slate-800">{client.phone || "—"}</p>
+          </div>
+          <div className="border-b border-slate-100 px-5 py-3 lg:border-b-0 lg:border-r">
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Service address</p>
+            <p className="mt-0.5 text-sm text-slate-800">
+              {serviceLocation ? (
+                <Link href={`/clients/${client.id}?tab=Locations`} className="hover:text-[#b51266] hover:underline">
+                  {formatLocationAddress(serviceLocation)}
+                </Link>
+              ) : (
+                "—"
+              )}
+            </p>
+          </div>
+          <div className="px-5 py-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Post to</p>
+            <p className="mt-0.5 text-sm text-slate-800">
+              {postToLocation ? (
+                <Link href={`/clients/${client.id}?tab=Locations`} className="hover:text-[#b51266] hover:underline">
+                  {formatLocationAddress(postToLocation)}
+                </Link>
+              ) : (
+                "—"
+              )}
+            </p>
+          </div>
+        </div>
+
+        {primaryAgreement ? (
+          <div className="border-t border-slate-100 bg-violet-50/40 px-5 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-violet-700">Service agreement</p>
+              <Link href={`/service-agreements/${primaryAgreement.id}`} className="text-xs font-medium text-[#b51266] hover:underline">
+                {primaryAgreement.searchKey} · View
+              </Link>
+            </div>
+            <p className="mt-1 text-sm font-medium text-slate-900">{primaryAgreement.name}</p>
+            <p className="mt-1 text-xs text-slate-600">
+              {formatContractDate(primaryAgreement.contractDate)} → {formatContractDate(primaryAgreement.finishDate)}
+              {" · "}
+              ${primaryAgreement.totalPlannedAmount} planned
+            </p>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}

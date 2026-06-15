@@ -1,0 +1,343 @@
+{
+  "capturedAt": "2026-06-15T10:50:55.840Z",
+  "attempts": [
+    {
+      "method": "search",
+      "query": "Contract",
+      "tabs": [
+        "Menu",
+        "Search",
+        "Home",
+        "Contract: 1000001 Rover Ro..."
+      ],
+      "bodySnippet": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Menu Favourites Timesheet Business Partner Plan & Assessment AbilityERP Development Management AbilityERP Function Service Booking Generate Timesheets Sales Order Business Partner Product System Configurator Support Receiver (BP) Cache Reset Support Location Incident Report Animal Glossary Recent Items Purchase Order: 800020 Booking Generator: BERN_SIL Service Booking: 50143 Pack In: sb Service Booking: 50137 Service"
+    }
+  ],
+  "windowName": "Contract",
+  "list": {
+    "activeTab": "Menu",
+    "allTabs": [
+      "Menu",
+      "Search",
+      "Home",
+      "Contract: 1000001 Rover Ro..."
+    ],
+    "fields": [
+      {
+        "label": "SuperUser@AbilityERP.*/AbilityERP Admin",
+        "type": "text",
+        "value": "",
+        "tab": "Menu"
+      },
+      {
+        "label": "Contract Type",
+        "type": "dropdown",
+        "value": "Tenancy Agreeement",
+        "tab": "Menu"
+      },
+      {
+        "label": "Name",
+        "type": "text",
+        "value": "Rover Road Residential tenancy Agreement",
+        "tab": "Menu"
+      },
+      {
+        "label": "Description",
+        "type": "text",
+        "value": "Rover Road Residential tenancy Agreement - Demo File with DMS attachment",
+        "tab": "Menu"
+      },
+      {
+        "label": "Contract Term",
+        "type": "dropdown",
+        "value": "Fixed",
+        "tab": "Menu"
+      },
+      {
+        "label": "Start Date",
+        "type": "date",
+        "value": "08/05/2022",
+        "tab": "Menu"
+      },
+      {
+        "label": "Review Date",
+        "type": "date",
+        "value": "25/05/2024",
+        "tab": "Menu"
+      },
+      {
+        "label": "Business Partner",
+        "type": "text",
+        "value": "Adelaide Property Managers",
+        "tab": "Menu"
+      },
+      {
+        "label": "Project",
+        "type": "text",
+        "value": "",
+        "tab": "Menu"
+      },
+      {
+        "label": "Created By",
+        "type": "text",
+        "value": "Isla Robinson",
+        "tab": "Menu"
+      },
+      {
+        "label": "Updated By",
+        "type": "text",
+        "value": "Jessica Hancock",
+        "tab": "Menu"
+      }
+    ],
+    "listColumns": [],
+    "listRows": [
+      [
+        "Contract",
+        "",
+        ""
+      ],
+      [
+        "Contract Type",
+        "",
+        ""
+      ],
+      [
+        "Employee Contract",
+        "",
+        ""
+      ]
+    ],
+    "body": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Menu Favourites Timesheet Business Partner Plan & Assessment AbilityERP Development Management AbilityERP Function Service Booking Generate Timesheets Sales Order Business Partner Product System Configurator Support Receiver (BP) Cache Reset Support Location Incident Report Animal Glossary Recent Items Purchase Order: 800020 Booking Generator: BERN_SIL Service Booking: 50143 Pack In: sb Service Booking: 50137 Service Booking: 50129 Service Booking: 50133 Booking Generator: 1000002 Service Booking: 20063 Service Booking: 20062 Home Contract: 1000001 Rover Ro... Contract 1/3 Contract Type Name Description Contract Term Execution Date Start Date* End Date* Review Date Reference Audit"
+  },
+  "record": {
+    "activeTab": "Menu",
+    "allTabs": [
+      "Menu",
+      "Search",
+      "Home",
+      "Contract: 1000001 Rover Ro..."
+    ],
+    "fields": [
+      {
+        "label": "SuperUser@AbilityERP.*/AbilityERP Admin",
+        "type": "text",
+        "value": "",
+        "tab": "Menu"
+      },
+      {
+        "label": "Contract Type",
+        "type": "dropdown",
+        "value": "Tenancy Agreeement",
+        "tab": "Menu"
+      },
+      {
+        "label": "Name",
+        "type": "text",
+        "value": "Rover Road Residential tenancy Agreement",
+        "tab": "Menu"
+      },
+      {
+        "label": "Description",
+        "type": "text",
+        "value": "Rover Road Residential tenancy Agreement - Demo File with DMS attachment",
+        "tab": "Menu"
+      },
+      {
+        "label": "Contract Term",
+        "type": "dropdown",
+        "value": "Fixed",
+        "tab": "Menu"
+      },
+      {
+        "label": "Start Date",
+        "type": "date",
+        "value": "08/05/2022",
+        "tab": "Menu"
+      },
+      {
+        "label": "Review Date",
+        "type": "date",
+        "value": "25/05/2024",
+        "tab": "Menu"
+      },
+      {
+        "label": "Business Partner",
+        "type": "text",
+        "value": "Adelaide Property Managers",
+        "tab": "Menu"
+      },
+      {
+        "label": "Project",
+        "type": "text",
+        "value": "",
+        "tab": "Menu"
+      },
+      {
+        "label": "Created By",
+        "type": "text",
+        "value": "Isla Robinson",
+        "tab": "Menu"
+      },
+      {
+        "label": "Updated By",
+        "type": "text",
+        "value": "Jessica Hancock",
+        "tab": "Menu"
+      }
+    ],
+    "listColumns": [],
+    "listRows": [
+      [
+        "Contract",
+        "",
+        ""
+      ],
+      [
+        "Contract Type",
+        "",
+        ""
+      ],
+      [
+        "Employee Contract",
+        "",
+        ""
+      ]
+    ],
+    "body": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Menu Favourites Timesheet Business Partner Plan & Assessment AbilityERP Development Management AbilityERP Function Service Booking Generate Timesheets Sales Order Business Partner Product System Configurator Support Receiver (BP) Cache Reset Support Location Incident Report Animal Glossary Recent Items Purchase Order: 800020 Booking Generator: BERN_SIL Service Booking: 50143 Pack In: sb Service Booking: 50137 Service Booking: 50129 Service Booking: 50133 Booking Generator: 1000002 Service Booking: 20063 Service Booking: 20062 Home Contract: 1000001 Rover Ro... Contract 1/3 Contract Type Name Description Contract Term Execution Date Start Date* End Date* Review Date Reference Audit"
+  },
+  "tabs": {
+    "Contract: 1000001 Rover Ro...": {
+      "activeTab": "Menu",
+      "allTabs": [
+        "Menu",
+        "Search",
+        "Home",
+        "Contract: 1000001 Rover Ro..."
+      ],
+      "fields": [
+        {
+          "label": "SuperUser@AbilityERP.*/AbilityERP Admin",
+          "type": "text",
+          "value": "",
+          "tab": "Menu"
+        },
+        {
+          "label": "Contract Type",
+          "type": "dropdown",
+          "value": "Tenancy Agreeement",
+          "tab": "Menu"
+        },
+        {
+          "label": "Name",
+          "type": "text",
+          "value": "Rover Road Residential tenancy Agreement",
+          "tab": "Menu"
+        },
+        {
+          "label": "Description",
+          "type": "text",
+          "value": "Rover Road Residential tenancy Agreement - Demo File with DMS attachment",
+          "tab": "Menu"
+        },
+        {
+          "label": "Contract Term",
+          "type": "dropdown",
+          "value": "Fixed",
+          "tab": "Menu"
+        },
+        {
+          "label": "Start Date",
+          "type": "date",
+          "value": "08/05/2022",
+          "tab": "Menu"
+        },
+        {
+          "label": "Review Date",
+          "type": "date",
+          "value": "25/05/2024",
+          "tab": "Menu"
+        },
+        {
+          "label": "Business Partner",
+          "type": "text",
+          "value": "Adelaide Property Managers",
+          "tab": "Menu"
+        },
+        {
+          "label": "Project",
+          "type": "text",
+          "value": "",
+          "tab": "Menu"
+        },
+        {
+          "label": "Created By",
+          "type": "text",
+          "value": "Isla Robinson",
+          "tab": "Menu"
+        },
+        {
+          "label": "Updated By",
+          "type": "text",
+          "value": "Jessica Hancock",
+          "tab": "Menu"
+        }
+      ],
+      "listColumns": [],
+      "listRows": [
+        [
+          "Contract",
+          "",
+          ""
+        ],
+        [
+          "Contract Type",
+          "",
+          ""
+        ],
+        [
+          "Employee Contract",
+          "",
+          ""
+        ]
+      ],
+      "body": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Menu Favourites Timesheet Business Partner Plan & Assessment AbilityERP Development Management AbilityERP Function Service Booking Generate Timesheets Sales Order Business Partner Product System Configurator Support Receiver (BP) Cache Reset Support Location Incident Report Animal Glossary Recent Items Purchase Order: 800020 Booking Generator: BERN_SIL Service Booking: 50143 Pack In: sb Service Booking: 50137 Service Booking: 50129 Service Booking: 50133 Booking Generator: 1000002 Service Booking: 20063 Service Booking: 20062 Home Contract: 1000001 Rover Ro... Contract 1/3 Contract Type Name Description Contract Term Execution Date Start Date* End Date* Review Date Reference Audit",
+      "dropdowns": [
+        {
+          "tab": "Contract: 1000001 Rover Ro...",
+          "field": "Contract Type",
+          "options": [
+            "Supplier Contract",
+            "Tenancy Agreeement"
+          ]
+        },
+        {
+          "tab": "Contract: 1000001 Rover Ro...",
+          "field": "Contract Term",
+          "options": [
+            "Fixed",
+            "Ongoing"
+          ]
+        }
+      ]
+    }
+  },
+  "allDropdowns": [
+    {
+      "tab": "Contract: 1000001 Rover Ro...",
+      "field": "Contract Type",
+      "options": [
+        "Supplier Contract",
+        "Tenancy Agreeement"
+      ]
+    },
+    {
+      "tab": "Contract: 1000001 Rover Ro...",
+      "field": "Contract Term",
+      "options": [
+        "Fixed",
+        "Ongoing"
+      ]
+    }
+  ]
+}
