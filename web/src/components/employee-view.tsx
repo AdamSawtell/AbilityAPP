@@ -29,6 +29,7 @@ import {
   employeeAlertTableConfig,
   employeeDocumentTableConfig,
   employeeLeaveTableConfig,
+  employeeLeaveRequestTableConfig,
   employeeSkillTableConfig,
 } from "@/lib/employee-line-tables";
 import {
@@ -50,6 +51,7 @@ import {
   type EmployeeDocumentRow,
   type EmployeeEmergencyContactRow,
   type EmployeeLeaveEntitlementRow,
+  type EmployeeLeaveRequestRow,
   type EmployeeLocationRow,
   type EmployeeRecord,
   type EmployeeSkillRow,
@@ -187,7 +189,7 @@ function tabCount(employee: EmployeeRecord, tab: string): number | null {
   if (tab === "Skills & languages") return employee.skills.length;
   if (tab === "Documents") return employee.documents.length;
   if (tab === "Activity") return employee.activities.length;
-  if (tab === "Leave") return employee.leaveEntitlements.length;
+  if (tab === "Leave") return employee.leaveEntitlements.length + employee.leaveRequests.length;
   return null;
 }
 
@@ -204,6 +206,7 @@ export function EmployeeTabbedView({
   onDocumentsChange,
   onActivitiesChange,
   onLeaveEntitlementsChange,
+  onLeaveRequestsChange,
 }: {
   employee: EmployeeRecord;
   allEmployees: EmployeeRecord[];
@@ -217,6 +220,7 @@ export function EmployeeTabbedView({
   onDocumentsChange: (rows: EmployeeDocumentRow[]) => void;
   onActivitiesChange: (rows: EmployeeActivityRow[]) => void;
   onLeaveEntitlementsChange: (rows: EmployeeLeaveEntitlementRow[]) => void;
+  onLeaveRequestsChange: (rows: EmployeeLeaveRequestRow[]) => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -271,6 +275,7 @@ export function EmployeeTabbedView({
     employeeDocumentStatus: ["Current", "Expiring soon", "Expired", "Archived"],
     employeeActivityType: ["Note", "Onboarding", "Training", "Performance review", "Incident", "Other"],
     leaveType: ["Annual leave", "Personal / carer's leave", "Long service leave", "Parental leave", "Unpaid leave"],
+    employeeLeaveStatus: ["Draft", "Requested", "Approved", "Declined", "Cancelled", "Taken"],
   };
 
   return (
@@ -432,6 +437,12 @@ export function EmployeeTabbedView({
               config={employeeLeaveTableConfig}
               rows={employee.leaveEntitlements}
               onChange={onLeaveEntitlementsChange}
+              dropdowns={employeeDropdowns}
+            />
+            <LineItemTable
+              config={employeeLeaveRequestTableConfig}
+              rows={employee.leaveRequests}
+              onChange={onLeaveRequestsChange}
               dropdowns={employeeDropdowns}
             />
           </div>

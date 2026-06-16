@@ -60,6 +60,7 @@ import {
   type EmployeeDocumentRowDb,
   type EmployeeActivityRowDb,
   type EmployeeLeaveEntitlementRowDb,
+  type EmployeeLeaveRequestRowDb,
   type PlanAssessmentDocumentRow,
   type PriceListLineRow,
   type PriceListRow,
@@ -138,6 +139,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     employeeDocsRes,
     employeeActsRes,
     employeeLeaveRes,
+    employeeLeaveRequestRes,
     supportLocationsRes,
     supportLocationAlertsRes,
     supportLocationClientsRes,
@@ -177,6 +179,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("employee_document").select("*").order("line_no"),
     supabase.from("employee_activity").select("*").order("line_no"),
     supabase.from("employee_leave_entitlement").select("*").order("line_no"),
+    supabase.from("employee_leave_request").select("*").order("line_no"),
     supabase.from("support_location").select("*").order("search_key"),
     supabase.from("support_location_alert").select("*").order("line_no"),
     supabase.from("support_location_client").select("*").order("line_no"),
@@ -218,6 +221,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     employeeDocsRes.error ??
     employeeActsRes.error ??
     employeeLeaveRes.error ??
+    employeeLeaveRequestRes.error ??
     supportLocationsRes.error ??
     supportLocationAlertsRes.error ??
     supportLocationClientsRes.error ??
@@ -256,6 +260,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const docsByEmployee = groupBy(employeeDocsRes.data as EmployeeDocumentRowDb[], "employee_id");
   const actsByEmployee = groupBy(employeeActsRes.data as EmployeeActivityRowDb[], "employee_id");
   const leaveByEmployee = groupBy(employeeLeaveRes.data as EmployeeLeaveEntitlementRowDb[], "employee_id");
+  const leaveRequestsByEmployee = groupBy(employeeLeaveRequestRes.data as EmployeeLeaveRequestRowDb[], "employee_id");
   const alertsByLocation = groupBy(supportLocationAlertsRes.data as SupportLocationAlertRowDb[], "location_id");
   const clientsByLocation = groupBy(supportLocationClientsRes.data as SupportLocationClientRowDb[], "location_id");
   const employeesByLocation = groupBy(supportLocationEmployeesRes.data as SupportLocationEmployeeRowDb[], "location_id");
@@ -309,6 +314,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
           documents: docsByEmployee.get(row.id) ?? [],
           activities: actsByEmployee.get(row.id) ?? [],
           leaveEntitlements: leaveByEmployee.get(row.id) ?? [],
+          leaveRequests: leaveRequestsByEmployee.get(row.id) ?? [],
         })
       )
     ),
@@ -832,6 +838,24 @@ export async function saveEmployee(supabase: SupabaseClient, record: EmployeeRec
         entitlement_days: l.entitlementDays,
         balance_days: l.balanceDays,
         accrual_notes: l.accrualNotes,
+      }))
+    );
+    if (error) throw error;
+  }
+
+  await replaceChildRows(supabase, "employee_leave_request", "employee_id", normalized.id);
+  if (normalized.leaveRequests.length) {
+    const { error } = await supabase.from("employee_leave_request").insert(
+      normalized.leaveRequests.map((l) => ({
+        id: l.id,
+        employee_id: normalized.id,
+        line_no: l.lineNo,
+        leave_type: l.leaveType,
+        start_date: l.startDate || null,
+        end_date: l.endDate || null,
+        days_requested: l.daysRequested,
+        status: l.status,
+        notes: l.notes,
       }))
     );
     if (error) throw error;

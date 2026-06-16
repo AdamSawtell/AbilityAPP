@@ -10,6 +10,7 @@ import type {
   EmployeeDocumentRow,
   EmployeeEmergencyContactRow,
   EmployeeLeaveEntitlementRow,
+  EmployeeLeaveRequestRow,
   EmployeeLocationRow,
   EmployeeSkillRow,
 } from "@/lib/employee";
@@ -1194,6 +1195,7 @@ export type EmployeeChildRows = {
   documents?: EmployeeDocumentRowDb[];
   activities?: EmployeeActivityRowDb[];
   leaveEntitlements?: EmployeeLeaveEntitlementRowDb[];
+  leaveRequests?: EmployeeLeaveRequestRowDb[];
 };
 
 export type EmployeeLocationRowDb = {
@@ -1290,6 +1292,18 @@ export type EmployeeLeaveEntitlementRowDb = {
   entitlement_days: number;
   balance_days: number;
   accrual_notes: string;
+};
+
+export type EmployeeLeaveRequestRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  leave_type: string;
+  start_date: string | null;
+  end_date: string | null;
+  days_requested: number;
+  status: string;
+  notes: string;
 };
 
 export type EmployeeCredentialRowDb = {
@@ -1411,6 +1425,19 @@ export function employeeLeaveEntitlementFromRow(row: EmployeeLeaveEntitlementRow
   };
 }
 
+export function employeeLeaveRequestFromRow(row: EmployeeLeaveRequestRowDb): EmployeeLeaveRequestRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    leaveType: row.leave_type,
+    startDate: strDate(row.start_date),
+    endDate: strDate(row.end_date),
+    daysRequested: Number(row.days_requested) || 0,
+    status: row.status,
+    notes: row.notes,
+  };
+}
+
 export function employeeCredentialFromRow(row: EmployeeCredentialRowDb): EmployeeCredentialRow {
   return {
     id: row.id,
@@ -1484,6 +1511,7 @@ export function employeeFromRow(row: EmployeeRow, children: EmployeeChildRows = 
     documents: (children.documents ?? []).map(employeeDocumentFromRow),
     activities: (children.activities ?? []).map(employeeActivityFromRow),
     leaveEntitlements: (children.leaveEntitlements ?? []).map(employeeLeaveEntitlementFromRow),
+    leaveRequests: (children.leaveRequests ?? []).map(employeeLeaveRequestFromRow),
   };
 }
 

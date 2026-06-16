@@ -14,6 +14,7 @@ export type CalendarViewMode = "month" | "week" | "day";
 export type PersonalCalendarEventKind =
   | "task-user"
   | "task-role"
+  | "leave-request"
   | "credential-expiry"
   | "document-expiry"
   | "visa-expiry"
@@ -188,6 +189,33 @@ function complianceEvents(employee: EmployeeRecord): PersonalCalendarEvent[] {
   return events;
 }
 
+function leaveEvents(employee: EmployeeRecord): PersonalCalendarEvent[] {
+  const events: PersonalCalendarEvent[] = [];
+  const empHref = `/employees/${employee.id}?tab=Leave`;
+  const includedStatuses = new Set(["Requested", "Approved", "Taken"]);
+
+  for (const leave of employee.leaveRequests) {
+    if (!leave.startDate?.trim() || !leave.endDate?.trim()) continue;
+    if (!includedStatuses.has(leave.status)) continue;
+    let cursor = dateFromIso(leave.startDate);
+    const end = dateFromIso(leave.endDate);
+    while (cursor <= end) {
+      const iso = isoFromDate(cursor);
+      events.push({
+        id: `leave-${leave.id}-${iso}`,
+        date: iso,
+        kind: "leave-request",
+        title: `${leave.leaveType || "Leave"} (${leave.status})`,
+        subtitle: leave.notes || employee.name,
+        href: empHref,
+        urgency: leave.status === "Requested" ? "soon" : "later",
+      });
+      cursor = addDays(cursor, 1);
+    }
+  }
+  return events;
+}
+
 export function personalCalendarEvents(
   tasks: TaskRecord[],
   session: Pick<AuthSession, "userId" | "activeRoleId" | "windowKeys" | "taskTypePermissions">,
@@ -199,7 +227,10 @@ export function personalCalendarEvents(
 
   const compliance = employee ? complianceEvents(employee) : [];
 
-  return [...taskEvents, ...compliance].sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
+  const leave = employee ? leaveEvents(employee) : [];
+  return [...taskEvents, ...compliance, ...leave].sort(
+    (a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title)
+  );
 }
 
 export function eventsByDate(events: PersonalCalendarEvent[]): Map<string, PersonalCalendarEvent[]> {
@@ -220,6 +251,8 @@ export function eventKindLabel(kind: PersonalCalendarEventKind): string {
       return "Role task";
     case "credential-expiry":
       return "Credential";
+    case "leave-request":
+      return "Leave";
     case "document-expiry":
       return "Document";
     case "visa-expiry":

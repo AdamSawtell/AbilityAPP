@@ -5,6 +5,7 @@ import type {
   EmployeeDocumentRow,
   EmployeeEmergencyContactRow,
   EmployeeLeaveEntitlementRow,
+  EmployeeLeaveRequestRow,
   EmployeeLocationRow,
   EmployeeSkillRow,
 } from "@/lib/employee";
@@ -210,6 +211,30 @@ export const employeeLeaveTableConfig: GenericTableConfig<EmployeeLeaveEntitleme
     entitlementDays: 0,
     balanceDays: 0,
     accrualNotes: "",
+  }),
+};
+
+export const employeeLeaveRequestTableConfig: GenericTableConfig<EmployeeLeaveRequestRow> = {
+  addLabel: "Add leave request",
+  emptyMessage: "No leave requests yet. Add date-based leave to show in personal and organisation calendars.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "leaveType", label: "Leave type", type: "select", optionsKey: "leaveType", required: true },
+    { key: "startDate", label: "Start date", type: "date", required: true },
+    { key: "endDate", label: "End date", type: "date", required: true },
+    { key: "daysRequested", label: "Days", type: "number" },
+    { key: "status", label: "Status", type: "select", optionsKey: "employeeLeaveStatus", required: true },
+    { key: "notes", label: "Notes", type: "textarea", className: "min-w-[220px]" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("leave-req"),
+    lineNo,
+    leaveType: "",
+    startDate: new Date().toISOString().slice(0, 10),
+    endDate: new Date().toISOString().slice(0, 10),
+    daysRequested: 1,
+    status: "Requested",
+    notes: "",
   }),
 };
 

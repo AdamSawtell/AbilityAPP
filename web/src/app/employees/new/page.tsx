@@ -19,6 +19,7 @@ const emptyCollections = {
   documents: [],
   activities: [],
   leaveEntitlements: [],
+  leaveRequests: [],
 };
 
 export default function NewEmployeePage() {

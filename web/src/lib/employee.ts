@@ -104,6 +104,17 @@ export type EmployeeLeaveEntitlementRow = {
   accrualNotes: string;
 };
 
+export type EmployeeLeaveRequestRow = {
+  id: string;
+  lineNo: number;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  daysRequested: number;
+  status: string;
+  notes: string;
+};
+
 export type EmployeeRecord = {
   id: string;
   searchKey: string;
@@ -159,6 +170,7 @@ export type EmployeeRecord = {
   documents: EmployeeDocumentRow[];
   activities: EmployeeActivityRow[];
   leaveEntitlements: EmployeeLeaveEntitlementRow[];
+  leaveRequests: EmployeeLeaveRequestRow[];
 };
 
 export type EmployeeTabGroup = {
@@ -268,6 +280,7 @@ const emptyLineCollections = {
   documents: [] as EmployeeDocumentRow[],
   activities: [] as EmployeeActivityRow[],
   leaveEntitlements: [] as EmployeeLeaveEntitlementRow[],
+  leaveRequests: [] as EmployeeLeaveRequestRow[],
 };
 
 export const initialEmployees: EmployeeRecord[] = [
@@ -466,6 +479,18 @@ export const initialEmployees: EmployeeRecord[] = [
         accrualNotes: "",
       },
     ],
+    leaveRequests: [
+      {
+        id: "leave-req-isla-jun",
+        lineNo: 1,
+        leaveType: "Annual leave",
+        startDate: "2026-06-22",
+        endDate: "2026-06-24",
+        daysRequested: 3,
+        status: "Approved",
+        notes: "Family leave",
+      },
+    ],
     credentials: [
       {
         id: "cred-isla-wwcc",
@@ -598,6 +623,18 @@ export const initialEmployees: EmployeeRecord[] = [
         entitlementDays: 11.6,
         balanceDays: 6,
         accrualNotes: "Pro-rata part-time",
+      },
+    ],
+    leaveRequests: [
+      {
+        id: "leave-req-gab-jul",
+        lineNo: 1,
+        leaveType: "Personal / carer's leave",
+        startDate: "2026-07-03",
+        endDate: "2026-07-03",
+        daysRequested: 1,
+        status: "Requested",
+        notes: "Medical appointment",
       },
     ],
     credentials: [
@@ -866,6 +903,7 @@ export function normalizeEmployee(record: EmployeeRecord): EmployeeRecord {
     documents: renumber(record.documents ?? []),
     activities: renumber(record.activities ?? []),
     leaveEntitlements: renumber(record.leaveEntitlements ?? []),
+    leaveRequests: renumber(record.leaveRequests ?? []),
   };
 }
 
@@ -895,6 +933,7 @@ export function createEmployee(
     documents: partial.documents ?? [],
     activities: partial.activities ?? [],
     leaveEntitlements: partial.leaveEntitlements ?? [],
+    leaveRequests: partial.leaveRequests ?? [],
   });
 }
 

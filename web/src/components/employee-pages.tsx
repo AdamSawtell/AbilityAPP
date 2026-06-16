@@ -134,6 +134,7 @@ export function EmployeeDetailView({ id }: { id: string }) {
             onDocumentsChange={(documents) => patchDraft({ documents })}
             onActivitiesChange={(activities) => patchDraft({ activities })}
             onLeaveEntitlementsChange={(leaveEntitlements) => patchDraft({ leaveEntitlements })}
+            onLeaveRequestsChange={(leaveRequests) => patchDraft({ leaveRequests })}
           />
         </Suspense>
 

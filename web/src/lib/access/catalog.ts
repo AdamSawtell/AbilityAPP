@@ -104,6 +104,14 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "workforce-planning",
+    label: "Workforce planning",
+    group: "People",
+    href: "/workforce-planning",
+    abilityErpName: "Workforce planning",
+    showInSidebar: true,
+  },
+  {
     key: "products",
     label: "Products",
     group: "Services",

@@ -80,6 +80,7 @@ values
   ('role-admin', 'employee-activity'),
   ('role-admin', 'employee-skills'),
   ('role-admin', 'employee-system-access'),
+  ('role-admin', 'workforce-planning'),
   ('role-admin', 'products'),
   ('role-admin', 'product-overview'),
   ('role-admin', 'product-pricing'),
@@ -137,6 +138,7 @@ values
   ('role-intake', 'location-employees'),
   ('role-intake', 'location-products-and-services'),
   ('role-intake', 'location-activity'),
+  ('role-intake', 'workforce-planning'),
   ('role-coordinator', 'home'),
   ('role-coordinator', 'reports'),
   ('role-coordinator', 'tasks'),
@@ -178,7 +180,8 @@ values
   ('role-coordinator', 'price-list-lines'),
   ('role-coordinator', 'service-agreements'),
   ('role-coordinator', 'service-agreement-overview'),
-  ('role-coordinator', 'service-agreement-lines')
+  ('role-coordinator', 'service-agreement-lines'),
+  ('role-coordinator', 'workforce-planning')
 on conflict do nothing;
 
 delete from public.app_role_process where role_id in ('role-admin', 'role-intake', 'role-coordinator');

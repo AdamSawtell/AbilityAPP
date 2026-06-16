@@ -17,6 +17,12 @@ const peopleLinks = [
     windowKey: "employees",
     match: (path: string) => path.startsWith("/employees"),
   },
+  {
+    href: "/workforce-planning",
+    label: "Workforce planning",
+    windowKey: "workforce-planning",
+    match: (path: string) => path.startsWith("/workforce-planning"),
+  },
 ];
 
 const serviceLinks = [
@@ -324,7 +330,8 @@ export function SidebarNav() {
     if (key === "clients" && (pathname.startsWith("/clients") || pathname.startsWith("/service-agreements")))
       return true;
     if (key === "locations" && pathname.startsWith("/locations")) return true;
-    if (key === "people" && pathname.startsWith("/employees")) return true;
+    if (key === "people" && (pathname.startsWith("/employees") || pathname.startsWith("/workforce-planning")))
+      return true;
     if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
