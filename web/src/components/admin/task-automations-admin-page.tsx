@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { useAuth } from "@/lib/auth-store";
@@ -8,12 +9,17 @@ import { useOrganization } from "@/lib/organization-store";
 import { useTaskTypes } from "@/lib/task-type-store";
 import { incidentStatusOptions, incidentSeverityOptions } from "@/lib/incident";
 import {
+  groupTaskAutomationsByModule,
+  isModuleEngineLive,
   newTaskAutomationId,
   normalizeTaskAutomation,
   sortTaskAutomations,
   TASK_AUTOMATION_DEDUPE_OPTIONS,
+  TASK_AUTOMATION_MODULES,
   TASK_AUTOMATION_TEMPLATE_PLACEHOLDERS,
-  TASK_AUTOMATION_TRIGGER_OPTIONS,
+  taskAutomationModuleLabel,
+  triggersForModule,
+  type TaskAutomationModule,
   type TaskAutomationRecord,
   type TaskAutomationTriggerEvent,
 } from "@/lib/task-automation";
@@ -56,6 +62,7 @@ export function TaskAutomationsAdminView() {
   const hasAccess = canWindow("admin-task-automations") || canWindow("admin-task-management");
 
   const sorted = useMemo(() => sortTaskAutomations(taskAutomations), [taskAutomations]);
+  const grouped = useMemo(() => groupTaskAutomationsByModule(taskAutomations), [taskAutomations]);
   const [activeId, setActiveId] = useState<string | null>(sorted[0]?.id ?? null);
   const [draft, setDraft] = useState<TaskAutomationRecord | null>(null);
   const [previewIncidentId, setPreviewIncidentId] = useState("inc-1000003");
@@ -170,12 +177,36 @@ export function TaskAutomationsAdminView() {
   const statusIn = record?.conditions.statusIn ?? [];
   const severityIn = record?.conditions.severityIn ?? [];
 
+  function changeModule(module: TaskAutomationModule) {
+    if (!record) return;
+    const moduleTriggers = triggersForModule(module);
+    const triggerEvent = moduleTriggers[0]?.value ?? record.triggerEvent;
+    setDraft(
+      normalizeTaskAutomation({
+        ...record,
+        module,
+        triggerEvent,
+        conditions: module === "incidents" ? record.conditions : {},
+      })
+    );
+  }
+
+  const moduleTriggers = record ? triggersForModule(record.module) : [];
+  const triggerHint = moduleTriggers.find((o) => o.value === record?.triggerEvent)?.hint;
+  const engineLive = record ? isModuleEngineLive(record.module) : true;
+
   return (
     <AppShell
       title="Task automations"
-      subtitle="When something happens in the system, create a task for a role — your in-app alert channel."
+      subtitle="When something happens in the system, create a task for a role; your in-app alert channel."
       audit={{ moduleLabel: "Task automation administration" }}
     >
+      <p className="mb-6 text-sm text-slate-600">
+        Configure rules by record type (enquiry, client, location, employee, incident).{" "}
+        <Link href="/help/task-automations" className="font-medium text-[#b51266] hover:underline">
+          Read the full how-to guide
+        </Link>
+      </p>
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between gap-2">
@@ -188,26 +219,38 @@ export function TaskAutomationsAdminView() {
               Add rule
             </button>
           </div>
-          <ul className="space-y-1">
-            {sorted.map((rule) => (
-              <li key={rule.id}>
-                <button
-                  type="button"
-                  onClick={() => openRule(rule.id)}
-                  className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${
-                    rule.id === activeId
-                      ? "bg-[#fdf2f8] font-medium text-[#b51266] ring-1 ring-[#f9a8d4]/60"
-                      : "text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  <span className="block truncate">{rule.name}</span>
-                  <span className="mt-0.5 block truncate text-xs text-slate-500">
-                    {rule.active ? "Active" : "Inactive"} · {rule.triggerEvent.replace("incident.", "")}
-                  </span>
-                </button>
-              </li>
+          <div className="mb-3 space-y-1">
+            {grouped.map((group) => (
+              <div key={group.module}>
+                <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  {group.label}
+                  {!group.engineLive ? (
+                    <span className="ml-1 font-normal normal-case text-amber-600">(configure only)</span>
+                  ) : null}
+                </p>
+                <ul className="mb-3 space-y-1">
+                  {group.rules.map((rule) => (
+                    <li key={rule.id}>
+                      <button
+                        type="button"
+                        onClick={() => openRule(rule.id)}
+                        className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${
+                          rule.id === activeId
+                            ? "bg-[#fdf2f8] font-medium text-[#b51266] ring-1 ring-[#f9a8d4]/60"
+                            : "text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="block truncate">{rule.name}</span>
+                        <span className="mt-0.5 block truncate text-xs text-slate-500">
+                          {rule.active ? "Active" : "Inactive"} · {rule.triggerEvent.split(".").slice(1).join(" ")}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </aside>
 
         {record ? (
@@ -258,21 +301,36 @@ export function TaskAutomationsAdminView() {
                     Active
                   </label>
                 </Field>
+                <Field label="Rule type">
+                  <select
+                    className={inputClass}
+                    value={record.module}
+                    onChange={(e) => changeModule(e.target.value as TaskAutomationModule)}
+                  >
+                    {TASK_AUTOMATION_MODULES.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {TASK_AUTOMATION_MODULES.find((m) => m.value === record.module)?.description}
+                    {!engineLive ? " Rules for this type can be saved now; automatic task creation is not live yet." : null}
+                  </p>
+                </Field>
                 <Field label="Trigger">
                   <select
                     className={inputClass}
                     value={record.triggerEvent}
                     onChange={(e) => patch({ triggerEvent: e.target.value as TaskAutomationTriggerEvent })}
                   >
-                    {TASK_AUTOMATION_TRIGGER_OPTIONS.map((opt) => (
+                    {moduleTriggers.map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {TASK_AUTOMATION_TRIGGER_OPTIONS.find((o) => o.value === record.triggerEvent)?.hint}
-                  </p>
+                  {triggerHint ? <p className="mt-1 text-xs text-slate-500">{triggerHint}</p> : null}
                 </Field>
                 <Field label="Assign to role">
                   <select
@@ -364,6 +422,7 @@ export function TaskAutomationsAdminView() {
                 </Field>
               </div>
 
+              {record.module === "incidents" ? (
               <div className="mt-6 grid gap-4 border-t border-slate-100 pt-6 md:grid-cols-2">
                 <Field label="Conditions — reportable only">
                   <select
@@ -439,6 +498,7 @@ export function TaskAutomationsAdminView() {
                   </Field>
                 </div>
               </div>
+              ) : null}
 
               <div className="mt-6 grid gap-4 border-t border-slate-100 pt-6">
                 <Field
@@ -462,6 +522,7 @@ export function TaskAutomationsAdminView() {
               </div>
             </section>
 
+            {record.module === "incidents" && engineLive ? (
             <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-lg font-semibold text-slate-900">Preview</h2>
               <div className="mb-4 grid gap-4 md:grid-cols-2">
@@ -494,6 +555,16 @@ export function TaskAutomationsAdminView() {
                   : "Dry run: this rule would not fire for the selected incident (trigger or conditions not met, or dedupe would skip)."}
               </p>
             </section>
+            ) : record.module !== "incidents" || !engineLive ? (
+              <section className="rounded-xl border border-amber-100 bg-amber-50/50 p-6 shadow-sm ring-1 ring-amber-200/60">
+                <h2 className="mb-2 text-lg font-semibold text-slate-900">Preview not available</h2>
+                <p className="text-sm text-slate-600">
+                  Live preview and dry run are available for <strong>Incident</strong> rules while that rule type is
+                  active in the engine. You can still save {taskAutomationModuleLabel(record.module)} rules to prepare
+                  for a future release.
+                </p>
+              </section>
+            ) : null}
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-sm text-slate-500">

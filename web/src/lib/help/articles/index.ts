@@ -1,4 +1,5 @@
 import { quickTaskArticles } from "@/lib/help/articles/quick-tasks";
+import { taskAutomationsArticle } from "@/lib/help/articles/task-automations";
 import { adminArticle, maintainingGuideArticle, reportsArticle, servicesArticle } from "@/lib/help/articles/services-admin";
 import { clientsArticle, locationsArticle } from "@/lib/help/articles/clients-locations";
 import { enquiriesArticle, tasksArticle } from "@/lib/help/articles/core";
@@ -22,6 +23,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   servicesArticle,
   reportsArticle,
   adminArticle,
+  taskAutomationsArticle,
   maintainingGuideArticle,
 ];
 

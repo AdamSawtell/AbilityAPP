@@ -107,14 +107,17 @@ export const adminArticle: HelpArticle = {
     "/admin/reference-data",
     "/admin/roles",
     "/admin/task-management",
+    "/admin/task-automations",
+    "/help/task-automations",
   ],
   windowKeys: [
     "admin-organization",
     "admin-reference-data",
     "admin-roles",
     "admin-task-management",
+    "admin-task-automations",
   ],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-17",
   sections: [
     {
       id: "organisation",
@@ -156,6 +159,13 @@ export const adminArticle: HelpArticle = {
       body: "Define task types such as Review, Check, Approve, and custom types used when creating tasks.",
       relatedRoutes: ["/admin/task-management"],
       windowKeys: ["admin-task-management"],
+    },
+    {
+      id: "task-automations",
+      title: "Task automations",
+      body: "Configure rules that create tasks for a role when something happens in the system. See Help → Task automations for the full how-to guide.",
+      relatedRoutes: ["/admin/task-automations", "/help/task-automations"],
+      windowKeys: ["admin-task-automations"],
     },
   ],
 };

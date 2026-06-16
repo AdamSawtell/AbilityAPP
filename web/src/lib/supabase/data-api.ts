@@ -20,6 +20,7 @@ import type { TaskRecord, TaskUpdate } from "@/lib/task";
 import { normalizeTask } from "@/lib/task";
 import {
   normalizeTaskAutomation,
+  normalizeAutomationModule,
   type TaskAutomationConditions,
   type TaskAutomationDedupePolicy,
   type TaskAutomationRecord,
@@ -1235,7 +1236,7 @@ function taskAutomationFromRow(row: TaskAutomationRow): TaskAutomationRecord {
     id: row.id,
     name: row.name,
     active: row.active,
-    module: row.module as TaskAutomationRecord["module"],
+    module: normalizeAutomationModule(row.module) as TaskAutomationRecord["module"],
     triggerEvent: row.trigger_event as TaskAutomationTriggerEvent,
     conditions: (row.conditions ?? {}) as TaskAutomationConditions,
     taskTypeId: row.task_type_id,

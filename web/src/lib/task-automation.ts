@@ -1,9 +1,13 @@
 /**
  * Task automation — configurable rules that create tasks on system events.
- * Phase 1: incidents module; role assignment; seeded rules (no admin UI yet).
  */
 
-export type TaskAutomationModule = "incidents";
+export type TaskAutomationModule =
+  | "enquiries"
+  | "clients"
+  | "locations"
+  | "employees"
+  | "incidents";
 
 export type TaskAutomationTriggerEvent =
   | "incident.created"
@@ -11,9 +15,81 @@ export type TaskAutomationTriggerEvent =
   | "incident.reportable_set"
   | "incident.status_changed"
   | "incident.ndis_overdue"
-  | "incident.investigation_overdue";
+  | "incident.investigation_overdue"
+  | "enquiry.created"
+  | "enquiry.status_changed"
+  | "client.created"
+  | "client.updated"
+  | "client.alert_added"
+  | "location.created"
+  | "location.alert_added"
+  | "employee.created"
+  | "employee.credential_expiring";
 
 export type TaskAutomationDedupePolicy = "one_open_per_entity" | "once_ever" | "none";
+
+export type TaskAutomationModuleMeta = {
+  value: TaskAutomationModule;
+  label: string;
+  description: string;
+  /** When false, triggers are shown in admin but the engine does not run them yet. */
+  engineLive: boolean;
+};
+
+export const TASK_AUTOMATION_MODULES: TaskAutomationModuleMeta[] = [
+  {
+    value: "enquiries",
+    label: "Enquiry",
+    description: "Intake and enquiry workflow",
+    engineLive: false,
+  },
+  {
+    value: "clients",
+    label: "Client",
+    description: "Support receiver records, alerts, and plans",
+    engineLive: false,
+  },
+  {
+    value: "locations",
+    label: "Location",
+    description: "Support locations and site alerts",
+    engineLive: false,
+  },
+  {
+    value: "employees",
+    label: "Employee",
+    description: "Staff records and compliance",
+    engineLive: false,
+  },
+  {
+    value: "incidents",
+    label: "Incident",
+    description: "Incident reports, NDIS deadlines, and investigation SLA",
+    engineLive: true,
+  },
+];
+
+const MODULE_ORDER = new Map<TaskAutomationModule, number>(
+  TASK_AUTOMATION_MODULES.map((m, i) => [m.value, i])
+);
+
+export function taskAutomationModuleLabel(module: TaskAutomationModule): string {
+  return TASK_AUTOMATION_MODULES.find((m) => m.value === module)?.label ?? module;
+}
+
+export function normalizeAutomationModule(value: string | undefined | null): TaskAutomationModule {
+  const v = (value ?? "").trim() as TaskAutomationModule;
+  if (TASK_AUTOMATION_MODULES.some((m) => m.value === v)) return v;
+  return "incidents";
+}
+
+export function moduleForTrigger(trigger: TaskAutomationTriggerEvent): TaskAutomationModule {
+  if (trigger.startsWith("enquiry.")) return "enquiries";
+  if (trigger.startsWith("client.")) return "clients";
+  if (trigger.startsWith("location.")) return "locations";
+  if (trigger.startsWith("employee.")) return "employees";
+  return "incidents";
+}
 
 export type TaskAutomationConditions = {
   isReportable?: boolean;
@@ -47,8 +123,15 @@ export const TASK_AUTOMATION_SCHEDULED_BATCH_LIMIT = 50;
 export const TASK_AUTOMATION_SCHEDULED_STORAGE_KEY = "abilityapp-task-automation-scheduled-at";
 
 export function normalizeTaskAutomation(raw: TaskAutomationRecord): TaskAutomationRecord {
+  const ruleModule = normalizeAutomationModule(raw.module);
+  const triggers = triggersForModule(ruleModule);
+  const triggerEvent = triggers.some((t) => t.value === raw.triggerEvent)
+    ? raw.triggerEvent
+    : (triggers[0]?.value ?? "incident.created");
   return {
     ...raw,
+    module: ruleModule,
+    triggerEvent,
     conditions: raw.conditions ?? {},
     priority: raw.priority ?? "Normal",
     dedupePolicy: raw.dedupePolicy ?? "one_open_per_entity",
@@ -148,18 +231,71 @@ export function newTaskAutomationId(): string {
   return `tar-${Date.now()}-${automationSeq}`;
 }
 
-export const TASK_AUTOMATION_TRIGGER_OPTIONS: { value: TaskAutomationTriggerEvent; label: string; hint: string }[] = [
-  { value: "incident.created", label: "Incident created", hint: "When a new incident is saved" },
-  { value: "incident.updated", label: "Incident updated", hint: "Any incident save (use conditions to narrow)" },
-  { value: "incident.reportable_set", label: "Marked reportable", hint: "When isReportable becomes true" },
-  { value: "incident.status_changed", label: "Status changed", hint: "When incident status changes" },
-  { value: "incident.ndis_overdue", label: "NDIS notification overdue", hint: "Scheduled — reportable, not notified, past deadline" },
+export const TASK_AUTOMATION_TRIGGER_OPTIONS: {
+  value: TaskAutomationTriggerEvent;
+  label: string;
+  hint: string;
+  module: TaskAutomationModule;
+}[] = [
+  { value: "enquiry.created", label: "Enquiry created", hint: "When a new enquiry is saved", module: "enquiries" },
+  {
+    value: "enquiry.status_changed",
+    label: "Enquiry status changed",
+    hint: "When enquiry status changes",
+    module: "enquiries",
+  },
+  { value: "client.created", label: "Client created", hint: "When a client record is first saved", module: "clients" },
+  { value: "client.updated", label: "Client updated", hint: "Any client save", module: "clients" },
+  {
+    value: "client.alert_added",
+    label: "Client alert added",
+    hint: "When a new alert line is added to a client",
+    module: "clients",
+  },
+  {
+    value: "location.created",
+    label: "Location created",
+    hint: "When a support location is created",
+    module: "locations",
+  },
+  {
+    value: "location.alert_added",
+    label: "Location alert added",
+    hint: "When a new alert line is added to a location",
+    module: "locations",
+  },
+  {
+    value: "employee.created",
+    label: "Employee created",
+    hint: "When a new employee record is saved",
+    module: "employees",
+  },
+  {
+    value: "employee.credential_expiring",
+    label: "Credential expiring",
+    hint: "Scheduled — credential or document nearing expiry",
+    module: "employees",
+  },
+  { value: "incident.created", label: "Incident created", hint: "When a new incident is saved", module: "incidents" },
+  { value: "incident.updated", label: "Incident updated", hint: "Any incident save (use conditions to narrow)", module: "incidents" },
+  { value: "incident.reportable_set", label: "Marked reportable", hint: "When isReportable becomes true", module: "incidents" },
+  { value: "incident.status_changed", label: "Status changed", hint: "When incident status changes", module: "incidents" },
+  { value: "incident.ndis_overdue", label: "NDIS notification overdue", hint: "Scheduled — reportable, not notified, past deadline", module: "incidents" },
   {
     value: "incident.investigation_overdue",
     label: "Investigation SLA breached",
     hint: "Scheduled — open past organisation investigation SLA",
+    module: "incidents",
   },
 ];
+
+export function triggersForModule(module: TaskAutomationModule) {
+  return TASK_AUTOMATION_TRIGGER_OPTIONS.filter((t) => t.module === module);
+}
+
+export function isModuleEngineLive(module: TaskAutomationModule): boolean {
+  return TASK_AUTOMATION_MODULES.find((m) => m.value === module)?.engineLive ?? false;
+}
 
 export const TASK_AUTOMATION_DEDUPE_OPTIONS: { value: TaskAutomationDedupePolicy; label: string }[] = [
   { value: "one_open_per_entity", label: "One open task per record" },
@@ -178,5 +314,48 @@ export const TASK_AUTOMATION_TEMPLATE_PLACEHOLDERS = [
 ];
 
 export function sortTaskAutomations(rules: TaskAutomationRecord[]): TaskAutomationRecord[] {
-  return [...rules].sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
+  return [...rules].sort((a, b) => {
+    const ma = MODULE_ORDER.get(a.module) ?? 99;
+    const mb = MODULE_ORDER.get(b.module) ?? 99;
+    if (ma !== mb) return ma - mb;
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+export type TaskAutomationModuleGroup = {
+  module: TaskAutomationModule;
+  label: string;
+  engineLive: boolean;
+  rules: TaskAutomationRecord[];
+};
+
+export function groupTaskAutomationsByModule(rules: TaskAutomationRecord[]): TaskAutomationModuleGroup[] {
+  const sorted = sortTaskAutomations(rules);
+  const groups: TaskAutomationModuleGroup[] = [];
+
+  for (const meta of TASK_AUTOMATION_MODULES) {
+    const moduleRules = sorted.filter((r) => r.module === meta.value);
+    if (moduleRules.length) {
+      groups.push({
+        module: meta.value,
+        label: meta.label,
+        engineLive: meta.engineLive,
+        rules: moduleRules,
+      });
+    }
+  }
+
+  const known = new Set(TASK_AUTOMATION_MODULES.map((m) => m.value));
+  const orphan = sorted.filter((r) => !known.has(r.module));
+  if (orphan.length) {
+    groups.push({
+      module: "incidents",
+      label: "Other",
+      engineLive: false,
+      rules: orphan,
+    });
+  }
+
+  return groups;
 }
