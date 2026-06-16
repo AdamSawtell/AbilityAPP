@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth-store";
+import { ACCESS_WINDOWS } from "@/lib/access/catalog";
 import { useData } from "@/lib/data-store";
 import { incidentHomeStats } from "@/lib/incident-hub";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
@@ -32,38 +33,14 @@ const serviceLinks = [
   { href: "/contracts", label: "Contracts", windowKey: "contracts", match: (path: string) => path.startsWith("/contracts") },
 ];
 
-const adminLinks = [
-  {
-    href: "/admin/organization",
-    label: "Organisation",
-    windowKey: "admin-organization",
-    match: (path: string) => path.startsWith("/admin/organization"),
-  },
-  {
-    href: "/admin/reference-data",
-    label: "Reference data",
-    windowKey: "admin-reference-data",
-    match: (path: string) => path.startsWith("/admin/reference-data"),
-  },
-  {
-    href: "/admin/roles",
-    label: "Roles",
-    windowKey: "admin-roles",
-    match: (path: string) => path.startsWith("/admin/roles"),
-  },
-  {
-    href: "/admin/task-management",
-    label: "Task management",
-    windowKey: "admin-task-management",
-    match: (path: string) => path.startsWith("/admin/task-management"),
-  },
-  {
-    href: "/admin/ai-agents",
-    label: "AI assistants",
-    windowKey: "admin-ai-agents",
-    match: (path: string) => path.startsWith("/admin/ai-agents"),
-  },
-];
+const adminLinks = ACCESS_WINDOWS.filter(
+  (w) => w.group === "Admin" && w.showInSidebar !== false && w.href
+).map((w) => ({
+  href: w.href!,
+  label: w.label,
+  windowKey: w.key,
+  match: (path: string) => path.startsWith(w.href!),
+}));
 
 function NavIcon({ name }: { name: string }) {
   if (name === "home") {
