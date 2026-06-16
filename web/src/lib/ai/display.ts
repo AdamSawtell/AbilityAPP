@@ -54,6 +54,22 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
       continue;
     }
 
+    if (entry.name === "incident_search") {
+      attachments.push({
+        type: "table",
+        title: "Incidents",
+        columns: ["Document", "Title", "Status", "NDIS"],
+        rows: results.slice(0, 8).map((r) => ({
+          Document: String(r.documentNo ?? "—"),
+          Title: String(r.title ?? "—"),
+          Status: String(r.status ?? "—"),
+          NDIS: r.isReportable ? String(r.reportableType ?? "Reportable") : "No",
+          href: String(r.href ?? ""),
+        })),
+      });
+      continue;
+    }
+
     if (entry.name === "enquiry_search") {
       attachments.push({
         type: "table",

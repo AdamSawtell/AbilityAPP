@@ -235,7 +235,7 @@ export function HomeDashboard() {
       ) : null}
 
       {session ? (
-        <HomeCalendar tasks={tasks} session={session} users={users} employees={employees} />
+        <HomeCalendar tasks={tasks} incidents={incidents} session={session} users={users} employees={employees} />
       ) : null}
 
       <div className={`grid gap-6 ${showEmployees && showIncidents ? "lg:grid-cols-4" : showEmployees || showIncidents ? "lg:grid-cols-3" : "lg:grid-cols-2"}`}>

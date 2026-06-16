@@ -238,17 +238,20 @@ values
   ('role-admin', 'tasks-all'),
   ('role-admin', 'incident-register'),
   ('role-admin', 'ndis-reportable-incidents'),
+  ('role-admin', 'incident-compliance-digest'),
   ('role-intake', 'client-register'),
   ('role-intake', 'enquiry-register'),
   ('role-intake', 'location-register'),
   ('role-intake', 'tasks-all'),
   ('role-intake', 'incident-register'),
   ('role-intake', 'ndis-reportable-incidents'),
+  ('role-intake', 'incident-compliance-digest'),
   ('role-coordinator', 'client-register'),
   ('role-coordinator', 'location-register'),
   ('role-coordinator', 'tasks-all'),
   ('role-coordinator', 'incident-register'),
-  ('role-coordinator', 'ndis-reportable-incidents')
+  ('role-coordinator', 'ndis-reportable-incidents'),
+  ('role-coordinator', 'incident-compliance-digest')
 on conflict do nothing;
 
 delete from public.app_role_task_type where role_id in ('role-admin', 'role-intake', 'role-coordinator');

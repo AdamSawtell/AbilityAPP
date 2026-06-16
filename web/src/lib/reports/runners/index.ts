@@ -12,6 +12,7 @@ import {
   buildIncidentRegisterReport,
   buildNdisReportableIncidentsReport,
 } from "@/lib/reports/runners/incident-register";
+import { buildIncidentComplianceDigestReport } from "@/lib/reports/runners/incident-compliance-digest";
 import { buildLocationRegisterReport } from "@/lib/reports/runners/location-register";
 import { buildTasksAllReport } from "@/lib/reports/runners/tasks-all";
 import type { TaskRecord } from "@/lib/task";
@@ -41,6 +42,8 @@ export function runReport(reportId: string, ctx: ReportDataContext): ReportResul
       return buildIncidentRegisterReport(ctx.incidents);
     case "ndis-reportable-incidents":
       return buildNdisReportableIncidentsReport(ctx.incidents);
+    case "incident-compliance-digest":
+      return buildIncidentComplianceDigestReport(ctx.incidents);
     case "tasks-all":
       return buildTasksAllReport(ctx.tasks, ctx.users, ctx.roles);
     default:

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { IncidentNdisChecklist } from "@/components/incident-ndis-checklist";
 import { useAuth } from "@/lib/auth-store";
@@ -13,6 +13,7 @@ import {
   buildNdisReportableIncidentsReport,
   NDIS_REPORTABLE_COLUMNS,
 } from "@/lib/reports/runners/incident-register";
+import { buildIncidentComplianceDigest } from "@/lib/reports/runners/incident-compliance-digest";
 
 function exportNdisCsv(incidents: IncidentRecord[]) {
   const result = buildNdisReportableIncidentsReport(incidents);
@@ -24,6 +25,10 @@ function exportNdisCsv(incidents: IncidentRecord[]) {
 export function IncidentCompliancePage() {
   const { incidents } = useData();
   const { canReport } = useAuth();
+  const [digestText, setDigestText] = useState<string | null>(null);
+  const [digestLoading, setDigestLoading] = useState(false);
+
+  const digest = useMemo(() => buildIncidentComplianceDigest(incidents), [incidents]);
 
   const reportable = useMemo(() => incidents.filter((i) => i.isReportable), [incidents]);
   const openReportable = useMemo(
@@ -35,6 +40,19 @@ export function IncidentCompliancePage() {
     () => openReportable.filter((i) => !ndisChecklistProgress(i).complete),
     [openReportable]
   );
+
+  async function loadDigestPreview() {
+    setDigestLoading(true);
+    try {
+      const res = await fetch("/api/incidents/compliance-digest?format=text", { credentials: "include" });
+      const text = await res.text();
+      setDigestText(res.ok ? text : "Could not load digest.");
+    } catch {
+      setDigestText("Could not load digest.");
+    } finally {
+      setDigestLoading(false);
+    }
+  }
 
   return (
     <AppShell
@@ -88,6 +106,48 @@ export function IncidentCompliancePage() {
           <p className="mt-1 text-3xl font-semibold text-slate-900">{incomplete.length}</p>
         </div>
       </div>
+
+      <section className="mb-8 rounded-xl border border-slate-200 bg-slate-50/80 p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="font-semibold text-slate-900">Compliance digest</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Summary for managers and scheduled email jobs. API:{" "}
+              <code className="rounded bg-white px-1.5 py-0.5 text-xs">/api/incidents/compliance-digest</code>
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {canReport("incident-compliance-digest") ? (
+              <Link
+                href="/reports/incident-compliance-digest"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Export digest CSV
+              </Link>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => void loadDigestPreview()}
+              disabled={digestLoading}
+              className="rounded-lg bg-[#d4147a] px-3 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-50"
+            >
+              {digestLoading ? "Loading…" : "Preview digest"}
+            </button>
+          </div>
+        </div>
+        <ul className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+          {digest.sections.map((section) => (
+            <li key={section.label} className="rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">
+              <span className="font-medium text-slate-900">{section.label}</span>: {section.count}
+            </li>
+          ))}
+        </ul>
+        {digestText ? (
+          <pre className="mt-4 max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-700 whitespace-pre-wrap">
+            {digestText}
+          </pre>
+        ) : null}
+      </section>
 
       {overdue.length > 0 ? (
         <section className="mb-8 rounded-xl border border-rose-200 bg-rose-50/50 p-5">

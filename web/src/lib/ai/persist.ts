@@ -18,6 +18,10 @@ import { enquiryFromRow } from "@/lib/supabase/mappers";
 import { createTask, describeAssignee, logTaskUpdate, normalizeTask, type TaskRecord } from "@/lib/task";
 import { canActionTask } from "@/lib/task-access";
 import { canCreateTaskType } from "@/lib/task-type-access";
+import type { IncidentDraft } from "@/lib/ai/tools/incident-draft";
+import { incidentDraftToPartial } from "@/lib/ai/tools/incident-draft";
+import { createIncident, type IncidentRecord } from "@/lib/incident";
+import { fetchIncidents, saveIncident } from "@/lib/supabase/data-api";
 
 export type AiPersistResult<T> =
   | { ok: true; record: T; href?: string }
@@ -419,6 +423,31 @@ export async function persistAiTaskUpdate(
     return { ok: true, record: next, href: `/tasks/${next.id}` };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not update task";
+    return { ok: false, error: message };
+  }
+}
+
+export async function persistAiIncident(
+  supabase: SupabaseClient,
+  session: AuthSession,
+  draft: IncidentDraft
+): Promise<AiPersistResult<IncidentRecord>> {
+  if (!aiCanAccessWindow(session, "incidents")) {
+    return { ok: false, error: "Your role cannot report incidents." };
+  }
+
+  try {
+    const existing = await fetchIncidents(supabase);
+    const partial = incidentDraftToPartial(draft, session.displayName);
+    const created = createIncident(partial, existing);
+    await saveIncident(supabase, created);
+    return {
+      ok: true,
+      record: created,
+      href: `/incidents/${created.id}`,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not save incident";
     return { ok: false, error: message };
   }
 }

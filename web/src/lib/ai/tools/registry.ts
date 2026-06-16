@@ -346,6 +346,52 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
       parameters: { type: "object", properties: {} },
     },
   },
+  incident_search: {
+    type: "function",
+    function: {
+      name: "incident_search",
+      description: "Search incident reports by title, description, status, or NDIS reportable type.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string" },
+          status: { type: "string" },
+          reportableOnly: { type: "boolean" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  incident_draft_create: {
+    type: "function",
+    function: {
+      name: "incident_draft_create",
+      description: "Prepare an incident report draft for user confirmation before saving.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+          severity: { type: "string", enum: ["Low", "Medium", "High", "Critical"] },
+          category: { type: "string" },
+          isReportable: { type: "boolean" },
+          reportableType: { type: "string" },
+          clientId: { type: "string" },
+          clientName: { type: "string" },
+          employeeId: { type: "string" },
+          locationId: { type: "string" },
+        },
+      },
+    },
+  },
+  incident_draft_confirm: {
+    type: "function",
+    function: {
+      name: "incident_draft_confirm",
+      description: "Confirm and save the pending incident draft to the database.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
 };
 
 export function toolsForAgent(agent: AiAgentRecord): ChatCompletionTool[] {

@@ -8,6 +8,10 @@ import {
 } from "@/lib/task-access";
 import { taskUrgency, type TaskUrgency } from "@/lib/task-hub";
 import type { TaskRecord } from "@/lib/task";
+import type { IncidentRecord } from "@/lib/incident";
+import { canAccessWindow } from "@/lib/access/catalog";
+import { openIncidentDeadlines } from "@/lib/incident-queries";
+import { formatDisplayDateTime } from "@/lib/incident";
 
 export type CalendarViewMode = "month" | "week" | "day";
 
@@ -18,7 +22,8 @@ export type PersonalCalendarEventKind =
   | "credential-expiry"
   | "document-expiry"
   | "visa-expiry"
-  | "licence-expiry";
+  | "licence-expiry"
+  | "incident-deadline";
 
 export type PersonalCalendarEvent = {
   id: string;
@@ -216,10 +221,32 @@ function leaveEvents(employee: EmployeeRecord): PersonalCalendarEvent[] {
   return events;
 }
 
+function incidentDeadlineEvents(
+  incidents: IncidentRecord[],
+  session: Pick<AuthSession, "windowKeys">
+): PersonalCalendarEvent[] {
+  if (!canAccessWindow(session.windowKeys, "incidents")) return [];
+
+  return openIncidentDeadlines(incidents).map((incident) => {
+    const deadlineDate = incident.reportDeadlineAt.slice(0, 10);
+    const overdue = new Date(incident.reportDeadlineAt).getTime() < Date.now();
+    return {
+      id: `incident-deadline-${incident.id}`,
+      date: deadlineDate,
+      kind: "incident-deadline" as const,
+      title: `NDIS due: ${incident.documentNo}`,
+      subtitle: incident.title || formatDisplayDateTime(incident.reportDeadlineAt),
+      href: `/incidents/${incident.id}?tab=Notifications`,
+      urgency: overdue ? "overdue" : "soon",
+    };
+  });
+}
+
 export function personalCalendarEvents(
   tasks: TaskRecord[],
   session: Pick<AuthSession, "userId" | "activeRoleId" | "windowKeys" | "taskTypePermissions">,
-  employee: EmployeeRecord | null
+  employee: EmployeeRecord | null,
+  incidents: IncidentRecord[] = []
 ): PersonalCalendarEvent[] {
   const taskEvents = personalTasksForSession(tasks, session)
     .map((task) => taskEvent(task, session))
@@ -228,7 +255,8 @@ export function personalCalendarEvents(
   const compliance = employee ? complianceEvents(employee) : [];
 
   const leave = employee ? leaveEvents(employee) : [];
-  return [...taskEvents, ...compliance, ...leave].sort(
+  const incidentDeadlines = incidentDeadlineEvents(incidents, session);
+  return [...taskEvents, ...compliance, ...leave, ...incidentDeadlines].sort(
     (a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title)
   );
 }
@@ -259,6 +287,8 @@ export function eventKindLabel(kind: PersonalCalendarEventKind): string {
       return "Visa";
     case "licence-expiry":
       return "Licence";
+    case "incident-deadline":
+      return "NDIS deadline";
     default:
       return "Event";
   }

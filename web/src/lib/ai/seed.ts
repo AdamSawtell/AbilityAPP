@@ -91,12 +91,28 @@ export const SEED_AGENTS: AiAgentRecord[] = [
       { type: "tool", key: "activity_search" },
     ],
   },
+  {
+    id: "agent-incidents",
+    agentKey: "incidents",
+    name: "Incident assistant",
+    description: "Search incidents and draft reportable incident submissions.",
+    systemPrompt:
+      "You are the AbilityAPP incident assistant. Help users search incident reports and draft new submissions for NDIS safeguard compliance.\n\nUse incident_search before guessing about existing incidents.\n\nTo report an incident: incident_draft_create → summarise → incident_draft_confirm only after explicit user approval.\n\nAsk one question at a time. Include document numbers and NDIS deadlines when relevant.",
+    model: "gpt-4o-mini",
+    active: true,
+    capabilities: [
+      { type: "tool", key: "help_search" },
+      { type: "tool", key: "incident_search" },
+      { type: "tool", key: "incident_draft_create" },
+      { type: "tool", key: "incident_draft_confirm" },
+    ],
+  },
 ];
 
 export const SEED_ROLE_AGENTS: Record<string, string[]> = {
-  "role-admin": ["agent-training", "agent-workspace", "agent-tasks", "agent-clients", "agent-enquiries"],
-  "role-intake": ["agent-training", "agent-workspace", "agent-clients", "agent-enquiries"],
-  "role-coordinator": ["agent-training", "agent-workspace", "agent-clients"],
+  "role-admin": ["agent-training", "agent-workspace", "agent-tasks", "agent-clients", "agent-enquiries", "agent-incidents"],
+  "role-intake": ["agent-training", "agent-workspace", "agent-clients", "agent-enquiries", "agent-incidents"],
+  "role-coordinator": ["agent-training", "agent-workspace", "agent-clients", "agent-incidents"],
 };
 
 export function agentIdsForRole(roleId: string): string[] {

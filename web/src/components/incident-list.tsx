@@ -19,6 +19,7 @@ const toneClasses: Record<string, string> = {
   emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
   zinc: "bg-zinc-100 text-zinc-700 ring-zinc-200",
   rose: "bg-rose-50 text-rose-800 ring-rose-200",
+  violet: "bg-violet-50 text-violet-900 ring-violet-200",
 };
 
 function IncidentStatusBadge({ status }: { status: IncidentRecord["status"] }) {

@@ -4,6 +4,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LineItemTable } from "@/components/line-item-table";
 import { IncidentNdisChecklist } from "@/components/incident-ndis-checklist";
+import { IncidentEvidenceUpload } from "@/components/incident-evidence-upload";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { ClientRecordLink, EmployeeRecordLink, LocationRecordLink } from "@/components/record-link";
 import { TaskEntitySearchPicker } from "@/components/task-entity-search";
@@ -12,10 +13,13 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
   incidentActionTableConfig,
+  incidentEvidenceTableConfig,
   incidentNotificationTableConfig,
   incidentPartyTableConfig,
 } from "@/lib/incident-line-tables";
 import {
+  canAdvanceToCommissionNotified,
+  canAdvanceToManagerReview,
   computeNdisReportDeadline,
   formatDisplayDateTime,
   incidentCategoryOptions,
@@ -25,7 +29,9 @@ import {
   isNdisReportOverdue,
   ndisDeadlineLabel,
   ndisReportableTypeOptions,
+  showRestrictivePracticeLink,
   type IncidentActionRow,
+  type IncidentEvidenceRow,
   type IncidentNotificationRow,
   type IncidentPartyRow,
   type IncidentRecord,
@@ -152,12 +158,16 @@ export function IncidentTabbedView({
   onPartiesChange,
   onActionsChange,
   onNotificationsChange,
+  onEvidenceChange,
+  onWorkflowAdvance,
 }: {
   record: IncidentRecord;
   onChange: (key: keyof IncidentRecord, value: string | boolean) => void;
   onPartiesChange: (rows: IncidentPartyRow[]) => void;
   onActionsChange: (rows: IncidentActionRow[]) => void;
   onNotificationsChange: (rows: IncidentNotificationRow[]) => void;
+  onEvidenceChange: (rows: IncidentEvidenceRow[]) => void;
+  onWorkflowAdvance?: (step: "manager_review" | "commission_notified") => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -184,6 +194,7 @@ export function IncidentTabbedView({
   const primaryClient = clients.find((c) => c.id === record.primaryClientId);
   const primaryEmployee = employees.find((e) => e.id === record.primaryEmployeeId);
   const primaryLocation = locations.find((l) => l.id === record.primaryLocationId);
+  const clientRestrictivePractices = primaryClient?.restrictivePractices ?? [];
 
   function setActiveTab(tab: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -246,7 +257,7 @@ export function IncidentTabbedView({
                     tab === "Parties & links"
                       ? record.parties.length
                       : tab === "Investigation"
-                        ? record.actions.length + taskCount
+                        ? record.actions.length + record.evidence.length + taskCount
                         : tab === "Notifications"
                           ? record.notifications.length
                           : null;
@@ -295,6 +306,36 @@ export function IncidentTabbedView({
         {activeTab === "Overview" && canIncidentTab("Overview") ? (
           <div className="space-y-6">
             <NdisComplianceBanner record={record} />
+
+            {onWorkflowAdvance && record.status !== "Closed" && record.status !== "Draft" ? (
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Manager workflow</p>
+                {canAdvanceToManagerReview(record) ? (
+                  <button
+                    type="button"
+                    onClick={() => onWorkflowAdvance("manager_review")}
+                    className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-700"
+                  >
+                    Mark manager reviewed
+                  </button>
+                ) : null}
+                {canAdvanceToCommissionNotified(record) && record.status !== "Commission notified" ? (
+                  <button
+                    type="button"
+                    onClick={() => onWorkflowAdvance("commission_notified")}
+                    className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+                  >
+                    Mark commission notified
+                  </button>
+                ) : null}
+                {record.managerReviewedAt ? (
+                  <span className="text-xs text-slate-500">
+                    Manager reviewed {formatDisplayDateTime(record.managerReviewedAt)}
+                    {record.managerReviewedBy ? ` by ${record.managerReviewedBy}` : ""}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Title" className="sm:col-span-2">
@@ -448,6 +489,25 @@ export function IncidentTabbedView({
                       placeholder="Portal reference or case ID"
                     />
                   </Field>
+                  {showRestrictivePracticeLink(record) && primaryClient ? (
+                    <Field label="Linked restrictive practice (client register)" className="sm:col-span-2">
+                      <select
+                        className={inputClass}
+                        value={record.linkedRestrictivePracticeId}
+                        onChange={(e) => onChange("linkedRestrictivePracticeId", e.target.value)}
+                      >
+                        <option value="">Select restrictive practice row…</option>
+                        {clientRestrictivePractices.map((rp) => (
+                          <option key={rp.id} value={rp.id}>
+                            {rp.name || rp.practiceType} ({rp.validFrom || "no start date"})
+                          </option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Links this incident to the client&apos;s restrictive practice register for audit traceability.
+                      </p>
+                    </Field>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -577,6 +637,26 @@ export function IncidentTabbedView({
               onChange={onActionsChange}
               dropdowns={incidentDropdowns}
             />
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-900">Evidence attachments</h3>
+              <IncidentEvidenceUpload
+                incidentId={record.id}
+                uploadedBy={session?.displayName ?? record.updatedBy}
+                onUploaded={(row) =>
+                  onEvidenceChange([
+                    ...record.evidence,
+                    { ...row, lineNo: record.evidence.length + 1 },
+                  ])
+                }
+              />
+              <LineItemTable
+                config={incidentEvidenceTableConfig}
+                rows={record.evidence}
+                onChange={onEvidenceChange}
+                dropdowns={incidentDropdowns}
+              />
+            </div>
 
             <RecordTasksPanel entityType="incident" entityId={record.id} entityLabel={record.documentNo} />
           </div>

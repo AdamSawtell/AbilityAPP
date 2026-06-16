@@ -72,6 +72,21 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     label: "Confirm client activity",
     description: "Save a pending client activity note after explicit approval.",
   },
+  {
+    key: "incident_search",
+    label: "Incident search",
+    description: "Find incident reports by title, status, or NDIS fields.",
+  },
+  {
+    key: "incident_draft_create",
+    label: "Create incident draft",
+    description: "Prepare an incident report for user confirmation.",
+  },
+  {
+    key: "incident_draft_confirm",
+    label: "Confirm incident draft",
+    description: "Save a pending incident draft after explicit approval.",
+  },
 ];
 
 export const AI_MODEL_OPTIONS = [

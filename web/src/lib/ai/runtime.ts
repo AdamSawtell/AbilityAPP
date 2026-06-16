@@ -28,6 +28,9 @@ import {
   runEnquiryConvertDraftConfirm,
   runEnquiryConvertDraftCreate,
 } from "@/lib/ai/tools/enquiry-convert";
+import { runIncidentSearch } from "@/lib/ai/tools/incident-search";
+import { runIncidentDraftConfirm, runIncidentDraftCreate } from "@/lib/ai/tools/incident-draft";
+import { persistAiIncident } from "@/lib/ai/persist";
 
 const MAX_TOOL_ROUNDS = 6;
 
@@ -351,6 +354,45 @@ async function executeTool(
           kind: "enquiry_convert",
           label: out.client.name,
           href: out.href ?? `/clients/${out.client.searchKey}`,
+        },
+      };
+    }
+    case "incident_search": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runIncidentSearch(supabase, session, {
+          query: String(args.query ?? ""),
+          status: String(args.status ?? ""),
+          reportableOnly: Boolean(args.reportableOnly),
+          limit: Number(args.limit) || 15,
+        }),
+        threadState,
+      };
+    }
+    case "incident_draft_create": {
+      const out = await runIncidentDraftCreate(supabase, session, args, threadState);
+      return {
+        result: { draft: out.draft, summary: out.summary, note: out.message },
+        threadState: out.threadState,
+      };
+    }
+    case "incident_draft_confirm": {
+      const out = await runIncidentDraftConfirm(supabase, session, threadState, (draft) =>
+        persistAiIncident(supabase!, session, draft)
+      );
+      if (!out.incident) {
+        return { result: { note: out.message }, threadState: out.threadState };
+      }
+      return {
+        result: {
+          note: out.message,
+          incident: { id: out.incident.id, documentNo: out.incident.documentNo, title: out.incident.title },
+        },
+        threadState: out.threadState,
+        writeResult: {
+          kind: "incident",
+          label: `${out.incident.documentNo} — ${out.incident.title}`,
+          href: out.href ?? `/incidents/${out.incident.id}`,
         },
       };
     }

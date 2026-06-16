@@ -2,6 +2,7 @@ import type { ClientRecord } from "@/lib/client";
 import type { EnquiryRecord } from "@/lib/enquiry";
 import type { TaskRecord, TaskStatus } from "@/lib/task";
 import type { ClientActivityDraft } from "@/lib/ai/persist";
+import type { IncidentDraft } from "@/lib/ai/tools/incident-draft";
 import type { ClientPatchFields } from "@/lib/supabase/data-api";
 
 export type AiToolName =
@@ -27,7 +28,10 @@ export type AiToolName =
   | "enquiry_draft_create"
   | "enquiry_draft_confirm"
   | "enquiry_convert_draft_create"
-  | "enquiry_convert_draft_confirm";
+  | "enquiry_convert_draft_confirm"
+  | "incident_search"
+  | "incident_draft_create"
+  | "incident_draft_confirm";
 
 export type AiAgentCapability = {
   type: string;
@@ -121,10 +125,11 @@ export type ChatThreadState = {
   pendingClientActivityDraft?: ClientActivityDraft | null;
   pendingEnquiryDraft?: EnquiryDraft | null;
   pendingEnquiryConvertId?: string | null;
+  pendingIncidentDraft?: IncidentDraft | null;
 };
 
 export type AiWriteResult = {
-  kind: "client" | "task" | "client_activity" | "enquiry" | "client_patch" | "enquiry_convert" | "task_update";
+  kind: "client" | "task" | "client_activity" | "enquiry" | "client_patch" | "enquiry_convert" | "task_update" | "incident";
   label: string;
   href: string;
 };

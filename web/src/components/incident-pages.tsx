@@ -8,12 +8,15 @@ import { AppShell } from "@/components/app-shell";
 import { IncidentTabbedView } from "@/components/incident-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useData } from "@/lib/data-store";
+import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import {
+  advanceIncidentWorkflow,
   isNdisReportOverdue,
   ndisDeadlineLabel,
   statusTone,
   type IncidentActionRow,
+  type IncidentEvidenceRow,
   type IncidentNotificationRow,
   type IncidentPartyRow,
   type IncidentRecord,
@@ -25,6 +28,7 @@ const toneClasses: Record<string, string> = {
   emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
   zinc: "bg-zinc-100 text-zinc-700 ring-zinc-200",
   rose: "bg-rose-50 text-rose-800 ring-rose-200",
+  violet: "bg-violet-50 text-violet-900 ring-violet-200",
 };
 
 function IncidentTabbedViewFallback() {
@@ -35,6 +39,7 @@ export function IncidentDetailView({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const justSubmitted = searchParams.get("submitted") === "1";
   const { incidents, updateIncident } = useData();
+  const { session } = useAuth();
   const stored = incidents.find((r) => r.id === id);
   const [draft, setDraft] = useState<IncidentRecord | null>(null);
   const [saved, setSaved] = useState(false);
@@ -88,6 +93,18 @@ export function IncidentDetailView({ id }: { id: string }) {
     const base = draft ?? stored;
     if (!base) return;
     patch({ ...base, notifications: rows });
+  }
+
+  function onEvidenceChange(rows: IncidentEvidenceRow[]) {
+    const base = draft ?? stored;
+    if (!base) return;
+    patch({ ...base, evidence: rows });
+  }
+
+  function onWorkflowAdvance(step: "manager_review" | "commission_notified") {
+    const base = draft ?? stored;
+    if (!base || !session) return;
+    patch(advanceIncidentWorkflow(base, step, session.displayName));
   }
 
   function onSave() {
@@ -159,6 +176,8 @@ export function IncidentDetailView({ id }: { id: string }) {
               onPartiesChange={onPartiesChange}
               onActionsChange={onActionsChange}
               onNotificationsChange={onNotificationsChange}
+              onEvidenceChange={onEvidenceChange}
+              onWorkflowAdvance={onWorkflowAdvance}
             />
           </Suspense>
         </div>

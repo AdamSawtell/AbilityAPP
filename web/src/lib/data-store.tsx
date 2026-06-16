@@ -46,6 +46,9 @@ import {
 } from "@/lib/task";
 import { convertEnquiryToClient } from "@/lib/convert";
 import { syncClientsForIncident } from "@/lib/incident-client-sync";
+import { syncLocationsForIncident } from "@/lib/incident-location-sync";
+import { incidentsLinkedToClient, incidentsLinkedToEmployee } from "@/lib/incident-queries";
+import { syncClientsRestrictivePracticeForIncident } from "@/lib/incident-rp-sync";
 import {
   createIncident,
   initialIncidents as seedIncidents,
@@ -121,6 +124,8 @@ type DataStore = {
     toLabel: string
   ) => void;
   getTasksByEntity: (entityType: TaskEntityType, entityId: string) => TaskRecord[];
+  getIncidentsForClient: (clientId: string) => IncidentRecord[];
+  getIncidentsForEmployee: (employeeId: string) => IncidentRecord[];
   getTaskById: (id: string) => TaskRecord | undefined;
 };
 
@@ -348,6 +353,42 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [source]
   );
 
+  const persistIncidentRelatedRecords = useCallback(
+    (
+      incident: IncidentRecord,
+      before: IncidentRecord | undefined,
+      options?: { isCreate?: boolean; createdBy?: string }
+    ) => {
+      const prevClients = clientsRef.current;
+      let nextClients = syncClientsForIncident(prevClients, incident, before, options);
+      nextClients = syncClientsRestrictivePracticeForIncident(nextClients, incident, before);
+
+      const prevLocations = locationsRef.current;
+      const nextLocations = syncLocationsForIncident(prevLocations, incident, before, options);
+
+      if (nextClients !== prevClients) {
+        setClients(nextClients);
+        for (let i = 0; i < nextClients.length; i++) {
+          if (nextClients[i] === prevClients[i]) continue;
+          const beforeClient = prevClients[i];
+          const stampedClient = persistRecordAudit("client", nextClients[i], false, beforeClient);
+          void persistRemote((supabase) => saveClient(supabase, stampedClient));
+        }
+      }
+
+      if (nextLocations !== prevLocations) {
+        setLocations(nextLocations);
+        for (let i = 0; i < nextLocations.length; i++) {
+          if (nextLocations[i] === prevLocations[i]) continue;
+          const beforeLocation = prevLocations[i];
+          const stampedLocation = persistRecordAudit("location", nextLocations[i], false, beforeLocation);
+          void persistRemote((supabase) => saveLocation(supabase, stampedLocation));
+        }
+      }
+    },
+    [clientsRef, locationsRef, persistRemote]
+  );
+
   const addEnquiry = useCallback(
     (partial: EnquiryRecord) => {
       const prev = enquiriesRef.current;
@@ -377,25 +418,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const created = persistRecordAudit("incident", next, true);
       setIncidents((current) => [...current, created]);
 
-      const prevClients = clientsRef.current;
-      const nextClients = syncClientsForIncident(prevClients, created, undefined, {
+      persistIncidentRelatedRecords(created, undefined, {
         isCreate: true,
         createdBy: created.createdBy,
       });
-      if (nextClients !== prevClients) {
-        setClients(nextClients);
-        for (let i = 0; i < nextClients.length; i++) {
-          if (nextClients[i] === prevClients[i]) continue;
-          const before = prevClients[i];
-          const stamped = persistRecordAudit("client", nextClients[i], false, before);
-          void persistRemote((supabase) => saveClient(supabase, stamped));
-        }
-      }
 
       void persistRemote((supabase) => saveIncident(supabase, created));
       return created;
     },
-    [persistRemote, incidentsRef, clientsRef]
+    [persistRemote, incidentsRef, persistIncidentRelatedRecords]
   );
 
   const updateIncident = useCallback(
@@ -404,21 +435,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const stamped = persistRecordAudit("incident", normalizeIncident(record), false, before, audit);
       setIncidents((prev) => prev.map((i) => (i.id === stamped.id ? stamped : i)));
 
-      const prevClients = clientsRef.current;
-      const nextClients = syncClientsForIncident(prevClients, stamped, before);
-      if (nextClients !== prevClients) {
-        setClients(nextClients);
-        for (let i = 0; i < nextClients.length; i++) {
-          if (nextClients[i] === prevClients[i]) continue;
-          const beforeClient = prevClients[i];
-          const stampedClient = persistRecordAudit("client", nextClients[i], false, beforeClient);
-          void persistRemote((supabase) => saveClient(supabase, stampedClient));
-        }
-      }
+      persistIncidentRelatedRecords(stamped, before);
 
       void persistRemote((supabase) => saveIncident(supabase, stamped));
     },
-    [persistRemote, incidentsRef, clientsRef]
+    [persistRemote, incidentsRef, persistIncidentRelatedRecords]
   );
 
   const upsertClient = useCallback(
@@ -688,6 +709,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [tasks]
   );
 
+  const getIncidentsForClient = useCallback(
+    (clientId: string) => incidentsLinkedToClient(incidents, clientId),
+    [incidents]
+  );
+
+  const getIncidentsForEmployee = useCallback(
+    (employeeId: string) => incidentsLinkedToEmployee(incidents, employeeId),
+    [incidents]
+  );
+
   const getTaskById = useCallback((id: string) => tasks.find((t) => t.id === id), [tasks]);
 
   const value = useMemo(
@@ -731,6 +762,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       mutateTask,
       relinkEntityTasks,
       getTasksByEntity,
+      getIncidentsForClient,
+      getIncidentsForEmployee,
       getTaskById,
     }),
     [
@@ -773,6 +806,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       mutateTask,
       relinkEntityTasks,
       getTasksByEntity,
+      getIncidentsForClient,
+      getIncidentsForEmployee,
       getTaskById,
     ]
   );

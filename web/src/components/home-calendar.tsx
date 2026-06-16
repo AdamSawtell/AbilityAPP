@@ -23,6 +23,7 @@ import {
   weekDays,
 } from "@/lib/personal-calendar";
 import type { TaskRecord } from "@/lib/task";
+import type { IncidentRecord } from "@/lib/incident";
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -44,6 +45,8 @@ function eventStyles(event: PersonalCalendarEvent): string {
     case "visa-expiry":
     case "licence-expiry":
       return "bg-amber-50 text-amber-900 ring-amber-200 hover:bg-amber-100";
+    case "incident-deadline":
+      return "bg-rose-50 text-rose-900 ring-rose-200 hover:bg-rose-100";
     default:
       return "bg-slate-50 text-slate-800 ring-slate-200 hover:bg-slate-100";
   }
@@ -98,11 +101,13 @@ function DayEventList({ events, emptyLabel }: { events: PersonalCalendarEvent[];
 
 export function HomeCalendar({
   tasks,
+  incidents,
   session,
   users,
   employees,
 }: {
   tasks: TaskRecord[];
+  incidents: IncidentRecord[];
   session: AuthSession;
   users: AppUserRecord[];
   employees: EmployeeRecord[];
@@ -114,8 +119,8 @@ export function HomeCalendar({
   const employee = useMemo(() => employeeForUser(users, employees, session.userId), [users, employees, session.userId]);
 
   const events = useMemo(
-    () => personalCalendarEvents(tasks, session, employee),
-    [tasks, session, employee]
+    () => personalCalendarEvents(tasks, session, employee, incidents),
+    [tasks, session, employee, incidents]
   );
 
   const byDate = useMemo(() => eventsByDate(events), [events]);
@@ -160,6 +165,7 @@ export function HomeCalendar({
           <p className="mt-0.5 text-sm text-slate-500">
             Tasks for you and {session.activeRoleName}
             {employee ? " · your credentials and documents" : ""}
+            {incidents.length ? " · NDIS incident deadlines" : ""}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

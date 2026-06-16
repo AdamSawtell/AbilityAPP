@@ -18,6 +18,7 @@ import type { EnquiryRecord } from "@/lib/enquiry";
 import { normalizeEnquiry } from "@/lib/enquiry";
 import type {
   IncidentActionRow,
+  IncidentEvidenceRow,
   IncidentNotificationRow,
   IncidentPartyRow,
   IncidentRecord,
@@ -1597,6 +1598,9 @@ export type IncidentRow = {
   primary_client_id: string | null;
   primary_employee_id: string | null;
   primary_location_id: string | null;
+  linked_restrictive_practice_id: string | null;
+  manager_reviewed_at: string | null;
+  manager_reviewed_by: string;
   description: string;
   immediate_actions: string;
   investigation_summary: string;
@@ -1641,11 +1645,26 @@ export type IncidentNotificationRowDb = {
   notes: string;
 };
 
+export type IncidentEvidenceRowDb = {
+  id: string;
+  incident_id: string;
+  line_no: number;
+  action_id: string;
+  file_name: string;
+  file_url: string;
+  storage_path: string;
+  mime_type: string;
+  uploaded_at: string | null;
+  uploaded_by: string;
+  notes: string;
+};
+
 export function incidentFromRow(
   row: IncidentRow,
   parties: IncidentPartyRowDb[] = [],
   actions: IncidentActionRowDb[] = [],
-  notifications: IncidentNotificationRowDb[] = []
+  notifications: IncidentNotificationRowDb[] = [],
+  evidence: IncidentEvidenceRowDb[] = []
 ): IncidentRecord {
   return normalizeIncident({
     id: row.id,
@@ -1666,6 +1685,9 @@ export function incidentFromRow(
     primaryClientId: row.primary_client_id ?? "",
     primaryEmployeeId: row.primary_employee_id ?? "",
     primaryLocationId: row.primary_location_id ?? "",
+    linkedRestrictivePracticeId: row.linked_restrictive_practice_id ?? "",
+    managerReviewedAt: row.manager_reviewed_at ?? "",
+    managerReviewedBy: row.manager_reviewed_by ?? "",
     description: row.description,
     immediateActions: row.immediate_actions,
     investigationSummary: row.investigation_summary,
@@ -1708,6 +1730,20 @@ export function incidentFromRow(
         notes: n.notes,
       })
     ),
+    evidence: evidence.map(
+      (e): IncidentEvidenceRow => ({
+        id: e.id,
+        lineNo: e.line_no,
+        actionId: e.action_id,
+        fileName: e.file_name,
+        fileUrl: e.file_url,
+        storagePath: e.storage_path,
+        mimeType: e.mime_type,
+        uploadedAt: e.uploaded_at ?? "",
+        uploadedBy: e.uploaded_by,
+        notes: e.notes,
+      })
+    ),
   });
 }
 
@@ -1732,6 +1768,11 @@ export function incidentToRow(record: IncidentRecord): IncidentRow {
     primary_client_id: normalized.primaryClientId?.trim() ? normalized.primaryClientId : null,
     primary_employee_id: normalized.primaryEmployeeId?.trim() ? normalized.primaryEmployeeId : null,
     primary_location_id: normalized.primaryLocationId?.trim() ? normalized.primaryLocationId : null,
+    linked_restrictive_practice_id: normalized.linkedRestrictivePracticeId?.trim()
+      ? normalized.linkedRestrictivePracticeId
+      : null,
+    manager_reviewed_at: normalized.managerReviewedAt || null,
+    manager_reviewed_by: normalized.managerReviewedBy,
     description: normalized.description,
     immediate_actions: normalized.immediateActions,
     investigation_summary: normalized.investigationSummary,

@@ -373,7 +373,15 @@ export const defaultReferenceData: ReferenceDataCatalog = {
     "Other",
   ],
   notificationMethod: ["Phone", "Email", "NDIS portal", "In person", "Written letter", "Other"],
-  incidentStatus: ["Draft", "Submitted", "Under investigation", "Actions in progress", "Closed"],
+  incidentStatus: [
+    "Draft",
+    "Submitted",
+    "Manager reviewed",
+    "Commission notified",
+    "Under investigation",
+    "Actions in progress",
+    "Closed",
+  ],
   incidentSeverity: ["Low", "Medium", "High", "Critical"],
   ndisReportableType: [
     "Death",

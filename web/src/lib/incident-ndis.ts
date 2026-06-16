@@ -17,6 +17,13 @@ export function ndisSubmissionChecklist(incident: IncidentRecord): NdisChecklist
   const internalNotified = incident.notifications.some((n) =>
     n.notifyTarget.toLowerCase().includes("internal")
   );
+  const managerReviewed =
+    Boolean(incident.managerReviewedAt) ||
+    incident.status === "Manager reviewed" ||
+    incident.status === "Commission notified" ||
+    incident.status === "Under investigation" ||
+    incident.status === "Actions in progress" ||
+    incident.status === "Closed";
   const familyNotified = incident.notifications.some(
     (n) =>
       n.notifyTarget.toLowerCase().includes("family") ||
@@ -30,6 +37,7 @@ export function ndisSubmissionChecklist(incident: IncidentRecord): NdisChecklist
   const investigationStarted =
     incident.status !== "Draft" &&
     incident.status !== "Submitted" &&
+    incident.status !== "Manager reviewed" &&
     (Boolean(incident.investigationSummary.trim()) || incident.actions.length > 0);
   const correctiveDocumented = Boolean(incident.correctiveActions.trim()) || incident.actions.some((a) => a.actionType === "Corrective action");
   const closed = incident.status === "Closed";
@@ -47,6 +55,17 @@ export function ndisSubmissionChecklist(incident: IncidentRecord): NdisChecklist
       label: "Internal manager notified",
       done: internalNotified,
       detail: internalNotified ? "Logged in Notifications." : "Log internal escalation on the Notifications tab.",
+      required: true,
+    },
+    {
+      id: "manager_review",
+      label: "Manager reviewed",
+      done: managerReviewed,
+      detail: managerReviewed
+        ? incident.managerReviewedBy
+          ? `Reviewed by ${incident.managerReviewedBy}`
+          : `Status: ${incident.status}`
+        : "Use Mark manager reviewed on Overview after submission.",
       required: true,
     },
     {

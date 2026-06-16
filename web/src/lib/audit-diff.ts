@@ -132,6 +132,9 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     primaryClientId: "Primary client",
     primaryEmployeeId: "Primary employee",
     primaryLocationId: "Primary location",
+    linkedRestrictivePracticeId: "Linked restrictive practice",
+    managerReviewedAt: "Manager reviewed at",
+    managerReviewedBy: "Manager reviewed by",
     description: "Description",
     immediateActions: "Immediate actions",
     investigationSummary: "Investigation summary",
@@ -140,6 +143,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     parties: "Parties",
     actions: "Actions",
     notifications: "Notifications",
+    evidence: "Evidence",
   },
 };
 

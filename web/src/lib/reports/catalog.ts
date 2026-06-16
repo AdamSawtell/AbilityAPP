@@ -76,6 +76,16 @@ export const ACCESS_REPORTS: AccessReport[] = [
     maxColumns: 25,
     exportFormats: ["csv"],
   },
+  {
+    id: "incident-compliance-digest",
+    label: "Incident compliance digest",
+    description:
+      "Weekly-style summary of open reportable incidents, overdue NDIS deadlines, and incomplete checklists.",
+    moduleGroup: "Core",
+    parentModuleKey: "incidents",
+    maxColumns: 10,
+    exportFormats: ["csv"],
+  },
 ];
 
 export const ALL_REPORT_IDS = ACCESS_REPORTS.map((r) => r.id);

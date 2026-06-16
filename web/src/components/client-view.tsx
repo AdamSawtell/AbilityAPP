@@ -7,6 +7,7 @@ import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pag
 import { ClientPlanAssessmentPanel, ClientSupportPlanPanel } from "@/components/support-plan-panels";
 import { LineItemTable } from "@/components/line-item-table";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
+import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import {
@@ -308,6 +309,12 @@ export function ClientTabbedView({
               rows={client.activity}
               onChange={(rows) => onLineItemsChange("activity", rows)}
             />
+            <div className="mt-8 border-t border-slate-200 pt-8">
+              <RecordIncidentsPanel
+                clientId={client.id}
+                entityLabel={`${client.searchKey} — ${client.name}`}
+              />
+            </div>
           </>
         ) : null}
 

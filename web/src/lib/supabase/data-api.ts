@@ -56,6 +56,7 @@ import {
   type EnquiryActivityRowDb,
   type EnquiryRow,
   type IncidentActionRowDb,
+  type IncidentEvidenceRowDb,
   type IncidentNotificationRowDb,
   type IncidentPartyRowDb,
   type IncidentRow,
@@ -122,6 +123,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     incidentPartiesRes,
     incidentActionsRes,
     incidentNotificationsRes,
+    incidentEvidenceRes,
     clientsRes,
     alertsRes,
     activityRes,
@@ -166,6 +168,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("incident_party").select("*").order("line_no"),
     supabase.from("incident_action").select("*").order("line_no"),
     supabase.from("incident_notification").select("*").order("line_no"),
+    supabase.from("incident_evidence").select("*").order("line_no"),
     supabase.from("client").select("*").order("search_key"),
     supabase.from("client_alert").select("*").order("line_no"),
     supabase.from("client_activity").select("*").order("line_no"),
@@ -212,6 +215,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     incidentPartiesRes.error ??
     incidentActionsRes.error ??
     incidentNotificationsRes.error ??
+    incidentEvidenceRes.error ??
     clientsRes.error ??
     alertsRes.error ??
     activityRes.error ??
@@ -259,6 +263,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     incidentNotificationsRes.data as IncidentNotificationRowDb[],
     "incident_id"
   );
+  const evidenceByIncident = groupBy(incidentEvidenceRes.data as IncidentEvidenceRowDb[], "incident_id");
   const alertsByClient = groupBy(alertsRes.data as ClientAlertRow[], "client_id");
   const activityByClient = groupBy(activityRes.data as ClientActivityRowDb[], "client_id");
   const locationsByClient = groupBy(locationsRes.data as ClientLocationRowDb[], "client_id");
@@ -303,7 +308,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
         row,
         partiesByIncident.get(row.id) ?? [],
         actionsByIncident.get(row.id) ?? [],
-        notificationsByIncident.get(row.id) ?? []
+        notificationsByIncident.get(row.id) ?? [],
+        evidenceByIncident.get(row.id) ?? []
       )
     ),
     clients: ((clientsRes.data ?? []) as ClientRow[]).map((row) =>
@@ -409,6 +415,7 @@ export async function saveIncident(supabase: SupabaseClient, record: IncidentRec
   await replaceChildRows(supabase, "incident_party", "incident_id", incident.id);
   await replaceChildRows(supabase, "incident_action", "incident_id", incident.id);
   await replaceChildRows(supabase, "incident_notification", "incident_id", incident.id);
+  await replaceChildRows(supabase, "incident_evidence", "incident_id", incident.id);
 
   if (incident.parties.length) {
     const { error: partyError } = await supabase.from("incident_party").insert(
@@ -459,6 +466,54 @@ export async function saveIncident(supabase: SupabaseClient, record: IncidentRec
     );
     if (notificationError) throw notificationError;
   }
+
+  if (incident.evidence.length) {
+    const { error: evidenceError } = await supabase.from("incident_evidence").insert(
+      incident.evidence.map((e) => ({
+        id: e.id,
+        incident_id: incident.id,
+        line_no: e.lineNo,
+        action_id: e.actionId,
+        file_name: e.fileName,
+        file_url: e.fileUrl,
+        storage_path: e.storagePath,
+        mime_type: e.mimeType,
+        uploaded_at: e.uploadedAt || null,
+        uploaded_by: e.uploadedBy,
+        notes: e.notes,
+      }))
+    );
+    if (evidenceError) throw evidenceError;
+  }
+}
+
+export async function fetchIncidents(supabase: SupabaseClient): Promise<IncidentRecord[]> {
+  const [incidentsRes, partiesRes, actionsRes, notificationsRes, evidenceRes] = await Promise.all([
+    supabase.from("incident").select("*").order("occurred_at", { ascending: false }),
+    supabase.from("incident_party").select("*").order("line_no"),
+    supabase.from("incident_action").select("*").order("line_no"),
+    supabase.from("incident_notification").select("*").order("line_no"),
+    supabase.from("incident_evidence").select("*").order("line_no"),
+  ]);
+
+  const err =
+    incidentsRes.error ?? partiesRes.error ?? actionsRes.error ?? notificationsRes.error ?? evidenceRes.error;
+  if (err) throw err;
+
+  const partiesByIncident = groupBy(partiesRes.data as IncidentPartyRowDb[], "incident_id");
+  const actionsByIncident = groupBy(actionsRes.data as IncidentActionRowDb[], "incident_id");
+  const notificationsByIncident = groupBy(notificationsRes.data as IncidentNotificationRowDb[], "incident_id");
+  const evidenceByIncident = groupBy(evidenceRes.data as IncidentEvidenceRowDb[], "incident_id");
+
+  return ((incidentsRes.data ?? []) as IncidentRow[]).map((row) =>
+    incidentFromRow(
+      row,
+      partiesByIncident.get(row.id) ?? [],
+      actionsByIncident.get(row.id) ?? [],
+      notificationsByIncident.get(row.id) ?? [],
+      evidenceByIncident.get(row.id) ?? []
+    )
+  );
 }
 
 export async function saveClient(supabase: SupabaseClient, record: ClientRecord) {

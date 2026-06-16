@@ -3,6 +3,8 @@ import { newLineId } from "@/lib/client-line-tables";
 export type IncidentStatus =
   | "Draft"
   | "Submitted"
+  | "Manager reviewed"
+  | "Commission notified"
   | "Under investigation"
   | "Actions in progress"
   | "Closed";
@@ -50,6 +52,19 @@ export type IncidentNotificationRow = {
   notes: string;
 };
 
+export type IncidentEvidenceRow = {
+  id: string;
+  lineNo: number;
+  actionId: string;
+  fileName: string;
+  fileUrl: string;
+  storagePath: string;
+  mimeType: string;
+  uploadedAt: string;
+  uploadedBy: string;
+  notes: string;
+};
+
 export type IncidentRecord = {
   id: string;
   documentNo: string;
@@ -69,6 +84,9 @@ export type IncidentRecord = {
   primaryClientId: string;
   primaryEmployeeId: string;
   primaryLocationId: string;
+  linkedRestrictivePracticeId: string;
+  managerReviewedAt: string;
+  managerReviewedBy: string;
   description: string;
   immediateActions: string;
   investigationSummary: string;
@@ -79,11 +97,14 @@ export type IncidentRecord = {
   parties: IncidentPartyRow[];
   actions: IncidentActionRow[];
   notifications: IncidentNotificationRow[];
+  evidence: IncidentEvidenceRow[];
 };
 
 export const incidentStatusOptions: IncidentStatus[] = [
   "Draft",
   "Submitted",
+  "Manager reviewed",
+  "Commission notified",
   "Under investigation",
   "Actions in progress",
   "Closed",
@@ -167,12 +188,16 @@ export function ndisDeadlineLabel(record: IncidentRecord): string {
   return "NDIS reporting due";
 }
 
-export function statusTone(status: IncidentStatus): "sky" | "amber" | "rose" | "emerald" | "zinc" {
+export function statusTone(status: IncidentStatus): "sky" | "amber" | "rose" | "emerald" | "zinc" | "violet" {
   switch (status) {
     case "Draft":
       return "zinc";
     case "Submitted":
       return "sky";
+    case "Manager reviewed":
+      return "violet";
+    case "Commission notified":
+      return "amber";
     case "Under investigation":
       return "amber";
     case "Actions in progress":
@@ -182,6 +207,44 @@ export function statusTone(status: IncidentStatus): "sky" | "amber" | "rose" | "
     default:
       return "zinc";
   }
+}
+
+export function canAdvanceToManagerReview(record: IncidentRecord): boolean {
+  return record.status === "Submitted";
+}
+
+export function canAdvanceToCommissionNotified(record: IncidentRecord): boolean {
+  return record.status === "Manager reviewed";
+}
+
+export function advanceIncidentWorkflow(
+  record: IncidentRecord,
+  step: "manager_review" | "commission_notified",
+  reviewedBy: string
+): IncidentRecord {
+  const now = new Date().toISOString();
+  if (step === "manager_review") {
+    return normalizeIncident({
+      ...record,
+      status: "Manager reviewed",
+      managerReviewedAt: now,
+      managerReviewedBy: reviewedBy,
+    });
+  }
+  return normalizeIncident({
+    ...record,
+    status: "Commission notified",
+    ndisNotifiedAt: record.ndisNotifiedAt || now,
+    managerReviewedAt: record.managerReviewedAt || now,
+    managerReviewedBy: record.managerReviewedBy || reviewedBy,
+  });
+}
+
+export function showRestrictivePracticeLink(record: IncidentRecord): boolean {
+  return (
+    record.reportableType === "Unauthorised restrictive practice" ||
+    record.category === "Restrictive practice"
+  );
 }
 
 export function formatDisplayDateTime(iso: string) {
@@ -220,6 +283,10 @@ function renumberNotifications(rows: IncidentNotificationRow[]): IncidentNotific
   return rows.map((row, index) => ({ ...row, lineNo: index + 1 }));
 }
 
+function renumberEvidence(rows: IncidentEvidenceRow[]): IncidentEvidenceRow[] {
+  return rows.map((row, index) => ({ ...row, lineNo: index + 1 }));
+}
+
 export function normalizeIncident(record: IncidentRecord): IncidentRecord {
   const reportDeadlineAt =
     record.isReportable && record.reportableType
@@ -232,6 +299,7 @@ export function normalizeIncident(record: IncidentRecord): IncidentRecord {
     parties: renumberParties(record.parties ?? []),
     actions: renumberActions(record.actions ?? []),
     notifications: renumberNotifications(record.notifications ?? []),
+    evidence: renumberEvidence(record.evidence ?? []),
   };
 }
 
@@ -256,6 +324,9 @@ export function emptyIncident(): IncidentRecord {
     primaryClientId: "",
     primaryEmployeeId: "",
     primaryLocationId: "",
+    linkedRestrictivePracticeId: "",
+    managerReviewedAt: "",
+    managerReviewedBy: "",
     description: "",
     immediateActions: "",
     investigationSummary: "",
@@ -266,6 +337,7 @@ export function emptyIncident(): IncidentRecord {
     parties: [],
     actions: [],
     notifications: [],
+    evidence: [],
   });
 }
 
@@ -310,6 +382,9 @@ export const initialIncidents: IncidentRecord[] = [
     primaryClientId: "bp-bern",
     primaryEmployeeId: "emp-isla",
     primaryLocationId: "",
+    linkedRestrictivePracticeId: "",
+    managerReviewedAt: "",
+    managerReviewedBy: "",
     description:
       "Participant slipped on a wet floor near the kitchenette. No injury; first aid not required. Floor had just been mopped without signage.",
     immediateActions: "Area cordoned, wet floor sign placed, participant checked and comforted.",
@@ -351,5 +426,6 @@ export const initialIncidents: IncidentRecord[] = [
       },
     ],
     notifications: [],
+    evidence: [],
   }),
 ];

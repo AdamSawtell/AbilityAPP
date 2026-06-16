@@ -1,6 +1,11 @@
 import { newLineId } from "@/lib/client-line-tables";
 import type { GenericTableConfig } from "@/components/line-item-table";
-import type { IncidentActionRow, IncidentNotificationRow, IncidentPartyRow } from "@/lib/incident";
+import type {
+  IncidentActionRow,
+  IncidentEvidenceRow,
+  IncidentNotificationRow,
+  IncidentPartyRow,
+} from "@/lib/incident";
 
 export const partyTypeOptions = ["Client", "Employee", "Witness", "Other"] as const;
 export const partyRoleOptions = [
@@ -98,6 +103,36 @@ export const incidentActionTableConfig: GenericTableConfig<IncidentActionRow> = 
     { key: "outcome", label: "Outcome", type: "text" },
   ],
   emptyRow: emptyActionRow,
+};
+
+export function emptyEvidenceRow(lineNo: number): IncidentEvidenceRow {
+  return {
+    id: newLineId("iev"),
+    lineNo,
+    actionId: "",
+    fileName: "",
+    fileUrl: "",
+    storagePath: "",
+    mimeType: "",
+    uploadedAt: new Date().toISOString(),
+    uploadedBy: "",
+    notes: "",
+  };
+}
+
+export const incidentEvidenceTableConfig: GenericTableConfig<IncidentEvidenceRow> = {
+  addLabel: "Add attachment",
+  emptyMessage: "No evidence files attached. Upload documents or add a file URL.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "fileName", label: "File name", type: "text", required: true },
+    { key: "fileUrl", label: "File URL", type: "text", className: "min-w-[12rem]" },
+    { key: "actionId", label: "Linked action ID", type: "text" },
+    { key: "mimeType", label: "MIME type", type: "text" },
+    { key: "uploadedBy", label: "Uploaded by", type: "text" },
+    { key: "notes", label: "Notes", type: "text" },
+  ],
+  emptyRow: emptyEvidenceRow,
 };
 
 export const incidentNotificationTableConfig: GenericTableConfig<IncidentNotificationRow> = {

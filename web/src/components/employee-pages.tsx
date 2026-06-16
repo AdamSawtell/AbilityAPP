@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { EmployeeList } from "@/components/employee-list";
 import { EmployeeTabbedView } from "@/components/employee-view";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
+import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -137,6 +138,13 @@ export function EmployeeDetailView({ id }: { id: string }) {
             onLeaveRequestsChange={(leaveRequests) => patchDraft({ leaveRequests })}
           />
         </Suspense>
+
+        <div className="mt-8 border-t border-slate-200 pt-8">
+          <RecordIncidentsPanel
+            employeeId={employee.id}
+            entityLabel={`${employee.searchKey} — ${employee.name}`}
+          />
+        </div>
 
         <div className="mt-8 border-t border-slate-200 pt-8">
           <RecordTasksPanel
