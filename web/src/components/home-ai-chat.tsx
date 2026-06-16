@@ -43,7 +43,8 @@ export function HomeAiChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState(true);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const prevMessageCountRef = useRef(0);
 
   useEffect(() => {
     if (!session) return;
@@ -56,9 +57,7 @@ export function HomeAiChat() {
         if (cancelled) return;
         setAgents(data.agents);
         setConfigured(data.configured);
-        if (data.agents.length && !agentId) {
-          setAgentId(data.agents[0].id);
-        }
+        setAgentId((current) => current || data.agents[0]?.id || "");
       } catch {
         // ignore
       }
@@ -66,10 +65,15 @@ export function HomeAiChat() {
     return () => {
       cancelled = true;
     };
-  }, [session, agentId]);
+  }, [session]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (!el) return;
+    const count = messages.length + (loading ? 1 : 0);
+    if (count <= prevMessageCountRef.current && !loading) return;
+    prevMessageCountRef.current = count;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
   const activeAgent = useMemo(() => agents.find((a) => a.id === agentId), [agents, agentId]);
@@ -142,6 +146,7 @@ export function HomeAiChat() {
     setMessages([]);
     setThreadState({});
     setError("");
+    prevMessageCountRef.current = 0;
   };
 
   if (!session || !agents.length) return null;
@@ -203,7 +208,10 @@ export function HomeAiChat() {
             </div>
           ) : null}
 
-          <div className="max-h-80 space-y-3 overflow-y-auto bg-slate-50/60 px-4 py-4">
+          <div
+            ref={scrollRef}
+            className="max-h-80 space-y-3 overflow-y-auto overscroll-y-contain bg-slate-50/60 px-4 py-4"
+          >
             {!messages.length ? (
               <div className="rounded-xl bg-white px-4 py-6 text-center ring-1 ring-slate-200">
                 <p className="text-sm font-medium text-slate-700">Try asking:</p>
@@ -223,7 +231,6 @@ export function HomeAiChat() {
                 </div>
               </div>
             ) : null}
-            <div ref={bottomRef} />
           </div>
 
           {error ? <p className="px-5 py-2 text-sm text-red-700">{error}</p> : null}

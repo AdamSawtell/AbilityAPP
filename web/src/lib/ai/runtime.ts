@@ -28,11 +28,12 @@ function openAiClient(): OpenAI {
 
 function toOpenAiMessages(
   agent: AiAgentRecord,
+  session: AuthSession,
   messages: ChatMessage[]
 ): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
   const system: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
     role: "system",
-    content: `${agent.systemPrompt}\n\nCurrent user: ${agent.name}. Answer in clear, helpful prose.`,
+    content: `${agent.systemPrompt}\n\nSigned-in user: ${session.displayName} (${session.activeRoleName}). Answer in clear, helpful prose.`,
   };
 
   const mapped = messages
@@ -91,8 +92,11 @@ async function executeTool(
       };
     }
     case "task_draft_create": {
-      const out = runTaskDraftCreate(session, args, threadState);
-      return { result: { draft: out.draft, note: out.message }, threadState: out.threadState };
+      const out = await runTaskDraftCreate(supabase, session, args, threadState);
+      return {
+        result: { draft: out.draft, summary: out.summary, note: out.message },
+        threadState: out.threadState,
+      };
     }
     case "task_draft_confirm": {
       const out = runTaskDraftConfirm(session, threadState);
@@ -138,6 +142,7 @@ export async function runChatTurn(options: {
 
   const openAiHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = toOpenAiMessages(
     options.agent,
+    options.session,
     workingMessages
   );
 
