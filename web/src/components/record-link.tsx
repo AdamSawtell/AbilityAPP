@@ -110,7 +110,6 @@ export function LocationRecordLink({
 export function ProductRecordLink({
   id,
   searchKey,
-  name,
   className,
   children,
 }: {

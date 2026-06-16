@@ -22,6 +22,7 @@ const peopleLinks = [
 const serviceLinks = [
   { href: "/products", label: "Products", windowKey: "products", match: (path: string) => path.startsWith("/products") },
   { href: "/price-lists", label: "Price lists", windowKey: "price-lists", match: (path: string) => path.startsWith("/price-lists") },
+  { href: "/contracts", label: "Contracts", windowKey: "contracts", match: (path: string) => path.startsWith("/contracts") },
 ];
 
 const adminLinks = [
@@ -63,6 +64,24 @@ function NavIcon({ name }: { name: string }) {
     return (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+      </svg>
+    );
+  }
+  if (name === "client") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.375 3.375 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+      </svg>
+    );
+  }
+  if (name === "task") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM9 12.75 11.25 15 15 9.75"
+        />
       </svg>
     );
   }
@@ -172,6 +191,53 @@ function SectionHeader({
   );
 }
 
+function TopNavLink({
+  href,
+  active,
+  icon,
+  label,
+  badge,
+  badgeUrgent,
+}: {
+  href: string;
+  active: boolean;
+  icon: ReactNode;
+  label: string;
+  badge?: number;
+  badgeUrgent?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+        active
+          ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/60"
+          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+      }`}
+    >
+      <span className={active ? "text-[#d4147a]" : "text-slate-400"}>{icon}</span>
+      <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+        <span>{label}</span>
+        {badge && badge > 0 ? (
+          <span
+            className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${
+              badgeUrgent
+                ? "bg-red-100 text-red-700 ring-1 ring-red-200"
+                : "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/50"
+            }`}
+          >
+            {badge}
+          </span>
+        ) : null}
+      </span>
+    </Link>
+  );
+}
+
+function sectionDividerClass(show: boolean) {
+  return show ? "mt-2 border-t border-slate-200 pt-3" : "";
+}
+
 export function SidebarNav() {
   const pathname = usePathname();
   const { tabs } = useWorkspace();
@@ -201,10 +267,10 @@ export function SidebarNav() {
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
-  const visibleReports = useMemo(
-    () => ACCESS_REPORTS.filter((r) => canReport(r.id)),
-    [canReport]
-  );
+  const visibleReports = useMemo(() => {
+    if (!session) return [];
+    return ACCESS_REPORTS.filter((r) => canReport(r.id));
+  }, [session, canReport]);
   const reportsByModule = useMemo(() => {
     const map = new Map<string, typeof ACCESS_REPORTS>();
     for (const report of visibleReports) {
@@ -215,6 +281,7 @@ export function SidebarNav() {
     return map;
   }, [visibleReports]);
   const showReports = canWindow("reports") && (visibleReports.length > 0 || canWindow("reports-advance"));
+  const hasCoreNav = showHome || showTasks;
 
   const openClients = useMemo(() => tabs.filter((t) => t.kind === "client"), [tabs]);
   const openLocations = useMemo(() => tabs.filter((t) => t.kind === "location"), [tabs]);
@@ -227,10 +294,18 @@ export function SidebarNav() {
 
   function isOpen(key: string) {
     if (key === "admin" && pathname.startsWith("/admin")) return true;
+    if (key === "enquiries" && pathname.startsWith("/enquiries")) return true;
+    if (key === "clients" && (pathname.startsWith("/clients") || pathname.startsWith("/service-agreements")))
+      return true;
     if (key === "locations" && pathname.startsWith("/locations")) return true;
+    if (key === "people" && pathname.startsWith("/employees")) return true;
+    if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
   }
+
+  const tasksActive =
+    pathname === "/tasks" || (pathname.startsWith("/tasks") && pathname !== "/tasks/new");
 
   const subLinkClass = (active: boolean) =>
     `block rounded-md px-2 py-1.5 text-xs font-medium ${
@@ -240,56 +315,23 @@ export function SidebarNav() {
   return (
     <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
       {showHome ? (
-        <Link
-          href="/"
-          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-            pathname === "/"
-              ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/60"
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-          }`}
-        >
-          <span className={pathname === "/" ? "text-[#d4147a]" : "text-slate-400"}>
-            <NavIcon name="home" />
-          </span>
-          Home
-        </Link>
+        <TopNavLink href="/" active={pathname === "/"} icon={<NavIcon name="home" />} label="Home" />
       ) : null}
-
       {showTasks ? (
-        <Link
-          href="/tasks"
-          className={`mt-2 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
-            pathname === "/tasks" || (pathname.startsWith("/tasks") && pathname !== "/tasks/new")
-              ? "bg-[#fdf2f8] text-[#b51266]"
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-          }`}
-        >
-          <span className={pathname.startsWith("/tasks") ? "text-[#d4147a]" : "text-slate-400"}>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c1.07.013 2.008.714 2.007 1.64v6.694a2.25 2.25 0 0 1-2.25 2.25h-1.5m-6.75 0H4.5A2.25 2.25 0 0 1 2.25 12v-1.5m16.5 0H21m-3.75 0H21m-9.75 0H9"
-              />
-            </svg>
-          </span>
-          Tasks
-          {taskBadge > 0 ? (
-            <span
-              className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
-                taskStats?.overdue
-                  ? "bg-red-100 text-red-700 ring-1 ring-red-200"
-                  : "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/50"
-              }`}
-            >
-              {taskBadge}
-            </span>
-          ) : null}
-        </Link>
+        <div className={sectionDividerClass(showHome)}>
+          <TopNavLink
+            href="/tasks"
+            active={tasksActive}
+            icon={<NavIcon name="task" />}
+            label="Tasks"
+            badge={taskBadge > 0 ? taskBadge : undefined}
+            badgeUrgent={Boolean(taskStats?.overdue)}
+          />
+        </div>
       ) : null}
 
       {showEnquiries ? (
-        <div className={showHome || showTasks ? "mt-2 border-t border-slate-200 pt-3" : ""}>
+        <div className={sectionDividerClass(hasCoreNav)}>
           <SectionHeader
             label="Enquiries"
             icon={<NavIcon name="enquiry" />}
@@ -334,7 +376,7 @@ export function SidebarNav() {
       ) : null}
 
       {showClients ? (
-        <div className="mt-2 border-t border-slate-200 pt-3">
+        <div className={sectionDividerClass(hasCoreNav || showEnquiries)}>
           <SectionHeader
             label="Clients"
             icon={<NavIcon name="client" />}
@@ -387,7 +429,11 @@ export function SidebarNav() {
       ) : null}
 
       {showLocations ? (
-        <div className="mt-2 border-t border-slate-200 pt-3">
+        <div
+          className={sectionDividerClass(
+            hasCoreNav || showEnquiries || showClients
+          )}
+        >
           <SectionHeader
             label="Locations"
             icon={<NavIcon name="location" />}
@@ -431,7 +477,11 @@ export function SidebarNav() {
       ) : null}
 
       {visiblePeopleLinks.length > 0 ? (
-        <div className="mt-2 border-t border-slate-200 pt-3">
+        <div
+          className={sectionDividerClass(
+            hasCoreNav || showEnquiries || showClients || showLocations
+          )}
+        >
           <SectionHeader
             label="People"
             icon={<NavIcon name="employee" />}
@@ -483,7 +533,11 @@ export function SidebarNav() {
       ) : null}
 
       {visibleServiceLinks.length > 0 ? (
-        <div className="mt-2 border-t border-slate-200 pt-3">
+        <div
+          className={sectionDividerClass(
+            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0
+          )}
+        >
           <SectionHeader
             label="Services"
             icon={
@@ -520,7 +574,16 @@ export function SidebarNav() {
       ) : null}
 
       {showReports ? (
-        <div className="mt-2 border-t border-slate-200 pt-3">
+        <div
+          className={sectionDividerClass(
+            hasCoreNav ||
+              showEnquiries ||
+              showClients ||
+              showLocations ||
+              visiblePeopleLinks.length > 0 ||
+              visibleServiceLinks.length > 0
+          )}
+        >
           <SectionHeader
             label="Reports"
             icon={<NavIcon name="report" />}
@@ -580,7 +643,17 @@ export function SidebarNav() {
       ) : null}
 
       {visibleAdminLinks.length > 0 ? (
-        <div className="mt-2 border-t border-slate-200 pt-3">
+        <div
+          className={sectionDividerClass(
+            hasCoreNav ||
+              showEnquiries ||
+              showClients ||
+              showLocations ||
+              visiblePeopleLinks.length > 0 ||
+              visibleServiceLinks.length > 0 ||
+              showReports
+          )}
+        >
           <SectionHeader
             label="Admin"
             icon={

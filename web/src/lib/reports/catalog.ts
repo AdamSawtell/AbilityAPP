@@ -61,7 +61,11 @@ export const ACCESS_REPORTS: AccessReport[] = [
 
 export const ALL_REPORT_IDS = ACCESS_REPORTS.map((r) => r.id);
 
+/** Reserved route slugs — must not be used as catalog report ids. */
+export const RESERVED_REPORT_ROUTE_SLUGS = new Set(["advance"]);
+
 export function reportById(id: string) {
+  if (RESERVED_REPORT_ROUTE_SLUGS.has(id)) return undefined;
   return ACCESS_REPORTS.find((r) => r.id === id);
 }
 

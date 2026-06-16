@@ -14,7 +14,7 @@ order by name
 limit 100`;
 
 export function ReportsAdvanceView() {
-  const { session, canWindow } = useAuth();
+  const { canWindow } = useAuth();
   const [sql, setSql] = useState(STARTER_SQL);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState("");
@@ -24,18 +24,14 @@ export function ReportsAdvanceView() {
   const canUse = canWindow("reports-advance");
 
   const runQuery = useCallback(async () => {
-    if (!session) return;
     setRunning(true);
     setError("");
     try {
       const res = await fetch("/api/reports/sql", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sql,
-          userId: session.userId,
-          roleId: session.activeRoleId,
-        }),
+        credentials: "include",
+        body: JSON.stringify({ sql }),
       });
       const data = (await res.json()) as {
         error?: string;
@@ -59,7 +55,7 @@ export function ReportsAdvanceView() {
     } finally {
       setRunning(false);
     }
-  }, [sql, session]);
+  }, [sql]);
 
   if (!canUse) {
     return (

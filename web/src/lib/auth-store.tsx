@@ -2,8 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import type { AppRoleRecord, AppUserRecord, AuthSession, TaskTypePermission } from "@/lib/access/types";
-import { displayName, userInitials } from "@/lib/access/types";
+import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/types";
+import { userInitials } from "@/lib/access/types";
 import { canAccessWindow, processById } from "@/lib/access/catalog";
 import { canAccessReport } from "@/lib/reports/catalog";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
@@ -11,11 +11,10 @@ import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   fetchRoles,
   fetchUsers,
-  resolveRoleAccess,
   saveRole,
 } from "@/lib/supabase/access-api";
 
-const SESSION_KEY = "abilityerp-auth-session";
+const LEGACY_SESSION_KEY = "abilityerp-auth-session";
 
 type AuthStore = {
   session: AuthSession | null;
@@ -25,7 +24,7 @@ type AuthStore = {
   source: "supabase" | "local";
   login: (userId: string, roleId: string) => Promise<void>;
   authenticate: (username: string, password: string) => Promise<AppUserRecord>;
-  logout: () => void;
+  logout: () => Promise<void>;
   switchRole: (roleId: string) => Promise<void>;
   canWindow: (key: string) => boolean;
   canProcess: (processId: string) => boolean;
@@ -38,49 +37,48 @@ type AuthStore = {
 
 const AuthContext = createContext<AuthStore | null>(null);
 
-function loadSession(): AuthSession | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (!raw?.trim()) return null;
-    const parsed = JSON.parse(raw) as AuthSession;
-    return {
-      ...parsed,
-      taskTypePermissions: parsed.taskTypePermissions ?? [],
-      reportIds: parsed.reportIds ?? [],
-    };
-  } catch {
-    return null;
-  }
-}
-
-function persistSession(session: AuthSession | null) {
-  if (typeof window === "undefined") return;
-  if (!session) {
-    localStorage.removeItem(SESSION_KEY);
-    return;
-  }
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
-async function buildSession(
-  user: AppUserRecord,
-  role: AppRoleRecord,
-  resolveAccess: (roleId: string) => Promise<{ windowKeys: string[]; processIds: string[]; reportIds: string[]; taskTypePermissions: TaskTypePermission[] }>
-): Promise<AuthSession> {
-  const access = await resolveAccess(role.id);
+function normalizeSession(raw: AuthSession): AuthSession {
   return {
-    userId: user.id,
-    username: user.username,
-    displayName: displayName(user),
-    email: user.email,
-    activeRoleId: role.id,
-    activeRoleName: role.name,
-    windowKeys: access.windowKeys,
-    processIds: access.processIds,
-    reportIds: access.reportIds,
-    taskTypePermissions: access.taskTypePermissions,
+    ...raw,
+    taskTypePermissions: raw.taskTypePermissions ?? [],
+    reportIds: raw.reportIds ?? [],
   };
+}
+
+async function fetchSessionFromApi(): Promise<AuthSession | null> {
+  const res = await fetch("/api/auth/session", { credentials: "include" });
+  if (res.status === 401) return null;
+  if (!res.ok) throw new Error("Could not load session");
+  const data = (await res.json()) as { session: AuthSession };
+  return data.session ? normalizeSession(data.session) : null;
+}
+
+async function createSessionViaApi(userId: string, roleId: string): Promise<AuthSession> {
+  const res = await fetch("/api/auth/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ userId, roleId }),
+  });
+  if (!res.ok) throw new Error("Invalid user or role");
+  const data = (await res.json()) as { session: AuthSession };
+  return normalizeSession(data.session);
+}
+
+async function switchSessionRoleViaApi(roleId: string): Promise<AuthSession> {
+  const res = await fetch("/api/auth/session", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ roleId }),
+  });
+  if (!res.ok) throw new Error("Invalid role");
+  const data = (await res.json()) as { session: AuthSession };
+  return normalizeSession(data.session);
+}
+
+async function clearSessionViaApi(): Promise<void> {
+  await fetch("/api/auth/session", { method: "DELETE", credentials: "include" });
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -90,46 +88,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [source, setSource] = useState<"supabase" | "local">("local");
 
-  const resolveAccess = useCallback(async (roleId: string) => {
-    let windowKeys: string[] = [];
-    let processIds: string[] = [];
-    let reportIds: string[] = [];
-    let taskTypePermissions: TaskTypePermission[] = [];
-
-    if (source === "supabase" && isSupabaseConfigured()) {
-      const supabase = createClient();
-      const access = await resolveRoleAccess(supabase, roleId);
-      windowKeys = access.windowKeys;
-      processIds = access.processIds;
-      reportIds = access.reportIds;
-      taskTypePermissions = access.taskTypePermissions;
-    } else {
-      const role = roles.find((r) => r.id === roleId);
-      windowKeys = role?.windowKeys ?? [];
-      processIds = role?.processIds ?? [];
-      reportIds = role?.reportIds ?? [];
-      taskTypePermissions = role?.taskTypePermissions ?? [];
-    }
-
-    const seed = SEED_ROLES.find((r) => r.id === roleId);
-    if (seed) {
-      const merged = withSeedTaskAccess({ ...seed, windowKeys, processIds, reportIds, taskTypePermissions });
-      return {
-        windowKeys: merged.windowKeys,
-        processIds: merged.processIds,
-        reportIds: merged.reportIds ?? [],
-        taskTypePermissions: merged.taskTypePermissions,
-      };
-    }
-
-    return { windowKeys, processIds, reportIds, taskTypePermissions };
-  }, [roles, source]);
-
   useEffect(() => {
     let cancelled = false;
 
     async function hydrate() {
-      const saved = loadSession();
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(LEGACY_SESSION_KEY);
+      }
 
       if (isSupabaseConfigured()) {
         try {
@@ -139,45 +104,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUsers(dbUsers);
             setRoles(dbRoles.map(withSeedTaskAccess));
             setSource("supabase");
-
-            if (saved) {
-              const user = dbUsers.find((u) => u.id === saved.userId);
-              const role = dbRoles.find((r) => r.id === saved.activeRoleId);
-              if (user?.active && role?.active && user.roleIds.includes(role.id)) {
-                const next = await buildSession(user, withSeedTaskAccess(role), resolveAccess);
-                setSession(next);
-                persistSession(next);
-              }
-            }
-            setHydrated(true);
-            return;
           }
         } catch {
-          // fall through
+          // fall through to seed data
         }
       }
 
       if (!cancelled) {
-        setUsers(SEED_USERS);
-        setRoles(SEED_ROLES.map(withSeedTaskAccess));
-        setSource("local");
-        if (saved) {
-          const user = SEED_USERS.find((u) => u.id === saved.userId);
-          const role = SEED_ROLES.find((r) => r.id === saved.activeRoleId);
-          if (user && role && user.roleIds.includes(role.id)) {
-            const merged = withSeedTaskAccess(role);
-            const next = {
-              ...saved,
-              windowKeys: merged.windowKeys,
-              processIds: merged.processIds,
-              reportIds: merged.reportIds ?? [],
-              taskTypePermissions: merged.taskTypePermissions,
-            };
-            setSession(next);
-            persistSession(next);
-          }
+        if (!isSupabaseConfigured()) {
+          setUsers(SEED_USERS);
+          setRoles(SEED_ROLES.map(withSeedTaskAccess));
+          setSource("local");
         }
-        setHydrated(true);
+
+        try {
+          const active = await fetchSessionFromApi();
+          if (!cancelled && active) setSession(active);
+        } catch {
+          // no session cookie
+        }
+
+        if (!cancelled) setHydrated(true);
       }
     }
 
@@ -190,67 +137,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  useEffect(() => {
-    if (!hydrated || !session) return;
-
-    void (async () => {
-      const access = await resolveAccess(session.activeRoleId);
-      const keysMatch =
-        access.windowKeys.length === session.windowKeys.length &&
-        access.windowKeys.every((k) => session.windowKeys.includes(k)) &&
-        session.windowKeys.every((k) => access.windowKeys.includes(k));
-      const procsMatch =
-        access.processIds.length === session.processIds.length &&
-        access.processIds.every((p) => session.processIds.includes(p));
-      const reportsMatch =
-        access.reportIds.length === (session.reportIds?.length ?? 0) &&
-        access.reportIds.every((r) => session.reportIds?.includes(r));
-      const taskTypesMatch =
-        access.taskTypePermissions.length === (session.taskTypePermissions?.length ?? 0) &&
-        access.taskTypePermissions.every((p) =>
-          session.taskTypePermissions?.some(
-            (s) =>
-              s.taskTypeId === p.taskTypeId &&
-              s.canSee === p.canSee &&
-              s.canSelect === p.canSelect &&
-              s.canCreate === p.canCreate
-          )
-        );
-      if (keysMatch && procsMatch && reportsMatch && taskTypesMatch) return;
-
-      const next = {
-        ...session,
-        windowKeys: access.windowKeys,
-        processIds: access.processIds,
-        reportIds: access.reportIds,
-        taskTypePermissions: access.taskTypePermissions,
-      };
-      setSession(next);
-      persistSession(next);
-    })();
-    // Refresh cached session access when the active role changes — not on every session field update.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- session.windowKeys is what we're syncing
-  }, [hydrated, session?.activeRoleId, session?.userId, resolveAccess]);
-
-  const login = useCallback(
-    async (userId: string, roleId: string) => {
-      const user = users.find((u) => u.id === userId);
-      const role = roles.find((r) => r.id === roleId);
-      if (!user?.active || !role?.active || !user.roleIds.includes(roleId)) {
-        throw new Error("Invalid user or role");
-      }
-      const next = await buildSession(user, role, resolveAccess);
-      setSession(next);
-      persistSession(next);
-    },
-    [users, roles, resolveAccess]
-  );
+  const login = useCallback(async (userId: string, roleId: string) => {
+    const next = await createSessionViaApi(userId, roleId);
+    setSession(next);
+  }, []);
 
   const authenticate = useCallback(
     async (username: string, password: string): Promise<AppUserRecord> => {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ username: username.trim(), password }),
       });
       if (!res.ok) {
@@ -267,23 +164,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await clearSessionViaApi();
     setSession(null);
-    persistSession(null);
   }, []);
 
-  const switchRole = useCallback(
-    async (roleId: string) => {
-      if (!session) return;
-      const user = users.find((u) => u.id === session.userId);
-      const role = roles.find((r) => r.id === roleId);
-      if (!user || !role || !user.roleIds.includes(roleId)) return;
-      const next = await buildSession(user, role, resolveAccess);
-      setSession(next);
-      persistSession(next);
-    },
-    [session, users, roles, resolveAccess]
-  );
+  const switchRole = useCallback(async (roleId: string) => {
+    const next = await switchSessionRoleViaApi(roleId);
+    setSession(next);
+  }, []);
 
   const canWindow = useCallback(
     (key: string) => (session ? canAccessWindow(session.windowKeys, key) : false),
@@ -319,6 +208,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const res = await fetch("/api/auth/system-access", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ user, password: options?.password }),
         });
         if (!res.ok) throw new Error("Could not save system access");
@@ -337,18 +227,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await saveRole(createClient(), role);
       }
       if (session?.activeRoleId === role.id) {
-        const next = {
-          ...session,
-          windowKeys: role.windowKeys,
-          processIds: role.processIds,
-          reportIds: role.reportIds ?? [],
-          taskTypePermissions: role.taskTypePermissions,
-        };
-        setSession(next);
-        persistSession(next);
+        try {
+          const next = await fetchSessionFromApi();
+          if (next) setSession(next);
+        } catch {
+          // keep existing session
+        }
       }
     },
-    [source, session]
+    [source, session?.activeRoleId]
   );
 
   const availableRolesForUser = useCallback(

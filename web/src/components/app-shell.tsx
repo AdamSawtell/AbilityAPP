@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { SessionFooter } from "@/components/session-footer";
 import { RecordAuditFooter } from "@/components/record-audit-footer";
@@ -14,10 +13,6 @@ export type Breadcrumb = {
   label: string;
   href?: string;
 };
-
-function SidebarNavFallback() {
-  return <div className="px-3 py-4 text-sm text-slate-400">Loading menu…</div>;
-}
 
 export function AppShell({
   title,
@@ -61,9 +56,7 @@ export function AppShell({
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col py-4">
-          <Suspense fallback={<SidebarNavFallback />}>
-            <SidebarNav />
-          </Suspense>
+          <SidebarNav />
         </div>
 
         <SessionFooter />

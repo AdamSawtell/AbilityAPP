@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { SEED_ROLES, SEED_USERS } from "@/lib/access/seed";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { getAuthSessionFromRequest, sessionHasWindow } from "@/lib/auth/session.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { rowsJsonToReportResult } from "@/lib/reports/sql-results";
 import { validateReadonlySql } from "@/lib/reports/sql-validate";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,59 +14,25 @@ function createServiceClient() {
   return createSupabaseClient(url, key, { auth: { persistSession: false } });
 }
 
-async function assertReportsAdvanceAccess(userId: string, roleId: string) {
-  if (!isSupabaseConfigured()) {
-    const seedUser = SEED_USERS.find((u) => u.id === userId);
-    const seedRole = SEED_ROLES.find((r) => r.id === roleId);
-    if (!seedUser?.roleIds.includes(roleId) || !seedRole?.windowKeys.includes("reports-advance")) {
-      throw new Error("FORBIDDEN");
-    }
-    return;
-  }
-
-  const supabase = createServiceClient();
-  const [{ data: userRole, error: urErr }, { data: windows, error: wErr }] = await Promise.all([
-    supabase.from("app_user_role").select("user_id").eq("user_id", userId).eq("role_id", roleId).maybeSingle(),
-    supabase.from("app_role_window").select("window_key").eq("role_id", roleId),
-  ]);
-  if (urErr) throw urErr;
-  if (wErr) throw wErr;
-  if (!userRole) throw new Error("FORBIDDEN");
-
-  const keys = new Set((windows ?? []).map((w) => w.window_key));
-  if (!keys.has("reports") || !keys.has("reports-advance")) {
-    throw new Error("FORBIDDEN");
-  }
-}
-
 export async function POST(request: Request) {
-  let body: { sql?: string; userId?: string; roleId?: string };
+  const session = await getAuthSessionFromRequest();
+  if (!session) {
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  }
+  if (!sessionHasWindow(session, "reports") || !sessionHasWindow(session, "reports-advance")) {
+    return NextResponse.json({ error: "Your role does not have access to Reports Advance" }, { status: 403 });
+  }
+
+  let body: { sql?: string };
   try {
-    body = (await request.json()) as { sql?: string; userId?: string; roleId?: string };
+    body = (await request.json()) as { sql?: string };
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const sql = body.sql ?? "";
-  const userId = body.userId?.trim() ?? "";
-  const roleId = body.roleId?.trim() ?? "";
-  if (!userId || !roleId) {
-    return NextResponse.json({ error: "Session required" }, { status: 401 });
-  }
-
-  const validation = validateReadonlySql(sql);
+  const validation = validateReadonlySql(body.sql ?? "");
   if (!validation.ok) {
     return NextResponse.json({ error: validation.error }, { status: 400 });
-  }
-
-  try {
-    await assertReportsAdvanceAccess(userId, roleId);
-  } catch (err) {
-    if (err instanceof Error && err.message === "FORBIDDEN") {
-      return NextResponse.json({ error: "Your role does not have access to Reports Advance" }, { status: 403 });
-    }
-    console.error("reports advance auth failed", err);
-    return NextResponse.json({ error: "Access check failed" }, { status: 500 });
   }
 
   if (!isSupabaseConfigured()) {

@@ -87,10 +87,23 @@ export const SEED_ROLES: AppRoleRecord[] = [
   },
 ];
 
+/** Merge seed catalog access in development only (avoids over-granting in production DB). */
+export function shouldMergeSeedAccess(): boolean {
+  return process.env.NODE_ENV !== "production" || process.env.ABILITYAPP_MERGE_SEED_ACCESS === "true";
+}
+
 /** Ensure seed roles keep catalog windows when the DB or cached session predates a catalog update. */
 export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
   const seed = SEED_ROLES.find((r) => r.id === role.id);
   if (!seed) {
+    return {
+      ...role,
+      reportIds: role.reportIds ?? [],
+      taskTypePermissions: mergeTaskTypePermissions(role.taskTypePermissions, ALL_TASK_TYPE_IDS),
+    };
+  }
+
+  if (!shouldMergeSeedAccess()) {
     return {
       ...role,
       reportIds: role.reportIds ?? [],

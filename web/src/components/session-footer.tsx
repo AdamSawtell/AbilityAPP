@@ -15,8 +15,7 @@ export function SessionFooter() {
   const roles = availableRolesForUser(session.userId);
 
   function onLogout() {
-    logout();
-    router.replace("/login");
+    void logout().then(() => router.replace("/login"));
   }
 
   return (
