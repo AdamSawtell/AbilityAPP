@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { AppShell } from "@/components/app-shell";
+import { HomeCalendar } from "@/components/home-calendar";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
 import { useAuth } from "@/lib/auth-store";
@@ -50,7 +51,7 @@ function SummaryCard({
 
 export function HomeDashboard() {
   const { enquiries, clients, employees, tasks } = useData();
-  const { canWindow, session } = useAuth();
+  const { canWindow, session, users } = useAuth();
   const showEmployees = canWindow("employees");
   const taskViews = session ? visibleTaskViews(session.windowKeys) : [];
   const taskCounts = session ? taskCountsForSession(tasks, session) : null;
@@ -150,7 +151,11 @@ export function HomeDashboard() {
         </div>
       ) : null}
 
-      <div className={`grid gap-6 ${showEmployees ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+      {session ? (
+        <HomeCalendar tasks={tasks} session={session} users={users} employees={employees} />
+      ) : null}
+
+      <div className={`grid gap-6 ${showEmployees ? "lg:grid-cols-3" : "lg:grid-cols-2"}`}>
         <SummaryCard
           title="Enquiries"
           count={enquiries.length}
@@ -174,21 +179,6 @@ export function HomeDashboard() {
             accent="indigo"
           />
         ) : null}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-slate-600">Today</p>
-          <p className="mt-2 text-lg font-semibold text-slate-900">
-            {new Date().toLocaleDateString("en-AU", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-            })}
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            {openEnquiries > 0
-              ? `${openEnquiries} enquiry${openEnquiries === 1 ? "" : "ies"} need attention.`
-              : "No open enquiries right now."}
-          </p>
-        </div>
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-2">
