@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
 import { displayName } from "@/lib/access/types";
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import type { TaskRecord } from "@/lib/task";
@@ -41,6 +41,35 @@ export function TaskUpdatePanel({
   const [assignmentType, setAssignmentType] = useState<"user" | "role">(task.assignmentType);
   const [assigneeUserId, setAssigneeUserId] = useState(task.assigneeUserId);
   const [assigneeRoleId, setAssigneeRoleId] = useState(task.assigneeRoleId);
+  const [userQuery, setUserQuery] = useState("");
+  const [roleQuery, setRoleQuery] = useState("");
+  const [highlightedUserIndex, setHighlightedUserIndex] = useState(0);
+  const [highlightedRoleIndex, setHighlightedRoleIndex] = useState(0);
+  const activeUsers = useMemo(() => users.filter((u) => u.active), [users]);
+  const activeRoles = useMemo(() => roles.filter((r) => r.active), [roles]);
+  const selectedUser = useMemo(
+    () => activeUsers.find((u) => u.id === assigneeUserId),
+    [activeUsers, assigneeUserId]
+  );
+  const selectedRole = useMemo(
+    () => activeRoles.find((r) => r.id === assigneeRoleId),
+    [activeRoles, assigneeRoleId]
+  );
+  const filteredUsers = useMemo(() => {
+    const q = userQuery.trim().toLowerCase();
+    if (!q) return [];
+    return activeUsers
+      .filter((u) => {
+        const name = displayName(u).toLowerCase();
+        return name.includes(q) || u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+      })
+      .slice(0, 8);
+  }, [activeUsers, userQuery]);
+  const filteredRoles = useMemo(() => {
+    const q = roleQuery.trim().toLowerCase();
+    if (!q) return [];
+    return activeRoles.filter((r) => r.name.toLowerCase().includes(q) || r.roleKey.toLowerCase().includes(q)).slice(0, 8);
+  }, [activeRoles, roleQuery]);
 
   function handleSubmit() {
     const trimmed = note.trim();
@@ -63,6 +92,50 @@ export function TaskUpdatePanel({
     });
     setNote("");
     setReassignOpen(false);
+  }
+
+  function onUserSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (!filteredUsers.length) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedUserIndex((prev) => (prev + 1) % filteredUsers.length);
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedUserIndex((prev) => (prev - 1 + filteredUsers.length) % filteredUsers.length);
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const picked = filteredUsers[Math.max(0, highlightedUserIndex)];
+      if (!picked) return;
+      setAssigneeUserId(picked.id);
+      setUserQuery("");
+      setHighlightedUserIndex(0);
+    }
+  }
+
+  function onRoleSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (!filteredRoles.length) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedRoleIndex((prev) => (prev + 1) % filteredRoles.length);
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedRoleIndex((prev) => (prev - 1 + filteredRoles.length) % filteredRoles.length);
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const picked = filteredRoles[Math.max(0, highlightedRoleIndex)];
+      if (!picked) return;
+      setAssigneeRoleId(picked.id);
+      setRoleQuery("");
+      setHighlightedRoleIndex(0);
+    }
   }
 
   return (
@@ -98,29 +171,129 @@ export function TaskUpdatePanel({
               <select
                 className={inputClass}
                 value={assignmentType}
-                onChange={(e) => setAssignmentType(e.target.value as "user" | "role")}
+                onChange={(e) => {
+                  const next = e.target.value as "user" | "role";
+                  setAssignmentType(next);
+                  if (next === "user") {
+                    setRoleQuery("");
+                    setHighlightedUserIndex(0);
+                  } else {
+                    setUserQuery("");
+                    setHighlightedRoleIndex(0);
+                  }
+                }}
               >
                 <option value="user">User</option>
                 <option value="role">Role</option>
               </select>
               {assignmentType === "user" ? (
-                <select className={inputClass} value={assigneeUserId} onChange={(e) => setAssigneeUserId(e.target.value)}>
-                  <option value="">Select user…</option>
-                  {users.filter((u) => u.active).map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {displayName(u)}
-                    </option>
-                  ))}
-                </select>
+                <div className="space-y-2">
+                  {selectedUser ? (
+                    <p className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs text-emerald-800">
+                      Selected: {displayName(selectedUser)}
+                    </p>
+                  ) : null}
+                  <input
+                    type="search"
+                    className={inputClass}
+                    value={userQuery}
+                    onChange={(e) => {
+                      setUserQuery(e.target.value);
+                      setHighlightedUserIndex(0);
+                    }}
+                    onKeyDown={onUserSearchKeyDown}
+                    placeholder="Search user by name, username or email"
+                  />
+                  {userQuery.trim() ? (
+                    <div className="max-h-40 overflow-auto rounded-lg border border-slate-200 bg-white">
+                      {filteredUsers.length ? (
+                        filteredUsers.map((u, idx) => {
+                          const highlighted = idx === highlightedUserIndex;
+                          const active = u.id === assigneeUserId;
+                          return (
+                            <button
+                              key={u.id}
+                              type="button"
+                              onClick={() => {
+                                setAssigneeUserId(u.id);
+                                setUserQuery("");
+                                setHighlightedUserIndex(0);
+                              }}
+                              className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm ${
+                                active
+                                  ? "bg-[#fdf2f8] text-[#9d174d]"
+                                  : highlighted
+                                    ? "bg-slate-100 text-slate-900"
+                                    : "hover:bg-slate-50"
+                              }`}
+                            >
+                              <span>{displayName(u)}</span>
+                              <span className="text-xs text-slate-500">{u.username}</span>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <p className="px-3 py-2 text-sm text-slate-500">No users found.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">Type to search users.</p>
+                  )}
+                </div>
               ) : (
-                <select className={inputClass} value={assigneeRoleId} onChange={(e) => setAssigneeRoleId(e.target.value)}>
-                  <option value="">Select role…</option>
-                  {roles.filter((r) => r.active).map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="space-y-2">
+                  {selectedRole ? (
+                    <p className="rounded-md border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs text-violet-800">
+                      Selected: {selectedRole.name}
+                    </p>
+                  ) : null}
+                  <input
+                    type="search"
+                    className={inputClass}
+                    value={roleQuery}
+                    onChange={(e) => {
+                      setRoleQuery(e.target.value);
+                      setHighlightedRoleIndex(0);
+                    }}
+                    onKeyDown={onRoleSearchKeyDown}
+                    placeholder="Search role"
+                  />
+                  {roleQuery.trim() ? (
+                    <div className="max-h-40 overflow-auto rounded-lg border border-slate-200 bg-white">
+                      {filteredRoles.length ? (
+                        filteredRoles.map((r, idx) => {
+                          const highlighted = idx === highlightedRoleIndex;
+                          const active = r.id === assigneeRoleId;
+                          return (
+                            <button
+                              key={r.id}
+                              type="button"
+                              onClick={() => {
+                                setAssigneeRoleId(r.id);
+                                setRoleQuery("");
+                                setHighlightedRoleIndex(0);
+                              }}
+                              className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm ${
+                                active
+                                  ? "bg-violet-50 text-violet-900"
+                                  : highlighted
+                                    ? "bg-slate-100 text-slate-900"
+                                    : "hover:bg-slate-50"
+                              }`}
+                            >
+                              <span>{r.name}</span>
+                              <span className="text-xs text-slate-500">{r.roleKey}</span>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <p className="px-3 py-2 text-sm text-slate-500">No roles found.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500">Type to search roles.</p>
+                  )}
+                </div>
               )}
             </div>
           ) : null}
