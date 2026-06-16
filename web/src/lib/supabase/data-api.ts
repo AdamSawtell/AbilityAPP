@@ -36,8 +36,12 @@ import {
   supportPlanToRow,
   type ClientActivityRowDb,
   type ClientAlertRow,
+  type ClientBpAssociationRowDb,
   type ClientConsentRowDb,
+  type ClientContactActivityRowDb,
+  type ClientNeedRuleRowDb,
   type ClientRestrictivePracticeRowDb,
+  type ClientRiskRowDb,
   type ClientLocationRowDb,
   type ClientRow,
   type ContractAuditRowDb,
@@ -60,6 +64,7 @@ import {
   type ServiceAgreementLineRow,
   type ServiceAgreementRow,
   type SupportPlanGoalRow,
+  type SupportPlanProgressReviewRowDb,
   type SupportPlanRow,
 } from "@/lib/supabase/mappers";
 import {
@@ -106,6 +111,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     locationsRes,
     restrictivePracticesRes,
     consentsRes,
+    risksRes,
+    bpAssociationsRes,
+    contactActivityRes,
+    needsAndRulesRes,
     productsRes,
     priceListsRes,
     priceLinesRes,
@@ -115,6 +124,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     auditRes,
     supportPlansRes,
     goalsRes,
+    progressReviewsRes,
     planDocsRes,
     employeesRes,
     employeeCredsRes,
@@ -140,6 +150,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("client_location").select("*").order("line_no"),
     supabase.from("client_restrictive_practice").select("*").order("line_no"),
     supabase.from("client_consent").select("*").order("line_no"),
+    supabase.from("client_risk").select("*").order("line_no"),
+    supabase.from("client_bp_association").select("*").order("line_no"),
+    supabase.from("client_contact_activity").select("*").order("line_no"),
+    supabase.from("client_support_receiver_need_rule").select("*").order("line_no"),
     supabase.from("product").select("*").order("search_key"),
     supabase.from("price_list").select("*").order("name"),
     supabase.from("price_list_line").select("*").order("line_no"),
@@ -149,6 +163,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("contract_audit").select("*").order("line_no"),
     supabase.from("support_plan").select("*").order("document_no"),
     supabase.from("support_plan_goal").select("*").order("line_no"),
+    supabase.from("support_plan_goal_progress_review").select("*").order("line_no"),
     supabase.from("plan_assessment_document").select("*").order("document_no"),
     supabase.from("employee").select("*").order("last_name").order("first_name"),
     supabase.from("employee_credential").select("*").order("line_no"),
@@ -176,6 +191,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     locationsRes.error ??
     restrictivePracticesRes.error ??
     consentsRes.error ??
+    risksRes.error ??
+    bpAssociationsRes.error ??
+    contactActivityRes.error ??
+    needsAndRulesRes.error ??
     productsRes.error ??
     priceListsRes.error ??
     priceLinesRes.error ??
@@ -185,6 +204,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     auditRes.error ??
     supportPlansRes.error ??
     goalsRes.error ??
+    progressReviewsRes.error ??
     planDocsRes.error ??
     employeesRes.error ??
     employeeCredsRes.error ??
@@ -213,10 +233,18 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     "client_id"
   );
   const consentsByClient = groupBy(consentsRes.data as ClientConsentRowDb[], "client_id");
+  const risksByClient = groupBy(risksRes.data as ClientRiskRowDb[], "client_id");
+  const bpAssociationsByClient = groupBy(bpAssociationsRes.data as ClientBpAssociationRowDb[], "client_id");
+  const contactActivityByClient = groupBy(contactActivityRes.data as ClientContactActivityRowDb[], "client_id");
+  const needsAndRulesByClient = groupBy(needsAndRulesRes.data as ClientNeedRuleRowDb[], "client_id");
   const linesByPriceList = groupBy(priceLinesRes.data as PriceListLineRow[], "price_list_id");
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
   const goalsByPlan = groupBy(goalsRes.data as SupportPlanGoalRow[], "support_plan_id");
+  const progressReviewsByGoal = groupBy(
+    progressReviewsRes.data as SupportPlanProgressReviewRowDb[],
+    "goal_id"
+  );
   const credsByEmployee = groupBy(employeeCredsRes.data as EmployeeCredentialRowDb[], "employee_id");
   const locsByEmployee = groupBy(employeeLocsRes.data as EmployeeLocationRowDb[], "employee_id");
   const ecByEmployee = groupBy(employeeEcRes.data as EmployeeEmergencyContactRowDb[], "employee_id");
@@ -243,7 +271,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
           activityByClient.get(row.id) ?? [],
           locationsByClient.get(row.id) ?? [],
           restrictivePracticesByClient.get(row.id) ?? [],
-          consentsByClient.get(row.id) ?? []
+          consentsByClient.get(row.id) ?? [],
+          risksByClient.get(row.id) ?? [],
+          bpAssociationsByClient.get(row.id) ?? [],
+          contactActivityByClient.get(row.id) ?? [],
+          needsAndRulesByClient.get(row.id) ?? []
         )
       )
     ),
@@ -257,9 +289,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     contracts: ((contractsRes.data ?? []) as ContractRow[]).map((row) =>
       normalizeContract(contractFromRow(row, auditByContract.get(row.id) ?? []))
     ),
-    supportPlans: ((supportPlansRes.data ?? []) as SupportPlanRow[]).map((row) =>
-      normalizeSupportPlan(supportPlanFromRow(row, goalsByPlan.get(row.id) ?? []))
-    ),
+    supportPlans: ((supportPlansRes.data ?? []) as SupportPlanRow[]).map((row) => {
+      const goals = goalsByPlan.get(row.id) ?? [];
+      const progressReviews = goals.flatMap((goal) => progressReviewsByGoal.get(goal.id) ?? []);
+      return normalizeSupportPlan(supportPlanFromRow(row, goals, progressReviews));
+    }),
     planDocuments: ((planDocsRes.data ?? []) as PlanAssessmentDocumentRow[]).map(planDocumentFromRow),
     employees: ((employeesRes.data ?? []) as EmployeeRow[]).map((row) =>
       normalizeEmployee(
@@ -333,6 +367,10 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
   await replaceChildRows(supabase, "client_location", "client_id", client.id);
   await replaceChildRows(supabase, "client_restrictive_practice", "client_id", client.id);
   await replaceChildRows(supabase, "client_consent", "client_id", client.id);
+  await replaceChildRows(supabase, "client_risk", "client_id", client.id);
+  await replaceChildRows(supabase, "client_bp_association", "client_id", client.id);
+  await replaceChildRows(supabase, "client_contact_activity", "client_id", client.id);
+  await replaceChildRows(supabase, "client_support_receiver_need_rule", "client_id", client.id);
 
   if (client.alerts.length) {
     const { error: alertError } = await supabase.from("client_alert").insert(
@@ -432,6 +470,78 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
     );
     if (consentError) throw consentError;
   }
+
+  if (client.risks.length) {
+    const { error: riskError } = await supabase.from("client_risk").insert(
+      client.risks.map((r) => ({
+        id: r.id,
+        client_id: client.id,
+        line_no: r.lineNo,
+        risk_type: r.riskType,
+        show_as_alert: r.showAsAlert,
+        name: r.name,
+        description: r.description,
+        valid_from: r.validFrom || null,
+        valid_to: r.validTo || null,
+      }))
+    );
+    if (riskError) throw riskError;
+  }
+
+  if (client.bpAssociations.length) {
+    const { error: bpaError } = await supabase.from("client_bp_association").insert(
+      client.bpAssociations.map((b) => ({
+        id: b.id,
+        client_id: client.id,
+        line_no: b.lineNo,
+        associated_bp_name: b.associatedBpName,
+        association_type: b.associationType,
+        relationship: b.relationship,
+        phone: b.phone,
+        mobile: b.mobile,
+        email: b.email,
+        primary_contact: b.primaryContact,
+        valid_from: b.validFrom || null,
+        valid_to: b.validTo || null,
+        notes: b.notes,
+      }))
+    );
+    if (bpaError) throw bpaError;
+  }
+
+  if (client.contactActivity.length) {
+    const { error: caError } = await supabase.from("client_contact_activity").insert(
+      client.contactActivity.map((a) => ({
+        id: a.id,
+        client_id: client.id,
+        line_no: a.lineNo,
+        activity_date: a.date || null,
+        activity_type: a.activityType,
+        contact_name: a.contactName,
+        subject: a.subject,
+        description: a.description,
+        created_by: a.createdBy,
+      }))
+    );
+    if (caError) throw caError;
+  }
+
+  if (client.needsAndRules.length) {
+    const { error: needError } = await supabase.from("client_support_receiver_need_rule").insert(
+      client.needsAndRules.map((n) => ({
+        id: n.id,
+        client_id: client.id,
+        line_no: n.lineNo,
+        category: n.category,
+        name: n.name,
+        rule_text: n.ruleText,
+        show_as_alert: n.showAsAlert,
+        valid_from: n.validFrom || null,
+        valid_to: n.validTo || null,
+      }))
+    );
+    if (needError) throw needError;
+  }
 }
 
 export async function saveProduct(supabase: SupabaseClient, record: ProductRecord) {
@@ -512,6 +622,30 @@ export async function saveSupportPlan(supabase: SupabaseClient, record: SupportP
       }))
     );
     if (goalError) throw goalError;
+  }
+
+  const goalIds = new Set(plan.goals.map((g) => g.id));
+  for (const goalId of goalIds) {
+    await replaceChildRows(supabase, "support_plan_goal_progress_review", "goal_id", goalId);
+  }
+  const progressReviews = (plan.progressReviews ?? []).filter((r) => goalIds.has(r.goalId));
+  if (progressReviews.length) {
+    const { error: prError } = await supabase.from("support_plan_goal_progress_review").insert(
+      progressReviews.map((r) => ({
+        id: r.id,
+        goal_id: r.goalId,
+        line_no: r.lineNo,
+        progress_review_type: r.progressReviewType,
+        review_date: r.reviewDate || null,
+        goal_progress: r.goalProgress,
+        progress_taken: r.progressTaken,
+        receiver_feeling: r.receiverFeeling,
+        next_steps: r.nextSteps,
+        created_by: r.createdBy,
+        updated_by: r.updatedBy,
+      }))
+    );
+    if (prError) throw prError;
   }
 }
 

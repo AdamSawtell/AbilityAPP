@@ -156,6 +156,62 @@ on conflict (id) do update set
   valid_from = excluded.valid_from,
   valid_to = excluded.valid_to;
 
+insert into public.client_risk (id, client_id, line_no, risk_type, show_as_alert, name, description, valid_from, valid_to)
+values
+  ('risk-peanut', 'bp-bern', 1, 'Allergy', 'Yes', 'Allergy to peanuts', 'Anaphylaxis risk. EpiPen in kitchen drawer. Avoid all nut products.', '2021-01-05', null)
+on conflict (id) do update set
+  client_id = excluded.client_id,
+  line_no = excluded.line_no,
+  risk_type = excluded.risk_type,
+  show_as_alert = excluded.show_as_alert,
+  name = excluded.name,
+  description = excluded.description,
+  valid_from = excluded.valid_from,
+  valid_to = excluded.valid_to;
+
+insert into public.client_bp_association (id, client_id, line_no, associated_bp_name, association_type, relationship, phone, mobile, email, primary_contact, valid_from, valid_to, notes)
+values
+  ('bpa-harry', 'bp-bern', 1, 'Harry', 'Family / friend', 'Friend', '', '0411 222 333', '', 'Yes', '2021-01-05', null, 'Best friend. Sunday lunch contact.')
+on conflict (id) do update set
+  client_id = excluded.client_id,
+  line_no = excluded.line_no,
+  associated_bp_name = excluded.associated_bp_name,
+  association_type = excluded.association_type,
+  relationship = excluded.relationship,
+  phone = excluded.phone,
+  mobile = excluded.mobile,
+  email = excluded.email,
+  primary_contact = excluded.primary_contact,
+  valid_from = excluded.valid_from,
+  valid_to = excluded.valid_to,
+  notes = excluded.notes;
+
+insert into public.client_contact_activity (id, client_id, line_no, activity_date, activity_type, contact_name, subject, description, created_by)
+values
+  ('cact-harry', 'bp-bern', 1, '2024-02-14', 'Phone call', 'Harry', 'PACE transition update', 'Confirmed Bernie was happy with plan changes discussed at lunch.', 'Isla Robinson')
+on conflict (id) do update set
+  client_id = excluded.client_id,
+  line_no = excluded.line_no,
+  activity_date = excluded.activity_date,
+  activity_type = excluded.activity_type,
+  contact_name = excluded.contact_name,
+  subject = excluded.subject,
+  description = excluded.description,
+  created_by = excluded.created_by;
+
+insert into public.client_support_receiver_need_rule (id, client_id, line_no, category, name, rule_text, show_as_alert, valid_from, valid_to)
+values
+  ('need-transfer', 'bp-bern', 1, 'Personal care', 'Shower transfer', 'Assist transfer to shower chair. Bernie washes independently then needs assistance back to wheelchair.', 'Yes', '2022-05-01', null)
+on conflict (id) do update set
+  client_id = excluded.client_id,
+  line_no = excluded.line_no,
+  category = excluded.category,
+  name = excluded.name,
+  rule_text = excluded.rule_text,
+  show_as_alert = excluded.show_as_alert,
+  valid_from = excluded.valid_from,
+  valid_to = excluded.valid_to;
+
 insert into public.client_activity (id, client_id, line_no, activity_date, activity_type, subject, description, created_by)
 values
   ('act1', 'bp-bern', 1, '2024-02-14', 'Phone call', 'PACE transition check-in', 'Confirmed NDIS plan details and updated funding body number.', 'Isla Robinson')
@@ -351,6 +407,21 @@ on conflict (id) do update set
   support_required = excluded.support_required,
   start_date = excluded.start_date,
   end_date = excluded.end_date;
+
+insert into public.support_plan_goal_progress_review (id, goal_id, line_no, progress_review_type, review_date, goal_progress, progress_taken, receiver_feeling, next_steps, created_by, updated_by)
+values
+  ('pr-goal-1', 'goal-1', 1, 'Progress Review', '2023-04-01', 'Some Progress', 'Bernie is building upper arm strength with OT sessions fortnightly.', 'Feels encouraged and wants to keep working on transfers.', 'Continue OT and review manual handling plan in June.', 'Isla Robinson', 'Isla Robinson')
+on conflict (id) do update set
+  goal_id = excluded.goal_id,
+  line_no = excluded.line_no,
+  progress_review_type = excluded.progress_review_type,
+  review_date = excluded.review_date,
+  goal_progress = excluded.goal_progress,
+  progress_taken = excluded.progress_taken,
+  receiver_feeling = excluded.receiver_feeling,
+  next_steps = excluded.next_steps,
+  created_by = excluded.created_by,
+  updated_by = excluded.updated_by;
 
 insert into public.plan_assessment_document (id, client_id, document_no, document_type, plan_type, assessment_type, review_date, date_received, document_status, document_developer, support_plan_id)
 values

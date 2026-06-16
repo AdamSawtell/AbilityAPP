@@ -1,6 +1,16 @@
 import type { EnquiryRecord } from "@/lib/enquiry";
-import type { ClientActivityRow, ClientAlertRow, ClientConsentRow, ClientLocationRow, ClientRestrictivePracticeRow } from "@/lib/client-line-tables";
-import { buildConsentAlertList, transferActivitiesToClient } from "@/lib/client-line-tables";
+import type {
+  ClientActivityRow,
+  ClientAlertRow,
+  ClientBpAssociationRow,
+  ClientConsentRow,
+  ClientContactActivityRow,
+  ClientLocationRow,
+  ClientNeedRuleRow,
+  ClientRestrictivePracticeRow,
+  ClientRiskRow,
+} from "@/lib/client-line-tables";
+import { buildConsentAlertList, buildRiskAlertsSummary, transferActivitiesToClient } from "@/lib/client-line-tables";
 import { clientDropdowns } from "@/lib/reference-data";
 
 export { clientDropdowns };
@@ -10,6 +20,10 @@ export type ClientActivity = ClientActivityRow;
 
 export type ClientRestrictivePractice = ClientRestrictivePracticeRow;
 export type ClientConsent = ClientConsentRow;
+export type ClientRisk = ClientRiskRow;
+export type ClientBpAssociation = ClientBpAssociationRow;
+export type ClientContactActivity = ClientContactActivityRow;
+export type ClientNeedRule = ClientNeedRuleRow;
 
 export type ClientLocation = ClientLocationRow;
 
@@ -52,6 +66,10 @@ export type ClientRecord = {
   locations: ClientLocation[];
   restrictivePractices: ClientRestrictivePractice[];
   consents: ClientConsent[];
+  risks: ClientRisk[];
+  bpAssociations: ClientBpAssociation[];
+  contactActivity: ClientContactActivity[];
+  needsAndRules: ClientNeedRule[];
 };
 
 export const clientTabs = [
@@ -196,6 +214,58 @@ export const initialClients: ClientRecord[] = [
         name: "No photo consent provided",
         description: "Participant has not provided consent for photos or video to be taken or shared.",
         validFrom: "2021-01-05",
+        validTo: "",
+      },
+    ],
+    risks: [
+      {
+        id: "risk-peanut",
+        lineNo: 1,
+        riskType: "Allergy",
+        showAsAlert: "Yes",
+        name: "Allergy to peanuts",
+        description: "Anaphylaxis risk. EpiPen in kitchen drawer. Avoid all nut products.",
+        validFrom: "2021-01-05",
+        validTo: "",
+      },
+    ],
+    bpAssociations: [
+      {
+        id: "bpa-harry",
+        lineNo: 1,
+        associatedBpName: "Harry",
+        associationType: "Family / friend",
+        relationship: "Friend",
+        phone: "",
+        mobile: "0411 222 333",
+        email: "",
+        primaryContact: "Yes",
+        validFrom: "2021-01-05",
+        validTo: "",
+        notes: "Best friend. Sunday lunch contact.",
+      },
+    ],
+    contactActivity: [
+      {
+        id: "cact-harry",
+        lineNo: 1,
+        date: "2024-02-14",
+        activityType: "Phone call",
+        contactName: "Harry",
+        subject: "PACE transition update",
+        description: "Confirmed Bernie was happy with plan changes discussed at lunch.",
+        createdBy: "Isla Robinson",
+      },
+    ],
+    needsAndRules: [
+      {
+        id: "need-transfer",
+        lineNo: 1,
+        category: "Personal care",
+        name: "Shower transfer",
+        ruleText: "Assist transfer to shower chair. Bernie washes independently then needs assistance back to wheelchair.",
+        showAsAlert: "Yes",
+        validFrom: "2022-05-01",
         validTo: "",
       },
     ],
@@ -363,8 +433,38 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
     ...row,
     lineNo: row.lineNo ?? index + 1,
   }));
+  const risks = (client.risks ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+  }));
+  const bpAssociations = (client.bpAssociations ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+  }));
+  const contactActivity = (client.contactActivity ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+  }));
+  const needsAndRules = (client.needsAndRules ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+  }));
   const consentAlertList = buildConsentAlertList(consents) || client.consentAlertList;
-  return { ...client, alerts, activity, locations, restrictivePractices, consents, consentAlertList };
+  const riskAlerts = buildRiskAlertsSummary(risks) || client.riskAlerts;
+  return {
+    ...client,
+    alerts,
+    activity,
+    locations,
+    restrictivePractices,
+    consents,
+    risks,
+    bpAssociations,
+    contactActivity,
+    needsAndRules,
+    consentAlertList,
+    riskAlerts,
+  };
 }
 
 export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string): ClientRecord {
@@ -433,5 +533,9 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
           },
         ]
       : [],
+    risks: [],
+    bpAssociations: [],
+    contactActivity: [],
+    needsAndRules: [],
   };
 }

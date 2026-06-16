@@ -234,6 +234,58 @@ export type ClientConsentRowDb = {
   valid_to: string | null;
 };
 
+export type ClientRiskRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  risk_type: string;
+  show_as_alert: string;
+  name: string;
+  description: string;
+  valid_from: string | null;
+  valid_to: string | null;
+};
+
+export type ClientBpAssociationRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  associated_bp_name: string;
+  association_type: string;
+  relationship: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  primary_contact: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  notes: string;
+};
+
+export type ClientContactActivityRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  activity_date: string | null;
+  activity_type: string;
+  contact_name: string;
+  subject: string;
+  description: string;
+  created_by: string;
+};
+
+export type ClientNeedRuleRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  category: string;
+  name: string;
+  rule_text: string;
+  show_as_alert: string;
+  valid_from: string | null;
+  valid_to: string | null;
+};
+
 export type ClientActivityRowDb = {
   id: string;
   client_id: string;
@@ -278,7 +330,11 @@ export function clientFromRow(
   activity: ClientActivityRowDb[],
   locations: ClientLocationRowDb[],
   restrictivePractices: ClientRestrictivePracticeRowDb[] = [],
-  consents: ClientConsentRowDb[] = []
+  consents: ClientConsentRowDb[] = [],
+  risks: ClientRiskRowDb[] = [],
+  bpAssociations: ClientBpAssociationRowDb[] = [],
+  contactActivity: ClientContactActivityRowDb[] = [],
+  needsAndRules: ClientNeedRuleRowDb[] = []
 ): ClientRecord {
   return {
     id: row.id,
@@ -377,6 +433,50 @@ export function clientFromRow(
       description: c.description,
       validFrom: strDate(c.valid_from),
       validTo: strDate(c.valid_to),
+    })),
+    risks: risks.map((r) => ({
+      id: r.id,
+      lineNo: r.line_no,
+      riskType: r.risk_type,
+      showAsAlert: r.show_as_alert,
+      name: r.name,
+      description: r.description,
+      validFrom: strDate(r.valid_from),
+      validTo: strDate(r.valid_to),
+    })),
+    bpAssociations: bpAssociations.map((b) => ({
+      id: b.id,
+      lineNo: b.line_no,
+      associatedBpName: b.associated_bp_name,
+      associationType: b.association_type,
+      relationship: b.relationship,
+      phone: b.phone,
+      mobile: b.mobile,
+      email: b.email,
+      primaryContact: b.primary_contact,
+      validFrom: strDate(b.valid_from),
+      validTo: strDate(b.valid_to),
+      notes: b.notes,
+    })),
+    contactActivity: contactActivity.map((a) => ({
+      id: a.id,
+      lineNo: a.line_no,
+      date: strDate(a.activity_date),
+      activityType: a.activity_type,
+      contactName: a.contact_name,
+      subject: a.subject,
+      description: a.description,
+      createdBy: a.created_by,
+    })),
+    needsAndRules: needsAndRules.map((n) => ({
+      id: n.id,
+      lineNo: n.line_no,
+      category: n.category,
+      name: n.name,
+      ruleText: n.rule_text,
+      showAsAlert: n.show_as_alert,
+      validFrom: strDate(n.valid_from),
+      validTo: strDate(n.valid_to),
     })),
   };
 }
@@ -818,6 +918,20 @@ export type SupportPlanGoalRow = {
   end_date: string | null;
 };
 
+export type SupportPlanProgressReviewRowDb = {
+  id: string;
+  goal_id: string;
+  line_no: number;
+  progress_review_type: string;
+  review_date: string | null;
+  goal_progress: string;
+  progress_taken: string;
+  receiver_feeling: string;
+  next_steps: string;
+  created_by: string;
+  updated_by: string;
+};
+
 export type PlanAssessmentDocumentRow = {
   id: string;
   client_id: string;
@@ -832,7 +946,12 @@ export type PlanAssessmentDocumentRow = {
   support_plan_id: string | null;
 };
 
-export function supportPlanFromRow(row: SupportPlanRow, goals: SupportPlanGoalRow[]): SupportPlanRecord {
+export function supportPlanFromRow(
+  row: SupportPlanRow,
+  goals: SupportPlanGoalRow[],
+  progressReviews: SupportPlanProgressReviewRowDb[] = []
+): SupportPlanRecord {
+  const goalNameById = Object.fromEntries(goals.map((g) => [g.id, g.name || g.goal]));
   return {
     id: row.id,
     clientId: row.client_id,
@@ -911,6 +1030,20 @@ export function supportPlanFromRow(row: SupportPlanRow, goals: SupportPlanGoalRo
         endDate: strDate(g.end_date),
       })
     ),
+    progressReviews: progressReviews.map((r) => ({
+      id: r.id,
+      lineNo: r.line_no,
+      goalId: r.goal_id,
+      goalName: goalNameById[r.goal_id] ?? "",
+      progressReviewType: r.progress_review_type,
+      reviewDate: strDate(r.review_date),
+      goalProgress: r.goal_progress,
+      progressTaken: r.progress_taken,
+      receiverFeeling: r.receiver_feeling,
+      nextSteps: r.next_steps,
+      createdBy: r.created_by,
+      updatedBy: r.updated_by,
+    })),
   };
 }
 

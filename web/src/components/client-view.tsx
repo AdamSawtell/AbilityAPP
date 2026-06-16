@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ClientGoalsPanel, ClientProgressReviewPanel } from "@/components/client-planning-panels";
 import { ClientLocationsPanel } from "@/components/client-locations-panel";
 import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pages";
 import { ClientPlanAssessmentPanel, ClientSupportPlanPanel } from "@/components/support-plan-panels";
@@ -11,9 +12,13 @@ import { useAuth } from "@/lib/auth-store";
 import {
   activityTableConfig,
   alertTableConfig,
+  bpAssociationTableConfig,
   clientTabTableConfigs,
   consentTableConfig,
+  contactActivityTableConfig,
+  needRuleTableConfig,
   restrictivePracticeTableConfig,
+  riskTableConfig,
   type ClientLineCollectionKey,
   type ClientTabWithTable,
 } from "@/lib/client-line-tables";
@@ -139,38 +144,44 @@ function ClientTabIntro({
   );
 }
 
-function tabCount(client: ClientRecord, tab: string, agreementCount: number, hasSupportPlan: boolean): number | null {
+function tabCount(
+  client: ClientRecord,
+  tab: string,
+  agreementCount: number,
+  hasSupportPlan: boolean,
+  goalCount: number,
+  progressReviewCount: number
+): number | null {
   if (tab === "Alerts") return client.alerts.length;
   if (tab === "Activity") return client.activity.length;
   if (tab === "Locations") return client.locations.length;
   if (tab === "Restrictive Practices") return client.restrictivePractices?.length ?? 0;
   if (tab === "Consents and Legal Orders") return client.consents?.length ?? 0;
+  if (tab === "Risks") return client.risks?.length ?? 0;
+  if (tab === "BP Associations") return client.bpAssociations?.length ?? 0;
+  if (tab === "Contact Activity") return client.contactActivity?.length ?? 0;
+  if (tab === "Support Receiver Needs and Rules") return client.needsAndRules?.length ?? 0;
+  if (tab === "Goals") return goalCount;
+  if (tab === "Progress Review") return progressReviewCount;
   if (tab === "Service agreements") return agreementCount;
   if (tab === "Support Plan") return hasSupportPlan ? 1 : 0;
   return null;
-}
-
-function ComingSoonPanel({ tab }: { tab: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
-      <p className="text-sm font-medium text-slate-700">{tab}</p>
-      <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-        This tab will use the same editable line-item table as Alerts and Activity.
-      </p>
-    </div>
-  );
 }
 
 export function ClientTabbedView({
   client,
   agreementCount,
   hasSupportPlan,
+  goalCount = 0,
+  progressReviewCount = 0,
   onChange,
   onLineItemsChange,
 }: {
   client: ClientRecord;
   agreementCount: number;
   hasSupportPlan: boolean;
+  goalCount?: number;
+  progressReviewCount?: number;
   onChange: (key: keyof ClientRecord, value: string | boolean) => void;
   onLineItemsChange: (key: ClientLineCollectionKey, rows: ClientRecord[ClientLineCollectionKey]) => void;
 }) {
@@ -214,7 +225,7 @@ export function ClientTabbedView({
               </p>
               <div className="space-y-0.5">
                 {group.tabs.map((tab) => {
-                  const count = tabCount(client, tab, agreementCount, hasSupportPlan);
+                  const count = tabCount(client, tab, agreementCount, hasSupportPlan, goalCount, progressReviewCount);
                   const active = activeTab === tab;
                   return (
                     <button
@@ -335,6 +346,69 @@ export function ClientTabbedView({
           </>
         ) : null}
 
+        {tableTab === "Risks" && canClientTab("Risks") ? (
+          <>
+            <ClientTabIntro
+              title="Risks"
+              description="Formal risk register for this client. Items marked Show as alert roll up to the risk alerts field on the profile."
+            >
+              {client.riskAlerts ? (
+                <p className="rounded-lg border border-red-200/80 bg-red-50 px-3 py-2 text-sm text-red-950">
+                  <span className="font-medium">Risk alerts: </span>
+                  {client.riskAlerts}
+                </p>
+              ) : null}
+            </ClientTabIntro>
+            <LineItemTable
+              config={riskTableConfig}
+              rows={client.risks ?? []}
+              onChange={(rows) => onLineItemsChange("risks", rows)}
+            />
+          </>
+        ) : null}
+
+        {tableTab === "BP Associations" && canClientTab("BP Associations") ? (
+          <>
+            <ClientTabIntro
+              title="BP associations"
+              description="Link guardians, family, referrers, and other contacts associated with this support receiver."
+            />
+            <LineItemTable
+              config={bpAssociationTableConfig}
+              rows={client.bpAssociations ?? []}
+              onChange={(rows) => onLineItemsChange("bpAssociations", rows)}
+            />
+          </>
+        ) : null}
+
+        {tableTab === "Contact Activity" && canClientTab("Contact Activity") ? (
+          <>
+            <ClientTabIntro
+              title="Contact activity"
+              description="Log outreach with associated contacts. This is separate from the core Activity tab for direct client case notes."
+            />
+            <LineItemTable
+              config={contactActivityTableConfig}
+              rows={client.contactActivity ?? []}
+              onChange={(rows) => onLineItemsChange("contactActivity", rows)}
+            />
+          </>
+        ) : null}
+
+        {tableTab === "Support Receiver Needs and Rules" && canClientTab("Support Receiver Needs and Rules") ? (
+          <>
+            <ClientTabIntro
+              title="Support receiver needs and rules"
+              description="Document daily living rules, support needs, and instructions staff must follow when delivering support."
+            />
+            <LineItemTable
+              config={needRuleTableConfig}
+              rows={client.needsAndRules ?? []}
+              onChange={(rows) => onLineItemsChange("needsAndRules", rows)}
+            />
+          </>
+        ) : null}
+
         {activeTab === "Locations" && canClientTab("Locations") ? (
           <ClientLocationsPanel
             locations={client.locations}
@@ -343,6 +417,26 @@ export function ClientTabbedView({
         ) : null}
 
         {activeTab === "Support Plan" && canClientTab("Support Plan") ? <ClientSupportPlanPanel clientId={client.id} /> : null}
+
+        {activeTab === "Goals" && canClientTab("Goals") ? (
+          <>
+            <ClientTabIntro
+              title="Goals"
+              description="Goals from the active support plan. Changes save to the support plan record."
+            />
+            <ClientGoalsPanel clientId={client.id} />
+          </>
+        ) : null}
+
+        {activeTab === "Progress Review" && canClientTab("Progress Review") ? (
+          <>
+            <ClientTabIntro
+              title="Progress review"
+              description="Record progress reviews against support plan goals."
+            />
+            <ClientProgressReviewPanel clientId={client.id} />
+          </>
+        ) : null}
 
         {activeTab === "Plan & Assessment" && canClientTab("Plan & Assessment") ? (
           <ClientPlanAssessmentPanel clientId={client.id} />
@@ -354,18 +448,6 @@ export function ClientTabbedView({
 
         {activeTab === "Requests" && canClientTab("Requests") ? (
           <RecordTasksPanel entityType="client" entityId={client.id} entityLabel={`${client.searchKey} — ${client.name}`} />
-        ) : null}
-
-        {activeTab !== "Overview" &&
-        activeTab !== "Full profile" &&
-        activeTab !== "Locations" &&
-        activeTab !== "Support Plan" &&
-        activeTab !== "Plan & Assessment" &&
-        activeTab !== "Service agreements" &&
-        activeTab !== "Requests" &&
-        !tableTab &&
-        canClientTab(activeTab) ? (
-          <ComingSoonPanel tab={activeTab} />
         ) : null}
       </div>
     </div>

@@ -11,6 +11,21 @@ export type SupportPlanGoalLine = {
   endDate: string;
 };
 
+export type SupportPlanProgressReviewLine = {
+  id: string;
+  lineNo: number;
+  goalId: string;
+  goalName: string;
+  progressReviewType: string;
+  reviewDate: string;
+  goalProgress: string;
+  progressTaken: string;
+  receiverFeeling: string;
+  nextSteps: string;
+  createdBy: string;
+  updatedBy: string;
+};
+
 export type SupportPlanRecord = {
   id: string;
   clientId: string;
@@ -74,6 +89,7 @@ export type SupportPlanRecord = {
   financialArrangement: string;
   financialArrangementDetails: string;
   goals: SupportPlanGoalLine[];
+  progressReviews: SupportPlanProgressReviewLine[];
   createdBy: string;
   updatedBy: string;
 };
@@ -340,14 +356,34 @@ export const initialSupportPlans: SupportPlanRecord[] = [
         endDate: "2024-12-31",
       },
     ],
+    progressReviews: [
+      {
+        id: "pr-goal-1",
+        lineNo: 1,
+        goalId: "goal-1",
+        goalName: "Independently transfer from wheelchair to shower chair",
+        progressReviewType: "Progress Review",
+        reviewDate: "2023-04-01",
+        goalProgress: "Some Progress",
+        progressTaken: "Bernie is building upper arm strength with OT sessions fortnightly.",
+        receiverFeeling: "Feels encouraged and wants to keep working on transfers.",
+        nextSteps: "Continue OT and review manual handling plan in June.",
+        createdBy: "Isla Robinson",
+        updatedBy: "Isla Robinson",
+      },
+    ],
     createdBy: "Isla Robinson",
     updatedBy: "Oliver Williams",
   },
 ];
 
 export function normalizeSupportPlan(record: SupportPlanRecord): SupportPlanRecord {
-  return {
-    ...record,
-    goals: record.goals.map((g, i) => ({ ...g, lineNo: g.lineNo ?? i + 1 })),
-  };
+  const goals = (record.goals ?? []).map((g, i) => ({ ...g, lineNo: g.lineNo ?? i + 1 }));
+  const goalNameById = Object.fromEntries(goals.map((g) => [g.id, g.name || g.goal]));
+  const progressReviews = (record.progressReviews ?? []).map((row, i) => ({
+    ...row,
+    lineNo: row.lineNo ?? i + 1,
+    goalName: row.goalName || goalNameById[row.goalId] || "",
+  }));
+  return { ...record, goals, progressReviews };
 }

@@ -52,6 +52,54 @@ export type ClientConsentRow = {
   validTo: string;
 };
 
+export type ClientRiskRow = {
+  id: string;
+  lineNo: number;
+  riskType: string;
+  showAsAlert: string;
+  name: string;
+  description: string;
+  validFrom: string;
+  validTo: string;
+};
+
+export type ClientBpAssociationRow = {
+  id: string;
+  lineNo: number;
+  associatedBpName: string;
+  associationType: string;
+  relationship: string;
+  phone: string;
+  mobile: string;
+  email: string;
+  primaryContact: string;
+  validFrom: string;
+  validTo: string;
+  notes: string;
+};
+
+export type ClientContactActivityRow = {
+  id: string;
+  lineNo: number;
+  date: string;
+  activityType: string;
+  contactName: string;
+  subject: string;
+  description: string;
+  createdBy: string;
+};
+
+export type ClientNeedRuleRow = {
+  id: string;
+  lineNo: number;
+  category: string;
+  name: string;
+  ruleText: string;
+  showAsAlert: string;
+  validFrom: string;
+  validTo: string;
+};
+
 export type ClientLocationRow = {
   id: string;
   lineNo: number;
@@ -83,7 +131,11 @@ export type ClientLineCollectionKey =
   | "activity"
   | "locations"
   | "restrictivePractices"
-  | "consents";
+  | "consents"
+  | "risks"
+  | "bpAssociations"
+  | "contactActivity"
+  | "needsAndRules";
 
 export type ClientTabTableConfig<TRow extends { id: string }> = {
   collectionKey: ClientLineCollectionKey;
@@ -205,11 +257,123 @@ export const consentTableConfig: ClientTabTableConfig<ClientConsentRow> = {
   }),
 };
 
+export const riskTableConfig: ClientTabTableConfig<ClientRiskRow> = {
+  collectionKey: "risks",
+  addLabel: "Add risk",
+  emptyMessage: "No risks recorded. Document hazards and risk controls separate from general alerts.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "riskType", label: "Risk type", type: "select", optionsKey: "riskType", required: true },
+    { key: "showAsAlert", label: "Show as alert", type: "select", optionsKey: "showAsAlert" },
+    { key: "name", label: "Name", type: "text", required: true },
+    { key: "description", label: "Description", type: "textarea", className: "min-w-[200px]" },
+    { key: "validFrom", label: "Valid from", type: "date" },
+    { key: "validTo", label: "Valid to", type: "date" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("risk"),
+    lineNo,
+    riskType: "",
+    showAsAlert: "Yes",
+    name: "",
+    description: "",
+    validFrom: new Date().toISOString().slice(0, 10),
+    validTo: "",
+  }),
+};
+
+export const bpAssociationTableConfig: ClientTabTableConfig<ClientBpAssociationRow> = {
+  collectionKey: "bpAssociations",
+  addLabel: "Add association",
+  emptyMessage: "No business partner associations. Link guardians, referrers, and other contacts here.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "associatedBpName", label: "Name", type: "text", required: true },
+    { key: "associationType", label: "Association type", type: "select", optionsKey: "bpAssociationType", required: true },
+    { key: "relationship", label: "Relationship", type: "select", optionsKey: "contactRelationship" },
+    { key: "phone", label: "Phone", type: "text" },
+    { key: "mobile", label: "Mobile", type: "text" },
+    { key: "email", label: "Email", type: "text" },
+    { key: "primaryContact", label: "Primary contact", type: "select", optionsKey: "yesNo" },
+    { key: "validFrom", label: "Valid from", type: "date" },
+    { key: "validTo", label: "Valid to", type: "date" },
+    { key: "notes", label: "Notes", type: "textarea", className: "min-w-[160px]" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("bpa"),
+    lineNo,
+    associatedBpName: "",
+    associationType: "",
+    relationship: "",
+    phone: "",
+    mobile: "",
+    email: "",
+    primaryContact: lineNo === 1 ? "Yes" : "No",
+    validFrom: new Date().toISOString().slice(0, 10),
+    validTo: "",
+    notes: "",
+  }),
+};
+
+export const contactActivityTableConfig: ClientTabTableConfig<ClientContactActivityRow> = {
+  collectionKey: "contactActivity",
+  addLabel: "Add contact activity",
+  emptyMessage: "No contact activity logged. Record outreach linked to guardians, family, or other contacts.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "date", label: "Date", type: "date", required: true },
+    { key: "activityType", label: "Type", type: "select", optionsKey: "contactActivityType" },
+    { key: "contactName", label: "Contact", type: "text", required: true },
+    { key: "subject", label: "Subject", type: "text", required: true },
+    { key: "description", label: "Description", type: "textarea", className: "min-w-[200px]" },
+    { key: "createdBy", label: "Created by", type: "text" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("cact"),
+    lineNo,
+    date: new Date().toISOString().slice(0, 10),
+    activityType: "Phone call",
+    contactName: "",
+    subject: "",
+    description: "",
+    createdBy: "SuperUser",
+  }),
+};
+
+export const needRuleTableConfig: ClientTabTableConfig<ClientNeedRuleRow> = {
+  collectionKey: "needsAndRules",
+  addLabel: "Add need or rule",
+  emptyMessage: "No support needs or rules recorded. Document daily living rules and support requirements.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "category", label: "Category", type: "select", optionsKey: "needRuleCategory", required: true },
+    { key: "name", label: "Name", type: "text", required: true },
+    { key: "ruleText", label: "Rule / need", type: "textarea", className: "min-w-[200px]" },
+    { key: "showAsAlert", label: "Show as alert", type: "select", optionsKey: "showAsAlert" },
+    { key: "validFrom", label: "Valid from", type: "date" },
+    { key: "validTo", label: "Valid to", type: "date" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("need"),
+    lineNo,
+    category: "",
+    name: "",
+    ruleText: "",
+    showAsAlert: "No",
+    validFrom: new Date().toISOString().slice(0, 10),
+    validTo: "",
+  }),
+};
+
 export const clientTabTableConfigs = {
   Alerts: alertTableConfig,
   Activity: activityTableConfig,
   "Restrictive Practices": restrictivePracticeTableConfig,
   "Consents and Legal Orders": consentTableConfig,
+  Risks: riskTableConfig,
+  "BP Associations": bpAssociationTableConfig,
+  "Contact Activity": contactActivityTableConfig,
+  "Support Receiver Needs and Rules": needRuleTableConfig,
 } as const;
 
 export function formatLocationAddress(loc: Pick<ClientLocationRow, "address1" | "address2" | "address3" | "city" | "state" | "postcode" | "country">) {
@@ -263,6 +427,13 @@ export function buildConsentAlertList(consents: ClientConsentRow[]): string {
   return consents
     .filter((c) => c.showAsAlert === "Yes" && (c.name.trim() || c.consentType.trim()))
     .map((c) => `Consent-${c.name.trim() || c.consentType}`)
+    .join("; ");
+}
+
+export function buildRiskAlertsSummary(risks: ClientRiskRow[]): string {
+  return risks
+    .filter((r) => r.showAsAlert === "Yes" && (r.name.trim() || r.riskType.trim()))
+    .map((r) => r.name.trim() || r.riskType)
     .join("; ");
 }
 

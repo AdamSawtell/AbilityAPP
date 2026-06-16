@@ -92,7 +92,10 @@ export function ClientDetailView({ id }: { id: string }) {
   const enquiryLink = client?.enquiryId;
   const hasUnsavedChanges = Boolean(draft);
   const agreementCount = getServiceAgreementsByClientId(id).length;
-  const hasSupportPlan = Boolean(getSupportPlanByClientId(id));
+  const supportPlan = getSupportPlanByClientId(id);
+  const hasSupportPlan = Boolean(supportPlan);
+  const goalCount = supportPlan?.goals.length ?? 0;
+  const progressReviewCount = supportPlan?.progressReviews?.length ?? 0;
   const tabKey = workspaceKey("client", id);
 
   useEffect(() => {
@@ -205,6 +208,8 @@ export function ClientDetailView({ id }: { id: string }) {
               client={client}
               agreementCount={agreementCount}
               hasSupportPlan={hasSupportPlan}
+              goalCount={goalCount}
+              progressReviewCount={progressReviewCount}
               onChange={onChange}
               onLineItemsChange={onLineItemsChange}
             />
