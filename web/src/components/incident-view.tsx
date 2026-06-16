@@ -3,6 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LineItemTable } from "@/components/line-item-table";
+import { IncidentNdisChecklist } from "@/components/incident-ndis-checklist";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { ClientRecordLink, EmployeeRecordLink, LocationRecordLink } from "@/components/record-link";
 import { TaskEntitySearchPicker } from "@/components/task-entity-search";
@@ -582,16 +583,19 @@ export function IncidentTabbedView({
         ) : null}
 
         {activeTab === "Notifications" && canIncidentTab("Notifications") ? (
-          <div className="space-y-4">
-            <p className="text-sm text-slate-600">
-              Log who was notified, when, and how. Use this for internal escalation and NDIS Commission submissions.
-            </p>
-            <LineItemTable
-              config={incidentNotificationTableConfig}
-              rows={record.notifications}
-              onChange={onNotificationsChange}
-              dropdowns={incidentDropdowns}
-            />
+          <div className="space-y-6">
+            <IncidentNdisChecklist incident={record} />
+            <div>
+              <p className="mb-3 text-sm text-slate-600">
+                Log who was notified, when, and how. Use this for internal escalation and NDIS Commission submissions.
+              </p>
+              <LineItemTable
+                config={incidentNotificationTableConfig}
+                rows={record.notifications}
+                onChange={onNotificationsChange}
+                dropdowns={incidentDropdowns}
+              />
+            </div>
           </div>
         ) : null}
       </div>

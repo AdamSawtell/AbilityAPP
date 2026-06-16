@@ -57,6 +57,25 @@ export const ACCESS_REPORTS: AccessReport[] = [
     maxColumns: 20,
     exportFormats: ["csv"],
   },
+  {
+    id: "incident-register",
+    label: "Incident register",
+    description: "All incident reports with status, severity, NDIS fields, and linked record IDs.",
+    moduleGroup: "Core",
+    parentModuleKey: "incidents",
+    maxColumns: 20,
+    exportFormats: ["csv"],
+  },
+  {
+    id: "ndis-reportable-incidents",
+    label: "NDIS reportable incidents",
+    description:
+      "Audit-ready export of NDIS reportable incidents with deadlines, notification status, and checklist completion.",
+    moduleGroup: "Core",
+    parentModuleKey: "incidents",
+    maxColumns: 25,
+    exportFormats: ["csv"],
+  },
 ];
 
 export const ALL_REPORT_IDS = ACCESS_REPORTS.map((r) => r.id);

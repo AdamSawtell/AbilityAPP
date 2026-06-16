@@ -62,6 +62,7 @@ values
   ('role-admin', 'incident-parties-and-links'),
   ('role-admin', 'incident-investigation'),
   ('role-admin', 'incident-notifications'),
+  ('role-admin', 'incidents-compliance'),
   ('role-admin', 'locations'),
   ('role-admin', 'location-overview'),
   ('role-admin', 'location-contact-and-address'),
@@ -134,6 +135,12 @@ values
   ('role-intake', 'client-risks'),
   ('role-intake', 'client-service-agreements'),
   ('role-intake', 'client-support-receiver-needs-and-rules'),
+  ('role-intake', 'incidents'),
+  ('role-intake', 'incident-overview'),
+  ('role-intake', 'incident-parties-and-links'),
+  ('role-intake', 'incident-investigation'),
+  ('role-intake', 'incident-notifications'),
+  ('role-intake', 'incidents-compliance'),
   ('role-intake', 'locations'),
   ('role-intake', 'location-overview'),
   ('role-intake', 'location-contact-and-address'),
@@ -167,6 +174,12 @@ values
   ('role-coordinator', 'client-risks'),
   ('role-coordinator', 'client-service-agreements'),
   ('role-coordinator', 'client-support-receiver-needs-and-rules'),
+  ('role-coordinator', 'incidents'),
+  ('role-coordinator', 'incident-overview'),
+  ('role-coordinator', 'incident-parties-and-links'),
+  ('role-coordinator', 'incident-investigation'),
+  ('role-coordinator', 'incident-notifications'),
+  ('role-coordinator', 'incidents-compliance'),
   ('role-coordinator', 'locations'),
   ('role-coordinator', 'location-overview'),
   ('role-coordinator', 'location-contact-and-address'),
@@ -204,11 +217,15 @@ values
   ('role-intake', 'assign-location-product'),
   ('role-intake', 'assign-task'),
   ('role-intake', 'action-task'),
+  ('role-intake', 'report-incident'),
+  ('role-intake', 'notify-ndis-reportable'),
   ('role-coordinator', 'assign-location-client'),
   ('role-coordinator', 'assign-location-employee'),
   ('role-coordinator', 'assign-location-product'),
   ('role-coordinator', 'assign-task'),
-  ('role-coordinator', 'action-task')
+  ('role-coordinator', 'action-task'),
+  ('role-coordinator', 'report-incident'),
+  ('role-coordinator', 'notify-ndis-reportable')
 on conflict do nothing;
 
 delete from public.app_role_report where role_id in ('role-admin', 'role-intake', 'role-coordinator');
@@ -219,13 +236,19 @@ values
   ('role-admin', 'location-register'),
   ('role-admin', 'employee-register'),
   ('role-admin', 'tasks-all'),
+  ('role-admin', 'incident-register'),
+  ('role-admin', 'ndis-reportable-incidents'),
   ('role-intake', 'client-register'),
   ('role-intake', 'enquiry-register'),
   ('role-intake', 'location-register'),
   ('role-intake', 'tasks-all'),
+  ('role-intake', 'incident-register'),
+  ('role-intake', 'ndis-reportable-incidents'),
   ('role-coordinator', 'client-register'),
   ('role-coordinator', 'location-register'),
-  ('role-coordinator', 'tasks-all')
+  ('role-coordinator', 'tasks-all'),
+  ('role-coordinator', 'incident-register'),
+  ('role-coordinator', 'ndis-reportable-incidents')
 on conflict do nothing;
 
 delete from public.app_role_task_type where role_id in ('role-admin', 'role-intake', 'role-coordinator');

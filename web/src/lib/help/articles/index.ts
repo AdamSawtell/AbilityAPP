@@ -2,6 +2,7 @@ import { quickTaskArticles } from "@/lib/help/articles/quick-tasks";
 import { adminArticle, maintainingGuideArticle, reportsArticle, servicesArticle } from "@/lib/help/articles/services-admin";
 import { clientsArticle, locationsArticle } from "@/lib/help/articles/clients-locations";
 import { enquiriesArticle, tasksArticle } from "@/lib/help/articles/core";
+import { incidentsArticle, reportIncidentQuickArticle } from "@/lib/help/articles/incidents";
 import { gettingStartedArticle, homeArticle, navigationArticle } from "@/lib/help/articles/foundation";
 import { employeesArticle } from "@/lib/help/articles/people";
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
@@ -10,9 +11,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
   gettingStartedArticle,
   navigationArticle,
   ...quickTaskArticles,
+  reportIncidentQuickArticle,
   homeArticle,
   tasksArticle,
   enquiriesArticle,
+  incidentsArticle,
   clientsArticle,
   locationsArticle,
   employeesArticle,

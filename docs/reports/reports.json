@@ -76,6 +76,34 @@
       "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/components/report-runner.tsx"],
       "logic": ["web/src/lib/reports/runners/tasks-all.ts", "web/src/lib/reports/runners/index.ts"],
       "tables": ["task", "task_activity"]
+    },
+    {
+      "number": 6,
+      "id": "incident-register",
+      "name": "Incident register",
+      "status": "live",
+      "moduleGroup": "Core",
+      "parentModuleKey": "incidents",
+      "maxColumns": 20,
+      "exportFormats": ["csv"],
+      "summary": "All incident reports with status, severity, NDIS fields, and linked record IDs.",
+      "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/components/report-runner.tsx", "web/src/app/incidents/compliance/page.tsx"],
+      "logic": ["web/src/lib/reports/runners/incident-register.ts", "web/src/lib/reports/runners/index.ts"],
+      "tables": ["incident", "incident_party", "incident_action", "incident_notification"]
+    },
+    {
+      "number": 7,
+      "id": "ndis-reportable-incidents",
+      "name": "NDIS reportable incidents",
+      "status": "live",
+      "moduleGroup": "Core",
+      "parentModuleKey": "incidents",
+      "maxColumns": 25,
+      "exportFormats": ["csv"],
+      "summary": "Audit-ready export of NDIS reportable incidents with deadlines and checklist completion.",
+      "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/app/incidents/compliance/page.tsx"],
+      "logic": ["web/src/lib/reports/runners/incident-register.ts", "web/src/lib/incident-ndis.ts"],
+      "tables": ["incident", "incident_notification"]
     }
   ]
 }

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { incidentHomeStats } from "@/lib/incident-hub";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { taskCountsForSession } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
@@ -272,7 +273,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { tabs } = useWorkspace();
   const { session, canWindow, canReport } = useAuth();
-  const { tasks } = useData();
+  const { tasks, incidents } = useData();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const showHome = canWindow("home");
@@ -291,6 +292,8 @@ export function SidebarNav() {
   );
   const openTaskCount = taskCounts.assignedToMe + taskCounts.myRole;
   const taskBadge = taskStats?.overdue ? taskStats.overdue : openTaskCount > 0 ? openTaskCount : 0;
+  const incidentStats = useMemo(() => incidentHomeStats(incidents), [incidents]);
+  const incidentBadge = incidentStats.overdue;
   const showEnquiries = canWindow("enquiries");
   const showClients = canWindow("clients");
   const showIncidents = canWindow("incidents");
@@ -477,7 +480,23 @@ export function SidebarNav() {
             active={pathname.startsWith("/incidents")}
             icon={<NavIcon name="incident" />}
             label="Incident reports"
+            badge={incidentBadge > 0 ? incidentBadge : undefined}
+            badgeUrgent={incidentBadge > 0}
           />
+          <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+            <Link href="/incidents" className={subLinkClass(pathname === "/incidents")}>
+              All incidents
+            </Link>
+            {canWindow("incidents-compliance") ? (
+              <Link
+                href="/incidents/compliance"
+                className={subLinkClass(pathname.startsWith("/incidents/compliance"))}
+              >
+                NDIS compliance
+                {incidentBadge > 0 ? ` (${incidentBadge})` : ""}
+              </Link>
+            ) : null}
+          </div>
         </div>
       ) : null}
 

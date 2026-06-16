@@ -22,12 +22,20 @@ export default function IncidentsPage() {
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Incident reports" }]}
       audit={{ moduleLabel: "Incident reports" }}
       actions={
-        <Link
-          href="/incidents/new"
-          className="inline-flex items-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#b51266]"
-        >
-          Report incident
-        </Link>
+        <>
+          <Link
+            href="/incidents/compliance"
+            className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-900 shadow-sm hover:bg-amber-100"
+          >
+            NDIS compliance
+          </Link>
+          <Link
+            href="/incidents/new"
+            className="inline-flex items-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#b51266]"
+          >
+            Report incident
+          </Link>
+        </>
       }
     >
       <Suspense fallback={<IncidentListFallback />}>

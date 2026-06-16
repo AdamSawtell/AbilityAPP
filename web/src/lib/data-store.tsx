@@ -45,6 +45,7 @@ import {
   type TaskRecord,
 } from "@/lib/task";
 import { convertEnquiryToClient } from "@/lib/convert";
+import { syncClientsForIncident } from "@/lib/incident-client-sync";
 import {
   createIncident,
   initialIncidents as seedIncidents,
@@ -375,10 +376,26 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const next = createIncident(partial, prev);
       const created = persistRecordAudit("incident", next, true);
       setIncidents((current) => [...current, created]);
+
+      const prevClients = clientsRef.current;
+      const nextClients = syncClientsForIncident(prevClients, created, undefined, {
+        isCreate: true,
+        createdBy: created.createdBy,
+      });
+      if (nextClients !== prevClients) {
+        setClients(nextClients);
+        for (let i = 0; i < nextClients.length; i++) {
+          if (nextClients[i] === prevClients[i]) continue;
+          const before = prevClients[i];
+          const stamped = persistRecordAudit("client", nextClients[i], false, before);
+          void persistRemote((supabase) => saveClient(supabase, stamped));
+        }
+      }
+
       void persistRemote((supabase) => saveIncident(supabase, created));
       return created;
     },
-    [persistRemote, incidentsRef]
+    [persistRemote, incidentsRef, clientsRef]
   );
 
   const updateIncident = useCallback(
@@ -386,9 +403,22 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const before = incidentsRef.current.find((i) => i.id === record.id);
       const stamped = persistRecordAudit("incident", normalizeIncident(record), false, before, audit);
       setIncidents((prev) => prev.map((i) => (i.id === stamped.id ? stamped : i)));
+
+      const prevClients = clientsRef.current;
+      const nextClients = syncClientsForIncident(prevClients, stamped, before);
+      if (nextClients !== prevClients) {
+        setClients(nextClients);
+        for (let i = 0; i < nextClients.length; i++) {
+          if (nextClients[i] === prevClients[i]) continue;
+          const beforeClient = prevClients[i];
+          const stampedClient = persistRecordAudit("client", nextClients[i], false, beforeClient);
+          void persistRemote((supabase) => saveClient(supabase, stampedClient));
+        }
+      }
+
       void persistRemote((supabase) => saveIncident(supabase, stamped));
     },
-    [persistRemote, incidentsRef]
+    [persistRemote, incidentsRef, clientsRef]
   );
 
   const upsertClient = useCallback(

@@ -71,6 +71,18 @@ export const INCIDENT_DEPENDENT_WINDOWS = buildDetailWindows(
   "Incident Report"
 );
 
+export const INCIDENT_EXTRA_WINDOWS: AccessWindow[] = [
+  {
+    key: "incidents-compliance",
+    label: "NDIS compliance",
+    group: "Core",
+    href: "/incidents/compliance",
+    parentWindowKey: "incidents",
+    abilityErpName: "Incident Report — NDIS compliance",
+    showInSidebar: false,
+  },
+];
+
 export const CONTRACT_DEPENDENT_WINDOWS = buildDetailWindows(
   "contracts",
   "contract",
@@ -147,7 +159,7 @@ function buildDependentsForParent(parentKey: string): AccessWindow[] {
     case "enquiries":
       return ENQUIRY_DEPENDENT_WINDOWS;
     case "incidents":
-      return INCIDENT_DEPENDENT_WINDOWS;
+      return [...INCIDENT_DEPENDENT_WINDOWS, ...INCIDENT_EXTRA_WINDOWS];
     case "employees":
       return EMPLOYEE_DEPENDENT_WINDOWS;
     case "locations":
