@@ -467,6 +467,87 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
   };
 }
 
+export function makeClientSearchKey(
+  firstName: string,
+  lastName: string,
+  existing: { searchKey: string }[]
+): string {
+  const base = `${firstName}${lastName}`.replace(/[^a-zA-Z]/g, "").slice(0, 8) || "client";
+  let key = base.charAt(0).toUpperCase() + base.slice(1, 4).toLowerCase();
+  let n = 1;
+  while (existing.some((c) => c.searchKey.toLowerCase() === key.toLowerCase())) {
+    key = `${base.slice(0, 3)}${n}`;
+    n += 1;
+  }
+  return key;
+}
+
+export function emptyClientRecord(
+  partial: {
+    firstName: string;
+    lastName: string;
+    preferredName?: string;
+    email?: string;
+    phone?: string;
+    status?: string;
+    fundingBody?: string;
+    disability?: string;
+    services?: string;
+    searchKey?: string;
+  },
+  createdBy: string,
+  existing: { searchKey: string }[]
+): ClientRecord {
+  const firstName = partial.firstName.trim();
+  const lastName = partial.lastName.trim();
+  const searchKey = partial.searchKey?.trim() || makeClientSearchKey(firstName, lastName, existing);
+  const name = `${firstName} ${lastName}`.trim();
+  return normalizeClient({
+    id: `bp-${searchKey.toLowerCase()}`,
+    enquiryId: "",
+    searchKey,
+    businessPartnerGroup: "Support Receiver",
+    name,
+    riskAlerts: "",
+    consentAlertList: "",
+    firstName,
+    preferredName: partial.preferredName?.trim() || firstName,
+    lastName,
+    middleName: "",
+    email: partial.email?.trim() ?? "",
+    phone: partial.phone?.trim() ?? "",
+    status: partial.status?.trim() || "1_Prospect",
+    birthday: "",
+    isEstimatedAge: false,
+    gender: "",
+    decisionMaking: "",
+    lgbtiqa: "",
+    livingArrangement: "",
+    salesRepresentative: "",
+    services: partial.services?.trim() ?? "",
+    fundingBody: partial.fundingBody?.trim() ?? "",
+    fundingBodyNumber: "",
+    transitionedToPace: "",
+    dateSupportCommencement: new Date().toISOString().slice(0, 10),
+    dateSupportCeased: "",
+    aboriginalTorresStraitIslander: "",
+    culturalAffiliation: "",
+    disability: partial.disability?.trim() ?? "",
+    additionalDisabilityInformation: "",
+    createdBy,
+    updatedBy: createdBy,
+    alerts: [],
+    activity: [],
+    locations: [],
+    restrictivePractices: [],
+    consents: [],
+    risks: [],
+    bpAssociations: [],
+    contactActivity: [],
+    needsAndRules: [],
+  });
+}
+
 export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string): ClientRecord {
   return {
     id: `bp-${searchKey.toLowerCase()}`,

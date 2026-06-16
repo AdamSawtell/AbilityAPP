@@ -39,6 +39,14 @@ export function legacyActionTypeToId(actionType: string): string {
   return LEGACY_ACTION_TYPE_IDS[actionType] ?? "tt-other";
 }
 
+const ID_TO_LEGACY_ACTION_TYPE = Object.fromEntries(
+  Object.entries(LEGACY_ACTION_TYPE_IDS).map(([legacy, id]) => [id, legacy])
+) as Record<string, string>;
+
+export function taskTypeIdToLegacy(taskTypeId: string): string {
+  return ID_TO_LEGACY_ACTION_TYPE[taskTypeId] ?? "Other";
+}
+
 export function normalizeTaskType(type: TaskTypeRecord): TaskTypeRecord {
   return {
     ...type,

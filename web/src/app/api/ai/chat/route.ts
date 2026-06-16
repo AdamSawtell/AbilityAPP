@@ -1,18 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
 import { fetchAgents } from "@/lib/ai/agents-api";
+import { createAiDatabase } from "@/lib/ai/db";
 import { runChatTurn, isAiConfigured } from "@/lib/ai/runtime";
 import { SEED_AGENTS } from "@/lib/ai/seed";
 import type { ChatMessage, ChatRequestBody, ChatThreadState } from "@/lib/ai/types";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
-
-function serviceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url?.trim() || !key?.trim()) return null;
-  return createSupabaseClient(url, key, { auth: { persistSession: false } });
-}
 
 function sanitizeMessages(raw: unknown): ChatMessage[] {
   if (!Array.isArray(raw)) return [];
@@ -67,10 +60,10 @@ export async function POST(request: Request) {
   }
 
   let agents = SEED_AGENTS;
-  const supabase = isSupabaseConfigured() ? serviceClient() : null;
-  if (supabase) {
+  const db = isSupabaseConfigured() ? createAiDatabase(session) : null;
+  if (db?.client) {
     try {
-      const dbAgents = await fetchAgents(supabase);
+      const dbAgents = await fetchAgents(db.client);
       if (dbAgents.length) agents = dbAgents;
     } catch {
       // seed fallback
@@ -90,7 +83,7 @@ export async function POST(request: Request) {
       session,
       messages,
       threadState,
-      supabase,
+      db,
     });
     return NextResponse.json(result);
   } catch (err) {

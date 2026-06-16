@@ -14,6 +14,9 @@ import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import { normalizeServiceAgreement } from "@/lib/service-agreement";
 import type { PlanAssessmentDocument, SupportPlanRecord } from "@/lib/support-plan";
 import { normalizeSupportPlan } from "@/lib/support-plan";
+import type { TaskRecord, TaskUpdate } from "@/lib/task";
+import { normalizeTask } from "@/lib/task";
+import { legacyActionTypeToId, taskTypeIdToLegacy } from "@/lib/task-type";
 import {
   clientFromRow,
   clientToRow,
@@ -927,4 +930,159 @@ export async function saveLocation(supabase: SupabaseClient, record: LocationRec
     );
     if (activityError) throw activityError;
   }
+}
+
+type TaskRow = {
+  id: string;
+  document_no: string;
+  title: string;
+  description: string;
+  status: string;
+  action_type: string;
+  priority: string;
+  due_date: string | null;
+  assignment_type: string;
+  assignee_user_id: string | null;
+  assignee_role_id: string | null;
+  entity_type: string;
+  entity_id: string;
+  entity_label: string;
+  created_by_user_id: string | null;
+  created_by: string;
+  updated_by: string;
+  completed_by: string;
+  completed_at: string | null;
+  resolution_notes: string;
+  updates?: TaskUpdate[];
+};
+
+function taskFromRow(row: TaskRow): TaskRecord {
+  return normalizeTask({
+    id: row.id,
+    documentNo: row.document_no,
+    title: row.title,
+    description: row.description,
+    status: row.status as TaskRecord["status"],
+    actionType: row.action_type,
+    taskTypeId: legacyActionTypeToId(row.action_type),
+    priority: (row.priority as TaskRecord["priority"]) || "Normal",
+    dueDate: row.due_date ?? "",
+    assignmentType: row.assignment_type === "role" ? "role" : "user",
+    assigneeUserId: row.assignee_user_id ?? "",
+    assigneeRoleId: row.assignee_role_id ?? "",
+    entityType: (row.entity_type || "") as TaskRecord["entityType"],
+    entityId: row.entity_id ?? "",
+    entityLabel: row.entity_label ?? "",
+    createdByUserId: row.created_by_user_id ?? "",
+    createdBy: row.created_by ?? "",
+    updatedBy: row.updated_by ?? "",
+    completedBy: row.completed_by ?? "",
+    completedAt: row.completed_at ?? "",
+    resolutionNotes: row.resolution_notes ?? "",
+    updates: Array.isArray(row.updates) ? row.updates : [],
+  });
+}
+
+function taskToRow(task: TaskRecord): TaskRow {
+  const normalized = normalizeTask(task);
+  return {
+    id: normalized.id,
+    document_no: normalized.documentNo,
+    title: normalized.title,
+    description: normalized.description,
+    status: normalized.status,
+    action_type: taskTypeIdToLegacy(normalized.taskTypeId),
+    priority: normalized.priority,
+    due_date: normalized.dueDate || null,
+    assignment_type: normalized.assignmentType,
+    assignee_user_id: normalized.assigneeUserId || null,
+    assignee_role_id: normalized.assigneeRoleId || null,
+    entity_type: normalized.entityType || "",
+    entity_id: normalized.entityId || "",
+    entity_label: normalized.entityLabel || "",
+    created_by_user_id: normalized.createdByUserId || null,
+    created_by: normalized.createdBy,
+    updated_by: normalized.updatedBy,
+    completed_by: normalized.completedBy,
+    completed_at: normalized.completedAt || null,
+    resolution_notes: normalized.resolutionNotes,
+    updates: normalized.updates,
+  };
+}
+
+export async function fetchTasks(supabase: SupabaseClient): Promise<TaskRecord[]> {
+  const { data, error } = await supabase.from("app_task").select("*").order("updated_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((row) => taskFromRow(row as TaskRow));
+}
+
+export async function saveTask(supabase: SupabaseClient, task: TaskRecord) {
+  const row = taskToRow(normalizeTask(task));
+  const { error } = await supabase.from("app_task").upsert(row);
+  if (error) throw error;
+}
+
+export async function appendClientActivity(
+  supabase: SupabaseClient,
+  clientId: string,
+  activity: {
+    id: string;
+    lineNo: number;
+    date: string;
+    activityType: string;
+    subject: string;
+    description: string;
+    createdBy: string;
+  }
+) {
+  const { error } = await supabase.from("client_activity").insert({
+    id: activity.id,
+    client_id: clientId,
+    line_no: activity.lineNo,
+    activity_date: activity.date || null,
+    activity_type: activity.activityType,
+    subject: activity.subject,
+    description: activity.description,
+    created_by: activity.createdBy,
+  });
+  if (error) throw error;
+}
+
+export async function nextClientActivityLineNo(supabase: SupabaseClient, clientId: string): Promise<number> {
+  const { data } = await supabase
+    .from("client_activity")
+    .select("line_no")
+    .eq("client_id", clientId)
+    .order("line_no", { ascending: false })
+    .limit(1);
+  const max = data?.[0]?.line_no;
+  return typeof max === "number" ? max + 1 : 1;
+}
+
+export type ClientPatchFields = {
+  status?: string;
+  email?: string;
+  phone?: string;
+  fundingBody?: string;
+  disability?: string;
+  services?: string;
+  preferredName?: string;
+};
+
+export async function patchClientFields(
+  supabase: SupabaseClient,
+  clientId: string,
+  fields: ClientPatchFields,
+  updatedBy: string
+) {
+  const row: Record<string, string> = { updated_by: updatedBy };
+  if (fields.status !== undefined) row.status = fields.status;
+  if (fields.email !== undefined) row.email = fields.email;
+  if (fields.phone !== undefined) row.phone = fields.phone;
+  if (fields.fundingBody !== undefined) row.funding_body = fields.fundingBody;
+  if (fields.disability !== undefined) row.disability = fields.disability;
+  if (fields.services !== undefined) row.services = fields.services;
+  if (fields.preferredName !== undefined) row.preferred_name = fields.preferredName;
+  const { error } = await supabase.from("client").update(row).eq("id", clientId);
+  if (error) throw error;
 }

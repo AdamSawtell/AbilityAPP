@@ -1,31 +1,31 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
-import { canAccessWindow } from "@/lib/access/catalog";
+import { aiCanAccessWindow } from "@/lib/ai/access";
 
-export async function runClientSearch(
+export async function runEnquirySearch(
   supabase: SupabaseClient,
   session: AuthSession,
   args: { query?: string; limit?: number; sortBy?: "name" | "updated" }
 ) {
-  if (!canAccessWindow(session.windowKeys, "clients")) {
-    return { query: args.query ?? "", count: 0, results: [], note: "You do not have access to client records." };
+  if (!aiCanAccessWindow(session, "enquiries")) {
+    return { count: 0, results: [], note: "You do not have access to enquiries." };
   }
 
   const query = args.query?.trim() ?? "";
-  const limit = Math.min(Math.max(args.limit ?? 15, 1), 30);
+  const limit = Math.min(Math.max(Number(args.limit) || 15, 1), 30);
   const sortBy = args.sortBy === "updated" ? "updated" : "name";
 
   const { data, error } = await supabase
-    .from("client")
-    .select("id, search_key, name, status, email, phone, updated_at")
-    .order(sortBy === "updated" ? "updated_at" : "name", { ascending: sortBy !== "updated" })
+    .from("enquiry")
+    .select("id, document_no, first_name, last_name, status, email, phone, updated_at")
+    .order(sortBy === "updated" ? "updated_at" : "last_name", { ascending: sortBy !== "updated" })
     .limit(sortBy === "updated" && !query ? limit : 200);
   if (error) throw error;
 
   const q = query.toLowerCase();
   const filtered = (data ?? []).filter((row) => {
     if (!q) return true;
-    const blob = [row.name, row.search_key, row.email, row.phone, row.status].join(" ").toLowerCase();
+    const blob = [row.first_name, row.last_name, row.document_no, row.email, row.status].join(" ").toLowerCase();
     return blob.includes(q);
   });
 
@@ -36,17 +36,16 @@ export async function runClientSearch(
 
   return {
     query,
-    sortBy,
     count: sorted.length,
     results: sorted.slice(0, limit).map((row) => ({
       id: row.id,
-      searchKey: row.search_key,
-      name: row.name,
+      documentNo: row.document_no,
+      name: `${row.first_name} ${row.last_name}`.trim(),
       status: row.status,
       email: row.email,
       phone: row.phone,
       updatedAt: row.updated_at,
-      href: `/clients/${row.search_key ?? row.id}`,
+      href: `/enquiries/${row.id}`,
     })),
   };
 }

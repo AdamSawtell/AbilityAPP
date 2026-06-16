@@ -51,6 +51,7 @@ import { stampRecordAudit } from "@/lib/audit";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   fetchAllData,
+  fetchTasks,
   saveClient,
   saveContract,
   saveEmployee,
@@ -60,6 +61,7 @@ import {
   saveProduct,
   saveServiceAgreement,
   saveSupportPlan,
+  saveTask,
 } from "@/lib/supabase/data-api";
 
 type DataStore = {
@@ -231,6 +233,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         try {
           const supabase = createClient();
           const data = await fetchAllData(supabase);
+          let loadedTasks = loadLocal().tasks;
+          try {
+            const dbTasks = await fetchTasks(supabase);
+            if (dbTasks.length) loadedTasks = dbTasks.map(normalizeTask);
+          } catch {
+            // keep local/seed tasks
+          }
           if (!cancelled) {
             setEnquiries(data.enquiries);
             setClients(data.clients);
@@ -242,7 +251,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setPlanDocuments(data.planDocuments);
             setEmployees(data.employees);
             setLocations(data.locations ?? seedLocations.map(normalizeLocation));
-            setTasks(loadLocal().tasks);
+            setTasks(loadedTasks);
             setSource("supabase");
             setHydrated(true);
             return;
@@ -558,20 +567,26 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         });
         return [...prev, stampRecordAudit(created, true)];
       });
+      void persistRemote((supabase) => saveTask(supabase, created));
       return created;
     },
-    []
+    [persistRemote]
   );
 
   const mutateTask = useCallback((id: string, mutator: (task: TaskRecord) => TaskRecord) => {
+    let updated!: TaskRecord;
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
         const next = normalizeTask(mutator(t));
-        return stampRecordAudit(next, false);
+        updated = stampRecordAudit(next, false);
+        return updated;
       })
     );
-  }, []);
+    if (updated) {
+      void persistRemote((supabase) => saveTask(supabase, updated));
+    }
+  }, [persistRemote]);
 
   const relinkEntityTasks = useCallback(
     (

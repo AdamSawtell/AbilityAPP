@@ -20,12 +20,27 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
   {
     key: "client_search",
     label: "Client search",
-    description: "Find client records by name or search key.",
+    description: "Find client records by name or search key, sorted by name or last updated.",
+  },
+  {
+    key: "client_get",
+    label: "Client details",
+    description: "Get one client with recent activity notes.",
+  },
+  {
+    key: "client_list_recent",
+    label: "Recently updated clients",
+    description: "List clients updated within the last N hours.",
   },
   {
     key: "records_updated_since",
     label: "Recently updated records",
     description: "List records updated within the last N hours.",
+  },
+  {
+    key: "task_search",
+    label: "Task search",
+    description: "Find tasks by title, assignee, status, or linked record.",
   },
   {
     key: "task_draft_create",
@@ -36,6 +51,26 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     key: "task_draft_confirm",
     label: "Confirm task draft",
     description: "Confirm a pending task draft after explicit user approval.",
+  },
+  {
+    key: "client_draft_create",
+    label: "Create client draft",
+    description: "Prepare a client for user confirmation (does not create until confirmed).",
+  },
+  {
+    key: "client_draft_confirm",
+    label: "Confirm client draft",
+    description: "Confirm a pending client draft after explicit user approval.",
+  },
+  {
+    key: "client_activity_draft_create",
+    label: "Add client activity draft",
+    description: "Prepare a client activity note for confirmation.",
+  },
+  {
+    key: "client_activity_draft_confirm",
+    label: "Confirm client activity",
+    description: "Save a pending client activity note after explicit approval.",
   },
 ];
 

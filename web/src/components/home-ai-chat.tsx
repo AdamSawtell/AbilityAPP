@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
-import type { ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
+import { normalizeClient } from "@/lib/client";
+import { normalizeEnquiry } from "@/lib/enquiry";
+import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
+import { ChatMessageContent } from "@/components/chat-message-content";
 import {
   clearHomeChatSession,
   loadHomeChatSession,
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
-import type { TaskEntityType } from "@/lib/task";
 
 type AgentSummary = {
   id: string;
@@ -19,45 +21,62 @@ type AgentSummary = {
   description: string;
 };
 
-const SUGGESTIONS = [
+const DEFAULT_SUGGESTIONS = [
   "How do I create a client?",
   "Find activities updated in the last 2 hours",
   "Which records were updated today?",
 ];
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+const AGENT_SUGGESTIONS: Record<string, string[]> = {
+  "agent-clients": [
+    "Who was updated most recently?",
+    "Show me Bernie's recent activity",
+    "Create a new client",
+  ],
+  "agent-tasks": ["Create a task for the intake team", "Mark REQ-1001 complete"],
+  "agent-enquiries": ["Find open enquiries", "Convert enquiry to client"],
+};
+
+type UiMessage = ChatMessage & { attachments?: ChatDisplayAttachment[] };
+
+function MessageBubble({ message }: { message: UiMessage }) {
   const isUser = message.role === "user";
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[92%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+        className={`max-w-[92%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
           isUser
             ? "bg-[#d4147a] text-white"
             : "bg-white text-slate-800 ring-1 ring-slate-200"
         }`}
       >
-        {message.content}
+        {isUser ? (
+          <div className="whitespace-pre-wrap">{message.content}</div>
+        ) : (
+          <ChatMessageContent content={message.content} attachments={message.attachments} />
+        )}
       </div>
     </div>
   );
 }
 
 export function HomeAiChat() {
-  const { session, canAgent, users } = useAuth();
-  const { addTask } = useData();
+  const { session, canAgent } = useAuth();
+  const { upsertClient, upsertTask, clients, addEnquiry } = useData();
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
   const [configured, setConfigured] = useState(true);
   const [agentId, setAgentId] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<UiMessage[]>([]);
   const [threadState, setThreadState] = useState<ChatThreadState>({});
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [lastWrite, setLastWrite] = useState<ChatResponseBody["writeResult"]>();
   const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const messagesRef = useRef<ChatMessage[]>([]);
+  const messagesRef = useRef<UiMessage[]>([]);
   const threadStateRef = useRef(threadState);
 
   threadStateRef.current = threadState;
@@ -139,34 +158,31 @@ export function HomeAiChat() {
   }, [loading, focusComposer]);
 
   const activeAgent = useMemo(() => agents.find((a) => a.id === agentId), [agents, agentId]);
+  const suggestions = useMemo(
+    () => AGENT_SUGGESTIONS[agentId] ?? DEFAULT_SUGGESTIONS,
+    [agentId]
+  );
 
   const applyCreatedTask = useCallback(
     (createdTask: NonNullable<ChatResponseBody["createdTask"]>) => {
-      if (!session) return;
-      const user = users.find((u) => u.id === session.userId);
-      const display = user ? `${user.firstName} ${user.lastName}`.trim() || user.username : session.displayName;
-      addTask({
-        title: createdTask.title,
-        description: createdTask.description,
-        status: "Open",
-        taskTypeId: createdTask.taskTypeId,
-        priority: createdTask.priority,
-        dueDate: createdTask.dueDate,
-        assignmentType: createdTask.assignmentType,
-        assigneeUserId: createdTask.assigneeUserId,
-        assigneeRoleId: createdTask.assigneeRoleId,
-        entityType: (createdTask.entityType || "") as TaskEntityType | "",
-        entityId: createdTask.entityId,
-        entityLabel: createdTask.entityLabel,
-        createdByUserId: session.userId,
-        createdBy: display,
-        updatedBy: display,
-        completedBy: "",
-        completedAt: "",
-        resolutionNotes: "",
-      });
+      upsertTask(createdTask);
     },
-    [addTask, session, users]
+    [upsertTask]
+  );
+
+  const applyCreatedClient = useCallback(
+    (createdClient: NonNullable<ChatResponseBody["createdClient"]>) => {
+      const existing = clients.find((c) => c.id === createdClient.id);
+      upsertClient(normalizeClient(existing ? { ...existing, ...createdClient } : createdClient));
+    },
+    [clients, upsertClient]
+  );
+
+  const applyCreatedEnquiry = useCallback(
+    (createdEnquiry: NonNullable<ChatResponseBody["createdEnquiry"]>) => {
+      addEnquiry(normalizeEnquiry(createdEnquiry));
+    },
+    [addEnquiry]
   );
 
   const sendMessage = useCallback(
@@ -203,11 +219,22 @@ export function HomeAiChat() {
           setInput(text);
           return;
         }
-        const visible = data.messages.filter((m) => m.role === "user" || m.role === "assistant");
+        const visible = data.messages
+          .filter((m) => m.role === "user" || m.role === "assistant")
+          .map((m, i, arr) => {
+            const isLastAssistant = m.role === "assistant" && i === arr.length - 1;
+            return isLastAssistant && data.attachments?.length
+              ? { ...m, attachments: data.attachments }
+              : m;
+          }) as UiMessage[];
         messagesRef.current = visible;
         setMessages(visible);
         setThreadState(data.threadState ?? {});
         if (data.createdTask) applyCreatedTask(data.createdTask);
+        if (data.updatedTask) upsertTask(data.updatedTask);
+        if (data.createdClient) applyCreatedClient(data.createdClient);
+        if (data.createdEnquiry) applyCreatedEnquiry(data.createdEnquiry);
+        if (data.writeResult) setLastWrite(data.writeResult);
       } catch {
         const rolledBack = messagesRef.current.slice(0, -1);
         messagesRef.current = rolledBack;
@@ -218,7 +245,7 @@ export function HomeAiChat() {
         setLoading(false);
       }
     },
-    [agentId, applyCreatedTask, input, loading]
+    [agentId, applyCreatedClient, applyCreatedEnquiry, applyCreatedTask, input, loading, upsertTask]
   );
 
   const resetChat = useCallback(() => {
@@ -226,6 +253,7 @@ export function HomeAiChat() {
     setThreadState({});
     setError("");
     setInput("");
+    setLastWrite(undefined);
     if (session) clearHomeChatSession(session.userId, session.activeRoleId);
     focusComposer();
   }, [session, focusComposer]);
@@ -284,6 +312,19 @@ export function HomeAiChat() {
         </div>
       ) : null}
 
+      {lastWrite ? (
+        <div className="border-b border-emerald-100 bg-emerald-50 px-5 py-2.5 text-sm text-emerald-900">
+          Saved to database:{" "}
+          {lastWrite.href ? (
+            <Link href={lastWrite.href} className="font-medium underline">
+              {lastWrite.label}
+            </Link>
+          ) : (
+            <span className="font-medium">{lastWrite.label}</span>
+          )}
+        </div>
+      ) : null}
+
       <div
         ref={scrollRef}
         className="min-h-[12rem] max-h-80 flex-1 space-y-3 overflow-y-auto overscroll-y-contain bg-slate-50/60 px-4 py-4"
@@ -296,7 +337,7 @@ export function HomeAiChat() {
           <div className="rounded-xl bg-white px-4 py-6 text-center ring-1 ring-slate-200">
             <p className="text-sm font-medium text-slate-700">Try asking:</p>
             <div className="mt-3 flex flex-wrap justify-center gap-2">
-              {SUGGESTIONS.map((suggestion) => (
+              {suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   type="button"

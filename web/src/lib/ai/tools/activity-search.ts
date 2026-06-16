@@ -94,6 +94,17 @@ function matchesQuery(haystack: string, query: string): boolean {
   return haystack.toLowerCase().includes(q);
 }
 
+function canSearchActivity(session: AuthSession, cfg: ActivityTableConfig): boolean {
+  if (canAccessWindow(session.windowKeys, cfg.windowKey)) return true;
+  if (
+    (cfg.source === "client_activity" || cfg.source === "client_contact_activity") &&
+    canAccessWindow(session.windowKeys, "clients")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export async function runActivitySearch(
   supabase: SupabaseClient,
   session: AuthSession,
@@ -106,7 +117,7 @@ export async function runActivitySearch(
   const hits: ActivityHit[] = [];
 
   for (const cfg of ACTIVITY_TABLES) {
-    if (!canAccessWindow(session.windowKeys, cfg.windowKey)) continue;
+    if (!canSearchActivity(session, cfg)) continue;
     if (hits.length >= limit) break;
 
     let q = supabase.from(cfg.table).select("*").order("updated_at", { ascending: false });
