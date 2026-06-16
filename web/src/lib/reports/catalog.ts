@@ -21,6 +21,42 @@ export const ACCESS_REPORTS: AccessReport[] = [
     maxColumns: 20,
     exportFormats: ["csv"],
   },
+  {
+    id: "enquiry-register",
+    label: "Enquiry register",
+    description: "Intake enquiry listing with participant details, funding, status, and activity counts.",
+    moduleGroup: "Enquiries",
+    parentModuleKey: "enquiries",
+    maxColumns: 20,
+    exportFormats: ["csv"],
+  },
+  {
+    id: "location-register",
+    label: "Location register",
+    description: "Support location listing with address, capacity, and linked client, staff, and service counts.",
+    moduleGroup: "Locations",
+    parentModuleKey: "locations",
+    maxColumns: 20,
+    exportFormats: ["csv"],
+  },
+  {
+    id: "employee-register",
+    label: "Employee register",
+    description: "Employee Business Partner listing with employment, contact, and compliance counts.",
+    moduleGroup: "People",
+    parentModuleKey: "employees",
+    maxColumns: 20,
+    exportFormats: ["csv"],
+  },
+  {
+    id: "tasks-all",
+    label: "Tasks — all",
+    description: "Full task listing with type, assignee, linked record, status, and completion details.",
+    moduleGroup: "Core",
+    parentModuleKey: "tasks-all",
+    maxColumns: 20,
+    exportFormats: ["csv"],
+  },
 ];
 
 export const ALL_REPORT_IDS = ACCESS_REPORTS.map((r) => r.id);

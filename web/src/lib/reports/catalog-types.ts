@@ -1,5 +1,5 @@
 /** Module groups mirror core sidebar menu areas. */
-export type ReportModuleGroup = "Clients" | "Enquiries" | "Locations" | "People" | "Services";
+export type ReportModuleGroup = "Core" | "Clients" | "Enquiries" | "Locations" | "People" | "Services";
 
 export type ReportExportFormat = "csv";
 

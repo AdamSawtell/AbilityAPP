@@ -93,6 +93,7 @@ values
   ('role-admin', 'contract-overview'),
   ('role-admin', 'contract-audit'),
   ('role-admin', 'reports'),
+  ('role-admin', 'reports-advance'),
   ('role-admin', 'admin-organization'),
   ('role-admin', 'admin-reference-data'),
   ('role-admin', 'admin-roles'),
@@ -206,8 +207,17 @@ delete from public.app_role_report where role_id in ('role-admin', 'role-intake'
 insert into public.app_role_report (role_id, report_id)
 values
   ('role-admin', 'client-register'),
+  ('role-admin', 'enquiry-register'),
+  ('role-admin', 'location-register'),
+  ('role-admin', 'employee-register'),
+  ('role-admin', 'tasks-all'),
   ('role-intake', 'client-register'),
-  ('role-coordinator', 'client-register')
+  ('role-intake', 'enquiry-register'),
+  ('role-intake', 'location-register'),
+  ('role-intake', 'tasks-all'),
+  ('role-coordinator', 'client-register'),
+  ('role-coordinator', 'location-register'),
+  ('role-coordinator', 'tasks-all')
 on conflict do nothing;
 
 delete from public.app_role_task_type where role_id in ('role-admin', 'role-intake', 'role-coordinator');

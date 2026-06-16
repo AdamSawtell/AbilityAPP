@@ -71,7 +71,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
     active: true,
     windowKeys: ["home", "reports", ...TASK_ACCESS, ...windowKeysWithDependents("enquiries", "clients", "locations")],
     processIds: ["enquiry-to-client", "assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task"],
-    reportIds: ["client-register"],
+    reportIds: ["client-register", "enquiry-register", "location-register", "tasks-all"],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
   },
   {
@@ -82,7 +82,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
     active: true,
     windowKeys: ["home", "reports", ...TASK_ACCESS, ...windowKeysWithDependents("clients", "locations", "products", "price-lists", "service-agreements")],
     processIds: ["assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task"],
-    reportIds: ["client-register"],
+    reportIds: ["client-register", "location-register", "tasks-all"],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   },
 ];

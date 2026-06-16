@@ -13,15 +13,69 @@
       "exportFormats": ["csv"],
       "summary": "Support receiver listing with demographics, funding, risk alerts, and location counts.",
       "doc": "docs/reports/01-client-register.md",
-      "entryPoints": [
-        "web/src/app/reports/[id]/page.tsx",
-        "web/src/components/report-runner.tsx"
-      ],
-      "logic": [
-        "web/src/lib/reports/runners/client-register.ts",
-        "web/src/lib/reports/runners/index.ts"
-      ],
+      "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/components/report-runner.tsx"],
+      "logic": ["web/src/lib/reports/runners/client-register.ts", "web/src/lib/reports/runners/index.ts"],
       "tables": ["client", "client_alert", "client_location"]
+    },
+    {
+      "number": 2,
+      "id": "enquiry-register",
+      "name": "Enquiry register",
+      "status": "live",
+      "moduleGroup": "Enquiries",
+      "parentModuleKey": "enquiries",
+      "maxColumns": 20,
+      "exportFormats": ["csv"],
+      "summary": "Intake enquiry listing with participant details, funding, status, and activity counts.",
+      "doc": "docs/reports/02-enquiry-register.md",
+      "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/components/report-runner.tsx"],
+      "logic": ["web/src/lib/reports/runners/enquiry-register.ts", "web/src/lib/reports/runners/index.ts"],
+      "tables": ["enquiry", "enquiry_activity"]
+    },
+    {
+      "number": 3,
+      "id": "location-register",
+      "name": "Location register",
+      "status": "live",
+      "moduleGroup": "Locations",
+      "parentModuleKey": "locations",
+      "maxColumns": 20,
+      "exportFormats": ["csv"],
+      "summary": "Support location listing with address, capacity, and linked client, staff, and service counts.",
+      "doc": "docs/reports/03-location-register.md",
+      "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/components/report-runner.tsx"],
+      "logic": ["web/src/lib/reports/runners/location-register.ts", "web/src/lib/reports/runners/index.ts"],
+      "tables": ["support_location", "support_location_client", "support_location_employee", "support_location_product"]
+    },
+    {
+      "number": 4,
+      "id": "employee-register",
+      "name": "Employee register",
+      "status": "live",
+      "moduleGroup": "People",
+      "parentModuleKey": "employees",
+      "maxColumns": 20,
+      "exportFormats": ["csv"],
+      "summary": "Employee Business Partner listing with employment, contact, and compliance counts.",
+      "doc": "docs/reports/04-employee-register.md",
+      "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/components/report-runner.tsx"],
+      "logic": ["web/src/lib/reports/runners/employee-register.ts", "web/src/lib/reports/runners/index.ts"],
+      "tables": ["employee", "employee_credential", "employee_alert", "employee_location"]
+    },
+    {
+      "number": 5,
+      "id": "tasks-all",
+      "name": "Tasks — all",
+      "status": "live",
+      "moduleGroup": "Core",
+      "parentModuleKey": "tasks-all",
+      "maxColumns": 20,
+      "exportFormats": ["csv"],
+      "summary": "Full task listing with type, assignee, linked record, status, and completion details.",
+      "doc": "docs/reports/05-tasks-all.md",
+      "entryPoints": ["web/src/app/reports/[id]/page.tsx", "web/src/components/report-runner.tsx"],
+      "logic": ["web/src/lib/reports/runners/tasks-all.ts", "web/src/lib/reports/runners/index.ts"],
+      "tables": ["task", "task_activity"]
     }
   ]
 }

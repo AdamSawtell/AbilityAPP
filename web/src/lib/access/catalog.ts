@@ -143,6 +143,21 @@ const MODULE_WINDOWS: AccessWindow[] = [
     abilityErpName: "Reports",
     showInSidebar: true,
   },
+];
+
+const REPORT_WINDOWS: AccessWindow[] = [
+  {
+    key: "reports-advance",
+    label: "Reports Advance",
+    group: "Core",
+    parentWindowKey: "reports",
+    href: "/reports/advance",
+    abilityErpName: "Reports — SQL console",
+    showInSidebar: false,
+  },
+];
+
+const ADMIN_WINDOWS: AccessWindow[] = [
   {
     key: "admin-organization",
     label: "Organisation",
@@ -196,7 +211,9 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
   ...SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[7],
   ...CONTRACT_DEPENDENT_WINDOWS,
-  ...MODULE_WINDOWS.slice(8),
+  MODULE_WINDOWS[8],
+  ...REPORT_WINDOWS,
+  ...ADMIN_WINDOWS,
 ];
 
 export const TASK_WINDOW_KEYS = TASK_WINDOWS.map((w) => w.key);
