@@ -190,6 +190,14 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     abilityErpName: "Request type / Task management",
     showInSidebar: true,
   },
+  {
+    key: "admin-ai-agents",
+    label: "AI assistants",
+    group: "Admin",
+    href: "/admin/ai-agents",
+    abilityErpName: "AI assistants",
+    showInSidebar: true,
+  },
 ];
 
 export const ACCESS_WINDOWS: AccessWindow[] = [

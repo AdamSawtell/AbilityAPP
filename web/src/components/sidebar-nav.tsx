@@ -50,6 +50,12 @@ const adminLinks = [
     windowKey: "admin-task-management",
     match: (path: string) => path.startsWith("/admin/task-management"),
   },
+  {
+    href: "/admin/ai-agents",
+    label: "AI assistants",
+    windowKey: "admin-ai-agents",
+    match: (path: string) => path.startsWith("/admin/ai-agents"),
+  },
 ];
 
 function NavIcon({ name }: { name: string }) {

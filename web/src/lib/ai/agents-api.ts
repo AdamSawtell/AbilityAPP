@@ -58,6 +58,59 @@ export async function resolveRoleAgentIds(supabase: SupabaseClient, roleId: stri
   return (data ?? []).map((r) => r.agent_id);
 }
 
+export async function fetchRoleAgentMap(supabase: SupabaseClient): Promise<Record<string, string[]>> {
+  const { data, error } = await supabase.from("app_role_agent").select("role_id, agent_id");
+  if (error?.code === "42P01") return {};
+  if (error) throw error;
+  const map: Record<string, string[]> = {};
+  for (const row of data ?? []) {
+    const list = map[row.role_id] ?? [];
+    list.push(row.agent_id);
+    map[row.role_id] = list;
+  }
+  return map;
+}
+
+export async function saveAgent(supabase: SupabaseClient, agent: AiAgentRecord) {
+  const { error } = await supabase.from("app_ai_agent").upsert({
+    id: agent.id,
+    agent_key: agent.agentKey,
+    name: agent.name,
+    description: agent.description,
+    system_prompt: agent.systemPrompt,
+    model: agent.model,
+    active: agent.active,
+  });
+  if (error) throw error;
+
+  await supabase.from("app_ai_agent_capability").delete().eq("agent_id", agent.id);
+  if (agent.capabilities.length) {
+    const { error: capError } = await supabase.from("app_ai_agent_capability").insert(
+      agent.capabilities.map((c) => ({
+        agent_id: agent.id,
+        capability_type: c.type,
+        capability_key: c.key,
+      }))
+    );
+    if (capError) throw capError;
+  }
+}
+
+export async function saveRoleAgents(supabase: SupabaseClient, roleId: string, agentIds: string[]) {
+  const { error: delError } = await supabase.from("app_role_agent").delete().eq("role_id", roleId);
+  if (delError?.code !== "42P01" && delError) throw delError;
+  if (!agentIds.length) return;
+  const { error } = await supabase.from("app_role_agent").insert(
+    agentIds.map((agent_id) => ({ role_id: roleId, agent_id }))
+  );
+  if (error) throw error;
+}
+
+export async function deleteAgent(supabase: SupabaseClient, agentId: string) {
+  const { error } = await supabase.from("app_ai_agent").delete().eq("id", agentId);
+  if (error) throw error;
+}
+
 export async function logChatTurn(
   supabase: SupabaseClient,
   entry: {

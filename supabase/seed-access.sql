@@ -98,6 +98,7 @@ values
   ('role-admin', 'admin-reference-data'),
   ('role-admin', 'admin-roles'),
   ('role-admin', 'admin-task-management'),
+  ('role-admin', 'admin-ai-agents'),
   ('role-intake', 'home'),
   ('role-intake', 'reports'),
   ('role-intake', 'tasks'),
