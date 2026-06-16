@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { normalizeClient } from "@/lib/client";
@@ -79,24 +79,28 @@ export function HomeAiChat() {
   const messagesRef = useRef<UiMessage[]>([]);
   const threadStateRef = useRef(threadState);
 
-  threadStateRef.current = threadState;
-  messagesRef.current = messages;
+  useEffect(() => {
+    threadStateRef.current = threadState;
+    messagesRef.current = messages;
+  }, [threadState, messages]);
 
   useEffect(() => {
     if (!session) {
-      setHydrated(false);
+      startTransition(() => setHydrated(false));
       return;
     }
     const saved = loadHomeChatSession(session.userId, session.activeRoleId);
-    if (saved) {
-      setMessages(saved.messages);
-      setThreadState(saved.threadState);
-      if (saved.agentId) setAgentId(saved.agentId);
-    } else {
-      setMessages([]);
-      setThreadState({});
-    }
-    setHydrated(true);
+    startTransition(() => {
+      if (saved) {
+        setMessages(saved.messages);
+        setThreadState(saved.threadState);
+        if (saved.agentId) setAgentId(saved.agentId);
+      } else {
+        setMessages([]);
+        setThreadState({});
+      }
+      setHydrated(true);
+    });
   }, [session?.userId, session?.activeRoleId, session]);
 
   useEffect(() => {
@@ -111,7 +115,7 @@ export function HomeAiChat() {
   useEffect(() => {
     if (!session) return;
     let cancelled = false;
-    setAgentsLoading(true);
+    startTransition(() => setAgentsLoading(true));
     void (async () => {
       try {
         const res = await fetch("/api/ai/agents", { credentials: "include" });

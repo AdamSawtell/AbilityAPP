@@ -37,7 +37,7 @@ export function resolveUserId(users: AppUserRecord[], hint: string): string {
 }
 
 export function resolveRoleId(roles: AppRoleRecord[], hint: string): string {
-  let q = normalize(hint).replace(/\s+role$/, "").trim();
+  const q = normalize(hint).replace(/\s+role$/, "").trim();
   if (!q) return "";
 
   if (q === "admin" || q === "superuser" || q === "abilityapp admin") {

@@ -23,7 +23,7 @@ import {
   type ClientTabWithTable,
 } from "@/lib/client-line-tables";
 import { useReferenceData } from "@/lib/config-store";
-import { normalizeClient, type ClientFieldDef, type ClientRecord } from "@/lib/client";
+import { type ClientFieldDef, type ClientRecord } from "@/lib/client";
 import { clientDropdowns, clientTabGroups, coreOverviewFields, profileSections } from "@/lib/client";
 
 function Field({

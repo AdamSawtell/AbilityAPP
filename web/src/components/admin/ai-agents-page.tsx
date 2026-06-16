@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, startTransition } from "react";
 import { AppShell } from "@/components/app-shell";
 import type { AiAgentRecord, AiToolName } from "@/lib/ai/types";
 import type { AiToolDefinition } from "@/lib/ai/catalog";
@@ -61,7 +61,9 @@ export function AiAgentsAdminView() {
   }, []);
 
   useEffect(() => {
-    void load();
+    startTransition(() => {
+      void load();
+    });
   }, [load]);
 
   function openAgent(id: string) {
