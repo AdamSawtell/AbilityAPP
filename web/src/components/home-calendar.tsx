@@ -50,16 +50,26 @@ function eventStyles(event: PersonalCalendarEvent): string {
 }
 
 function CalendarEventChip({ event, compact }: { event: PersonalCalendarEvent; compact?: boolean }) {
+  const summary = event.subtitle?.trim() || "Open record";
   return (
-    <Link
-      href={event.href}
-      title={`${eventKindLabel(event.kind)}: ${event.title}`}
-      className={`block truncate rounded-md px-1.5 py-0.5 text-left text-[11px] font-medium ring-1 transition ${eventStyles(event)} ${
-        compact ? "leading-tight" : ""
-      }`}
-    >
-      {event.title}
-    </Link>
+    <div className="group relative">
+      <Link
+        href={event.href}
+        title={`${eventKindLabel(event.kind)}: ${event.title}`}
+        className={`block truncate rounded-md px-1.5 py-0.5 text-left text-[11px] font-medium ring-1 transition ${eventStyles(event)} ${
+          compact ? "leading-tight" : ""
+        }`}
+      >
+        {event.title}
+      </Link>
+      <div className="pointer-events-none invisible absolute left-0 z-20 mt-1 w-64 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-700 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+        <p className="font-semibold text-slate-900">{event.title}</p>
+        <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+          {eventKindLabel(event.kind)} · {event.date}
+        </p>
+        <p className="mt-1 text-slate-600">{summary}</p>
+      </div>
+    </div>
   );
 }
 

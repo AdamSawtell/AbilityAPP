@@ -147,6 +147,7 @@ export function WorkforcePlanningPage() {
                       <Link
                         key={event.id}
                         href={`/employees/${event.employeeId}?tab=Leave`}
+                        title={`${event.employeeName} · ${event.leaveType} · ${event.startDate} to ${event.endDate}${event.notes ? ` · ${event.notes}` : ""}`}
                         className={`block truncate rounded px-1.5 py-0.5 text-[10px] font-medium ring-1 ${statusPill(
                           event.status
                         )}`}
