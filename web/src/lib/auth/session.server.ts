@@ -21,8 +21,13 @@ export type SessionTokenPayload = {
   exp: number;
 };
 
+function readEnv(name: string): string | undefined {
+  // Bracket access avoids Next.js replacing missing vars with `undefined` at build time.
+  return process.env[name]?.trim() || undefined;
+}
+
 function sessionSecret(): string {
-  const secret = process.env.AUTH_SESSION_SECRET?.trim();
+  const secret = readEnv("AUTH_SESSION_SECRET");
   if (secret) return secret;
   if (process.env.NODE_ENV === "production") {
     throw new Error(

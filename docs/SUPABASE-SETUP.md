@@ -40,6 +40,8 @@ In Amplify → **Environment variables**, add:
 
 **Save**, then **redeploy** the app. `NEXT_PUBLIC_*` values are baked in at build time; `AUTH_SESSION_SECRET` must be present before session creation works on production.
 
+`amplify.yml` writes these values into `web/.env.production` during the Amplify build so Next.js API routes can read `AUTH_SESSION_SECRET` at runtime. If the build fails with “AUTH_SESSION_SECRET is missing”, the variable is not set in the Amplify console for that branch.
+
 ## GitHub secrets (for auto-migrate)
 
 Repo → **[Settings → Secrets and variables → Actions](https://github.com/AdamSawtell/AbilityAPP/settings/secrets/actions)** → **Secrets** tab (not Variables) → **New repository secret**.

@@ -6,6 +6,20 @@ applications:
         preBuild:
           commands:
             - npm ci
+            # Amplify console env vars are not always visible to Next.js API routes at runtime.
+            # Materialise server + public env into .env.production before `next build`.
+            - |
+              if [ -z "$AUTH_SESSION_SECRET" ]; then
+                echo "ERROR: AUTH_SESSION_SECRET is missing in Amplify environment variables."
+                exit 1
+              fi
+              cat > .env.production <<EOF
+              AUTH_SESSION_SECRET=${AUTH_SESSION_SECRET}
+              NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+              NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+              SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+              EOF
+              echo "Wrote .env.production for Next.js (AUTH_SESSION_SECRET length: ${#AUTH_SESSION_SECRET})"
         build:
           commands:
             - npm run build
