@@ -210,6 +210,14 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "admin-task-automations",
+    label: "Task automations",
+    group: "Admin",
+    href: "/admin/task-automations",
+    abilityErpName: "Task automation rules",
+    showInSidebar: true,
+  },
+  {
     key: "admin-ai-agents",
     label: "AI assistants",
     group: "Admin",

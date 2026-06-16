@@ -59,6 +59,9 @@ export type TaskRecord = {
   completedAt: string;
   resolutionNotes: string;
   updates: TaskUpdate[];
+  /** Set when created by a task automation rule. */
+  automationRuleId?: string;
+  automationDedupeKey?: string;
 };
 
 export const taskStatusOptions: TaskStatus[] = ["Open", "In progress", "Completed", "Cancelled"];
@@ -165,6 +168,8 @@ export function normalizeTask(task: TaskRecord & { actionType?: string }): TaskR
     completedAt: task.completedAt ?? "",
     resolutionNotes: task.resolutionNotes ?? "",
     updates: task.updates ?? [],
+    automationRuleId: task.automationRuleId ?? "",
+    automationDedupeKey: task.automationDedupeKey ?? "",
   };
 }
 

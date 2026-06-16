@@ -5,6 +5,7 @@ import { DataProvider } from "@/lib/data-store";
 import { ReferenceDataProvider } from "@/lib/config-store";
 import { TaskTypeProvider } from "@/lib/task-type-store";
 import { OrganizationProvider } from "@/lib/organization-store";
+import { TaskAutomationRunner } from "@/components/task-automation-runner";
 import { WorkspaceProvider } from "@/lib/workspace-store";
 import "./globals.css";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
               <TaskTypeProvider>
                 <DataProvider>
                   <OrganizationProvider>
+                    <TaskAutomationRunner />
                     <WorkspaceProvider>{children}</WorkspaceProvider>
                   </OrganizationProvider>
                 </DataProvider>

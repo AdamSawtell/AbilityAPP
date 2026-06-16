@@ -44,6 +44,11 @@ import {
   type TaskEntityType,
   type TaskRecord,
 } from "@/lib/task";
+import { initialTaskAutomations, sortTaskAutomations, type TaskAutomationRecord } from "@/lib/task-automation";
+import { evaluateIncidentAutomations, type AutomationTaskDraft } from "@/lib/task-automation/engine";
+import { incidentEventsFromSave } from "@/lib/task-automation/incident-triggers";
+import { investigationSlaDays } from "@/lib/incident-analytics";
+import { defaultOrganization } from "@/lib/organization";
 import { convertEnquiryToClient } from "@/lib/convert";
 import { syncClientsForIncident } from "@/lib/incident-client-sync";
 import { syncLocationsForIncident } from "@/lib/incident-location-sync";
@@ -65,6 +70,7 @@ import { stampRecordAudit } from "@/lib/audit";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   fetchAllData,
+  fetchTaskAutomations,
   fetchTasks,
   saveClient,
   saveContract,
@@ -77,6 +83,8 @@ import {
   saveServiceAgreement,
   saveSupportPlan,
   saveTask,
+  saveTaskAutomation,
+  deleteTaskAutomation,
 } from "@/lib/supabase/data-api";
 
 type DataStore = {
@@ -92,6 +100,8 @@ type DataStore = {
   employees: EmployeeRecord[];
   locations: LocationRecord[];
   tasks: TaskRecord[];
+  taskAutomations: TaskAutomationRecord[];
+  hydrated: boolean;
   source: "supabase" | "local";
   addEnquiry: (record: EnquiryRecord) => EnquiryRecord;
   updateEnquiry: (record: EnquiryRecord, audit?: AuditLogOptions) => void;
@@ -119,6 +129,9 @@ type DataStore = {
     partial: Omit<TaskRecord, "id" | "documentNo" | "updates">,
     options?: { assigneeDisplayName?: string }
   ) => TaskRecord;
+  addAutomationTasks: (drafts: AutomationTaskDraft[]) => void;
+  upsertTaskAutomation: (rule: TaskAutomationRecord) => void;
+  deleteTaskAutomation: (id: string) => void;
   mutateTask: (id: string, mutator: (task: TaskRecord) => TaskRecord) => void;
   relinkEntityTasks: (
     fromType: TaskEntityType,
@@ -133,6 +146,21 @@ type DataStore = {
   getIncidentsForLocation: (locationId: string) => IncidentRecord[];
   getTaskById: (id: string) => TaskRecord | undefined;
 };
+
+const ORGANIZATION_STORAGE_KEY = "abilityapp-organization";
+
+function readInvestigationSlaDays(): number {
+  if (typeof window === "undefined") return defaultOrganization().incidentInvestigationSlaDays;
+  try {
+    const raw = localStorage.getItem(ORGANIZATION_STORAGE_KEY);
+    if (!raw?.trim()) return defaultOrganization().incidentInvestigationSlaDays;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return defaultOrganization().incidentInvestigationSlaDays;
+    return investigationSlaDays((parsed as { incidentInvestigationSlaDays?: number }).incidentInvestigationSlaDays);
+  } catch {
+    return defaultOrganization().incidentInvestigationSlaDays;
+  }
+}
 
 const DataContext = createContext<DataStore | null>(null);
 const STORAGE_KEY = "abilityerp-clone-data";
@@ -237,6 +265,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [employees, setEmployees] = useState<EmployeeRecord[]>(defaults.employees);
   const [locations, setLocations] = useState<LocationRecord[]>(defaults.locations);
   const [tasks, setTasks] = useState<TaskRecord[]>(defaults.tasks);
+  const [taskAutomations, setTaskAutomations] = useState<TaskAutomationRecord[]>(initialTaskAutomations);
   const [hydrated, setHydrated] = useState(false);
   const [source, setSource] = useState<"supabase" | "local">("local");
 
@@ -250,6 +279,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
   const locationsRef = useSyncRef(locations);
+  const tasksRef = useSyncRef(tasks);
+  const automationsRef = useSyncRef(taskAutomations);
 
   useEffect(() => {
     let cancelled = false;
@@ -260,11 +291,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           const supabase = createClient();
           const data = await fetchAllData(supabase);
           let loadedTasks = loadLocal().tasks;
+          let loadedAutomations = initialTaskAutomations;
           try {
             const dbTasks = await fetchTasks(supabase);
             if (dbTasks.length) loadedTasks = dbTasks.map(normalizeTask);
           } catch {
             // keep local/seed tasks
+          }
+          try {
+            const dbAutomations = await fetchTaskAutomations(supabase);
+            if (dbAutomations.length) loadedAutomations = dbAutomations;
+          } catch {
+            // keep seed automations
           }
           if (!cancelled) {
             setEnquiries(data.enquiries);
@@ -279,6 +317,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setEmployees(data.employees);
             setLocations(data.locations ?? seedLocations.map(normalizeLocation));
             setTasks(loadedTasks);
+            setTaskAutomations(loadedAutomations);
             setSource("supabase");
             setHydrated(true);
             return;
@@ -302,6 +341,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setEmployees(data.employees);
         setLocations(data.locations);
         setTasks(data.tasks);
+        setTaskAutomations(initialTaskAutomations);
         setSource("local");
         setHydrated(true);
       }
@@ -416,6 +456,85 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, enquiriesRef]
   );
 
+  const addAutomationTasks = useCallback(
+    (drafts: AutomationTaskDraft[]) => {
+      if (!drafts.length) return;
+
+      const created: TaskRecord[] = [];
+      setTasks((prev) => {
+        let working = prev;
+        for (const draft of drafts) {
+          const base = createTask({ ...draft, updates: [] }, working);
+          const task = stampRecordAudit(
+            logTaskUpdate(base, {
+              byUserId: "",
+              byName: draft.createdBy,
+              action: "created",
+              summary: `Created automatically and assigned to ${describeAssignee(base)}`,
+              detail: draft.entityLabel
+                ? `Linked to ${draft.entityLabel}.`
+                : draft.description || "",
+            }),
+            true
+          );
+          created.push(task);
+          working = [...working, task];
+        }
+        return working;
+      });
+
+      for (const task of created) {
+        void persistRemote((supabase) => saveTask(supabase, task));
+      }
+    },
+    [persistRemote]
+  );
+
+  const processIncidentAutomations = useCallback(
+    (incident: IncidentRecord, before?: IncidentRecord) => {
+      const rules = automationsRef.current;
+      if (!rules.some((r) => r.active)) return;
+
+      const { drafts } = evaluateIncidentAutomations({
+        events: incidentEventsFromSave(incident, before),
+        rules,
+        tasks: tasksRef.current,
+        investigationSlaDays: readInvestigationSlaDays(),
+      });
+
+      if (drafts.length) {
+        addAutomationTasks(drafts);
+      }
+    },
+    [addAutomationTasks, automationsRef, tasksRef]
+  );
+
+  const upsertTaskAutomation = useCallback(
+    (rule: TaskAutomationRecord) => {
+      setTaskAutomations((prev) => {
+        const exists = prev.some((r) => r.id === rule.id);
+        const merged = exists ? prev.map((r) => (r.id === rule.id ? rule : r)) : [...prev, rule];
+        return sortTaskAutomations(merged);
+      });
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const supabase = createClient();
+        void saveTaskAutomation(supabase, rule);
+      }
+    },
+    [source]
+  );
+
+  const deleteTaskAutomationRule = useCallback(
+    (id: string) => {
+      setTaskAutomations((prev) => prev.filter((r) => r.id !== id));
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const supabase = createClient();
+        void deleteTaskAutomation(supabase, id);
+      }
+    },
+    [source]
+  );
+
   const addIncident = useCallback(
     (partial: IncidentRecord) => {
       const prev = incidentsRef.current;
@@ -429,9 +548,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       });
 
       void persistRemote((supabase) => saveIncident(supabase, created));
+      processIncidentAutomations(created);
       return created;
     },
-    [persistRemote, incidentsRef, persistIncidentRelatedRecords]
+    [persistRemote, incidentsRef, persistIncidentRelatedRecords, processIncidentAutomations]
   );
 
   const updateIncident = useCallback(
@@ -443,8 +563,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       persistIncidentRelatedRecords(stamped, before);
 
       void persistRemote((supabase) => saveIncident(supabase, stamped));
+      processIncidentAutomations(stamped, before);
     },
-    [persistRemote, incidentsRef, persistIncidentRelatedRecords]
+    [persistRemote, incidentsRef, persistIncidentRelatedRecords, processIncidentAutomations]
   );
 
   const upsertClient = useCallback(
@@ -745,6 +866,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       employees,
       locations,
       tasks,
+      taskAutomations,
+      hydrated,
       source,
       addEnquiry,
       updateEnquiry,
@@ -769,6 +892,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getPlanDocumentsByClientId,
       upsertTask,
       addTask,
+      addAutomationTasks,
+      upsertTaskAutomation,
+      deleteTaskAutomation: deleteTaskAutomationRule,
       mutateTask,
       relinkEntityTasks,
       getTasksByEntity,
@@ -790,6 +916,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       employees,
       locations,
       tasks,
+      taskAutomations,
+      hydrated,
       source,
       addEnquiry,
       updateEnquiry,
@@ -814,6 +942,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getPlanDocumentsByClientId,
       upsertTask,
       addTask,
+      addAutomationTasks,
+      upsertTaskAutomation,
+      deleteTaskAutomationRule,
       mutateTask,
       relinkEntityTasks,
       getTasksByEntity,

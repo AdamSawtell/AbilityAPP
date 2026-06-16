@@ -18,6 +18,13 @@ import type { PlanAssessmentDocument, SupportPlanRecord } from "@/lib/support-pl
 import { normalizeSupportPlan } from "@/lib/support-plan";
 import type { TaskRecord, TaskUpdate } from "@/lib/task";
 import { normalizeTask } from "@/lib/task";
+import {
+  normalizeTaskAutomation,
+  type TaskAutomationConditions,
+  type TaskAutomationDedupePolicy,
+  type TaskAutomationRecord,
+  type TaskAutomationTriggerEvent,
+} from "@/lib/task-automation";
 import { legacyActionTypeToId, taskTypeIdToLegacy } from "@/lib/task-type";
 import {
   clientFromRow,
@@ -1113,6 +1120,7 @@ type TaskRow = {
   description: string;
   status: string;
   action_type: string;
+  task_type_id?: string | null;
   priority: string;
   due_date: string | null;
   assignment_type: string;
@@ -1128,6 +1136,8 @@ type TaskRow = {
   completed_at: string | null;
   resolution_notes: string;
   updates?: TaskUpdate[];
+  automation_rule_id?: string | null;
+  automation_dedupe_key?: string | null;
 };
 
 function taskFromRow(row: TaskRow): TaskRecord {
@@ -1138,7 +1148,7 @@ function taskFromRow(row: TaskRow): TaskRecord {
     description: row.description,
     status: row.status as TaskRecord["status"],
     actionType: row.action_type,
-    taskTypeId: legacyActionTypeToId(row.action_type),
+    taskTypeId: row.task_type_id || legacyActionTypeToId(row.action_type),
     priority: (row.priority as TaskRecord["priority"]) || "Normal",
     dueDate: row.due_date ?? "",
     assignmentType: row.assignment_type === "role" ? "role" : "user",
@@ -1154,6 +1164,8 @@ function taskFromRow(row: TaskRow): TaskRecord {
     completedAt: row.completed_at ?? "",
     resolutionNotes: row.resolution_notes ?? "",
     updates: Array.isArray(row.updates) ? row.updates : [],
+    automationRuleId: row.automation_rule_id ?? "",
+    automationDedupeKey: row.automation_dedupe_key ?? "",
   });
 }
 
@@ -1166,6 +1178,7 @@ function taskToRow(task: TaskRecord): TaskRow {
     description: normalized.description,
     status: normalized.status,
     action_type: taskTypeIdToLegacy(normalized.taskTypeId),
+    task_type_id: normalized.taskTypeId || null,
     priority: normalized.priority,
     due_date: normalized.dueDate || null,
     assignment_type: normalized.assignmentType,
@@ -1181,6 +1194,8 @@ function taskToRow(task: TaskRecord): TaskRow {
     completed_at: normalized.completedAt || null,
     resolution_notes: normalized.resolutionNotes,
     updates: normalized.updates,
+    automation_rule_id: normalized.automationRuleId || null,
+    automation_dedupe_key: normalized.automationDedupeKey || null,
   };
 }
 
@@ -1193,6 +1208,88 @@ export async function fetchTasks(supabase: SupabaseClient): Promise<TaskRecord[]
 export async function saveTask(supabase: SupabaseClient, task: TaskRecord) {
   const row = taskToRow(normalizeTask(task));
   const { error } = await supabase.from("app_task").upsert(row);
+  if (error) throw error;
+}
+
+type TaskAutomationRow = {
+  id: string;
+  name: string;
+  active: boolean;
+  module: string;
+  trigger_event: string;
+  conditions: Record<string, unknown>;
+  task_type_id: string;
+  title_template: string;
+  description_template: string;
+  priority: string;
+  due_offset_hours: number | null;
+  due_offset_days: number | null;
+  due_from_field: string | null;
+  assignee_role_id: string;
+  dedupe_policy: string;
+  sort_order: number;
+};
+
+function taskAutomationFromRow(row: TaskAutomationRow): TaskAutomationRecord {
+  return normalizeTaskAutomation({
+    id: row.id,
+    name: row.name,
+    active: row.active,
+    module: row.module as TaskAutomationRecord["module"],
+    triggerEvent: row.trigger_event as TaskAutomationTriggerEvent,
+    conditions: (row.conditions ?? {}) as TaskAutomationConditions,
+    taskTypeId: row.task_type_id,
+    titleTemplate: row.title_template,
+    descriptionTemplate: row.description_template,
+    priority: (row.priority as TaskAutomationRecord["priority"]) || "Normal",
+    dueOffsetHours: row.due_offset_hours,
+    dueOffsetDays: row.due_offset_days,
+    dueFromField: row.due_from_field,
+    assigneeRoleId: row.assignee_role_id,
+    dedupePolicy: (row.dedupe_policy as TaskAutomationDedupePolicy) || "one_open_per_entity",
+    sortOrder: row.sort_order ?? 0,
+  });
+}
+
+export async function fetchTaskAutomations(supabase: SupabaseClient): Promise<TaskAutomationRecord[]> {
+  const { data, error } = await supabase
+    .from("app_task_automation")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((row) => taskAutomationFromRow(row as TaskAutomationRow));
+}
+
+function taskAutomationToRow(rule: TaskAutomationRecord): TaskAutomationRow {
+  const normalized = normalizeTaskAutomation(rule);
+  return {
+    id: normalized.id,
+    name: normalized.name,
+    active: normalized.active,
+    module: normalized.module,
+    trigger_event: normalized.triggerEvent,
+    conditions: normalized.conditions as Record<string, unknown>,
+    task_type_id: normalized.taskTypeId,
+    title_template: normalized.titleTemplate,
+    description_template: normalized.descriptionTemplate,
+    priority: normalized.priority,
+    due_offset_hours: normalized.dueOffsetHours,
+    due_offset_days: normalized.dueOffsetDays,
+    due_from_field: normalized.dueFromField,
+    assignee_role_id: normalized.assigneeRoleId,
+    dedupe_policy: normalized.dedupePolicy,
+    sort_order: normalized.sortOrder,
+  };
+}
+
+export async function saveTaskAutomation(supabase: SupabaseClient, rule: TaskAutomationRecord) {
+  const row = taskAutomationToRow(rule);
+  const { error } = await supabase.from("app_task_automation").upsert(row);
+  if (error) throw error;
+}
+
+export async function deleteTaskAutomation(supabase: SupabaseClient, id: string) {
+  const { error } = await supabase.from("app_task_automation").delete().eq("id", id);
   if (error) throw error;
 }
 
