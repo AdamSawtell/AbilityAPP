@@ -353,6 +353,36 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   ],
   employeeActivityType: ["Note", "Onboarding", "Training", "Performance review", "Incident", "Other"],
   leaveType: ["Annual leave", "Personal / carer's leave", "Long service leave", "Parental leave", "Unpaid leave"],
+  partyType: ["Client", "Employee", "Witness", "Other"],
+  partyRole: ["Affected person", "Reporter", "Witness", "Staff involved", "Manager notified", "Other"],
+  incidentActionType: [
+    "Immediate response",
+    "Investigation step",
+    "Corrective action",
+    "Evidence collected",
+    "Risk review",
+    "Other",
+  ],
+  notificationTarget: [
+    "Internal manager",
+    "NDIS Commission",
+    "Participant / family",
+    "Guardian",
+    "Police",
+    "Other regulator",
+    "Other",
+  ],
+  notificationMethod: ["Phone", "Email", "NDIS portal", "In person", "Written letter", "Other"],
+  incidentStatus: ["Draft", "Submitted", "Under investigation", "Actions in progress", "Closed"],
+  incidentSeverity: ["Low", "Medium", "High", "Critical"],
+  ndisReportableType: [
+    "Death",
+    "Serious injury",
+    "Abuse or neglect",
+    "Unlawful sexual or physical contact or assault",
+    "Sexual misconduct",
+    "Unauthorised restrictive practice",
+  ],
   employeeDocumentStatus: ["Current", "Expiring soon", "Expired", "Archived"],
   contactRelationship: ["Spouse", "Partner", "Parent", "Sibling", "Child", "Friend", "Other"],
   emergencyContactType: ["Emergency", "Next of kin"],
@@ -397,6 +427,20 @@ export const enquiryDropdowns = {
   gender: defaultReferenceData.gender,
   fundingBody: defaultReferenceData.fundingBody,
   disability: defaultReferenceData.disability,
+};
+
+/** @deprecated Use useReferenceData().getOptions instead */
+export const incidentDropdowns = {
+  incidentStatus: defaultReferenceData.incidentStatus,
+  status: defaultReferenceData.incidentStatus,
+  incidentSeverity: defaultReferenceData.incidentSeverity,
+  severity: defaultReferenceData.incidentSeverity,
+  partyType: defaultReferenceData.partyType,
+  partyRole: defaultReferenceData.partyRole,
+  incidentActionType: defaultReferenceData.incidentActionType,
+  notificationTarget: defaultReferenceData.notificationTarget,
+  notificationMethod: defaultReferenceData.notificationMethod,
+  ndisReportableType: defaultReferenceData.ndisReportableType,
 };
 
 export function referenceDataGroups(): ReferenceDataGroup[] {

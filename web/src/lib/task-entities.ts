@@ -37,6 +37,7 @@ export function buildTaskEntityIndex(data: {
   enquiries: { id: string; documentNo: string; firstName: string; lastName: string }[];
   clients: { id: string; searchKey: string; name: string }[];
   employees: { id: string; searchKey: string; name: string; email?: string }[];
+  incidents?: { id: string; documentNo: string; title: string }[];
   serviceAgreements: { id: string; searchKey: string; name: string }[];
   contracts: { id: string; documentNo: string; name: string }[];
   products: { id: string; searchKey: string; name: string }[];
@@ -50,6 +51,9 @@ export function buildTaskEntityIndex(data: {
   index.client = data.clients.map((c) => entry("client", c.id, `${c.searchKey} — ${c.name}`, c.searchKey, c.name));
   index.employee = data.employees.map((e) =>
     entry("employee", e.id, `${e.searchKey} — ${e.name}`, e.searchKey, e.name, e.email ?? "")
+  );
+  index.incident = (data.incidents ?? []).map((i) =>
+    entry("incident", i.id, `${i.documentNo} — ${i.title}`.trim(), i.documentNo, i.title)
   );
   index["service-agreement"] = data.serviceAgreements.map((sa) =>
     entry("service-agreement", sa.id, `${sa.searchKey} — ${sa.name}`, sa.searchKey, sa.name)
@@ -102,7 +106,7 @@ export function searchTaskEntities(
 }
 
 export function useTaskEntityIndex(): TaskEntityIndex {
-  const { enquiries, clients, employees, serviceAgreements, contracts, products, priceLists } = useData();
+  const { enquiries, clients, employees, incidents, serviceAgreements, contracts, products, priceLists } = useData();
 
   return useMemo(
     () =>
@@ -110,12 +114,13 @@ export function useTaskEntityIndex(): TaskEntityIndex {
         enquiries,
         clients,
         employees,
+        incidents,
         serviceAgreements,
         contracts,
         products,
         priceLists,
       }),
-    [enquiries, clients, employees, serviceAgreements, contracts, products, priceLists]
+    [enquiries, clients, employees, incidents, serviceAgreements, contracts, products, priceLists]
   );
 }
 

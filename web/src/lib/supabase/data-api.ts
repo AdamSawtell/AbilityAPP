@@ -4,6 +4,8 @@ import { normalizeClient } from "@/lib/client";
 import type { ContractRecord } from "@/lib/contract";
 import { normalizeContract } from "@/lib/contract";
 import type { EnquiryRecord } from "@/lib/enquiry";
+import type { IncidentRecord } from "@/lib/incident";
+import { normalizeIncident } from "@/lib/incident";
 import type { EmployeeRecord } from "@/lib/employee";
 import { normalizeEmployee } from "@/lib/employee";
 import type { LocationRecord } from "@/lib/location";
@@ -26,6 +28,8 @@ import {
   employeeToRow,
   enquiryFromRow,
   enquiryToRow,
+  incidentFromRow,
+  incidentToRow,
   planDocumentFromRow,
   priceListFromRow,
   priceListLineToRow,
@@ -51,6 +55,10 @@ import {
   type ContractRow,
   type EnquiryActivityRowDb,
   type EnquiryRow,
+  type IncidentActionRowDb,
+  type IncidentNotificationRowDb,
+  type IncidentPartyRowDb,
+  type IncidentRow,
   type EmployeeRow,
   type EmployeeCredentialRowDb,
   type EmployeeLocationRowDb,
@@ -84,6 +92,7 @@ import {
 
 export type AppData = {
   enquiries: EnquiryRecord[];
+  incidents: IncidentRecord[];
   clients: ClientRecord[];
   contracts: ContractRecord[];
   products: ProductRecord[];
@@ -109,6 +118,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const [
     enquiriesRes,
     enquiryActivityRes,
+    incidentsRes,
+    incidentPartiesRes,
+    incidentActionsRes,
+    incidentNotificationsRes,
     clientsRes,
     alertsRes,
     activityRes,
@@ -149,6 +162,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
+    supabase.from("incident").select("*").order("occurred_at", { ascending: false }),
+    supabase.from("incident_party").select("*").order("line_no"),
+    supabase.from("incident_action").select("*").order("line_no"),
+    supabase.from("incident_notification").select("*").order("line_no"),
     supabase.from("client").select("*").order("search_key"),
     supabase.from("client_alert").select("*").order("line_no"),
     supabase.from("client_activity").select("*").order("line_no"),
@@ -191,6 +208,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const firstError =
     enquiriesRes.error ??
     enquiryActivityRes.error ??
+    incidentsRes.error ??
+    incidentPartiesRes.error ??
+    incidentActionsRes.error ??
+    incidentNotificationsRes.error ??
     clientsRes.error ??
     alertsRes.error ??
     activityRes.error ??
@@ -232,6 +253,12 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   if (firstError) throw firstError;
 
   const activityByEnquiry = groupBy(enquiryActivityRes.data as EnquiryActivityRowDb[], "enquiry_id");
+  const partiesByIncident = groupBy(incidentPartiesRes.data as IncidentPartyRowDb[], "incident_id");
+  const actionsByIncident = groupBy(incidentActionsRes.data as IncidentActionRowDb[], "incident_id");
+  const notificationsByIncident = groupBy(
+    incidentNotificationsRes.data as IncidentNotificationRowDb[],
+    "incident_id"
+  );
   const alertsByClient = groupBy(alertsRes.data as ClientAlertRow[], "client_id");
   const activityByClient = groupBy(activityRes.data as ClientActivityRowDb[], "client_id");
   const locationsByClient = groupBy(locationsRes.data as ClientLocationRowDb[], "client_id");
@@ -270,6 +297,14 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   return {
     enquiries: ((enquiriesRes.data ?? []) as EnquiryRow[]).map((row) =>
       enquiryFromRow(row, activityByEnquiry.get(row.id) ?? [])
+    ),
+    incidents: ((incidentsRes.data ?? []) as IncidentRow[]).map((row) =>
+      incidentFromRow(
+        row,
+        partiesByIncident.get(row.id) ?? [],
+        actionsByIncident.get(row.id) ?? [],
+        notificationsByIncident.get(row.id) ?? []
+      )
     ),
     clients: ((clientsRes.data ?? []) as ClientRow[]).map((row) =>
       normalizeClient(
@@ -363,6 +398,66 @@ export async function saveEnquiry(supabase: SupabaseClient, record: EnquiryRecor
       }))
     );
     if (activityError) throw activityError;
+  }
+}
+
+export async function saveIncident(supabase: SupabaseClient, record: IncidentRecord) {
+  const incident = normalizeIncident(record);
+  const { error } = await supabase.from("incident").upsert(incidentToRow(incident));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "incident_party", "incident_id", incident.id);
+  await replaceChildRows(supabase, "incident_action", "incident_id", incident.id);
+  await replaceChildRows(supabase, "incident_notification", "incident_id", incident.id);
+
+  if (incident.parties.length) {
+    const { error: partyError } = await supabase.from("incident_party").insert(
+      incident.parties.map((p) => ({
+        id: p.id,
+        incident_id: incident.id,
+        line_no: p.lineNo,
+        party_type: p.partyType,
+        entity_id: p.entityId,
+        party_name: p.partyName,
+        role_in_incident: p.roleInIncident,
+        notes: p.notes,
+      }))
+    );
+    if (partyError) throw partyError;
+  }
+
+  if (incident.actions.length) {
+    const { error: actionError } = await supabase.from("incident_action").insert(
+      incident.actions.map((a) => ({
+        id: a.id,
+        incident_id: incident.id,
+        line_no: a.lineNo,
+        action_date: a.actionDate || null,
+        action_type: a.actionType,
+        description: a.description,
+        evidence_ref: a.evidenceRef,
+        owner: a.owner,
+        outcome: a.outcome,
+      }))
+    );
+    if (actionError) throw actionError;
+  }
+
+  if (incident.notifications.length) {
+    const { error: notificationError } = await supabase.from("incident_notification").insert(
+      incident.notifications.map((n) => ({
+        id: n.id,
+        incident_id: incident.id,
+        line_no: n.lineNo,
+        notified_at: n.notifiedAt || null,
+        notify_target: n.notifyTarget,
+        method: n.method,
+        notified_by: n.notifiedBy,
+        reference: n.reference,
+        notes: n.notes,
+      }))
+    );
+    if (notificationError) throw notificationError;
   }
 }
 

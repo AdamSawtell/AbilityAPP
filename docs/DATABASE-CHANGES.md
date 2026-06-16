@@ -28,6 +28,8 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 |-------|---------|
 | `reference_list` / `reference_option` | Admin dropdowns |
 | `enquiry` | Intake enquiries |
+| `incident` | Incident reports (NDIS-aligned header) |
+| `incident_party` / `incident_action` / `incident_notification` | Incident line tables |
 | `client` | Support received (header) |
 | `client_alert` / `client_activity` / `client_location` | Client line tables |
 | `product` / `price_list` / `price_list_line` | Catalog & pricing |

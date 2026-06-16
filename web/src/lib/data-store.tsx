@@ -45,6 +45,12 @@ import {
   type TaskRecord,
 } from "@/lib/task";
 import { convertEnquiryToClient } from "@/lib/convert";
+import {
+  createIncident,
+  initialIncidents as seedIncidents,
+  normalizeIncident,
+  type IncidentRecord,
+} from "@/lib/incident";
 import { persistRecordAudit, type AuditLogOptions } from "@/lib/audit-mutation";
 import { logRecordAudit } from "@/lib/audit-log";
 import { stampRecordAudit } from "@/lib/audit";
@@ -56,6 +62,7 @@ import {
   saveContract,
   saveEmployee,
   saveEnquiry,
+  saveIncident,
   saveLocation,
   savePriceList,
   saveProduct,
@@ -66,6 +73,7 @@ import {
 
 type DataStore = {
   enquiries: EnquiryRecord[];
+  incidents: IncidentRecord[];
   clients: ClientRecord[];
   contracts: ContractRecord[];
   products: ProductRecord[];
@@ -79,6 +87,8 @@ type DataStore = {
   source: "supabase" | "local";
   addEnquiry: (record: EnquiryRecord) => EnquiryRecord;
   updateEnquiry: (record: EnquiryRecord, audit?: AuditLogOptions) => void;
+  addIncident: (record: IncidentRecord) => IncidentRecord;
+  updateIncident: (record: IncidentRecord, audit?: AuditLogOptions) => void;
   upsertClient: (client: ClientRecord, audit?: AuditLogOptions) => void;
   addContract: (record: ContractRecord) => ContractRecord;
   upsertContract: (contract: ContractRecord) => void;
@@ -126,6 +136,7 @@ function useSyncRef<T>(value: T) {
 
 type Persisted = {
   enquiries: EnquiryRecord[];
+  incidents?: IncidentRecord[];
   clients: ClientRecord[];
   contracts?: ContractRecord[];
   products?: ProductRecord[];
@@ -141,6 +152,7 @@ type Persisted = {
 function seedData(): Required<Persisted> {
   return {
     enquiries: seedEnquiries,
+    incidents: seedIncidents,
     clients: seedClients,
     contracts: seedContracts,
     products: seedProducts,
@@ -173,6 +185,7 @@ function loadLocal(): Required<Persisted> {
     }
     return {
       enquiries: parsed.enquiries.map(normalizeEnquiry),
+      incidents: (parsed.incidents ?? seedIncidents).map(normalizeIncident),
       clients: parsed.clients.map(normalizeClient),
       contracts: (parsed.contracts ?? seedContracts).map(normalizeContract),
       products: parsed.products ?? seedProducts,
@@ -202,6 +215,7 @@ function persistLocal(data: Required<Persisted>) {
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const defaults = seedData();
   const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(defaults.enquiries);
+  const [incidents, setIncidents] = useState<IncidentRecord[]>(defaults.incidents);
   const [clients, setClients] = useState<ClientRecord[]>(defaults.clients);
   const [contracts, setContracts] = useState<ContractRecord[]>(defaults.contracts);
   const [products, setProducts] = useState<ProductRecord[]>(defaults.products);
@@ -216,6 +230,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [source, setSource] = useState<"supabase" | "local">("local");
 
   const enquiriesRef = useSyncRef(enquiries);
+  const incidentsRef = useSyncRef(incidents);
   const clientsRef = useSyncRef(clients);
   const contractsRef = useSyncRef(contracts);
   const productsRef = useSyncRef(products);
@@ -242,6 +257,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           }
           if (!cancelled) {
             setEnquiries(data.enquiries);
+            setIncidents(data.incidents);
             setClients(data.clients);
             setContracts(data.contracts);
             setProducts(data.products);
@@ -264,6 +280,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (!cancelled) {
         const data = loadLocal();
         setEnquiries(data.enquiries);
+        setIncidents(data.incidents);
         setClients(data.clients);
         setContracts(data.contracts);
         setProducts(data.products);
@@ -292,6 +309,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (!hydrated || source === "supabase") return;
     persistLocal({
       enquiries,
+      incidents,
       clients,
       contracts,
       products,
@@ -305,6 +323,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     });
   }, [
     enquiries,
+    incidents,
     clients,
     contracts,
     products,
@@ -348,6 +367,28 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       void persistRemote((supabase) => saveEnquiry(supabase, stamped));
     },
     [persistRemote, enquiriesRef]
+  );
+
+  const addIncident = useCallback(
+    (partial: IncidentRecord) => {
+      const prev = incidentsRef.current;
+      const next = createIncident(partial, prev);
+      const created = persistRecordAudit("incident", next, true);
+      setIncidents((current) => [...current, created]);
+      void persistRemote((supabase) => saveIncident(supabase, created));
+      return created;
+    },
+    [persistRemote, incidentsRef]
+  );
+
+  const updateIncident = useCallback(
+    (record: IncidentRecord, audit?: AuditLogOptions) => {
+      const before = incidentsRef.current.find((i) => i.id === record.id);
+      const stamped = persistRecordAudit("incident", normalizeIncident(record), false, before, audit);
+      setIncidents((prev) => prev.map((i) => (i.id === stamped.id ? stamped : i)));
+      void persistRemote((supabase) => saveIncident(supabase, stamped));
+    },
+    [persistRemote, incidentsRef]
   );
 
   const upsertClient = useCallback(
@@ -622,6 +663,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       enquiries,
+      incidents,
       clients,
       contracts,
       products,
@@ -635,6 +677,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       source,
       addEnquiry,
       updateEnquiry,
+      addIncident,
+      updateIncident,
       upsertClient,
       addContract,
       upsertContract,
@@ -661,6 +705,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       enquiries,
+      incidents,
       clients,
       contracts,
       products,
@@ -674,6 +719,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       source,
       addEnquiry,
       updateEnquiry,
+      addIncident,
+      updateIncident,
       upsertClient,
       addContract,
       upsertContract,

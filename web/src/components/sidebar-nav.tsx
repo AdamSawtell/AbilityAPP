@@ -86,6 +86,13 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     );
   }
+  if (name === "incident") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+      </svg>
+    );
+  }
   if (name === "task") {
     return (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -286,6 +293,7 @@ export function SidebarNav() {
   const taskBadge = taskStats?.overdue ? taskStats.overdue : openTaskCount > 0 ? openTaskCount : 0;
   const showEnquiries = canWindow("enquiries");
   const showClients = canWindow("clients");
+  const showIncidents = canWindow("incidents");
   const showLocations = canWindow("locations");
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
@@ -309,6 +317,7 @@ export function SidebarNav() {
     hasCoreNav ||
     showEnquiries ||
     showClients ||
+    showIncidents ||
     showLocations ||
     visiblePeopleLinks.length > 0 ||
     visibleServiceLinks.length > 0 ||
@@ -461,10 +470,21 @@ export function SidebarNav() {
         </div>
       ) : null}
 
+      {showIncidents ? (
+        <div className={sectionDividerClass(hasCoreNav || showEnquiries || showClients)}>
+          <TopNavLink
+            href="/incidents"
+            active={pathname.startsWith("/incidents")}
+            icon={<NavIcon name="incident" />}
+            label="Incident reports"
+          />
+        </div>
+      ) : null}
+
       {showLocations ? (
         <div
           className={sectionDividerClass(
-            hasCoreNav || showEnquiries || showClients
+            hasCoreNav || showEnquiries || showClients || showIncidents
           )}
         >
           <SectionHeader

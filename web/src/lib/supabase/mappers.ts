@@ -17,6 +17,13 @@ import type {
 import type { EnquiryRecord } from "@/lib/enquiry";
 import { normalizeEnquiry } from "@/lib/enquiry";
 import type {
+  IncidentActionRow,
+  IncidentNotificationRow,
+  IncidentPartyRow,
+  IncidentRecord,
+} from "@/lib/incident";
+import { normalizeIncident } from "@/lib/incident";
+import type {
   PriceListLine,
   PriceListRecord,
   ProductRecord,
@@ -1566,5 +1573,171 @@ export function employeeToRow(record: EmployeeRecord): EmployeeRow {
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
+  };
+}
+
+// --- Incident ---
+
+export type IncidentRow = {
+  id: string;
+  document_no: string;
+  title: string;
+  status: string;
+  severity: string;
+  category: string;
+  is_reportable: boolean;
+  reportable_type: string;
+  restrictive_practice_caused_harm: boolean;
+  occurred_at: string | null;
+  aware_at: string | null;
+  reported_at: string | null;
+  report_deadline_at: string | null;
+  ndis_notified_at: string | null;
+  ndis_notification_ref: string;
+  primary_client_id: string | null;
+  primary_employee_id: string | null;
+  primary_location_id: string | null;
+  description: string;
+  immediate_actions: string;
+  investigation_summary: string;
+  corrective_actions: string;
+  lessons_learned: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type IncidentPartyRowDb = {
+  id: string;
+  incident_id: string;
+  line_no: number;
+  party_type: string;
+  entity_id: string;
+  party_name: string;
+  role_in_incident: string;
+  notes: string;
+};
+
+export type IncidentActionRowDb = {
+  id: string;
+  incident_id: string;
+  line_no: number;
+  action_date: string | null;
+  action_type: string;
+  description: string;
+  evidence_ref: string;
+  owner: string;
+  outcome: string;
+};
+
+export type IncidentNotificationRowDb = {
+  id: string;
+  incident_id: string;
+  line_no: number;
+  notified_at: string | null;
+  notify_target: string;
+  method: string;
+  notified_by: string;
+  reference: string;
+  notes: string;
+};
+
+export function incidentFromRow(
+  row: IncidentRow,
+  parties: IncidentPartyRowDb[] = [],
+  actions: IncidentActionRowDb[] = [],
+  notifications: IncidentNotificationRowDb[] = []
+): IncidentRecord {
+  return normalizeIncident({
+    id: row.id,
+    documentNo: row.document_no,
+    title: row.title,
+    status: row.status as IncidentRecord["status"],
+    severity: row.severity as IncidentRecord["severity"],
+    category: row.category,
+    isReportable: row.is_reportable,
+    reportableType: row.reportable_type as IncidentRecord["reportableType"],
+    restrictivePracticeCausedHarm: row.restrictive_practice_caused_harm,
+    occurredAt: row.occurred_at ?? "",
+    awareAt: row.aware_at ?? "",
+    reportedAt: strDate(row.reported_at),
+    reportDeadlineAt: row.report_deadline_at ?? "",
+    ndisNotifiedAt: row.ndis_notified_at ?? "",
+    ndisNotificationRef: row.ndis_notification_ref,
+    primaryClientId: row.primary_client_id ?? "",
+    primaryEmployeeId: row.primary_employee_id ?? "",
+    primaryLocationId: row.primary_location_id ?? "",
+    description: row.description,
+    immediateActions: row.immediate_actions,
+    investigationSummary: row.investigation_summary,
+    correctiveActions: row.corrective_actions,
+    lessonsLearned: row.lessons_learned,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    parties: parties.map(
+      (p): IncidentPartyRow => ({
+        id: p.id,
+        lineNo: p.line_no,
+        partyType: p.party_type as IncidentPartyRow["partyType"],
+        entityId: p.entity_id,
+        partyName: p.party_name,
+        roleInIncident: p.role_in_incident,
+        notes: p.notes,
+      })
+    ),
+    actions: actions.map(
+      (a): IncidentActionRow => ({
+        id: a.id,
+        lineNo: a.line_no,
+        actionDate: strDate(a.action_date),
+        actionType: a.action_type,
+        description: a.description,
+        evidenceRef: a.evidence_ref,
+        owner: a.owner,
+        outcome: a.outcome,
+      })
+    ),
+    notifications: notifications.map(
+      (n): IncidentNotificationRow => ({
+        id: n.id,
+        lineNo: n.line_no,
+        notifiedAt: n.notified_at ?? "",
+        notifyTarget: n.notify_target,
+        method: n.method,
+        notifiedBy: n.notified_by,
+        reference: n.reference,
+        notes: n.notes,
+      })
+    ),
+  });
+}
+
+export function incidentToRow(record: IncidentRecord): IncidentRow {
+  const normalized = normalizeIncident(record);
+  return {
+    id: normalized.id,
+    document_no: normalized.documentNo,
+    title: normalized.title,
+    status: normalized.status,
+    severity: normalized.severity,
+    category: normalized.category,
+    is_reportable: normalized.isReportable,
+    reportable_type: normalized.reportableType,
+    restrictive_practice_caused_harm: normalized.restrictivePracticeCausedHarm,
+    occurred_at: normalized.occurredAt || null,
+    aware_at: normalized.awareAt || null,
+    reported_at: toDate(normalized.reportedAt),
+    report_deadline_at: normalized.reportDeadlineAt || null,
+    ndis_notified_at: normalized.ndisNotifiedAt || null,
+    ndis_notification_ref: normalized.ndisNotificationRef,
+    primary_client_id: normalized.primaryClientId?.trim() ? normalized.primaryClientId : null,
+    primary_employee_id: normalized.primaryEmployeeId?.trim() ? normalized.primaryEmployeeId : null,
+    primary_location_id: normalized.primaryLocationId?.trim() ? normalized.primaryLocationId : null,
+    description: normalized.description,
+    immediate_actions: normalized.immediateActions,
+    investigation_summary: normalized.investigationSummary,
+    corrective_actions: normalized.correctiveActions,
+    lessons_learned: normalized.lessonsLearned,
+    created_by: normalized.createdBy,
+    updated_by: normalized.updatedBy,
   };
 }

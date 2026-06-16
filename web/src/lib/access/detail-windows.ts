@@ -5,8 +5,10 @@ import { locationTabs } from "@/lib/location";
 import type { AccessWindow, AccessWindowGroup } from "@/lib/access/catalog-types";
 
 import { enquiryTabs } from "@/lib/enquiry";
+import { incidentTabs } from "@/lib/incident";
 
 export const ENQUIRY_DETAIL_TABS = enquiryTabs;
+export const INCIDENT_DETAIL_TABS = incidentTabs;
 export const PRODUCT_DETAIL_TABS = ["Overview", "Pricing"] as const;
 export const PRICE_LIST_DETAIL_TABS = ["Overview", "Lines"] as const;
 export const SERVICE_AGREEMENT_DETAIL_TABS = ["Overview", "Lines"] as const;
@@ -59,6 +61,14 @@ export const ENQUIRY_DEPENDENT_WINDOWS = buildDetailWindows(
   ENQUIRY_DETAIL_TABS,
   "Core",
   "Enquiry"
+);
+
+export const INCIDENT_DEPENDENT_WINDOWS = buildDetailWindows(
+  "incidents",
+  "incident",
+  INCIDENT_DETAIL_TABS,
+  "Core",
+  "Incident Report"
 );
 
 export const CONTRACT_DEPENDENT_WINDOWS = buildDetailWindows(
@@ -136,6 +146,8 @@ function buildDependentsForParent(parentKey: string): AccessWindow[] {
       return CLIENT_DEPENDENT_WINDOWS;
     case "enquiries":
       return ENQUIRY_DEPENDENT_WINDOWS;
+    case "incidents":
+      return INCIDENT_DEPENDENT_WINDOWS;
     case "employees":
       return EMPLOYEE_DEPENDENT_WINDOWS;
     case "locations":
