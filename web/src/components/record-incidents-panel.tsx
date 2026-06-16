@@ -27,25 +27,28 @@ function statusPill(status: IncidentRecord["status"]) {
 export function RecordIncidentsPanel({
   clientId,
   employeeId,
+  locationId,
   entityLabel,
 }: {
   clientId?: string;
   employeeId?: string;
+  locationId?: string;
   entityLabel: string;
 }) {
-  const { getIncidentsForClient, getIncidentsForEmployee } = useData();
+  const { getIncidentsForClient, getIncidentsForEmployee, getIncidentsForLocation } = useData();
 
   const rows = useMemo(() => {
     if (clientId) return getIncidentsForClient(clientId);
     if (employeeId) return getIncidentsForEmployee(employeeId);
+    if (locationId) return getIncidentsForLocation(locationId);
     return [];
-  }, [clientId, employeeId, getIncidentsForClient, getIncidentsForEmployee]);
+  }, [clientId, employeeId, locationId, getIncidentsForClient, getIncidentsForEmployee, getIncidentsForLocation]);
 
   return (
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-slate-900">Incidents</h3>
-        <p className="text-sm text-slate-500">Incident reports linked to this record as primary or party.</p>
+        <p className="text-sm text-slate-500">Incident reports linked to this record.</p>
       </div>
 
       {rows.length ? (

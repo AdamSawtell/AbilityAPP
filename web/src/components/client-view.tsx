@@ -8,8 +8,9 @@ import { ClientPlanAssessmentPanel, ClientSupportPlanPanel } from "@/components/
 import { LineItemTable } from "@/components/line-item-table";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
-import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
+import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
+import { useData } from "@/lib/data-store";
 import {
   activityTableConfig,
   alertTableConfig,
@@ -151,7 +152,8 @@ function tabCount(
   agreementCount: number,
   hasSupportPlan: boolean,
   goalCount: number,
-  progressReviewCount: number
+  progressReviewCount: number,
+  incidentCount: number
 ): number | null {
   if (tab === "Alerts") return client.alerts.length;
   if (tab === "Activity") return client.activity.length;
@@ -166,6 +168,7 @@ function tabCount(
   if (tab === "Progress Review") return progressReviewCount;
   if (tab === "Service agreements") return agreementCount;
   if (tab === "Support Plan") return hasSupportPlan ? 1 : 0;
+  if (tab === "Incidents") return incidentCount;
   return null;
 }
 
@@ -190,8 +193,10 @@ export function ClientTabbedView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { session, canWindow } = useAuth();
+  const { getIncidentsForClient } = useData();
 
-  const allowedTabs = detailTabsForRole("clients", session?.windowKeys ?? []);
+  const allowedTabs = allowedDetailTabsFromGroups("clients", clientTabGroups, session?.windowKeys ?? []);
+  const incidentCount = getIncidentsForClient(client.id).length;
   const defaultTab = allowedTabs[0] ?? "Overview";
   const requestedTab = searchParams.get("tab") ?? defaultTab;
   const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
@@ -205,7 +210,7 @@ export function ClientTabbedView({
     .filter((group) => group.tabs.length > 0);
 
   function canClientTab(tab: string) {
-    const key = windowKeyForDetailTab("clients", tab);
+    const key = resolveDetailWindowKey("clients", tab);
     return key ? canWindow(key) : false;
   }
 
@@ -226,7 +231,15 @@ export function ClientTabbedView({
               </p>
               <div className="space-y-0.5">
                 {group.tabs.map((tab) => {
-                  const count = tabCount(client, tab, agreementCount, hasSupportPlan, goalCount, progressReviewCount);
+                  const count = tabCount(
+                    client,
+                    tab,
+                    agreementCount,
+                    hasSupportPlan,
+                    goalCount,
+                    progressReviewCount,
+                    incidentCount
+                  );
                   const active = activeTab === tab;
                   return (
                     <button
@@ -309,12 +322,6 @@ export function ClientTabbedView({
               rows={client.activity}
               onChange={(rows) => onLineItemsChange("activity", rows)}
             />
-            <div className="mt-8 border-t border-slate-200 pt-8">
-              <RecordIncidentsPanel
-                clientId={client.id}
-                entityLabel={`${client.searchKey} — ${client.name}`}
-              />
-            </div>
           </>
         ) : null}
 
@@ -420,6 +427,13 @@ export function ClientTabbedView({
           <ClientLocationsPanel
             locations={client.locations}
             onChange={(rows) => onLineItemsChange("locations", rows)}
+          />
+        ) : null}
+
+        {activeTab === "Incidents" && canClientTab("Incidents") ? (
+          <RecordIncidentsPanel
+            clientId={client.id}
+            entityLabel={`${client.searchKey} — ${client.name}`}
           />
         ) : null}
 

@@ -72,6 +72,7 @@ export type IncidentRecord = {
   status: IncidentStatus;
   severity: IncidentSeverity;
   category: string;
+  serviceType: string;
   isReportable: boolean;
   reportableType: NdisReportableType;
   restrictivePracticeCausedHarm: boolean;
@@ -120,6 +121,17 @@ export const incidentCategoryOptions = [
   "Restrictive practice",
   "Property damage",
   "Other",
+] as const;
+
+/** NDIS / service line the incident occurred under (set on the record; used in analytics). */
+export const incidentServiceTypeOptions = [
+  "NDIS Support",
+  "SIL",
+  "Community Participation",
+  "Therapy",
+  "Transport",
+  "Administration",
+  "Unassigned",
 ] as const;
 
 export const ndisReportableTypeOptions: NdisReportableType[] = [
@@ -312,6 +324,7 @@ export function emptyIncident(): IncidentRecord {
     status: "Draft",
     severity: "Medium",
     category: "Operational",
+    serviceType: "",
     isReportable: false,
     reportableType: "",
     restrictivePracticeCausedHarm: false,
@@ -370,6 +383,7 @@ export const initialIncidents: IncidentRecord[] = [
     status: "Under investigation",
     severity: "Low",
     category: "Near miss",
+    serviceType: "SIL",
     isReportable: false,
     reportableType: "",
     restrictivePracticeCausedHarm: false,

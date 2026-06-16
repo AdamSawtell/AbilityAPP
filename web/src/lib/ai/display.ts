@@ -54,7 +54,7 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
       continue;
     }
 
-    if (entry.name === "incident_search") {
+    if (entry.name === "incident_search" || entry.name === "incident_list_recent" || entry.name === "incident_linked_search") {
       attachments.push({
         type: "table",
         title: "Incidents",

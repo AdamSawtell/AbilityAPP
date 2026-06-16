@@ -4,9 +4,10 @@ import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LineItemTable } from "@/components/line-item-table";
 import { ClientRecordLink, EmployeeRecordLink, ProductRecordLink } from "@/components/record-link";
-import { detailTabsForRole } from "@/lib/access/catalog";
+import { allowedDetailTabsFromGroups } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import type { ClientRecord } from "@/lib/client";
 import {
   locationActivityTableConfig,
@@ -222,6 +223,7 @@ function tabCount(location: LocationRecord, tab: string): number | null {
   if (tab === "Employees") return location.employeeLinks.length;
   if (tab === "Products & services") return location.productLinks.length;
   if (tab === "Activity") return location.activities.length;
+  if (tab === "Incidents") return null;
   return null;
 }
 
@@ -248,7 +250,7 @@ export function LocationTabbedView({
   const { session, canWindow, canProcess } = useAuth();
   const { clients, employees, products } = useData();
 
-  const allowedTabs = detailTabsForRole("locations", session?.windowKeys ?? []);
+  const allowedTabs = allowedDetailTabsFromGroups("locations", locationTabGroups, session?.windowKeys ?? []);
   const defaultTab = allowedTabs[0] ?? "Overview";
   const requestedTab = searchParams.get("tab") ?? defaultTab;
   const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
@@ -460,6 +462,19 @@ export function LocationTabbedView({
                 })}
               </div>
             ) : null}
+          </div>
+        ) : null}
+
+        {activeTab === "Incidents" && canWindow("location-incidents") ? (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Incidents</h3>
+              <p className="text-sm text-slate-500">Incident reports linked to this location.</p>
+            </div>
+            <RecordIncidentsPanel
+              locationId={location.id}
+              entityLabel={`${location.searchKey} — ${location.name}`}
+            />
           </div>
         ) : null}
 

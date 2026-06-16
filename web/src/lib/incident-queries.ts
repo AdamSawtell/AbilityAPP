@@ -10,6 +10,10 @@ function matchesEmployee(incident: IncidentRecord, employeeId: string): boolean 
   return incident.parties.some((p) => p.partyType === "Employee" && p.entityId === employeeId);
 }
 
+function matchesLocation(incident: IncidentRecord, locationId: string): boolean {
+  return Boolean(locationId?.trim()) && incident.primaryLocationId === locationId;
+}
+
 export function incidentsLinkedToClient(incidents: IncidentRecord[], clientId: string): IncidentRecord[] {
   if (!clientId?.trim()) return [];
   return incidents
@@ -21,6 +25,13 @@ export function incidentsLinkedToEmployee(incidents: IncidentRecord[], employeeI
   if (!employeeId?.trim()) return [];
   return incidents
     .filter((i) => matchesEmployee(i, employeeId))
+    .sort((a, b) => (b.occurredAt || "").localeCompare(a.occurredAt || "") || a.documentNo.localeCompare(b.documentNo));
+}
+
+export function incidentsLinkedToLocation(incidents: IncidentRecord[], locationId: string): IncidentRecord[] {
+  if (!locationId?.trim()) return [];
+  return incidents
+    .filter((i) => matchesLocation(i, locationId))
     .sort((a, b) => (b.occurredAt || "").localeCompare(a.occurredAt || "") || a.documentNo.localeCompare(b.documentNo));
 }
 

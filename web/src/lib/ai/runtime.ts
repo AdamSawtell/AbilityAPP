@@ -29,7 +29,12 @@ import {
   runEnquiryConvertDraftCreate,
 } from "@/lib/ai/tools/enquiry-convert";
 import { runIncidentSearch } from "@/lib/ai/tools/incident-search";
+import { runIncidentGet } from "@/lib/ai/tools/incident-get";
+import { runIncidentListRecent } from "@/lib/ai/tools/incident-list-recent";
+import { runIncidentComplianceSummary } from "@/lib/ai/tools/incident-compliance-summary";
+import { runIncidentLinkedSearch } from "@/lib/ai/tools/incident-linked-search";
 import { runIncidentDraftConfirm, runIncidentDraftCreate } from "@/lib/ai/tools/incident-draft";
+import { runIncidentUpdateDraftConfirm, runIncidentUpdateDraftCreate } from "@/lib/ai/tools/incident-update";
 import { persistAiIncident } from "@/lib/ai/persist";
 
 const MAX_TOOL_ROUNDS = 6;
@@ -363,7 +368,46 @@ async function executeTool(
         result: await runIncidentSearch(supabase, session, {
           query: String(args.query ?? ""),
           status: String(args.status ?? ""),
+          severity: String(args.severity ?? ""),
           reportableOnly: Boolean(args.reportableOnly),
+          overdueOnly: Boolean(args.overdueOnly),
+          clientId: String(args.clientId ?? ""),
+          employeeId: String(args.employeeId ?? ""),
+          limit: Number(args.limit) || 15,
+          sortBy: args.sortBy === "deadline" ? "deadline" : "occurred",
+        }),
+        threadState,
+      };
+    }
+    case "incident_get": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return { result: await runIncidentGet(supabase, session, args), threadState };
+    }
+    case "incident_list_recent": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runIncidentListRecent(supabase, session, {
+          hours: Number(args.hours) || 168,
+          limit: Number(args.limit) || 20,
+          openOnly: Boolean(args.openOnly),
+          reportableOnly: Boolean(args.reportableOnly),
+        }),
+        threadState,
+      };
+    }
+    case "incident_compliance_summary": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return { result: await runIncidentComplianceSummary(supabase, session), threadState };
+    }
+    case "incident_linked_search": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runIncidentLinkedSearch(supabase, session, {
+          clientId: String(args.clientId ?? ""),
+          clientName: String(args.clientName ?? ""),
+          searchKey: String(args.searchKey ?? ""),
+          employeeId: String(args.employeeId ?? ""),
+          employeeName: String(args.employeeName ?? ""),
           limit: Number(args.limit) || 15,
         }),
         threadState,
@@ -392,6 +436,31 @@ async function executeTool(
         writeResult: {
           kind: "incident",
           label: `${out.incident.documentNo} — ${out.incident.title}`,
+          href: out.href ?? `/incidents/${out.incident.id}`,
+        },
+      };
+    }
+    case "incident_update_draft_create": {
+      const out = await runIncidentUpdateDraftCreate(supabase, session, args, threadState);
+      return {
+        result: { draft: out.draft, summary: out.summary, note: out.message },
+        threadState: out.threadState,
+      };
+    }
+    case "incident_update_draft_confirm": {
+      const out = await runIncidentUpdateDraftConfirm(supabase, session, threadState);
+      if (!out.incident) {
+        return { result: { note: out.message }, threadState: out.threadState };
+      }
+      return {
+        result: {
+          note: out.message,
+          incident: { id: out.incident.id, documentNo: out.incident.documentNo, status: out.incident.status },
+        },
+        threadState: out.threadState,
+        writeResult: {
+          kind: "incident_update",
+          label: `${out.incident.documentNo} — ${out.incident.status}`,
           href: out.href ?? `/incidents/${out.incident.id}`,
         },
       };

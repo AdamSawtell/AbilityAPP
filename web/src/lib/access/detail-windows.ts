@@ -81,6 +81,15 @@ export const INCIDENT_EXTRA_WINDOWS: AccessWindow[] = [
     abilityErpName: "Incident Report — NDIS compliance",
     showInSidebar: false,
   },
+  {
+    key: "incidents-dashboard",
+    label: "Dashboard & analytics",
+    group: "People",
+    href: "/incidents/dashboard",
+    parentWindowKey: "incidents",
+    abilityErpName: "Incident Report — Dashboard & analytics",
+    showInSidebar: false,
+  },
 ];
 
 export const CONTRACT_DEPENDENT_WINDOWS = buildDetailWindows(

@@ -181,7 +181,7 @@ export type EmployeeTabGroup = {
 export const employeeTabGroups: EmployeeTabGroup[] = [
   {
     label: "Employee",
-    tabs: ["Overview", "Contact", "Address", "Emergency contacts", "Employment", "Work rights", "Payroll", "Leave"],
+    tabs: ["Overview", "Contact", "Address", "Emergency contacts", "Employment", "Work rights", "Payroll", "Leave", "Incidents"],
   },
   {
     label: "Compliance",

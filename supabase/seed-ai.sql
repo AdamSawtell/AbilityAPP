@@ -47,6 +47,15 @@ values
     'You are the AbilityAPP enquiry assistant. enquiry_draft_* to create; enquiry_convert_* to convert to client; enquiry_search and enquiry_get to look up records. Confirm before saving.',
     'gpt-4o-mini',
     true
+  ),
+  (
+    'agent-incidents',
+    'incidents',
+    'Incident & NDIS safeguards assistant',
+    'Search, analyse, and manage incident reports — NDIS deadlines, compliance, investigations, and new submissions.',
+    'You are the AbilityAPP incident and NDIS Quality & Safeguards assistant. Use incident_list_recent, incident_search, incident_get, incident_linked_search, and incident_compliance_summary before guessing. Report with incident_draft_create/confirm; update with incident_update_draft_create/confirm after user confirmation. Reference INC document numbers and NDIS deadlines. Use client_get, activity_search, and task tools for linked context and follow-up.',
+    'gpt-4o-mini',
+    true
   )
 on conflict (id) do update set
   agent_key = excluded.agent_key,
@@ -57,7 +66,7 @@ on conflict (id) do update set
   active = excluded.active;
 
 delete from public.app_ai_agent_capability
-where agent_id in ('agent-training', 'agent-workspace', 'agent-tasks', 'agent-clients', 'agent-enquiries');
+where agent_id in ('agent-training', 'agent-workspace', 'agent-tasks', 'agent-clients', 'agent-enquiries', 'agent-incidents');
 
 insert into public.app_ai_agent_capability (agent_id, capability_type, capability_key)
 values
@@ -92,7 +101,23 @@ values
   ('agent-enquiries', 'tool', 'enquiry_draft_confirm'),
   ('agent-enquiries', 'tool', 'enquiry_convert_draft_create'),
   ('agent-enquiries', 'tool', 'enquiry_convert_draft_confirm'),
-  ('agent-enquiries', 'tool', 'activity_search')
+  ('agent-enquiries', 'tool', 'activity_search'),
+  ('agent-incidents', 'tool', 'help_search'),
+  ('agent-incidents', 'tool', 'incident_search'),
+  ('agent-incidents', 'tool', 'incident_get'),
+  ('agent-incidents', 'tool', 'incident_list_recent'),
+  ('agent-incidents', 'tool', 'incident_compliance_summary'),
+  ('agent-incidents', 'tool', 'incident_linked_search'),
+  ('agent-incidents', 'tool', 'incident_draft_create'),
+  ('agent-incidents', 'tool', 'incident_draft_confirm'),
+  ('agent-incidents', 'tool', 'incident_update_draft_create'),
+  ('agent-incidents', 'tool', 'incident_update_draft_confirm'),
+  ('agent-incidents', 'tool', 'client_search'),
+  ('agent-incidents', 'tool', 'client_get'),
+  ('agent-incidents', 'tool', 'activity_search'),
+  ('agent-incidents', 'tool', 'task_search'),
+  ('agent-incidents', 'tool', 'task_draft_create'),
+  ('agent-incidents', 'tool', 'task_draft_confirm')
 on conflict do nothing;
 
 delete from public.app_role_agent where role_id in ('role-admin', 'role-intake', 'role-coordinator');
@@ -103,11 +128,14 @@ values
   ('role-admin', 'agent-tasks'),
   ('role-admin', 'agent-clients'),
   ('role-admin', 'agent-enquiries'),
+  ('role-admin', 'agent-incidents'),
   ('role-intake', 'agent-training'),
   ('role-intake', 'agent-workspace'),
   ('role-intake', 'agent-clients'),
   ('role-intake', 'agent-enquiries'),
+  ('role-intake', 'agent-incidents'),
   ('role-coordinator', 'agent-training'),
   ('role-coordinator', 'agent-workspace'),
-  ('role-coordinator', 'agent-clients')
+  ('role-coordinator', 'agent-clients'),
+  ('role-coordinator', 'agent-incidents')
 on conflict do nothing;

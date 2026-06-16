@@ -79,6 +79,7 @@ export const clientTabs = [
   "Full profile",
   "BP Associations",
   "Locations",
+  "Incidents",
   "Requests",
   "Restrictive Practices",
   "Consents and Legal Orders",
@@ -398,7 +399,7 @@ export const clientTabGroups: ClientTabGroup[] = [
   { label: "Core", tabs: ["Overview", "Support Plan", "Alerts", "Activity", "Service agreements", "Full profile"] },
   {
     label: "Relationships",
-    tabs: ["BP Associations", "Locations", "Contact Activity"],
+    tabs: ["BP Associations", "Locations", "Incidents", "Contact Activity"],
   },
   {
     label: "Care & compliance",

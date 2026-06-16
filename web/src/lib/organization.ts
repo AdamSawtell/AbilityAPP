@@ -24,6 +24,7 @@ export type OrganizationRecord = AuditStampable & {
   primaryContactEmail: string;
   primaryContactPhone: string;
   registrationGroups: string;
+  incidentInvestigationSlaDays: number;
   notes: string;
   createdBy: string;
   updatedBy: string;
@@ -32,7 +33,7 @@ export type OrganizationRecord = AuditStampable & {
 export type OrganizationFieldDef = {
   key: keyof OrganizationRecord;
   label: string;
-  type: "text" | "email" | "tel" | "url" | "textarea";
+  type: "text" | "email" | "tel" | "url" | "textarea" | "number";
   placeholder?: string;
   hint?: string;
 };
@@ -95,6 +96,19 @@ export const organizationSections: OrganizationSection[] = [
     ],
   },
   {
+    title: "Incident management",
+    description: "Defaults used by the incident dashboard and investigation SLA alerts.",
+    fields: [
+      {
+        key: "incidentInvestigationSlaDays",
+        label: "Investigation SLA (days)",
+        type: "number",
+        placeholder: "14",
+        hint: "Open investigations beyond this many days trigger an overdue alert on the dashboard.",
+      },
+    ],
+  },
+  {
     title: "Notes",
     fields: [
       { key: "notes", label: "Internal notes", type: "textarea", placeholder: "Optional context for administrators" },
@@ -129,6 +143,7 @@ export function defaultOrganization(): OrganizationRecord {
       "Participation In Community And Social And Civic Activities",
       "Support Coordination",
     ].join("\n"),
+    incidentInvestigationSlaDays: 14,
     notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -136,11 +151,13 @@ export function defaultOrganization(): OrganizationRecord {
 }
 
 export function normalizeOrganization(record: OrganizationRecord): OrganizationRecord {
+  const sla = Number(record.incidentInvestigationSlaDays);
   return {
     ...defaultOrganization(),
     ...record,
     id: ORGANIZATION_ID,
     registrationGroups: (record.registrationGroups ?? "").trim(),
+    incidentInvestigationSlaDays: Number.isFinite(sla) && sla > 0 ? Math.round(sla) : 14,
   };
 }
 

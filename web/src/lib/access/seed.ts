@@ -12,6 +12,9 @@ import {
 const TASK_ACCESS = [...TASK_WINDOW_KEYS];
 const ALL_TASK_TYPE_IDS = INITIAL_TASK_TYPES.map((t) => t.id);
 
+/** Read employee records and linked incidents (not full HR file). */
+const EMPLOYEE_INCIDENT_LINK_WINDOWS = ["employees", "employee-overview", "employee-incidents"] as const;
+
 export const SEED_USERS: AppUserRecord[] = [
   {
     id: "user-superuser",
@@ -69,7 +72,13 @@ export const SEED_ROLES: AppRoleRecord[] = [
     name: "Intake Coordinator",
     description: "Enquiries and convert-to-client process",
     active: true,
-    windowKeys: ["home", "reports", ...TASK_ACCESS, ...windowKeysWithDependents("enquiries", "clients", "incidents", "locations")],
+    windowKeys: [
+      "home",
+      "reports",
+      ...TASK_ACCESS,
+      ...windowKeysWithDependents("enquiries", "clients", "incidents", "locations"),
+      ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
+    ],
     processIds: ["enquiry-to-client", "assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task", "report-incident", "notify-ndis-reportable"],
     reportIds: ["client-register", "enquiry-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
@@ -80,7 +89,13 @@ export const SEED_ROLES: AppRoleRecord[] = [
     name: "Support Coordinator",
     description: "Client records and service catalog (no admin)",
     active: true,
-    windowKeys: ["home", "reports", ...TASK_ACCESS, ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements")],
+    windowKeys: [
+      "home",
+      "reports",
+      ...TASK_ACCESS,
+      ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
+      ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
+    ],
     processIds: ["assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task", "report-incident", "notify-ndis-reportable"],
     reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),

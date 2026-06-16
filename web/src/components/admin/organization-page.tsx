@@ -37,6 +37,20 @@ function OrgField({
     );
   }
 
+  if (field.type === "number") {
+    return (
+      <input
+        className={base}
+        type="number"
+        min={1}
+        step={1}
+        value={value}
+        placeholder={field.placeholder}
+        onChange={(e) => onChange(field.key, e.target.value)}
+      />
+    );
+  }
+
   return (
     <input
       className={base}
@@ -60,11 +74,17 @@ export function OrganizationAdminView() {
 
   function onChange(key: keyof OrganizationRecord, value: string) {
     const base = draft ?? organization;
-    setDraft({
+    const next: OrganizationRecord = {
       ...base,
-      [key]: value,
       updatedBy: session?.displayName ?? session?.username ?? "SuperUser",
-    });
+    };
+    if (key === "incidentInvestigationSlaDays") {
+      const n = Number.parseInt(value, 10);
+      next.incidentInvestigationSlaDays = Number.isFinite(n) && n > 0 ? n : 14;
+    } else {
+      (next as Record<string, unknown>)[key] = value;
+    }
+    setDraft(next);
     setSaved(false);
   }
 
@@ -147,7 +167,15 @@ export function OrganizationAdminView() {
                     className={field.type === "textarea" ? "sm:col-span-2" : ""}
                   >
                     <label className="mb-1 block text-sm font-medium text-slate-700">{field.label}</label>
-                    <OrgField field={field} value={String(record[field.key] ?? "")} onChange={onChange} />
+                    <OrgField
+                      field={field}
+                      value={
+                        field.key === "incidentInvestigationSlaDays"
+                          ? String(record.incidentInvestigationSlaDays)
+                          : String(record[field.key] ?? "")
+                      }
+                      onChange={onChange}
+                    />
                     {field.hint ? <p className="mt-1 text-xs text-slate-400">{field.hint}</p> : null}
                   </div>
                 ))}

@@ -23,6 +23,7 @@ import {
   computeNdisReportDeadline,
   formatDisplayDateTime,
   incidentCategoryOptions,
+  incidentServiceTypeOptions,
   incidentSeverityOptions,
   incidentStatusOptions,
   incidentTabGroups,
@@ -379,6 +380,20 @@ export function IncidentTabbedView({
                   onChange={(e) => onChange("category", e.target.value)}
                 >
                   {incidentCategoryOptions.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Service type">
+                <select
+                  className={inputClass}
+                  value={record.serviceType}
+                  onChange={(e) => onChange("serviceType", e.target.value)}
+                >
+                  <option value="">Select service type…</option>
+                  {incidentServiceTypeOptions.map((o) => (
                     <option key={o} value={o}>
                       {o}
                     </option>

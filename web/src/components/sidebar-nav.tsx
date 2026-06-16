@@ -603,6 +603,14 @@ export function SidebarNav() {
               <Link href="/incidents" className={subLinkClass(pathname === "/incidents")}>
                 All incidents
               </Link>
+              {canWindow("incidents-dashboard") ? (
+                <Link
+                  href="/incidents/dashboard"
+                  className={subLinkClass(pathname.startsWith("/incidents/dashboard"))}
+                >
+                  Dashboard & analytics
+                </Link>
+              ) : null}
               {canWindow("incidents-compliance") ? (
                 <Link
                   href="/incidents/compliance"

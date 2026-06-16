@@ -1586,6 +1586,7 @@ export type IncidentRow = {
   status: string;
   severity: string;
   category: string;
+  service_type: string;
   is_reportable: boolean;
   reportable_type: string;
   restrictive_practice_caused_harm: boolean;
@@ -1673,6 +1674,7 @@ export function incidentFromRow(
     status: row.status as IncidentRecord["status"],
     severity: row.severity as IncidentRecord["severity"],
     category: row.category,
+    serviceType: row.service_type ?? "",
     isReportable: row.is_reportable,
     reportableType: row.reportable_type as IncidentRecord["reportableType"],
     restrictivePracticeCausedHarm: row.restrictive_practice_caused_harm,
@@ -1756,6 +1758,7 @@ export function incidentToRow(record: IncidentRecord): IncidentRow {
     status: normalized.status,
     severity: normalized.severity,
     category: normalized.category,
+    service_type: normalized.serviceType?.trim() ?? "",
     is_reportable: normalized.isReportable,
     reportable_type: normalized.reportableType,
     restrictive_practice_caused_harm: normalized.restrictivePracticeCausedHarm,

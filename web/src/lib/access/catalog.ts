@@ -17,6 +17,7 @@ import {
   PRICE_LIST_DEPENDENT_WINDOWS,
   PRODUCT_DEPENDENT_WINDOWS,
   SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
+  tabToWindowSlug,
 } from "@/lib/access/detail-windows";
 import type { AccessProcess, AccessWindow } from "@/lib/access/catalog-types";
 
@@ -341,6 +342,55 @@ export function detailTabsForRole(parentWindowKey: string, windowKeys: string[])
 
 export function windowKeyForDetailTab(parentWindowKey: string, tab: string) {
   return childWindows(parentWindowKey).find((w) => w.detailTab === tab)?.key;
+}
+
+const DETAIL_TAB_KEY_PREFIX: Record<string, string> = {
+  clients: "client",
+  employees: "employee",
+  locations: "location",
+  enquiries: "enquiry",
+  incidents: "incident",
+};
+
+const DETAIL_TAB_KEY_OVERRIDES: Record<string, Record<string, string>> = {
+  employees: {
+    Address: "employee-locations",
+    "Skills & languages": "employee-skills",
+  },
+  locations: {
+    "Contact & address": "location-contact-and-address",
+    "Products & services": "location-products-and-services",
+  },
+};
+
+/** Catalog key for a detail tab, with naming-convention fallback when the catalog is stale. */
+export function resolveDetailWindowKey(parentWindowKey: string, tab: string): string | undefined {
+  const fromCatalog = windowKeyForDetailTab(parentWindowKey, tab);
+  if (fromCatalog) return fromCatalog;
+  const prefix = DETAIL_TAB_KEY_PREFIX[parentWindowKey];
+  if (!prefix) return undefined;
+  const overrides = DETAIL_TAB_KEY_OVERRIDES[parentWindowKey];
+  return overrides?.[tab] ?? `${prefix}-${tabToWindowSlug(tab)}`;
+}
+
+/** Tab list in UI group order, gated by role window keys (resilient to catalog/session drift). */
+export function allowedDetailTabsFromGroups(
+  parentWindowKey: string,
+  tabGroups: readonly { tabs: readonly string[] }[],
+  windowKeys: string[]
+): string[] {
+  if (!canAccessWindow(windowKeys, parentWindowKey)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const group of tabGroups) {
+    for (const tab of group.tabs) {
+      if (seen.has(tab)) continue;
+      seen.add(tab);
+      const key = resolveDetailWindowKey(parentWindowKey, tab);
+      if (key && canAccessWindow(windowKeys, key)) out.push(tab);
+    }
+  }
+  return out;
 }
 
 /** @deprecated Use detailTabsForRole("employees", windowKeys) */

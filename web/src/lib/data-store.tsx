@@ -47,7 +47,11 @@ import {
 import { convertEnquiryToClient } from "@/lib/convert";
 import { syncClientsForIncident } from "@/lib/incident-client-sync";
 import { syncLocationsForIncident } from "@/lib/incident-location-sync";
-import { incidentsLinkedToClient, incidentsLinkedToEmployee } from "@/lib/incident-queries";
+import {
+  incidentsLinkedToClient,
+  incidentsLinkedToEmployee,
+  incidentsLinkedToLocation,
+} from "@/lib/incident-queries";
 import { syncClientsRestrictivePracticeForIncident } from "@/lib/incident-rp-sync";
 import {
   createIncident,
@@ -126,6 +130,7 @@ type DataStore = {
   getTasksByEntity: (entityType: TaskEntityType, entityId: string) => TaskRecord[];
   getIncidentsForClient: (clientId: string) => IncidentRecord[];
   getIncidentsForEmployee: (employeeId: string) => IncidentRecord[];
+  getIncidentsForLocation: (locationId: string) => IncidentRecord[];
   getTaskById: (id: string) => TaskRecord | undefined;
 };
 
@@ -719,6 +724,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [incidents]
   );
 
+  const getIncidentsForLocation = useCallback(
+    (locationId: string) => incidentsLinkedToLocation(incidents, locationId),
+    [incidents]
+  );
+
   const getTaskById = useCallback((id: string) => tasks.find((t) => t.id === id), [tasks]);
 
   const value = useMemo(
@@ -764,6 +774,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getTasksByEntity,
       getIncidentsForClient,
       getIncidentsForEmployee,
+      getIncidentsForLocation,
       getTaskById,
     }),
     [
@@ -808,6 +819,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getTasksByEntity,
       getIncidentsForClient,
       getIncidentsForEmployee,
+      getIncidentsForLocation,
       getTaskById,
     ]
   );

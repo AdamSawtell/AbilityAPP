@@ -75,7 +75,27 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
   {
     key: "incident_search",
     label: "Incident search",
-    description: "Find incident reports by title, status, or NDIS fields.",
+    description: "Find incident reports by title, status, severity, NDIS fields, or overdue.",
+  },
+  {
+    key: "incident_get",
+    label: "Incident details",
+    description: "Get one incident with parties, NDIS checklist, notifications, and investigation notes.",
+  },
+  {
+    key: "incident_list_recent",
+    label: "Recent incidents",
+    description: "List incidents from the last N hours.",
+  },
+  {
+    key: "incident_compliance_summary",
+    label: "NDIS compliance summary",
+    description: "Open reportable, overdue, and incomplete checklist counts.",
+  },
+  {
+    key: "incident_linked_search",
+    label: "Incidents for client/employee",
+    description: "Find incidents linked to a support receiver or staff member.",
   },
   {
     key: "incident_draft_create",
@@ -86,6 +106,16 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     key: "incident_draft_confirm",
     label: "Confirm incident draft",
     description: "Save a pending incident draft after explicit approval.",
+  },
+  {
+    key: "incident_update_draft_create",
+    label: "Update incident draft",
+    description: "Prepare status, workflow, or investigation updates for confirmation.",
+  },
+  {
+    key: "incident_update_draft_confirm",
+    label: "Confirm incident update",
+    description: "Save a pending incident update after explicit approval.",
   },
 ];
 

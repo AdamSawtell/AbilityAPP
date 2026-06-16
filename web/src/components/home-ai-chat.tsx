@@ -35,6 +35,12 @@ const AGENT_SUGGESTIONS: Record<string, string[]> = {
   ],
   "agent-tasks": ["Create a task for the intake team", "Mark REQ-1001 complete"],
   "agent-enquiries": ["Find open enquiries", "Convert enquiry to client"],
+  "agent-incidents": [
+    "What incidents happened this week?",
+    "Any NDIS reporting overdue?",
+    "Show me Bernie's incident history",
+    "Draft a reportable incident",
+  ],
 };
 
 type UiMessage = ChatMessage & { attachments?: ChatDisplayAttachment[] };

@@ -20,7 +20,8 @@ import { canActionTask } from "@/lib/task-access";
 import { canCreateTaskType } from "@/lib/task-type-access";
 import type { IncidentDraft } from "@/lib/ai/tools/incident-draft";
 import { incidentDraftToPartial } from "@/lib/ai/tools/incident-draft";
-import { createIncident, type IncidentRecord } from "@/lib/incident";
+import type { IncidentUpdateDraft } from "@/lib/ai/types";
+import { createIncident, advanceIncidentWorkflow, normalizeIncident, type IncidentRecord } from "@/lib/incident";
 import { fetchIncidents, saveIncident } from "@/lib/supabase/data-api";
 
 export type AiPersistResult<T> =
@@ -448,6 +449,68 @@ export async function persistAiIncident(
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not save incident";
+    return { ok: false, error: message };
+  }
+}
+
+export async function persistAiIncidentUpdate(
+  supabase: SupabaseClient,
+  session: AuthSession,
+  draft: IncidentUpdateDraft
+): Promise<AiPersistResult<IncidentRecord>> {
+  if (!aiCanAccessWindow(session, "incidents")) {
+    return { ok: false, error: "Your role cannot update incidents." };
+  }
+
+  try {
+    const incidents = await fetchIncidents(supabase);
+    const existing = incidents.find((i) => i.id === draft.incidentId);
+    if (!existing) {
+      return { ok: false, error: `Incident ${draft.documentNo} not found.` };
+    }
+
+    let next = normalizeIncident({ ...existing });
+
+    switch (draft.action) {
+      case "change_status":
+        if (draft.status) next = normalizeIncident({ ...next, status: draft.status, updatedBy: session.displayName });
+        break;
+      case "manager_review":
+        next = advanceIncidentWorkflow(next, "manager_review", session.displayName);
+        next = { ...next, updatedBy: session.displayName };
+        break;
+      case "commission_notified":
+        next = advanceIncidentWorkflow(next, "commission_notified", session.displayName);
+        if (draft.ndisNotificationRef) {
+          next = { ...next, ndisNotificationRef: draft.ndisNotificationRef, updatedBy: session.displayName };
+        }
+        break;
+      case "add_investigation_note": {
+        const note = draft.investigationNote?.trim() ?? "";
+        const prefix = next.investigationSummary.trim() ? `${next.investigationSummary}\n\n` : "";
+        next = normalizeIncident({
+          ...next,
+          investigationSummary: `${prefix}[${session.displayName}] ${note}`,
+          status: next.status === "Submitted" || next.status === "Manager reviewed" ? "Under investigation" : next.status,
+          updatedBy: session.displayName,
+        });
+        break;
+      }
+      case "close":
+        next = normalizeIncident({ ...next, status: "Closed", updatedBy: session.displayName });
+        break;
+      default:
+        return { ok: false, error: "Invalid incident update action." };
+    }
+
+    await saveIncident(supabase, next);
+    return {
+      ok: true,
+      record: next,
+      href: `/incidents/${next.id}`,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not update incident";
     return { ok: false, error: message };
   }
 }

@@ -23,6 +23,7 @@ export type OrganizationRow = {
   primary_contact_email: string;
   primary_contact_phone: string;
   registration_groups: string;
+  incident_investigation_sla_days: number;
   notes: string;
   created_by: string;
   updated_by: string;
@@ -53,6 +54,7 @@ export function organizationFromRow(row: OrganizationRow): OrganizationRecord {
     primaryContactEmail: row.primary_contact_email ?? "",
     primaryContactPhone: row.primary_contact_phone ?? "",
     registrationGroups: row.registration_groups ?? "",
+    incidentInvestigationSlaDays: row.incident_investigation_sla_days ?? 14,
     notes: row.notes ?? "",
     createdBy: row.created_by ?? "",
     updatedBy: row.updated_by ?? "",
@@ -84,6 +86,7 @@ export function organizationToRow(record: OrganizationRecord): OrganizationRow {
     primary_contact_email: record.primaryContactEmail,
     primary_contact_phone: record.primaryContactPhone,
     registration_groups: record.registrationGroups,
+    incident_investigation_sla_days: record.incidentInvestigationSlaDays > 0 ? record.incidentInvestigationSlaDays : 14,
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,

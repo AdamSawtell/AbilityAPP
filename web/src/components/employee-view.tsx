@@ -10,10 +10,11 @@ import { EmployeePicker } from "@/components/employee-picker";
 import { LineItemTable } from "@/components/line-item-table";
 import { EmployeeSystemAccessPanel } from "@/components/employee-system-access-panel";
 import {
-  employeeTabsForRole,
-  windowKeyForEmployeeTab,
+  allowedDetailTabsFromGroups,
+  resolveDetailWindowKey,
 } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
+import { useData } from "@/lib/data-store";
 import type { AppUserRecord } from "@/lib/access/types";
 import {
   complianceSummary,
@@ -21,6 +22,7 @@ import {
   mergedEmployeeAlerts,
   primaryEmergencyContact,
 } from "@/lib/employee-compliance";
+import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import {
   credentialStatusOptions,
   credentialTableConfig,
@@ -181,7 +183,7 @@ function SystemAccessPanel({
   return <EmployeeSystemAccessPanel employee={employee} linkedUser={linkedUser} />;
 }
 
-function tabCount(employee: EmployeeRecord, tab: string): number | null {
+function tabCount(employee: EmployeeRecord, tab: string, incidentCount: number): number | null {
   if (tab === "Credentials Assigned") return employee.credentials.length;
   if (tab === "Address") return employee.locations.length;
   if (tab === "Emergency contacts") return employee.emergencyContacts.length;
@@ -190,6 +192,7 @@ function tabCount(employee: EmployeeRecord, tab: string): number | null {
   if (tab === "Documents") return employee.documents.length;
   if (tab === "Activity") return employee.activities.length;
   if (tab === "Leave") return employee.leaveEntitlements.length + employee.leaveRequests.length;
+  if (tab === "Incidents") return incidentCount > 0 ? incidentCount : null;
   return null;
 }
 
@@ -226,8 +229,10 @@ export function EmployeeTabbedView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { session, canWindow, canProcess } = useAuth();
+  const { getIncidentsForEmployee } = useData();
 
-  const allowedTabs = employeeTabsForRole(session?.windowKeys ?? []);
+  const allowedTabs = allowedDetailTabsFromGroups("employees", employeeTabGroups, session?.windowKeys ?? []);
+  const incidentCount = getIncidentsForEmployee(employee.id).length;
   const defaultTab = allowedTabs[0] ?? "Overview";
   const requestedTab = searchParams.get("tab") ?? defaultTab;
   const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
@@ -289,9 +294,9 @@ export function EmployeeTabbedView({
               </p>
               <div className="space-y-0.5">
                 {group.tabs.map((tab) => {
-                  const count = tabCount(employee, tab);
+                  const count = tabCount(employee, tab, incidentCount);
                   const active = activeTab === tab;
-                  const windowKey = windowKeyForEmployeeTab(tab);
+                  const windowKey = resolveDetailWindowKey("employees", tab);
                   return (
                     <button
                       key={tab}
@@ -526,6 +531,13 @@ export function EmployeeTabbedView({
             rows={employee.activities}
             onChange={onActivitiesChange}
             dropdowns={employeeDropdowns}
+          />
+        ) : null}
+
+        {activeTab === "Incidents" && canWindow("employee-incidents") ? (
+          <RecordIncidentsPanel
+            employeeId={employee.id}
+            entityLabel={`${employee.searchKey} — ${employee.name}`}
           />
         ) : null}
 

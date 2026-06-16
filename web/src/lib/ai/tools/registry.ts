@@ -350,13 +350,78 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     type: "function",
     function: {
       name: "incident_search",
-      description: "Search incident reports by title, description, status, or NDIS reportable type.",
+      description:
+        "Search incident reports by text, status, severity, NDIS reportable flag, overdue, or linked client/employee id.",
       parameters: {
         type: "object",
         properties: {
           query: { type: "string" },
           status: { type: "string" },
+          severity: { type: "string", enum: ["Low", "Medium", "High", "Critical"] },
           reportableOnly: { type: "boolean" },
+          overdueOnly: { type: "boolean" },
+          clientId: { type: "string" },
+          employeeId: { type: "string" },
+          limit: { type: "number" },
+          sortBy: { type: "string", enum: ["occurred", "deadline"] },
+        },
+      },
+    },
+  },
+  incident_get: {
+    type: "function",
+    function: {
+      name: "incident_get",
+      description:
+        "Get full incident details including parties, NDIS checklist, notifications, actions, and linked client/employee.",
+      parameters: {
+        type: "object",
+        properties: {
+          incidentId: { type: "string" },
+          documentNo: { type: "string" },
+          title: { type: "string" },
+        },
+      },
+    },
+  },
+  incident_list_recent: {
+    type: "function",
+    function: {
+      name: "incident_list_recent",
+      description: "List incidents that occurred or were reported within the last N hours (default 168 = one week).",
+      parameters: {
+        type: "object",
+        properties: {
+          hours: { type: "number" },
+          limit: { type: "number" },
+          openOnly: { type: "boolean" },
+          reportableOnly: { type: "boolean" },
+        },
+      },
+    },
+  },
+  incident_compliance_summary: {
+    type: "function",
+    function: {
+      name: "incident_compliance_summary",
+      description:
+        "NDIS compliance snapshot: open reportable count, overdue deadlines, incomplete checklists, and top items.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  incident_linked_search: {
+    type: "function",
+    function: {
+      name: "incident_linked_search",
+      description: "Find all incidents linked to a client or employee (primary or party).",
+      parameters: {
+        type: "object",
+        properties: {
+          clientId: { type: "string" },
+          clientName: { type: "string" },
+          searchKey: { type: "string" },
+          employeeId: { type: "string" },
+          employeeName: { type: "string" },
           limit: { type: "number" },
         },
       },
@@ -389,6 +454,39 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     function: {
       name: "incident_draft_confirm",
       description: "Confirm and save the pending incident draft to the database.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  incident_update_draft_create: {
+    type: "function",
+    function: {
+      name: "incident_update_draft_create",
+      description:
+        "Prepare an incident update for confirmation: change status, manager review, commission notified, investigation note, or close.",
+      parameters: {
+        type: "object",
+        properties: {
+          incidentId: { type: "string" },
+          documentNo: { type: "string" },
+          title: { type: "string" },
+          action: {
+            type: "string",
+            enum: ["change_status", "manager_review", "commission_notified", "add_investigation_note", "close"],
+          },
+          status: { type: "string" },
+          note: { type: "string" },
+          investigationNote: { type: "string" },
+          ndisNotificationRef: { type: "string" },
+        },
+        required: ["action"],
+      },
+    },
+  },
+  incident_update_draft_confirm: {
+    type: "function",
+    function: {
+      name: "incident_update_draft_confirm",
+      description: "Confirm and save the pending incident update to the database.",
       parameters: { type: "object", properties: {} },
     },
   },

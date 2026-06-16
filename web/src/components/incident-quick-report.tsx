@@ -7,6 +7,7 @@ import {
   emptyIncident,
   formatDisplayDateTime,
   incidentCategoryOptions,
+  incidentServiceTypeOptions,
   incidentSeverityOptions,
   ndisReportableTypeOptions,
   type IncidentRecord,
@@ -14,6 +15,7 @@ import {
 import type { TaskEntityOption } from "@/lib/task-entities";
 import { useTaskEntityIndex } from "@/lib/task-entities";
 import { useData } from "@/lib/data-store";
+import { serviceTypeForIncident } from "@/lib/incident-analytics";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -116,7 +118,7 @@ export function IncidentQuickReportWizard({
   onCancel,
 }: IncidentQuickReportWizardProps) {
   const entityIndex = useTaskEntityIndex();
-  const { clients, employees, locations } = useData();
+  const { clients, employees, locations, products } = useData();
   const [step, setStep] = useState<Step>("What happened");
   const [error, setError] = useState("");
   const [record, setRecord] = useState<IncidentRecord>(() => {
@@ -362,8 +364,35 @@ export function IncidentQuickReportWizard({
           <Field label="Location">
             <LocationQuickPicker
               value={record.primaryLocationId}
-              onChange={(id) => patch({ primaryLocationId: id })}
+              onChange={(id) => {
+                const loc = locations.find((l) => l.id === id);
+                const derived = loc
+                  ? serviceTypeForIncident(
+                      { ...record, primaryLocationId: id, serviceType: "" },
+                      locations,
+                      products
+                    )
+                  : "";
+                patch({
+                  primaryLocationId: id,
+                  serviceType: record.serviceType || (derived !== "Unassigned" && derived !== "No linked service" ? derived : ""),
+                });
+              }}
             />
+          </Field>
+          <Field label="Service type">
+            <select
+              className={inputClass}
+              value={record.serviceType}
+              onChange={(e) => patch({ serviceType: e.target.value })}
+            >
+              <option value="">Select service type…</option>
+              {incidentServiceTypeOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
           </Field>
           {record.primaryLocationId ? (
             <p className="text-xs text-slate-500">

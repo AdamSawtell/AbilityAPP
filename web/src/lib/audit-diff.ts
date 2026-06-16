@@ -113,6 +113,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     city: "City",
     state: "State",
     postcode: "Postcode",
+    incidentInvestigationSlaDays: "Investigation SLA (days)",
   },
   incident: {
     documentNo: "Document no.",
@@ -120,6 +121,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     status: "Status",
     severity: "Severity",
     category: "Category",
+    serviceType: "Service type",
     isReportable: "NDIS reportable",
     reportableType: "Reportable type",
     restrictivePracticeCausedHarm: "Restrictive practice caused harm",

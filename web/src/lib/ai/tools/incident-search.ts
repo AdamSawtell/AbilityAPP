@@ -7,7 +7,17 @@ import { formatDisplayDateTime, isNdisReportOverdue, normalizeIncident } from "@
 export async function runIncidentSearch(
   supabase: SupabaseClient,
   session: AuthSession,
-  args: { query?: string; status?: string; reportableOnly?: boolean; limit?: number }
+  args: {
+    query?: string;
+    status?: string;
+    severity?: string;
+    reportableOnly?: boolean;
+    overdueOnly?: boolean;
+    clientId?: string;
+    employeeId?: string;
+    limit?: number;
+    sortBy?: "occurred" | "deadline";
+  }
 ) {
   if (!canAccessWindow(session.windowKeys, "incidents")) {
     return { count: 0, results: [], note: "You do not have access to incidents." };
@@ -15,7 +25,9 @@ export async function runIncidentSearch(
 
   const query = args.query?.trim().toLowerCase() ?? "";
   const status = args.status?.trim() ?? "";
+  const severity = args.severity?.trim() ?? "";
   const limit = Math.min(Math.max(Number(args.limit) || 15, 1), 40);
+  const sortBy = args.sortBy === "deadline" ? "deadline" : "occurred";
 
   const incidents = (await fetchIncidents(supabase)).map(normalizeIncident);
   let filtered = incidents;
@@ -23,8 +35,22 @@ export async function runIncidentSearch(
   if (args.reportableOnly) {
     filtered = filtered.filter((i) => i.isReportable);
   }
+  if (args.overdueOnly) {
+    filtered = filtered.filter((i) => isNdisReportOverdue(i));
+  }
   if (status) {
     filtered = filtered.filter((i) => i.status.toLowerCase() === status.toLowerCase());
+  }
+  if (severity) {
+    filtered = filtered.filter((i) => i.severity.toLowerCase() === severity.toLowerCase());
+  }
+  if (args.clientId?.trim()) {
+    const id = args.clientId.trim();
+    filtered = filtered.filter((i) => i.primaryClientId === id || i.parties.some((p) => p.entityId === id));
+  }
+  if (args.employeeId?.trim()) {
+    const id = args.employeeId.trim();
+    filtered = filtered.filter((i) => i.primaryEmployeeId === id || i.parties.some((p) => p.entityId === id));
   }
   if (query) {
     filtered = filtered.filter((i) => {
@@ -36,6 +62,7 @@ export async function runIncidentSearch(
         i.category,
         i.primaryClientId,
         i.primaryEmployeeId,
+        i.investigationSummary,
       ]
         .join(" ")
         .toLowerCase();
@@ -43,13 +70,18 @@ export async function runIncidentSearch(
     });
   }
 
-  filtered.sort(
-    (a, b) => (b.occurredAt || "").localeCompare(a.occurredAt || "") || a.documentNo.localeCompare(b.documentNo)
-  );
+  filtered.sort((a, b) => {
+    if (sortBy === "deadline") {
+      return (a.reportDeadlineAt || "9999").localeCompare(b.reportDeadlineAt || "9999");
+    }
+    return (b.occurredAt || "").localeCompare(a.occurredAt || "") || a.documentNo.localeCompare(b.documentNo);
+  });
 
   return {
     query,
     status: status || null,
+    severity: severity || null,
+    sortBy,
     count: filtered.length,
     results: filtered.slice(0, limit).map((i) => ({
       id: i.id,
