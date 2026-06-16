@@ -37,8 +37,16 @@ export function resolveUserId(users: AppUserRecord[], hint: string): string {
 }
 
 export function resolveRoleId(roles: AppRoleRecord[], hint: string): string {
-  const q = normalize(hint);
+  let q = normalize(hint).replace(/\s+role$/, "").trim();
   if (!q) return "";
+
+  if (q === "admin" || q === "superuser" || q === "abilityapp admin") {
+    const admin =
+      roles.find((r) => r.id === "role-admin") ??
+      roles.find((r) => normalize(r.roleKey).includes("admin"));
+    if (admin) return admin.id;
+  }
+
   const exact = roles.find(
     (r) => normalize(r.id) === q || normalize(r.roleKey) === q || normalize(r.name) === q
   );

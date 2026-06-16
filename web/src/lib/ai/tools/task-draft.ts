@@ -9,13 +9,28 @@ import {
   resolveUserId,
 } from "@/lib/ai/tools/assignee-resolve";
 
+function parseDueDate(raw: string): string {
+  const s = raw.trim();
+  if (!s) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const dmy = s.match(/^(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?$/);
+  if (dmy) {
+    const day = dmy[1].padStart(2, "0");
+    const month = dmy[2].padStart(2, "0");
+    const yearPart = dmy[3];
+    const year = yearPart ? (yearPart.length === 2 ? `20${yearPart}` : yearPart) : String(new Date().getFullYear());
+    return `${year}-${month}-${day}`;
+  }
+  return s;
+}
+
 function normalizeDraft(raw: Record<string, unknown>): TaskDraft {
   return {
     title: String(raw.title ?? "").trim(),
     description: String(raw.description ?? "").trim(),
     taskTypeId: String(raw.taskTypeId ?? "tt-other").trim(),
     priority: (["Low", "Normal", "High"].includes(String(raw.priority)) ? raw.priority : "Normal") as TaskDraft["priority"],
-    dueDate: String(raw.dueDate ?? "").trim(),
+    dueDate: parseDueDate(String(raw.dueDate ?? "")),
     assignmentType: raw.assignmentType === "role" ? "role" : "user",
     assigneeUserId: String(raw.assigneeUserId ?? "").trim(),
     assigneeRoleId: String(raw.assigneeRoleId ?? "").trim(),
@@ -85,7 +100,7 @@ export async function runTaskDraftCreate(
     draft,
     threadState: nextState,
     message: "Task draft ready. Ask the user to confirm before creating.",
-    summary: `"${draft.title}" → ${draft.assignmentType === "user" ? "user" : "role"} ${assignee}`,
+    summary: `"${draft.title}"${draft.dueDate ? ` · due ${draft.dueDate}` : ""} → ${draft.assignmentType === "user" ? "user" : "role"} ${assignee}`,
   };
 }
 

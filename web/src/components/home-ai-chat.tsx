@@ -57,17 +57,17 @@ export function HomeAiChat() {
   const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const messagesRef = useRef<ChatMessage[]>([]);
   const threadStateRef = useRef(threadState);
-  const sessionKeyRef = useRef("");
 
   threadStateRef.current = threadState;
+  messagesRef.current = messages;
 
   useEffect(() => {
     if (!session) {
       setHydrated(false);
       return;
     }
-    sessionKeyRef.current = `${session.userId}:${session.activeRoleId}`;
     const saved = loadHomeChatSession(session.userId, session.activeRoleId);
     if (saved) {
       setMessages(saved.messages);
@@ -178,11 +178,10 @@ export function HomeAiChat() {
       setLoading(true);
       setInput("");
 
-      let nextMessages: ChatMessage[] = [];
-      setMessages((prev) => {
-        nextMessages = [...prev, { role: "user", content: text }];
-        return nextMessages;
-      });
+      const userMessage: ChatMessage = { role: "user", content: text };
+      const nextMessages = [...messagesRef.current, userMessage];
+      messagesRef.current = nextMessages;
+      setMessages(nextMessages);
 
       try {
         const res = await fetch("/api/ai/chat", {
@@ -197,14 +196,22 @@ export function HomeAiChat() {
         });
         const data = (await res.json()) as ChatResponseBody & { error?: string };
         if (!res.ok) {
+          const rolledBack = messagesRef.current.slice(0, -1);
+          messagesRef.current = rolledBack;
+          setMessages(rolledBack);
           setError(data.error ?? "Could not send message");
           setInput(text);
           return;
         }
-        setMessages(data.messages.filter((m) => m.role === "user" || m.role === "assistant"));
+        const visible = data.messages.filter((m) => m.role === "user" || m.role === "assistant");
+        messagesRef.current = visible;
+        setMessages(visible);
         setThreadState(data.threadState ?? {});
         if (data.createdTask) applyCreatedTask(data.createdTask);
       } catch {
+        const rolledBack = messagesRef.current.slice(0, -1);
+        messagesRef.current = rolledBack;
+        setMessages(rolledBack);
         setError("Network error — try again.");
         setInput(text);
       } finally {
