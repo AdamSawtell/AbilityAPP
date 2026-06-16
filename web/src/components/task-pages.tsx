@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { TaskActivityTimeline } from "@/components/task-activity-timeline";
 import { TaskForm, type TaskFormValues } from "@/components/task-form";
 import { TaskHubView } from "@/components/task-hub-view";
+import { TaskUpdatePanel, type TaskUpdatePayload } from "@/components/task-update-panel";
 import { useAuth } from "@/lib/auth-store";
 import { displayName } from "@/lib/access/types";
 import { useData } from "@/lib/data-store";
@@ -19,10 +21,10 @@ import {
   isActiveTask,
   logTaskUpdate,
   taskEntityTypeLabels,
-  taskStatusOptions,
   type TaskRecord,
   type TaskStatus,
 } from "@/lib/task";
+import { taskUrgency } from "@/lib/task-hub";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -39,6 +41,22 @@ function statusPill(status: TaskRecord["status"]) {
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${styles}`}>{status}</span>
   );
+}
+
+function dueDateLabel(task: TaskRecord): string {
+  if (!task.dueDate) return "Not set";
+  const urgency = taskUrgency(task);
+  if (urgency === "overdue") return `${task.dueDate} (overdue)`;
+  if (urgency === "today") return `${task.dueDate} (due today)`;
+  return task.dueDate;
+}
+
+function dueDateStyles(task: TaskRecord): string {
+  const urgency = taskUrgency(task);
+  if (urgency === "overdue") return "text-red-700";
+  if (urgency === "today") return "text-amber-800";
+  if (urgency === "soon") return "text-orange-800";
+  return "text-slate-800";
 }
 
 function canManageTask(
@@ -129,11 +147,10 @@ export function TaskDetailView({ id }: { id: string }) {
   const { getTaskTypeName } = useTaskTypes();
   const task = getTaskById(id);
 
-  const [noteText, setNoteText] = useState("");
-  const [reassignType, setReassignType] = useState<"user" | "role">("user");
-  const [reassignUserId, setReassignUserId] = useState("");
-  const [reassignRoleId, setReassignRoleId] = useState("");
-  const [closeNotes, setCloseNotes] = useState("");
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [resolutionNotes, setResolutionNotes] = useState("");
 
   if (!task || !session || !canSeeTaskType(session, task.taskTypeId)) {
     return (
@@ -148,6 +165,7 @@ export function TaskDetailView({ id }: { id: string }) {
   const currentSession = session;
   const currentTask = task;
   const canManage = canManageTask(currentTask, currentSession, canProcess);
+  const canReassign = canProcess("assign-task");
   const assigneeLabel =
     currentTask.assignmentType === "user"
       ? displayName(users.find((u) => u.id === currentTask.assigneeUserId) ?? { firstName: "", lastName: "", username: currentTask.assigneeUserId })
@@ -166,56 +184,67 @@ export function TaskDetailView({ id }: { id: string }) {
           byUserId: currentSession.userId,
           byName: currentSession.displayName,
           action: "status_changed",
-          summary: `Status changed from ${t.status} to ${status}`,
+          summary: `Status changed to ${status}`,
           detail: "",
         }
       )
     );
   }
 
-  function addNote() {
-    if (!noteText.trim()) return;
-    apply((t) =>
-      logTaskUpdate(t, {
-        byUserId: currentSession.userId,
-        byName: currentSession.displayName,
-        action: "note_added",
-        summary: "Note added",
-        detail: noteText.trim(),
-      })
-    );
-    setNoteText("");
-  }
-
-  function reassign() {
-    if (reassignType === "user" && !reassignUserId) return;
-    if (reassignType === "role" && !reassignRoleId) return;
-
-    const newName =
-      reassignType === "user"
-        ? displayName(users.find((u) => u.id === reassignUserId) ?? { firstName: "", lastName: "", username: reassignUserId })
-        : roles.find((r) => r.id === reassignRoleId)?.name ?? reassignRoleId;
-
+  function saveDueDate(nextDueDate: string) {
+    const previous = currentTask.dueDate;
+    if (previous === nextDueDate) return;
     apply((t) =>
       logTaskUpdate(
-        {
-          ...t,
-          assignmentType: reassignType,
-          assigneeUserId: reassignType === "user" ? reassignUserId : "",
-          assigneeRoleId: reassignType === "role" ? reassignRoleId : "",
-          status: t.status === "Open" ? t.status : "Open",
-        },
+        { ...t, dueDate: nextDueDate },
         {
           byUserId: currentSession.userId,
           byName: currentSession.displayName,
-          action: "reassigned",
-          summary: `Reassigned to ${reassignType} ${newName}`,
-          detail: `Previously assigned to ${t.assignmentType === "user" ? "user" : "role"} ${assigneeLabel}.`,
+          action: "updated",
+          summary: nextDueDate ? `Due date set to ${nextDueDate}` : "Due date cleared",
+          detail: previous ? `Previously ${previous}.` : "",
         }
       )
     );
-    setReassignUserId("");
-    setReassignRoleId("");
+  }
+
+  function submitUpdate(payload: TaskUpdatePayload) {
+    apply((t) => {
+      let next = t;
+      if (payload.reassign) {
+        const { assignmentType, assigneeUserId, assigneeRoleId } = payload.reassign;
+        const newName =
+          assignmentType === "user"
+            ? displayName(users.find((u) => u.id === assigneeUserId) ?? { firstName: "", lastName: "", username: assigneeUserId })
+            : roles.find((r) => r.id === assigneeRoleId)?.name ?? assigneeRoleId;
+
+        next = logTaskUpdate(
+          {
+            ...next,
+            assignmentType,
+            assigneeUserId: assignmentType === "user" ? assigneeUserId : "",
+            assigneeRoleId: assignmentType === "role" ? assigneeRoleId : "",
+          },
+          {
+            byUserId: currentSession.userId,
+            byName: currentSession.displayName,
+            action: "reassigned",
+            summary: `Reassigned to ${assignmentType} ${newName}`,
+            detail: payload.note.trim() || `Previously ${assigneeLabel}.`,
+          }
+        );
+      } else if (payload.note.trim()) {
+        next = logTaskUpdate(next, {
+          byUserId: currentSession.userId,
+          byName: currentSession.displayName,
+          action: "note_added",
+          summary: "Update added",
+          detail: payload.note.trim(),
+        });
+      }
+      return next;
+    });
+    setUpdateOpen(false);
   }
 
   function closeTask(outcome: "Completed" | "Cancelled") {
@@ -226,21 +255,24 @@ export function TaskDetailView({ id }: { id: string }) {
           status: outcome,
           completedBy: currentSession.displayName,
           completedAt: new Date().toISOString().slice(0, 10),
-          resolutionNotes: closeNotes.trim() || t.resolutionNotes,
+          resolutionNotes: resolutionNotes.trim() || t.resolutionNotes,
         },
         {
           byUserId: currentSession.userId,
           byName: currentSession.displayName,
           action: "closed",
           summary: outcome === "Completed" ? "Task completed" : "Task cancelled",
-          detail: closeNotes.trim() || t.resolutionNotes || "",
+          detail: resolutionNotes.trim() || t.resolutionNotes || "",
         }
       )
     );
-    setCloseNotes("");
+    setResolutionNotes("");
+    setCompleteOpen(false);
+    setCancelOpen(false);
   }
 
   const liveTask = getTaskById(id) ?? task;
+  const active = isActiveTask(liveTask);
 
   return (
     <AppShell
@@ -266,119 +298,57 @@ export function TaskDetailView({ id }: { id: string }) {
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
                 {liveTask.priority} priority
               </span>
+              {liveTask.dueDate ? (
+                <span className={`text-xs font-medium ${dueDateStyles(liveTask)}`}>Due {dueDateLabel(liveTask)}</span>
+              ) : (
+                <span className="text-xs text-slate-400">No due date</span>
+              )}
             </div>
             <p className="text-sm leading-relaxed text-slate-700">{liveTask.description || "No description."}</p>
-            {liveTask.resolutionNotes && !isActiveTask(liveTask) ? (
+            {liveTask.resolutionNotes && !active ? (
               <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
                 <span className="font-medium text-slate-800">Resolution:</span> {liveTask.resolutionNotes}
               </p>
             ) : null}
           </section>
 
-          {canManage && isActiveTask(liveTask) ? (
+          {canManage && active ? (
             <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 text-sm font-semibold text-slate-900">Update task</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label>
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Status</span>
-                  <select
-                    className={inputClass}
-                    value={liveTask.status}
-                    onChange={(e) => changeStatus(e.target.value as TaskStatus)}
-                  >
-                    {taskStatusOptions.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              {canProcess("assign-task") ? (
-                <div className="mt-4 border-t border-slate-100 pt-4">
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Reassign</h3>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <select
-                      className={inputClass}
-                      value={reassignType}
-                      onChange={(e) => setReassignType(e.target.value as "user" | "role")}
-                    >
-                      <option value="user">User</option>
-                      <option value="role">Role</option>
-                    </select>
-                    {reassignType === "user" ? (
-                      <select className={inputClass} value={reassignUserId} onChange={(e) => setReassignUserId(e.target.value)}>
-                        <option value="">Select user…</option>
-                        {users.filter((u) => u.active).map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {displayName(u)}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <select className={inputClass} value={reassignRoleId} onChange={(e) => setReassignRoleId(e.target.value)}>
-                        <option value="">Select role…</option>
-                        {roles.filter((r) => r.active).map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.name}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
+              {!updateOpen ? (
+                <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="button"
-                    onClick={reassign}
-                    className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    onClick={() => setUpdateOpen(true)}
+                    className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm hover:bg-slate-50"
                   >
-                    Reassign
+                    Update
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCompleteOpen(true)}
+                    className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
+                  >
+                    Task completed
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCancelOpen(true)}
+                    className="text-sm font-medium text-slate-500 hover:text-slate-700"
+                  >
+                    Cancel task
                   </button>
                 </div>
-              ) : null}
-
-              <div className="mt-4 border-t border-slate-100 pt-4">
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Add note</h3>
-                <textarea
-                  className={`${inputClass} min-h-[72px] resize-y`}
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="Record an update…"
+              ) : (
+                <TaskUpdatePanel
+                  task={liveTask}
+                  users={users}
+                  roles={roles}
+                  canReassign={canReassign}
+                  assigneeLabel={assigneeLabel}
+                  onSubmit={submitUpdate}
+                  onCancel={() => setUpdateOpen(false)}
                 />
-                <button
-                  type="button"
-                  onClick={addNote}
-                  className="mt-2 rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white hover:bg-slate-900"
-                >
-                  Add note
-                </button>
-              </div>
-
-              <div className="mt-4 border-t border-slate-100 pt-4">
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Close task</h3>
-                <textarea
-                  className={`${inputClass} min-h-[72px] resize-y`}
-                  value={closeNotes}
-                  onChange={(e) => setCloseNotes(e.target.value)}
-                  placeholder="Resolution notes (optional)"
-                />
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => closeTask("Completed")}
-                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-                  >
-                    Complete
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => closeTask("Cancelled")}
-                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+              )}
             </section>
           ) : null}
 
@@ -390,8 +360,8 @@ export function TaskDetailView({ id }: { id: string }) {
 
         <aside className="space-y-4">
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-3 text-sm font-semibold text-slate-900">Assignment</h2>
-            <dl className="space-y-3 text-sm">
+            <h2 className="mb-3 text-sm font-semibold text-slate-900">Details</h2>
+            <dl className="space-y-4 text-sm">
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Assigned to</dt>
                 <dd className="mt-0.5 text-slate-800">
@@ -399,12 +369,64 @@ export function TaskDetailView({ id }: { id: string }) {
                 </dd>
               </div>
               <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Due date</dt>
+                <dd className="mt-1">
+                  {canManage ? (
+                    <div className="space-y-1">
+                      <input
+                        type="date"
+                        className={inputClass}
+                        value={liveTask.dueDate}
+                        onChange={(e) => saveDueDate(e.target.value)}
+                      />
+                      <p className="text-xs text-slate-500">Set or change anytime.</p>
+                    </div>
+                  ) : (
+                    <span className={dueDateStyles(liveTask)}>{dueDateLabel(liveTask)}</span>
+                  )}
+                </dd>
+              </div>
+              {canManage && active ? (
+                <div>
+                  <dt className="mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-400">Status</dt>
+                  <dd className="flex flex-wrap gap-2">
+                    {liveTask.status === "Open" ? (
+                      <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-800 ring-1 ring-sky-200 ring-inset">
+                        Open
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => changeStatus("Open")}
+                        className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                      >
+                        Mark open
+                      </button>
+                    )}
+                    {liveTask.status === "In progress" ? (
+                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-900 ring-1 ring-amber-200 ring-inset">
+                        In progress
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => changeStatus("In progress")}
+                        className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                      >
+                        In progress
+                      </button>
+                    )}
+                  </dd>
+                </div>
+              ) : (
+                <div>
+                  <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Status</dt>
+                  <dd className="mt-0.5">{statusPill(liveTask.status)}</dd>
+                </div>
+              )}
+              <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Task type</dt>
                 <dd className="mt-0.5 text-slate-800">{getTaskTypeName(liveTask.taskTypeId)}</dd>
-              </div>
-              <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Due</dt>
-                <dd className="mt-0.5 text-slate-800">{liveTask.dueDate || "—"}</dd>
               </div>
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Created by</dt>
@@ -429,6 +451,46 @@ export function TaskDetailView({ id }: { id: string }) {
           ) : null}
         </aside>
       </div>
+
+      <ConfirmDialog
+        open={completeOpen}
+        title="Task completed"
+        description="Confirm this task is finished. You can add optional notes below."
+        confirmLabel="Task completed"
+        confirmTone="success"
+        onCancel={() => {
+          setCompleteOpen(false);
+          setResolutionNotes("");
+        }}
+        onConfirm={() => closeTask("Completed")}
+      >
+        <textarea
+          className={`${inputClass} min-h-[80px] resize-y`}
+          value={resolutionNotes}
+          onChange={(e) => setResolutionNotes(e.target.value)}
+          placeholder="Resolution notes (optional)"
+        />
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={cancelOpen}
+        title="Cancel task"
+        description="This task will be marked cancelled. Add a note if helpful."
+        confirmLabel="Cancel task"
+        confirmTone="danger"
+        onCancel={() => {
+          setCancelOpen(false);
+          setResolutionNotes("");
+        }}
+        onConfirm={() => closeTask("Cancelled")}
+      >
+        <textarea
+          className={`${inputClass} min-h-[80px] resize-y`}
+          value={resolutionNotes}
+          onChange={(e) => setResolutionNotes(e.target.value)}
+          placeholder="Reason (optional)"
+        />
+      </ConfirmDialog>
     </AppShell>
   );
 }

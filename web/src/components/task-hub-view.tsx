@@ -26,7 +26,7 @@ import {
 } from "@/lib/task-hub";
 import { filterTasksForView, visibleTaskViews, type TaskListView } from "@/lib/task-access";
 import { useTaskTypes } from "@/lib/task-type-store";
-import { type TaskRecord } from "@/lib/task";
+import { type TaskRecord, isActiveTask } from "@/lib/task";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -95,7 +95,11 @@ function TaskRow({ task, compact }: { task: TaskRecord; compact?: boolean }) {
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         {urgencyBadge(task)}
         {statusPill(task.status)}
-        {task.dueDate ? <span className="text-xs text-slate-500">Due {task.dueDate}</span> : null}
+        {task.dueDate ? (
+          <span className="text-xs text-slate-500">Due {task.dueDate}</span>
+        ) : isActiveTask(task) ? (
+          <span className="text-xs text-slate-400">No due date</span>
+        ) : null}
       </div>
     </Link>
   );

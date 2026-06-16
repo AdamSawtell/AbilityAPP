@@ -152,6 +152,7 @@ export function TaskForm({
         <label>
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Due date</span>
           <input type="date" className={inputClass} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+          <p className="mt-1 text-xs text-slate-500">Optional — you can set or change this anytime on the task.</p>
         </label>
         <label>
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Assign to</span>

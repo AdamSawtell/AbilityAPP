@@ -118,6 +118,11 @@ export function RecordTasksPanel({
               </div>
               <div className="flex items-center gap-2">
                 {statusPill(task.status)}
+                {task.dueDate ? (
+                  <span className="text-xs text-slate-500">Due {task.dueDate}</span>
+                ) : isActiveTask(task) ? (
+                  <span className="text-xs text-slate-400">No due date</span>
+                ) : null}
                 {isActiveTask(task) ? (
                   <Link href={`/tasks/${task.id}`} className="text-xs font-medium text-[#b51266] hover:underline">
                     Open
