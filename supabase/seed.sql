@@ -15,6 +15,8 @@ values
   ('businessPartnerGroup', 'Business partner group', 'Client', null, 9),
   ('lgbtiqa', 'LGBTIQA+', 'Client', null, 10),
   ('alertType', 'Alert type', 'Client', null, 11),
+  ('restrictivePracticeType', 'Restrictive practice type', 'Client', null, 111),
+  ('consentType', 'Consent type', 'Client', null, 112),
   ('showAsAlert', 'Show as alert', 'Client', 'Yes / No', 12),
   ('activityType', 'Activity type', 'Client', null, 13),
   ('addressType', 'Address type', 'Client', null, 14),
@@ -281,6 +283,42 @@ cross join (values
   ('Temporary Alert', 'Temporary Alert', 5)
 ) as v(value, label, sort_order)
 where l.key = 'alertType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- restrictivePracticeType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Chemical restraint', 'Chemical restraint', 0),
+  ('Environmental restraint', 'Environmental restraint', 1),
+  ('Mechanical restraint', 'Mechanical restraint', 2),
+  ('Physical restraint', 'Physical restraint', 3),
+  ('Seclusion', 'Seclusion', 4)
+) as v(value, label, sort_order)
+where l.key = 'restrictivePracticeType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- consentType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Photo / video', 'Photo / video', 0),
+  ('Information sharing', 'Information sharing', 1),
+  ('Medical treatment', 'Medical treatment', 2),
+  ('Legal order / guardian', 'Legal order / guardian', 3),
+  ('NDIS plan sharing', 'NDIS plan sharing', 4),
+  ('Transport', 'Transport', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'consentType'
 on conflict (list_id, value) do update set
   label = excluded.label,
   sort_order = excluded.sort_order,

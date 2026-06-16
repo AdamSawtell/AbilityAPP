@@ -29,7 +29,16 @@ Copy from `web/.env.example` if needed. Never commit real keys.
 
 ## Amplify env vars
 
-In Amplify → **Environment variables**, add the same two `NEXT_PUBLIC_*` values, then redeploy.
+In Amplify → **Environment variables**, add:
+
+| Variable | Required | Notes |
+|----------|----------|--------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Project URL from Settings → API (no `/rest/v1/`) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | anon public key |
+| `AUTH_SESSION_SECRET` | Yes | Long random string you generate — signs login cookies |
+| `SUPABASE_SERVICE_ROLE_KEY` | Optional | Reports Advance SQL |
+
+**Save**, then **redeploy** the app. `NEXT_PUBLIC_*` values are baked in at build time; `AUTH_SESSION_SECRET` must be present before session creation works on production.
 
 ## GitHub secrets (for auto-migrate)
 

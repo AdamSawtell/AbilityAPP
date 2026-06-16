@@ -1,12 +1,15 @@
 import type { EnquiryRecord } from "@/lib/enquiry";
-import type { ClientActivityRow, ClientAlertRow, ClientLocationRow } from "@/lib/client-line-tables";
-import { transferActivitiesToClient } from "@/lib/client-line-tables";
+import type { ClientActivityRow, ClientAlertRow, ClientConsentRow, ClientLocationRow, ClientRestrictivePracticeRow } from "@/lib/client-line-tables";
+import { buildConsentAlertList, transferActivitiesToClient } from "@/lib/client-line-tables";
 import { clientDropdowns } from "@/lib/reference-data";
 
 export { clientDropdowns };
 
 export type ClientAlert = ClientAlertRow;
 export type ClientActivity = ClientActivityRow;
+
+export type ClientRestrictivePractice = ClientRestrictivePracticeRow;
+export type ClientConsent = ClientConsentRow;
 
 export type ClientLocation = ClientLocationRow;
 
@@ -47,6 +50,8 @@ export type ClientRecord = {
   alerts: ClientAlert[];
   activity: ClientActivity[];
   locations: ClientLocation[];
+  restrictivePractices: ClientRestrictivePractice[];
+  consents: ClientConsent[];
 };
 
 export const clientTabs = [
@@ -179,6 +184,19 @@ export const initialClients: ClientRecord[] = [
         validTo: "",
         accessNotes: "",
         description: "Mail and official correspondence.",
+      },
+    ],
+    restrictivePractices: [],
+    consents: [
+      {
+        id: "consent-photo",
+        lineNo: 1,
+        consentType: "Photo / video",
+        showAsAlert: "Yes",
+        name: "No photo consent provided",
+        description: "Participant has not provided consent for photos or video to be taken or shared.",
+        validFrom: "2021-01-05",
+        validTo: "",
       },
     ],
   },
@@ -337,7 +355,16 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
     ...row,
     lineNo: row.lineNo ?? index + 1,
   }));
-  return { ...client, alerts, activity, locations };
+  const restrictivePractices = (client.restrictivePractices ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+  }));
+  const consents = (client.consents ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+  }));
+  const consentAlertList = buildConsentAlertList(consents) || client.consentAlertList;
+  return { ...client, alerts, activity, locations, restrictivePractices, consents, consentAlertList };
 }
 
 export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string): ClientRecord {
@@ -391,5 +418,20 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
       : [],
     activity: transferActivitiesToClient(enquiry.activity ?? []),
     locations: [],
+    restrictivePractices: [],
+    consents: enquiry.thirdPartyConsent
+      ? [
+          {
+            id: `consent-${enquiry.id}`,
+            lineNo: 1,
+            consentType: "Information sharing",
+            showAsAlert: "Yes",
+            name: enquiry.thirdPartyConsent,
+            description: "Carried forward from enquiry third-party consent.",
+            validFrom: enquiry.dateReceived,
+            validTo: "",
+          },
+        ]
+      : [],
   };
 }

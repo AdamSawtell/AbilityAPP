@@ -25,7 +25,9 @@ function sessionSecret(): string {
   const secret = process.env.AUTH_SESSION_SECRET?.trim();
   if (secret) return secret;
   if (process.env.NODE_ENV === "production") {
-    throw new Error("AUTH_SESSION_SECRET is required in production");
+    throw new Error(
+      "AUTH_SESSION_SECRET is not set. Add it in Amplify environment variables and redeploy."
+    );
   }
   return "dev-only-insecure-secret-change-me";
 }

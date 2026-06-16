@@ -143,6 +143,19 @@ on conflict (id) do update set
   valid_from = excluded.valid_from,
   valid_to = excluded.valid_to;
 
+insert into public.client_consent (id, client_id, line_no, consent_type, show_as_alert, name, description, valid_from, valid_to)
+values
+  ('consent-photo', 'bp-bern', 1, 'Photo / video', 'Yes', 'No photo consent provided', 'Participant has not provided consent for photos or video to be taken or shared.', '2021-01-05', null)
+on conflict (id) do update set
+  client_id = excluded.client_id,
+  line_no = excluded.line_no,
+  consent_type = excluded.consent_type,
+  show_as_alert = excluded.show_as_alert,
+  name = excluded.name,
+  description = excluded.description,
+  valid_from = excluded.valid_from,
+  valid_to = excluded.valid_to;
+
 insert into public.client_activity (id, client_id, line_no, activity_date, activity_type, subject, description, created_by)
 values
   ('act1', 'bp-bern', 1, '2024-02-14', 'Phone call', 'PACE transition check-in', 'Confirmed NDIS plan details and updated funding body number.', 'Isla Robinson')

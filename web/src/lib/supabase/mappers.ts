@@ -210,6 +210,30 @@ export type ClientAlertRow = {
   valid_to: string | null;
 };
 
+export type ClientRestrictivePracticeRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  practice_type: string;
+  show_as_alert: string;
+  name: string;
+  description: string;
+  valid_from: string | null;
+  valid_to: string | null;
+};
+
+export type ClientConsentRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  consent_type: string;
+  show_as_alert: string;
+  name: string;
+  description: string;
+  valid_from: string | null;
+  valid_to: string | null;
+};
+
 export type ClientActivityRowDb = {
   id: string;
   client_id: string;
@@ -252,7 +276,9 @@ export function clientFromRow(
   row: ClientRow,
   alerts: ClientAlertRow[],
   activity: ClientActivityRowDb[],
-  locations: ClientLocationRowDb[]
+  locations: ClientLocationRowDb[],
+  restrictivePractices: ClientRestrictivePracticeRowDb[] = [],
+  consents: ClientConsentRowDb[] = []
 ): ClientRecord {
   return {
     id: row.id,
@@ -331,6 +357,26 @@ export function clientFromRow(
       validTo: strDate(l.valid_to),
       accessNotes: l.access_notes,
       description: l.description,
+    })),
+    restrictivePractices: restrictivePractices.map((r) => ({
+      id: r.id,
+      lineNo: r.line_no,
+      practiceType: r.practice_type,
+      showAsAlert: r.show_as_alert,
+      name: r.name,
+      description: r.description,
+      validFrom: strDate(r.valid_from),
+      validTo: strDate(r.valid_to),
+    })),
+    consents: consents.map((c) => ({
+      id: c.id,
+      lineNo: c.line_no,
+      consentType: c.consent_type,
+      showAsAlert: c.show_as_alert,
+      name: c.name,
+      description: c.description,
+      validFrom: strDate(c.valid_from),
+      validTo: strDate(c.valid_to),
     })),
   };
 }

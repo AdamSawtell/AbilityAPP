@@ -25,6 +25,8 @@ export function ClientCoreSummary({ client }: { client: ClientRecord }) {
   const agreements = getServiceAgreementsByClientId(client.id);
   const primaryAgreement = agreements[0];
   const activeAlerts = client.alerts.filter((a) => a.showAsAlert === "Yes").length;
+  const activeConsents = (client.consents ?? []).filter((c) => c.showAsAlert === "Yes").length;
+  const restrictiveCount = client.restrictivePractices?.length ?? 0;
   const postToLocation = client.locations?.find((l) => l.postToAddress === "Yes" && l.active === "Yes");
   const serviceLocation = client.locations?.find((l) => l.serviceDeliveryAddress === "Yes" && l.active === "Yes");
 
@@ -73,6 +75,27 @@ export function ClientCoreSummary({ client }: { client: ClientRecord }) {
                   <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900 ring-1 ring-amber-200 ring-inset">
                     {client.alerts.length} alert{client.alerts.length === 1 ? "" : "s"}
                     {activeAlerts > 0 ? ` · ${activeAlerts} active` : ""}
+                  </span>
+                ) : null}
+                {activeConsents > 0 ? (
+                  <Link
+                    href={`/clients/${client.id}?tab=Consents%20and%20Legal%20Orders`}
+                    className="inline-flex rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-900 ring-1 ring-sky-200 ring-inset hover:bg-sky-100"
+                  >
+                    {activeConsents} consent alert{activeConsents === 1 ? "" : "s"}
+                  </Link>
+                ) : null}
+                {restrictiveCount > 0 ? (
+                  <Link
+                    href={`/clients/${client.id}?tab=Restrictive%20Practices`}
+                    className="inline-flex rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-medium text-rose-900 ring-1 ring-rose-200 ring-inset hover:bg-rose-100"
+                  >
+                    {restrictiveCount} restrictive practice{restrictiveCount === 1 ? "" : "s"}
+                  </Link>
+                ) : null}
+                {client.riskAlerts?.trim() ? (
+                  <span className="inline-flex rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-900 ring-1 ring-orange-200 ring-inset">
+                    Risk noted
                   </span>
                 ) : null}
                 {!supportPlan ? (

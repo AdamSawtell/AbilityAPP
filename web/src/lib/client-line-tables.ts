@@ -30,6 +30,28 @@ export type ClientActivityRow = {
   createdBy: string;
 };
 
+export type ClientRestrictivePracticeRow = {
+  id: string;
+  lineNo: number;
+  practiceType: string;
+  showAsAlert: string;
+  name: string;
+  description: string;
+  validFrom: string;
+  validTo: string;
+};
+
+export type ClientConsentRow = {
+  id: string;
+  lineNo: number;
+  consentType: string;
+  showAsAlert: string;
+  name: string;
+  description: string;
+  validFrom: string;
+  validTo: string;
+};
+
 export type ClientLocationRow = {
   id: string;
   lineNo: number;
@@ -56,7 +78,12 @@ export type ClientLocationRow = {
   description: string;
 };
 
-export type ClientLineCollectionKey = "alerts" | "activity" | "locations";
+export type ClientLineCollectionKey =
+  | "alerts"
+  | "activity"
+  | "locations"
+  | "restrictivePractices"
+  | "consents";
 
 export type ClientTabTableConfig<TRow extends { id: string }> = {
   collectionKey: ClientLineCollectionKey;
@@ -120,9 +147,69 @@ export const activityTableConfig: ClientTabTableConfig<ClientActivityRow> = {
   }),
 };
 
+export const restrictivePracticeTableConfig: ClientTabTableConfig<ClientRestrictivePracticeRow> = {
+  collectionKey: "restrictivePractices",
+  addLabel: "Add restrictive practice",
+  emptyMessage:
+    "No restrictive practices recorded. Document any regulated restrictive practices authorised for this support receiver.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    {
+      key: "practiceType",
+      label: "Practice type",
+      type: "select",
+      optionsKey: "restrictivePracticeType",
+      required: true,
+    },
+    { key: "showAsAlert", label: "Show as alert", type: "select", optionsKey: "showAsAlert" },
+    { key: "name", label: "Name", type: "text", required: true },
+    { key: "description", label: "Description", type: "textarea", className: "min-w-[200px]" },
+    { key: "validFrom", label: "Valid from", type: "date" },
+    { key: "validTo", label: "Valid to", type: "date" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("rp"),
+    lineNo,
+    practiceType: "",
+    showAsAlert: "Yes",
+    name: "",
+    description: "",
+    validFrom: new Date().toISOString().slice(0, 10),
+    validTo: "",
+  }),
+};
+
+export const consentTableConfig: ClientTabTableConfig<ClientConsentRow> = {
+  collectionKey: "consents",
+  addLabel: "Add consent or legal order",
+  emptyMessage:
+    "No consents or legal orders recorded. Add photo consent, information sharing agreements, guardianship orders, and similar items here.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "consentType", label: "Consent type", type: "select", optionsKey: "consentType", required: true },
+    { key: "showAsAlert", label: "Show as alert", type: "select", optionsKey: "showAsAlert" },
+    { key: "name", label: "Name", type: "text", required: true },
+    { key: "description", label: "Description", type: "textarea", className: "min-w-[200px]" },
+    { key: "validFrom", label: "Valid from", type: "date" },
+    { key: "validTo", label: "Valid to", type: "date" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("consent"),
+    lineNo,
+    consentType: "",
+    showAsAlert: "Yes",
+    name: "",
+    description: "",
+    validFrom: new Date().toISOString().slice(0, 10),
+    validTo: "",
+  }),
+};
+
 export const clientTabTableConfigs = {
   Alerts: alertTableConfig,
   Activity: activityTableConfig,
+  "Restrictive Practices": restrictivePracticeTableConfig,
+  "Consents and Legal Orders": consentTableConfig,
 } as const;
 
 export function formatLocationAddress(loc: Pick<ClientLocationRow, "address1" | "address2" | "address3" | "city" | "state" | "postcode" | "country">) {
@@ -170,6 +257,13 @@ export type ClientTabWithTable = keyof typeof clientTabTableConfigs;
 
 export function renumberLines<TRow extends { id: string; lineNo: number }>(rows: TRow[]): TRow[] {
   return rows.map((row, index) => ({ ...row, lineNo: index + 1 }));
+}
+
+export function buildConsentAlertList(consents: ClientConsentRow[]): string {
+  return consents
+    .filter((c) => c.showAsAlert === "Yes" && (c.name.trim() || c.consentType.trim()))
+    .map((c) => `Consent-${c.name.trim() || c.consentType}`)
+    .join("; ");
 }
 
 export function transferActivitiesToClient(

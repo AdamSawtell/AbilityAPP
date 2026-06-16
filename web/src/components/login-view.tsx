@@ -44,8 +44,18 @@ export function LoginView() {
       }
       setUserId(user.id);
       if (user.roleIds.length === 1) {
-        await login(user.id, user.roleIds[0]);
-        router.replace("/");
+        try {
+          await login(user.id, user.roleIds[0]);
+          router.replace("/");
+        } catch (sessionErr) {
+          setError(
+            sessionErr instanceof Error
+              ? sessionErr.message
+              : "Sign-in worked but the session could not start. Check AUTH_SESSION_SECRET in Amplify and redeploy."
+          );
+          setUserId("");
+          setRoleId("");
+        }
         return;
       }
       setRoleId("");
@@ -65,8 +75,12 @@ export function LoginView() {
     try {
       await login(userId, roleId);
       router.replace("/");
-    } catch {
-      setError("Could not start a session with that role.");
+    } catch (sessionErr) {
+      setError(
+        sessionErr instanceof Error
+          ? sessionErr.message
+          : "Could not start a session with that role."
+      );
     } finally {
       setSubmitting(false);
     }

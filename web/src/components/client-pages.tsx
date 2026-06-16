@@ -11,7 +11,7 @@ import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { ClientLineCollectionKey } from "@/lib/client-line-tables";
-import type { ClientRecord } from "@/lib/client";
+import { normalizeClient, type ClientRecord } from "@/lib/client";
 
 function ClientTabbedViewFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
@@ -136,13 +136,13 @@ export function ClientDetailView({ id }: { id: string }) {
   function onLineItemsChange(key: ClientLineCollectionKey, rows: ClientRecord[ClientLineCollectionKey]) {
     const base = draft ?? stored;
     if (!base) return;
-    setDraft({ ...base, [key]: rows, updatedBy: "SuperUser" });
+    setDraft(normalizeClient({ ...base, [key]: rows, updatedBy: "SuperUser" }));
     setSaved(false);
   }
 
   function onSave() {
     if (!client) return;
-    upsertClient(client);
+    upsertClient(normalizeClient(client));
     setDraft(null);
     setSaved(true);
   }

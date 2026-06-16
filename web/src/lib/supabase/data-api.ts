@@ -36,6 +36,8 @@ import {
   supportPlanToRow,
   type ClientActivityRowDb,
   type ClientAlertRow,
+  type ClientConsentRowDb,
+  type ClientRestrictivePracticeRowDb,
   type ClientLocationRowDb,
   type ClientRow,
   type ContractAuditRowDb,
@@ -102,6 +104,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     alertsRes,
     activityRes,
     locationsRes,
+    restrictivePracticesRes,
+    consentsRes,
     productsRes,
     priceListsRes,
     priceLinesRes,
@@ -134,6 +138,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("client_alert").select("*").order("line_no"),
     supabase.from("client_activity").select("*").order("line_no"),
     supabase.from("client_location").select("*").order("line_no"),
+    supabase.from("client_restrictive_practice").select("*").order("line_no"),
+    supabase.from("client_consent").select("*").order("line_no"),
     supabase.from("product").select("*").order("search_key"),
     supabase.from("price_list").select("*").order("name"),
     supabase.from("price_list_line").select("*").order("line_no"),
@@ -168,6 +174,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     alertsRes.error ??
     activityRes.error ??
     locationsRes.error ??
+    restrictivePracticesRes.error ??
+    consentsRes.error ??
     productsRes.error ??
     priceListsRes.error ??
     priceLinesRes.error ??
@@ -200,6 +208,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const alertsByClient = groupBy(alertsRes.data as ClientAlertRow[], "client_id");
   const activityByClient = groupBy(activityRes.data as ClientActivityRowDb[], "client_id");
   const locationsByClient = groupBy(locationsRes.data as ClientLocationRowDb[], "client_id");
+  const restrictivePracticesByClient = groupBy(
+    restrictivePracticesRes.data as ClientRestrictivePracticeRowDb[],
+    "client_id"
+  );
+  const consentsByClient = groupBy(consentsRes.data as ClientConsentRowDb[], "client_id");
   const linesByPriceList = groupBy(priceLinesRes.data as PriceListLineRow[], "price_list_id");
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
@@ -228,7 +241,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
           row,
           alertsByClient.get(row.id) ?? [],
           activityByClient.get(row.id) ?? [],
-          locationsByClient.get(row.id) ?? []
+          locationsByClient.get(row.id) ?? [],
+          restrictivePracticesByClient.get(row.id) ?? [],
+          consentsByClient.get(row.id) ?? []
         )
       )
     ),
@@ -316,6 +331,8 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
   await replaceChildRows(supabase, "client_alert", "client_id", client.id);
   await replaceChildRows(supabase, "client_activity", "client_id", client.id);
   await replaceChildRows(supabase, "client_location", "client_id", client.id);
+  await replaceChildRows(supabase, "client_restrictive_practice", "client_id", client.id);
+  await replaceChildRows(supabase, "client_consent", "client_id", client.id);
 
   if (client.alerts.length) {
     const { error: alertError } = await supabase.from("client_alert").insert(
@@ -380,6 +397,40 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
       }))
     );
     if (locationError) throw locationError;
+  }
+
+  if (client.restrictivePractices.length) {
+    const { error: rpError } = await supabase.from("client_restrictive_practice").insert(
+      client.restrictivePractices.map((r) => ({
+        id: r.id,
+        client_id: client.id,
+        line_no: r.lineNo,
+        practice_type: r.practiceType,
+        show_as_alert: r.showAsAlert,
+        name: r.name,
+        description: r.description,
+        valid_from: r.validFrom || null,
+        valid_to: r.validTo || null,
+      }))
+    );
+    if (rpError) throw rpError;
+  }
+
+  if (client.consents.length) {
+    const { error: consentError } = await supabase.from("client_consent").insert(
+      client.consents.map((c) => ({
+        id: c.id,
+        client_id: client.id,
+        line_no: c.lineNo,
+        consent_type: c.consentType,
+        show_as_alert: c.showAsAlert,
+        name: c.name,
+        description: c.description,
+        valid_from: c.validFrom || null,
+        valid_to: c.validTo || null,
+      }))
+    );
+    if (consentError) throw consentError;
   }
 }
 

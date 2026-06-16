@@ -60,7 +60,10 @@ async function createSessionViaApi(userId: string, roleId: string): Promise<Auth
     credentials: "include",
     body: JSON.stringify({ userId, roleId }),
   });
-  if (!res.ok) throw new Error("Invalid user or role");
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? "Could not start a session with that role");
+  }
   const data = (await res.json()) as { session: AuthSession };
   return normalizeSession(data.session);
 }
