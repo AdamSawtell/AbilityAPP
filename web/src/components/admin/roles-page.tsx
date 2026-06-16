@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ACCESS_PROCESSES, ACCESS_WINDOWS, childWindows } from "@/lib/access/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
+import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { useAuth } from "@/lib/auth-store";
 
 function newRoleId() {
@@ -34,6 +35,7 @@ export function RolesAdminView() {
       ...role,
       windowKeys: [...role.windowKeys],
       processIds: [...role.processIds],
+      reportIds: [...(role.reportIds ?? [])],
       taskTypePermissions: [...(role.taskTypePermissions ?? [])],
     });
   }
@@ -47,6 +49,7 @@ export function RolesAdminView() {
       active: true,
       windowKeys: [],
       processIds: [],
+      reportIds: [],
       taskTypePermissions: [],
     };
     setActiveId(role.id);
@@ -75,6 +78,16 @@ export function RolesAdminView() {
     setDraft({
       ...record,
       processIds: has ? record.processIds.filter((p) => p !== id) : [...record.processIds, id],
+    });
+  }
+
+  function toggleReport(id: string) {
+    if (!record) return;
+    const current = record.reportIds ?? [];
+    const has = current.includes(id);
+    setDraft({
+      ...record,
+      reportIds: has ? current.filter((r) => r !== id) : [...current, id],
     });
   }
 
@@ -120,7 +133,7 @@ export function RolesAdminView() {
               <span className="font-medium text-slate-900">{r.name}</span>
               <span className="text-xs text-slate-500">{r.roleKey}</span>
               <span className="mt-1 text-xs text-slate-400">
-                {r.windowKeys.length} windows · {r.processIds.length} processes
+                {r.windowKeys.length} windows · {r.processIds.length} processes · {(r.reportIds ?? []).length} reports
               </span>
             </button>
           ))}
@@ -236,6 +249,40 @@ export function RolesAdminView() {
                       <span>
                         <span className="block text-sm font-medium text-slate-900">{p.label}</span>
                         <span className="text-xs text-slate-500">{p.description}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 className="mb-3 text-sm font-semibold text-slate-900">Reports</h2>
+                <p className="mb-4 text-xs text-slate-500">
+                  Assigned reports appear under Reports in the sidebar, grouped by module. The role also needs the
+                  parent module window and the Reports menu.
+                </p>
+                <div className="space-y-2">
+                  {ACCESS_REPORTS.map((r) => (
+                    <label
+                      key={r.id}
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 ${
+                        (record.reportIds ?? []).includes(r.id)
+                          ? "border-[#d4147a] bg-[#fdf2f8]"
+                          : "border-slate-200"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={(record.reportIds ?? []).includes(r.id)}
+                        onChange={() => toggleReport(r.id)}
+                      />
+                      <span>
+                        <span className="block text-sm font-medium text-slate-900">
+                          {r.label}
+                          <span className="ml-2 text-xs font-normal text-slate-400">{r.moduleGroup}</span>
+                        </span>
+                        <span className="text-xs text-slate-500">{r.description}</span>
                       </span>
                     </label>
                   ))}

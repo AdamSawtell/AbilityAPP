@@ -11,6 +11,7 @@ import {
   CONTRACT_DEPENDENT_WINDOWS,
   EMPLOYEE_DEPENDENT_WINDOWS,
   ENQUIRY_DEPENDENT_WINDOWS,
+  LOCATION_DEPENDENT_WINDOWS,
   PRICE_LIST_DEPENDENT_WINDOWS,
   PRODUCT_DEPENDENT_WINDOWS,
   SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
@@ -87,6 +88,14 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "locations",
+    label: "Locations",
+    group: "Locations",
+    href: "/locations",
+    abilityErpName: "Support Location",
+    showInSidebar: true,
+  },
+  {
     key: "employees",
     label: "Employees",
     group: "People",
@@ -127,6 +136,14 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "reports",
+    label: "Reports",
+    group: "Core",
+    href: "/reports",
+    abilityErpName: "Reports",
+    showInSidebar: true,
+  },
+  {
     key: "admin-organization",
     label: "Organisation",
     group: "Admin",
@@ -140,14 +157,6 @@ const MODULE_WINDOWS: AccessWindow[] = [
     group: "Admin",
     href: "/admin/reference-data",
     abilityErpName: "Reference data / System configurator",
-    showInSidebar: true,
-  },
-  {
-    key: "admin-users",
-    label: "Users",
-    group: "Admin",
-    href: "/admin/users",
-    abilityErpName: "User",
     showInSidebar: true,
   },
   {
@@ -176,16 +185,18 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
   MODULE_WINDOWS[1],
   ...CLIENT_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[2],
-  ...EMPLOYEE_DEPENDENT_WINDOWS,
+  ...LOCATION_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[3],
-  ...PRODUCT_DEPENDENT_WINDOWS,
+  ...EMPLOYEE_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[4],
-  ...PRICE_LIST_DEPENDENT_WINDOWS,
+  ...PRODUCT_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[5],
-  ...SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
+  ...PRICE_LIST_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[6],
+  ...SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
+  MODULE_WINDOWS[7],
   ...CONTRACT_DEPENDENT_WINDOWS,
-  ...MODULE_WINDOWS.slice(7),
+  ...MODULE_WINDOWS.slice(8),
 ];
 
 export const TASK_WINDOW_KEYS = TASK_WINDOWS.map((w) => w.key);
@@ -203,6 +214,24 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "employee-credentials-assigned",
   },
   {
+    id: "assign-location-client",
+    label: "Assign client to location",
+    description: "Link support receivers to a support location",
+    parentWindowKey: "location-clients",
+  },
+  {
+    id: "assign-location-employee",
+    label: "Assign employee to location",
+    description: "Link staff to a support location",
+    parentWindowKey: "location-employees",
+  },
+  {
+    id: "assign-location-product",
+    label: "Assign product to location",
+    description: "Link products and services offered at a support location",
+    parentWindowKey: "location-products-and-services",
+  },
+  {
     id: "assign-task",
     label: "Assign task",
     description: "Create and assign a task on a record (user or role)",
@@ -217,7 +246,7 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
 export const ALL_WINDOW_KEYS = ACCESS_WINDOWS.map((w) => w.key);
 export const ALL_PROCESS_IDS = ACCESS_PROCESSES.map((p) => p.id);
 
-export { EMPLOYEE_DEPENDENT_WINDOWS, CLIENT_DEPENDENT_WINDOWS };
+export { EMPLOYEE_DEPENDENT_WINDOWS, CLIENT_DEPENDENT_WINDOWS, LOCATION_DEPENDENT_WINDOWS };
 
 export function windowByKey(key: string) {
   return ACCESS_WINDOWS.find((w) => w.key === key);

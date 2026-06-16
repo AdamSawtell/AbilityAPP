@@ -26,6 +26,7 @@ export type AppRoleRecord = {
   active: boolean;
   windowKeys: string[];
   processIds: string[];
+  reportIds: string[];
   taskTypePermissions: TaskTypePermission[];
 };
 
@@ -38,6 +39,7 @@ export type AuthSession = {
   activeRoleName: string;
   windowKeys: string[];
   processIds: string[];
+  reportIds: string[];
   taskTypePermissions: TaskTypePermission[];
 };
 

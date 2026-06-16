@@ -3,15 +3,16 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoginBackdrop, OrgLogo } from "@/components/organization-landing";
-import { displayName } from "@/lib/access/types";
 import { useAuth } from "@/lib/auth-store";
 import { organizationAddressLine, organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
 
 export function LoginView() {
-  const { users, login, availableRolesForUser } = useAuth();
+  const { authenticate, login, availableRolesForUser } = useAuth();
   const { organization } = useOrganization();
   const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [userId, setUserId] = useState("");
   const [roleId, setRoleId] = useState("");
   const [error, setError] = useState("");
@@ -23,13 +24,41 @@ export function LoginView() {
     organization.legalName.trim().toLowerCase() !== orgName.trim().toLowerCase();
   const locationLine = organizationAddressLine(organization);
 
-  const activeUsers = useMemo(() => users.filter((u) => u.active), [users]);
   const roleOptions = useMemo(
     () => (userId ? availableRolesForUser(userId) : []),
     [userId, availableRolesForUser]
   );
+  const showRoleStep = Boolean(userId);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onCredentialsSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      const user = await authenticate(username.trim(), password);
+      if (!user.roleIds.length) {
+        setError("This account has no roles assigned. Ask an administrator to update System access on your employee record.");
+        setUserId("");
+        setRoleId("");
+        return;
+      }
+      setUserId(user.id);
+      if (user.roleIds.length === 1) {
+        await login(user.id, user.roleIds[0]);
+        router.replace("/");
+        return;
+      }
+      setRoleId("");
+    } catch {
+      setError("Invalid username or password.");
+      setUserId("");
+      setRoleId("");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function onRoleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setSubmitting(true);
@@ -37,10 +66,16 @@ export function LoginView() {
       await login(userId, roleId);
       router.replace("/");
     } catch {
-      setError("Could not sign in with that user and role.");
+      setError("Could not start a session with that role.");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function backToCredentials() {
+    setUserId("");
+    setRoleId("");
+    setError("");
   }
 
   return (
@@ -59,69 +94,95 @@ export function LoginView() {
 
       <div className="mt-8 rounded-2xl border border-white/20 bg-white/95 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
         <p className="text-center text-sm font-medium text-slate-700">Staff sign in</p>
-        <p className="mt-1 text-center text-xs text-slate-500">Select your account and role for this session.</p>
+        <p className="mt-1 text-center text-xs text-slate-500">
+          {showRoleStep ? "Choose the role for this session." : "Enter your username and password."}
+        </p>
 
-        <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor="user">
-              User
-            </label>
-            <select
-              id="user"
-              required
-              value={userId}
-              onChange={(e) => {
-                setUserId(e.target.value);
-                setRoleId("");
-              }}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+        {!showRoleStep ? (
+          <form onSubmit={onCredentialsSubmit} className="mt-6 space-y-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor="username">
+                Username
+              </label>
+              <input
+                id="username"
+                required
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor="password">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+              />
+            </div>
+
+            {error ? <p className="text-center text-sm text-red-600">{error}</p> : null}
+
+            <button
+              type="submit"
+              disabled={submitting || !username.trim() || !password}
+              className="w-full rounded-lg bg-[#d4147a] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="">Select user…</option>
-              {activeUsers.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {displayName(u)} ({u.username})
-                </option>
-              ))}
-            </select>
-          </div>
+              {submitting ? "Signing in…" : "Continue"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={onRoleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor="role">
+                Role
+              </label>
+              <select
+                id="role"
+                required
+                value={roleId}
+                onChange={(e) => setRoleId(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+              >
+                <option value="">Select role…</option>
+                {roleOptions.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700" htmlFor="role">
-              Role
-            </label>
-            <select
-              id="role"
-              required
-              disabled={!userId}
-              value={roleId}
-              onChange={(e) => setRoleId(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20 disabled:bg-slate-50 disabled:text-slate-400"
+            {error ? <p className="text-center text-sm text-red-600">{error}</p> : null}
+
+            <button
+              type="submit"
+              disabled={submitting || !roleId}
+              className="w-full rounded-lg bg-[#d4147a] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="">Select role…</option>
-              {roleOptions.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
-            {userId && roleOptions.length === 0 ? (
-              <p className="mt-1.5 text-xs text-amber-600">This user has no roles assigned.</p>
-            ) : null}
-          </div>
+              {submitting ? "Opening workspace…" : "Continue to workspace"}
+            </button>
 
-          {error ? <p className="text-center text-sm text-red-600">{error}</p> : null}
-
-          <button
-            type="submit"
-            disabled={submitting || !userId || !roleId}
-            className="w-full rounded-lg bg-[#d4147a] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {submitting ? "Signing in…" : "Continue to workspace"}
-          </button>
-        </form>
+            <button
+              type="button"
+              onClick={backToCredentials}
+              className="w-full text-sm text-slate-500 hover:text-slate-700"
+            >
+              Use a different account
+            </button>
+          </form>
+        )}
 
         <p className="mt-5 text-center text-[11px] text-slate-400">
-          Password sign-in will be added with Supabase Auth.
+          Microsoft SSO is planned for a future release.
         </p>
       </div>
 

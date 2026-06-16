@@ -1,4 +1,4 @@
-export type AccessWindowGroup = "Core" | "People" | "Services" | "Admin";
+export type AccessWindowGroup = "Core" | "Locations" | "People" | "Services" | "Admin";
 
 export type AccessWindow = {
   key: string;

@@ -107,6 +107,7 @@ export function TaskManagementAdminView() {
       ...role,
       windowKeys: [...role.windowKeys],
       processIds: [...role.processIds],
+      reportIds: [...(role.reportIds ?? [])],
       taskTypePermissions: mergeTaskTypePermissions(role.taskTypePermissions, sortedTypes.map((t) => t.id)),
     });
   }

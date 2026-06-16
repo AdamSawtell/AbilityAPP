@@ -1,6 +1,7 @@
 import { clientTabs } from "@/lib/client";
 import { contractTabs } from "@/lib/contract-fields";
 import { employeeTabGroups } from "@/lib/employee";
+import { locationTabs } from "@/lib/location";
 import type { AccessWindow, AccessWindowGroup } from "@/lib/access/catalog-types";
 
 import { enquiryTabs } from "@/lib/enquiry";
@@ -101,6 +102,22 @@ export const EMPLOYEE_DEPENDENT_WINDOWS = buildDetailWindows(
   EMPLOYEE_TAB_KEY_OVERRIDES
 );
 
+const LOCATION_TAB_KEY_OVERRIDES: Record<string, string> = {
+  "Contact & address": "location-contact-and-address",
+  "Products & services": "location-products-and-services",
+};
+
+export const LOCATION_DETAIL_TABS = [...locationTabs];
+
+export const LOCATION_DEPENDENT_WINDOWS = buildDetailWindows(
+  "locations",
+  "location",
+  LOCATION_DETAIL_TABS,
+  "Locations",
+  "Support Location",
+  LOCATION_TAB_KEY_OVERRIDES
+);
+
 /** Parent window keys plus all dependent tab windows beneath them. */
 export function windowKeysWithDependents(...parentKeys: string[]): string[] {
   const keys = new Set<string>();
@@ -121,6 +138,8 @@ function buildDependentsForParent(parentKey: string): AccessWindow[] {
       return ENQUIRY_DEPENDENT_WINDOWS;
     case "employees":
       return EMPLOYEE_DEPENDENT_WINDOWS;
+    case "locations":
+      return LOCATION_DEPENDENT_WINDOWS;
     case "contracts":
       return CONTRACT_DEPENDENT_WINDOWS;
     case "products":

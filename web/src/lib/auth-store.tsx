@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { AppRoleRecord, AppUserRecord, AuthSession, TaskTypePermission } from "@/lib/access/types";
 import { displayName, userInitials } from "@/lib/access/types";
 import { canAccessWindow, processById } from "@/lib/access/catalog";
+import { canAccessReport } from "@/lib/reports/catalog";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
@@ -12,7 +13,6 @@ import {
   fetchUsers,
   resolveRoleAccess,
   saveRole,
-  saveUser,
 } from "@/lib/supabase/access-api";
 
 const SESSION_KEY = "abilityerp-auth-session";
@@ -24,11 +24,13 @@ type AuthStore = {
   hydrated: boolean;
   source: "supabase" | "local";
   login: (userId: string, roleId: string) => Promise<void>;
+  authenticate: (username: string, password: string) => Promise<AppUserRecord>;
   logout: () => void;
   switchRole: (roleId: string) => Promise<void>;
   canWindow: (key: string) => boolean;
   canProcess: (processId: string) => boolean;
-  upsertUser: (user: AppUserRecord) => Promise<void>;
+  canReport: (reportId: string) => boolean;
+  upsertUser: (user: AppUserRecord, options?: { password?: string }) => Promise<void>;
   upsertRole: (role: AppRoleRecord) => Promise<void>;
   userInitials: string;
   availableRolesForUser: (userId: string) => AppRoleRecord[];
@@ -45,6 +47,7 @@ function loadSession(): AuthSession | null {
     return {
       ...parsed,
       taskTypePermissions: parsed.taskTypePermissions ?? [],
+      reportIds: parsed.reportIds ?? [],
     };
   } catch {
     return null;
@@ -63,7 +66,7 @@ function persistSession(session: AuthSession | null) {
 async function buildSession(
   user: AppUserRecord,
   role: AppRoleRecord,
-  resolveAccess: (roleId: string) => Promise<{ windowKeys: string[]; processIds: string[]; taskTypePermissions: TaskTypePermission[] }>
+  resolveAccess: (roleId: string) => Promise<{ windowKeys: string[]; processIds: string[]; reportIds: string[]; taskTypePermissions: TaskTypePermission[] }>
 ): Promise<AuthSession> {
   const access = await resolveAccess(role.id);
   return {
@@ -75,6 +78,7 @@ async function buildSession(
     activeRoleName: role.name,
     windowKeys: access.windowKeys,
     processIds: access.processIds,
+    reportIds: access.reportIds,
     taskTypePermissions: access.taskTypePermissions,
   };
 }
@@ -89,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resolveAccess = useCallback(async (roleId: string) => {
     let windowKeys: string[] = [];
     let processIds: string[] = [];
+    let reportIds: string[] = [];
     let taskTypePermissions: TaskTypePermission[] = [];
 
     if (source === "supabase" && isSupabaseConfigured()) {
@@ -96,25 +101,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const access = await resolveRoleAccess(supabase, roleId);
       windowKeys = access.windowKeys;
       processIds = access.processIds;
+      reportIds = access.reportIds;
       taskTypePermissions = access.taskTypePermissions;
     } else {
       const role = roles.find((r) => r.id === roleId);
       windowKeys = role?.windowKeys ?? [];
       processIds = role?.processIds ?? [];
+      reportIds = role?.reportIds ?? [];
       taskTypePermissions = role?.taskTypePermissions ?? [];
     }
 
     const seed = SEED_ROLES.find((r) => r.id === roleId);
     if (seed) {
-      const merged = withSeedTaskAccess({ ...seed, windowKeys, processIds, taskTypePermissions });
+      const merged = withSeedTaskAccess({ ...seed, windowKeys, processIds, reportIds, taskTypePermissions });
       return {
         windowKeys: merged.windowKeys,
         processIds: merged.processIds,
+        reportIds: merged.reportIds ?? [],
         taskTypePermissions: merged.taskTypePermissions,
       };
     }
 
-    return { windowKeys, processIds, taskTypePermissions };
+    return { windowKeys, processIds, reportIds, taskTypePermissions };
   }, [roles, source]);
 
   useEffect(() => {
@@ -162,6 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               ...saved,
               windowKeys: merged.windowKeys,
               processIds: merged.processIds,
+              reportIds: merged.reportIds ?? [],
               taskTypePermissions: merged.taskTypePermissions,
             };
             setSession(next);
@@ -193,6 +202,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const procsMatch =
         access.processIds.length === session.processIds.length &&
         access.processIds.every((p) => session.processIds.includes(p));
+      const reportsMatch =
+        access.reportIds.length === (session.reportIds?.length ?? 0) &&
+        access.reportIds.every((r) => session.reportIds?.includes(r));
       const taskTypesMatch =
         access.taskTypePermissions.length === (session.taskTypePermissions?.length ?? 0) &&
         access.taskTypePermissions.every((p) =>
@@ -204,12 +216,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               s.canCreate === p.canCreate
           )
         );
-      if (keysMatch && procsMatch && taskTypesMatch) return;
+      if (keysMatch && procsMatch && reportsMatch && taskTypesMatch) return;
 
       const next = {
         ...session,
         windowKeys: access.windowKeys,
         processIds: access.processIds,
+        reportIds: access.reportIds,
         taskTypePermissions: access.taskTypePermissions,
       };
       setSession(next);
@@ -231,6 +244,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       persistSession(next);
     },
     [users, roles, resolveAccess]
+  );
+
+  const authenticate = useCallback(
+    async (username: string, password: string): Promise<AppUserRecord> => {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
+      if (!res.ok) {
+        throw new Error("Invalid username or password");
+      }
+      const data = (await res.json()) as { user: AppUserRecord };
+      const user = data.user;
+      setUsers((prev) => {
+        const exists = prev.some((u) => u.id === user.id);
+        return exists ? prev.map((u) => (u.id === user.id ? user : u)) : [...prev, user];
+      });
+      return user;
+    },
+    []
   );
 
   const logout = useCallback(() => {
@@ -265,14 +299,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [session]
   );
 
+  const canReport = useCallback(
+    (reportId: string) => {
+      if (!session) return false;
+      return canAccessReport(session.reportIds ?? [], session.windowKeys, reportId, (key) =>
+        canAccessWindow(session.windowKeys, key)
+      );
+    },
+    [session]
+  );
+
   const upsertUser = useCallback(
-    async (user: AppUserRecord) => {
+    async (user: AppUserRecord, options?: { password?: string }) => {
       setUsers((prev) => {
         const exists = prev.some((u) => u.id === user.id);
         return exists ? prev.map((u) => (u.id === user.id ? user : u)) : [...prev, user];
       });
       if (source === "supabase" && isSupabaseConfigured()) {
-        await saveUser(createClient(), user);
+        const res = await fetch("/api/auth/system-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user, password: options?.password }),
+        });
+        if (!res.ok) throw new Error("Could not save system access");
       }
     },
     [source]
@@ -292,6 +341,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...session,
           windowKeys: role.windowKeys,
           processIds: role.processIds,
+          reportIds: role.reportIds ?? [],
           taskTypePermissions: role.taskTypePermissions,
         };
         setSession(next);
@@ -324,10 +374,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       hydrated,
       source,
       login,
+      authenticate,
       logout,
       switchRole,
       canWindow,
       canProcess,
+      canReport,
       upsertUser,
       upsertRole,
       userInitials: initials,
@@ -340,10 +392,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       hydrated,
       source,
       login,
+      authenticate,
       logout,
       switchRole,
       canWindow,
       canProcess,
+      canReport,
       upsertUser,
       upsertRole,
       initials,

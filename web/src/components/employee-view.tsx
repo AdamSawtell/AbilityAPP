@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EmployeeAddressesPanel, PrimaryAddressSummary } from "@/components/employee-addresses-panel";
 import {
@@ -9,7 +8,7 @@ import {
 } from "@/components/employee-emergency-contacts-panel";
 import { EmployeePicker } from "@/components/employee-picker";
 import { LineItemTable } from "@/components/line-item-table";
-import { UserAdminLink } from "@/components/record-link";
+import { EmployeeSystemAccessPanel } from "@/components/employee-system-access-panel";
 import {
   employeeTabsForRole,
   windowKeyForEmployeeTab,
@@ -177,34 +176,7 @@ function SystemAccessPanel({
   employee: EmployeeRecord;
   linkedUser?: AppUserRecord;
 }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">System access</h3>
-      <p className="mt-1 text-sm text-slate-500">
-        Application login linked to {employee.name}. Managed in Admin → Users.
-      </p>
-      {linkedUser ? (
-        <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
-          <UserAdminLink
-            userId={linkedUser.id}
-            label={linkedUser.username}
-            className="font-medium text-[#b51266] hover:underline"
-          />
-          <p className="text-xs text-slate-500">{linkedUser.email}</p>
-        </div>
-      ) : (
-        <p className="mt-4 text-sm text-slate-600">No login linked yet.</p>
-      )}
-      <Link
-        href={
-          linkedUser ? `/admin/users?user=${linkedUser.id}` : `/admin/users?employee=${employee.id}`
-        }
-        className="mt-4 inline-block text-sm font-medium text-[#b51266] hover:underline"
-      >
-        {linkedUser ? "Manage user access" : "Create or link user"}
-      </Link>
-    </div>
-  );
+  return <EmployeeSystemAccessPanel employee={employee} linkedUser={linkedUser} />;
 }
 
 function tabCount(employee: EmployeeRecord, tab: string): number | null {

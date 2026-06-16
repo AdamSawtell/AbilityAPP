@@ -1,6 +1,7 @@
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import { ALL_PROCESS_IDS, ALL_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
+import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import {
   fullTaskTypePermissions,
   INITIAL_TASK_TYPES,
@@ -59,6 +60,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
     active: true,
     windowKeys: [...ALL_WINDOW_KEYS],
     processIds: [...ALL_PROCESS_IDS],
+    reportIds: [...ALL_REPORT_IDS],
     taskTypePermissions: fullTaskTypePermissions(ALL_TASK_TYPE_IDS),
   },
   {
@@ -67,8 +69,9 @@ export const SEED_ROLES: AppRoleRecord[] = [
     name: "Intake Coordinator",
     description: "Enquiries and convert-to-client process",
     active: true,
-    windowKeys: ["home", ...TASK_ACCESS, ...windowKeysWithDependents("enquiries", "clients")],
-    processIds: ["enquiry-to-client", "assign-task", "action-task"],
+    windowKeys: ["home", "reports", ...TASK_ACCESS, ...windowKeysWithDependents("enquiries", "clients", "locations")],
+    processIds: ["enquiry-to-client", "assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task"],
+    reportIds: ["client-register"],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
   },
   {
@@ -77,8 +80,9 @@ export const SEED_ROLES: AppRoleRecord[] = [
     name: "Support Coordinator",
     description: "Client records and service catalog (no admin)",
     active: true,
-    windowKeys: ["home", ...TASK_ACCESS, ...windowKeysWithDependents("clients", "products", "price-lists", "service-agreements")],
-    processIds: ["assign-task", "action-task"],
+    windowKeys: ["home", "reports", ...TASK_ACCESS, ...windowKeysWithDependents("clients", "locations", "products", "price-lists", "service-agreements")],
+    processIds: ["assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task"],
+    reportIds: ["client-register"],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   },
 ];
@@ -89,12 +93,14 @@ export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
   if (!seed) {
     return {
       ...role,
+      reportIds: role.reportIds ?? [],
       taskTypePermissions: mergeTaskTypePermissions(role.taskTypePermissions, ALL_TASK_TYPE_IDS),
     };
   }
 
   const windowKeys = [...new Set([...role.windowKeys, ...seed.windowKeys])];
   const processIds = [...new Set([...role.processIds, ...seed.processIds])];
+  const reportIds = [...new Set([...(role.reportIds ?? []), ...(seed.reportIds ?? [])])];
   const taskTypePermissions = mergeTaskTypePermissions(
     role.taskTypePermissions?.length ? role.taskTypePermissions : seed.taskTypePermissions,
     ALL_TASK_TYPE_IDS
@@ -103,10 +109,11 @@ export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
   if (
     windowKeys.length === role.windowKeys.length &&
     processIds.length === role.processIds.length &&
+    reportIds.length === (role.reportIds?.length ?? 0) &&
     taskTypePermissions.length === (role.taskTypePermissions?.length ?? 0) &&
     role.windowKeys.every((k) => windowKeys.includes(k))
   ) {
-    return { ...role, taskTypePermissions };
+    return { ...role, taskTypePermissions, reportIds: role.reportIds ?? reportIds };
   }
-  return { ...role, windowKeys, processIds, taskTypePermissions };
+  return { ...role, windowKeys, processIds, reportIds, taskTypePermissions };
 }

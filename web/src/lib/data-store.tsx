@@ -30,6 +30,12 @@ import {
   type EmployeeRecord,
 } from "@/lib/employee";
 import {
+  createLocation,
+  initialLocations as seedLocations,
+  normalizeLocation,
+  type LocationRecord,
+} from "@/lib/location";
+import {
   createTask,
   describeAssignee,
   initialTasks as seedTasks,
@@ -49,6 +55,7 @@ import {
   saveContract,
   saveEmployee,
   saveEnquiry,
+  saveLocation,
   savePriceList,
   saveProduct,
   saveServiceAgreement,
@@ -65,6 +72,7 @@ type DataStore = {
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
+  locations: LocationRecord[];
   tasks: TaskRecord[];
   source: "supabase" | "local";
   addEnquiry: (record: EnquiryRecord) => EnquiryRecord;
@@ -78,6 +86,8 @@ type DataStore = {
   upsertSupportPlan: (record: SupportPlanRecord) => void;
   upsertEmployee: (record: EmployeeRecord) => void;
   addEmployee: (partial: EmployeeRecord) => EmployeeRecord;
+  upsertLocation: (record: LocationRecord) => void;
+  addLocation: (partial: LocationRecord) => LocationRecord;
   getEmployeeById: (id: string) => EmployeeRecord | undefined;
   getClientByEnquiryId: (enquiryId: string) => ClientRecord | undefined;
   getContractsByClientId: (clientId: string) => ContractRecord[];
@@ -122,6 +132,7 @@ type Persisted = {
   supportPlans?: SupportPlanRecord[];
   planDocuments?: PlanAssessmentDocument[];
   employees?: EmployeeRecord[];
+  locations?: LocationRecord[];
   tasks?: TaskRecord[];
 };
 
@@ -136,6 +147,7 @@ function seedData(): Required<Persisted> {
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
     employees: seedEmployees.map(normalizeEmployee),
+    locations: seedLocations.map(normalizeLocation),
     tasks: seedTasks.map(normalizeTask),
   };
 }
@@ -167,6 +179,7 @@ function loadLocal(): Required<Persisted> {
       supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
       employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
+      locations: (parsed.locations ?? seedLocations).map(normalizeLocation),
       tasks: (parsed.tasks ?? seedTasks).map(normalizeTask),
     };
   } catch {
@@ -195,6 +208,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(defaults.supportPlans);
   const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
   const [employees, setEmployees] = useState<EmployeeRecord[]>(defaults.employees);
+  const [locations, setLocations] = useState<LocationRecord[]>(defaults.locations);
   const [tasks, setTasks] = useState<TaskRecord[]>(defaults.tasks);
   const [hydrated, setHydrated] = useState(false);
   const [source, setSource] = useState<"supabase" | "local">("local");
@@ -207,6 +221,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const serviceAgreementsRef = useSyncRef(serviceAgreements);
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
+  const locationsRef = useSyncRef(locations);
 
   useEffect(() => {
     let cancelled = false;
@@ -226,6 +241,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setSupportPlans(data.supportPlans);
             setPlanDocuments(data.planDocuments);
             setEmployees(data.employees);
+            setLocations(data.locations ?? seedLocations.map(normalizeLocation));
             setTasks(loadLocal().tasks);
             setSource("supabase");
             setHydrated(true);
@@ -247,6 +263,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setSupportPlans(data.supportPlans);
         setPlanDocuments(data.planDocuments);
         setEmployees(data.employees);
+        setLocations(data.locations);
         setTasks(data.tasks);
         setSource("local");
         setHydrated(true);
@@ -274,6 +291,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       supportPlans,
       planDocuments,
       employees,
+      locations,
       tasks,
     });
   }, [
@@ -286,6 +304,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     supportPlans,
     planDocuments,
     employees,
+    locations,
     tasks,
     hydrated,
     source,
@@ -450,6 +469,33 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, employeesRef]
   );
 
+  const upsertLocation = useCallback(
+    (record: LocationRecord) => {
+      const prev = locationsRef.current;
+      const normalized = normalizeLocation(record);
+      const before = prev.find((l) => l.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("location", normalized, !exists, before);
+      setLocations((current) =>
+        exists ? current.map((l) => (l.id === stamped.id ? stamped : l)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveLocation(supabase, stamped));
+    },
+    [persistRemote, locationsRef]
+  );
+
+  const addLocation = useCallback(
+    (partial: LocationRecord) => {
+      const prev = locationsRef.current;
+      const next = createLocation(partial, prev);
+      const created = persistRecordAudit("location", next, true);
+      setLocations((current) => [...current, created]);
+      void persistRemote((supabase) => saveLocation(supabase, created));
+      return created;
+    },
+    [persistRemote, locationsRef]
+  );
+
   const getEmployeeById = useCallback(
     (id: string) => employees.find((e) => e.id === id),
     [employees]
@@ -569,6 +615,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       supportPlans,
       planDocuments,
       employees,
+      locations,
       tasks,
       source,
       addEnquiry,
@@ -582,6 +629,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,
+      upsertLocation,
+      addLocation,
       getEmployeeById,
       getClientByEnquiryId,
       getContractsByClientId,
@@ -605,6 +654,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       supportPlans,
       planDocuments,
       employees,
+      locations,
       tasks,
       source,
       addEnquiry,
@@ -618,6 +668,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,
+      upsertLocation,
+      addLocation,
       getEmployeeById,
       getClientByEnquiryId,
       getContractsByClientId,

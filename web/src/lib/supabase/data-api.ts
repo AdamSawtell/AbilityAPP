@@ -6,6 +6,8 @@ import { normalizeContract } from "@/lib/contract";
 import type { EnquiryRecord } from "@/lib/enquiry";
 import type { EmployeeRecord } from "@/lib/employee";
 import { normalizeEmployee } from "@/lib/employee";
+import type { LocationRecord } from "@/lib/location";
+import { normalizeLocation } from "@/lib/location";
 import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { normalizePriceList } from "@/lib/product";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
@@ -58,6 +60,16 @@ import {
   type SupportPlanGoalRow,
   type SupportPlanRow,
 } from "@/lib/supabase/mappers";
+import {
+  locationFromRow,
+  locationToRow,
+  type SupportLocationActivityRowDb,
+  type SupportLocationAlertRowDb,
+  type SupportLocationClientRowDb,
+  type SupportLocationEmployeeRowDb,
+  type SupportLocationProductRowDb,
+  type SupportLocationRow,
+} from "@/lib/supabase/location-mappers";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -69,6 +81,7 @@ export type AppData = {
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
+  locations: LocationRecord[];
 };
 
 async function replaceChildRows(
@@ -108,6 +121,12 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     employeeDocsRes,
     employeeActsRes,
     employeeLeaveRes,
+    supportLocationsRes,
+    supportLocationAlertsRes,
+    supportLocationClientsRes,
+    supportLocationEmployeesRes,
+    supportLocationProductsRes,
+    supportLocationActivitiesRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
@@ -134,6 +153,12 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("employee_document").select("*").order("line_no"),
     supabase.from("employee_activity").select("*").order("line_no"),
     supabase.from("employee_leave_entitlement").select("*").order("line_no"),
+    supabase.from("support_location").select("*").order("search_key"),
+    supabase.from("support_location_alert").select("*").order("line_no"),
+    supabase.from("support_location_client").select("*").order("line_no"),
+    supabase.from("support_location_employee").select("*").order("line_no"),
+    supabase.from("support_location_product").select("*").order("line_no"),
+    supabase.from("support_location_activity").select("*").order("line_no"),
   ]);
 
   const firstError =
@@ -161,7 +186,13 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     employeeSkillsRes.error ??
     employeeDocsRes.error ??
     employeeActsRes.error ??
-    employeeLeaveRes.error;
+    employeeLeaveRes.error ??
+    supportLocationsRes.error ??
+    supportLocationAlertsRes.error ??
+    supportLocationClientsRes.error ??
+    supportLocationEmployeesRes.error ??
+    supportLocationProductsRes.error ??
+    supportLocationActivitiesRes.error;
 
   if (firstError) throw firstError;
 
@@ -181,6 +212,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const docsByEmployee = groupBy(employeeDocsRes.data as EmployeeDocumentRowDb[], "employee_id");
   const actsByEmployee = groupBy(employeeActsRes.data as EmployeeActivityRowDb[], "employee_id");
   const leaveByEmployee = groupBy(employeeLeaveRes.data as EmployeeLeaveEntitlementRowDb[], "employee_id");
+  const alertsByLocation = groupBy(supportLocationAlertsRes.data as SupportLocationAlertRowDb[], "location_id");
+  const clientsByLocation = groupBy(supportLocationClientsRes.data as SupportLocationClientRowDb[], "location_id");
+  const employeesByLocation = groupBy(supportLocationEmployeesRes.data as SupportLocationEmployeeRowDb[], "location_id");
+  const productsByLocation = groupBy(supportLocationProductsRes.data as SupportLocationProductRowDb[], "location_id");
+  const activitiesByLocation = groupBy(supportLocationActivitiesRes.data as SupportLocationActivityRowDb[], "location_id");
 
   return {
     enquiries: ((enquiriesRes.data ?? []) as EnquiryRow[]).map((row) =>
@@ -221,6 +257,17 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
           documents: docsByEmployee.get(row.id) ?? [],
           activities: actsByEmployee.get(row.id) ?? [],
           leaveEntitlements: leaveByEmployee.get(row.id) ?? [],
+        })
+      )
+    ),
+    locations: ((supportLocationsRes.data ?? []) as SupportLocationRow[]).map((row) =>
+      normalizeLocation(
+        locationFromRow(row, {
+          alerts: alertsByLocation.get(row.id) ?? [],
+          clientLinks: clientsByLocation.get(row.id) ?? [],
+          employeeLinks: employeesByLocation.get(row.id) ?? [],
+          productLinks: productsByLocation.get(row.id) ?? [],
+          activities: activitiesByLocation.get(row.id) ?? [],
         })
       )
     ),
@@ -600,5 +647,99 @@ export async function saveEmployee(supabase: SupabaseClient, record: EmployeeRec
       }))
     );
     if (error) throw error;
+  }
+}
+
+export async function saveLocation(supabase: SupabaseClient, record: LocationRecord) {
+  const normalized = normalizeLocation(record);
+  const { error } = await supabase.from("support_location").upsert(locationToRow(normalized));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "support_location_alert", "location_id", normalized.id);
+  if (normalized.alerts.length) {
+    const { error: alertError } = await supabase.from("support_location_alert").insert(
+      normalized.alerts.map((a) => ({
+        id: a.id,
+        location_id: normalized.id,
+        line_no: a.lineNo,
+        alert_type: a.alertType,
+        show_as_alert: a.showAsAlert,
+        name: a.name,
+        description: a.description,
+        valid_from: a.validFrom || null,
+        valid_to: a.validTo || null,
+      }))
+    );
+    if (alertError) throw alertError;
+  }
+
+  await replaceChildRows(supabase, "support_location_client", "location_id", normalized.id);
+  if (normalized.clientLinks.length) {
+    const { error: clientError } = await supabase.from("support_location_client").insert(
+      normalized.clientLinks.map((l) => ({
+        id: l.id,
+        location_id: normalized.id,
+        line_no: l.lineNo,
+        client_id: l.clientId,
+        assignment_role: l.assignmentRole,
+        primary_assignment: l.primaryAssignment,
+        valid_from: l.validFrom || null,
+        valid_to: l.validTo || null,
+        notes: l.notes,
+      }))
+    );
+    if (clientError) throw clientError;
+  }
+
+  await replaceChildRows(supabase, "support_location_employee", "location_id", normalized.id);
+  if (normalized.employeeLinks.length) {
+    const { error: employeeError } = await supabase.from("support_location_employee").insert(
+      normalized.employeeLinks.map((l) => ({
+        id: l.id,
+        location_id: normalized.id,
+        line_no: l.lineNo,
+        employee_id: l.employeeId,
+        assignment_role: l.assignmentRole,
+        primary_assignment: l.primaryAssignment,
+        valid_from: l.validFrom || null,
+        valid_to: l.validTo || null,
+        notes: l.notes,
+      }))
+    );
+    if (employeeError) throw employeeError;
+  }
+
+  await replaceChildRows(supabase, "support_location_product", "location_id", normalized.id);
+  if (normalized.productLinks.length) {
+    const { error: productError } = await supabase.from("support_location_product").insert(
+      normalized.productLinks.map((l) => ({
+        id: l.id,
+        location_id: normalized.id,
+        line_no: l.lineNo,
+        product_id: l.productId,
+        active: l.active,
+        valid_from: l.validFrom || null,
+        valid_to: l.validTo || null,
+        notes: l.notes,
+      }))
+    );
+    if (productError) throw productError;
+  }
+
+  await replaceChildRows(supabase, "support_location_activity", "location_id", normalized.id);
+  if (normalized.activities.length) {
+    const { error: activityError } = await supabase.from("support_location_activity").insert(
+      normalized.activities.map((a) => ({
+        id: a.id,
+        location_id: normalized.id,
+        line_no: a.lineNo,
+        activity_date: a.date || null,
+        activity_type: a.activityType,
+        subject: a.subject,
+        description: a.description,
+        created_by: a.createdBy,
+      }))
+    );
+    if (activityError) throw activityError;
   }
 }

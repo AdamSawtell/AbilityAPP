@@ -81,20 +81,84 @@ export function EmployeeRecordLink({
   );
 }
 
-export function UserAdminLink({
-  userId,
+export function LocationRecordLink({
+  id,
+  searchKey,
+  name,
+  className,
+  children,
+}: {
+  id: string;
+  searchKey: string;
+  name: string;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  const { openLocation } = useWorkspace();
+
+  return (
+    <Link
+      href={`/locations/${id}`}
+      className={className}
+      onClick={() => openLocation(id, searchKey, name)}
+    >
+      {children ?? searchKey}
+    </Link>
+  );
+}
+
+export function ProductRecordLink({
+  id,
+  searchKey,
+  name,
+  className,
+  children,
+}: {
+  id: string;
+  searchKey: string;
+  name: string;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <Link href={`/products/${id}`} className={className}>
+      {children ?? searchKey}
+    </Link>
+  );
+}
+
+export function EmployeeSystemAccessLink({
+  employeeId,
   label,
   className,
   children,
 }: {
-  userId: string;
+  employeeId: string;
   label: string;
   className?: string;
   children?: React.ReactNode;
 }) {
   return (
-    <Link href={`/admin/users?user=${userId}`} className={className}>
+    <Link href={`/employees/${employeeId}?tab=System%20access`} className={className}>
       {children ?? label}
     </Link>
+  );
+}
+
+/** @deprecated Use EmployeeSystemAccessLink — kept for older call sites. */
+export function UserAdminLink({
+  label,
+  className,
+  children,
+}: {
+  userId?: string;
+  label: string;
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <span className={className} title="Open the employee record → System access tab">
+      {children ?? label}
+    </span>
   );
 }

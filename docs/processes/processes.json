@@ -19,6 +19,114 @@
         "web/src/lib/client.ts"
       ],
       "tables": ["enquiry", "client", "client_alert"]
+    },
+    {
+      "number": 2,
+      "id": "assign-employee-credential",
+      "name": "Assign employee credential",
+      "status": "live",
+      "summary": "Add or update credential rows on an employee Business Partner record.",
+      "doc": "docs/processes/02-assign-employee-credential.md",
+      "trigger": "User edits Credentials Assigned lines on an employee record",
+      "entryPoints": [
+        "web/src/components/employee-view.tsx"
+      ],
+      "logic": [
+        "web/src/lib/employee.ts",
+        "web/src/lib/supabase/data-api.ts"
+      ],
+      "tables": ["employee", "employee_credential"]
+    },
+    {
+      "number": 3,
+      "id": "assign-location-client",
+      "name": "Assign client to location",
+      "status": "live",
+      "summary": "Link support receivers to a support location with assignment role and dates.",
+      "doc": "docs/processes/03-assign-location-client.md",
+      "trigger": "User adds or edits client lines on a location Clients tab",
+      "entryPoints": [
+        "web/src/components/location-view.tsx",
+        "web/src/components/location-pages.tsx"
+      ],
+      "logic": [
+        "web/src/lib/location.ts",
+        "web/src/lib/supabase/data-api.ts"
+      ],
+      "tables": ["support_location", "support_location_client"]
+    },
+    {
+      "number": 4,
+      "id": "assign-location-employee",
+      "name": "Assign employee to location",
+      "status": "live",
+      "summary": "Link staff to a support location with assignment role and dates.",
+      "doc": "docs/processes/04-assign-location-employee.md",
+      "trigger": "User adds or edits employee lines on a location Employees tab",
+      "entryPoints": [
+        "web/src/components/location-view.tsx",
+        "web/src/components/location-pages.tsx"
+      ],
+      "logic": [
+        "web/src/lib/location.ts",
+        "web/src/lib/supabase/data-api.ts"
+      ],
+      "tables": ["support_location", "support_location_employee"]
+    },
+    {
+      "number": 5,
+      "id": "assign-location-product",
+      "name": "Assign product to location",
+      "status": "live",
+      "summary": "Link products and services from the catalog to a support location.",
+      "doc": "docs/processes/05-assign-location-product.md",
+      "trigger": "User adds or edits product lines on a location Products and services tab",
+      "entryPoints": [
+        "web/src/components/location-view.tsx",
+        "web/src/components/location-pages.tsx"
+      ],
+      "logic": [
+        "web/src/lib/location.ts",
+        "web/src/lib/supabase/data-api.ts"
+      ],
+      "tables": ["support_location", "support_location_product", "product"]
+    },
+    {
+      "number": 6,
+      "id": "assign-task",
+      "name": "Assign task",
+      "status": "live",
+      "summary": "Create and assign a task to a user or role from a record or the task hub.",
+      "doc": "docs/processes/06-assign-task.md",
+      "trigger": "User clicks Assign task on a record tasks panel or task hub",
+      "entryPoints": [
+        "web/src/components/record-tasks-panel.tsx",
+        "web/src/components/task-hub-view.tsx",
+        "web/src/components/task-pages.tsx"
+      ],
+      "logic": [
+        "web/src/lib/task.ts",
+        "web/src/lib/data-store.tsx"
+      ],
+      "tables": ["task", "task_activity"]
+    },
+    {
+      "number": 7,
+      "id": "action-task",
+      "name": "Action task",
+      "status": "live",
+      "summary": "Start, complete, or cancel tasks assigned to the signed-in user or their role.",
+      "doc": "docs/processes/07-action-task.md",
+      "trigger": "User updates task status on a task detail page or hub",
+      "entryPoints": [
+        "web/src/components/task-pages.tsx",
+        "web/src/lib/task-access.ts"
+      ],
+      "logic": [
+        "web/src/lib/task.ts",
+        "web/src/lib/data-store.tsx"
+      ],
+      "tables": ["task", "task_activity"]
     }
   ]
 }

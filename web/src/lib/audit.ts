@@ -3,6 +3,7 @@
 export type AuditEntityType =
   | "enquiry"
   | "client"
+  | "location"
   | "employee"
   | "contract"
   | "product"
@@ -57,6 +58,7 @@ export type AppShellAuditProps =
 export const auditEntityLabels: Record<AuditEntityType, string> = {
   enquiry: "Enquiry",
   client: "Client",
+  location: "Location",
   employee: "Employee",
   contract: "Contract",
   product: "Product",

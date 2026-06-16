@@ -191,7 +191,7 @@ export function recordDisplayName(entityType: AuditEntityType, record: Record<st
     const doc = record.documentNo;
     if (typeof doc === "string" && doc.trim()) return doc;
   }
-  if (entityType === "client" || entityType === "employee" || entityType === "service-agreement" || entityType === "product") {
+  if (entityType === "client" || entityType === "employee" || entityType === "location" || entityType === "service-agreement" || entityType === "product") {
     const key = record.searchKey;
     if (typeof key === "string" && key.trim()) return key;
   }

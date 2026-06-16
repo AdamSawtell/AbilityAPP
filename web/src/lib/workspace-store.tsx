@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-export type WorkspaceTabKind = "client" | "enquiry" | "employee";
+export type WorkspaceTabKind = "client" | "enquiry" | "employee" | "location";
 
 export type WorkspaceTab = {
   key: string;
@@ -18,6 +18,7 @@ type WorkspaceStore = {
   openClient: (recordId: string, label: string, subtitle?: string) => void;
   openEnquiry: (recordId: string, label: string, subtitle?: string) => void;
   openEmployee: (recordId: string, label: string, subtitle?: string) => void;
+  openLocation: (recordId: string, label: string, subtitle?: string) => void;
   closeTab: (key: string) => string;
   setTabDirty: (key: string, dirty: boolean) => void;
   touchTab: (key: string, label: string, subtitle?: string) => void;
@@ -100,6 +101,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [upsertTab]
   );
 
+  const openLocation = useCallback(
+    (recordId: string, label: string, subtitle?: string) => {
+      upsertTab({ key: tabKey("location", recordId), kind: "location", recordId, label, subtitle });
+    },
+    [upsertTab]
+  );
+
   const closeTab = useCallback((key: string): string => {
     let nextHref = "/";
     setTabs((prev) => {
@@ -112,13 +120,17 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
             ? `/clients/${fallback.recordId}`
             : fallback.kind === "employee"
               ? `/employees/${fallback.recordId}`
-              : `/enquiries/${fallback.recordId}`;
+              : fallback.kind === "location"
+                ? `/locations/${fallback.recordId}`
+                : `/enquiries/${fallback.recordId}`;
       } else {
         nextHref = key.startsWith("client:")
           ? "/clients"
           : key.startsWith("employee:")
             ? "/employees"
-            : "/enquiries";
+            : key.startsWith("location:")
+              ? "/locations"
+              : "/enquiries";
       }
       return remaining;
     });
@@ -136,8 +148,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ tabs, openClient, openEnquiry, openEmployee, closeTab, setTabDirty, touchTab }),
-    [tabs, openClient, openEnquiry, openEmployee, closeTab, setTabDirty, touchTab]
+    () => ({ tabs, openClient, openEnquiry, openEmployee, openLocation, closeTab, setTabDirty, touchTab }),
+    [tabs, openClient, openEnquiry, openEmployee, openLocation, closeTab, setTabDirty, touchTab]
   );
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;

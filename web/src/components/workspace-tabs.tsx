@@ -14,6 +14,7 @@ export function WorkspaceTabs() {
   function tabHref(tab: (typeof tabs)[number]) {
     if (tab.kind === "client") return `/clients/${tab.recordId}`;
     if (tab.kind === "employee") return `/employees/${tab.recordId}`;
+    if (tab.kind === "location") return `/locations/${tab.recordId}`;
     return `/enquiries/${tab.recordId}`;
   }
 
@@ -46,9 +47,17 @@ export function WorkspaceTabs() {
               ? "border-emerald-200 bg-emerald-50 text-emerald-900 shadow-sm"
               : tab.kind === "employee"
                 ? "border-indigo-200 bg-indigo-50 text-indigo-900 shadow-sm"
-                : "border-[#f9a8d4] bg-[#fdf2f8] text-[#b51266] shadow-sm";
+                : tab.kind === "location"
+                  ? "border-teal-200 bg-teal-50 text-teal-900 shadow-sm"
+                  : "border-[#f9a8d4] bg-[#fdf2f8] text-[#b51266] shadow-sm";
           const dotColor =
-            tab.kind === "client" ? "bg-emerald-500" : tab.kind === "employee" ? "bg-indigo-500" : "bg-[#d4147a]";
+            tab.kind === "client"
+              ? "bg-emerald-500"
+              : tab.kind === "employee"
+                ? "bg-indigo-500"
+                : tab.kind === "location"
+                  ? "bg-teal-500"
+                  : "bg-[#d4147a]";
           return (
             <Link
               key={tab.key}

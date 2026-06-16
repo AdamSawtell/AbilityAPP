@@ -76,6 +76,16 @@ if (roleProcesses.length) {
 }
 lines.push("");
 
+const roleReports = SEED_ROLES.flatMap((r) => (r.reportIds ?? []).map((report_id) => ({ role_id: r.id, report_id })));
+lines.push("delete from public.app_role_report where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
+if (roleReports.length) {
+  lines.push("insert into public.app_role_report (role_id, report_id)");
+  lines.push("values");
+  lines.push(roleReports.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.report_id)})`).join(",\n"));
+  lines.push("on conflict do nothing;");
+}
+lines.push("");
+
 const roleTaskTypes = SEED_ROLES.flatMap((r) =>
   (r.taskTypePermissions ?? []).map((p) => ({
     role_id: r.id,

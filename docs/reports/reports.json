@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "description": "Machine-readable index of AbilityAPP core reports. Human summary: docs/reports/README.md",
+  "reports": [
+    {
+      "number": 1,
+      "id": "client-register",
+      "name": "Client register",
+      "status": "live",
+      "moduleGroup": "Clients",
+      "parentModuleKey": "clients",
+      "maxColumns": 20,
+      "exportFormats": ["csv"],
+      "summary": "Support receiver listing with demographics, funding, risk alerts, and location counts.",
+      "doc": "docs/reports/01-client-register.md",
+      "entryPoints": [
+        "web/src/app/reports/[id]/page.tsx",
+        "web/src/components/report-runner.tsx"
+      ],
+      "logic": [
+        "web/src/lib/reports/runners/client-register.ts",
+        "web/src/lib/reports/runners/index.ts"
+      ],
+      "tables": ["client", "client_alert", "client_location"]
+    }
+  ]
+}

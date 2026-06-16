@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { taskCountsForSession } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
 import { useWorkspace } from "@/lib/workspace-store";
@@ -35,12 +36,6 @@ const adminLinks = [
     label: "Reference data",
     windowKey: "admin-reference-data",
     match: (path: string) => path.startsWith("/admin/reference-data"),
-  },
-  {
-    href: "/admin/users",
-    label: "Users",
-    windowKey: "admin-users",
-    match: (path: string) => path.startsWith("/admin/users"),
   },
   {
     href: "/admin/roles",
@@ -75,6 +70,25 @@ function NavIcon({ name }: { name: string }) {
     return (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+      </svg>
+    );
+  }
+  if (name === "location") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+      </svg>
+    );
+  }
+  if (name === "report") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+        />
       </svg>
     );
   }
@@ -161,7 +175,7 @@ function SectionHeader({
 export function SidebarNav() {
   const pathname = usePathname();
   const { tabs } = useWorkspace();
-  const { session, canWindow } = useAuth();
+  const { session, canWindow, canReport } = useAuth();
   const { tasks } = useData();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
@@ -183,11 +197,27 @@ export function SidebarNav() {
   const taskBadge = taskStats?.overdue ? taskStats.overdue : openTaskCount > 0 ? openTaskCount : 0;
   const showEnquiries = canWindow("enquiries");
   const showClients = canWindow("clients");
+  const showLocations = canWindow("locations");
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
+  const visibleReports = useMemo(
+    () => ACCESS_REPORTS.filter((r) => canReport(r.id)),
+    [canReport]
+  );
+  const reportsByModule = useMemo(() => {
+    const map = new Map<string, typeof ACCESS_REPORTS>();
+    for (const report of visibleReports) {
+      const list = map.get(report.moduleGroup) ?? [];
+      list.push(report);
+      map.set(report.moduleGroup, list);
+    }
+    return map;
+  }, [visibleReports]);
+  const showReports = canWindow("reports") && visibleReports.length > 0;
 
   const openClients = useMemo(() => tabs.filter((t) => t.kind === "client"), [tabs]);
+  const openLocations = useMemo(() => tabs.filter((t) => t.kind === "location"), [tabs]);
   const openEnquiries = useMemo(() => tabs.filter((t) => t.kind === "enquiry"), [tabs]);
   const openEmployees = useMemo(() => tabs.filter((t) => t.kind === "employee"), [tabs]);
 
@@ -197,6 +227,8 @@ export function SidebarNav() {
 
   function isOpen(key: string) {
     if (key === "admin" && pathname.startsWith("/admin")) return true;
+    if (key === "locations" && pathname.startsWith("/locations")) return true;
+    if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
   }
 
@@ -328,9 +360,53 @@ export function SidebarNav() {
 
               {openClients.length > 0 ? (
                 <div className="pt-1">
-                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Open</p>
+                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Open clients</p>
                   {openClients.map((tab) => {
                     const href = `/clients/${tab.recordId}`;
+                    const tabActive = pathname === href || pathname.startsWith(`${href}?`);
+                    return (
+                      <Link
+                        key={tab.key}
+                        href={href}
+                        className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs ${
+                          tabActive
+                            ? "bg-white font-medium text-slate-900 shadow-sm ring-1 ring-slate-200"
+                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                        }`}
+                      >
+                        <span className="truncate">{tab.label}</span>
+                        {tab.dirty ? <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" /> : null}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {showLocations ? (
+        <div className="mt-2 border-t border-slate-200 pt-3">
+          <SectionHeader
+            label="Locations"
+            icon={<NavIcon name="location" />}
+            sectionKey="locations"
+            open={isOpen("locations")}
+            onToggle={toggleSection}
+            href="/locations"
+            active={pathname.startsWith("/locations")}
+          />
+          {isOpen("locations") ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              <Link href="/locations" className={subLinkClass(pathname === "/locations")}>
+                All locations
+              </Link>
+              {openLocations.length > 0 ? (
+                <div className="pt-1">
+                  <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Open</p>
+                  {openLocations.map((tab) => {
+                    const href = `/locations/${tab.recordId}`;
                     const tabActive = pathname === href || pathname.startsWith(`${href}?`);
                     return (
                       <Link
@@ -438,6 +514,54 @@ export function SidebarNav() {
                   {link.label}
                 </Link>
               ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {showReports ? (
+        <div className="mt-2 border-t border-slate-200 pt-3">
+          <SectionHeader
+            label="Reports"
+            icon={<NavIcon name="report" />}
+            sectionKey="reports"
+            open={isOpen("reports")}
+            onToggle={toggleSection}
+            href="/reports"
+            active={pathname.startsWith("/reports")}
+          />
+          {isOpen("reports") ? (
+            <div className="ml-4 mt-1 space-y-2 border-l border-slate-200 pl-3">
+              <Link href="/reports" className={subLinkClass(pathname === "/reports")}>
+                All reports
+              </Link>
+              {(["Clients", "Enquiries", "Locations", "People", "Services"] as const).map((module) => {
+                const moduleReports = reportsByModule.get(module);
+                if (!moduleReports?.length) return null;
+                return (
+                  <div key={module}>
+                    <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      {module}
+                    </p>
+                    {moduleReports.map((report) => {
+                      const href = `/reports/${report.id}`;
+                      return (
+                        <Link
+                          key={report.id}
+                          href={href}
+                          className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
+                            pathname === href
+                              ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/50"
+                              : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                          }`}
+                        >
+                          {report.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           ) : null}
         </div>
