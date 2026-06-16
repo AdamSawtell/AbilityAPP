@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { AppShell } from "@/components/app-shell";
 import { HomeCalendar } from "@/components/home-calendar";
+import { HomeAiChat } from "@/components/home-ai-chat";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
 import { useAuth } from "@/lib/auth-store";
@@ -149,6 +150,10 @@ export function HomeDashboard() {
             </div>
           </Link>
         </div>
+      ) : null}
+
+      {session ? (
+        <HomeAiChat />
       ) : null}
 
       {session ? (

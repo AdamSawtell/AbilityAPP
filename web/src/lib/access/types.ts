@@ -41,6 +41,7 @@ export type AuthSession = {
   processIds: string[];
   reportIds: string[];
   taskTypePermissions: TaskTypePermission[];
+  agentIds: string[];
 };
 
 export function displayName(user: Pick<AppUserRecord, "firstName" | "lastName" | "username">) {

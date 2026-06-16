@@ -29,6 +29,7 @@ type AuthStore = {
   canWindow: (key: string) => boolean;
   canProcess: (processId: string) => boolean;
   canReport: (reportId: string) => boolean;
+  canAgent: (agentId: string) => boolean;
   upsertUser: (user: AppUserRecord, options?: { password?: string }) => Promise<void>;
   upsertRole: (role: AppRoleRecord) => Promise<void>;
   userInitials: string;
@@ -42,6 +43,7 @@ function normalizeSession(raw: AuthSession): AuthSession {
     ...raw,
     taskTypePermissions: raw.taskTypePermissions ?? [],
     reportIds: raw.reportIds ?? [],
+    agentIds: raw.agentIds ?? [],
   };
 }
 
@@ -201,6 +203,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [session]
   );
 
+  const canAgent = useCallback(
+    (agentId: string) => (session?.agentIds ?? []).includes(agentId),
+    [session]
+  );
+
   const upsertUser = useCallback(
     async (user: AppUserRecord, options?: { password?: string }) => {
       setUsers((prev) => {
@@ -270,6 +277,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canWindow,
       canProcess,
       canReport,
+      canAgent,
       upsertUser,
       upsertRole,
       userInitials: initials,
@@ -288,6 +296,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canWindow,
       canProcess,
       canReport,
+      canAgent,
       upsertUser,
       upsertRole,
       initials,

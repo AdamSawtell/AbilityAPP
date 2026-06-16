@@ -1,0 +1,82 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { AiAgentRecord } from "@/lib/ai/types";
+
+type AgentRow = {
+  id: string;
+  agent_key: string;
+  name: string;
+  description: string;
+  system_prompt: string;
+  model: string;
+  active: boolean;
+};
+
+type CapabilityRow = {
+  agent_id: string;
+  capability_type: string;
+  capability_key: string;
+};
+
+function agentFromRow(row: AgentRow, capabilities: CapabilityRow[]): AiAgentRecord {
+  return {
+    id: row.id,
+    agentKey: row.agent_key,
+    name: row.name,
+    description: row.description,
+    systemPrompt: row.system_prompt,
+    model: row.model,
+    active: row.active,
+    capabilities: capabilities
+      .filter((c) => c.agent_id === row.id)
+      .map((c) => ({ type: c.capability_type, key: c.capability_key })),
+  };
+}
+
+export async function fetchAgents(supabase: SupabaseClient): Promise<AiAgentRecord[]> {
+  const [agentsRes, capsRes] = await Promise.all([
+    supabase.from("app_ai_agent").select("*").order("name"),
+    supabase.from("app_ai_agent_capability").select("agent_id, capability_type, capability_key"),
+  ]);
+  if (agentsRes.error?.code === "42P01") return [];
+  if (agentsRes.error) throw agentsRes.error;
+  if (capsRes.error?.code === "42P01") {
+    return ((agentsRes.data ?? []) as AgentRow[]).map((row) => agentFromRow(row, []));
+  }
+  if (capsRes.error) throw capsRes.error;
+
+  const caps = (capsRes.data ?? []) as CapabilityRow[];
+  return ((agentsRes.data ?? []) as AgentRow[]).map((row) => agentFromRow(row, caps));
+}
+
+export async function resolveRoleAgentIds(supabase: SupabaseClient, roleId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("app_role_agent")
+    .select("agent_id")
+    .eq("role_id", roleId);
+  if (error?.code === "42P01") return [];
+  if (error) throw error;
+  return (data ?? []).map((r) => r.agent_id);
+}
+
+export async function logChatTurn(
+  supabase: SupabaseClient,
+  entry: {
+    userId: string;
+    roleId: string;
+    agentId: string;
+    userMessage: string;
+    assistantMessage: string;
+    toolCalls: unknown[];
+  }
+) {
+  const { error } = await supabase.from("app_ai_chat_log").insert({
+    user_id: entry.userId,
+    role_id: entry.roleId,
+    agent_id: entry.agentId,
+    user_message: entry.userMessage,
+    assistant_message: entry.assistantMessage,
+    tool_calls: entry.toolCalls,
+  });
+  if (error?.code === "42P01") return;
+  if (error) console.error("AI chat log failed", error);
+}

@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { AuthSession } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
 import { canAccessWindow } from "@/lib/access/catalog";
+import { agentIdsForRole } from "@/lib/ai/seed";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
@@ -11,6 +12,7 @@ import {
   fetchUsers,
   resolveRoleAccess,
 } from "@/lib/supabase/access-api";
+import { resolveRoleAgentIds } from "@/lib/ai/agents-api";
 
 export const SESSION_COOKIE = "abilityapp_session";
 const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
@@ -106,7 +108,9 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
       if (!user?.active || !role?.active || !user.roleIds.includes(roleId)) return null;
       const mergedRole = withSeedTaskAccess(role);
       const access = await resolveRoleAccess(supabase, roleId);
+      const agentIds = await resolveRoleAgentIds(supabase, roleId);
       const merged = withSeedTaskAccess({ ...mergedRole, ...access });
+      const resolvedAgentIds = agentIds.length ? agentIds : agentIdsForRole(roleId);
       return {
         userId: user.id,
         username: user.username,
@@ -118,6 +122,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
         processIds: merged.processIds,
         reportIds: merged.reportIds ?? [],
         taskTypePermissions: merged.taskTypePermissions,
+        agentIds: resolvedAgentIds,
       };
     } catch {
       return null;
@@ -139,6 +144,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
     processIds: merged.processIds,
     reportIds: merged.reportIds ?? [],
     taskTypePermissions: merged.taskTypePermissions,
+    agentIds: agentIdsForRole(roleId),
   };
 }
 
