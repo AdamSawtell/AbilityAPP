@@ -67,7 +67,7 @@ export const INCIDENT_DEPENDENT_WINDOWS = buildDetailWindows(
   "incidents",
   "incident",
   INCIDENT_DETAIL_TABS,
-  "Core",
+  "People",
   "Incident Report"
 );
 
@@ -75,7 +75,7 @@ export const INCIDENT_EXTRA_WINDOWS: AccessWindow[] = [
   {
     key: "incidents-compliance",
     label: "NDIS compliance",
-    group: "Core",
+    group: "People",
     href: "/incidents/compliance",
     parentWindowKey: "incidents",
     abilityErpName: "Incident Report — NDIS compliance",

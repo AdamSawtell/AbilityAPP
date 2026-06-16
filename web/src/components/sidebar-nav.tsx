@@ -344,6 +344,7 @@ export function SidebarNav() {
     if (key === "locations" && pathname.startsWith("/locations")) return true;
     if (key === "people" && (pathname.startsWith("/employees") || pathname.startsWith("/workforce-planning")))
       return true;
+    if (key === "incidents" && pathname.startsWith("/incidents")) return true;
     if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
@@ -473,37 +474,10 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {showIncidents ? (
-        <div className={sectionDividerClass(hasCoreNav || showEnquiries || showClients)}>
-          <TopNavLink
-            href="/incidents"
-            active={pathname.startsWith("/incidents")}
-            icon={<NavIcon name="incident" />}
-            label="Incident reports"
-            badge={incidentBadge > 0 ? incidentBadge : undefined}
-            badgeUrgent={incidentBadge > 0}
-          />
-          <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
-            <Link href="/incidents" className={subLinkClass(pathname === "/incidents")}>
-              All incidents
-            </Link>
-            {canWindow("incidents-compliance") ? (
-              <Link
-                href="/incidents/compliance"
-                className={subLinkClass(pathname.startsWith("/incidents/compliance"))}
-              >
-                NDIS compliance
-                {incidentBadge > 0 ? ` (${incidentBadge})` : ""}
-              </Link>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
       {showLocations ? (
         <div
           className={sectionDividerClass(
-            hasCoreNav || showEnquiries || showClients || showIncidents
+            hasCoreNav || showEnquiries || showClients
           )}
         >
           <SectionHeader
@@ -604,10 +578,54 @@ export function SidebarNav() {
         </div>
       ) : null}
 
+      {showIncidents ? (
+        <div
+          className={sectionDividerClass(
+            hasCoreNav ||
+              showEnquiries ||
+              showClients ||
+              showLocations ||
+              visiblePeopleLinks.length > 0
+          )}
+        >
+          <SectionHeader
+            label="Incident reports"
+            icon={<NavIcon name="incident" />}
+            sectionKey="incidents"
+            open={isOpen("incidents")}
+            onToggle={toggleSection}
+            href="/incidents"
+            active={pathname.startsWith("/incidents")}
+            badge={incidentBadge > 0 ? incidentBadge : undefined}
+          />
+          {isOpen("incidents") ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              <Link href="/incidents" className={subLinkClass(pathname === "/incidents")}>
+                All incidents
+              </Link>
+              {canWindow("incidents-compliance") ? (
+                <Link
+                  href="/incidents/compliance"
+                  className={subLinkClass(pathname.startsWith("/incidents/compliance"))}
+                >
+                  NDIS compliance
+                  {incidentBadge > 0 ? ` (${incidentBadge} overdue)` : ""}
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {visibleServiceLinks.length > 0 ? (
         <div
           className={sectionDividerClass(
-            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0
+            hasCoreNav ||
+              showEnquiries ||
+              showClients ||
+              showLocations ||
+              visiblePeopleLinks.length > 0 ||
+              showIncidents
           )}
         >
           <SectionHeader
@@ -653,7 +671,8 @@ export function SidebarNav() {
               showClients ||
               showLocations ||
               visiblePeopleLinks.length > 0 ||
-              visibleServiceLinks.length > 0
+              visibleServiceLinks.length > 0 ||
+              showIncidents
           )}
         >
           <SectionHeader
