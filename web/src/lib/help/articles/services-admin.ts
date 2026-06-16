@@ -1,0 +1,203 @@
+import type { HelpArticle } from "@/lib/help/types";
+
+export const servicesArticle: HelpArticle = {
+  id: "article-services",
+  slug: "services",
+  title: "Services catalog",
+  summary: "Products, price lists, contracts, and service agreements for NDIS billing and delivery.",
+  category: "Services",
+  keywords: ["product", "price list", "contract", "service agreement", "NDIS", "pricing", "lines"],
+  relatedRoutes: ["/products", "/price-lists", "/contracts", "/service-agreements"],
+  windowKeys: ["products", "price-lists", "contracts", "service-agreements"],
+  lastUpdated: "2025-06-15",
+  sections: [
+    {
+      id: "products",
+      title: "Products",
+      body: "Products define NDIS and internal service items. Each product has Overview fields and a Pricing tab for rate details.",
+      relatedRoutes: ["/products"],
+      windowKeys: ["products"],
+    },
+    {
+      id: "price-lists",
+      title: "Price lists",
+      body: "Price lists group product lines with effective dates and amounts. Use Overview for header fields and Lines for the rate table.",
+      relatedRoutes: ["/price-lists"],
+      windowKeys: ["price-lists"],
+    },
+    {
+      id: "contracts",
+      title: "Contracts",
+      body: "Contracts capture agreements with third parties or funders. Use the Overview and Audit tabs; Audit holds change history lines.",
+      steps: [
+        "Open Services → Contracts.",
+        "Click New contract.",
+        "Complete Overview and save.",
+        "Review Audit lines after significant changes.",
+      ],
+      relatedRoutes: ["/contracts", "/contracts/new"],
+      windowKeys: ["contracts"],
+    },
+    {
+      id: "service-agreements",
+      title: "Service agreements",
+      body: "Service agreements connect a client to funded service lines. Open from the client record or from All service agreements under Clients in the sidebar.",
+      bullets: [
+        "Overview: header, dates, and status",
+        "Lines: individual service rows with product and quantity",
+      ],
+      relatedRoutes: ["/service-agreements"],
+      windowKeys: ["service-agreements"],
+    },
+  ],
+};
+
+export const reportsArticle: HelpArticle = {
+  id: "article-reports",
+  slug: "reports",
+  title: "Reports",
+  summary: "Export registers and run the Reports Advance SQL console when authorised.",
+  category: "Reports",
+  keywords: ["report", "export", "csv", "register", "sql", "reports advance"],
+  relatedRoutes: ["/reports", "/reports/advance"],
+  windowKeys: ["reports"],
+  lastUpdated: "2025-06-15",
+  sections: [
+    {
+      id: "report-catalog",
+      title: "Report catalog",
+      body: "Open Reports from the sidebar. Each report card describes columns and export format. Your role controls which reports you can run.",
+      bullets: [
+        "Client register: demographics, funding, risk, location counts",
+        "Enquiry register: intake listing and activity counts",
+        "Location register: sites with linked client, staff, and service counts",
+        "Employee register: staff listing with compliance counts",
+        "Tasks — all: full task export",
+      ],
+      relatedRoutes: ["/reports"],
+    },
+    {
+      id: "run-export",
+      title: "Run an export",
+      steps: [
+        "Open Reports and pick a report.",
+        "Review the description and column limit of up to 20 columns.",
+        "Click Export CSV to download the file.",
+      ],
+    },
+    {
+      id: "reports-advance",
+      title: "Reports Advance",
+      body: "Reports Advance is a read-only SQL console for authorised administrators. Use it only when your organisation policy allows ad hoc queries. SELECT statements return a capped row set.",
+      relatedRoutes: ["/reports/advance"],
+      windowKeys: ["reports-advance"],
+    },
+  ],
+};
+
+export const adminArticle: HelpArticle = {
+  id: "article-admin",
+  slug: "administration",
+  title: "Administration",
+  summary: "Organisation settings, reference data, roles, users, and task types.",
+  category: "Admin",
+  keywords: ["admin", "organisation", "reference data", "roles", "users", "task management", "access"],
+  relatedRoutes: [
+    "/admin/organization",
+    "/admin/reference-data",
+    "/admin/roles",
+    "/admin/task-management",
+  ],
+  windowKeys: [
+    "admin-organization",
+    "admin-reference-data",
+    "admin-roles",
+    "admin-task-management",
+  ],
+  lastUpdated: "2025-06-15",
+  sections: [
+    {
+      id: "organisation",
+      title: "Organisation",
+      body: "Set display name, logo URL, and organisation contact details. The logo appears in the sidebar header.",
+      relatedRoutes: ["/admin/organization"],
+      windowKeys: ["admin-organization"],
+    },
+    {
+      id: "reference-data",
+      title: "Reference data",
+      body: "Maintain dropdown values and system lists used across modules, such as statuses, types, and categories. Changes flow to new records immediately.",
+      relatedRoutes: ["/admin/reference-data"],
+      windowKeys: ["admin-reference-data"],
+    },
+    {
+      id: "roles",
+      title: "Roles",
+      body: "Roles bundle window access, business processes, report ids, and task type permissions. Assign roles to users under Admin → Users.",
+      bullets: [
+        "Windows control sidebar items and record tabs",
+        "Processes control actions like enquiry-to-client",
+        "Reports control the report catalog",
+        "Task types control who can create and complete each task type",
+      ],
+      relatedRoutes: ["/admin/roles"],
+      windowKeys: ["admin-roles"],
+    },
+    {
+      id: "users",
+      title: "Users and logins",
+      body: "User accounts link to employee records on the System access tab. Assign roles per user from Admin → Roles. Password and login management follow your organisation security policy.",
+      relatedRoutes: ["/admin/roles", "/employees"],
+      windowKeys: ["admin-roles", "employee-system-access"],
+    },
+    {
+      id: "task-management",
+      title: "Task management",
+      body: "Define task types such as Review, Check, Approve, and custom types used when creating tasks.",
+      relatedRoutes: ["/admin/task-management"],
+      windowKeys: ["admin-task-management"],
+    },
+  ],
+};
+
+export const maintainingGuideArticle: HelpArticle = {
+  id: "article-maintaining-guide",
+  slug: "maintaining-this-guide",
+  title: "Maintaining this guide",
+  summary: "How developers add help articles when shipping new windows, tabs, or processes.",
+  category: "Reference",
+  keywords: ["help", "documentation", "chatbot", "ai", "rag", "contributor", "developer"],
+  relatedRoutes: ["/help"],
+  windowKeys: [],
+  lastUpdated: "2025-06-15",
+  sections: [
+    {
+      id: "when-to-update",
+      title: "When to update help",
+      body: "Add or update a help article whenever you ship a new sidebar window, record tab, report, admin screen, or user-facing workflow. Help content lives in web/src/lib/help/articles/ and is the single source for in-app help and the future AI assistant.",
+      bullets: [
+        "New workflow: add a Quick tasks article with a how-do-I title, or extend a module guide",
+        "New tab: add a section with windowKeys matching the access catalog",
+        "Changed navigation: update Navigation and workspace",
+      ],
+    },
+    {
+      id: "article-structure",
+      title: "Article structure for humans and AI",
+      body: "Each article uses stable ids, plain-text sections, keywords, and relatedRoutes. The API at /api/help exposes a manifest, full articles, and search chunks for retrieval.",
+      bullets: [
+        "id and slug must stay stable once published",
+        "section id is used for anchors and chunk ids",
+        "keywords improve search and future embeddings",
+        "windowKeys filter articles for roles that lack access",
+        "Register new articles in web/src/lib/help/articles/index.ts",
+      ],
+    },
+    {
+      id: "api",
+      title: "Help API",
+      body: "GET /api/help returns the manifest. GET /api/help?slug=tasks returns one article. GET /api/help?q=consent&format=chunks returns ranked chunks for chatbot retrieval.",
+      relatedRoutes: ["/api/help"],
+    },
+  ],
+};

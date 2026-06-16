@@ -39,3 +39,11 @@ cd web
 npm run build
 npm run lint
 ```
+
+## In-app help (required for new UI)
+
+User-facing how-to content lives in `web/src/lib/help/articles/`. Update it when you add windows, tabs, reports, or workflows.
+
+1. Add or extend an article with stable `id`, `slug`, `keywords`, and `windowKeys`.
+2. Register the article in `web/src/lib/help/articles/index.ts`.
+3. The UI is at `/help`; the retrieval API is `GET /api/help` (manifest, `?slug=`, `?q=` with `format=chunks` for AI).
