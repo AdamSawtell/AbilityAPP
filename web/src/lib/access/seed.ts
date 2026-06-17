@@ -1,6 +1,7 @@
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import { INITIAL_TASK_TYPES, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
 import { bulkStaffUserLinks } from "@/lib/employee-bulk-seed";
+import { leadershipUsersFromLinks } from "@/lib/access/leadership-login-seed";
 import {
   adminRole,
   boardAccess,
@@ -227,6 +228,7 @@ export const SEED_USERS: AppUserRecord[] = [
     notes: "Rostering manager",
     roleIds: ["role-rostering-manager"],
   },
+  ...leadershipUsersFromLinks(),
   ...bulkStaffUserLinks.map((link) => ({
     id: link.userId,
     username: link.username,

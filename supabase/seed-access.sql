@@ -41,6 +41,19 @@ values
   ('user-exec-ict', 'SamRivera', 'sam.rivera@abilityerp.local', 'Sam', 'Rivera', '', true, 'emp-exec-ict', 'ICT executive'),
   ('user-exec-quality', 'MargaretHolt', 'margaret.holt@abilityerp.local', 'Margaret', 'Holt', '', true, 'emp-exec-quality', 'Quality executive'),
   ('user-rostering-mgr', 'RileyShaw', 'riley.shaw@abilityerp.local', 'Riley', 'Shaw', '', true, 'emp-rostering-manager', 'Rostering manager'),
+  ('user-board', 'EleanorWright', 'eleanor.wright@abilityerp.local', 'Eleanor', 'Wright', '', true, 'emp-board-chair', 'Board chair seed login'),
+  ('user-hr-manager', 'SandraBlake', 'sandra.blake@abilityerp.local', 'Sandra', 'Blake', '', true, 'emp-hr-manager', 'HR manager'),
+  ('user-hr-officer', 'CalebMurphy', 'caleb.murphy@abilityerp.local', 'Caleb', 'Murphy', '', true, 'emp-staff-146', 'HR officer'),
+  ('user-ict-manager', 'AlexKim', 'alex.kim@abilityerp.local', 'Alex', 'Kim', '', true, 'emp-ict-manager', 'ICT manager'),
+  ('user-ict-officer', 'JordanLee', 'jordan.lee@abilityerp.local', 'Jordan', 'Lee', '', true, 'emp-ict-officer', 'ICT officer'),
+  ('user-quality-manager', 'QuinnTaylor', 'quinn.taylor@abilityerp.local', 'Quinn', 'Taylor', '', true, 'emp-quality-manager', 'Quality manager'),
+  ('user-quality-officer', 'AudreyPatel', 'audrey.patel@abilityerp.local', 'Audrey', 'Patel', '', true, 'emp-staff-145', 'Quality officer'),
+  ('user-rostering-officer', 'MorganBlake', 'morgan.blake@abilityerp.local', 'Morgan', 'Blake', '', true, 'emp-rostering-officer', 'Rostering officer'),
+  ('user-finance-manager', 'TessaNguyen', 'tessa.nguyen@abilityerp.local', 'Tessa', 'Nguyen', '', true, 'emp-finance-manager', 'Finance manager'),
+  ('user-jessica', 'JessicaHancock', 'jessica.hancock@abilityerp.local', 'Jessica', 'Hancock', '', true, 'emp-jessica', 'Contract administrator'),
+  ('user-finance-officer', 'NaomiSingh', 'naomi.singh@abilityerp.local', 'Naomi', 'Singh', '', true, 'emp-staff-147', 'Finance officer'),
+  ('user-rose', 'RoseDash', 'rose.dash@abilityerp.local', 'Rose', 'Dash', '', true, 'emp-rose', 'Plan developer'),
+  ('user-oliver', 'OliverWilliams', 'oliver.williams@abilityerp.local', 'Oliver', 'Williams', '', true, 'emp-oliver', 'Support worker (legacy slot)'),
   ('user-sw-01', 'AvaThomas', 'avathomas@abilityerp.local', 'Ava', 'Thomas', '', true, 'emp-sw-001', 'Bulk seed support worker login'),
   ('user-sw-02', 'NoahJackson', 'noahjackson@abilityerp.local', 'Noah', 'Jackson', '', true, 'emp-sw-002', 'Bulk seed support worker login'),
   ('user-sw-03', 'MiaWhite', 'miawhite@abilityerp.local', 'Mia', 'White', '', true, 'emp-sw-003', 'Bulk seed support worker login'),
@@ -68,6 +81,19 @@ values
   ('user-exec-ict', 'role-exec-ict'),
   ('user-exec-quality', 'role-exec-quality'),
   ('user-rostering-mgr', 'role-rostering-manager'),
+  ('user-board', 'role-board'),
+  ('user-hr-manager', 'role-hr-manager'),
+  ('user-hr-officer', 'role-hr-officer'),
+  ('user-ict-manager', 'role-ict-manager'),
+  ('user-ict-officer', 'role-ict-officer'),
+  ('user-quality-manager', 'role-quality-manager'),
+  ('user-quality-officer', 'role-quality-officer'),
+  ('user-rostering-officer', 'role-rostering-officer'),
+  ('user-finance-manager', 'role-finance-manager'),
+  ('user-jessica', 'role-finance-officer'),
+  ('user-finance-officer', 'role-finance-officer'),
+  ('user-rose', 'role-coordinator'),
+  ('user-oliver', 'role-support-worker'),
   ('user-sw-01', 'role-support-worker'),
   ('user-sw-02', 'role-support-worker'),
   ('user-sw-03', 'role-support-worker'),
@@ -1707,3 +1733,39 @@ values
   ('role-support-worker', 'tt-review', true, true, true)
 on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;
+
+-- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)
+update public.app_user set password = '$2b$10$GEW6eEMQx8BB9e3.MOhzG.Tltw5dnka2j8sBDB7vjANqIJntxplQi' where username = 'SuperUser';
+update public.app_user set password = '$2b$10$MuJWazuBi0IJNwvqsawmo./6sz2cfOGX5iSSBej3XxnnLUadxlLWS' where username = 'PatriciaChen';
+update public.app_user set password = '$2b$10$bLZCnspqNYfwj5xkNJ21RukQsHCXi3dmbX1LFYkrdItoftRilw2z6' where username = 'MichaelSmith';
+update public.app_user set password = '$2b$10$e8FO5iegBEcFaRIVVCRiiuOihC7vFuKofSXUBp2F93LurIdApxaF.' where username = 'PiperCollins';
+update public.app_user set password = '$2b$10$YV1xdU8rMoUYuXzAlPncrOuAq7YxyOb.N5TGdbysVEh02wdyjmSPi' where username = 'IslaRobinson';
+update public.app_user set password = '$2b$10$GJKqHhw3T/VXKOJWa6wxZeYaUGs9JAwIvKeqE9CYPXcPgyqkPOw0y' where username = 'GabrielaWilson';
+update public.app_user set password = '$2b$10$CsGsss2F/L0e5WErNrf9AuHpS8bG1waHYYcV.Embm7j22mncay6FC' where username = 'DianeFoster';
+update public.app_user set password = '$2b$10$0QnrDlnhoPFB4Dc.YNGZHeMxBP.1immUOMHXP6U6VFHI..HhQdoLq' where username = 'JamesWhitford';
+update public.app_user set password = '$2b$10$l/MvJxOPGxXgaXwF9DfS6us3DOgncRA01iZTHCt9/OUPhxbNAUTQO' where username = 'SamRivera';
+update public.app_user set password = '$2b$10$biAM59l.3yDmt8AJN6Riy.Q6gAVTHPO0Wx0atxSgY1CbBiyfCChcq' where username = 'MargaretHolt';
+update public.app_user set password = '$2b$10$oWEBW8t3lgjCZdu2LDt3iO.TFRLT8rxAdwwDu6kmpGAATVT1X5JQC' where username = 'RileyShaw';
+update public.app_user set password = '$2b$10$iiJE8Y4ptZC/oEvyY6tbGeE5JWM/Sqh.Q1w1Ajm10KP4nqtDeXK3G' where username = 'EleanorWright';
+update public.app_user set password = '$2b$10$ird.o8mTGRZ731zxQXbdleLx/3YN6O5MRkeWH5emUeO/DmqgcLEGO' where username = 'SandraBlake';
+update public.app_user set password = '$2b$10$W6ZIBhZutGjTy4m4FgwnV.uZCuf/MnfSkBAq7Kg54qKYf3s3PXcKG' where username = 'CalebMurphy';
+update public.app_user set password = '$2b$10$q6EjY4brx3PYVSAmjAxIGe.3xRxC9Wn39bp4USBK17nFPsYFKU6fi' where username = 'AlexKim';
+update public.app_user set password = '$2b$10$wK56Pv49TtyuENKV6EZ5P.0Fp.3uTz6mgTlMfzDMoYNq/0Xw00Q4.' where username = 'JordanLee';
+update public.app_user set password = '$2b$10$TMjdM0RqO7vpTnnpClNjaeb8bgD1ZKD6gRFGGlgMivZtUa9m4kElK' where username = 'QuinnTaylor';
+update public.app_user set password = '$2b$10$Cz3/vs.juRCW5HArVFI/SuAE42WxWLBjCNwAKpNK9OZBsREjsXEGu' where username = 'AudreyPatel';
+update public.app_user set password = '$2b$10$UyfUO3lO4UNZJDRnWvJGY.vTIcoSzHUuK9I32KyGQalIaru/uMIKu' where username = 'MorganBlake';
+update public.app_user set password = '$2b$10$pqXbm0JmWS3w6ZqLcxYUy.4rPtgl4XYZjLBykYY4jSYN.j2dvNvMS' where username = 'TessaNguyen';
+update public.app_user set password = '$2b$10$9syr3jcx35HMF1JFH.D2Fe.IA2z9GcAuvqbaACDL9/ELjfI11V72e' where username = 'JessicaHancock';
+update public.app_user set password = '$2b$10$iQyyfwmOGjyq32AQnRBPW.B1eK6Gh6GalA/nayhB.BOXEV1UNRtQ2' where username = 'NaomiSingh';
+update public.app_user set password = '$2b$10$EClLZsoxrYK6m4vr3sE25eCsBofvPMmWwJI0q1uU9thWuVK0XnfLq' where username = 'RoseDash';
+update public.app_user set password = '$2b$10$cMBnjRj3rebup0MvuzieuuDGrepZBz0/VZX3Mk.CNzyS4jMF6DlMO' where username = 'OliverWilliams';
+update public.app_user set password = '$2b$10$SDO3qa1y6z5ya0pzEE4ksu4MmqSI5DA3ix187TQl32G2hTL5S5.i.' where username = 'AvaThomas';
+update public.app_user set password = '$2b$10$NVT6T2eQD4rzCcvVjbmPxuqfSaKX3ERAizkxWJJfwyfGk6nnftpJW' where username = 'NoahJackson';
+update public.app_user set password = '$2b$10$ViQ824u1ZtAM9lFkocTSmeh1Fy0ODLy1HPh5.7q4Yvhjx17F15cM.' where username = 'MiaWhite';
+update public.app_user set password = '$2b$10$VrxVEDZjM92ht2RdAByeZeIiahK3P5Pi/jylADhaxBffB022FvO9q' where username = 'LiamHarris';
+update public.app_user set password = '$2b$10$w/73DZsJfcp9gTUytci2AujnqrOAMm580UqkSGIQVrbcmxEdxu/dK' where username = 'ZoeMartin';
+update public.app_user set password = '$2b$10$S8bPwNgNLlXzM41sCp6rZOWIQCxA6ygE0DbvABWV5x99Mv6mEeCWq' where username = 'EthanThompson';
+update public.app_user set password = '$2b$10$JMW5nSyig9CgVxtBfGRfFuCKqsP7qcMKTTS/YeGdc4CqY8jVWs/Za' where username = 'ChloeGarcia';
+update public.app_user set password = '$2b$10$njn9sTg7.3CUKVCK5NmyXOVtEDJS.V/Hj0g5rQn9WrEl.IqRMMcn.' where username = 'MasonRobinson';
+update public.app_user set password = '$2b$10$0qJq9AFEhRwx7Er6mv3dFecSolI6Fq1/cAwLkLXF/uiuC5NH7KW6i' where username = 'RubyClark';
+update public.app_user set password = '$2b$10$ngFqdMo.8mAfLqHXnXp2YulGFaGjBjGbbu/V60ymtEPL5M3x6bAWS' where username = 'LucasLewis';

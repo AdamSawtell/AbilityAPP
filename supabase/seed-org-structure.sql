@@ -8,7 +8,7 @@ insert into public.org_position (
   id, title, security_role_id, department, business_area, location_id, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
 ) values
   ('pos-org-root', 'Organisation', null, '', '', null, null, 0, 'filled', '', '', null),
-  ('pos-board', 'Board', 'role-board', 'Executive', 'Executive', 'loc-adelaide-hub', 'pos-org-root', 5, 'vacant', 'Adelaide HQ', 'CC-EXEC', null),
+  ('pos-board', 'Board', 'role-board', 'Executive', 'Executive', 'loc-adelaide-hub', 'pos-org-root', 5, 'filled', 'Adelaide HQ', 'CC-EXEC', 'emp-board-chair'),
   ('pos-ceo', 'Chief Executive Officer', 'role-ceo', 'Executive', 'Executive', 'loc-adelaide-hub', 'pos-org-root', 10, 'filled', 'Adelaide HQ', 'CC-EXEC', 'emp-ceo'),
   ('pos-exec-ops', 'Operations Executive', 'role-exec-operations', 'Operations', 'Operations', 'loc-adelaide-hub', 'pos-ceo', 10, 'filled', 'Adelaide HQ', 'CC-OPS', 'emp-michael'),
   ('pos-gm-ops', 'Operations Manager — Service delivery', 'role-team-leader', 'Operations', 'Operations', 'loc-adelaide-hub', 'pos-exec-ops', 20, 'filled', 'Adelaide HQ', 'CC-OPS', 'emp-staff-133'),
@@ -54,6 +54,7 @@ insert into public.position_assignment (
   ('pa-rose-primary', 'pos-plan-dev', 'emp-rose', 'primary', '2017-11-20', null, ''),
   ('pa-jessica-primary', 'pos-contracts', 'emp-jessica', 'primary', '2022-02-01', null, ''),
   ('pa-finance-off-147', 'pos-finance-officer', 'emp-staff-147', 'primary', '2023-11-20', null, ''),
+  ('pa-board-primary', 'pos-board', 'emp-board-chair', 'primary', '2016-05-01', null, ''),
   ('pa-ceo-primary', 'pos-ceo', 'emp-ceo', 'primary', '2015-03-01', null, ''),
   ('pa-exec-ops-primary', 'pos-exec-ops', 'emp-michael', 'primary', '2018-01-10', null, ''),
   ('pa-gm-ops-primary', 'pos-gm-ops', 'emp-staff-133', 'primary', '2021-09-06', null, ''),

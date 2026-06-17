@@ -106,11 +106,12 @@ export const workforceOrganisationArticle: HelpArticle = {
     {
       id: "holder-login-role",
       title: "Align holders with login roles",
-      body: "A position’s security role defines what someone in that slot should be able to do in the app. The holder also needs a linked user in Admin → Users with that role assigned.\n\nAbilityAPP warns (but does not block) when these are out of sync — on the chart, in the position editor, and when you confirm a holder change.",
+      body: "A position’s security role defines what someone in that slot should be able to do in the app. The holder also needs a linked user in Admin → Users with that role assigned.\n\nAbilityAPP warns (but does not block) when these are out of sync — on the chart, in the position editor, and when you confirm a holder change. Use the fix button to add the missing role or create a login (default password welcome).",
       bullets: [
         "Chart cards show login role mismatch when the primary or acting holder’s user roles do not include the position security role.",
         "Employees with no linked user are flagged — common for staff who do not log in.",
-        "Fix mismatches in Admin → Users by linking the employee and assigning the matching role.",
+        "Click Add role to login or Create login with role on the warning — requires Organisation structure — edit or Admin → Users access.",
+        "Board chair Eleanor Wright (EleanorWright) and all manager/officer seed logins use password welcome unless noted.",
       ],
       relatedRoutes: ["/admin/users", "/workforce-planning/organisation"],
     },

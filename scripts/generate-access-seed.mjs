@@ -3,13 +3,19 @@
  * Run: cd web && npx tsx ../scripts/generate-access-seed.mjs
  */
 import { writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(join(root, "web", "package.json"));
+const bcrypt = require("bcryptjs");
 
 const { SEED_USERS, SEED_ROLES } = await import(
   pathToFileURL(join(root, "web", "src", "lib", "access", "seed.ts")).href
+);
+const { SEED_LOGIN_PASSWORDS } = await import(
+  pathToFileURL(join(root, "web", "src", "lib", "auth", "passwords.server.ts")).href
 );
 
 function sqlString(value) {
@@ -109,6 +115,16 @@ if (roleTaskTypes.length) {
   );
   lines.push("on conflict (role_id, task_type_id) do update set");
   lines.push("  can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;");
+}
+lines.push("");
+
+lines.push("-- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)");
+for (const user of SEED_USERS) {
+  const plain = SEED_LOGIN_PASSWORDS[user.username] ?? "welcome";
+  const hash = bcrypt.hashSync(plain, 10);
+  lines.push(
+    `update public.app_user set password = ${sqlString(hash)} where username = ${sqlString(user.username)};`
+  );
 }
 
 writeFileSync(join(root, "supabase", "seed-access.sql"), lines.join("\n"), "utf8");

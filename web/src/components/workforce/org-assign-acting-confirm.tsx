@@ -17,6 +17,10 @@ export function OrgAssignActingConfirmDialog({
   employeeNameById,
   users,
   roles,
+  canFix,
+  onFixAlignment,
+  fixingAlignment,
+  fixedAlignment,
   onConfirm,
   onCancel,
 }: {
@@ -25,6 +29,10 @@ export function OrgAssignActingConfirmDialog({
   employeeNameById: Map<string, string>;
   users: AppUserRecord[];
   roles: AppRoleRecord[];
+  canFix?: boolean;
+  onFixAlignment?: () => void | Promise<void>;
+  fixingAlignment?: boolean;
+  fixedAlignment?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -85,7 +93,14 @@ export function OrgAssignActingConfirmDialog({
         </p>
         {alignmentIssue ? (
           <div className="mt-3">
-            <HolderRoleAlignmentAlert issue={alignmentIssue} label="Login role mismatch" />
+            <HolderRoleAlignmentAlert
+              issue={alignmentIssue}
+              label="Login role mismatch"
+              canFix={canFix}
+              onFix={onFixAlignment}
+              fixing={fixingAlignment}
+              fixed={fixedAlignment}
+            />
           </div>
         ) : null}
         <div className="mt-5 flex justify-end gap-2">

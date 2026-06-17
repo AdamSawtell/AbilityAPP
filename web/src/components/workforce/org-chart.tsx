@@ -36,7 +36,10 @@ import {
 import type { OrgChartDisplayItem } from "@/lib/org-chart-layout";
 import { layoutOrgChildren } from "@/lib/org-chart-layout";
 import { checkHolderRoleAlignment, positionHolderAlignmentIssues } from "@/lib/org-position-role-alignment";
-import { HolderRoleAlignmentAlert } from "@/components/workforce/holder-role-alignment-alert";
+import {
+  HolderRoleAlignmentAlert,
+  useFixHolderRoleAlignment,
+} from "@/components/workforce/holder-role-alignment-alert";
 
 const toneClasses = {
   emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
@@ -547,8 +550,13 @@ export function OrgPositionEditor({
   const { positions, assignments, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
+  const canManageAccess =
+    canEdit || canWindow("employee-system-access") || canWindow("admin-roles");
 
   const activeRoles = useMemo(() => roles.filter((r) => r.active), [roles]);
+  const employeesById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
+  const { fix, fixingKey, fixedKeys, error: fixError, setError: setFixError } =
+    useFixHolderRoleAlignment(employeesById);
 
   const [pendingPrimary, setPendingPrimary] = useState<PendingPrimaryAssign | null>(null);
   const [pendingActing, setPendingActing] = useState<PendingActingAssign | null>(null);
@@ -575,8 +583,10 @@ export function OrgPositionEditor({
     );
   }
 
+  const currentPosition = position;
+
   function patch(partial: Partial<OrgPositionRecord>) {
-    upsertPosition({ ...position!, ...partial });
+    upsertPosition({ ...currentPosition, ...partial });
   }
 
   function confirmPrimaryAssign() {
@@ -600,12 +610,35 @@ export function OrgPositionEditor({
   }
 
   const { primary: primaryAlign, acting: actingAlign } = positionHolderAlignmentIssues(
-    position,
+    currentPosition,
     actingEmployeeId,
     users,
     roles,
     employeeNameById
   );
+
+  function alignmentKey(issue: NonNullable<typeof primaryAlign>) {
+    return `${issue.employeeId}:${issue.requiredRoleId ?? issue.kind}`;
+  }
+
+  function pendingAlignmentFor(employeeId: string) {
+    const securityRoleId = currentPosition.securityRoleId;
+    if (!employeeId || !securityRoleId) return null;
+    return checkHolderRoleAlignment({
+      employeeId,
+      employeeName: employeeNameById.get(employeeId) ?? employeeId,
+      requiredRoleId: securityRoleId,
+      users,
+      roles,
+    });
+  }
+
+  const pendingPrimaryAlign = pendingPrimary?.employeeId
+    ? pendingAlignmentFor(pendingPrimary.employeeId)
+    : null;
+  const pendingActingAlign = pendingActing?.employeeId
+    ? pendingAlignmentFor(pendingActing.employeeId)
+    : null;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -750,13 +783,30 @@ export function OrgPositionEditor({
           </label>
         ) : null}
 
-        {!isRoot && (primaryAlign || actingAlign) ? (
+        {!isRoot && (primaryAlign || actingAlign || fixError) ? (
           <div className="space-y-2">
+            {fixError ? (
+              <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-900">{fixError}</p>
+            ) : null}
             {primaryAlign ? (
-              <HolderRoleAlignmentAlert issue={primaryAlign} label="Primary holder — login role" />
+              <HolderRoleAlignmentAlert
+                issue={primaryAlign}
+                label="Primary holder — login role"
+                canFix={canManageAccess}
+                fixing={fixingKey === alignmentKey(primaryAlign)}
+                fixed={fixedKeys.has(alignmentKey(primaryAlign))}
+                onFix={() => fix(primaryAlign).then(() => setFixError(""))}
+              />
             ) : null}
             {actingAlign ? (
-              <HolderRoleAlignmentAlert issue={actingAlign} label="Acting holder — login role" />
+              <HolderRoleAlignmentAlert
+                issue={actingAlign}
+                label="Acting holder — login role"
+                canFix={canManageAccess}
+                fixing={fixingKey === alignmentKey(actingAlign)}
+                fixed={fixedKeys.has(alignmentKey(actingAlign))}
+                onFix={() => fix(actingAlign).then(() => setFixError(""))}
+              />
             ) : null}
           </div>
         ) : null}
@@ -859,6 +909,12 @@ export function OrgPositionEditor({
           employeeNameById={employeeNameById}
           users={users}
           roles={roles}
+          canFix={canManageAccess}
+          onFixAlignment={
+            pendingPrimaryAlign ? () => fix(pendingPrimaryAlign).then(() => setFixError("")) : undefined
+          }
+          fixingAlignment={pendingPrimaryAlign ? fixingKey === alignmentKey(pendingPrimaryAlign) : false}
+          fixedAlignment={pendingPrimaryAlign ? fixedKeys.has(alignmentKey(pendingPrimaryAlign)) : false}
           onConfirm={confirmPrimaryAssign}
           onCancel={() => setPendingPrimary(null)}
         />
@@ -870,6 +926,12 @@ export function OrgPositionEditor({
           employeeNameById={employeeNameById}
           users={users}
           roles={roles}
+          canFix={canManageAccess}
+          onFixAlignment={
+            pendingActingAlign ? () => fix(pendingActingAlign).then(() => setFixError("")) : undefined
+          }
+          fixingAlignment={pendingActingAlign ? fixingKey === alignmentKey(pendingActingAlign) : false}
+          fixedAlignment={pendingActingAlign ? fixedKeys.has(alignmentKey(pendingActingAlign)) : false}
           onConfirm={confirmActingAssign}
           onCancel={() => setPendingActing(null)}
         />
