@@ -65,9 +65,7 @@ function forceRowLayoutForChildren(children: OrgPositionNode[]): boolean {
 
 function rowLayoutForItems(items: OrgChartDisplayItem[], childNodes: OrgPositionNode[]): boolean {
   if (items.some((item) => item.kind === "group")) return false;
-  if (forceRowLayoutForChildren(childNodes)) return true;
-  if (items.length >= 2) return true;
-  return items.length <= 1;
+  return forceRowLayoutForChildren(childNodes);
 }
 
 /**

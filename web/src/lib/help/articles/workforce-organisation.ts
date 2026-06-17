@@ -87,7 +87,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     {
       id: "chart-layout",
       title: "Reading a large chart",
-      body: "Peers at the same level appear side by side — board members, executives, and team leaders each form a row under their manager. The CEO sits on the row below the board.\n\nBoard members are peers under the Board of Directors container. Their reporting to the chair uses dotted lines (⋯→ on the card) so peers stay alongside while accountability to the chair is still visible.\n\nSupport workers (three or more under one team leader) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view for executive council or functional delivery lenses. Dotted lines show secondary accountability — escalation still follows the solid reporting line.",
+      body: "Peers at the same level appear side by side — board members, executives, and team leaders each form a row under their manager. Managers and officers stack vertically under their executive column.\n\nBoard members are peers under the Board of Directors container. Their reporting to the chair uses dotted lines (⋯→ on the card) so peers stay alongside while accountability to the chair is still visible.\n\nAfter drag-and-drop reparent, the chart scrolls to the moved position. If the editor already shows the correct parent but the chart did not move, the position may already report there — or refresh the page.\n\nSupport workers (three or more under one team leader) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view for executive council or functional delivery lenses. Scroll sideways on wide tiers.",
       relatedRoutes: ["/workforce-planning/organisation"],
     },
     {

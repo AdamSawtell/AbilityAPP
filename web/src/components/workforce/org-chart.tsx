@@ -605,6 +605,10 @@ export function OrgChart({
     [lensPositions, filters]
   );
   const tree = useMemo(() => buildOrgTree(filteredPositions), [filteredPositions]);
+  const treeLayoutKey = useMemo(
+    () => filteredPositions.map((p) => `${p.id}:${p.parentPositionId}`).join("|"),
+    [filteredPositions]
+  );
 
   const dottedTargetsByPositionId = useMemo(() => {
     const map = new Map<string, { title: string; label: string }[]>();
@@ -640,6 +644,12 @@ export function OrgChart({
       setDragId(null);
       return;
     }
+    const moving = positions.find((p) => p.id === dragId);
+    if (moving?.parentPositionId?.trim() === targetId) {
+      setError(`Already reports to ${positionTitleById.get(targetId) ?? "that position"}.`);
+      setDragId(null);
+      return;
+    }
     if (wouldCreateOrgCycle(positions, dragId, targetId)) {
       setError("Cannot move a position under one of its own descendants.");
       setDragId(null);
@@ -652,8 +662,14 @@ export function OrgChart({
 
   function confirmReparent() {
     if (!pendingReparent) return;
+    const movedId = pendingReparent.positionId;
     reparentPosition(pendingReparent.positionId, pendingReparent.newParentId);
     setPendingReparent(null);
+    onSelect(movedId);
+    requestAnimationFrame(() => {
+      const el = chartContainerRef.current?.querySelector(`[data-org-position-id="${movedId}"]`);
+      el?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    });
   }
 
   if (!tree.length) {
@@ -668,7 +684,8 @@ export function OrgChart({
     <div className="space-y-3">
       {canEdit ? (
         <p className="text-xs text-slate-500">
-          Use the grip (⋮⋮) to drag a position onto another, then confirm the reporting line change.
+          Drag the grip (⋮⋮) onto another position and confirm. Managers stack vertically under their
+          executive; scroll sideways on wide tiers. The editor panel shows the solid reporting line.
         </p>
       ) : null}
       {error ? (
@@ -682,14 +699,17 @@ export function OrgChart({
       ) : null}
       <div
         ref={chartContainerRef}
-        className="relative max-h-[70vh] overflow-x-auto overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-6"
+        className="relative min-h-[72vh] max-h-[85vh] overflow-x-auto overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-6"
       >
         <OrgChartDottedLines
           containerRef={chartContainerRef}
           lines={visibleReportingLines}
-          revision={`${chartRevision}-${visibleReportingLines.length}`}
+          revision={`${chartRevision}-${treeLayoutKey}-${visibleReportingLines.length}`}
         />
-        <div className="relative mx-auto flex w-max min-w-full flex-col items-center">
+        <div
+          key={treeLayoutKey}
+          className="relative mx-auto flex w-max min-w-[min(100%,72rem)] flex-col items-center px-2 pb-4"
+        >
           {tree.map((root) => (
             <OrgTreeBranch
               key={root.id}

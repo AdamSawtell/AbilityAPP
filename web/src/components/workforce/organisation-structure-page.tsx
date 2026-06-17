@@ -167,14 +167,18 @@ export function OrganisationStructurePage() {
               </p>
             ) : null}
           </div>
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-            <OrgChart selectedId={selectedId} onSelect={setSelectedId} filters={filters} lens={chartLens} />
-            <OrgPositionEditor
-              positionId={selectedId}
-              onClose={() => setSelectedId(null)}
-              onCreated={setSelectedId}
-              onSelectPosition={setSelectedId}
-            />
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
+            <div className="min-w-0 flex-1">
+              <OrgChart selectedId={selectedId} onSelect={setSelectedId} filters={filters} lens={chartLens} />
+            </div>
+            <div className="w-full shrink-0 xl:w-80">
+              <OrgPositionEditor
+                positionId={selectedId}
+                onClose={() => setSelectedId(null)}
+                onCreated={setSelectedId}
+                onSelectPosition={setSelectedId}
+              />
+            </div>
           </div>
         </div>
       )}
