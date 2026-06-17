@@ -1,5 +1,5 @@
-import { TaskManagementAdminView } from "@/components/admin/task-management-page";
+import { redirect } from "next/navigation";
 
-export default function SystemTaskManagementPage() {
-  return <TaskManagementAdminView variant="system" />;
+export default function SystemTasksTaskManagementRedirect() {
+  redirect("/system/admin/task-management");
 }

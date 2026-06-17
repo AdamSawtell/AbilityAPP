@@ -24,7 +24,7 @@ export const coreSystemSetupArticle: HelpArticle = {
     "/system/organization",
     "/system/reference-data/admin",
     "/system/admin/roles",
-    "/system/tasks/task-management",
+    "/system/admin/task-management",
     "/system/org-chart-tiers",
     "/system/ai/assistants",
   ],
@@ -173,7 +173,7 @@ export const systemOrganisationArticle: HelpArticle = {
         "Add or reorder tier rows — label and sort order.",
         "Save. Existing positions use the updated tier names on the chart.",
       ],
-      relatedRoutes: ["/system/org-chart-tiers", "/workforce-planning/organisation"],
+      relatedRoutes: ["/system/org-chart-tiers", "/system/admin/organisation-structure"],
     },
   ],
 };
@@ -218,7 +218,7 @@ export const systemRolesAccessArticle: HelpArticle = {
       id: "org-positions",
       title: "Roles vs org chart positions",
       body: "Security roles control app access. Org chart positions in Workforce planning assign holders to slots in the reporting tree. Each position links to exactly one security role — many positions can share the same role.\n\nSee [Workforce organisation structure](/help/workforce-organisation) for the position tree and automations.",
-      relatedRoutes: ["/workforce-planning/organisation", "/help/workforce-organisation"],
+      relatedRoutes: ["/system/admin/organisation-structure", "/help/workforce-organisation"],
     },
   ],
 };
@@ -231,8 +231,8 @@ export const systemTasksSetupArticle: HelpArticle = {
   category: "System setup",
   keywords: ["task management", "task types", "task priority", "task automations", "system tasks"],
   relatedRoutes: [
-    "/system/tasks/task-management",
-    "/system/tasks/task-automations",
+    "/system/admin/task-management",
+    "/system/admin/task-automations",
     "/system/reference-data/tasks",
     "/system/guides/task-automations",
   ],
@@ -243,7 +243,7 @@ export const systemTasksSetupArticle: HelpArticle = {
       id: "task-types",
       title: "Task management",
       body: "Task types (Review, Approve, Check, and custom types) are full records with descriptions and sort order — not simple reference lists. Configure them under System → Tasks → Task management.\n\nOn the same page, set per-role permissions: can see, can select when creating, and can create.",
-      relatedRoutes: ["/system/tasks/task-management"],
+      relatedRoutes: ["/system/admin/task-management"],
     },
     {
       id: "task-priority",
@@ -255,7 +255,7 @@ export const systemTasksSetupArticle: HelpArticle = {
       id: "automations",
       title: "Task automations",
       body: "System → Tasks → Task automations holds rules that create tasks when records change or on schedules. Incident automations are live today; other module engines can be configured ahead of release.\n\nFor step-by-step configuration, read [Task automations](/system/guides/task-automations).",
-      relatedRoutes: ["/system/tasks/task-automations", "/system/guides/task-automations"],
+      relatedRoutes: ["/system/admin/task-automations", "/system/guides/task-automations"],
     },
   ],
 };

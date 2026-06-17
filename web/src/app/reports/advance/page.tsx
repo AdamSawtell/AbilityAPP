@@ -1,5 +1,5 @@
-import { ReportsAdvanceView } from "@/components/reports-advance-view";
+import { redirect } from "next/navigation";
 
 export default function ReportsAdvancePage() {
-  return <ReportsAdvanceView />;
+  redirect("/system/admin/reports-advance");
 }

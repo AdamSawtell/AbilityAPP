@@ -28,12 +28,6 @@ const workforceLinks = [
     windowKey: "workforce-planning",
     match: (path: string) => path === "/workforce-planning",
   },
-  {
-    href: "/workforce-planning/organisation",
-    label: "Organisation structure",
-    windowKey: "workforce-organisation",
-    match: (path: string) => path.startsWith("/workforce-planning/organisation"),
-  },
 ];
 
 const serviceLinks = [
@@ -732,18 +726,6 @@ export function SidebarNav() {
               <Link href="/reports" className={subLinkClass(pathname === "/reports")}>
                 All reports
               </Link>
-              {canWindow("reports-advance") ? (
-                <Link
-                  href="/reports/advance"
-                  className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
-                    pathname === "/reports/advance"
-                      ? "bg-slate-900 text-emerald-300 ring-1 ring-slate-700"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                  }`}
-                >
-                  Reports Advance
-                </Link>
-              ) : null}
               {(["Core", "Clients", "Enquiries", "Locations", "People", "Services"] as const).map((module) => {
                 const moduleReports = reportsByModule.get(module);
                 if (!moduleReports?.length) return null;

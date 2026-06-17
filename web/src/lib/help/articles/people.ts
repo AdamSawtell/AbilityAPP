@@ -62,8 +62,8 @@ export const employeesArticle: HelpArticle = {
     {
       id: "system-access",
       title: "System access",
-      body: "Link the employee to an AbilityAPP user account. Administrators manage users under Admin → Users.",
-      relatedRoutes: ["/admin/roles"],
+      body: "Link the employee to an AbilityAPP user account. Administrators manage access under System → Admin → Roles and Employee → System access.",
+      relatedRoutes: ["/system/admin/roles"],
       windowKeys: ["employee-system-access", "admin-roles"],
     },
   ],

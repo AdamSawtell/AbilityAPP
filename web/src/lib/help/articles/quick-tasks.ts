@@ -46,8 +46,8 @@ export const quickTaskArticles: HelpArticle[] = [
       {
         id: "no-convert-button",
         title: "If you cannot see Convert to client",
-        body: "Your role may not include the enquiry-to-client process, or the enquiry may not be in a status that allows conversion. Ask an administrator to check your role under Admin → Roles.",
-        relatedRoutes: ["/admin/roles"],
+        body: "Your role may not include the enquiry-to-client process, or the enquiry may not be in a status that allows conversion. Ask an administrator to check your role under System → Admin → Roles.",
+        relatedRoutes: ["/system/admin/roles"],
         windowKeys: ["admin-roles"],
       },
     ],
@@ -175,8 +175,8 @@ export const quickTaskArticles: HelpArticle[] = [
       {
         id: "permissions",
         title: "If New task is missing",
-        body: "Your role needs assign-task and create permission for that task type. An administrator can adjust this under Admin → Roles and Admin → Task management.",
-        relatedRoutes: ["/admin/roles", "/admin/task-management"],
+        body: "Your role needs assign-task and create permission for that task type. An administrator can adjust this under System → Admin → Roles and System → Admin → Task management.",
+        relatedRoutes: ["/system/admin/roles", "/system/admin/task-management"],
       },
     ],
   },

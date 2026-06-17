@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
 import { OrgChart, OrgPositionEditor } from "@/components/workforce/org-chart";
 import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planning-subnav";
 import { useAuth } from "@/lib/auth-store";
@@ -19,7 +20,7 @@ import {
 import { useOrgStructure } from "@/lib/org-structure-store";
 import { countHolderMisalignments } from "@/lib/org-position-role-alignment";
 
-export function OrganisationStructurePage() {
+export function OrganisationStructurePage({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { canWindow, users, roles } = useAuth();
   const { employees, locations } = useData();
   const { hydrated, positions, assignments } = useOrgStructure();
@@ -56,6 +57,7 @@ export function OrganisationStructurePage() {
   const canView = canWindow("workforce-organisation") || canWindow("workforce-planning");
   const canEdit = canWindow("workforce-org-edit");
   const canEditChartTier = canWindow("workforce-org-chart-tier");
+  const Shell = variant === "system" ? SystemShell : AppShell;
 
   const roleMisalignmentCount = useMemo(
     () => countHolderMisalignments(positions, assignments, users, roles),
@@ -64,34 +66,53 @@ export function OrganisationStructurePage() {
 
   if (!canView) {
     return (
-      <AppShell
+      <Shell
         title="Organisation structure"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Workforce planning", href: "/workforce-planning" },
-          { label: "Organisation structure" },
-        ]}
+        breadcrumbs={
+          variant === "system"
+            ? [
+                { label: "System", href: "/system" },
+                { label: "Admin", href: "/system/admin/roles" },
+                { label: "Organisation structure" },
+              ]
+            : [
+                { label: "Home", href: "/" },
+                { label: "Workforce planning", href: "/workforce-planning" },
+                { label: "Organisation structure" },
+              ]
+        }
         audit={{ moduleLabel: "Organisation structure" }}
       >
         <p className="text-sm text-slate-600">You do not have access to view the organisation structure.</p>
-      </AppShell>
+      </Shell>
     );
   }
 
   return (
-    <AppShell
+    <Shell
       title="Organisation structure"
       subtitle="Position tree, holders, vacant-role escalation, and accountable manager routing."
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Workforce planning", href: "/workforce-planning" },
-        { label: "Organisation structure" },
-      ]}
+      breadcrumbs={
+        variant === "system"
+          ? [
+              { label: "System", href: "/system" },
+              { label: "Admin", href: "/system/admin/roles" },
+              { label: "Organisation structure" },
+            ]
+          : [
+              { label: "Home", href: "/" },
+              { label: "Workforce planning", href: "/workforce-planning" },
+              { label: "Organisation structure" },
+            ]
+      }
       audit={{ moduleLabel: "Organisation structure" }}
     >
-      <WorkforcePlanningSubnav />
+      {variant === "workspace" ? <WorkforcePlanningSubnav /> : null}
       <p className="mb-4 text-sm text-slate-600">
-        <Link href="/help/workforce-organisation" className="font-medium text-[#b51266] hover:underline">
+        <Link
+          href={variant === "system" ? "/system/guides/core-system-setup" : "/help/workforce-organisation"}
+          className="font-medium text-[#b51266] hover:underline"
+        >
           Read the full organisation structure and automations guide
         </Link>
       </p>
@@ -199,6 +220,6 @@ export function OrganisationStructurePage() {
           </div>
         </div>
       )}
-    </AppShell>
+    </Shell>
   );
 }

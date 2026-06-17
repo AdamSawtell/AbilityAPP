@@ -109,7 +109,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
           ? [{ label: "System", href: "/system" }, { label: "Admin", href: "/system/admin/roles" }, { label: "Roles" }]
           : [
               { label: "Home", href: "/" },
-              { label: "Admin", href: "/admin/roles" },
+              { label: "Admin", href: "/system/admin/roles" },
               { label: "Roles" },
             ]
       }

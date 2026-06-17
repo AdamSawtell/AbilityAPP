@@ -28,7 +28,7 @@ export type OrgPositionReportingLineRecord = {
 export type OrgPositionRecord = {
   id: string;
   title: string;
-  /** Maps to Admin → Roles. Many positions (e.g. per site) share one security role. */
+  /** Maps to System → Admin → Roles. Many positions (e.g. per site) share one security role. */
   securityRoleId: string;
   department: string;
   businessArea: string;

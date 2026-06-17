@@ -632,7 +632,7 @@ export function OrgPositionEditor({
 
         {!isRoot ? (
           <label className="block text-xs font-medium text-slate-700">
-            Security role (Admin → Roles)
+            Security role (System → Admin → Roles)
             <select
               value={position.securityRoleId}
               disabled={!canEdit}
@@ -654,7 +654,7 @@ export function OrgPositionEditor({
               ))}
             </select>
             <p className="mt-1 text-[10px] text-slate-500">
-              Every position must map to a role from Admin → Roles. Title can add a site-specific label.
+              Every position must map to a role from System → Admin → Roles. Title can add a site-specific label.
             </p>
           </label>
         ) : null}

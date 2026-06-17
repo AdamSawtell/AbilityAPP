@@ -39,7 +39,7 @@ export const gettingStartedArticle: HelpArticle = {
       id: "roles",
       title: "Roles and what you can see",
       body: "Each role controls which sidebar items, record tabs, reports, and task types you can open. If a menu item is missing, your role does not include that window. Switch roles from your profile at the bottom of the sidebar when your account has multiple roles.",
-      relatedRoutes: ["/admin/roles"],
+      relatedRoutes: ["/system/admin/roles"],
     },
     {
       id: "where-to-go-next",

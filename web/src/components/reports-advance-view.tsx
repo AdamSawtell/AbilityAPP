@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
 import { ReportTable } from "@/components/report-table";
 import { useAuth } from "@/lib/auth-store";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
@@ -13,7 +14,7 @@ from client
 order by name
 limit 100`;
 
-export function ReportsAdvanceView() {
+export function ReportsAdvanceView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { canWindow } = useAuth();
   const [sql, setSql] = useState(STARTER_SQL);
   const [running, setRunning] = useState(false);
@@ -22,6 +23,7 @@ export function ReportsAdvanceView() {
   const [ranAt, setRanAt] = useState<string | null>(null);
 
   const canUse = canWindow("reports-advance");
+  const Shell = variant === "system" ? SystemShell : AppShell;
 
   const runQuery = useCallback(async () => {
     setRunning(true);
@@ -59,31 +61,50 @@ export function ReportsAdvanceView() {
 
   if (!canUse) {
     return (
-      <AppShell
+      <Shell
         title="Reports Advance"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Reports", href: "/reports" },
-          { label: "Reports Advance" },
-        ]}
+        breadcrumbs={
+          variant === "system"
+            ? [
+                { label: "System", href: "/system" },
+                { label: "Admin", href: "/system/admin/roles" },
+                { label: "Reports Advance" },
+              ]
+            : [
+                { label: "Home", href: "/" },
+                { label: "Reports", href: "/reports" },
+                { label: "Reports Advance" },
+              ]
+        }
       >
         <p className="text-sm text-slate-500">Your role does not have access to Reports Advance.</p>
-        <Link href="/reports" className="mt-4 inline-block text-sm font-medium text-[#d4147a] hover:underline">
-          Back to reports
+        <Link
+          href={variant === "system" ? "/system/admin/reports-advance" : "/reports"}
+          className="mt-4 inline-block text-sm font-medium text-[#d4147a] hover:underline"
+        >
+          {variant === "system" ? "Back to System Admin" : "Back to reports"}
         </Link>
-      </AppShell>
+      </Shell>
     );
   }
 
   return (
-    <AppShell
+    <Shell
       title="Reports Advance"
       subtitle="Write read-only SQL against the database. Results can be reviewed and exported to CSV."
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Reports", href: "/reports" },
-        { label: "Reports Advance" },
-      ]}
+      breadcrumbs={
+        variant === "system"
+          ? [
+              { label: "System", href: "/system" },
+              { label: "Admin", href: "/system/admin/roles" },
+              { label: "Reports Advance" },
+            ]
+          : [
+              { label: "Home", href: "/" },
+              { label: "Reports", href: "/reports" },
+              { label: "Reports Advance" },
+            ]
+      }
       audit={{ moduleLabel: "Reports Advance — SQL console" }}
     >
       <div className="space-y-4">
@@ -144,6 +165,6 @@ export function ReportsAdvanceView() {
           <p className="text-sm text-slate-500">Run a query to see results here.</p>
         )}
       </div>
-    </AppShell>
+    </Shell>
   );
 }

@@ -220,7 +220,7 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
         variant === "system"
           ? [
               { label: "System", href: "/system" },
-              { label: "Tasks", href: "/system/tasks/task-automations" },
+              { label: "Admin", href: "/system/admin/roles" },
               { label: "Task automations" },
             ]
           : undefined

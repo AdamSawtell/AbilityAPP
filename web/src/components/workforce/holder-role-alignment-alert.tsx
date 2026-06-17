@@ -81,12 +81,12 @@ export function HolderRoleAlignmentAlert({
               {fixing ? "Saving…" : alignmentFixLabel(issue)}
             </button>
           ) : null}
-          <Link href="/admin/users" className="font-medium text-amber-900 underline hover:text-amber-950">
-            Admin → Users
+          <Link href="/employees" className="font-medium text-amber-900 underline hover:text-amber-950">
+            Employees → System access
           </Link>
           {issue.kind === "no_required_role" ? (
-            <Link href="/admin/roles" className="font-medium text-amber-900 underline hover:text-amber-950">
-              Admin → Roles
+            <Link href="/system/admin/roles" className="font-medium text-amber-900 underline hover:text-amber-950">
+              System → Admin → Roles
             </Link>
           ) : null}
         </div>

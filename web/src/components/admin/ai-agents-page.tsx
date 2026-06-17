@@ -194,7 +194,7 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
             ]
           : [
               { label: "Home", href: "/" },
-              { label: "Admin", href: "/admin/roles" },
+              { label: "Admin", href: "/system/admin/roles" },
               { label: "AI assistants" },
             ]
       }

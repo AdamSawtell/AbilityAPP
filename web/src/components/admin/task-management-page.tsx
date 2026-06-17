@@ -135,12 +135,12 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
         variant === "system"
           ? [
               { label: "System", href: "/system" },
-              { label: "Tasks", href: "/system/tasks/task-management" },
+              { label: "Admin", href: "/system/admin/roles" },
               { label: "Task management" },
             ]
           : [
               { label: "Home", href: "/" },
-              { label: "Admin", href: "/admin/task-management" },
+              { label: "Admin", href: "/system/admin/task-management" },
               { label: "Task management" },
             ]
       }

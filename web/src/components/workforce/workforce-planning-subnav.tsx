@@ -6,12 +6,6 @@ import { useAuth } from "@/lib/auth-store";
 
 const tabs = [
   { href: "/workforce-planning", label: "Leave calendar", windowKey: "workforce-planning", exact: true },
-  {
-    href: "/workforce-planning/organisation",
-    label: "Organisation structure",
-    windowKey: "workforce-organisation",
-    exact: false,
-  },
 ] as const;
 
 export function WorkforcePlanningSubnav() {

@@ -22,8 +22,8 @@ export const taskAutomationsArticle: HelpArticle = {
     "how to",
   ],
   relatedRoutes: [
-    "/system/tasks/task-automations",
-    "/system/tasks/task-management",
+    "/system/admin/task-automations",
+    "/system/admin/task-management",
     "/system/admin/roles",
     "/tasks",
     "/tasks/my-role",
@@ -41,14 +41,14 @@ export const taskAutomationsArticle: HelpArticle = {
         "Assign to: Security role, Org position holder, or Incident accountable manager.",
         "Scheduled scans run once per browser day for overdue incidents and expiring credentials.",
       ],
-      relatedRoutes: ["/system/tasks/task-automations"],
+      relatedRoutes: ["/system/admin/task-automations"],
       windowKeys: ["admin-task-automations"],
     },
     {
       id: "who-can-configure",
       title: "Who can configure automations",
       body: "You need the Task automations window on your role. AbilityAPP Admin includes it by default. Other roles can be granted access under System → Admin → Roles by adding the Task automations window.\n\nUsers who receive automated tasks do not need the admin window. They only need task windows (for example My role) and permission to see the linked record type.",
-      relatedRoutes: ["/system/admin/roles", "/system/tasks/task-automations"],
+      relatedRoutes: ["/system/admin/roles", "/system/admin/task-automations"],
       windowKeys: ["admin-roles", "admin-task-automations"],
     },
     {
@@ -60,7 +60,7 @@ export const taskAutomationsArticle: HelpArticle = {
         "The left panel lists rules grouped by rule type: Enquiry, Client, Location, Employee, Incident.",
         "Click a rule to edit it, or click Add rule to create a new one.",
       ],
-      relatedRoutes: ["/system/tasks/task-automations"],
+      relatedRoutes: ["/system/admin/task-automations"],
     },
     {
       id: "rule-types",
@@ -162,7 +162,7 @@ export const taskAutomationsArticle: HelpArticle = {
       id: "preview-and-dry-run",
       title: "Preview and dry run (incident rules)",
       body: "For incident rules, the Preview section at the bottom of the rule editor shows how templates render for a sample incident from your database. Dry run tells you whether the current trigger and conditions would create a task for that sample, or whether dedupe would skip it.\n\nDry run does not create a task. It is safe to use while tuning conditions.",
-      relatedRoutes: ["/system/tasks/task-automations"],
+      relatedRoutes: ["/system/admin/task-automations"],
     },
     {
       id: "walkthrough-reportable",
@@ -179,7 +179,7 @@ export const taskAutomationsArticle: HelpArticle = {
         "Save rule.",
         "Test: open an incident, set Is reportable to Yes, save. Check Tasks → My role for the assigned role.",
       ],
-      relatedRoutes: ["/incidents", "/system/tasks/task-automations"],
+      relatedRoutes: ["/incidents", "/system/admin/task-automations"],
     },
     {
       id: "walkthrough-ndis-overdue",
@@ -238,7 +238,7 @@ export const taskAutomationsArticle: HelpArticle = {
         "Tasks hub: where assignees work automated and manual tasks.",
       ],
       relatedRoutes: [
-        "/system/tasks/task-management",
+        "/system/admin/task-management",
         "/system/admin/roles",
         "/system/organization",
         "/tasks",

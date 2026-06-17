@@ -104,18 +104,7 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "tasks",
     label: "Tasks",
     icon: "task",
-    links: withReferenceData("tasks", [
-      {
-        href: "/system/tasks/task-management",
-        label: "Task management",
-        match: (p) => p.startsWith("/system/tasks/task-management"),
-      },
-      {
-        href: "/system/tasks/task-automations",
-        label: "Task automations",
-        match: (p) => p.startsWith("/system/tasks/task-automations"),
-      },
-    ]),
+    links: withReferenceData("tasks", []),
   },
   {
     key: "enquiries",
@@ -193,6 +182,26 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "Roles",
         match: (p) => p.startsWith("/system/admin/roles"),
       },
+      {
+        href: "/system/admin/task-management",
+        label: "Task management",
+        match: (p) => p.startsWith("/system/admin/task-management"),
+      },
+      {
+        href: "/system/admin/task-automations",
+        label: "Task automations",
+        match: (p) => p.startsWith("/system/admin/task-automations"),
+      },
+      {
+        href: "/system/admin/reports-advance",
+        label: "Reports Advance",
+        match: (p) => p.startsWith("/system/admin/reports-advance"),
+      },
+      {
+        href: "/system/admin/organisation-structure",
+        label: "Organisation structure",
+        match: (p) => p.startsWith("/system/admin/organisation-structure"),
+      },
     ]),
   },
 ];
@@ -223,22 +232,34 @@ export const SYSTEM_HOME_LINKS: {
     description: "Define chart band labels and order. Position assignment stays in Workforce planning.",
   },
   {
-    sectionKey: "tasks",
-    href: "/system/tasks/task-management",
+    sectionKey: "admin",
+    href: "/system/admin/roles",
+    title: "Roles",
+    description: "Windows, processes, reports, and task-type permissions for each security role.",
+  },
+  {
+    sectionKey: "admin",
+    href: "/system/admin/task-management",
     title: "Task management",
     description: "Request types, defaults, and how tasks behave across the workspace.",
   },
   {
-    sectionKey: "tasks",
-    href: "/system/tasks/task-automations",
+    sectionKey: "admin",
+    href: "/system/admin/task-automations",
     title: "Task automations",
     description: "Rules that create or assign tasks when records change or schedules fire.",
   },
   {
     sectionKey: "admin",
-    href: "/system/admin/roles",
-    title: "Roles",
-    description: "Windows, processes, reports, and task-type permissions for each security role.",
+    href: "/system/admin/reports-advance",
+    title: "Reports Advance",
+    description: "Read-only SQL console for advanced exports and investigations.",
+  },
+  {
+    sectionKey: "admin",
+    href: "/system/admin/organisation-structure",
+    title: "Organisation structure",
+    description: "Maintain the position tree, holders, and routing for manager accountability.",
   },
   {
     sectionKey: "ai",

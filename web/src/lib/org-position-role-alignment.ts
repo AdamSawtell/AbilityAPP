@@ -84,13 +84,13 @@ export function checkHolderRoleAlignment({
 export function alignmentIssueMessage(issue: HolderRoleAlignmentIssue): string {
   switch (issue.kind) {
     case "no_required_role":
-      return `${issue.employeeName} is assigned but this position has no security role set. Choose a role from Admin → Roles.`;
+      return `${issue.employeeName} is assigned but this position has no security role set. Choose a role from System → Admin → Roles.`;
     case "no_user":
-      return `${issue.employeeName} has no linked login user. Link them in Admin → Users before they can access the app as this position.`;
+      return `${issue.employeeName} has no linked login user. Link them on Employee → System access before they can access the app as this position.`;
     case "inactive_user":
       return `${issue.employeeName} (${issue.username}) is linked to an inactive user account.`;
     case "missing_role":
-      return `${issue.employeeName} (${issue.username}) does not have the ${issue.requiredRoleName} role. Current roles: ${issue.userRoleNames?.join(", ") || "none"}. Assign the role in Admin → Users.`;
+      return `${issue.employeeName} (${issue.username}) does not have the ${issue.requiredRoleName} role. Current roles: ${issue.userRoleNames?.join(", ") || "none"}. Assign the role in System → Admin → Roles.`;
     default:
       return "Holder login roles do not match this position.";
   }

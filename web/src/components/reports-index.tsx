@@ -36,7 +36,7 @@ export function ReportsIndexView() {
             <section>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Advanced</h2>
               <Link
-                href="/reports/advance"
+                href="/system/admin/reports-advance"
                 className="block rounded-xl border border-slate-800 bg-slate-950 p-4 text-white shadow-sm transition hover:border-[#d4147a]"
               >
                 <p className="font-medium">Reports Advance</p>
