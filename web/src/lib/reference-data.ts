@@ -11,12 +11,17 @@
  */
 
 export type ReferenceDataGroup =
+  | "Shared"
   | "Client"
   | "Enquiry"
   | "Support plan"
+  | "People"
+  | "Workforce"
+  | "Tasks"
+  | "Locations"
   | "Products & services"
   | "Contracts"
-  | "General";
+  | "Incident reports";
 
 export type ReferenceDataMeta = {
   label: string;
@@ -25,16 +30,24 @@ export type ReferenceDataMeta = {
 };
 
 export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
+  // Shared (edited under System → Admin)
+  yesNo: { label: "Yes / No", group: "Shared", description: "Used across clients, employees, locations, and plans" },
+  showAsAlert: { label: "Show as alert", group: "Shared", description: "Yes / No on alert lines" },
+  gender: { label: "Gender", group: "Shared", description: "Clients, enquiries, and employees" },
+  fundingBody: { label: "Funding body", group: "Shared", description: "Clients and enquiries" },
+  disability: { label: "Disability", group: "Shared", description: "Clients and enquiries" },
+  addressType: { label: "Address type", group: "Shared", description: "Client, employee, and location addresses" },
+  australianState: { label: "State / territory", group: "Shared" },
+  country: { label: "Country", group: "Shared" },
+  primaryLanguage: { label: "Primary language", group: "Shared", description: "Support plans and profiles" },
+  contactRelationship: { label: "Contact relationship", group: "Shared", description: "Client contacts and employee emergency contacts" },
   // Client
   clientStatus: { label: "Client status", group: "Client" },
-  gender: { label: "Gender", group: "Client", description: "Shared with enquiries" },
   decisionMaking: { label: "Decision making", group: "Client" },
   livingArrangement: { label: "Living arrangement", group: "Client" },
   salesRepresentative: { label: "Sales representative", group: "Client" },
-  fundingBody: { label: "Funding body", group: "Client", description: "Shared with enquiries" },
   aboriginalTorresStraitIslander: { label: "Aboriginal / Torres Strait Islander", group: "Client" },
   culturalAffiliation: { label: "Cultural affiliation", group: "Client" },
-  disability: { label: "Disability", group: "Client", description: "Shared with enquiries" },
   businessPartnerGroup: { label: "Business partner group", group: "Client" },
   lgbtiqa: { label: "LGBTIQA+", group: "Client" },
   alertType: { label: "Alert type", group: "Client" },
@@ -44,11 +57,7 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   bpAssociationType: { label: "BP association type", group: "Client" },
   contactActivityType: { label: "Contact activity type", group: "Client" },
   needRuleCategory: { label: "Need / rule category", group: "Client" },
-  showAsAlert: { label: "Show as alert", group: "Client", description: "Yes / No" },
   activityType: { label: "Activity type", group: "Client" },
-  addressType: { label: "Address type", group: "Client" },
-  australianState: { label: "State / territory", group: "Client" },
-  country: { label: "Country", group: "Client" },
   // Enquiry
   enquiryStatus: { label: "Enquiry status", group: "Enquiry" },
   enquirySource: { label: "Enquiry source", group: "Enquiry" },
@@ -58,7 +67,6 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   preferredCommunicationMethod: { label: "Preferred communication method", group: "Enquiry" },
   enquiryQuery: { label: "Enquiry saved queries", group: "Enquiry", description: "List filters" },
   // Support plan
-  primaryLanguage: { label: "Primary language", group: "Support plan" },
   financialArrangement: { label: "Financial arrangement", group: "Support plan" },
   goalNumber: { label: "Goal number", group: "Support plan" },
   goalTerm: { label: "Goal term", group: "Support plan" },
@@ -69,6 +77,32 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   assessmentType: { label: "Assessment type", group: "Support plan" },
   progressReviewType: { label: "Progress review type", group: "Support plan" },
   goalProgress: { label: "Goal progress", group: "Support plan" },
+  // People
+  employeeAlertType: { label: "Employee alert type", group: "People" },
+  employeeSkillType: { label: "Employee skill type", group: "People" },
+  skillProficiency: { label: "Skill proficiency", group: "People" },
+  employeeDocumentType: { label: "Employee document type", group: "People" },
+  employeeActivityType: { label: "Employee activity type", group: "People" },
+  employeeDocumentStatus: { label: "Employee document status", group: "People" },
+  emergencyContactType: { label: "Emergency contact type", group: "People" },
+  employmentType: { label: "Employment type", group: "People" },
+  payMethod: { label: "Pay method", group: "People" },
+  credentialType: { label: "Credential type", group: "People" },
+  credentialStatus: { label: "Credential status", group: "People" },
+  department: { label: "Department", group: "People" },
+  employmentStatus: { label: "Employment status", group: "People" },
+  // Tasks
+  taskPriority: { label: "Task priority", group: "Tasks", description: "Low, Normal, High — used on tasks and automations" },
+  // Workforce
+  leaveType: { label: "Leave type", group: "Workforce" },
+  employeeLeaveStatus: { label: "Leave request status", group: "Workforce" },
+  // Locations
+  locationType: { label: "Location type", group: "Locations" },
+  locationStatus: { label: "Location status", group: "Locations" },
+  locationClientRole: { label: "Client assignment role", group: "Locations" },
+  locationEmployeeRole: { label: "Employee assignment role", group: "Locations" },
+  locationAlertType: { label: "Location alert type", group: "Locations" },
+  locationActivityType: { label: "Location activity type", group: "Locations" },
   // Products & services
   productCategory: { label: "Product category", group: "Products & services" },
   uom: { label: "Unit of measure", group: "Products & services" },
@@ -84,19 +118,17 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   contractType: { label: "Contract type", group: "Contracts" },
   contractTerm: { label: "Contract term", group: "Contracts" },
   auditAction: { label: "Audit action", group: "Contracts" },
-  // General
-  yesNo: { label: "Yes / No", group: "General" },
-  employeeAlertType: { label: "Employee alert type", group: "General" },
-  employeeSkillType: { label: "Employee skill type", group: "General" },
-  skillProficiency: { label: "Skill proficiency", group: "General" },
-  employeeDocumentType: { label: "Employee document type", group: "General" },
-  employeeActivityType: { label: "Employee activity type", group: "General" },
-  leaveType: { label: "Leave type", group: "General" },
-  employeeDocumentStatus: { label: "Employee document status", group: "General" },
-  contactRelationship: { label: "Contact relationship", group: "General" },
-  emergencyContactType: { label: "Emergency contact type", group: "General" },
-  employmentType: { label: "Employment type", group: "General" },
-  payMethod: { label: "Pay method", group: "General" },
+  // Incident reports
+  partyType: { label: "Party type", group: "Incident reports" },
+  partyRole: { label: "Party role", group: "Incident reports" },
+  incidentActionType: { label: "Incident action type", group: "Incident reports" },
+  notificationTarget: { label: "Notification target", group: "Incident reports" },
+  notificationMethod: { label: "Notification method", group: "Incident reports" },
+  incidentStatus: { label: "Incident status", group: "Incident reports" },
+  incidentSeverity: { label: "Incident severity", group: "Incident reports" },
+  ndisReportableType: { label: "NDIS reportable type", group: "Incident reports" },
+  incidentCategory: { label: "Incident category", group: "Incident reports" },
+  incidentServiceType: { label: "Incident service type", group: "Incident reports" },
 };
 
 export type ReferenceDataKey = keyof typeof referenceDataMeta;
@@ -396,6 +428,79 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   emergencyContactType: ["Emergency", "Next of kin"],
   employmentType: ["Full-time", "Part-time", "Casual", "Contractor", "Volunteer"],
   payMethod: ["Bank", "Cash", "Cheque"],
+  credentialType: [
+    "NDIS Worker Screening",
+    "Working with Children Check",
+    "Police Check",
+    "First Aid Certificate",
+    "CPR Certificate",
+    "Manual Handling",
+    "Driver Licence",
+    "Visa / work rights",
+    "Qualification",
+    "Insurance",
+    "Other",
+  ],
+  credentialStatus: ["Current", "Expiring soon", "Expired", "Pending", "Revoked"],
+  department: [
+    "Executive",
+    "Intake",
+    "Client services",
+    "Support coordination",
+    "Finance",
+    "HR",
+    "IT",
+    "Operations",
+  ],
+  employmentStatus: ["Active", "On leave", "Terminated"],
+  taskPriority: ["Low", "Normal", "High"],
+  employeeLeaveStatus: ["Draft", "Requested", "Approved", "Declined", "Cancelled", "Taken"],
+  locationType: [
+    "SIL house",
+    "Day program",
+    "Community hub",
+    "Office",
+    "Respite",
+    "Therapy room",
+    "Other",
+  ],
+  locationStatus: ["Active", "Inactive", "Planned", "Closed"],
+  locationClientRole: ["Resident", "Regular attendee", "Occasional", "Visitor"],
+  locationEmployeeRole: [
+    "Site manager",
+    "Support worker",
+    "Team leader",
+    "Relief staff",
+    "Allied health",
+    "Other",
+  ],
+  locationAlertType: ["Safety", "Access", "Operational", "Clinical", "Maintenance", "Other"],
+  locationActivityType: [
+    "Site visit",
+    "Maintenance",
+    "Incident follow-up",
+    "Phone call",
+    "Note",
+    "Other",
+  ],
+  incidentCategory: [
+    "Operational",
+    "Near miss",
+    "Injury",
+    "Behaviour",
+    "Restrictive practice",
+    "Property damage",
+    "Other",
+  ],
+  incidentServiceType: [
+    "NDIS Support",
+    "SIL",
+    "Community Participation",
+    "Therapy",
+    "Transport",
+    "Administration",
+    "Unassigned",
+  ],
 };
 
 /** @deprecated Use useReferenceData().getOptions instead */

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoginBackdrop, OrgLogo } from "@/components/organization-landing";
@@ -197,6 +198,14 @@ export function LoginView() {
 
         <p className="mt-5 text-center text-[11px] text-slate-400">
           Microsoft SSO is planned for a future release.
+        </p>
+        <p className="mt-4 text-center">
+          <Link
+            href="/system/login"
+            className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline"
+          >
+            System setup sign in
+          </Link>
         </p>
       </div>
 

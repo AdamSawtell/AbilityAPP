@@ -320,6 +320,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
+    if (pathname.startsWith("/system")) return;
     if (!session && pathname !== "/login") {
       router.replace("/login");
     }
@@ -336,6 +337,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
+  if (pathname.startsWith("/system")) return <>{children}</>;
   if (!session && pathname !== "/login") return null;
   return <>{children}</>;
 }

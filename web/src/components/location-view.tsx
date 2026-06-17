@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useReferenceData } from "@/lib/config-store";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LineItemTable } from "@/components/line-item-table";
 import { ClientRecordLink, EmployeeRecordLink, ProductRecordLink } from "@/components/record-link";
@@ -18,7 +19,6 @@ import {
 } from "@/lib/location-line-tables";
 import {
   locationContactFields,
-  locationDropdowns,
   locationOverviewFields,
   locationTabGroups,
   type LocationRecord,
@@ -55,11 +55,13 @@ function Field({
   fieldKey,
   location,
   onChange,
+  getOptions,
 }: {
   label: string;
   fieldKey: keyof LocationRecord;
   location: LocationRecord;
   onChange: (key: keyof LocationRecord, value: string) => void;
+  getOptions: (key: string) => string[];
 }) {
   const value = String(location[fieldKey] ?? "");
   const isTextarea = fieldKey === "description" || fieldKey === "accessNotes";
@@ -69,7 +71,7 @@ function Field({
       <label className="block">
         <span className="mb-1.5 block text-xs font-medium text-slate-600">{label}</span>
         <select className={inputClass} value={value} onChange={(e) => onChange(fieldKey, e.target.value)}>
-          {locationDropdowns.locationType.map((o) => (
+          {getOptions("locationType").map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
@@ -84,7 +86,7 @@ function Field({
       <label className="block">
         <span className="mb-1.5 block text-xs font-medium text-slate-600">{label}</span>
         <select className={inputClass} value={value} onChange={(e) => onChange(fieldKey, e.target.value)}>
-          {locationDropdowns.locationStatus.map((o) => (
+          {getOptions("locationStatus").map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
@@ -133,10 +135,12 @@ function FieldGrid({
   keys,
   location,
   onChange,
+  getOptions,
 }: {
   keys: (keyof LocationRecord)[];
   location: LocationRecord;
   onChange: (key: keyof LocationRecord, value: string) => void;
+  getOptions: (key: string) => string[];
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -147,6 +151,7 @@ function FieldGrid({
           fieldKey={key}
           location={location}
           onChange={onChange}
+          getOptions={getOptions}
         />
       ))}
     </div>
@@ -249,6 +254,31 @@ export function LocationTabbedView({
   const searchParams = useSearchParams();
   const { session, canWindow, canProcess } = useAuth();
   const { clients, employees, products } = useData();
+  const { getOptions } = useReferenceData();
+
+  const referenceDropdowns = useMemo(
+    () => ({
+      locationType: getOptions("locationType"),
+      locationStatus: getOptions("locationStatus"),
+      locationClientRole: getOptions("locationClientRole"),
+      locationEmployeeRole: getOptions("locationEmployeeRole"),
+      locationAlertType: getOptions("locationAlertType"),
+      locationActivityType: getOptions("locationActivityType"),
+      showAsAlert: getOptions("showAsAlert"),
+      yesNo: getOptions("yesNo"),
+    }),
+    [getOptions]
+  );
+
+  const clientDropdowns = useMemo(
+    () => ({
+      ...referenceDropdowns,
+      clientId: clients.map((c) => c.id),
+      employeeId: employees.map((e) => e.id),
+      productId: products.filter((p) => p.active).map((p) => p.id),
+    }),
+    [clients, employees, products, referenceDropdowns]
+  );
 
   const allowedTabs = allowedDetailTabsFromGroups("locations", locationTabGroups, session?.windowKeys ?? []);
   const defaultTab = allowedTabs[0] ?? "Overview";
@@ -258,16 +288,6 @@ export function LocationTabbedView({
   const visibleGroups = locationTabGroups
     .map((group) => ({ ...group, tabs: group.tabs.filter((tab) => allowedTabs.includes(tab)) }))
     .filter((group) => group.tabs.length > 0);
-
-  const clientDropdowns = useMemo(
-    () => ({
-      ...locationDropdowns,
-      clientId: clients.map((c) => c.id),
-      employeeId: employees.map((e) => e.id),
-      productId: products.filter((p) => p.active).map((p) => p.id),
-    }),
-    [clients, employees, products]
-  );
 
   const optionLabels = useMemo(() => {
     const labels: Record<string, string> = {};
@@ -348,7 +368,7 @@ export function LocationTabbedView({
               <h3 className="text-sm font-semibold text-slate-900">Overview</h3>
               <p className="mt-1 text-sm text-slate-500">Core site details for this support location.</p>
               <div className="mt-4">
-                <FieldGrid keys={locationOverviewFields} location={location} onChange={onChange} />
+                <FieldGrid keys={locationOverviewFields} location={location} onChange={onChange} getOptions={getOptions} />
               </div>
             </div>
             <LocationPhoto location={location} onChange={onChange} />
@@ -361,7 +381,7 @@ export function LocationTabbedView({
             <h3 className="text-sm font-semibold text-slate-900">Contact & address</h3>
             <p className="mt-1 text-sm text-slate-500">Where the site is and how to reach on-site staff.</p>
             <div className="mt-4">
-              <FieldGrid keys={locationContactFields} location={location} onChange={onChange} />
+              <FieldGrid keys={locationContactFields} location={location} onChange={onChange} getOptions={getOptions} />
             </div>
           </div>
         ) : null}
@@ -378,7 +398,7 @@ export function LocationTabbedView({
               config={locationAlertTableConfig}
               rows={location.alerts}
               onChange={onAlertsChange}
-              dropdowns={locationDropdowns}
+              dropdowns={referenceDropdowns}
             />
           </div>
         ) : null}
@@ -526,7 +546,7 @@ export function LocationTabbedView({
             config={locationActivityTableConfig}
             rows={location.activities}
             onChange={onActivitiesChange}
-            dropdowns={locationDropdowns}
+            dropdowns={referenceDropdowns}
           />
         ) : null}
 

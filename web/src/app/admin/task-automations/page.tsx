@@ -1,5 +1,5 @@
-import { TaskAutomationsAdminView } from "@/components/admin/task-automations-admin-page";
+import { redirect } from "next/navigation";
 
-export default function TaskAutomationsAdminPage() {
-  return <TaskAutomationsAdminView />;
+export default function AdminTaskAutomationsRedirect() {
+  redirect("/system/tasks/task-automations");
 }

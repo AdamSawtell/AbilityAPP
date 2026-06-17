@@ -1,4 +1,5 @@
 import { bulkLocations } from "@/lib/location-bulk-seed";
+import { defaultReferenceData } from "@/lib/reference-data";
 
 export type LocationAlertRow = {
   id: string;
@@ -109,56 +110,22 @@ export const locationTabGroups: LocationTabGroup[] = [
   { label: "History", tabs: ["Activity"] },
 ];
 
-export const locationTypeOptions = [
-  "SIL house",
-  "Day program",
-  "Community hub",
-  "Office",
-  "Respite",
-  "Therapy room",
-  "Other",
-] as const;
-
-export const locationStatusOptions = ["Active", "Inactive", "Planned", "Closed"] as const;
-
-export const locationClientRoleOptions = ["Resident", "Regular attendee", "Occasional", "Visitor"] as const;
-
-export const locationEmployeeRoleOptions = [
-  "Site manager",
-  "Support worker",
-  "Team leader",
-  "Relief staff",
-  "Allied health",
-  "Other",
-] as const;
-
-export const locationAlertTypeOptions = [
-  "Safety",
-  "Access",
-  "Operational",
-  "Clinical",
-  "Maintenance",
-  "Other",
-] as const;
-
-export const locationActivityTypeOptions = [
-  "Site visit",
-  "Maintenance",
-  "Incident follow-up",
-  "Phone call",
-  "Note",
-  "Other",
-] as const;
+export const locationTypeOptions = defaultReferenceData.locationType;
+export const locationStatusOptions = defaultReferenceData.locationStatus;
+export const locationClientRoleOptions = defaultReferenceData.locationClientRole;
+export const locationEmployeeRoleOptions = defaultReferenceData.locationEmployeeRole;
+export const locationAlertTypeOptions = defaultReferenceData.locationAlertType;
+export const locationActivityTypeOptions = defaultReferenceData.locationActivityType;
 
 export const locationDropdowns: Record<string, string[]> = {
-  locationType: [...locationTypeOptions],
-  locationStatus: [...locationStatusOptions],
-  locationClientRole: [...locationClientRoleOptions],
-  locationEmployeeRole: [...locationEmployeeRoleOptions],
-  locationAlertType: [...locationAlertTypeOptions],
-  locationActivityType: [...locationActivityTypeOptions],
-  showAsAlert: ["Yes", "No"],
-  yesNo: ["Yes", "No"],
+  locationType: defaultReferenceData.locationType,
+  locationStatus: defaultReferenceData.locationStatus,
+  locationClientRole: defaultReferenceData.locationClientRole,
+  locationEmployeeRole: defaultReferenceData.locationEmployeeRole,
+  locationAlertType: defaultReferenceData.locationAlertType,
+  locationActivityType: defaultReferenceData.locationActivityType,
+  showAsAlert: defaultReferenceData.showAsAlert,
+  yesNo: defaultReferenceData.yesNo,
 };
 
 export const locationOverviewFields: (keyof LocationRecord)[] = [

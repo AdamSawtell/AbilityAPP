@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import type { ChatThreadState, TaskDraft } from "@/lib/ai/types";
+import { defaultReferenceData } from "@/lib/reference-data";
 import { canCreateTaskType } from "@/lib/task-type-access";
 import {
   assigneeLabel,
@@ -29,7 +30,9 @@ function normalizeDraft(raw: Record<string, unknown>): TaskDraft {
     title: String(raw.title ?? "").trim(),
     description: String(raw.description ?? "").trim(),
     taskTypeId: String(raw.taskTypeId ?? "tt-other").trim(),
-    priority: (["Low", "Normal", "High"].includes(String(raw.priority)) ? raw.priority : "Normal") as TaskDraft["priority"],
+    priority: (defaultReferenceData.taskPriority.includes(String(raw.priority))
+      ? raw.priority
+      : "Normal") as TaskDraft["priority"],
     dueDate: parseDueDate(String(raw.dueDate ?? "")),
     assignmentType: raw.assignmentType === "role" ? "role" : "user",
     assigneeUserId: String(raw.assigneeUserId ?? "").trim(),

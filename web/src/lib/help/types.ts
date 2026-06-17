@@ -6,6 +6,7 @@ export type HelpCategory =
   | "Services"
   | "Reports"
   | "Admin"
+  | "System setup"
   | "Reference";
 
 export type HelpSection = {

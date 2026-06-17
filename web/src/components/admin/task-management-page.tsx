@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
 import { useAuth } from "@/lib/auth-store";
 import type { AppRoleRecord, TaskTypePermission } from "@/lib/access/types";
 import {
@@ -35,7 +36,7 @@ function PermissionToggle({
   );
 }
 
-export function TaskManagementAdminView() {
+export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { roles, upsertRole, canWindow } = useAuth();
   const { taskTypes, upsertTaskType, resetTaskTypes } = useTaskTypes();
   const hasAccess = canWindow("admin-task-management");
@@ -55,13 +56,15 @@ export function TaskManagementAdminView() {
     return mergeTaskTypePermissions(roleRecord.taskTypePermissions, sortedTypes.map((t) => t.id));
   }, [roleRecord, sortedTypes]);
 
+  const Shell = variant === "system" ? SystemShell : AppShell;
+
   if (!hasAccess) {
     return (
-      <AppShell title="Task management" audit={{ moduleLabel: "Task type administration" }}>
+      <Shell title="Task management" audit={{ moduleLabel: "Task type administration" }}>
         <p className="text-sm text-slate-600">
           You do not have access to task administration. Ask an administrator to grant the Task management window for your role.
         </p>
-      </AppShell>
+      </Shell>
     );
   }
 
@@ -125,14 +128,22 @@ export function TaskManagementAdminView() {
   }
 
   return (
-    <AppShell
+    <Shell
       title="Task management"
       subtitle="Configure task types and which roles can see, select, and create each type."
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Admin", href: "/admin/task-management" },
-        { label: "Task management" },
-      ]}
+      breadcrumbs={
+        variant === "system"
+          ? [
+              { label: "System", href: "/system" },
+              { label: "Tasks", href: "/system/tasks/task-management" },
+              { label: "Task management" },
+            ]
+          : [
+              { label: "Home", href: "/" },
+              { label: "Admin", href: "/admin/task-management" },
+              { label: "Task management" },
+            ]
+      }
       audit={{ moduleLabel: "Task type administration" }}
       actions={
         <button
@@ -304,6 +315,6 @@ export function TaskManagementAdminView() {
           </button>
         </section>
       </div>
-    </AppShell>
+    </Shell>
   );
 }

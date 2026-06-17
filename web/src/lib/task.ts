@@ -4,6 +4,7 @@
  */
 
 import { legacyActionTypeToId } from "@/lib/task-type";
+import { defaultReferenceData } from "@/lib/reference-data";
 
 export type TaskStatus = "Open" | "In progress" | "Completed" | "Cancelled";
 
@@ -66,7 +67,7 @@ export type TaskRecord = {
 };
 
 export const taskStatusOptions: TaskStatus[] = ["Open", "In progress", "Completed", "Cancelled"];
-export const taskPriorityOptions = ["Low", "Normal", "High"] as const;
+export const taskPriorityOptions = defaultReferenceData.taskPriority;
 
 export const taskEntityTypeLabels: Record<TaskEntityType, string> = {
   enquiry: "Enquiry",

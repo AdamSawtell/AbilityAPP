@@ -211,7 +211,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     group: "Admin",
     href: "/admin/organization",
     abilityErpName: "Client Organization",
-    showInSidebar: true,
+    showInSidebar: false,
   },
   {
     key: "admin-reference-data",
@@ -219,7 +219,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     group: "Admin",
     href: "/admin/reference-data",
     abilityErpName: "Reference data / System configurator",
-    showInSidebar: true,
+    showInSidebar: false,
   },
   {
     key: "admin-roles",
@@ -251,7 +251,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     group: "Admin",
     href: "/admin/ai-agents",
     abilityErpName: "AI assistants",
-    showInSidebar: true,
+    showInSidebar: false,
   },
 ];
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useOrganization } from "@/lib/organization-store";
@@ -31,7 +32,7 @@ import {
   renderAutomationTemplate,
 } from "@/lib/task-automation/engine";
 import { incidentEventsFromSave } from "@/lib/task-automation/incident-triggers";
-import { taskPriorityOptions } from "@/lib/task";
+import { useReferenceData } from "@/lib/config-store";
 import { useOrgStructure } from "@/lib/org-structure-store";
 
 const inputClass =
@@ -57,11 +58,12 @@ function Field({
   );
 }
 
-export function TaskAutomationsAdminView() {
+export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { roles, users, canWindow } = useAuth();
   const { taskAutomations, upsertTaskAutomation, deleteTaskAutomation, incidents, tasks, employees } = useData();
   const { organization } = useOrganization();
   const { taskTypes, getTaskTypeName } = useTaskTypes();
+  const { getOptions } = useReferenceData();
   const { positions, assignments } = useOrgStructure();
   const hasAccess = canWindow("admin-task-automations") || canWindow("admin-task-management");
 
@@ -114,13 +116,16 @@ export function TaskAutomationsAdminView() {
     }).drafts;
   }, [record, previewIncident, tasks, organization.incidentInvestigationSlaDays, positions, assignments, employees, users]);
 
+  const Shell = variant === "system" ? SystemShell : AppShell;
+  const guideHref = variant === "system" ? "/system/guides/task-automations" : "/help/task-automations";
+
   if (!hasAccess) {
     return (
-      <AppShell title="Task automations" audit={{ moduleLabel: "Task automation administration" }}>
+      <Shell title="Task automations" audit={{ moduleLabel: "Task automation administration" }}>
         <p className="text-sm text-slate-600">
           You do not have access to task automation administration. Ask an administrator to grant the Task automations window for your role.
         </p>
-      </AppShell>
+      </Shell>
     );
   }
 
@@ -208,14 +213,23 @@ export function TaskAutomationsAdminView() {
   const engineLive = record ? isModuleEngineLive(record.module) : true;
 
   return (
-    <AppShell
+    <Shell
       title="Task automations"
       subtitle="When something happens in the system, create a task for a role; your in-app alert channel."
+      breadcrumbs={
+        variant === "system"
+          ? [
+              { label: "System", href: "/system" },
+              { label: "Tasks", href: "/system/tasks/task-automations" },
+              { label: "Task automations" },
+            ]
+          : undefined
+      }
       audit={{ moduleLabel: "Task automation administration" }}
     >
       <p className="mb-6 text-sm text-slate-600">
         Configure rules by record type (enquiry, client, location, employee, incident).{" "}
-        <Link href="/help/task-automations" className="font-medium text-[#b51266] hover:underline">
+        <Link href={guideHref} className="font-medium text-[#b51266] hover:underline">
           Read the full how-to guide
         </Link>
       </p>
@@ -432,7 +446,7 @@ export function TaskAutomationsAdminView() {
                     value={record.priority}
                     onChange={(e) => patch({ priority: e.target.value as TaskAutomationRecord["priority"] })}
                   >
-                    {taskPriorityOptions.map((p) => (
+                    {getOptions("taskPriority").map((p) => (
                       <option key={p} value={p}>
                         {p}
                       </option>
@@ -640,6 +654,6 @@ export function TaskAutomationsAdminView() {
           </div>
         )}
       </div>
-    </AppShell>
+    </Shell>
   );
 }

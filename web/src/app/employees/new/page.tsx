@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { useReferenceData } from "@/lib/config-store";
 import { useData } from "@/lib/data-store";
 import { employeeProfileFields, type EmployeeRecord } from "@/lib/employee";
 
@@ -23,6 +24,7 @@ const emptyCollections = {
 };
 
 export default function NewEmployeePage() {
+  const { getOptions } = useReferenceData();
   const router = useRouter();
   const { addEmployee } = useData();
   const [record, setRecord] = useState<EmployeeRecord>({
@@ -139,7 +141,7 @@ export default function NewEmployeePage() {
                   onChange={(e) => onChange(field.key, e.target.value)}
                 >
                   <option value="">—</option>
-                  {field.options?.map((opt) => (
+                  {(field.optionsKey ? getOptions(field.optionsKey) : []).map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}
                     </option>

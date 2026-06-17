@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
 import { ACCESS_PROCESSES, ACCESS_WINDOWS, childWindows } from "@/lib/access/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
@@ -11,7 +12,7 @@ function newRoleId() {
   return `role-${Date.now()}`;
 }
 
-export function RolesAdminView() {
+export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { roles, upsertRole } = useAuth();
   const [activeId, setActiveId] = useState<string | null>(roles[0]?.id ?? null);
   const [draft, setDraft] = useState<AppRoleRecord | null>(null);
@@ -97,15 +98,21 @@ export function RolesAdminView() {
     setDraft(null);
   }
 
+  const Shell = variant === "system" ? SystemShell : AppShell;
+
   return (
-    <AppShell
+    <Shell
       title="Roles"
       subtitle="Roles control which windows and processes a user can see when signed in with that role."
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Admin", href: "/admin/roles" },
-        { label: "Roles" },
-      ]}
+      breadcrumbs={
+        variant === "system"
+          ? [{ label: "System", href: "/system" }, { label: "Admin", href: "/system/admin/roles" }, { label: "Roles" }]
+          : [
+              { label: "Home", href: "/" },
+              { label: "Admin", href: "/admin/roles" },
+              { label: "Roles" },
+            ]
+      }
       audit={{ moduleLabel: "Role administration" }}
       actions={
         <button
@@ -302,7 +309,7 @@ export function RolesAdminView() {
           )}
         </div>
       </div>
-    </AppShell>
+    </Shell>
   );
 }
 

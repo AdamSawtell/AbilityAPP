@@ -9,7 +9,7 @@ function renderInlineLinks(text: string) {
     const match = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(part);
     if (!match) return <span key={index}>{part}</span>;
     const [, label, href] = match;
-    if (href.startsWith("/help/")) {
+    if (href.startsWith("/help/") || href.startsWith("/system/guides/")) {
       return (
         <Link key={index} href={href} className="font-medium text-[#b51266] hover:underline">
           {label}

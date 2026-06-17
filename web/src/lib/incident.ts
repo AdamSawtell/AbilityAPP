@@ -1,4 +1,5 @@
 import { newLineId } from "@/lib/client-line-tables";
+import { defaultReferenceData } from "@/lib/reference-data";
 
 export type IncidentStatus =
   | "Draft"
@@ -101,38 +102,15 @@ export type IncidentRecord = {
   evidence: IncidentEvidenceRow[];
 };
 
-export const incidentStatusOptions: IncidentStatus[] = [
-  "Draft",
-  "Submitted",
-  "Manager reviewed",
-  "Commission notified",
-  "Under investigation",
-  "Actions in progress",
-  "Closed",
-];
+export const incidentStatusOptions: IncidentStatus[] = defaultReferenceData.incidentStatus as IncidentStatus[];
 
-export const incidentSeverityOptions: IncidentSeverity[] = ["Low", "Medium", "High", "Critical"];
+export const incidentSeverityOptions: IncidentSeverity[] =
+  defaultReferenceData.incidentSeverity as IncidentSeverity[];
 
-export const incidentCategoryOptions = [
-  "Operational",
-  "Near miss",
-  "Injury",
-  "Behaviour",
-  "Restrictive practice",
-  "Property damage",
-  "Other",
-] as const;
+export const incidentCategoryOptions = defaultReferenceData.incidentCategory;
 
 /** NDIS / service line the incident occurred under (set on the record; used in analytics). */
-export const incidentServiceTypeOptions = [
-  "NDIS Support",
-  "SIL",
-  "Community Participation",
-  "Therapy",
-  "Transport",
-  "Administration",
-  "Unassigned",
-] as const;
+export const incidentServiceTypeOptions = defaultReferenceData.incidentServiceType;
 
 export const ndisReportableTypeOptions: NdisReportableType[] = [
   "",

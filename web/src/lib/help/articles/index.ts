@@ -1,3 +1,4 @@
+import { SYSTEM_SETUP_ARTICLES } from "@/lib/help/articles/system-setup";
 import { quickTaskArticles } from "@/lib/help/articles/quick-tasks";
 import { taskAutomationsArticle } from "@/lib/help/articles/task-automations";
 import { adminArticle, maintainingGuideArticle, reportsArticle, servicesArticle } from "@/lib/help/articles/services-admin";
@@ -27,6 +28,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   adminArticle,
   taskAutomationsArticle,
   maintainingGuideArticle,
+  ...SYSTEM_SETUP_ARTICLES,
 ];
 
 export const HELP_CATEGORIES: HelpCategory[] = [
@@ -37,6 +39,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
   "Services",
   "Reports",
   "Admin",
+  "System setup",
   "Reference",
 ];
 
@@ -48,5 +51,6 @@ export const HELP_CATEGORY_LABELS: Record<HelpCategory, string> = {
   Services: "Services",
   Reports: "Reports",
   Admin: "Administration",
+  "System setup": "System setup",
   Reference: "Reference",
 };

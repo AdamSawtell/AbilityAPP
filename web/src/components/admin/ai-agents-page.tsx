@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, startTransition } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
 import type { AiAgentRecord, AiToolName } from "@/lib/ai/types";
 import type { AiToolDefinition } from "@/lib/ai/catalog";
 
@@ -15,7 +16,7 @@ function newAgentId() {
   return `agent-${Date.now()}`;
 }
 
-export function AiAgentsAdminView() {
+export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const [agents, setAgents] = useState<AiAgentRecord[]>([]);
   const [roleAgents, setRoleAgents] = useState<Record<string, string[]>>({});
   const [roles, setRoles] = useState<RoleSummary[]>([]);
@@ -178,15 +179,25 @@ export function AiAgentsAdminView() {
 
   const activeAgents = useMemo(() => agents.filter((a) => a.active), [agents]);
 
+  const Shell = variant === "system" ? SystemShell : AppShell;
+
   return (
-    <AppShell
+    <Shell
       title="AI assistants"
       subtitle="Define assistants, tools, prompts, and which roles can use them on Home."
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Admin", href: "/admin/ai-agents" },
-        { label: "AI assistants" },
-      ]}
+      breadcrumbs={
+        variant === "system"
+          ? [
+              { label: "System", href: "/system" },
+              { label: "AI", href: "/system/ai/assistants" },
+              { label: "AI assistants" },
+            ]
+          : [
+              { label: "Home", href: "/" },
+              { label: "Admin", href: "/admin/roles" },
+              { label: "AI assistants" },
+            ]
+      }
       audit={{ moduleLabel: "AI assistant administration" }}
       actions={
         <div className="flex flex-wrap gap-2">
@@ -427,6 +438,6 @@ export function AiAgentsAdminView() {
           </div>
         </div>
       )}
-    </AppShell>
+    </Shell>
   );
 }

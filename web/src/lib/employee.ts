@@ -1,6 +1,7 @@
 import { syncCredentialStatuses } from "@/lib/employee-compliance";
 import { bulkEmployees } from "@/lib/employee-bulk-seed";
 import { leadershipEmployees } from "@/lib/org-leadership-seed";
+import { defaultReferenceData } from "@/lib/reference-data";
 
 export type EmployeeCredentialRow = {
   id: string;
@@ -248,21 +249,11 @@ export const employeePayrollFields: (keyof EmployeeRecord)[] = [
 
 export const employeeLeaveFields: (keyof EmployeeRecord)[] = ["leavePolicy", "standardHoursPerWeek", "fte"];
 
-export const genderOptions = ["Female", "Male", "Non-binary", "Prefer not to say", "Other"] as const;
-export const employmentStatusOptions = ["Active", "On leave", "Terminated"] as const;
-export const employmentTypeOptions = ["Full-time", "Part-time", "Casual", "Contractor", "Volunteer"] as const;
-export const payMethodOptions = ["Bank", "Cash", "Cheque"] as const;
-
-export const departmentOptions = [
-  "Executive",
-  "Intake",
-  "Client services",
-  "Support coordination",
-  "Finance",
-  "HR",
-  "IT",
-  "Operations",
-] as const;
+export const genderOptions = defaultReferenceData.gender;
+export const employmentStatusOptions = defaultReferenceData.employmentStatus;
+export const employmentTypeOptions = defaultReferenceData.employmentType;
+export const payMethodOptions = defaultReferenceData.payMethod;
+export const departmentOptions = defaultReferenceData.department;
 
 export const employeeListColumns = [
   { key: "searchKey" as const, label: "Search key" },
@@ -945,7 +936,7 @@ export function employeeProfileFields(): {
   key: keyof EmployeeRecord;
   label: string;
   type: "text" | "email" | "tel" | "date" | "select" | "number";
-  options?: readonly string[];
+  optionsKey?: string;
 }[] {
   return [
     { key: "searchKey", label: "Search key", type: "text" },
@@ -953,16 +944,16 @@ export function employeeProfileFields(): {
     { key: "lastName", label: "Last name", type: "text" },
     { key: "preferredName", label: "Preferred name", type: "text" },
     { key: "middleName", label: "Middle name", type: "text" },
-    { key: "gender", label: "Gender", type: "select", options: genderOptions },
+    { key: "gender", label: "Gender", type: "select", optionsKey: "gender" },
     { key: "birthday", label: "Date of birth", type: "date" },
     { key: "employeeNumber", label: "Employee number", type: "text" },
     { key: "email", label: "Email", type: "email" },
     { key: "phone", label: "Phone", type: "tel" },
     { key: "mobile", label: "Mobile", type: "tel" },
-    { key: "employmentType", label: "Employment type", type: "select", options: employmentTypeOptions },
+    { key: "employmentType", label: "Employment type", type: "select", optionsKey: "employmentType" },
     { key: "jobTitle", label: "Job title", type: "text" },
-    { key: "department", label: "Department", type: "select", options: departmentOptions },
-    { key: "employmentStatus", label: "Employment status", type: "select", options: employmentStatusOptions },
+    { key: "department", label: "Department", type: "select", optionsKey: "department" },
+    { key: "employmentStatus", label: "Employment status", type: "select", optionsKey: "employmentStatus" },
     { key: "startDate", label: "Start date", type: "date" },
     { key: "endDate", label: "End date", type: "date" },
     { key: "notes", label: "Notes", type: "text" },

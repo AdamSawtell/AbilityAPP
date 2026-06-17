@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
+import { useSystemAuthOptional } from "@/lib/system-auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import {
   ORGANIZATION_ID,
@@ -62,9 +64,11 @@ function OrgField({
   );
 }
 
-export function OrganizationAdminView() {
+export function OrganizationAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { organization, source, updateOrganization, resetOrganization } = useOrganization();
-  const { session } = useAuth();
+  const { session: workspaceSession } = useAuth();
+  const systemAuth = useSystemAuthOptional();
+  const session = variant === "system" ? systemAuth?.session : workspaceSession;
   const [draft, setDraft] = useState<OrganizationRecord | null>(null);
   const [saved, setSaved] = useState(false);
 
@@ -76,7 +80,7 @@ export function OrganizationAdminView() {
     const base = draft ?? organization;
     const next: OrganizationRecord = {
       ...base,
-      updatedBy: session?.displayName ?? session?.username ?? "SuperUser",
+      updatedBy: session?.displayName ?? session?.username ?? "System",
     };
     if (key === "incidentInvestigationSlaDays") {
       const n = Number.parseInt(value, 10);
@@ -100,20 +104,30 @@ export function OrganizationAdminView() {
     setSaved(false);
   }
 
+  const Shell = variant === "system" ? SystemShell : AppShell;
+  const subtitle =
+    source === "supabase"
+      ? "Provider profile stored in Supabase — used for branding, NDIS details, and future document templates."
+      : "Configure your provider organisation profile for branding and NDIS registration details.";
+
   return (
     <>
-      <AppShell
+      <Shell
         title="Organisation"
-        subtitle={
-          source === "supabase"
-            ? "Provider profile stored in Supabase — used for branding, NDIS details, and future document templates."
-            : "Configure your provider organisation profile for branding and NDIS registration details."
+        subtitle={subtitle}
+        breadcrumbs={
+          variant === "system"
+            ? [
+                { label: "System", href: "/system" },
+                { label: "Organisation", href: "/system/organization" },
+                { label: "Organisation profile" },
+              ]
+            : [
+                { label: "Home", href: "/" },
+                { label: "Admin", href: "/admin/organization" },
+                { label: "Organisation" },
+              ]
         }
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Admin", href: "/admin/organization" },
-          { label: "Organisation" },
-        ]}
         audit={{
           entityType: "organization",
           entityId: ORGANIZATION_ID,
@@ -183,7 +197,7 @@ export function OrganizationAdminView() {
             </section>
           ))}
         </div>
-      </AppShell>
+      </Shell>
 
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
     </>

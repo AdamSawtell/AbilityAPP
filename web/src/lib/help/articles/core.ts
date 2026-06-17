@@ -61,8 +61,8 @@ export const tasksArticle: HelpArticle = {
     {
       id: "task-types",
       title: "Task types and permissions",
-      body: "Administrators define task types under Admin → Task management. Your role grants create, assign, and complete rights per task type.",
-      relatedRoutes: ["/admin/task-management"],
+      body: "Administrators define task types under System → Tasks → Task management. Your role grants create, assign, and complete rights per task type.",
+      relatedRoutes: ["/system/tasks/task-management"],
       windowKeys: ["admin-task-management"],
     },
   ],

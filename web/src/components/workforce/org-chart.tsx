@@ -18,7 +18,7 @@ import {
   type OrgChartFilters,
   type OrgChartLens,
 } from "@/lib/org-structure-tree";
-import { ORG_CHART_TIER_OPTIONS, orgChartTierLabel } from "@/lib/org-chart-tiers";
+import { useOrgChartTierConfig } from "@/lib/org-chart-tier-config-store";
 import { OrgChartTierView } from "@/components/workforce/org-chart-tier-view";
 import { OrgChartDottedLines } from "@/components/workforce/org-chart-dotted-lines";
 import { useOrgStructure } from "@/lib/org-structure-store";
@@ -200,6 +200,7 @@ export function OrgChart({
   const { employees, locations } = useData();
   const { positions, assignments, reportingLines, reparentPosition } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
+  const { tiers: tierConfigs } = useOrgChartTierConfig();
   const canEdit = canWindow("workforce-org-edit");
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
@@ -327,6 +328,7 @@ export function OrgChart({
         <div key={tierLayoutKey} className="relative mx-auto w-full px-2 pb-4">
           <OrgChartTierView
             positions={chartPositions}
+            tierConfigs={tierConfigs}
             employeesById={employeesById}
             employeeNameById={employeeNameById}
             locationNameById={locationNameById}
@@ -396,6 +398,7 @@ export function OrgPositionEditor({
   const { employees, locations } = useData();
   const { positions, assignments, reportingLines, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition, addDottedReportingLine, removeDottedReportingLine } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
+  const { activeTiers, tierLabel } = useOrgChartTierConfig();
   const canEdit = canWindow("workforce-org-edit");
   const canEditChartTier = canWindow("workforce-org-chart-tier");
   const canManageAccess =
@@ -541,23 +544,23 @@ export function OrgPositionEditor({
                   onChange={(e) => patch({ chartTier: Number(e.target.value) })}
                   className="mt-1 w-full rounded-lg border border-sky-200 bg-white px-3 py-2 text-sm"
                 >
-                  {ORG_CHART_TIER_OPTIONS.filter((o) => o.value > 0).map((o) => (
-                    <option key={o.value} value={o.value}>
+                  {activeTiers.map((o) => (
+                    <option key={o.tier} value={o.tier}>
                       {o.label}
                     </option>
                   ))}
                 </select>
                 <p className="mt-1 text-[10px] text-sky-800">
-                  {ORG_CHART_TIER_OPTIONS.find((o) => o.value === position.chartTier)?.hint ??
-                    "Assign in Admin → Roles under Organisation structure — chart tiers."}
+                  {activeTiers.find((o) => o.tier === position.chartTier)?.hint ??
+                    "Tier bands are defined in System setup."}
                 </p>
               </label>
             ) : (
               <p className="mt-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-sm text-sky-950">
-                <span className="font-medium">{orgChartTierLabel(position.chartTier)}</span>
+                <span className="font-medium">{tierLabel(position.chartTier)}</span>
                 <span className="mt-1 block text-[10px] font-normal text-sky-800">
-                  Only roles with Organisation structure — chart tiers can change this. Ask an administrator or assign
-                  that window in Admin → Roles.
+                  Tier labels are managed in System setup. Only roles with Organisation structure — chart tiers can
+                  change which band a position uses.
                 </span>
               </p>
             )}

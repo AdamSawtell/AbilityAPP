@@ -200,12 +200,17 @@ function TierDeliveryGroup({
 
 export function OrgChartTierView({
   positions,
+  tierConfigs,
   renderCard,
   ...ctx
 }: TierViewContext & {
   positions: OrgPositionRecord[];
+  tierConfigs?: import("@/lib/org-chart-tier-config").OrgChartTierConfigRecord[];
 }) {
-  const bands = useMemo(() => groupPositionsByChartTier(positions), [positions]);
+  const bands = useMemo(
+    () => groupPositionsByChartTier(positions, tierConfigs),
+    [positions, tierConfigs]
+  );
   const slotCtx: TierViewContext = { ...ctx, renderCard };
 
   return (

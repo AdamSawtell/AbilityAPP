@@ -1,5 +1,5 @@
-import { OrganizationAdminView } from "@/components/admin/organization-page";
+import { redirect } from "next/navigation";
 
 export default function OrganizationAdminPage() {
-  return <OrganizationAdminView />;
+  redirect("/system/organization");
 }

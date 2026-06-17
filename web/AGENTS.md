@@ -40,6 +40,15 @@ npm run build
 npm run lint
 ```
 
+## System navigation (required)
+
+The System area (`/system`) sidebar must mirror the workspace main menu. When you add a new **main menu section** in `web/src/components/sidebar-nav.tsx`, add a matching section in `web/src/lib/system/nav.ts` (`SYSTEM_NAV_SECTIONS`) with the same label, order, icon, and expandable format. Use empty `links` until setup pages exist.
+
+Every section's submenu must end with **Reference data** via `withReferenceData()` in `nav.ts`.
+Assign each new list in `web/src/lib/system/reference-data-sections.ts`. Shared lists (gender, yes/no, address, etc.) belong under **Admin**.
+
+System UI uses the same light theme as `AppShell` — not a separate dark mode.
+
 ## In-app help (required for new UI)
 
 User-facing how-to content lives in `web/src/lib/help/articles/`. Update it when you add windows, tabs, reports, or workflows.

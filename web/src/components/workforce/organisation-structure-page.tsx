@@ -176,7 +176,11 @@ export function OrganisationStructurePage() {
             {canEditChartTier ? (
               <p className="text-xs text-sky-800">
                 Select a position, then use the <span className="font-medium">Chart tier</span> section in the editor to
-                change which row it appears on.
+                change which row it appears on. Tier labels are managed in{" "}
+                <Link href="/system/org-chart-tiers" className="font-medium underline-offset-2 hover:underline">
+                  System setup
+                </Link>
+                .
               </p>
             ) : null}
           </div>

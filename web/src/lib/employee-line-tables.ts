@@ -11,6 +11,7 @@ import type {
 } from "@/lib/employee";
 import { newLineId, renumberLines } from "@/lib/client-line-tables";
 import type { GenericTableConfig } from "@/components/line-item-table";
+import { defaultReferenceData } from "@/lib/reference-data";
 
 export { renumberLines };
 
@@ -55,21 +56,8 @@ export function emptyEmergencyContactRow(lineNo: number): EmployeeEmergencyConta
   };
 }
 
-export const credentialTypeOptions = [
-  "NDIS Worker Screening",
-  "Working with Children Check",
-  "Police Check",
-  "First Aid Certificate",
-  "CPR Certificate",
-  "Manual Handling",
-  "Driver Licence",
-  "Visa / work rights",
-  "Qualification",
-  "Insurance",
-  "Other",
-] as const;
-
-export const credentialStatusOptions = ["Current", "Expiring soon", "Expired", "Pending", "Revoked"] as const;
+export const credentialTypeOptions = defaultReferenceData.credentialType;
+export const credentialStatusOptions = defaultReferenceData.credentialStatus;
 
 export const credentialTableConfig: GenericTableConfig<EmployeeCredentialRow> = {
   addLabel: "Add credential",
@@ -238,13 +226,5 @@ export const employeeLeaveRequestTableConfig: GenericTableConfig<EmployeeLeaveRe
   }),
 };
 
-export const emergencyContactTypeOptions = ["Emergency", "Next of kin"] as const;
-export const contactRelationshipOptions = [
-  "Spouse",
-  "Partner",
-  "Parent",
-  "Sibling",
-  "Child",
-  "Friend",
-  "Other",
-] as const;
+export const emergencyContactTypeOptions = defaultReferenceData.emergencyContactType;
+export const contactRelationshipOptions = defaultReferenceData.contactRelationship;

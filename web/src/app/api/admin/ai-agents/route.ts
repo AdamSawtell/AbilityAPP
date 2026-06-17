@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getAuthSessionFromRequest, sessionHasWindow } from "@/lib/auth/session.server";
+import { readSystemSessionFromCookies } from "@/lib/system/session.server";
 import { fetchRoles } from "@/lib/supabase/access-api";
 import {
   deleteAgent,
@@ -21,14 +22,21 @@ function serviceClient() {
   return createSupabaseClient(url, key, { auth: { persistSession: false } });
 }
 
-function canManageAi(session: NonNullable<Awaited<ReturnType<typeof getAuthSessionFromRequest>>>) {
+async function canManageAiAgents() {
+  const systemSession = await readSystemSessionFromCookies();
+  if (systemSession) return true;
+  const session = await getAuthSessionFromRequest();
+  if (!session) return false;
   return sessionHasWindow(session, "admin-ai-agents") || sessionHasWindow(session, "admin-roles");
 }
 
 export async function GET() {
-  const session = await getAuthSessionFromRequest();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!canManageAi(session)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!(await canManageAiAgents())) {
+    const session = await getAuthSessionFromRequest();
+    const systemSession = await readSystemSessionFromCookies();
+    if (!session && !systemSession) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const supabase = isSupabaseConfigured() ? serviceClient() : null;
   let agents = SEED_AGENTS;
@@ -67,9 +75,12 @@ type SeedDefaultsBody = { action: "seed-defaults" };
 type DeleteAgentBody = { action: "delete-agent"; agentId: string };
 
 export async function POST(request: Request) {
-  const session = await getAuthSessionFromRequest();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!canManageAi(session)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!(await canManageAiAgents())) {
+    const session = await getAuthSessionFromRequest();
+    const systemSession = await readSystemSessionFromCookies();
+    if (!session && !systemSession) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const supabase = serviceClient();
   if (!supabase) {

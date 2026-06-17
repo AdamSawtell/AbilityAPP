@@ -20,7 +20,7 @@ export const gettingStartedArticle: HelpArticle = {
         "Core: Home, Tasks, Enquiries, Clients, Locations, Reports",
         "People: Employees",
         "Services: Products, price lists, contracts, service agreements",
-        "Admin: Organisation, reference data, roles, task management",
+        "Admin: System setup (organisation, reference data, roles, tasks) — link on the sign-in page",
       ],
     },
     {

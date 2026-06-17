@@ -5,9 +5,10 @@ import { TaskEntitySearchPicker } from "@/components/task-entity-search";
 import { useAuth } from "@/lib/auth-store";
 import { displayName } from "@/lib/access/types";
 import { entityTypeLabel, useTaskEntityIndex, type TaskEntityOption } from "@/lib/task-entities";
+import { useReferenceData } from "@/lib/config-store";
 import { creatableTaskTypes } from "@/lib/task-type-access";
 import { useTaskTypes } from "@/lib/task-type-store";
-import { taskPriorityOptions, type TaskEntityType, type TaskRecord } from "@/lib/task";
+import { type TaskEntityType, type TaskRecord } from "@/lib/task";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -42,6 +43,7 @@ export function TaskForm({
   onCancel,
 }: TaskFormProps) {
   const { session, users, roles } = useAuth();
+  const { getOptions } = useReferenceData();
   const { taskTypes } = useTaskTypes();
   const entityIndex = useTaskEntityIndex();
 
@@ -239,7 +241,7 @@ export function TaskForm({
             value={priority}
             onChange={(e) => setPriority(e.target.value as TaskRecord["priority"])}
           >
-            {taskPriorityOptions.map((o) => (
+            {getOptions("taskPriority").map((o) => (
               <option key={o} value={o}>
                 {o}
               </option>

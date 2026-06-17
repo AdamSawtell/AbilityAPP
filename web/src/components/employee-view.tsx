@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EmployeeAddressesPanel, PrimaryAddressSummary } from "@/components/employee-addresses-panel";
 import {
@@ -15,6 +16,7 @@ import {
 } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { useReferenceData } from "@/lib/config-store";
 import type { AppUserRecord } from "@/lib/access/types";
 import {
   complianceSummary,
@@ -24,9 +26,7 @@ import {
 } from "@/lib/employee-compliance";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import {
-  credentialStatusOptions,
   credentialTableConfig,
-  credentialTypeOptions,
   employeeActivityTableConfig,
   employeeAlertTableConfig,
   employeeDocumentTableConfig,
@@ -43,9 +43,6 @@ import {
   employeeProfileFields,
   employeeTabGroups,
   employeeWorkRightsFields,
-  employmentTypeOptions,
-  genderOptions,
-  payMethodOptions,
   primaryEmployeeLocation,
   type EmployeeActivityRow,
   type EmployeeAlertRow,
@@ -68,10 +65,12 @@ function Field({
   fieldKey,
   employee,
   onChange,
+  getOptions,
 }: {
   fieldKey: keyof EmployeeRecord;
   employee: EmployeeRecord;
   onChange: (key: keyof EmployeeRecord, value: string) => void;
+  getOptions: (key: string) => string[];
 }) {
   const field = fieldMeta.get(fieldKey);
   if (!field) {
@@ -90,15 +89,7 @@ function Field({
     );
   }
 
-  const options =
-    field.options ??
-    (fieldKey === "gender"
-      ? genderOptions
-      : fieldKey === "employmentType"
-        ? employmentTypeOptions
-        : fieldKey === "payMethod"
-          ? payMethodOptions
-          : []);
+  const options = field.type === "select" && field.optionsKey ? getOptions(field.optionsKey) : [];
 
   return (
     <label className="block">
@@ -134,12 +125,14 @@ function FieldSection({
   keys,
   employee,
   onChange,
+  getOptions,
 }: {
   title: string;
   description?: string;
   keys: (keyof EmployeeRecord)[];
   employee: EmployeeRecord;
   onChange: (key: keyof EmployeeRecord, value: string) => void;
+  getOptions: (key: string) => string[];
 }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -147,7 +140,7 @@ function FieldSection({
       {description ? <p className="mt-1 text-sm text-slate-500">{description}</p> : null}
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {keys.map((key) => (
-          <Field key={key} fieldKey={key} employee={employee} onChange={onChange} />
+          <Field key={key} fieldKey={key} employee={employee} onChange={onChange} getOptions={getOptions} />
         ))}
       </div>
     </div>
@@ -230,6 +223,7 @@ export function EmployeeTabbedView({
   const searchParams = useSearchParams();
   const { session, canWindow, canProcess } = useAuth();
   const { getIncidentsForEmployee } = useData();
+  const { getOptions } = useReferenceData();
 
   const allowedTabs = allowedDetailTabsFromGroups("employees", employeeTabGroups, session?.windowKeys ?? []);
   const incidentCount = getIncidentsForEmployee(employee.id).length;
@@ -261,27 +255,22 @@ export function EmployeeTabbedView({
   const manualAlerts = employee.alerts.filter((a) => a.source !== "System");
   const systemAlerts = displayAlerts.filter((a) => a.source === "System");
 
-  const employeeDropdowns = {
-    credentialType: [...credentialTypeOptions],
-    credentialStatus: [...credentialStatusOptions],
-    employeeAlertType: ["Compliance", "Operational", "HR", "Safety", "Other"],
-    showAsAlert: ["No", "Yes"],
-    employeeSkillType: ["Language", "Skill", "Specialisation"],
-    skillProficiency: ["Basic", "Intermediate", "Advanced", "Native", "Fluent"],
-    employeeDocumentType: [
-      "Employment contract",
-      "Position description",
-      "Photo ID",
-      "Right to work",
-      "Signed policy",
-      "Qualification",
-      "Other",
-    ],
-    employeeDocumentStatus: ["Current", "Expiring soon", "Expired", "Archived"],
-    employeeActivityType: ["Note", "Onboarding", "Training", "Performance review", "Incident", "Other"],
-    leaveType: ["Annual leave", "Personal / carer's leave", "Long service leave", "Parental leave", "Unpaid leave"],
-    employeeLeaveStatus: ["Draft", "Requested", "Approved", "Declined", "Cancelled", "Taken"],
-  };
+  const employeeDropdowns = useMemo(
+    () => ({
+      credentialType: getOptions("credentialType"),
+      credentialStatus: getOptions("credentialStatus"),
+      employeeAlertType: getOptions("employeeAlertType"),
+      showAsAlert: getOptions("showAsAlert"),
+      employeeSkillType: getOptions("employeeSkillType"),
+      skillProficiency: getOptions("skillProficiency"),
+      employeeDocumentType: getOptions("employeeDocumentType"),
+      employeeDocumentStatus: getOptions("employeeDocumentStatus"),
+      employeeActivityType: getOptions("employeeActivityType"),
+      leaveType: getOptions("leaveType"),
+      employeeLeaveStatus: getOptions("employeeLeaveStatus"),
+    }),
+    [getOptions]
+  );
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -345,6 +334,7 @@ export function EmployeeTabbedView({
         {activeTab === "Overview" && canWindow("employee-overview") ? (
           <div className="space-y-4">
             <FieldSection
+              getOptions={getOptions}
               title="Overview"
               description="Core employee identity and status."
               keys={employeeOverviewFields}
@@ -379,6 +369,7 @@ export function EmployeeTabbedView({
         {activeTab === "Contact" && canWindow("employee-contact") ? (
           <div className="space-y-4">
             <FieldSection
+              getOptions={getOptions}
               title="Contact"
               description="How to reach this employee."
               keys={employeeContactFields}
@@ -399,6 +390,7 @@ export function EmployeeTabbedView({
 
         {activeTab === "Employment" && canWindow("employee-employment") ? (
           <FieldSection
+            getOptions={getOptions}
             title="Employment"
             description="Role, department, employment type, and key dates."
             keys={employeeEmploymentFields}
@@ -410,6 +402,7 @@ export function EmployeeTabbedView({
         {activeTab === "Work rights" && canWindow("employee-work-rights") ? (
           <div className="space-y-4">
             <FieldSection
+              getOptions={getOptions}
               title="Work rights"
               description="Driver licence, visa, and work eligibility. Medical restrictions are sensitive — limit access by role."
               keys={employeeWorkRightsFields}
@@ -421,6 +414,7 @@ export function EmployeeTabbedView({
 
         {activeTab === "Payroll" && canWindow("employee-payroll") ? (
           <FieldSection
+            getOptions={getOptions}
             title="Payroll"
             description="Bank and tax details for salary disbursement. Restricted to payroll roles in production."
             keys={employeePayrollFields}
@@ -432,6 +426,7 @@ export function EmployeeTabbedView({
         {activeTab === "Leave" && canWindow("employee-leave") ? (
           <div className="space-y-4">
             <FieldSection
+              getOptions={getOptions}
               title="Leave policy"
               description="Standard hours and leave policy assignment."
               keys={employeeLeaveFields}

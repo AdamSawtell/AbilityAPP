@@ -1,6 +1,7 @@
 import type { OrgPositionRecord } from "@/lib/org-structure";
+import { orgChartTierLabelFromConfig, type OrgChartTierConfigRecord } from "@/lib/org-chart-tier-config";
 
-/** Manually managed chart bands — edit per position in the org chart editor. */
+/** @deprecated Use active tiers from useOrgChartTierConfig — kept for seeds and fallbacks. */
 export const ORG_CHART_TIER_OPTIONS: { value: number; label: string; hint: string }[] = [
   { value: 0, label: "Hidden (root only)", hint: "Not shown on the tier chart" },
   { value: 1, label: "Tier 1 — Governance", hint: "Board / governance container" },
@@ -12,7 +13,11 @@ export const ORG_CHART_TIER_OPTIONS: { value: number; label: string; hint: strin
   { value: 7, label: "Tier 7 — Delivery staff", hint: "Support workers and frontline" },
 ];
 
-export function orgChartTierLabel(tier: number): string {
+export function orgChartTierLabel(
+  tier: number,
+  configs?: OrgChartTierConfigRecord[]
+): string {
+  if (configs?.length) return orgChartTierLabelFromConfig(configs, tier);
   return ORG_CHART_TIER_OPTIONS.find((o) => o.value === tier)?.label ?? `Tier ${tier}`;
 }
 
@@ -36,11 +41,17 @@ export type OrgChartTierBand = {
   positions: OrgPositionRecord[];
 };
 
-export function groupPositionsByChartTier(positions: OrgPositionRecord[]): OrgChartTierBand[] {
+export function groupPositionsByChartTier(
+  positions: OrgPositionRecord[],
+  configs?: OrgChartTierConfigRecord[]
+): OrgChartTierBand[] {
+  const labelFor = (tier: number) => orgChartTierLabel(tier, configs);
+  const activeTiers = configs?.filter((c) => c.active && c.tier > 0).map((c) => c.tier);
   const byTier = new Map<number, OrgPositionRecord[]>();
 
   for (const position of positions) {
     if (position.chartTier <= 0) continue;
+    if (activeTiers?.length && !activeTiers.includes(position.chartTier)) continue;
     const list = byTier.get(position.chartTier) ?? [];
     list.push(position);
     byTier.set(position.chartTier, list);
@@ -50,7 +61,7 @@ export function groupPositionsByChartTier(positions: OrgPositionRecord[]): OrgCh
     .sort((a, b) => a - b)
     .map((tier) => ({
       tier,
-      label: orgChartTierLabel(tier),
+      label: labelFor(tier),
       positions: (byTier.get(tier) ?? []).sort(
         (a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title)
       ),
