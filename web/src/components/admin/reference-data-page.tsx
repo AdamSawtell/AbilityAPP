@@ -25,6 +25,7 @@ export function ReferenceDataAdminView({
   const { catalog, keysByGroup, setOptions, resetKey, resetAll, source } = useReferenceDataAdmin();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
 
   const systemSection: SystemReferenceSectionKey | null =
     variant === "system" && sectionKey && isSystemReferenceSectionKey(sectionKey) ? sectionKey : null;
@@ -44,21 +45,36 @@ export function ReferenceDataAdminView({
     return new Set(referenceDataKeysForSection(systemSection));
   }, [systemSection]);
 
+  const isDirty = useMemo(() => {
+    if (!activeKey) return false;
+    return draftText !== (catalog[activeKey] ?? []).join("\n");
+  }, [activeKey, draftText, catalog]);
+
+  function canLeaveDraft() {
+    if (!isDirty) return true;
+    return window.confirm("You have unsaved changes. Discard them?");
+  }
+
   function openKey(key: string) {
+    if (activeKey && key !== activeKey && !canLeaveDraft()) return;
     setActiveKey(key);
     setDraftText((catalog[key] ?? []).join("\n"));
+    setSaveState("idle");
   }
 
   function saveKey() {
     if (!activeKey) return;
+    setSaveState("saving");
     const options = draftText
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean);
     setOptions(activeKey, options);
+    setSaveState("saved");
   }
 
   function resetSectionToDefaults() {
+    if (!canLeaveDraft()) return;
     if (!sectionKeySet) {
       resetAll();
       return;
@@ -200,7 +216,12 @@ export function ReferenceDataAdminView({
                   {source === "local" ? (
                     <button
                       type="button"
-                      onClick={() => resetKey(activeKey)}
+                      onClick={() => {
+                        if (!canLeaveDraft()) return;
+                        resetKey(activeKey);
+                        setDraftText((catalog[activeKey] ?? []).join("\n"));
+                        setSaveState("idle");
+                      }}
                       className="text-sm font-medium text-slate-600 hover:text-[#b51266]"
                     >
                       Reset to default
@@ -216,10 +237,14 @@ export function ReferenceDataAdminView({
                 <button
                   type="button"
                   onClick={saveKey}
-                  className="mt-4 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
+                  className="mt-4 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
+                  disabled={!isDirty || saveState === "saving"}
                 >
-                  Save options
+                  {saveState === "saving" ? "Saving..." : "Save options"}
                 </button>
+                <p className="mt-2 text-xs text-slate-500">
+                  {saveState === "saved" ? "Saved." : isDirty ? "Unsaved changes." : "No changes."}
+                </p>
               </div>
             ) : (
               <div className="flex min-h-[280px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-8 text-center text-sm text-slate-500">

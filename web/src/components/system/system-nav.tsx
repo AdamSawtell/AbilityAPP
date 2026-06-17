@@ -31,7 +31,7 @@ function subLinkClass(active: boolean) {
 }
 
 function sectionActive(section: SystemNavSection, pathname: string) {
-  return section.links.some((link) => link.href && link.match?.(pathname));
+  return section.links.some((link) => link.href && (link.match?.(pathname) ?? pathname.startsWith(link.href)));
 }
 
 function SystemSectionHeader({
@@ -99,8 +99,9 @@ function SystemSectionSubmenu({
           );
         }
         if (!link.href) return null;
+        const active = link.match?.(pathname) ?? pathname.startsWith(link.href);
         return (
-          <Link key={link.href} href={link.href} className={subLinkClass(Boolean(link.match?.(pathname)))}>
+          <Link key={link.href} href={link.href} className={subLinkClass(Boolean(active))}>
             {link.label}
           </Link>
         );
@@ -118,6 +119,8 @@ export function SystemNav() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   function isOpen(key: string) {
+    const section = SYSTEM_NAV_SECTIONS.find((s) => s.key === key);
+    if (section && sectionActive(section, pathname)) return true;
     return expanded[key] === true;
   }
 

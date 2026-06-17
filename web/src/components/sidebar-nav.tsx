@@ -330,7 +330,7 @@ export function SidebarNav() {
   }
 
   function isOpen(key: string) {
-    if (key === "admin" && pathname.startsWith("/admin")) return true;
+    if (key === "admin" && (pathname.startsWith("/admin") || pathname.startsWith("/system/admin"))) return true;
     if (key === "enquiries" && pathname.startsWith("/enquiries")) return true;
     if (key === "clients" && (pathname.startsWith("/clients") || pathname.startsWith("/service-agreements")))
       return true;

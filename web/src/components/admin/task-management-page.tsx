@@ -21,17 +21,24 @@ const inputClass =
 
 function PermissionToggle({
   label,
+  ariaLabel,
   checked,
   onChange,
 }: {
   label: string;
+  ariaLabel?: string;
   checked: boolean;
   onChange: (value: boolean) => void;
 }) {
   return (
     <label className="inline-flex items-center gap-2 text-sm text-slate-700">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      {label}
+      <input
+        type="checkbox"
+        checked={checked}
+        aria-label={ariaLabel}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      {label ? <span>{label}</span> : <span className="sr-only">{ariaLabel}</span>}
     </label>
   );
 }
@@ -45,6 +52,8 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
   const [activeTypeId, setActiveTypeId] = useState<string | null>(taskTypes[0]?.id ?? null);
   const [activeRoleId, setActiveRoleId] = useState<string | null>(roles[0]?.id ?? null);
   const [roleDraft, setRoleDraft] = useState<AppRoleRecord | null>(null);
+  const [typeSaveState, setTypeSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [roleSaveState, setRoleSaveState] = useState<"idle" | "saving" | "saved">("idle");
 
   const sortedTypes = useMemo(() => sortTaskTypes(taskTypes), [taskTypes]);
   const activeTypes = useMemo(() => activeTaskTypes(taskTypes), [taskTypes]);
@@ -55,6 +64,10 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
     if (!roleRecord) return [];
     return mergeTaskTypePermissions(roleRecord.taskTypePermissions, sortedTypes.map((t) => t.id));
   }, [roleRecord, sortedTypes]);
+  const persistedType = sortedTypes.find((t) => t.id === activeTypeId) ?? null;
+  const persistedRole = roles.find((r) => r.id === activeRoleId) ?? null;
+  const typeDirty = Boolean(typeDraft && persistedType && JSON.stringify(typeDraft) !== JSON.stringify(persistedType));
+  const roleDirty = Boolean(roleDraft && persistedRole && JSON.stringify(roleDraft) !== JSON.stringify(persistedRole));
 
   const Shell = variant === "system" ? SystemShell : AppShell;
 
@@ -69,13 +82,16 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
   }
 
   function openType(id: string) {
+    if (typeDirty && !window.confirm("You have unsaved task type changes. Discard them?")) return;
     const type = sortedTypes.find((t) => t.id === id);
     if (!type) return;
     setActiveTypeId(id);
     setTypeDraft({ ...type });
+    setTypeSaveState("idle");
   }
 
   function addType() {
+    if (typeDirty && !window.confirm("You have unsaved task type changes. Discard them?")) return;
     const next: TaskTypeRecord = {
       id: newTaskTypeId(),
       name: "",
@@ -85,10 +101,12 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
     };
     setActiveTypeId(next.id);
     setTypeDraft(next);
+    setTypeSaveState("idle");
   }
 
   async function saveType() {
     if (!typeRecord?.name.trim()) return;
+    setTypeSaveState("saving");
     upsertTaskType(normalizeTaskType({ ...typeRecord, name: typeRecord.name.trim() }));
     setTypeDraft(null);
 
@@ -100,9 +118,11 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
         taskTypePermissions: fullTaskTypePermissions(allTypeIds),
       });
     }
+    setTypeSaveState("saved");
   }
 
   function openRole(id: string) {
+    if (roleDirty && !window.confirm("You have unsaved role access changes. Discard them?")) return;
     const role = roles.find((r) => r.id === id);
     if (!role) return;
     setActiveRoleId(id);
@@ -113,18 +133,22 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
       reportIds: [...(role.reportIds ?? [])],
       taskTypePermissions: mergeTaskTypePermissions(role.taskTypePermissions, sortedTypes.map((t) => t.id)),
     });
+    setRoleSaveState("idle");
   }
 
   function setPermission(taskTypeId: string, patch: Partial<Pick<TaskTypePermission, "canSee" | "canSelect" | "canCreate">>) {
     if (!roleRecord) return;
     const next = rolePermissions.map((p) => (p.taskTypeId === taskTypeId ? { ...p, ...patch } : p));
     setRoleDraft({ ...roleRecord, taskTypePermissions: next });
+    setRoleSaveState("idle");
   }
 
   async function saveRolePermissions() {
     if (!roleRecord) return;
+    setRoleSaveState("saving");
     await upsertRole(roleRecord);
     setRoleDraft(null);
+    setRoleSaveState("saved");
   }
 
   return (
@@ -195,7 +219,10 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
                 <input
                   className={inputClass}
                   value={typeRecord.name}
-                  onChange={(e) => setTypeDraft({ ...typeRecord, name: e.target.value })}
+                  onChange={(e) => {
+                    setTypeDraft({ ...typeRecord, name: e.target.value });
+                    setTypeSaveState("idle");
+                  }}
                 />
               </label>
               <label>
@@ -203,7 +230,10 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
                 <textarea
                   className={`${inputClass} min-h-[72px] resize-y`}
                   value={typeRecord.description}
-                  onChange={(e) => setTypeDraft({ ...typeRecord, description: e.target.value })}
+                  onChange={(e) => {
+                    setTypeDraft({ ...typeRecord, description: e.target.value });
+                    setTypeSaveState("idle");
+                  }}
                 />
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -213,7 +243,10 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
                     type="number"
                     className={inputClass}
                     value={typeRecord.sortOrder}
-                    onChange={(e) => setTypeDraft({ ...typeRecord, sortOrder: Number(e.target.value) || 0 })}
+                    onChange={(e) => {
+                      setTypeDraft({ ...typeRecord, sortOrder: Number(e.target.value) || 0 });
+                      setTypeSaveState("idle");
+                    }}
                   />
                 </label>
                 <label className="flex items-end pb-2">
@@ -221,7 +254,10 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
                     <input
                       type="checkbox"
                       checked={typeRecord.active}
-                      onChange={(e) => setTypeDraft({ ...typeRecord, active: e.target.checked })}
+                      onChange={(e) => {
+                        setTypeDraft({ ...typeRecord, active: e.target.checked });
+                        setTypeSaveState("idle");
+                      }}
                     />
                     Active
                   </span>
@@ -230,10 +266,14 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
               <button
                 type="button"
                 onClick={() => void saveType()}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+                disabled={!typeDirty || typeSaveState === "saving"}
               >
-                Save type
+                {typeSaveState === "saving" ? "Saving..." : "Save type"}
               </button>
+              <p className="text-xs text-slate-500">
+                {typeSaveState === "saved" ? "Saved." : typeDirty ? "Unsaved changes." : "No changes."}
+              </p>
             </div>
           ) : null}
         </section>
@@ -281,6 +321,7 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
                       <td className="px-3 py-2">
                         <PermissionToggle
                           label=""
+                          ariaLabel={`See ${type.name}`}
                           checked={perm.canSee}
                           onChange={(canSee) => setPermission(type.id, { canSee })}
                         />
@@ -288,6 +329,7 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
                       <td className="px-3 py-2">
                         <PermissionToggle
                           label=""
+                          ariaLabel={`Select ${type.name}`}
                           checked={perm.canSelect}
                           onChange={(canSelect) => setPermission(type.id, { canSelect })}
                         />
@@ -295,6 +337,7 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
                       <td className="px-3 py-2">
                         <PermissionToggle
                           label=""
+                          ariaLabel={`Create ${type.name}`}
                           checked={perm.canCreate}
                           onChange={(canCreate) => setPermission(type.id, { canCreate })}
                         />
@@ -309,10 +352,14 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
           <button
             type="button"
             onClick={() => void saveRolePermissions()}
-            className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            disabled={!roleDirty || roleSaveState === "saving"}
           >
-            Save role access
+            {roleSaveState === "saving" ? "Saving..." : "Save role access"}
           </button>
+          <p className="mt-2 text-xs text-slate-500">
+            {roleSaveState === "saved" ? "Saved." : roleDirty ? "Unsaved changes." : "No changes."}
+          </p>
         </section>
       </div>
     </Shell>

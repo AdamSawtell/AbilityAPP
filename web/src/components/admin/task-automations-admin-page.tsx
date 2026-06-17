@@ -71,10 +71,13 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
   const grouped = useMemo(() => groupTaskAutomationsByModule(taskAutomations), [taskAutomations]);
   const [activeId, setActiveId] = useState<string | null>(sorted[0]?.id ?? null);
   const [draft, setDraft] = useState<TaskAutomationRecord | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [previewIncidentId, setPreviewIncidentId] = useState("inc-1000003");
   const [statusFilter, setStatusFilter] = useState("");
 
   const record = draft ?? sorted.find((r) => r.id === activeId) ?? null;
+  const persistedRecord = sorted.find((r) => r.id === activeId) ?? null;
+  const isDirty = Boolean(draft && persistedRecord && JSON.stringify(draft) !== JSON.stringify(persistedRecord));
 
   const previewIncident = useMemo(
     () => incidents.find((i) => i.id === previewIncidentId) ?? incidents[0],
@@ -129,14 +132,22 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
     );
   }
 
+  function canLeaveDraft() {
+    if (!isDirty) return true;
+    return window.confirm("You have unsaved changes. Discard them?");
+  }
+
   function openRule(id: string) {
+    if (!canLeaveDraft()) return;
     const rule = sorted.find((r) => r.id === id);
     if (!rule) return;
     setActiveId(id);
     setDraft({ ...rule, conditions: { ...rule.conditions } });
+    setSaveState("idle");
   }
 
   function addRule() {
+    if (!canLeaveDraft()) return;
     const next: TaskAutomationRecord = normalizeTaskAutomation({
       id: newTaskAutomationId(),
       name: "New automation rule",
@@ -159,10 +170,12 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
     });
     setActiveId(next.id);
     setDraft(next);
+    setSaveState("idle");
   }
 
   function saveRule() {
     if (!record?.name.trim()) return;
+    setSaveState("saving");
     upsertTaskAutomation(
       normalizeTaskAutomation({
         ...record,
@@ -172,6 +185,7 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
       })
     );
     setDraft(null);
+    setSaveState("saved");
   }
 
   function removeRule() {
@@ -184,11 +198,13 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
   function patch(partial: Partial<TaskAutomationRecord>) {
     if (!record) return;
     setDraft({ ...record, ...partial });
+    setSaveState("idle");
   }
 
   function patchConditions(patch: Partial<TaskAutomationRecord["conditions"]>) {
     if (!record) return;
     setDraft({ ...record, conditions: { ...record.conditions, ...patch } });
+    setSaveState("idle");
   }
 
   const statusIn = record?.conditions.statusIn ?? [];
@@ -206,6 +222,7 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
         conditions: module === "incidents" ? record.conditions : {},
       })
     );
+    setSaveState("idle");
   }
 
   const moduleTriggers = record ? triggersForModule(record.module) : [];
@@ -287,7 +304,11 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => setDraft(null)}
+                    onClick={() => {
+                      if (!canLeaveDraft()) return;
+                      setDraft(null);
+                      setSaveState("idle");
+                    }}
                     className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
                   >
                     Cancel
@@ -302,12 +323,16 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
                   <button
                     type="button"
                     onClick={saveRule}
-                    className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
+                    className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
+                    disabled={!isDirty || saveState === "saving"}
                   >
-                    Save rule
+                    {saveState === "saving" ? "Saving..." : "Save rule"}
                   </button>
                 </div>
               </div>
+              <p className="mb-4 text-xs text-slate-500">
+                {saveState === "saved" ? "Saved." : isDirty ? "Unsaved changes." : "No changes."}
+              </p>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Name">
