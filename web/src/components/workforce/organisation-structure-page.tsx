@@ -55,6 +55,7 @@ export function OrganisationStructurePage() {
 
   const canView = canWindow("workforce-organisation") || canWindow("workforce-planning");
   const canEdit = canWindow("workforce-org-edit");
+  const canEditChartTier = canWindow("workforce-org-chart-tier");
 
   const roleMisalignmentCount = useMemo(
     () => countHolderMisalignments(positions, assignments, users, roles),
@@ -164,6 +165,18 @@ export function OrganisationStructurePage() {
             {canEdit && roleMisalignmentCount > 0 ? (
               <p className="text-xs font-medium text-amber-800">
                 {roleMisalignmentCount} holder{roleMisalignmentCount === 1 ? "" : "s"} with login role mismatch — check cards marked on the chart.
+              </p>
+            ) : null}
+            {canEdit && !canEditChartTier ? (
+              <p className="text-xs text-slate-600">
+                Chart tier bands are read-only for your role. An administrator with Organisation structure — chart tiers
+                can move cards between rows.
+              </p>
+            ) : null}
+            {canEditChartTier ? (
+              <p className="text-xs text-sky-800">
+                Select a position, then use the <span className="font-medium">Chart tier</span> section in the editor to
+                change which row it appears on.
               </p>
             ) : null}
           </div>

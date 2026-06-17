@@ -31,7 +31,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     "/incidents",
     "/help/task-automations",
   ],
-  windowKeys: ["workforce-organisation", "workforce-planning", "workforce-org-edit"],
+  windowKeys: ["workforce-organisation", "workforce-planning", "workforce-org-edit", "workforce-org-chart-tier"],
   lastUpdated: "2026-06-17",
   sections: [
     {
@@ -55,7 +55,8 @@ export const workforceOrganisationArticle: HelpArticle = {
       body: "View the chart with the Organisation structure or Workforce planning window. Edit positions, holders, and reporting lines with Organisation structure — edit.\n\nIncident manager review is restricted separately: only the accountable manager (or someone with Override manager review) can sign off reportable incidents.",
       bullets: [
         "workforce-organisation — view the chart and position details",
-        "workforce-org-edit — drag reparent, change holders, edit fields",
+        "workforce-org-edit — drag reparent, change holders, edit position fields",
+        "workforce-org-chart-tier — change chart tier bands (typically admin only; assign in Admin → Roles)",
         "incident-manager-override — sign off reportable incidents when you are not the accountable manager (typically admin)",
       ],
       relatedRoutes: ["/admin/roles", "/workforce-planning/organisation"],
@@ -87,7 +88,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     {
       id: "chart-layout",
       title: "Reading a large chart",
-      body: "The chart uses manually managed tiers — horizontal bands labelled Tier 1 through Tier 7. Each position sits on the tier you choose in the editor (Chart tier field). This is separate from who they report to: solid reporting still drives escalation and tasks.\n\nTypical bands: governance and board (tiers 1–2), CEO (3), executives (4), managers (5), team leaders (6), support workers (7). Peers on the same tier appear side by side; scroll sideways on wide rows.\n\nDrag the grip (⋮⋮) onto another card to change solid reporting (Reports to in the editor). Change Chart tier if a card is on the wrong row.\n\nDotted lines (⋯→ on cards) show secondary accountability without moving the card tier.\n\nSupport workers (three or more on tier 7) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view lenses to focus on executive council or functional delivery.",
+      body: "The chart uses manually managed tiers — horizontal bands labelled Tier 1 through Tier 7. Each position sits on the tier set in the Chart tier section of the position editor (right panel after you click a card).\n\nChanging tiers requires Organisation structure — chart tiers in Admin → Roles (seeded on AbilityAPP Admin only). Other editors can view the current tier but cannot change it.\n\nTypical bands: governance and board (tiers 1–2), CEO (3), executives (4), managers (5), team leaders (6), support workers (7). Peers on the same tier appear side by side; scroll sideways on wide rows.\n\nDrag the grip (⋮⋮) onto another card to change solid reporting (Reports to in the editor). Change Chart tier if a card is on the wrong row (admin permission).\n\nDotted lines (⋯→ on cards) show secondary accountability without moving the card tier.\n\nSupport workers (three or more on tier 7) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view lenses to focus on executive council or functional delivery.",
       relatedRoutes: ["/workforce-planning/organisation"],
     },
     {

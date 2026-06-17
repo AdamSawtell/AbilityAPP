@@ -182,6 +182,14 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     abilityErpName: "Organisation structure — edit",
     showInSidebar: false,
   },
+  {
+    key: "workforce-org-chart-tier",
+    label: "Edit org chart tiers",
+    group: "Workforce planning",
+    parentWindowKey: "workforce-organisation",
+    abilityErpName: "Organisation structure — chart tiers",
+    showInSidebar: false,
+  },
 ];
 
 const REPORT_WINDOWS: AccessWindow[] = [

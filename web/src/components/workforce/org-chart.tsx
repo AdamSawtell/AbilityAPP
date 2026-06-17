@@ -18,7 +18,7 @@ import {
   type OrgChartFilters,
   type OrgChartLens,
 } from "@/lib/org-structure-tree";
-import { ORG_CHART_TIER_OPTIONS } from "@/lib/org-chart-tiers";
+import { ORG_CHART_TIER_OPTIONS, orgChartTierLabel } from "@/lib/org-chart-tiers";
 import { OrgChartTierView } from "@/components/workforce/org-chart-tier-view";
 import { OrgChartDottedLines } from "@/components/workforce/org-chart-dotted-lines";
 import { useOrgStructure } from "@/lib/org-structure-store";
@@ -397,6 +397,7 @@ export function OrgPositionEditor({
   const { positions, assignments, reportingLines, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition, addDottedReportingLine, removeDottedReportingLine } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
+  const canEditChartTier = canWindow("workforce-org-chart-tier");
   const canManageAccess =
     canEdit || canWindow("employee-system-access") || canWindow("admin-roles");
 
@@ -526,6 +527,44 @@ export function OrgPositionEditor({
         ) : null}
 
         {!isRoot ? (
+          <div className="rounded-xl border border-sky-100 bg-sky-50/50 p-3">
+            <p className="text-xs font-semibold text-sky-900">Chart tier</p>
+            <p className="mt-0.5 text-[10px] text-sky-800">
+              Which horizontal band this card appears on. Separate from Reports to — escalation still follows the
+              solid line.
+            </p>
+            {canEditChartTier ? (
+              <label className="mt-2 block text-xs font-medium text-sky-900">
+                Tier band
+                <select
+                  value={position.chartTier}
+                  onChange={(e) => patch({ chartTier: Number(e.target.value) })}
+                  className="mt-1 w-full rounded-lg border border-sky-200 bg-white px-3 py-2 text-sm"
+                >
+                  {ORG_CHART_TIER_OPTIONS.filter((o) => o.value > 0).map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[10px] text-sky-800">
+                  {ORG_CHART_TIER_OPTIONS.find((o) => o.value === position.chartTier)?.hint ??
+                    "Assign in Admin → Roles under Organisation structure — chart tiers."}
+                </p>
+              </label>
+            ) : (
+              <p className="mt-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-sm text-sky-950">
+                <span className="font-medium">{orgChartTierLabel(position.chartTier)}</span>
+                <span className="mt-1 block text-[10px] font-normal text-sky-800">
+                  Only roles with Organisation structure — chart tiers can change this. Ask an administrator or assign
+                  that window in Admin → Roles.
+                </span>
+              </p>
+            )}
+          </div>
+        ) : null}
+
+        {!isRoot ? (
           <div className="rounded-xl border border-violet-100 bg-violet-50/40 p-3">
             <p className="text-xs font-semibold text-violet-900">Also reports to (dotted)</p>
             <p className="mt-0.5 text-[10px] text-violet-800">
@@ -586,28 +625,6 @@ export function OrgPositionEditor({
               </div>
             ) : null}
           </div>
-        ) : null}
-
-        {!isRoot ? (
-          <label className="block text-xs font-medium text-slate-700">
-            Chart tier
-            <select
-              value={position.chartTier}
-              disabled={!canEdit}
-              onChange={(e) => patch({ chartTier: Number(e.target.value) })}
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
-            >
-              {ORG_CHART_TIER_OPTIONS.filter((o) => o.value > 0).map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-[10px] text-slate-500">
-              {ORG_CHART_TIER_OPTIONS.find((o) => o.value === position.chartTier)?.hint ??
-                "Which horizontal band this card appears on. Escalation still follows Reports to above."}
-            </p>
-          </label>
         ) : null}
 
         {!isRoot ? (
@@ -826,7 +843,9 @@ export function OrgPositionEditor({
                 locationId: position.locationId,
                 parentPositionId: position.id,
                 sortOrder: (position.sortOrder ?? 0) + 10,
-                chartTier: Math.min(7, Math.max(1, position.chartTier + 1)),
+                chartTier: canEditChartTier
+                  ? Math.min(7, Math.max(1, position.chartTier + 1))
+                  : position.chartTier,
                 status: "vacant",
                 site: position.site,
                 costCentre: position.costCentre,
