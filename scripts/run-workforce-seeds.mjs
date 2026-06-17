@@ -26,7 +26,9 @@ function runSeed(file) {
     : ["supabase", "db", "query", "-f", path];
 
   console.log(`\n→ ${file}`);
-  const result = spawnSync("npx", args, { stdio: "inherit", cwd: root, shell: true });
+  const flag = linked ? "--linked" : "";
+  const cmd = `npx supabase db query ${flag} -f "${path.replace(/"/g, '\\"')}"`.trim();
+  const result = spawnSync(cmd, { stdio: "inherit", cwd: root, shell: true });
   if (result.status !== 0) {
     console.error(`Failed: ${file}`);
     process.exit(result.status ?? 1);
