@@ -1,6 +1,9 @@
 "use client";
 
+import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import type { OrgPositionRecord } from "@/lib/org-structure";
+import { checkHolderRoleAlignment } from "@/lib/org-position-role-alignment";
+import { HolderRoleAlignmentAlert } from "@/components/workforce/holder-role-alignment-alert";
 
 export type PendingPrimaryAssign = {
   positionId: string;
@@ -12,12 +15,16 @@ export function OrgAssignPrimaryConfirmDialog({
   pending,
   positions,
   employeeNameById,
+  users,
+  roles,
   onConfirm,
   onCancel,
 }: {
   pending: PendingPrimaryAssign;
   positions: OrgPositionRecord[];
   employeeNameById: Map<string, string>;
+  users: AppUserRecord[];
+  roles: AppRoleRecord[];
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -32,6 +39,17 @@ export function OrgAssignPrimaryConfirmDialog({
     : "";
 
   const clearing = !pending.employeeId;
+
+  const alignmentIssue =
+    !clearing && pending.employeeId
+      ? checkHolderRoleAlignment({
+          employeeId: pending.employeeId,
+          employeeName: nextName,
+          requiredRoleId: position.securityRoleId,
+          users,
+          roles,
+        })
+      : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
@@ -65,6 +83,11 @@ export function OrgAssignPrimaryConfirmDialog({
         <p className="mt-2 text-xs text-slate-500">
           This updates who holds the position for escalation and task routing. Reporting lines are unchanged.
         </p>
+        {alignmentIssue ? (
+          <div className="mt-3">
+            <HolderRoleAlignmentAlert issue={alignmentIssue} label="Login role mismatch" />
+          </div>
+        ) : null}
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"

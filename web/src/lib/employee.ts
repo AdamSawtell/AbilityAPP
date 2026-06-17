@@ -1,5 +1,6 @@
 import { syncCredentialStatuses } from "@/lib/employee-compliance";
 import { bulkEmployees } from "@/lib/employee-bulk-seed";
+import { leadershipEmployees } from "@/lib/org-leadership-seed";
 
 export type EmployeeCredentialRow = {
   id: string;
@@ -667,8 +668,8 @@ export const initialEmployees: EmployeeRecord[] = [
     email: "michael.smith@abilityerp.local",
     phone: "",
     mobile: "",
-    jobTitle: "Team Leader",
-    department: "Support coordination",
+    jobTitle: "Operations Executive",
+    department: "Operations",
     employmentStatus: "Active",
     employmentType: "Full-time",
     startDate: "2018-01-10",
@@ -681,7 +682,7 @@ export const initialEmployees: EmployeeRecord[] = [
     gender: "",
     birthday: "",
     employeeNumber: "EMP-1003",
-    reportsToId: "",
+    reportsToId: "emp-ceo",
     driverLicenceClass: "",
     driverLicenceExpiry: "",
     visaSubclass: "",
@@ -867,6 +868,7 @@ export const initialEmployees: EmployeeRecord[] = [
     updatedBy: "SuperUser",
     ...emptyLineCollections,
   },
+  ...leadershipEmployees,
   ...bulkEmployees,
 ];
 

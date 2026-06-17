@@ -1,21 +1,98 @@
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
-import { ALL_PROCESS_IDS, ALL_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
-import { windowKeysWithDependents } from "@/lib/access/detail-windows";
+import { INITIAL_TASK_TYPES, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
 import { bulkStaffUserLinks } from "@/lib/employee-bulk-seed";
-import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import {
-  fullTaskTypePermissions,
-  INITIAL_TASK_TYPES,
-  mergeTaskTypePermissions,
-  permissionsForTypes,
-} from "@/lib/task-type";
+  adminRole,
+  boardAccess,
+  defineRole,
+  executiveAccess,
+  managerAccess,
+  officerAccess,
+  supportWorkerAccess,
+} from "@/lib/access/role-access-templates";
+import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 
-const TASK_ACCESS = [...TASK_WINDOW_KEYS];
-const SUPPORT_WORKER_TASK_ACCESS = ["tasks-assigned-to-me", "tasks-for-my-role", "tasks-past"] as const;
+const TASK_ACCESS = ["tasks", "tasks-assigned-to-me", "tasks-for-my-role", "tasks-all", "tasks-past"] as const;
 const ALL_TASK_TYPE_IDS = INITIAL_TASK_TYPES.map((t) => t.id);
-
-/** Read employee records and linked incidents (not full HR file). */
 const EMPLOYEE_INCIDENT_LINK_WINDOWS = ["employees", "employee-overview", "employee-incidents"] as const;
+
+const INTAKE_ACCESS = {
+  windowKeys: [
+    "home",
+    "reports",
+    ...TASK_ACCESS,
+    ...windowKeysWithDependents("enquiries", "clients", "incidents", "locations"),
+    ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
+  ],
+  processIds: [
+    "enquiry-to-client",
+    "assign-location-client",
+    "assign-location-employee",
+    "assign-location-product",
+    "assign-task",
+    "action-task",
+    "report-incident",
+    "notify-ndis-reportable",
+  ],
+  reportIds: ["client-register", "enquiry-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
+  taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
+};
+
+const COORDINATOR_ACCESS = {
+  windowKeys: [
+    "home",
+    "reports",
+    ...TASK_ACCESS,
+    "workforce-planning",
+    "workforce-organisation",
+    ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
+    ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
+  ],
+  processIds: executiveAccess().processIds,
+  reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
+  taskTypePermissions: managerAccess().taskTypePermissions,
+};
+
+const TEAM_LEADER_ACCESS = {
+  windowKeys: [
+    "home",
+    "reports",
+    ...TASK_ACCESS,
+    "workforce-planning",
+    "workforce-organisation",
+    "workforce-org-edit",
+    ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
+    ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
+  ],
+  processIds: executiveAccess().processIds,
+  reportIds: managerAccess().reportIds,
+  taskTypePermissions: managerAccess().taskTypePermissions,
+};
+
+export const SEED_ROLES: AppRoleRecord[] = [
+  adminRole(ALL_TASK_TYPE_IDS),
+  defineRole("role-board", "Board_Member", "Board Member", "Governance oversight — read-focused access", boardAccess()),
+  defineRole("role-ceo", "Chief_Executive_Officer", "CEO", "Chief executive — full operational leadership", executiveAccess()),
+  defineRole("role-exec-operations", "Operations_Executive", "Operations Executive", "Executive lead for service delivery and rostering", executiveAccess()),
+  defineRole("role-exec-hr", "HR_Executive", "HR Executive", "Executive lead for people and culture", executiveAccess()),
+  defineRole("role-exec-finance", "Finance_Executive", "CFO", "Chief financial officer", executiveAccess()),
+  defineRole("role-exec-ict", "ICT_Executive", "ICT Executive", "Executive lead for systems and technology", executiveAccess()),
+  defineRole("role-exec-quality", "Quality_Executive", "Quality Executive", "Executive lead for quality and compliance", executiveAccess()),
+  defineRole("role-hr-manager", "HR_Manager", "HR Manager", "HR team leadership", managerAccess(["workforce-organisation"])),
+  defineRole("role-hr-officer", "HR_Officer", "HR Officer", "HR administration and employee records", officerAccess(["employees", "employee-overview"])),
+  defineRole("role-ict-manager", "ICT_Manager", "ICT Manager", "ICT team leadership and system support", managerAccess()),
+  defineRole("role-ict-officer", "ICT_Officer", "ICT Officer", "ICT support and administration", officerAccess()),
+  defineRole("role-finance-manager", "Finance_Manager", "Finance Manager", "Finance team leadership", managerAccess()),
+  defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess()),
+  defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", managerAccess(["incidents-compliance", "incidents-dashboard"])),
+  defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", officerAccess(["incidents-compliance"])),
+  defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", managerAccess(["workforce-organisation"])),
+  defineRole("role-rostering-officer", "Rostering_Officer", "Rostering Officer", "Roster administration", officerAccess(["workforce-planning"])),
+  defineRole("role-intake", "Intake_Coordinator", "Intake Coordinator", "Enquiries and convert-to-client process", INTAKE_ACCESS),
+  defineRole("role-coordinator", "Support_Coordinator", "Support Coordinator", "Client records and service catalog", COORDINATOR_ACCESS),
+  defineRole("role-team-leader", "Team_Leader", "Team Leader", "Site or team leadership — org structure and frontline oversight", TEAM_LEADER_ACCESS),
+  defineRole("role-support-worker", "Support_Worker", "Support Worker", "Frontline staff — assigned tasks, clients, incidents, and rostered locations", supportWorkerAccess()),
+];
 
 export const SEED_USERS: AppUserRecord[] = [
   {
@@ -31,6 +108,18 @@ export const SEED_USERS: AppUserRecord[] = [
     roleIds: ["role-admin"],
   },
   {
+    id: "user-ceo",
+    username: "PatriciaChen",
+    email: "patricia.chen@abilityerp.local",
+    firstName: "Patricia",
+    lastName: "Chen",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-ceo",
+    notes: "CEO seed login",
+    roleIds: ["role-ceo"],
+  },
+  {
     id: "user-michael",
     username: "MichaelSmith",
     email: "michael.smith@abilityerp.local",
@@ -39,8 +128,20 @@ export const SEED_USERS: AppUserRecord[] = [
     phone: "",
     active: true,
     employeeBpId: "emp-michael",
-    notes: "Team leader — accountable manager testing",
-    roleIds: ["role-coordinator"],
+    notes: "Operations executive — accountable manager testing",
+    roleIds: ["role-exec-operations"],
+  },
+  {
+    id: "user-piper",
+    username: "PiperCollins",
+    email: "piper.collins@abilityerp.local",
+    firstName: "Piper",
+    lastName: "Collins",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-staff-133",
+    notes: "Operations manager / team leader hub",
+    roleIds: ["role-team-leader"],
   },
   {
     id: "user-isla",
@@ -66,6 +167,66 @@ export const SEED_USERS: AppUserRecord[] = [
     notes: "Enquiry processing",
     roleIds: ["role-intake"],
   },
+  {
+    id: "user-exec-hr",
+    username: "DianeFoster",
+    email: "diane.foster@abilityerp.local",
+    firstName: "Diane",
+    lastName: "Foster",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-exec-hr",
+    notes: "HR executive",
+    roleIds: ["role-exec-hr"],
+  },
+  {
+    id: "user-exec-finance",
+    username: "JamesWhitford",
+    email: "james.whitford@abilityerp.local",
+    firstName: "James",
+    lastName: "Whitford",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-exec-finance",
+    notes: "CFO",
+    roleIds: ["role-exec-finance"],
+  },
+  {
+    id: "user-exec-ict",
+    username: "SamRivera",
+    email: "sam.rivera@abilityerp.local",
+    firstName: "Sam",
+    lastName: "Rivera",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-exec-ict",
+    notes: "ICT executive",
+    roleIds: ["role-exec-ict"],
+  },
+  {
+    id: "user-exec-quality",
+    username: "MargaretHolt",
+    email: "margaret.holt@abilityerp.local",
+    firstName: "Margaret",
+    lastName: "Holt",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-exec-quality",
+    notes: "Quality executive",
+    roleIds: ["role-exec-quality"],
+  },
+  {
+    id: "user-rostering-mgr",
+    username: "RileyShaw",
+    email: "riley.shaw@abilityerp.local",
+    firstName: "Riley",
+    lastName: "Shaw",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-rostering-manager",
+    notes: "Rostering manager",
+    roleIds: ["role-rostering-manager"],
+  },
   ...bulkStaffUserLinks.map((link) => ({
     id: link.userId,
     username: link.username,
@@ -78,74 +239,6 @@ export const SEED_USERS: AppUserRecord[] = [
     notes: "Bulk seed support worker login",
     roleIds: ["role-support-worker"],
   })),
-];
-
-export const SEED_ROLES: AppRoleRecord[] = [
-  {
-    id: "role-admin",
-    roleKey: "AbilityAPP_Admin",
-    name: "AbilityAPP Admin",
-    description: "Full system access — all windows and processes",
-    active: true,
-    windowKeys: [...ALL_WINDOW_KEYS],
-    processIds: [...ALL_PROCESS_IDS],
-    reportIds: [...ALL_REPORT_IDS],
-    taskTypePermissions: fullTaskTypePermissions(ALL_TASK_TYPE_IDS),
-  },
-  {
-    id: "role-intake",
-    roleKey: "Intake_Coordinator",
-    name: "Intake Coordinator",
-    description: "Enquiries and convert-to-client process",
-    active: true,
-    windowKeys: [
-      "home",
-      "reports",
-      ...TASK_ACCESS,
-      ...windowKeysWithDependents("enquiries", "clients", "incidents", "locations"),
-      ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
-    ],
-    processIds: ["enquiry-to-client", "assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task", "report-incident", "notify-ndis-reportable"],
-    reportIds: ["client-register", "enquiry-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
-    taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
-  },
-  {
-    id: "role-coordinator",
-    roleKey: "Support_Coordinator",
-    name: "Support Coordinator",
-    description: "Client records and service catalog (no admin)",
-    active: true,
-    windowKeys: [
-      "home",
-      "reports",
-      ...TASK_ACCESS,
-      "workforce-planning",
-      "workforce-organisation",
-      ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
-      ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
-    ],
-    processIds: ["assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task", "report-incident", "notify-ndis-reportable"],
-    reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
-    taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
-  },
-  {
-    id: "role-support-worker",
-    roleKey: "Support_Worker",
-    name: "Support Worker",
-    description: "Frontline staff — assigned tasks, clients, incidents, and rostered locations",
-    active: true,
-    windowKeys: [
-      "home",
-      "reports",
-      ...SUPPORT_WORKER_TASK_ACCESS,
-      "workforce-planning",
-      ...windowKeysWithDependents("clients", "incidents", "locations"),
-      ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
-    ],
-    processIds: ["assign-task", "action-task", "report-incident", "assign-location-employee"],
-    reportIds: ["tasks-all", "location-register", "incident-register"],
-    taskTypePermissions: permissionsForTypes(["tt-check", "tt-other", "tt-review"]),
-  },
 ];
 
 /** Merge seed catalog access in development only (avoids over-granting in production DB). */
@@ -184,7 +277,6 @@ export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
     windowKeys.length === role.windowKeys.length &&
     processIds.length === role.processIds.length &&
     reportIds.length === (role.reportIds?.length ?? 0) &&
-    taskTypePermissions.length === (role.taskTypePermissions?.length ?? 0) &&
     role.windowKeys.every((k) => windowKeys.includes(k))
   ) {
     return { ...role, taskTypePermissions, reportIds: role.reportIds ?? reportIds };

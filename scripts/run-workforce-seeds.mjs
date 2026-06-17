@@ -13,6 +13,7 @@ const linked = process.argv.includes("--linked") || !process.argv.includes("--lo
 
 const seeds = [
   "supabase/seed-employees.sql",
+  "supabase/seed-access.sql",
   "supabase/seed-locations.sql",
   "supabase/seed-org-structure.sql",
   "supabase/seed-org-structure-bulk.sql",

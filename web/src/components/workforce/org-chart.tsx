@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-store";
+import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import { useData } from "@/lib/data-store";
 import {
   ORG_BUSINESS_AREAS,
@@ -32,6 +33,10 @@ import {
   OrgAssignActingConfirmDialog,
   type PendingActingAssign,
 } from "@/components/workforce/org-assign-acting-confirm";
+import type { OrgChartDisplayItem } from "@/lib/org-chart-layout";
+import { layoutOrgChildren } from "@/lib/org-chart-layout";
+import { checkHolderRoleAlignment, positionHolderAlignmentIssues } from "@/lib/org-position-role-alignment";
+import { HolderRoleAlignmentAlert } from "@/components/workforce/holder-role-alignment-alert";
 
 const toneClasses = {
   emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
@@ -46,10 +51,13 @@ function PositionCard({
   actingName,
   onLeave,
   locationLabel,
+  roleLabel,
+  holderRoleMisaligned,
   canEdit,
   selected,
   dragOver,
   isDragging,
+  compact,
   onSelect,
   onDragStart,
   onDragOver,
@@ -61,10 +69,13 @@ function PositionCard({
   actingName: string;
   onLeave: boolean;
   locationLabel: string;
+  roleLabel: string;
+  holderRoleMisaligned?: boolean;
   canEdit: boolean;
   selected: boolean;
   dragOver: boolean;
   isDragging: boolean;
+  compact?: boolean;
   onSelect: () => void;
   onDragStart: () => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -73,13 +84,16 @@ function PositionCard({
 }) {
   const tone = positionStatusTone(node.status);
   const isRoot = node.id === "pos-org-root";
+  const showRoleBadge = roleLabel && roleLabel !== node.title;
 
   return (
     <div
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`w-full rounded-xl border px-3 py-2.5 text-left transition ${
+      className={`w-full rounded-xl border text-left transition ${
+        compact ? "px-2.5 py-2" : "px-3 py-2.5"
+      } ${
         selected
           ? "border-indigo-300 bg-indigo-50/60 shadow-sm ring-2 ring-indigo-200"
           : dragOver
@@ -93,7 +107,12 @@ function PositionCard({
         <button type="button" onClick={onSelect} className="min-w-0 flex-1 text-left">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-900">{node.title}</p>
+              <p className={`truncate font-semibold text-slate-900 ${compact ? "text-xs" : "text-sm"}`}>
+                {node.title}
+              </p>
+              {showRoleBadge ? (
+                <p className="truncate text-[10px] font-medium text-indigo-700">{roleLabel}</p>
+              ) : null}
               {node.businessArea || node.department ? (
                 <p className="truncate text-xs text-slate-500">{node.businessArea || node.department}</p>
               ) : null}
@@ -103,7 +122,7 @@ function PositionCard({
             </span>
           </div>
           {!isRoot ? (
-            <p className="mt-1.5 truncate text-xs text-slate-600">
+            <p className={`mt-1 truncate text-slate-600 ${compact ? "text-[10px]" : "text-xs"}`}>
               {actingName ? (
                 <span className="font-medium text-sky-800">Acting: {actingName}</span>
               ) : employeeName ? (
@@ -113,13 +132,16 @@ function PositionCard({
                     {onLeave ? " (on leave)" : ""}
                   </span>
                   {locationLabel ? <span className="text-slate-400"> · {locationLabel}</span> : null}
+                  {holderRoleMisaligned ? (
+                    <span className="text-amber-700"> · login role mismatch</span>
+                  ) : null}
                 </>
               ) : (
                 <span className="italic text-amber-700">Vacant — escalates to parent</span>
               )}
             </p>
           ) : (
-            <p className="mt-1.5 text-xs text-slate-500">Root of the organisation tree</p>
+            <p className={`mt-1.5 text-slate-500 ${compact ? "text-[10px]" : "text-xs"}`}>Root of the organisation tree</p>
           )}
         </button>
         {canEdit && !isRoot ? (
@@ -143,11 +165,14 @@ function PositionCard({
   );
 }
 
-function OrgTreeBranch({
-  node,
+function OrgSiblingGroup({
+  item,
   employeeNameById,
   employeesById,
   locationNameById,
+  roleNameById,
+  users,
+  roles,
   assignments,
   canEdit,
   selectedId,
@@ -159,10 +184,13 @@ function OrgTreeBranch({
   onDragLeaveTarget,
   onDropOnTarget,
 }: {
-  node: OrgPositionNode;
+  item: Extract<OrgChartDisplayItem, { kind: "group" }>;
   employeeNameById: Map<string, string>;
   employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
   locationNameById: Map<string, string>;
+  roleNameById: Map<string, string>;
+  users: AppUserRecord[];
+  roles: AppRoleRecord[];
   assignments: PositionAssignmentRecord[];
   canEdit: boolean;
   selectedId: string | null;
@@ -174,53 +202,42 @@ function OrgTreeBranch({
   onDragLeaveTarget: () => void;
   onDropOnTarget: (targetId: string) => void;
 }) {
-  const employeeName = node.primaryEmployeeId ? employeeNameById.get(node.primaryEmployeeId) ?? "Unknown" : "";
-  const acting = actingAssignmentForPosition(activeAssignments(assignments), node.id);
-  const actingName = acting?.employeeId ? employeeNameById.get(acting.employeeId) ?? "" : "";
-  const primaryEmployee = node.primaryEmployeeId
-    ? employeesById.get(node.primaryEmployeeId)
-    : undefined;
-  const onLeave = primaryEmployee ? isEmployeeOnLeaveToday(primaryEmployee) : false;
-  const locationLabel = node.locationId ? locationNameById.get(node.locationId) ?? "" : node.site;
+  const [expanded, setExpanded] = useState(false);
+  const filledCount = item.nodes.filter((n) => n.primaryEmployeeId).length;
+  const vacantCount = item.nodes.length - filledCount;
 
   return (
-    <li className="flex flex-col items-center">
-      <div className="w-56">
-        <PositionCard
-          node={node}
-          employeeName={employeeName}
-          actingName={actingName}
-          onLeave={onLeave}
-          locationLabel={locationLabel}
-          canEdit={canEdit}
-          selected={selectedId === node.id}
-          dragOver={dropTargetId === node.id && dragId !== node.id}
-          isDragging={dragId === node.id}
-          onSelect={() => onSelect(node.id)}
-          onDragStart={() => onDragStart(node.id)}
-          onDragOver={(e) => {
-            if (!canEdit || !dragId || dragId === node.id) return;
-            e.preventDefault();
-            onDragOverTarget(node.id);
-          }}
-          onDragLeave={onDragLeaveTarget}
-          onDrop={(e) => {
-            e.preventDefault();
-            onDropOnTarget(node.id);
-          }}
-        />
-      </div>
-      {node.children.length > 0 ? (
-        <>
-          <div className="my-2 h-4 w-px bg-slate-300" />
-          <ul className="flex flex-wrap items-start justify-center gap-6">
-            {node.children.map((child) => (
+    <li className="w-full max-w-sm">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left hover:bg-slate-50"
+        >
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-900">
+              {item.title}
+              <span className="ml-1.5 font-normal text-slate-500">× {item.nodes.length}</span>
+            </p>
+            <p className="text-[10px] text-slate-500">
+              {filledCount} filled · {vacantCount} vacant
+              {item.roleLabel ? ` · ${item.roleLabel}` : ""}
+            </p>
+          </div>
+          <span className="shrink-0 text-xs text-indigo-700">{expanded ? "Collapse" : "Expand"}</span>
+        </button>
+        {expanded ? (
+          <ul className="flex flex-col gap-1.5 border-t border-slate-100 p-2">
+            {item.nodes.map((node) => (
               <OrgTreeBranch
-                key={child.id}
-                node={child}
+                key={node.id}
+                node={node}
                 employeeNameById={employeeNameById}
                 employeesById={employeesById}
                 locationNameById={locationNameById}
+                roleNameById={roleNameById}
+                users={users}
+                roles={roles}
                 assignments={assignments}
                 canEdit={canEdit}
                 selectedId={selectedId}
@@ -231,8 +248,175 @@ function OrgTreeBranch({
                 onDragOverTarget={onDragOverTarget}
                 onDragLeaveTarget={onDragLeaveTarget}
                 onDropOnTarget={onDropOnTarget}
+                compact
+                hideChildren
               />
             ))}
+          </ul>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
+function OrgTreeBranch({
+  node,
+  employeeNameById,
+  employeesById,
+  locationNameById,
+  roleNameById,
+  users,
+  roles,
+  assignments,
+  canEdit,
+  selectedId,
+  dragId,
+  dropTargetId,
+  onSelect,
+  onDragStart,
+  onDragOverTarget,
+  onDragLeaveTarget,
+  onDropOnTarget,
+  compact,
+  hideChildren,
+}: {
+  node: OrgPositionNode;
+  employeeNameById: Map<string, string>;
+  employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
+  locationNameById: Map<string, string>;
+  roleNameById: Map<string, string>;
+  users: AppUserRecord[];
+  roles: AppRoleRecord[];
+  assignments: PositionAssignmentRecord[];
+  canEdit: boolean;
+  selectedId: string | null;
+  dragId: string | null;
+  dropTargetId: string | null;
+  onSelect: (id: string) => void;
+  onDragStart: (id: string) => void;
+  onDragOverTarget: (id: string) => void;
+  onDragLeaveTarget: () => void;
+  onDropOnTarget: (targetId: string) => void;
+  compact?: boolean;
+  hideChildren?: boolean;
+}) {
+  const employeeName = node.primaryEmployeeId ? employeeNameById.get(node.primaryEmployeeId) ?? "Unknown" : "";
+  const acting = actingAssignmentForPosition(activeAssignments(assignments), node.id);
+  const actingName = acting?.employeeId ? employeeNameById.get(acting.employeeId) ?? "" : "";
+  const primaryEmployee = node.primaryEmployeeId
+    ? employeesById.get(node.primaryEmployeeId)
+    : undefined;
+  const onLeave = primaryEmployee ? isEmployeeOnLeaveToday(primaryEmployee) : false;
+  const locationLabel = node.locationId ? locationNameById.get(node.locationId) ?? "" : node.site;
+  const roleLabel = node.securityRoleId ? roleNameById.get(node.securityRoleId) ?? "" : "";
+  const holderRoleMisaligned = Boolean(
+    (node.primaryEmployeeId &&
+      checkHolderRoleAlignment({
+        employeeId: node.primaryEmployeeId,
+        employeeName,
+        requiredRoleId: node.securityRoleId,
+        users,
+        roles,
+      })) ||
+      (acting?.employeeId &&
+        checkHolderRoleAlignment({
+          employeeId: acting.employeeId,
+          employeeName: actingName,
+          requiredRoleId: node.securityRoleId,
+          users,
+          roles,
+        }))
+  );
+  const childItems = useMemo(
+    () => layoutOrgChildren(node.children, roleNameById),
+    [node.children, roleNameById]
+  );
+
+  const card = (
+    <PositionCard
+      node={node}
+      employeeName={employeeName}
+      actingName={actingName}
+      onLeave={onLeave}
+      locationLabel={locationLabel}
+      roleLabel={roleLabel}
+      holderRoleMisaligned={holderRoleMisaligned}
+      canEdit={canEdit}
+      selected={selectedId === node.id}
+      dragOver={dropTargetId === node.id && dragId !== node.id}
+      isDragging={dragId === node.id}
+      compact={compact}
+      onSelect={() => onSelect(node.id)}
+      onDragStart={() => onDragStart(node.id)}
+      onDragOver={(e) => {
+        if (!canEdit || !dragId || dragId === node.id) return;
+        e.preventDefault();
+        onDragOverTarget(node.id);
+      }}
+      onDragLeave={onDragLeaveTarget}
+      onDrop={(e) => {
+        e.preventDefault();
+        onDropOnTarget(node.id);
+      }}
+    />
+  );
+
+  if (hideChildren) {
+    return <li className="w-full">{card}</li>;
+  }
+
+  return (
+    <li className="flex w-full flex-col items-center">
+      <div className={compact ? "w-full" : "w-full max-w-sm"}>{card}</div>
+      {node.children.length > 0 ? (
+        <>
+          <div className="my-2 h-4 w-px bg-slate-300" />
+          <ul className="flex w-full max-w-sm flex-col items-stretch gap-2">
+            {childItems.map((item) =>
+              item.kind === "group" ? (
+                <OrgSiblingGroup
+                  key={item.groupKey}
+                  item={item}
+                  employeeNameById={employeeNameById}
+                  employeesById={employeesById}
+                  locationNameById={locationNameById}
+                  roleNameById={roleNameById}
+                  users={users}
+                  roles={roles}
+                  assignments={assignments}
+                  canEdit={canEdit}
+                  selectedId={selectedId}
+                  dragId={dragId}
+                  dropTargetId={dropTargetId}
+                  onSelect={onSelect}
+                  onDragStart={onDragStart}
+                  onDragOverTarget={onDragOverTarget}
+                  onDragLeaveTarget={onDragLeaveTarget}
+                  onDropOnTarget={onDropOnTarget}
+                />
+              ) : (
+                <OrgTreeBranch
+                  key={item.node.id}
+                  node={item.node}
+                  employeeNameById={employeeNameById}
+                  employeesById={employeesById}
+                  locationNameById={locationNameById}
+                  roleNameById={roleNameById}
+                  users={users}
+                  roles={roles}
+                  assignments={assignments}
+                  canEdit={canEdit}
+                  selectedId={selectedId}
+                  dragId={dragId}
+                  dropTargetId={dropTargetId}
+                  onSelect={onSelect}
+                  onDragStart={onDragStart}
+                  onDragOverTarget={onDragOverTarget}
+                  onDragLeaveTarget={onDragLeaveTarget}
+                  onDropOnTarget={onDropOnTarget}
+                />
+              )
+            )}
           </ul>
         </>
       ) : null}
@@ -251,8 +435,10 @@ export function OrgChart({
 }) {
   const { employees, locations } = useData();
   const { positions, assignments, reparentPosition } = useOrgStructure();
-  const { canWindow } = useAuth();
+  const { canWindow, roles, users } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
+
+  const roleNameById = useMemo(() => new Map(roles.map((r) => [r.id, r.name])), [roles]);
 
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
@@ -308,8 +494,8 @@ export function OrgChart({
       {error ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{error}</p>
       ) : null}
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-6">
-        <ul className="flex min-w-max flex-col items-center gap-0">
+      <div className="max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-6">
+        <ul className="mx-auto flex w-full max-w-lg flex-col items-center gap-0">
           {tree.map((root) => (
             <OrgTreeBranch
               key={root.id}
@@ -317,6 +503,9 @@ export function OrgChart({
               employeeNameById={employeeNameById}
               employeesById={employeesById}
               locationNameById={locationNameById}
+              roleNameById={roleNameById}
+              users={users}
+              roles={roles}
               assignments={assignments}
               canEdit={canEdit}
               selectedId={selectedId}
@@ -356,8 +545,10 @@ export function OrgPositionEditor({
 }) {
   const { employees, locations } = useData();
   const { positions, assignments, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition } = useOrgStructure();
-  const { canWindow } = useAuth();
+  const { canWindow, roles, users } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
+
+  const activeRoles = useMemo(() => roles.filter((r) => r.active), [roles]);
 
   const [pendingPrimary, setPendingPrimary] = useState<PendingPrimaryAssign | null>(null);
   const [pendingActing, setPendingActing] = useState<PendingActingAssign | null>(null);
@@ -369,6 +560,9 @@ export function OrgPositionEditor({
     )?.employeeId ?? "";
 
   const position = positions.find((p) => p.id === positionId) ?? null;
+  const linkedRole = position?.securityRoleId
+    ? activeRoles.find((r) => r.id === position.securityRoleId)
+    : undefined;
   const isRoot = position?.id === "pos-org-root";
   const parent = position?.parentPositionId ? positions.find((p) => p.id === position.parentPositionId) : undefined;
   const linkedLocation = position?.locationId ? locations.find((l) => l.id === position.locationId) : undefined;
@@ -405,11 +599,22 @@ export function OrgPositionEditor({
     setPendingActing(null);
   }
 
+  const { primary: primaryAlign, acting: actingAlign } = positionHolderAlignmentIssues(
+    position,
+    actingEmployeeId,
+    users,
+    roles,
+    employeeNameById
+  );
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div>
           <h3 className="text-base font-semibold text-slate-900">{position.title}</h3>
+          {linkedRole ? (
+            <p className="mt-0.5 text-xs font-medium text-indigo-700">Admin role: {linkedRole.name}</p>
+          ) : null}
           <p className="mt-0.5 text-xs text-slate-500">{position.businessArea || position.department || "No business area"}</p>
         </div>
         <button
@@ -435,8 +640,37 @@ export function OrgPositionEditor({
           </div>
         ) : null}
 
+        {!isRoot ? (
+          <label className="block text-xs font-medium text-slate-700">
+            Security role (Admin → Roles)
+            <select
+              value={position.securityRoleId}
+              disabled={!canEdit}
+              onChange={(e) => {
+                const securityRoleId = e.target.value;
+                const role = activeRoles.find((r) => r.id === securityRoleId);
+                patch({
+                  securityRoleId,
+                  title: position.title === linkedRole?.name || !position.title.trim() ? role?.name ?? position.title : position.title,
+                });
+              }}
+              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
+            >
+              <option value="">— Select role —</option>
+              {activeRoles.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-[10px] text-slate-500">
+              Every position must map to a role from Admin → Roles. Title can add a site-specific label.
+            </p>
+          </label>
+        ) : null}
+
         <label className="block text-xs font-medium text-slate-700">
-          Title
+          Position title
           <input
             type="text"
             value={position.title}
@@ -516,6 +750,17 @@ export function OrgPositionEditor({
           </label>
         ) : null}
 
+        {!isRoot && (primaryAlign || actingAlign) ? (
+          <div className="space-y-2">
+            {primaryAlign ? (
+              <HolderRoleAlignmentAlert issue={primaryAlign} label="Primary holder — login role" />
+            ) : null}
+            {actingAlign ? (
+              <HolderRoleAlignmentAlert issue={actingAlign} label="Acting holder — login role" />
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block text-xs font-medium text-slate-700">
             Business area
@@ -587,7 +832,8 @@ export function OrgPositionEditor({
             type="button"
             onClick={() => {
               const child = addPosition({
-                title: "New position",
+                title: linkedRole?.name ?? "New position",
+                securityRoleId: position.securityRoleId || activeRoles[0]?.id || "",
                 department: position.department,
                 businessArea: position.businessArea,
                 locationId: position.locationId,
@@ -611,6 +857,8 @@ export function OrgPositionEditor({
           pending={pendingPrimary}
           positions={positions}
           employeeNameById={employeeNameById}
+          users={users}
+          roles={roles}
           onConfirm={confirmPrimaryAssign}
           onCancel={() => setPendingPrimary(null)}
         />
@@ -620,6 +868,8 @@ export function OrgPositionEditor({
           pending={pendingActing}
           positions={positions}
           employeeNameById={employeeNameById}
+          users={users}
+          roles={roles}
           onConfirm={confirmActingAssign}
           onCancel={() => setPendingActing(null)}
         />

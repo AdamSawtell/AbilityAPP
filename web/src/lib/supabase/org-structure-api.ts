@@ -9,6 +9,7 @@ import {
 type OrgPositionRow = {
   id: string;
   title: string;
+  security_role_id: string | null;
   department: string;
   parent_position_id: string | null;
   sort_order: number;
@@ -34,6 +35,7 @@ function positionFromRow(row: OrgPositionRow): OrgPositionRecord {
   return normalizeOrgPosition({
     id: row.id,
     title: row.title,
+    securityRoleId: row.security_role_id ?? "",
     department: row.department ?? "",
     parentPositionId: row.parent_position_id ?? "",
     sortOrder: row.sort_order ?? 0,
@@ -51,6 +53,7 @@ function positionToRow(record: OrgPositionRecord): OrgPositionRow {
   return {
     id: n.id,
     title: n.title,
+    security_role_id: n.securityRoleId || null,
     department: n.department,
     parent_position_id: n.parentPositionId || null,
     sort_order: n.sortOrder,

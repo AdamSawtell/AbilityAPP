@@ -37,8 +37,10 @@ export const workforceOrganisationArticle: HelpArticle = {
     {
       id: "overview",
       title: "What this module does",
-      body: "Organisation structure is the position tree for your workforce. Each node is a role (position), not a person. People are assigned as primary or acting holders. The tree drives escalation when a position is vacant and routes automated tasks to the right manager.\n\nWorkforce planning also connects to incident accountability: when a reportable incident names an employee party, AbilityAPP resolves their line manager from this tree.",
+      body: "Organisation structure is the position tree for your workforce. Each node is a position slot in the reporting tree — not a person and not a new security role. People are assigned as primary or acting holders.\n\nEvery position must link to exactly one role from Admin → Roles. That role controls app access (windows, tasks, processes). Many positions can share the same role — for example eleven Support Worker slots all map to the Support Worker role.\n\nThe tree drives escalation when a position is vacant and routes automated tasks to the right manager.",
       bullets: [
+        "Security role — chosen from Admin → Roles; defines what holders can do in the app.",
+        "Position title — optional site-specific label (for example Team Leader — Northern SIL).",
         "Positions can link to a business area and support location.",
         "Vacant positions escalate to the parent position holder.",
         "Acting assignments cover leave without changing reporting lines.",
@@ -81,6 +83,36 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Click Clear filters to return to the full tree.",
       ],
       relatedRoutes: ["/workforce-planning/organisation"],
+    },
+    {
+      id: "chart-layout",
+      title: "Reading a large chart",
+      body: "Sibling positions stack vertically instead of spreading across the page. When three or more positions share the same security role under one manager, they collapse into a single group (for example Support Worker × 11). Click Expand to see each holder.\n\nUse business area and location filters to narrow the tree when you only need one site.",
+      relatedRoutes: ["/workforce-planning/organisation"],
+    },
+    {
+      id: "security-role",
+      title: "Link a position to an Admin role",
+      body: "Positions never create new security roles. When you add or edit a position, choose Security role from the dropdown — the list comes from Admin → Roles.\n\nThe position title is for display (often a site label). Holders still need the matching role assigned on their user record in Admin → Users.",
+      steps: [
+        "Open Admin → Roles and confirm the role you need exists (for example Team Leader, Support Worker).",
+        "Select a position in the org chart.",
+        "Choose Security role in the editor.",
+        "Set Position title if you need a site-specific label.",
+        "Assign primary and acting holders as needed.",
+      ],
+      relatedRoutes: ["/admin/roles", "/workforce-planning/organisation"],
+    },
+    {
+      id: "holder-login-role",
+      title: "Align holders with login roles",
+      body: "A position’s security role defines what someone in that slot should be able to do in the app. The holder also needs a linked user in Admin → Users with that role assigned.\n\nAbilityAPP warns (but does not block) when these are out of sync — on the chart, in the position editor, and when you confirm a holder change.",
+      bullets: [
+        "Chart cards show login role mismatch when the primary or acting holder’s user roles do not include the position security role.",
+        "Employees with no linked user are flagged — common for staff who do not log in.",
+        "Fix mismatches in Admin → Users by linking the employee and assigning the matching role.",
+      ],
+      relatedRoutes: ["/admin/users", "/workforce-planning/organisation"],
     },
     {
       id: "reparent",

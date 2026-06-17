@@ -9,6 +9,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-team-northern",
     title: "Team Leader — Northern SIL",
+    securityRoleId: "role-team-leader",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -22,6 +23,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-team-southern",
     title: "Team Leader — Southern Respite",
+    securityRoleId: "role-team-leader",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -35,6 +37,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-team-murray",
     title: "Team Leader — Murray Bridge Day",
+    securityRoleId: "role-team-leader",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -48,6 +51,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-001",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -61,6 +65,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-002",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -74,6 +79,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-003",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -87,6 +93,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-004",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -100,6 +107,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-005",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -113,6 +121,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-006",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -126,6 +135,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-007",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -139,6 +149,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-008",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -152,6 +163,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-009",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -165,6 +177,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-010",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -178,6 +191,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-011",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
@@ -191,6 +205,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-012",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -204,6 +219,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-013",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -217,6 +233,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-014",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -230,6 +247,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-015",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -243,6 +261,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-016",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -256,6 +275,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-017",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -269,6 +289,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-018",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -282,6 +303,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-019",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -295,6 +317,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-020",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -308,6 +331,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-021",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -321,6 +345,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-022",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-southern-respite",
@@ -334,6 +359,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-023",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -347,6 +373,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-024",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -360,6 +387,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-025",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -373,6 +401,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-026",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -386,6 +415,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-027",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -399,6 +429,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-028",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -412,6 +443,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-029",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -425,6 +457,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-030",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -438,6 +471,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-031",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",
@@ -451,6 +485,7 @@ export const bulkOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-sw-032",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-murray-bridge-day",

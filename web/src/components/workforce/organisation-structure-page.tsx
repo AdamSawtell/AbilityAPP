@@ -15,11 +15,12 @@ import {
   type OrgChartFilters,
 } from "@/lib/org-structure-tree";
 import { useOrgStructure } from "@/lib/org-structure-store";
+import { countHolderMisalignments } from "@/lib/org-position-role-alignment";
 
 export function OrganisationStructurePage() {
-  const { canWindow } = useAuth();
+  const { canWindow, users, roles } = useAuth();
   const { employees, locations } = useData();
-  const { hydrated, positions } = useOrgStructure();
+  const { hydrated, positions, assignments } = useOrgStructure();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [businessArea, setBusinessArea] = useState("");
   const [locationId, setLocationId] = useState("");
@@ -49,6 +50,12 @@ export function OrganisationStructurePage() {
   }, [positions, filters, filterActive, employees]);
 
   const canView = canWindow("workforce-organisation") || canWindow("workforce-planning");
+  const canEdit = canWindow("workforce-org-edit");
+
+  const roleMisalignmentCount = useMemo(
+    () => countHolderMisalignments(positions, assignments, users, roles),
+    [positions, assignments, users, roles]
+  );
 
   if (!canView) {
     return (
@@ -135,6 +142,11 @@ export function OrganisationStructurePage() {
               <p className="text-xs text-slate-500">
                 Showing {filterSummary.visible} of {filterSummary.total} positions
                 {filterSummary.onLeave ? ` · ${filterSummary.onLeave} primary holder(s) on leave` : ""}
+              </p>
+            ) : null}
+            {canEdit && roleMisalignmentCount > 0 ? (
+              <p className="text-xs font-medium text-amber-800">
+                {roleMisalignmentCount} holder{roleMisalignmentCount === 1 ? "" : "s"} with login role mismatch — check cards marked on the chart.
               </p>
             ) : null}
           </div>

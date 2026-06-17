@@ -3,6 +3,10 @@
  */
 
 import { bulkOrgPositions, bulkPositionAssignments } from "@/lib/org-structure-bulk-positions";
+import {
+  leadershipOrgPositions,
+  leadershipPositionAssignments,
+} from "@/lib/org-leadership-seed";
 
 export type OrgPositionStatus = "filled" | "vacant" | "under_recruitment" | "frozen";
 
@@ -11,6 +15,8 @@ export type PositionAssignmentType = "primary" | "acting" | "temporary";
 export type OrgPositionRecord = {
   id: string;
   title: string;
+  /** Maps to Admin → Roles. Many positions (e.g. per site) share one security role. */
+  securityRoleId: string;
   department: string;
   businessArea: string;
   locationId: string;
@@ -30,6 +36,8 @@ export const ORG_BUSINESS_AREAS = [
   "Quality",
   "Finance",
   "HR",
+  "ICT",
+  "Rostering",
 ] as const;
 
 export type PositionAssignmentRecord = {
@@ -66,6 +74,7 @@ export function normalizeOrgPosition(raw: OrgPositionRecord): OrgPositionRecord 
     ...raw,
     parentPositionId: raw.parentPositionId ?? "",
     primaryEmployeeId: raw.primaryEmployeeId ?? "",
+    securityRoleId: raw.securityRoleId ?? "",
     department: raw.department ?? "",
     businessArea: raw.businessArea ?? raw.department ?? "",
     locationId: raw.locationId ?? "",
@@ -89,6 +98,7 @@ export const initialOrgPositions: OrgPositionRecord[] = [
   {
     id: "pos-org-root",
     title: "Organisation",
+    securityRoleId: "",
     department: "",
     businessArea: "",
     locationId: "",
@@ -99,110 +109,25 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     costCentre: "",
     primaryEmployeeId: "",
   },
-  {
-    id: "pos-gm-ops",
-    title: "Team Leader — Support coordination",
-    department: "Operations",
-    businessArea: "Operations",
-    locationId: "loc-adelaide-hub",
-    parentPositionId: "pos-org-root",
-    sortOrder: 10,
-    status: "filled",
-    site: "Adelaide HQ",
-    costCentre: "CC-CLIENT",
-    primaryEmployeeId: "emp-michael",
-  },
-  {
-    id: "pos-coordinator",
-    title: "Support Coordinator",
-    department: "Client services",
-    businessArea: "Client services",
-    locationId: "loc-adelaide-hub",
-    parentPositionId: "pos-gm-ops",
-    sortOrder: 10,
-    status: "filled",
-    site: "Adelaide HQ",
-    costCentre: "CC-CLIENT",
-    primaryEmployeeId: "emp-isla",
-  },
-  {
-    id: "pos-intake",
-    title: "Intake Officer",
-    department: "Intake",
-    businessArea: "Intake",
-    locationId: "loc-adelaide-hub",
-    parentPositionId: "pos-gm-ops",
-    sortOrder: 20,
-    status: "filled",
-    site: "Adelaide HQ",
-    costCentre: "CC-INTAKE",
-    primaryEmployeeId: "emp-gabriela",
-  },
+  ...leadershipOrgPositions,
   {
     id: "pos-support-worker",
     title: "Support Worker",
+    securityRoleId: "role-support-worker",
     department: "Operations",
     businessArea: "Operations",
     locationId: "loc-northern-sil",
-    parentPositionId: "pos-team-northern",
-    sortOrder: 5,
+    parentPositionId: "pos-gm-ops",
+    sortOrder: 40,
     status: "filled",
     site: "Northern SIL",
     costCentre: "CC-OPS",
     primaryEmployeeId: "emp-oliver",
   },
-  {
-    id: "pos-plan-dev",
-    title: "Plan Developer",
-    department: "Client services",
-    businessArea: "Client services",
-    locationId: "",
-    parentPositionId: "pos-org-root",
-    sortOrder: 20,
-    status: "filled",
-    site: "",
-    costCentre: "",
-    primaryEmployeeId: "emp-rose",
-  },
-  {
-    id: "pos-contracts",
-    title: "Contract Administrator",
-    department: "Finance",
-    businessArea: "Finance",
-    locationId: "",
-    parentPositionId: "pos-org-root",
-    sortOrder: 30,
-    status: "filled",
-    site: "",
-    costCentre: "",
-    primaryEmployeeId: "emp-jessica",
-  },
-  {
-    id: "pos-quality-vacant",
-    title: "Quality & Compliance Manager",
-    department: "Quality",
-    businessArea: "Quality",
-    locationId: "loc-adelaide-hub",
-    parentPositionId: "pos-org-root",
-    sortOrder: 15,
-    status: "under_recruitment",
-    site: "Adelaide HQ",
-    costCentre: "CC-QUALITY",
-    primaryEmployeeId: "",
-  },
   ...bulkOrgPositions,
 ];
 
 export const initialPositionAssignments: PositionAssignmentRecord[] = [
-  {
-    id: "pa-michael-primary",
-    positionId: "pos-gm-ops",
-    employeeId: "emp-michael",
-    assignmentType: "primary",
-    effectiveFrom: "2018-01-10",
-    effectiveTo: "",
-    notes: "",
-  },
   {
     id: "pa-isla-primary",
     positionId: "pos-coordinator",
@@ -248,6 +173,16 @@ export const initialPositionAssignments: PositionAssignmentRecord[] = [
     effectiveTo: "",
     notes: "",
   },
+  {
+    id: "pa-finance-off-147",
+    positionId: "pos-finance-officer",
+    employeeId: "emp-staff-147",
+    assignmentType: "primary",
+    effectiveFrom: "2023-11-20",
+    effectiveTo: "",
+    notes: "",
+  },
+  ...leadershipPositionAssignments,
   ...bulkPositionAssignments,
 ];
 

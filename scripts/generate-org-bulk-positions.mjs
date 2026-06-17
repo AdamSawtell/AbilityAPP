@@ -46,6 +46,7 @@ function swNum(n) {
 const teamPositions = teams.map((t) => ({
   id: t.id,
   title: t.title,
+  securityRoleId: "role-team-leader",
   department: "Operations",
   businessArea: "Operations",
   locationId: t.locationId,
@@ -67,6 +68,7 @@ for (const team of teams) {
     swPositions.push({
       id: posId,
       title: "Support Worker",
+      securityRoleId: "role-support-worker",
       department: "Operations",
       businessArea: "Operations",
       locationId: team.locationId,
@@ -96,6 +98,7 @@ function toTsPosition(p) {
   return `  {
     id: "${p.id}",
     title: "${p.title}",
+    securityRoleId: "${p.securityRoleId}",
     department: "${p.department}",
     businessArea: "${p.businessArea}",
     locationId: "${p.locationId}",
@@ -137,13 +140,18 @@ ${allAssignments.map(toTsAssignment).join(",\n")},
 `;
 
 function sqlVal(v) {
-  if (v === "" || v == null) return "null";
-  return `'${v}'`;
+  if (v == null) return "null";
+  return `'${String(v).replace(/'/g, "''")}'`;
+}
+
+function sqlText(v) {
+  if (v == null) return "''";
+  return `'${String(v).replace(/'/g, "''")}'`;
 }
 
 const sqlPositionRows = allPositions.map(
   (p) =>
-    `  (${sqlVal(p.id)}, ${sqlVal(p.title)}, ${sqlVal(p.department)}, ${sqlVal(p.businessArea)}, ${sqlVal(p.locationId)}, ${sqlVal(p.parentPositionId)}, ${p.sortOrder}, ${sqlVal(p.status)}, ${sqlVal(p.site)}, ${sqlVal(p.costCentre)}, ${sqlVal(p.primaryEmployeeId)})`
+    `  (${sqlVal(p.id)}, ${sqlText(p.title)}, ${sqlVal(p.securityRoleId)}, ${sqlText(p.department)}, ${sqlText(p.businessArea)}, ${sqlVal(p.locationId)}, ${sqlVal(p.parentPositionId)}, ${p.sortOrder}, ${sqlVal(p.status)}, ${sqlText(p.site)}, ${sqlText(p.costCentre)}, ${p.primaryEmployeeId ? sqlVal(p.primaryEmployeeId) : "null"})`
 );
 
 const sqlAssignmentRows = allAssignments.map(
@@ -154,11 +162,12 @@ const sqlAssignmentRows = allAssignments.map(
 const sqlFragment = `
 -- Bulk support workers under site team leaders (generated)
 insert into public.org_position (
-  id, title, department, business_area, location_id, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
+  id, title, security_role_id, department, business_area, location_id, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
 ) values
 ${sqlPositionRows.join(",\n")}
 on conflict (id) do update set
   title = excluded.title,
+  security_role_id = excluded.security_role_id,
   department = excluded.department,
   business_area = excluded.business_area,
   location_id = excluded.location_id,
