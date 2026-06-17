@@ -1,0 +1,100 @@
+-- Bulk support workers under site team leaders (generated)
+insert into public.org_position (
+  id, title, department, business_area, location_id, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
+) values
+  ('pos-team-northern', 'Team Leader — Northern SIL', 'Operations', 'Operations', 'loc-northern-sil', 'pos-gm-ops', 35, 'vacant', 'Northern SIL', 'CC-OPS', null),
+  ('pos-team-southern', 'Team Leader — Southern Respite', 'Operations', 'Operations', 'loc-southern-respite', 'pos-gm-ops', 36, 'vacant', 'Southern Respite', 'CC-OPS', null),
+  ('pos-team-murray', 'Team Leader — Murray Bridge Day', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-gm-ops', 37, 'vacant', 'Murray Bridge', 'CC-OPS', null),
+  ('pos-sw-001', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 10, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-001'),
+  ('pos-sw-002', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 20, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-002'),
+  ('pos-sw-003', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 30, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-003'),
+  ('pos-sw-004', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 40, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-004'),
+  ('pos-sw-005', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 50, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-005'),
+  ('pos-sw-006', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 60, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-006'),
+  ('pos-sw-007', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 70, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-007'),
+  ('pos-sw-008', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 80, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-008'),
+  ('pos-sw-009', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 90, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-009'),
+  ('pos-sw-010', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 100, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-010'),
+  ('pos-sw-011', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 110, 'filled', 'Northern SIL', 'CC-OPS', 'emp-sw-011'),
+  ('pos-sw-012', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 120, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-012'),
+  ('pos-sw-013', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 130, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-013'),
+  ('pos-sw-014', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 140, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-014'),
+  ('pos-sw-015', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 150, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-015'),
+  ('pos-sw-016', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 160, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-016'),
+  ('pos-sw-017', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 170, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-017'),
+  ('pos-sw-018', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 180, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-018'),
+  ('pos-sw-019', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 190, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-019'),
+  ('pos-sw-020', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 200, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-020'),
+  ('pos-sw-021', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 210, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-021'),
+  ('pos-sw-022', 'Support Worker', 'Operations', 'Operations', 'loc-southern-respite', 'pos-team-southern', 220, 'filled', 'Southern Respite', 'CC-OPS', 'emp-sw-022'),
+  ('pos-sw-023', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 230, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-023'),
+  ('pos-sw-024', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 240, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-024'),
+  ('pos-sw-025', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 250, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-025'),
+  ('pos-sw-026', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 260, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-026'),
+  ('pos-sw-027', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 270, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-027'),
+  ('pos-sw-028', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 280, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-028'),
+  ('pos-sw-029', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 290, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-029'),
+  ('pos-sw-030', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 300, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-030'),
+  ('pos-sw-031', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 310, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-031'),
+  ('pos-sw-032', 'Support Worker', 'Operations', 'Operations', 'loc-murray-bridge-day', 'pos-team-murray', 320, 'filled', 'Murray Bridge', 'CC-OPS', 'emp-sw-032')
+on conflict (id) do update set
+  title = excluded.title,
+  department = excluded.department,
+  business_area = excluded.business_area,
+  location_id = excluded.location_id,
+  parent_position_id = excluded.parent_position_id,
+  sort_order = excluded.sort_order,
+  status = excluded.status,
+  site = excluded.site,
+  cost_centre = excluded.cost_centre,
+  primary_employee_id = excluded.primary_employee_id,
+  updated_at = now();
+
+-- Reparent legacy Oliver support worker under Northern team
+update public.org_position
+set parent_position_id = 'pos-team-northern', sort_order = 5, updated_at = now()
+where id = 'pos-support-worker';
+
+insert into public.position_assignment (
+  id, position_id, employee_id, assignment_type, effective_from, effective_to, notes
+) values
+  ('pa-sw-001-primary', 'pos-sw-001', 'emp-sw-001', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-002-primary', 'pos-sw-002', 'emp-sw-002', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-003-primary', 'pos-sw-003', 'emp-sw-003', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-004-primary', 'pos-sw-004', 'emp-sw-004', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-005-primary', 'pos-sw-005', 'emp-sw-005', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-006-primary', 'pos-sw-006', 'emp-sw-006', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-007-primary', 'pos-sw-007', 'emp-sw-007', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-008-primary', 'pos-sw-008', 'emp-sw-008', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-009-primary', 'pos-sw-009', 'emp-sw-009', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-010-primary', 'pos-sw-010', 'emp-sw-010', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-011-primary', 'pos-sw-011', 'emp-sw-011', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-012-primary', 'pos-sw-012', 'emp-sw-012', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-013-primary', 'pos-sw-013', 'emp-sw-013', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-014-primary', 'pos-sw-014', 'emp-sw-014', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-015-primary', 'pos-sw-015', 'emp-sw-015', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-016-primary', 'pos-sw-016', 'emp-sw-016', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-017-primary', 'pos-sw-017', 'emp-sw-017', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-018-primary', 'pos-sw-018', 'emp-sw-018', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-019-primary', 'pos-sw-019', 'emp-sw-019', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-020-primary', 'pos-sw-020', 'emp-sw-020', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-021-primary', 'pos-sw-021', 'emp-sw-021', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-022-primary', 'pos-sw-022', 'emp-sw-022', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-023-primary', 'pos-sw-023', 'emp-sw-023', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-024-primary', 'pos-sw-024', 'emp-sw-024', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-025-primary', 'pos-sw-025', 'emp-sw-025', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-026-primary', 'pos-sw-026', 'emp-sw-026', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-027-primary', 'pos-sw-027', 'emp-sw-027', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-028-primary', 'pos-sw-028', 'emp-sw-028', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-029-primary', 'pos-sw-029', 'emp-sw-029', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-030-primary', 'pos-sw-030', 'emp-sw-030', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-031-primary', 'pos-sw-031', 'emp-sw-031', 'primary', '2024-01-15', null, 'Bulk seed primary assignment'),
+  ('pa-sw-032-primary', 'pos-sw-032', 'emp-sw-032', 'primary', '2024-01-15', null, 'Bulk seed primary assignment')
+on conflict (id) do update set
+  position_id = excluded.position_id,
+  employee_id = excluded.employee_id,
+  assignment_type = excluded.assignment_type,
+  effective_from = excluded.effective_from,
+  effective_to = excluded.effective_to,
+  notes = excluded.notes,
+  updated_at = now();

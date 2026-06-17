@@ -1226,6 +1226,8 @@ type TaskAutomationRow = {
   due_offset_hours: number | null;
   due_offset_days: number | null;
   due_from_field: string | null;
+  assignee_mode: string;
+  assignee_position_id: string | null;
   assignee_role_id: string;
   dedupe_policy: string;
   sort_order: number;
@@ -1246,6 +1248,8 @@ function taskAutomationFromRow(row: TaskAutomationRow): TaskAutomationRecord {
     dueOffsetHours: row.due_offset_hours,
     dueOffsetDays: row.due_offset_days,
     dueFromField: row.due_from_field,
+    assigneeMode: (row.assignee_mode as TaskAutomationRecord["assigneeMode"]) || "role",
+    assigneePositionId: row.assignee_position_id ?? "",
     assigneeRoleId: row.assignee_role_id,
     dedupePolicy: (row.dedupe_policy as TaskAutomationDedupePolicy) || "one_open_per_entity",
     sortOrder: row.sort_order ?? 0,
@@ -1277,6 +1281,8 @@ function taskAutomationToRow(rule: TaskAutomationRecord): TaskAutomationRow {
     due_offset_hours: normalized.dueOffsetHours,
     due_offset_days: normalized.dueOffsetDays,
     due_from_field: normalized.dueFromField,
+    assignee_mode: normalized.assigneeMode,
+    assignee_position_id: normalized.assigneePositionId || null,
     assignee_role_id: normalized.assigneeRoleId,
     dedupe_policy: normalized.dedupePolicy,
     sort_order: normalized.sortOrder,

@@ -15,6 +15,8 @@ type OrgPositionRow = {
   status: string;
   site: string;
   cost_centre: string;
+  business_area: string;
+  location_id: string | null;
   primary_employee_id: string | null;
 };
 
@@ -38,6 +40,8 @@ function positionFromRow(row: OrgPositionRow): OrgPositionRecord {
     status: row.status as OrgPositionRecord["status"],
     site: row.site ?? "",
     costCentre: row.cost_centre ?? "",
+    businessArea: row.business_area ?? "",
+    locationId: row.location_id ?? "",
     primaryEmployeeId: row.primary_employee_id ?? "",
   });
 }
@@ -53,6 +57,8 @@ function positionToRow(record: OrgPositionRecord): OrgPositionRow {
     status: n.status,
     site: n.site,
     cost_centre: n.costCentre,
+    business_area: n.businessArea,
+    location_id: n.locationId || null,
     primary_employee_id: n.primaryEmployeeId || null,
   };
 }

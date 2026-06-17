@@ -6,6 +6,7 @@ import { ReferenceDataProvider } from "@/lib/config-store";
 import { TaskTypeProvider } from "@/lib/task-type-store";
 import { OrganizationProvider } from "@/lib/organization-store";
 import { OrgStructureProvider } from "@/lib/org-structure-store";
+import { OrgAutomationContextBridge } from "@/components/org-automation-context-bridge";
 import { TaskAutomationRunner } from "@/components/task-automation-runner";
 import { WorkspaceProvider } from "@/lib/workspace-store";
 import "./globals.css";
@@ -40,6 +41,7 @@ export default function RootLayout({
                 <DataProvider>
                   <OrganizationProvider>
                     <OrgStructureProvider>
+                      <OrgAutomationContextBridge />
                       <TaskAutomationRunner />
                       <WorkspaceProvider>{children}</WorkspaceProvider>
                     </OrgStructureProvider>

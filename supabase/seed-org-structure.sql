@@ -5,19 +5,21 @@ delete from public.position_assignment where position_id like 'pos-%';
 delete from public.org_position where id like 'pos-%';
 
 insert into public.org_position (
-  id, title, department, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
+  id, title, department, business_area, location_id, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
 ) values
-  ('pos-org-root', 'Organisation', '', null, 0, 'filled', '', '', null),
-  ('pos-gm-ops', 'Team Leader — Support coordination', 'Operations', 'pos-org-root', 10, 'filled', 'Adelaide HQ', 'CC-CLIENT', 'emp-michael'),
-  ('pos-coordinator', 'Support Coordinator', 'Client services', 'pos-gm-ops', 10, 'filled', 'Adelaide HQ', 'CC-CLIENT', 'emp-isla'),
-  ('pos-intake', 'Intake Officer', 'Intake', 'pos-gm-ops', 20, 'filled', 'Adelaide HQ', 'CC-INTAKE', 'emp-gabriela'),
-  ('pos-support-worker', 'Support Worker', 'Operations', 'pos-gm-ops', 30, 'filled', 'Northern', 'CC-OPS', 'emp-oliver'),
-  ('pos-plan-dev', 'Plan Developer', 'Client services', 'pos-org-root', 20, 'filled', '', '', 'emp-rose'),
-  ('pos-contracts', 'Contract Administrator', 'Finance', 'pos-org-root', 30, 'filled', '', '', 'emp-jessica'),
-  ('pos-quality-vacant', 'Quality & Compliance Manager', 'Quality', 'pos-org-root', 15, 'under_recruitment', 'Adelaide HQ', 'CC-QUALITY', null)
+  ('pos-org-root', 'Organisation', '', '', null, null, 0, 'filled', '', '', null),
+  ('pos-gm-ops', 'Team Leader — Support coordination', 'Operations', 'Operations', 'loc-adelaide-hub', 'pos-org-root', 10, 'filled', 'Adelaide HQ', 'CC-CLIENT', 'emp-michael'),
+  ('pos-coordinator', 'Support Coordinator', 'Client services', 'Client services', 'loc-adelaide-hub', 'pos-gm-ops', 10, 'filled', 'Adelaide HQ', 'CC-CLIENT', 'emp-isla'),
+  ('pos-intake', 'Intake Officer', 'Intake', 'Intake', 'loc-adelaide-hub', 'pos-gm-ops', 20, 'filled', 'Adelaide HQ', 'CC-INTAKE', 'emp-gabriela'),
+  ('pos-support-worker', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 5, 'filled', 'Northern SIL', 'CC-OPS', 'emp-oliver'),
+  ('pos-plan-dev', 'Plan Developer', 'Client services', 'Client services', null, 'pos-org-root', 20, 'filled', '', '', 'emp-rose'),
+  ('pos-contracts', 'Contract Administrator', 'Finance', 'Finance', null, 'pos-org-root', 30, 'filled', '', '', 'emp-jessica'),
+  ('pos-quality-vacant', 'Quality & Compliance Manager', 'Quality', 'Quality', 'loc-adelaide-hub', 'pos-org-root', 15, 'under_recruitment', 'Adelaide HQ', 'CC-QUALITY', null)
 on conflict (id) do update set
   title = excluded.title,
   department = excluded.department,
+  business_area = excluded.business_area,
+  location_id = excluded.location_id,
   parent_position_id = excluded.parent_position_id,
   sort_order = excluded.sort_order,
   status = excluded.status,
@@ -43,3 +45,5 @@ on conflict (id) do update set
   effective_to = excluded.effective_to,
   notes = excluded.notes,
   updated_at = now();
+
+-- Bulk support workers: npx supabase db query --linked -f supabase/seed-org-structure-bulk.sql

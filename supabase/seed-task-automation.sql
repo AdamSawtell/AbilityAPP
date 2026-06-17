@@ -15,6 +15,8 @@ insert into public.app_task_automation (
   due_offset_hours,
   due_offset_days,
   due_from_field,
+  assignee_mode,
+  assignee_position_id,
   assignee_role_id,
   dedupe_policy,
   sort_order
@@ -34,6 +36,8 @@ values
     24,
     null,
     null,
+    'org_incident_manager',
+    null,
     'role-admin',
     'one_open_per_entity',
     10
@@ -52,6 +56,8 @@ values
     null,
     0,
     null,
+    'org_position',
+    'pos-gm-ops',
     'role-admin',
     'one_open_per_entity',
     20
@@ -70,6 +76,8 @@ values
     null,
     3,
     null,
+    'org_position',
+    'pos-gm-ops',
     'role-coordinator',
     'one_open_per_entity',
     30
@@ -87,6 +95,8 @@ on conflict (id) do update set
   due_offset_hours = excluded.due_offset_hours,
   due_offset_days = excluded.due_offset_days,
   due_from_field = excluded.due_from_field,
+  assignee_mode = excluded.assignee_mode,
+  assignee_position_id = excluded.assignee_position_id,
   assignee_role_id = excluded.assignee_role_id,
   dedupe_policy = excluded.dedupe_policy,
   sort_order = excluded.sort_order,

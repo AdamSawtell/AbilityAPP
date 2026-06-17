@@ -14,11 +14,13 @@ import {
   newTaskAutomationId,
   normalizeTaskAutomation,
   sortTaskAutomations,
+  TASK_AUTOMATION_ASSIGNEE_MODES,
   TASK_AUTOMATION_DEDUPE_OPTIONS,
   TASK_AUTOMATION_MODULES,
   TASK_AUTOMATION_TEMPLATE_PLACEHOLDERS,
   taskAutomationModuleLabel,
   triggersForModule,
+  type TaskAutomationAssigneeMode,
   type TaskAutomationModule,
   type TaskAutomationRecord,
   type TaskAutomationTriggerEvent,
@@ -30,6 +32,7 @@ import {
 } from "@/lib/task-automation/engine";
 import { incidentEventsFromSave } from "@/lib/task-automation/incident-triggers";
 import { taskPriorityOptions } from "@/lib/task";
+import { useOrgStructure } from "@/lib/org-structure-store";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -55,10 +58,11 @@ function Field({
 }
 
 export function TaskAutomationsAdminView() {
-  const { roles, canWindow } = useAuth();
-  const { taskAutomations, upsertTaskAutomation, deleteTaskAutomation, incidents, tasks } = useData();
+  const { roles, users, canWindow } = useAuth();
+  const { taskAutomations, upsertTaskAutomation, deleteTaskAutomation, incidents, tasks, employees } = useData();
   const { organization } = useOrganization();
   const { taskTypes, getTaskTypeName } = useTaskTypes();
+  const { positions, assignments } = useOrgStructure();
   const hasAccess = canWindow("admin-task-automations") || canWindow("admin-task-management");
 
   const sorted = useMemo(() => sortTaskAutomations(taskAutomations), [taskAutomations]);
@@ -101,8 +105,14 @@ export function TaskAutomationsAdminView() {
       rules: [record],
       tasks,
       investigationSlaDays: organization.incidentInvestigationSlaDays,
+      org: {
+        positions,
+        assignments,
+        employees,
+        users: users.map((u) => ({ id: u.id, employeeBpId: u.employeeBpId })),
+      },
     }).drafts;
-  }, [record, previewIncident, tasks, organization.incidentInvestigationSlaDays]);
+  }, [record, previewIncident, tasks, organization.incidentInvestigationSlaDays, positions, assignments, employees, users]);
 
   if (!hasAccess) {
     return (
@@ -136,6 +146,8 @@ export function TaskAutomationsAdminView() {
       dueOffsetHours: 24,
       dueOffsetDays: null,
       dueFromField: null,
+      assigneeMode: "role",
+      assigneePositionId: "",
       assigneeRoleId: roles[0]?.id ?? "role-admin",
       dedupePolicy: "one_open_per_entity",
       sortOrder: (sorted.at(-1)?.sortOrder ?? 0) + 10,
@@ -332,19 +344,75 @@ export function TaskAutomationsAdminView() {
                   </select>
                   {triggerHint ? <p className="mt-1 text-xs text-slate-500">{triggerHint}</p> : null}
                 </Field>
-                <Field label="Assign to role">
+                <Field label="Assign to">
                   <select
                     className={inputClass}
-                    value={record.assigneeRoleId}
-                    onChange={(e) => patch({ assigneeRoleId: e.target.value })}
+                    value={record.assigneeMode}
+                    onChange={(e) =>
+                      patch({ assigneeMode: e.target.value as TaskAutomationAssigneeMode })
+                    }
                   >
-                    {roles.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
+                    {TASK_AUTOMATION_ASSIGNEE_MODES.map((mode) => (
+                      <option key={mode.value} value={mode.value}>
+                        {mode.label}
                       </option>
                     ))}
                   </select>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {TASK_AUTOMATION_ASSIGNEE_MODES.find((m) => m.value === record.assigneeMode)?.hint}
+                  </p>
                 </Field>
+                {record.assigneeMode === "org_position" ? (
+                  <Field label="Org position">
+                    <select
+                      className={inputClass}
+                      value={record.assigneePositionId}
+                      onChange={(e) => patch({ assigneePositionId: e.target.value })}
+                    >
+                      <option value="">— Select position —</option>
+                      {positions
+                        .filter((p) => p.id !== "pos-org-root")
+                        .map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.title}
+                            {p.businessArea ? ` · ${p.businessArea}` : ""}
+                          </option>
+                        ))}
+                    </select>
+                  </Field>
+                ) : null}
+                {record.assigneeMode !== "role" ? (
+                  <Field
+                    label="Fallback role"
+                    hint="Used when no login user is linked to the resolved org holder."
+                  >
+                    <select
+                      className={inputClass}
+                      value={record.assigneeRoleId}
+                      onChange={(e) => patch({ assigneeRoleId: e.target.value })}
+                    >
+                      {roles.map((role) => (
+                        <option key={role.id} value={role.id}>
+                          {role.name}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                ) : (
+                  <Field label="Security role">
+                    <select
+                      className={inputClass}
+                      value={record.assigneeRoleId}
+                      onChange={(e) => patch({ assigneeRoleId: e.target.value })}
+                    >
+                      {roles.map((role) => (
+                        <option key={role.id} value={role.id}>
+                          {role.name}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                )}
                 <Field label="Task type">
                   <select
                     className={inputClass}

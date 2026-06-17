@@ -2,6 +2,8 @@
  * Organisation structure — position tree, assignments, and resolution (Phases A–D).
  */
 
+import { bulkOrgPositions, bulkPositionAssignments } from "@/lib/org-structure-bulk-positions";
+
 export type OrgPositionStatus = "filled" | "vacant" | "under_recruitment" | "frozen";
 
 export type PositionAssignmentType = "primary" | "acting" | "temporary";
@@ -10,6 +12,8 @@ export type OrgPositionRecord = {
   id: string;
   title: string;
   department: string;
+  businessArea: string;
+  locationId: string;
   parentPositionId: string;
   sortOrder: number;
   status: OrgPositionStatus;
@@ -17,6 +21,16 @@ export type OrgPositionRecord = {
   costCentre: string;
   primaryEmployeeId: string;
 };
+
+export const ORG_BUSINESS_AREAS = [
+  "Executive",
+  "Operations",
+  "Client services",
+  "Intake",
+  "Quality",
+  "Finance",
+  "HR",
+] as const;
 
 export type PositionAssignmentRecord = {
   id: string;
@@ -53,6 +67,8 @@ export function normalizeOrgPosition(raw: OrgPositionRecord): OrgPositionRecord 
     parentPositionId: raw.parentPositionId ?? "",
     primaryEmployeeId: raw.primaryEmployeeId ?? "",
     department: raw.department ?? "",
+    businessArea: raw.businessArea ?? raw.department ?? "",
+    locationId: raw.locationId ?? "",
     site: raw.site ?? "",
     costCentre: raw.costCentre ?? "",
     sortOrder: Number.isFinite(raw.sortOrder) ? raw.sortOrder : 0,
@@ -74,6 +90,8 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-org-root",
     title: "Organisation",
     department: "",
+    businessArea: "",
+    locationId: "",
     parentPositionId: "",
     sortOrder: 0,
     status: "filled",
@@ -85,6 +103,8 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-gm-ops",
     title: "Team Leader — Support coordination",
     department: "Operations",
+    businessArea: "Operations",
+    locationId: "loc-adelaide-hub",
     parentPositionId: "pos-org-root",
     sortOrder: 10,
     status: "filled",
@@ -96,6 +116,8 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-coordinator",
     title: "Support Coordinator",
     department: "Client services",
+    businessArea: "Client services",
+    locationId: "loc-adelaide-hub",
     parentPositionId: "pos-gm-ops",
     sortOrder: 10,
     status: "filled",
@@ -107,6 +129,8 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-intake",
     title: "Intake Officer",
     department: "Intake",
+    businessArea: "Intake",
+    locationId: "loc-adelaide-hub",
     parentPositionId: "pos-gm-ops",
     sortOrder: 20,
     status: "filled",
@@ -118,10 +142,12 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-support-worker",
     title: "Support Worker",
     department: "Operations",
-    parentPositionId: "pos-gm-ops",
-    sortOrder: 30,
+    businessArea: "Operations",
+    locationId: "loc-northern-sil",
+    parentPositionId: "pos-team-northern",
+    sortOrder: 5,
     status: "filled",
-    site: "Northern",
+    site: "Northern SIL",
     costCentre: "CC-OPS",
     primaryEmployeeId: "emp-oliver",
   },
@@ -129,6 +155,8 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-plan-dev",
     title: "Plan Developer",
     department: "Client services",
+    businessArea: "Client services",
+    locationId: "",
     parentPositionId: "pos-org-root",
     sortOrder: 20,
     status: "filled",
@@ -140,6 +168,8 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-contracts",
     title: "Contract Administrator",
     department: "Finance",
+    businessArea: "Finance",
+    locationId: "",
     parentPositionId: "pos-org-root",
     sortOrder: 30,
     status: "filled",
@@ -151,6 +181,8 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     id: "pos-quality-vacant",
     title: "Quality & Compliance Manager",
     department: "Quality",
+    businessArea: "Quality",
+    locationId: "loc-adelaide-hub",
     parentPositionId: "pos-org-root",
     sortOrder: 15,
     status: "under_recruitment",
@@ -158,6 +190,7 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     costCentre: "CC-QUALITY",
     primaryEmployeeId: "",
   },
+  ...bulkOrgPositions,
 ];
 
 export const initialPositionAssignments: PositionAssignmentRecord[] = [
@@ -215,6 +248,7 @@ export const initialPositionAssignments: PositionAssignmentRecord[] = [
     effectiveTo: "",
     notes: "",
   },
+  ...bulkPositionAssignments,
 ];
 
 let positionSeq = 200;

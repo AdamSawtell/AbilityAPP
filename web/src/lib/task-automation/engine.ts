@@ -22,6 +22,8 @@ import {
   scheduledIncidentCandidates,
   type IncidentAutomationEvent,
 } from "@/lib/task-automation/incident-triggers";
+import { getOrgAutomationContext, type OrgAutomationContext } from "@/lib/org-automation-context";
+import { resolveAutomationAssignee } from "@/lib/task-automation/org-assignee";
 
 export type AutomationTemplateContext = {
   incident: IncidentRecord;
@@ -107,10 +109,12 @@ export type AutomationTaskDraft = Omit<TaskRecord, "id" | "documentNo" | "update
 
 function buildTaskDraft(
   rule: TaskAutomationRecord,
-  ctx: AutomationTemplateContext
+  ctx: AutomationTemplateContext,
+  org: OrgAutomationContext | null
 ): AutomationTaskDraft {
   const entityLabel = `${ctx.incident.documentNo} — ${ctx.incident.title?.trim() || "Incident"}`;
   const dedupeKey = automationDedupeKey(rule.id, "incident", ctx.incident.id);
+  const assignee = resolveAutomationAssignee(rule, ctx, org);
 
   return {
     title: renderAutomationTemplate(rule.titleTemplate, ctx),
@@ -119,9 +123,9 @@ function buildTaskDraft(
     taskTypeId: rule.taskTypeId,
     priority: rule.priority,
     dueDate: resolveDueDate(rule, ctx),
-    assignmentType: "role",
-    assigneeUserId: "",
-    assigneeRoleId: rule.assigneeRoleId,
+    assignmentType: assignee.assignmentType,
+    assigneeUserId: assignee.assigneeUserId,
+    assigneeRoleId: assignee.assigneeRoleId,
     entityType: "incident",
     entityId: ctx.incident.id,
     entityLabel,
@@ -146,6 +150,7 @@ function evaluateRulesForEvent(
   event: IncidentAutomationEvent,
   ctx: AutomationTemplateContext,
   dedupeIndex: AutomationDedupeIndex,
+  org: OrgAutomationContext | null,
   changedFields?: string[]
 ): { drafts: AutomationTaskDraft[]; skipped: number } {
   const drafts: AutomationTaskDraft[] = [];
@@ -155,7 +160,7 @@ function evaluateRulesForEvent(
     const rule = normalizeTaskAutomation(raw);
     if (!matchesConditions(rule.conditions, event.incident, changedFields)) continue;
 
-    const draft = buildTaskDraft(rule, ctx);
+    const draft = buildTaskDraft(rule, ctx, org);
     if (shouldSkipAutomationTask(dedupeIndex, draft.automationDedupeKey, rule.dedupePolicy)) {
       skipped += 1;
       continue;
@@ -173,9 +178,11 @@ export function evaluateIncidentAutomations(input: {
   rules: TaskAutomationRecord[];
   tasks: TaskRecord[];
   investigationSlaDays: number;
+  org?: OrgAutomationContext | null;
 }): EvaluateAutomationsResult {
   const triggerIndex = indexAutomationsByTrigger(input.rules);
   const dedupeIndex = buildAutomationDedupeIndex(input.tasks);
+  const org = input.org ?? getOrgAutomationContext();
   const drafts: AutomationTaskDraft[] = [];
   let skipped = 0;
 
@@ -190,7 +197,7 @@ export function evaluateIncidentAutomations(input: {
         ? incidentFieldChanges(event.before, event.incident)
         : undefined;
 
-    const result = evaluateRulesForEvent(rules, event, ctx, dedupeIndex, changedFields);
+    const result = evaluateRulesForEvent(rules, event, ctx, dedupeIndex, org, changedFields);
     drafts.push(...result.drafts);
     skipped += result.skipped;
   }
@@ -204,6 +211,7 @@ export function evaluateScheduledIncidentAutomations(input: {
   tasks: TaskRecord[];
   investigationSlaDays: number;
   batchLimit?: number;
+  org?: OrgAutomationContext | null;
 }): EvaluateAutomationsResult {
   const events = scheduledIncidentCandidates(input.incidents, input.investigationSlaDays);
   const limit = input.batchLimit ?? TASK_AUTOMATION_SCHEDULED_BATCH_LIMIT;
@@ -214,5 +222,6 @@ export function evaluateScheduledIncidentAutomations(input: {
     rules: input.rules,
     tasks: input.tasks,
     investigationSlaDays: input.investigationSlaDays,
+    org: input.org,
   });
 }

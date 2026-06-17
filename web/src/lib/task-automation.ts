@@ -28,6 +28,26 @@ export type TaskAutomationTriggerEvent =
 
 export type TaskAutomationDedupePolicy = "one_open_per_entity" | "once_ever" | "none";
 
+export type TaskAutomationAssigneeMode = "role" | "org_position" | "org_incident_manager";
+
+export const TASK_AUTOMATION_ASSIGNEE_MODES: {
+  value: TaskAutomationAssigneeMode;
+  label: string;
+  hint: string;
+}[] = [
+  { value: "role", label: "Security role", hint: "Task queue for everyone with that role" },
+  {
+    value: "org_position",
+    label: "Org position holder",
+    hint: "Resolve the primary or acting holder of a position; falls back to role if no login user",
+  },
+  {
+    value: "org_incident_manager",
+    label: "Incident accountable manager",
+    hint: "Manager one level up from the employee party on the incident",
+  },
+];
+
 export type TaskAutomationModuleMeta = {
   value: TaskAutomationModule;
   label: string;
@@ -113,6 +133,8 @@ export type TaskAutomationRecord = {
   dueOffsetHours: number | null;
   dueOffsetDays: number | null;
   dueFromField: string | null;
+  assigneeMode: TaskAutomationAssigneeMode;
+  assigneePositionId: string;
   assigneeRoleId: string;
   dedupePolicy: TaskAutomationDedupePolicy;
   sortOrder: number;
@@ -128,6 +150,9 @@ export function normalizeTaskAutomation(raw: TaskAutomationRecord): TaskAutomati
   const triggerEvent = triggers.some((t) => t.value === raw.triggerEvent)
     ? raw.triggerEvent
     : (triggers[0]?.value ?? "incident.created");
+  const assigneeMode = TASK_AUTOMATION_ASSIGNEE_MODES.some((m) => m.value === raw.assigneeMode)
+    ? raw.assigneeMode
+    : "role";
   return {
     ...raw,
     module: ruleModule,
@@ -138,6 +163,9 @@ export function normalizeTaskAutomation(raw: TaskAutomationRecord): TaskAutomati
     dueOffsetHours: raw.dueOffsetHours ?? null,
     dueOffsetDays: raw.dueOffsetDays ?? null,
     dueFromField: raw.dueFromField?.trim() || null,
+    assigneeMode,
+    assigneePositionId: raw.assigneePositionId?.trim() ?? "",
+    assigneeRoleId: raw.assigneeRoleId?.trim() || "role-admin",
   };
 }
 
@@ -157,6 +185,8 @@ export const initialTaskAutomations: TaskAutomationRecord[] = [
     dueOffsetHours: 24,
     dueOffsetDays: null,
     dueFromField: null,
+    assigneeMode: "org_incident_manager",
+    assigneePositionId: "",
     assigneeRoleId: "role-admin",
     dedupePolicy: "one_open_per_entity",
     sortOrder: 10,
@@ -176,6 +206,8 @@ export const initialTaskAutomations: TaskAutomationRecord[] = [
     dueOffsetHours: null,
     dueOffsetDays: 0,
     dueFromField: null,
+    assigneeMode: "org_position",
+    assigneePositionId: "pos-gm-ops",
     assigneeRoleId: "role-admin",
     dedupePolicy: "one_open_per_entity",
     sortOrder: 20,
@@ -195,6 +227,8 @@ export const initialTaskAutomations: TaskAutomationRecord[] = [
     dueOffsetHours: null,
     dueOffsetDays: 3,
     dueFromField: null,
+    assigneeMode: "org_position",
+    assigneePositionId: "pos-gm-ops",
     assigneeRoleId: "role-coordinator",
     dedupePolicy: "one_open_per_entity",
     sortOrder: 30,

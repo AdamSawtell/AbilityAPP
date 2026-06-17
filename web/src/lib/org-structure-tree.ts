@@ -117,3 +117,41 @@ export function positionStatusTone(
       return "amber";
   }
 }
+
+export type OrgChartFilters = {
+  businessArea?: string;
+  locationId?: string;
+};
+
+/** Keep nodes matching filters plus all ancestors (root always shown). */
+export function filterOrgPositions(
+  positions: OrgPositionRecord[],
+  filters: OrgChartFilters
+): OrgPositionRecord[] {
+  const businessArea = filters.businessArea?.trim();
+  const locationId = filters.locationId?.trim();
+  if (!businessArea && !locationId) return positions;
+
+  const matches = (p: OrgPositionRecord) => {
+    if (p.id === "pos-org-root") return true;
+    if (businessArea && p.businessArea !== businessArea) return false;
+    if (locationId && p.locationId !== locationId) return false;
+    return true;
+  };
+
+  const parentById = new Map(positions.map((p) => [p.id, p.parentPositionId?.trim() ?? ""]));
+  const keepIds = new Set<string>(["pos-org-root"]);
+
+  for (const p of positions) {
+    if (!matches(p)) continue;
+    let current: string | undefined = p.id;
+    while (current) {
+      keepIds.add(current);
+      const parent = parentById.get(current);
+      if (!parent) break;
+      current = parent;
+    }
+  }
+
+  return positions.filter((p) => keepIds.has(p.id));
+}

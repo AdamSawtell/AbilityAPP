@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
+  ORG_BUSINESS_AREAS,
   ORG_POSITION_STATUS_OPTIONS,
   orgPositionStatusLabel,
   type OrgPositionNode,
@@ -14,12 +15,19 @@ import {
   actingAssignmentForPosition,
   activeAssignments,
   buildOrgTree,
+  filterOrgPositions,
   isEmployeeOnLeaveToday,
   positionStatusTone,
   wouldCreateOrgCycle,
+  type OrgChartFilters,
 } from "@/lib/org-structure-tree";
 import type { PositionAssignmentRecord } from "@/lib/org-structure";
 import { useOrgStructure } from "@/lib/org-structure-store";
+import { OrgReparentConfirmDialog, type PendingReparent } from "@/components/workforce/org-reparent-confirm";
+import {
+  OrgAssignPrimaryConfirmDialog,
+  type PendingPrimaryAssign,
+} from "@/components/workforce/org-assign-primary-confirm";
 
 const toneClasses = {
   emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
@@ -33,9 +41,11 @@ function PositionCard({
   employeeName,
   actingName,
   onLeave,
+  locationLabel,
   canEdit,
   selected,
   dragOver,
+  isDragging,
   onSelect,
   onDragStart,
   onDragOver,
@@ -46,9 +56,11 @@ function PositionCard({
   employeeName: string;
   actingName: string;
   onLeave: boolean;
+  locationLabel: string;
   canEdit: boolean;
   selected: boolean;
   dragOver: boolean;
+  isDragging: boolean;
   onSelect: () => void;
   onDragStart: () => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -59,16 +71,7 @@ function PositionCard({
   const isRoot = node.id === "pos-org-root";
 
   return (
-    <button
-      type="button"
-      draggable={canEdit && !isRoot}
-      onClick={onSelect}
-      onDragStart={(e) => {
-        if (!canEdit || isRoot) return;
-        e.dataTransfer.setData("text/position-id", node.id);
-        e.dataTransfer.effectAllowed = "move";
-        onDragStart();
-      }}
+    <div
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -77,38 +80,62 @@ function PositionCard({
           ? "border-indigo-300 bg-indigo-50/60 shadow-sm ring-2 ring-indigo-200"
           : dragOver
             ? "border-indigo-400 bg-indigo-50 ring-2 ring-indigo-300"
-            : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
-      } ${canEdit && !isRoot ? "cursor-grab active:cursor-grabbing" : ""}`}
+            : isDragging
+              ? "border-slate-300 bg-slate-100 opacity-60"
+              : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
+      }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-slate-900">{node.title}</p>
-          {node.department ? <p className="truncate text-xs text-slate-500">{node.department}</p> : null}
-        </div>
-        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${toneClasses[tone]}`}>
-          {orgPositionStatusLabel(node.status)}
-        </span>
-      </div>
-      {!isRoot ? (
-        <p className="mt-1.5 truncate text-xs text-slate-600">
-          {actingName ? (
-            <span className="font-medium text-sky-800">Acting: {actingName}</span>
-          ) : employeeName ? (
-            <>
-              <span className={`font-medium ${onLeave ? "text-amber-800" : "text-slate-800"}`}>
-                {employeeName}
-                {onLeave ? " (on leave)" : ""}
-              </span>
-              {node.site ? <span className="text-slate-400"> · {node.site}</span> : null}
-            </>
+      <div className="flex items-start gap-2">
+        <button type="button" onClick={onSelect} className="min-w-0 flex-1 text-left">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900">{node.title}</p>
+              {node.businessArea || node.department ? (
+                <p className="truncate text-xs text-slate-500">{node.businessArea || node.department}</p>
+              ) : null}
+            </div>
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${toneClasses[tone]}`}>
+              {orgPositionStatusLabel(node.status)}
+            </span>
+          </div>
+          {!isRoot ? (
+            <p className="mt-1.5 truncate text-xs text-slate-600">
+              {actingName ? (
+                <span className="font-medium text-sky-800">Acting: {actingName}</span>
+              ) : employeeName ? (
+                <>
+                  <span className={`font-medium ${onLeave ? "text-amber-800" : "text-slate-800"}`}>
+                    {employeeName}
+                    {onLeave ? " (on leave)" : ""}
+                  </span>
+                  {locationLabel ? <span className="text-slate-400"> · {locationLabel}</span> : null}
+                </>
+              ) : (
+                <span className="italic text-amber-700">Vacant — escalates to parent</span>
+              )}
+            </p>
           ) : (
-            <span className="italic text-amber-700">Vacant — escalates to parent</span>
+            <p className="mt-1.5 text-xs text-slate-500">Root of the organisation tree</p>
           )}
-        </p>
-      ) : (
-        <p className="mt-1.5 text-xs text-slate-500">Root of the organisation tree</p>
-      )}
-    </button>
+        </button>
+        {canEdit && !isRoot ? (
+          <span
+            draggable
+            title="Drag to reparent"
+            onDragStart={(e) => {
+              e.stopPropagation();
+              e.dataTransfer.setData("text/position-id", node.id);
+              e.dataTransfer.effectAllowed = "move";
+              onDragStart();
+            }}
+            className="mt-0.5 cursor-grab rounded p-1 text-slate-400 hover:bg-slate-100 active:cursor-grabbing"
+            aria-label="Drag to change reporting line"
+          >
+            ⋮⋮
+          </span>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
@@ -116,6 +143,7 @@ function OrgTreeBranch({
   node,
   employeeNameById,
   employeesById,
+  locationNameById,
   assignments,
   canEdit,
   selectedId,
@@ -130,6 +158,7 @@ function OrgTreeBranch({
   node: OrgPositionNode;
   employeeNameById: Map<string, string>;
   employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
+  locationNameById: Map<string, string>;
   assignments: PositionAssignmentRecord[];
   canEdit: boolean;
   selectedId: string | null;
@@ -148,6 +177,7 @@ function OrgTreeBranch({
     ? employeesById.get(node.primaryEmployeeId)
     : undefined;
   const onLeave = primaryEmployee ? isEmployeeOnLeaveToday(primaryEmployee) : false;
+  const locationLabel = node.locationId ? locationNameById.get(node.locationId) ?? "" : node.site;
 
   return (
     <li className="flex flex-col items-center">
@@ -157,9 +187,11 @@ function OrgTreeBranch({
           employeeName={employeeName}
           actingName={actingName}
           onLeave={onLeave}
+          locationLabel={locationLabel}
           canEdit={canEdit}
           selected={selectedId === node.id}
           dragOver={dropTargetId === node.id && dragId !== node.id}
+          isDragging={dragId === node.id}
           onSelect={() => onSelect(node.id)}
           onDragStart={() => onDragStart(node.id)}
           onDragOver={(e) => {
@@ -184,6 +216,7 @@ function OrgTreeBranch({
                 node={child}
                 employeeNameById={employeeNameById}
                 employeesById={employeesById}
+                locationNameById={locationNameById}
                 assignments={assignments}
                 canEdit={canEdit}
                 selectedId={selectedId}
@@ -206,24 +239,32 @@ function OrgTreeBranch({
 export function OrgChart({
   selectedId,
   onSelect,
+  filters,
 }: {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  filters?: OrgChartFilters;
 }) {
-  const { employees } = useData();
+  const { employees, locations } = useData();
   const { positions, assignments, reparentPosition } = useOrgStructure();
   const { canWindow } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
 
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
+  const [pendingReparent, setPendingReparent] = useState<PendingReparent | null>(null);
   const [error, setError] = useState("");
 
   const employeeNameById = useMemo(() => new Map(employees.map((e) => [e.id, e.name])), [employees]);
   const employeesById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
-  const tree = useMemo(() => buildOrgTree(positions), [positions]);
+  const locationNameById = useMemo(() => new Map(locations.map((l) => [l.id, l.name])), [locations]);
+  const filteredPositions = useMemo(
+    () => filterOrgPositions(positions, filters ?? {}),
+    [positions, filters]
+  );
+  const tree = useMemo(() => buildOrgTree(filteredPositions), [filteredPositions]);
 
-  function handleDrop(targetId: string) {
+  function requestReparent(targetId: string) {
     setDropTargetId(null);
     if (!dragId || dragId === targetId) {
       setDragId(null);
@@ -235,8 +276,14 @@ export function OrgChart({
       return;
     }
     setError("");
-    reparentPosition(dragId, targetId);
+    setPendingReparent({ positionId: dragId, newParentId: targetId });
     setDragId(null);
+  }
+
+  function confirmReparent() {
+    if (!pendingReparent) return;
+    reparentPosition(pendingReparent.positionId, pendingReparent.newParentId);
+    setPendingReparent(null);
   }
 
   if (!tree.length) {
@@ -251,7 +298,7 @@ export function OrgChart({
     <div className="space-y-3">
       {canEdit ? (
         <p className="text-xs text-slate-500">
-          Drag a position card onto another to change reporting lines. Vacant roles escalate to the parent holder.
+          Use the grip (⋮⋮) to drag a position onto another, then confirm the reporting line change.
         </p>
       ) : null}
       {error ? (
@@ -265,6 +312,7 @@ export function OrgChart({
               node={root}
               employeeNameById={employeeNameById}
               employeesById={employeesById}
+              locationNameById={locationNameById}
               assignments={assignments}
               canEdit={canEdit}
               selectedId={selectedId}
@@ -274,11 +322,19 @@ export function OrgChart({
               onDragStart={setDragId}
               onDragOverTarget={setDropTargetId}
               onDragLeaveTarget={() => setDropTargetId(null)}
-              onDropOnTarget={handleDrop}
+              onDropOnTarget={requestReparent}
             />
           ))}
         </ul>
       </div>
+      {pendingReparent ? (
+        <OrgReparentConfirmDialog
+          pending={pendingReparent}
+          positions={positions}
+          onConfirm={confirmReparent}
+          onCancel={() => setPendingReparent(null)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -287,18 +343,26 @@ export function OrgPositionEditor({
   positionId,
   onClose,
   onCreated,
+  onSelectPosition,
 }: {
   positionId: string | null;
   onClose: () => void;
   onCreated?: (id: string) => void;
+  onSelectPosition?: (id: string) => void;
 }) {
-  const { employees } = useData();
+  const { employees, locations } = useData();
   const { positions, assignments, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition } = useOrgStructure();
   const { canWindow } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
 
+  const [pendingPrimary, setPendingPrimary] = useState<PendingPrimaryAssign | null>(null);
+
+  const employeeNameById = useMemo(() => new Map(employees.map((e) => [e.id, e.name])), [employees]);
+
   const position = positions.find((p) => p.id === positionId) ?? null;
   const isRoot = position?.id === "pos-org-root";
+  const parent = position?.parentPositionId ? positions.find((p) => p.id === position.parentPositionId) : undefined;
+  const linkedLocation = position?.locationId ? locations.find((l) => l.id === position.locationId) : undefined;
 
   if (!position) {
     return (
@@ -312,12 +376,22 @@ export function OrgPositionEditor({
     upsertPosition({ ...position!, ...partial });
   }
 
+  function confirmPrimaryAssign() {
+    if (!pendingPrimary) return;
+    if (pendingPrimary.employeeId) {
+      assignPrimary(pendingPrimary.positionId, pendingPrimary.employeeId);
+    } else {
+      clearPrimary(pendingPrimary.positionId);
+    }
+    setPendingPrimary(null);
+  }
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div>
           <h3 className="text-base font-semibold text-slate-900">{position.title}</h3>
-          <p className="mt-0.5 text-xs text-slate-500">{position.department || "No department"}</p>
+          <p className="mt-0.5 text-xs text-slate-500">{position.businessArea || position.department || "No business area"}</p>
         </div>
         <button
           type="button"
@@ -329,6 +403,19 @@ export function OrgPositionEditor({
       </div>
 
       <div className="space-y-4 p-5">
+        {parent ? (
+          <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            Reports to{" "}
+            <button
+              type="button"
+              onClick={() => onSelectPosition?.(parent.id)}
+              className="font-medium text-indigo-700 hover:text-indigo-900"
+            >
+              {parent.title}
+            </button>
+          </div>
+        ) : null}
+
         <label className="block text-xs font-medium text-slate-700">
           Title
           <input
@@ -364,8 +451,12 @@ export function OrgPositionEditor({
               disabled={!canEdit}
               onChange={(e) => {
                 const id = e.target.value;
-                if (id) assignPrimary(position.id, id);
-                else clearPrimary(position.id);
+                if (id === position.primaryEmployeeId) return;
+                setPendingPrimary({
+                  positionId: position.id,
+                  employeeId: id,
+                  previousEmployeeId: position.primaryEmployeeId,
+                });
               }}
               className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
             >
@@ -408,35 +499,69 @@ export function OrgPositionEditor({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block text-xs font-medium text-slate-700">
-            Department
-            <input
-              type="text"
-              value={position.department}
+            Business area
+            <select
+              value={position.businessArea}
               disabled={!canEdit || isRoot}
-              onChange={(e) => patch({ department: e.target.value })}
+              onChange={(e) => patch({ businessArea: e.target.value, department: e.target.value })}
               className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
-            />
+            >
+              <option value="">— None —</option>
+              {ORG_BUSINESS_AREAS.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="block text-xs font-medium text-slate-700">
-            Site
-            <input
-              type="text"
-              value={position.site}
+            Support location
+            <select
+              value={position.locationId}
               disabled={!canEdit}
-              onChange={(e) => patch({ site: e.target.value })}
+              onChange={(e) => patch({ locationId: e.target.value })}
               className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
-            />
+            >
+              <option value="">— Not site-specific —</option>
+              {locations.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 
-        {position.primaryEmployeeId ? (
-          <Link
-            href={`/employees/${position.primaryEmployeeId}`}
-            className="inline-flex text-xs font-medium text-indigo-700 hover:text-indigo-900"
-          >
-            Open employee record →
-          </Link>
-        ) : null}
+        <label className="block text-xs font-medium text-slate-700">
+          Site label
+          <input
+            type="text"
+            value={position.site}
+            disabled={!canEdit}
+            onChange={(e) => patch({ site: e.target.value })}
+            placeholder="Optional label when no location is linked"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
+          />
+        </label>
+
+        <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+          {position.primaryEmployeeId ? (
+            <Link
+              href={`/employees/${position.primaryEmployeeId}`}
+              className="inline-flex rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              View employee
+            </Link>
+          ) : null}
+          {linkedLocation ? (
+            <Link
+              href={`/locations/${linkedLocation.id}`}
+              className="inline-flex rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              View location
+            </Link>
+          ) : null}
+        </div>
 
         {canEdit && !isRoot ? (
           <button
@@ -445,21 +570,32 @@ export function OrgPositionEditor({
               const child = addPosition({
                 title: "New position",
                 department: position.department,
+                businessArea: position.businessArea,
+                locationId: position.locationId,
                 parentPositionId: position.id,
                 sortOrder: (position.sortOrder ?? 0) + 10,
                 status: "vacant",
-                site: "",
-                costCentre: "",
+                site: position.site,
+                costCentre: position.costCentre,
                 primaryEmployeeId: "",
               });
               onCreated?.(child.id);
             }}
             className="w-full rounded-lg border border-dashed border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
-            Add child position
+            Add dependent position
           </button>
         ) : null}
       </div>
+      {pendingPrimary ? (
+        <OrgAssignPrimaryConfirmDialog
+          pending={pendingPrimary}
+          positions={positions}
+          employeeNameById={employeeNameById}
+          onConfirm={confirmPrimaryAssign}
+          onCancel={() => setPendingPrimary(null)}
+        />
+      ) : null}
     </div>
   );
 }
