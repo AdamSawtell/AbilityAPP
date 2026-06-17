@@ -8,6 +8,7 @@ import {
   leadershipPositionAssignments,
 } from "@/lib/org-leadership-seed";
 import { leadershipReportingLines } from "@/lib/org-reporting-lines-seed";
+import { withResolvedChartTier } from "@/lib/org-chart-tier-defaults";
 
 export type OrgPositionStatus = "filled" | "vacant" | "under_recruitment" | "frozen";
 
@@ -34,6 +35,8 @@ export type OrgPositionRecord = {
   locationId: string;
   parentPositionId: string;
   sortOrder: number;
+  /** Manual org-chart band (see ORG_CHART_TIER_OPTIONS). Solid parent still drives escalation. */
+  chartTier: number;
   status: OrgPositionStatus;
   site: string;
   costCentre: string;
@@ -82,7 +85,7 @@ export function normalizeOrgPosition(raw: OrgPositionRecord): OrgPositionRecord 
   const status = ORG_POSITION_STATUS_OPTIONS.some((o) => o.value === raw.status)
     ? raw.status
     : "vacant";
-  return {
+  return withResolvedChartTier({
     ...raw,
     parentPositionId: raw.parentPositionId ?? "",
     primaryEmployeeId: raw.primaryEmployeeId ?? "",
@@ -93,8 +96,9 @@ export function normalizeOrgPosition(raw: OrgPositionRecord): OrgPositionRecord 
     site: raw.site ?? "",
     costCentre: raw.costCentre ?? "",
     sortOrder: Number.isFinite(raw.sortOrder) ? raw.sortOrder : 0,
+    chartTier: Number.isFinite(raw.chartTier) ? raw.chartTier : 0,
     status,
-  };
+  });
 }
 
 export function normalizePositionReportingLine(
@@ -127,6 +131,7 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     locationId: "",
     parentPositionId: "",
     sortOrder: 0,
+    chartTier: 0,
     status: "filled",
     site: "",
     costCentre: "",
@@ -142,6 +147,7 @@ export const initialOrgPositions: OrgPositionRecord[] = [
     locationId: "loc-northern-sil",
     parentPositionId: "pos-gm-ops",
     sortOrder: 40,
+    chartTier: 7,
     status: "filled",
     site: "Northern SIL",
     costCentre: "CC-OPS",

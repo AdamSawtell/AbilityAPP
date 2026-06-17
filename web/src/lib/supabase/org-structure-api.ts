@@ -15,6 +15,7 @@ type OrgPositionRow = {
   department: string;
   parent_position_id: string | null;
   sort_order: number;
+  chart_tier: number;
   status: string;
   site: string;
   cost_centre: string;
@@ -50,6 +51,7 @@ function positionFromRow(row: OrgPositionRow): OrgPositionRecord {
     department: row.department ?? "",
     parentPositionId: row.parent_position_id ?? "",
     sortOrder: row.sort_order ?? 0,
+    chartTier: row.chart_tier ?? 0,
     status: row.status as OrgPositionRecord["status"],
     site: row.site ?? "",
     costCentre: row.cost_centre ?? "",
@@ -68,6 +70,7 @@ function positionToRow(record: OrgPositionRecord): OrgPositionRow {
     department: n.department,
     parent_position_id: n.parentPositionId || null,
     sort_order: n.sortOrder,
+    chart_tier: n.chartTier,
     status: n.status,
     site: n.site,
     cost_centre: n.costCentre,

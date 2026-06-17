@@ -52,6 +52,7 @@ const teamPositions = teams.map((t) => ({
   locationId: t.locationId,
   parentPositionId: "pos-gm-ops",
   sortOrder: t.sortOrder,
+  chartTier: 6,
   status: "vacant",
   site: t.site,
   costCentre: "CC-OPS",
@@ -74,6 +75,7 @@ for (const team of teams) {
       locationId: team.locationId,
       parentPositionId: team.id,
       sortOrder: n * 10,
+      chartTier: 7,
       status: "filled",
       site: team.site,
       costCentre: "CC-OPS",
@@ -104,6 +106,7 @@ function toTsPosition(p) {
     locationId: "${p.locationId}",
     parentPositionId: "${p.parentPositionId}",
     sortOrder: ${p.sortOrder},
+    chartTier: ${p.chartTier},
     status: "${p.status}",
     site: "${p.site}",
     costCentre: "${p.costCentre}",
@@ -151,7 +154,7 @@ function sqlText(v) {
 
 const sqlPositionRows = allPositions.map(
   (p) =>
-    `  (${sqlVal(p.id)}, ${sqlText(p.title)}, ${sqlVal(p.securityRoleId)}, ${sqlText(p.department)}, ${sqlText(p.businessArea)}, ${sqlVal(p.locationId)}, ${sqlVal(p.parentPositionId)}, ${p.sortOrder}, ${sqlVal(p.status)}, ${sqlText(p.site)}, ${sqlText(p.costCentre)}, ${p.primaryEmployeeId ? sqlVal(p.primaryEmployeeId) : "null"})`
+    `  (${sqlVal(p.id)}, ${sqlText(p.title)}, ${sqlVal(p.securityRoleId)}, ${sqlText(p.department)}, ${sqlText(p.businessArea)}, ${sqlVal(p.locationId)}, ${sqlVal(p.parentPositionId)}, ${p.sortOrder}, ${p.chartTier}, ${sqlVal(p.status)}, ${sqlText(p.site)}, ${sqlText(p.costCentre)}, ${p.primaryEmployeeId ? sqlVal(p.primaryEmployeeId) : "null"})`
 );
 
 const sqlAssignmentRows = allAssignments.map(
@@ -162,7 +165,7 @@ const sqlAssignmentRows = allAssignments.map(
 const sqlFragment = `
 -- Bulk support workers under site team leaders (generated)
 insert into public.org_position (
-  id, title, security_role_id, department, business_area, location_id, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
+  id, title, security_role_id, department, business_area, location_id, parent_position_id, sort_order, chart_tier, status, site, cost_centre, primary_employee_id
 ) values
 ${sqlPositionRows.join(",\n")}
 on conflict (id) do update set
@@ -173,6 +176,7 @@ on conflict (id) do update set
   location_id = excluded.location_id,
   parent_position_id = excluded.parent_position_id,
   sort_order = excluded.sort_order,
+  chart_tier = excluded.chart_tier,
   status = excluded.status,
   site = excluded.site,
   cost_centre = excluded.cost_centre,

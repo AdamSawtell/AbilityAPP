@@ -68,7 +68,7 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Sign in with a role that includes Workforce planning or Organisation structure.",
         "Open Workforce planning in the sidebar.",
         "Click Organisation structure.",
-        "The chart shows the root organisation node at the top and dependent positions below.",
+        "The chart shows tier bands from governance through delivery staff.",
         "Click a card to open the position editor on the right.",
       ],
       relatedRoutes: ["/workforce-planning/organisation"],
@@ -87,7 +87,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     {
       id: "chart-layout",
       title: "Reading a large chart",
-      body: "Peers at the same level appear side by side — board members, executives, and team leaders each form a row under their manager. Managers and officers stack vertically under their executive column.\n\nBoard members are peers under the Board of Directors container. Their reporting to the chair uses dotted lines (⋯→ on the card) so peers stay alongside while accountability to the chair is still visible.\n\nAfter drag-and-drop reparent, the chart scrolls to the moved position. If the editor already shows the correct parent but the chart did not move, the position may already report there — or refresh the page.\n\nSupport workers (three or more under one team leader) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view for executive council or functional delivery lenses. Scroll sideways on wide tiers.",
+      body: "The chart uses manually managed tiers — horizontal bands labelled Tier 1 through Tier 7. Each position sits on the tier you choose in the editor (Chart tier field). This is separate from who they report to: solid reporting still drives escalation and tasks.\n\nTypical bands: governance and board (tiers 1–2), CEO (3), executives (4), managers (5), team leaders (6), support workers (7). Peers on the same tier appear side by side; scroll sideways on wide rows.\n\nDrag the grip (⋮⋮) onto another card to change solid reporting (Reports to in the editor). Change Chart tier if a card is on the wrong row.\n\nDotted lines (⋯→ on cards) show secondary accountability without moving the card tier.\n\nSupport workers (three or more on tier 7) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view lenses to focus on executive council or functional delivery.",
       relatedRoutes: ["/workforce-planning/organisation"],
     },
     {

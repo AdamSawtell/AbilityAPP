@@ -3,28 +3,23 @@
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-store";
-import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import { useData } from "@/lib/data-store";
 import {
   ORG_BUSINESS_AREAS,
   ORG_POSITION_STATUS_OPTIONS,
   orgPositionStatusLabel,
-  type OrgPositionNode,
   type OrgPositionRecord,
 } from "@/lib/org-structure";
 import {
-  actingAssignmentForPosition,
-  activeAssignments,
   applyOrgChartLens,
-  buildOrgTree,
   filterOrgPositions,
-  isEmployeeOnLeaveToday,
   positionStatusTone,
   wouldCreateOrgCycle,
   type OrgChartFilters,
   type OrgChartLens,
 } from "@/lib/org-structure-tree";
-import type { PositionAssignmentRecord } from "@/lib/org-structure";
+import { ORG_CHART_TIER_OPTIONS } from "@/lib/org-chart-tiers";
+import { OrgChartTierView } from "@/components/workforce/org-chart-tier-view";
 import { OrgChartDottedLines } from "@/components/workforce/org-chart-dotted-lines";
 import { useOrgStructure } from "@/lib/org-structure-store";
 import { OrgReparentConfirmDialog, type PendingReparent } from "@/components/workforce/org-reparent-confirm";
@@ -36,8 +31,6 @@ import {
   OrgAssignActingConfirmDialog,
   type PendingActingAssign,
 } from "@/components/workforce/org-assign-acting-confirm";
-import type { OrgChartDisplayItem, OrgChartDisplayRow } from "@/lib/org-chart-layout";
-import { layoutOrgChildRows } from "@/lib/org-chart-layout";
 import { checkHolderRoleAlignment, positionHolderAlignmentIssues } from "@/lib/org-position-role-alignment";
 import {
   HolderRoleAlignmentAlert,
@@ -52,7 +45,7 @@ const toneClasses = {
 } as const;
 
 function PositionCard({
-  node,
+  position,
   employeeName,
   actingName,
   onLeave,
@@ -65,13 +58,14 @@ function PositionCard({
   dragOver,
   isDragging,
   compact,
+  isStructural,
   onSelect,
   onDragStart,
   onDragOver,
   onDragLeave,
   onDrop,
 }: {
-  node: OrgPositionNode;
+  position: OrgPositionRecord;
   employeeName: string;
   actingName: string;
   onLeave: boolean;
@@ -84,20 +78,21 @@ function PositionCard({
   dragOver: boolean;
   isDragging: boolean;
   compact?: boolean;
+  isStructural?: boolean;
   onSelect: () => void;
   onDragStart: () => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: () => void;
   onDrop: (e: React.DragEvent) => void;
 }) {
-  const tone = positionStatusTone(node.status);
-  const isRoot = node.id === "pos-org-root";
-  const isStructural = !isRoot && !node.primaryEmployeeId && node.children.length > 0;
-  const showRoleBadge = roleLabel && roleLabel !== node.title;
+  const tone = positionStatusTone(position.status);
+  const isRoot = position.id === "pos-org-root";
+  const structural = isStructural ?? (!isRoot && !position.primaryEmployeeId && position.id === "pos-board");
+  const showRoleBadge = roleLabel && roleLabel !== position.title;
 
   return (
     <div
-      data-org-position-id={node.id}
+      data-org-position-id={position.id}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -118,17 +113,17 @@ function PositionCard({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className={`truncate font-semibold text-slate-900 ${compact ? "text-xs" : "text-sm"}`}>
-                {node.title}
+                {position.title}
               </p>
               {showRoleBadge ? (
                 <p className="truncate text-[10px] font-medium text-indigo-700">{roleLabel}</p>
               ) : null}
-              {node.businessArea || node.department ? (
-                <p className="truncate text-xs text-slate-500">{node.businessArea || node.department}</p>
+              {position.businessArea || position.department ? (
+                <p className="truncate text-xs text-slate-500">{position.businessArea || position.department}</p>
               ) : null}
             </div>
             <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${toneClasses[tone]}`}>
-              {orgPositionStatusLabel(node.status)}
+              {orgPositionStatusLabel(position.status)}
             </span>
           </div>
           {!isRoot ? (
@@ -146,7 +141,7 @@ function PositionCard({
                     <span className="text-amber-700"> · login role mismatch</span>
                   ) : null}
                 </>
-              ) : isStructural ? (
+              ) : structural ? (
                 <span className="text-slate-500">Governance body — see members below</span>
               ) : (
                 <span className="italic text-amber-700">Vacant — escalates to parent</span>
@@ -176,7 +171,7 @@ function PositionCard({
             title="Drag to reparent"
             onDragStart={(e) => {
               e.stopPropagation();
-              e.dataTransfer.setData("text/position-id", node.id);
+              e.dataTransfer.setData("text/position-id", position.id);
               e.dataTransfer.effectAllowed = "move";
               onDragStart();
             }}
@@ -187,386 +182,6 @@ function PositionCard({
           </span>
         ) : null}
       </div>
-    </div>
-  );
-}
-
-function OrgChartChildRows({
-  rows,
-  renderItem,
-}: {
-  rows: OrgChartDisplayRow[];
-  renderItem: (item: OrgChartDisplayItem, rowLayout: "row" | "column") => React.ReactNode;
-}) {
-  return (
-    <div className="flex w-full min-w-0 flex-col items-center self-stretch">
-      {rows.map((row, rowIndex) => (
-        <div key={`row-${rowIndex}`} className="flex w-full min-w-0 flex-col items-center">
-          <div className="my-2 h-4 w-px shrink-0 bg-slate-300" aria-hidden />
-          {row.layout === "row" && row.items.length > 1 ? (
-            <div
-              className="mb-2 flex w-full min-w-0 items-center justify-center px-2"
-              aria-hidden
-            >
-              <div className="h-px min-w-[4rem] flex-1 max-w-3xl bg-slate-300" />
-            </div>
-          ) : null}
-          <div
-            className={
-              row.layout === "row"
-                ? "flex w-max max-w-full flex-row flex-nowrap items-start justify-center gap-4 overflow-x-auto pb-1"
-                : "flex w-full max-w-sm flex-col items-stretch gap-2"
-            }
-          >
-            {row.items.map((item) => {
-              const key = item.kind === "position" ? item.node.id : item.groupKey;
-              return (
-                <div
-                  key={key}
-                  className={
-                    row.layout === "row"
-                      ? "flex shrink-0 flex-col items-center"
-                      : "w-full"
-                  }
-                >
-                  {row.layout === "row" && row.items.length > 1 ? (
-                    <div className="mb-2 h-4 w-px bg-slate-300" aria-hidden />
-                  ) : null}
-                  {renderItem(item, row.layout)}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function renderOrgChildItem(
-  item: OrgChartDisplayItem,
-  rowLayout: "row" | "column",
-  ctx: {
-    employeeNameById: Map<string, string>;
-    employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
-    locationNameById: Map<string, string>;
-    roleNameById: Map<string, string>;
-    users: AppUserRecord[];
-    roles: AppRoleRecord[];
-    assignments: PositionAssignmentRecord[];
-    dottedTargetsByPositionId: Map<string, { title: string; label: string }[]>;
-    canEdit: boolean;
-    selectedId: string | null;
-    dragId: string | null;
-    dropTargetId: string | null;
-    onSelect: (id: string) => void;
-    onDragStart: (id: string) => void;
-    onDragOverTarget: (id: string) => void;
-    onDragLeaveTarget: () => void;
-    onDropOnTarget: (targetId: string) => void;
-    compact?: boolean;
-    hideChildren?: boolean;
-  }
-) {
-  if (item.kind === "group") {
-    return (
-      <OrgSiblingGroup
-        item={item}
-        employeeNameById={ctx.employeeNameById}
-        employeesById={ctx.employeesById}
-        locationNameById={ctx.locationNameById}
-        roleNameById={ctx.roleNameById}
-        users={ctx.users}
-        roles={ctx.roles}
-        assignments={ctx.assignments}
-        dottedTargetsByPositionId={ctx.dottedTargetsByPositionId}
-        canEdit={ctx.canEdit}
-        selectedId={ctx.selectedId}
-        dragId={ctx.dragId}
-        dropTargetId={ctx.dropTargetId}
-        onSelect={ctx.onSelect}
-        onDragStart={ctx.onDragStart}
-        onDragOverTarget={ctx.onDragOverTarget}
-        onDragLeaveTarget={ctx.onDragLeaveTarget}
-        onDropOnTarget={ctx.onDropOnTarget}
-      />
-    );
-  }
-
-  return (
-    <OrgTreeBranch
-      node={item.node}
-      employeeNameById={ctx.employeeNameById}
-      employeesById={ctx.employeesById}
-      locationNameById={ctx.locationNameById}
-      roleNameById={ctx.roleNameById}
-      users={ctx.users}
-      roles={ctx.roles}
-      assignments={ctx.assignments}
-      dottedTargetsByPositionId={ctx.dottedTargetsByPositionId}
-      canEdit={ctx.canEdit}
-      selectedId={ctx.selectedId}
-      dragId={ctx.dragId}
-      dropTargetId={ctx.dropTargetId}
-      onSelect={ctx.onSelect}
-      onDragStart={ctx.onDragStart}
-      onDragOverTarget={ctx.onDragOverTarget}
-      onDragLeaveTarget={ctx.onDragLeaveTarget}
-      onDropOnTarget={ctx.onDropOnTarget}
-      compact={ctx.compact}
-      hideChildren={ctx.hideChildren}
-      inPeerRow={rowLayout === "row"}
-    />
-  );
-}
-
-function OrgSiblingGroup({
-  item,
-  employeeNameById,
-  employeesById,
-  locationNameById,
-  roleNameById,
-  users,
-  roles,
-  assignments,
-  dottedTargetsByPositionId,
-  canEdit,
-  selectedId,
-  dragId,
-  dropTargetId,
-  onSelect,
-  onDragStart,
-  onDragOverTarget,
-  onDragLeaveTarget,
-  onDropOnTarget,
-}: {
-  item: Extract<OrgChartDisplayItem, { kind: "group" }>;
-  employeeNameById: Map<string, string>;
-  employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
-  locationNameById: Map<string, string>;
-  roleNameById: Map<string, string>;
-  users: AppUserRecord[];
-  roles: AppRoleRecord[];
-  assignments: PositionAssignmentRecord[];
-  dottedTargetsByPositionId: Map<string, { title: string; label: string }[]>;
-  canEdit: boolean;
-  selectedId: string | null;
-  dragId: string | null;
-  dropTargetId: string | null;
-  onSelect: (id: string) => void;
-  onDragStart: (id: string) => void;
-  onDragOverTarget: (id: string) => void;
-  onDragLeaveTarget: () => void;
-  onDropOnTarget: (targetId: string) => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const filledCount = item.nodes.filter((n) => n.primaryEmployeeId).length;
-  const vacantCount = item.nodes.length - filledCount;
-
-  return (
-    <div className="w-full max-w-sm">
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left hover:bg-slate-50"
-        >
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-900">
-              {item.title}
-              <span className="ml-1.5 font-normal text-slate-500">× {item.nodes.length}</span>
-            </p>
-            <p className="text-[10px] text-slate-500">
-              {filledCount} filled · {vacantCount} vacant
-              {item.roleLabel ? ` · ${item.roleLabel}` : ""}
-            </p>
-          </div>
-          <span className="shrink-0 text-xs text-indigo-700">{expanded ? "Collapse" : "Expand"}</span>
-        </button>
-        {expanded ? (
-          <ul className="flex flex-col gap-1.5 border-t border-slate-100 p-2">
-            {item.nodes.map((node) => (
-              <OrgTreeBranch
-                key={node.id}
-                node={node}
-                employeeNameById={employeeNameById}
-                employeesById={employeesById}
-                locationNameById={locationNameById}
-                roleNameById={roleNameById}
-                users={users}
-                roles={roles}
-                assignments={assignments}
-                dottedTargetsByPositionId={dottedTargetsByPositionId}
-                canEdit={canEdit}
-                selectedId={selectedId}
-                dragId={dragId}
-                dropTargetId={dropTargetId}
-                onSelect={onSelect}
-                onDragStart={onDragStart}
-                onDragOverTarget={onDragOverTarget}
-                onDragLeaveTarget={onDragLeaveTarget}
-                onDropOnTarget={onDropOnTarget}
-                compact
-                hideChildren
-                inPeerRow={false}
-              />
-            ))}
-          </ul>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function OrgTreeBranch({
-  node,
-  employeeNameById,
-  employeesById,
-  locationNameById,
-  roleNameById,
-  users,
-  roles,
-  assignments,
-  dottedTargetsByPositionId,
-  canEdit,
-  selectedId,
-  dragId,
-  dropTargetId,
-  onSelect,
-  onDragStart,
-  onDragOverTarget,
-  onDragLeaveTarget,
-  onDropOnTarget,
-  compact,
-  hideChildren,
-  inPeerRow,
-}: {
-  node: OrgPositionNode;
-  employeeNameById: Map<string, string>;
-  employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
-  locationNameById: Map<string, string>;
-  roleNameById: Map<string, string>;
-  users: AppUserRecord[];
-  roles: AppRoleRecord[];
-  assignments: PositionAssignmentRecord[];
-  dottedTargetsByPositionId: Map<string, { title: string; label: string }[]>;
-  canEdit: boolean;
-  selectedId: string | null;
-  dragId: string | null;
-  dropTargetId: string | null;
-  onSelect: (id: string) => void;
-  onDragStart: (id: string) => void;
-  onDragOverTarget: (id: string) => void;
-  onDragLeaveTarget: () => void;
-  onDropOnTarget: (targetId: string) => void;
-  compact?: boolean;
-  hideChildren?: boolean;
-  inPeerRow?: boolean;
-}) {
-  const employeeName = node.primaryEmployeeId ? employeeNameById.get(node.primaryEmployeeId) ?? "Unknown" : "";
-  const acting = actingAssignmentForPosition(activeAssignments(assignments), node.id);
-  const actingName = acting?.employeeId ? employeeNameById.get(acting.employeeId) ?? "" : "";
-  const primaryEmployee = node.primaryEmployeeId
-    ? employeesById.get(node.primaryEmployeeId)
-    : undefined;
-  const onLeave = primaryEmployee ? isEmployeeOnLeaveToday(primaryEmployee) : false;
-  const locationLabel = node.locationId ? locationNameById.get(node.locationId) ?? "" : node.site;
-  const roleLabel = node.securityRoleId ? roleNameById.get(node.securityRoleId) ?? "" : "";
-  const holderRoleMisaligned = Boolean(
-    (node.primaryEmployeeId &&
-      checkHolderRoleAlignment({
-        employeeId: node.primaryEmployeeId,
-        employeeName,
-        requiredRoleId: node.securityRoleId,
-        users,
-        roles,
-      })) ||
-      (acting?.employeeId &&
-        checkHolderRoleAlignment({
-          employeeId: acting.employeeId,
-          employeeName: actingName,
-          requiredRoleId: node.securityRoleId,
-          users,
-          roles,
-        }))
-  );
-  const childRows = useMemo(
-    () => layoutOrgChildRows(node.children, roleNameById),
-    [node.children, roleNameById]
-  );
-
-  const childCtx = {
-    employeeNameById,
-    employeesById,
-    locationNameById,
-    roleNameById,
-    users,
-    roles,
-    assignments,
-    dottedTargetsByPositionId,
-    canEdit,
-    selectedId,
-    dragId,
-    dropTargetId,
-    onSelect,
-    onDragStart,
-    onDragOverTarget,
-    onDragLeaveTarget,
-    onDropOnTarget,
-    compact,
-    hideChildren,
-  };
-
-  const card = (
-    <PositionCard
-      node={node}
-      employeeName={employeeName}
-      actingName={actingName}
-      onLeave={onLeave}
-      locationLabel={locationLabel}
-      roleLabel={roleLabel}
-      holderRoleMisaligned={holderRoleMisaligned}
-      dottedTargets={dottedTargetsByPositionId.get(node.id)}
-      canEdit={canEdit}
-      selected={selectedId === node.id}
-      dragOver={dropTargetId === node.id && dragId !== node.id}
-      isDragging={dragId === node.id}
-      compact={compact}
-      onSelect={() => onSelect(node.id)}
-      onDragStart={() => onDragStart(node.id)}
-      onDragOver={(e) => {
-        if (!canEdit || !dragId || dragId === node.id) return;
-        e.preventDefault();
-        onDragOverTarget(node.id);
-      }}
-      onDragLeave={onDragLeaveTarget}
-      onDrop={(e) => {
-        e.preventDefault();
-        onDropOnTarget(node.id);
-      }}
-    />
-  );
-
-  const cardWidth = compact || inPeerRow ? "w-[12rem]" : "w-full max-w-sm";
-  const branchClass = inPeerRow
-    ? "inline-flex flex-col items-center"
-    : "flex w-full min-w-0 flex-col items-center";
-
-  if (hideChildren) {
-    return <div className={cardWidth}>{card}</div>;
-  }
-
-  return (
-    <div className={branchClass}>
-      <div className={cardWidth}>{card}</div>
-      {node.children.length > 0 ? (
-        <OrgChartChildRows
-          rows={childRows}
-          renderItem={(item, rowLayout) =>
-            renderOrgChildItem(item, rowLayout, { ...childCtx, hideChildren: false })
-          }
-        />
-      ) : null}
     </div>
   );
 }
@@ -604,9 +219,12 @@ export function OrgChart({
     () => filterOrgPositions(lensPositions, filters ?? {}),
     [lensPositions, filters]
   );
-  const tree = useMemo(() => buildOrgTree(filteredPositions), [filteredPositions]);
-  const treeLayoutKey = useMemo(
-    () => filteredPositions.map((p) => `${p.id}:${p.parentPositionId}`).join("|"),
+  const tierLayoutKey = useMemo(
+    () => filteredPositions.map((p) => `${p.id}:${p.chartTier}:${p.parentPositionId}`).join("|"),
+    [filteredPositions]
+  );
+  const chartPositions = useMemo(
+    () => filteredPositions.filter((p) => p.chartTier > 0),
     [filteredPositions]
   );
 
@@ -672,7 +290,7 @@ export function OrgChart({
     });
   }
 
-  if (!tree.length) {
+  if (!chartPositions.length) {
     return (
       <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center text-sm text-slate-600">
         No organisation positions yet.
@@ -684,8 +302,8 @@ export function OrgChart({
     <div className="space-y-3">
       {canEdit ? (
         <p className="text-xs text-slate-500">
-          Drag the grip (⋮⋮) onto another position and confirm. Managers stack vertically under their
-          executive; scroll sideways on wide tiers. The editor panel shows the solid reporting line.
+          Positions sit on manually managed chart tiers. Drag the grip (⋮⋮) onto another card to change who they
+          report to (solid line). Change chart tier in the editor if a card is on the wrong row.
         </p>
       ) : null}
       {error ? (
@@ -704,35 +322,52 @@ export function OrgChart({
         <OrgChartDottedLines
           containerRef={chartContainerRef}
           lines={visibleReportingLines}
-          revision={`${chartRevision}-${treeLayoutKey}-${visibleReportingLines.length}`}
+          revision={`${chartRevision}-${tierLayoutKey}-${visibleReportingLines.length}`}
         />
-        <div
-          key={treeLayoutKey}
-          className="relative mx-auto flex w-max min-w-[min(100%,72rem)] flex-col items-center px-2 pb-4"
-        >
-          {tree.map((root) => (
-            <OrgTreeBranch
-              key={root.id}
-              node={root}
-              employeeNameById={employeeNameById}
-              employeesById={employeesById}
-              locationNameById={locationNameById}
-              roleNameById={roleNameById}
-              users={users}
-              roles={roles}
-              assignments={assignments}
-              dottedTargetsByPositionId={dottedTargetsByPositionId}
-              canEdit={canEdit}
-              selectedId={selectedId}
-              dragId={dragId}
-              dropTargetId={dropTargetId}
-              onSelect={onSelect}
-              onDragStart={setDragId}
-              onDragOverTarget={setDropTargetId}
-              onDragLeaveTarget={() => setDropTargetId(null)}
-              onDropOnTarget={requestReparent}
-            />
-          ))}
+        <div key={tierLayoutKey} className="relative mx-auto w-full px-2 pb-4">
+          <OrgChartTierView
+            positions={chartPositions}
+            employeesById={employeesById}
+            employeeNameById={employeeNameById}
+            locationNameById={locationNameById}
+            roleNameById={roleNameById}
+            positionTitleById={positionTitleById}
+            users={users}
+            roles={roles}
+            assignments={assignments}
+            dottedTargetsByPositionId={dottedTargetsByPositionId}
+            canEdit={canEdit}
+            selectedId={selectedId}
+            dragId={dragId}
+            dropTargetId={dropTargetId}
+            onSelect={(id) => onSelect(id)}
+            onDragStart={setDragId}
+            onDragOverTarget={setDropTargetId}
+            onDragLeaveTarget={() => setDropTargetId(null)}
+            onDropOnTarget={requestReparent}
+            renderCard={(props) => (
+              <PositionCard
+                position={props.position}
+                employeeName={props.employeeName}
+                actingName={props.actingName}
+                onLeave={props.onLeave}
+                locationLabel={props.locationLabel}
+                roleLabel={props.roleLabel}
+                holderRoleMisaligned={props.holderRoleMisaligned}
+                dottedTargets={props.dottedTargets}
+                canEdit={props.canEdit}
+                selected={props.selected}
+                dragOver={props.dragOver}
+                isDragging={props.isDragging}
+                isStructural={props.position.id === "pos-board"}
+                onSelect={props.onSelect}
+                onDragStart={props.onDragStart}
+                onDragOver={props.onDragOver}
+                onDragLeave={props.onDragLeave}
+                onDrop={props.onDrop}
+              />
+            )}
+          />
         </div>
       </div>
       {pendingReparent ? (
@@ -955,6 +590,28 @@ export function OrgPositionEditor({
 
         {!isRoot ? (
           <label className="block text-xs font-medium text-slate-700">
+            Chart tier
+            <select
+              value={position.chartTier}
+              disabled={!canEdit}
+              onChange={(e) => patch({ chartTier: Number(e.target.value) })}
+              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
+            >
+              {ORG_CHART_TIER_OPTIONS.filter((o) => o.value > 0).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-[10px] text-slate-500">
+              {ORG_CHART_TIER_OPTIONS.find((o) => o.value === position.chartTier)?.hint ??
+                "Which horizontal band this card appears on. Escalation still follows Reports to above."}
+            </p>
+          </label>
+        ) : null}
+
+        {!isRoot ? (
+          <label className="block text-xs font-medium text-slate-700">
             Security role (Admin → Roles)
             <select
               value={position.securityRoleId}
@@ -1169,6 +826,7 @@ export function OrgPositionEditor({
                 locationId: position.locationId,
                 parentPositionId: position.id,
                 sortOrder: (position.sortOrder ?? 0) + 10,
+                chartTier: Math.min(7, Math.max(1, position.chartTier + 1)),
                 status: "vacant",
                 site: position.site,
                 costCentre: position.costCentre,

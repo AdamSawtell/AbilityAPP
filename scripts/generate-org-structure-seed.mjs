@@ -11,6 +11,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const { initialOrgPositions, initialPositionAssignments, initialOrgReportingLines } = await import(
   pathToFileURL(join(root, "web", "src", "lib", "org-structure.ts")).href
 );
+const { withResolvedChartTier } = await import(
+  pathToFileURL(join(root, "web", "src", "lib", "org-chart-tier-defaults.ts")).href
+);
 
 function sqlVal(v) {
   if (v == null) return "null";
@@ -22,11 +25,13 @@ function sqlText(v) {
   return `'${String(v).replace(/'/g, "''")}'`;
 }
 
-const basePositions = initialOrgPositions.filter((p) => !p.id.startsWith("pos-team-") && !p.id.startsWith("pos-sw-"));
+const basePositions = initialOrgPositions
+  .filter((p) => !p.id.startsWith("pos-team-") && !p.id.startsWith("pos-sw-"))
+  .map((p) => withResolvedChartTier(p));
 
 const positionRows = basePositions.map(
   (p) =>
-    `  (${sqlVal(p.id)}, ${sqlText(p.title)}, ${p.securityRoleId ? sqlVal(p.securityRoleId) : "null"}, ${sqlText(p.department)}, ${sqlText(p.businessArea)}, ${p.locationId ? sqlVal(p.locationId) : "null"}, ${p.parentPositionId ? sqlVal(p.parentPositionId) : "null"}, ${p.sortOrder}, ${sqlVal(p.status)}, ${sqlText(p.site)}, ${sqlText(p.costCentre)}, ${p.primaryEmployeeId ? sqlVal(p.primaryEmployeeId) : "null"})`
+    `  (${sqlVal(p.id)}, ${sqlText(p.title)}, ${p.securityRoleId ? sqlVal(p.securityRoleId) : "null"}, ${sqlText(p.department)}, ${sqlText(p.businessArea)}, ${p.locationId ? sqlVal(p.locationId) : "null"}, ${p.parentPositionId ? sqlVal(p.parentPositionId) : "null"}, ${p.sortOrder}, ${p.chartTier}, ${sqlVal(p.status)}, ${sqlText(p.site)}, ${sqlText(p.costCentre)}, ${p.primaryEmployeeId ? sqlVal(p.primaryEmployeeId) : "null"})`
 );
 
 const bulkAssignmentIds = new Set(
@@ -52,7 +57,7 @@ delete from public.position_assignment where position_id like 'pos-%';
 delete from public.org_position where id like 'pos-%';
 
 insert into public.org_position (
-  id, title, security_role_id, department, business_area, location_id, parent_position_id, sort_order, status, site, cost_centre, primary_employee_id
+  id, title, security_role_id, department, business_area, location_id, parent_position_id, sort_order, chart_tier, status, site, cost_centre, primary_employee_id
 ) values
 ${positionRows.join(",\n")}
 on conflict (id) do update set
@@ -63,6 +68,7 @@ on conflict (id) do update set
   location_id = excluded.location_id,
   parent_position_id = excluded.parent_position_id,
   sort_order = excluded.sort_order,
+  chart_tier = excluded.chart_tier,
   status = excluded.status,
   site = excluded.site,
   cost_centre = excluded.cost_centre,

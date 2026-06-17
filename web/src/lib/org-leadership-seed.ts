@@ -1,5 +1,6 @@
 import type { EmployeeRecord } from "@/lib/employee";
 import type { OrgPositionRecord, PositionAssignmentRecord } from "@/lib/org-structure";
+import { withResolvedChartTier } from "@/lib/org-chart-tier-defaults";
 
 function staff(partial: Partial<EmployeeRecord> & Pick<EmployeeRecord, "id" | "searchKey" | "name" | "firstName" | "lastName" | "email" | "jobTitle" | "department">): EmployeeRecord {
   return {
@@ -692,9 +693,9 @@ export const leadershipEmployees: EmployeeRecord[] = [
 ];
 
 function pos(
-  partial: OrgPositionRecord
+  partial: Omit<OrgPositionRecord, "chartTier"> & { chartTier?: number }
 ): OrgPositionRecord {
-  return partial;
+  return withResolvedChartTier({ chartTier: 0, ...partial });
 }
 
 export const leadershipOrgPositions: OrgPositionRecord[] = [
