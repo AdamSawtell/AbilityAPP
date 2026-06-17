@@ -11,7 +11,7 @@ insert into public.org_position (
   ('pos-gm-ops', 'Team Leader — Support coordination', 'Operations', 'Operations', 'loc-adelaide-hub', 'pos-org-root', 10, 'filled', 'Adelaide HQ', 'CC-CLIENT', 'emp-michael'),
   ('pos-coordinator', 'Support Coordinator', 'Client services', 'Client services', 'loc-adelaide-hub', 'pos-gm-ops', 10, 'filled', 'Adelaide HQ', 'CC-CLIENT', 'emp-isla'),
   ('pos-intake', 'Intake Officer', 'Intake', 'Intake', 'loc-adelaide-hub', 'pos-gm-ops', 20, 'filled', 'Adelaide HQ', 'CC-INTAKE', 'emp-gabriela'),
-  ('pos-support-worker', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-team-northern', 5, 'filled', 'Northern SIL', 'CC-OPS', 'emp-oliver'),
+  ('pos-support-worker', 'Support Worker', 'Operations', 'Operations', 'loc-northern-sil', 'pos-gm-ops', 30, 'filled', 'Northern SIL', 'CC-OPS', 'emp-oliver'),
   ('pos-plan-dev', 'Plan Developer', 'Client services', 'Client services', null, 'pos-org-root', 20, 'filled', '', '', 'emp-rose'),
   ('pos-contracts', 'Contract Administrator', 'Finance', 'Finance', null, 'pos-org-root', 30, 'filled', '', '', 'emp-jessica'),
   ('pos-quality-vacant', 'Quality & Compliance Manager', 'Quality', 'Quality', 'loc-adelaide-hub', 'pos-org-root', 15, 'under_recruitment', 'Adelaide HQ', 'CC-QUALITY', null)
