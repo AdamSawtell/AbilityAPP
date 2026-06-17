@@ -31,6 +31,18 @@ export const SEED_USERS: AppUserRecord[] = [
     roleIds: ["role-admin"],
   },
   {
+    id: "user-michael",
+    username: "MichaelSmith",
+    email: "michael.smith@abilityerp.local",
+    firstName: "Michael",
+    lastName: "Smith",
+    phone: "",
+    active: true,
+    employeeBpId: "emp-michael",
+    notes: "Team leader — accountable manager testing",
+    roleIds: ["role-coordinator"],
+  },
+  {
     id: "user-isla",
     username: "IslaRobinson",
     email: "isla.robinson@abilityerp.local",

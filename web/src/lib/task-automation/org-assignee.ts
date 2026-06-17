@@ -44,6 +44,7 @@ export function resolveAutomationAssignee(
   let employeeId = "";
 
   if (rule.assigneeMode === "org_incident_manager") {
+    if (!ctx.incident) return fallback;
     const manager = accountableManagerForIncident(
       ctx.incident,
       org.positions,

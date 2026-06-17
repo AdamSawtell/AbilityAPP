@@ -25,7 +25,8 @@ export type TaskEntityType =
   | "contract"
   | "product"
   | "price-list"
-  | "incident";
+  | "incident"
+  | "location";
 
 export type TaskUpdate = {
   id: string;
@@ -76,6 +77,7 @@ export const taskEntityTypeLabels: Record<TaskEntityType, string> = {
   product: "Product",
   "price-list": "Price list",
   incident: "Incident",
+  location: "Location",
 };
 
 export const TASK_ENTITY_TYPES = Object.keys(taskEntityTypeLabels) as TaskEntityType[];
@@ -107,6 +109,8 @@ export function entityHref(entityType: TaskEntityType, entityId: string): string
       return `/price-lists/${entityId}`;
     case "incident":
       return `/incidents/${entityId}`;
+    case "location":
+      return `/locations/${entityId}`;
     default:
       return "/";
   }

@@ -1,14 +1,18 @@
+import type { ClientRecord } from "@/lib/client";
+import type { EmployeeCredentialRow, EmployeeRecord } from "@/lib/employee";
+import type { EnquiryRecord } from "@/lib/enquiry";
 import type { IncidentRecord } from "@/lib/incident";
 import { formatDisplayDateTime } from "@/lib/incident";
+import type { LocationRecord } from "@/lib/location";
 import type { TaskRecord } from "@/lib/task";
 import {
   automationDedupeKey,
   indexAutomationsByTrigger,
+  isModuleEngineLive,
   normalizeTaskAutomation,
   TASK_AUTOMATION_SCHEDULED_BATCH_LIMIT,
   type TaskAutomationConditions,
   type TaskAutomationRecord,
-  type TaskAutomationTriggerEvent,
 } from "@/lib/task-automation";
 import {
   buildAutomationDedupeIndex,
@@ -16,6 +20,12 @@ import {
   shouldSkipAutomationTask,
   type AutomationDedupeIndex,
 } from "@/lib/task-automation/dedupe-index";
+import type { AutomationEvent } from "@/lib/task-automation/events";
+import { automationTriggerForEvent } from "@/lib/task-automation/events";
+import {
+  CREDENTIAL_EXPIRY_WARNING_DAYS,
+  scheduledEmployeeCredentialCandidates,
+} from "@/lib/task-automation/employee-triggers";
 import {
   incidentDaysOpen,
   incidentFieldChanges,
@@ -26,7 +36,13 @@ import { getOrgAutomationContext, type OrgAutomationContext } from "@/lib/org-au
 import { resolveAutomationAssignee } from "@/lib/task-automation/org-assignee";
 
 export type AutomationTemplateContext = {
-  incident: IncidentRecord;
+  incident?: IncidentRecord;
+  enquiry?: EnquiryRecord;
+  employee?: EmployeeRecord;
+  credential?: EmployeeCredentialRow;
+  client?: ClientRecord;
+  location?: LocationRecord;
+  alertTitle?: string;
   org: { investigationSlaDays: number };
 };
 
@@ -45,13 +61,71 @@ export function buildAutomationTemplateContext(
   };
 }
 
+function buildTemplateContextFromEvent(
+  event: AutomationEvent,
+  investigationSlaDays: number
+): AutomationTemplateContext {
+  const org = { investigationSlaDays };
+
+  switch (event.type) {
+    case "incident.created":
+    case "incident.updated":
+    case "incident.reportable_set":
+    case "incident.status_changed":
+    case "incident.ndis_overdue":
+    case "incident.investigation_overdue":
+      return { incident: event.incident, org };
+    case "enquiry.created":
+    case "enquiry.status_changed":
+      return { enquiry: event.enquiry, org };
+    case "employee.created":
+    case "employee.credential_expiring":
+      return {
+        employee: event.employee,
+        credential: event.type === "employee.credential_expiring" ? event.credential : undefined,
+        org,
+      };
+    case "client.created":
+    case "client.updated":
+    case "client.alert_added":
+      return {
+        client: event.client,
+        alertTitle: event.type === "client.alert_added" ? event.alertTitle : undefined,
+        org,
+      };
+    case "location.created":
+    case "location.alert_added":
+      return {
+        location: event.location,
+        alertTitle: event.type === "location.alert_added" ? event.alertTitle : undefined,
+        org,
+      };
+    default:
+      return { org };
+  }
+}
+
 const TEMPLATE_VARS: Record<string, (ctx: AutomationTemplateContext) => string> = {
-  "incident.documentNo": (ctx) => ctx.incident.documentNo || "—",
-  "incident.title": (ctx) => ctx.incident.title?.trim() || "Untitled",
-  "incident.status": (ctx) => ctx.incident.status,
-  "incident.severity": (ctx) => ctx.incident.severity,
-  "incident.reportDeadlineAt": (ctx) => formatDateField(ctx.incident.reportDeadlineAt),
-  "incident.daysOpen": (ctx) => String(incidentDaysOpen(ctx.incident)),
+  "incident.documentNo": (ctx) => ctx.incident?.documentNo || "—",
+  "incident.title": (ctx) => ctx.incident?.title?.trim() || "Untitled",
+  "incident.status": (ctx) => ctx.incident?.status ?? "—",
+  "incident.severity": (ctx) => ctx.incident?.severity ?? "—",
+  "incident.reportDeadlineAt": (ctx) => formatDateField(ctx.incident?.reportDeadlineAt ?? ""),
+  "incident.daysOpen": (ctx) => String(ctx.incident ? incidentDaysOpen(ctx.incident) : 0),
+  "enquiry.documentNo": (ctx) => ctx.enquiry?.documentNo || "—",
+  "enquiry.status": (ctx) => ctx.enquiry?.status ?? "—",
+  "enquiry.participantName": (ctx) =>
+    ctx.enquiry ? `${ctx.enquiry.firstName} ${ctx.enquiry.lastName}`.trim() : "—",
+  "employee.name": (ctx) => ctx.employee?.name ?? "—",
+  "employee.searchKey": (ctx) => ctx.employee?.searchKey ?? "—",
+  "employee.jobTitle": (ctx) => ctx.employee?.jobTitle ?? "—",
+  "credential.type": (ctx) => ctx.credential?.credentialType ?? "—",
+  "credential.expiryDate": (ctx) => formatDateField(ctx.credential?.expiryDate ?? ""),
+  "client.name": (ctx) => ctx.client?.name ?? "—",
+  "client.searchKey": (ctx) => ctx.client?.searchKey ?? "—",
+  "alert.title": (ctx) => ctx.alertTitle ?? "—",
+  "location.name": (ctx) => ctx.location?.name ?? "—",
+  "location.searchKey": (ctx) => ctx.location?.searchKey ?? "—",
   "org.investigationSlaDays": (ctx) => String(ctx.org.investigationSlaDays),
 };
 
@@ -62,24 +136,39 @@ export function renderAutomationTemplate(template: string, ctx: AutomationTempla
   });
 }
 
-function matchesConditions(
+function matchesEventConditions(
+  event: AutomationEvent,
   conditions: TaskAutomationConditions,
-  incident: IncidentRecord,
   changedFields?: string[]
 ): boolean {
-  if (conditions.isReportable !== undefined && incident.isReportable !== conditions.isReportable) {
-    return false;
+  if (event.type.startsWith("incident.")) {
+    const incident = (event as import("@/lib/task-automation/incident-triggers").IncidentAutomationEvent).incident;
+    if (conditions.isReportable !== undefined && incident.isReportable !== conditions.isReportable) {
+      return false;
+    }
+    if (conditions.statusIn?.length && !conditions.statusIn.includes(incident.status)) {
+      return false;
+    }
+    if (conditions.severityIn?.length && !conditions.severityIn.includes(incident.severity)) {
+      return false;
+    }
+    if (conditions.changedFields?.length) {
+      if (!changedFields?.length) return false;
+      if (!conditions.changedFields.some((f) => changedFields.includes(f))) return false;
+    }
+    return true;
   }
-  if (conditions.statusIn?.length && !conditions.statusIn.includes(incident.status)) {
-    return false;
+
+  if (event.type.startsWith("enquiry.") && conditions.statusIn?.length) {
+    const enquiry = (event as import("@/lib/task-automation/enquiry-triggers").EnquiryAutomationEvent).enquiry;
+    return conditions.statusIn.includes(enquiry.status);
   }
-  if (conditions.severityIn?.length && !conditions.severityIn.includes(incident.severity)) {
-    return false;
+
+  if (event.type.startsWith("client.") && conditions.statusIn?.length) {
+    const client = (event as import("@/lib/task-automation/client-triggers").ClientAutomationEvent).client;
+    return conditions.statusIn.includes(client.status);
   }
-  if (conditions.changedFields?.length) {
-    if (!changedFields?.length) return false;
-    if (!conditions.changedFields.some((f) => changedFields.includes(f))) return false;
-  }
+
   return true;
 }
 
@@ -88,8 +177,11 @@ function resolveDueDate(
   ctx: AutomationTemplateContext,
   now = new Date()
 ): string {
-  if (rule.dueFromField === "reportDeadlineAt" && ctx.incident.reportDeadlineAt) {
+  if (rule.dueFromField === "reportDeadlineAt" && ctx.incident?.reportDeadlineAt) {
     return ctx.incident.reportDeadlineAt.slice(0, 10);
+  }
+  if (rule.dueFromField === "credentialExpiryDate" && ctx.credential?.expiryDate) {
+    return ctx.credential.expiryDate.slice(0, 10);
   }
 
   const due = new Date(now);
@@ -102,6 +194,80 @@ function resolveDueDate(
   return due.toISOString().slice(0, 10);
 }
 
+type EntityLink = {
+  entityType: TaskRecord["entityType"];
+  entityId: string;
+  entityLabel: string;
+  dedupeEntityId: string;
+};
+
+function entityLinkFromEvent(event: AutomationEvent): EntityLink {
+  switch (event.type) {
+    case "incident.created":
+    case "incident.updated":
+    case "incident.reportable_set":
+    case "incident.status_changed":
+    case "incident.ndis_overdue":
+    case "incident.investigation_overdue":
+      return {
+        entityType: "incident",
+        entityId: event.incident.id,
+        entityLabel: `${event.incident.documentNo} — ${event.incident.title?.trim() || "Incident"}`,
+        dedupeEntityId: event.incident.id,
+      };
+    case "enquiry.created":
+    case "enquiry.status_changed":
+      return {
+        entityType: "enquiry",
+        entityId: event.enquiry.id,
+        entityLabel: `${event.enquiry.documentNo} — ${event.enquiry.firstName} ${event.enquiry.lastName}`.trim(),
+        dedupeEntityId: event.enquiry.id,
+      };
+    case "employee.created":
+      return {
+        entityType: "employee",
+        entityId: event.employee.id,
+        entityLabel: `${event.employee.searchKey} — ${event.employee.name}`,
+        dedupeEntityId: event.employee.id,
+      };
+    case "employee.credential_expiring":
+      return {
+        entityType: "employee",
+        entityId: event.employee.id,
+        entityLabel: `${event.employee.searchKey} — ${event.credential.credentialType}`,
+        dedupeEntityId: `${event.employee.id}:${event.credential.id}`,
+      };
+    case "client.created":
+    case "client.updated":
+    case "client.alert_added":
+      return {
+        entityType: "client",
+        entityId: event.client.id,
+        entityLabel: `${event.client.searchKey} — ${event.client.name}`,
+        dedupeEntityId:
+          event.type === "client.alert_added"
+            ? `${event.client.id}:${event.alertTitle}`
+            : event.client.id,
+      };
+    case "location.created":
+      return {
+        entityType: "location",
+        entityId: event.location.id,
+        entityLabel: `${event.location.searchKey} — ${event.location.name}`,
+        dedupeEntityId: event.location.id,
+      };
+    case "location.alert_added":
+      return {
+        entityType: "location",
+        entityId: event.location.id,
+        entityLabel: `${event.location.searchKey} — ${event.alertTitle}`,
+        dedupeEntityId: `${event.location.id}:${event.alertTitle}`,
+      };
+    default:
+      return { entityType: "", entityId: "", entityLabel: "", dedupeEntityId: "" };
+  }
+}
+
 export type AutomationTaskDraft = Omit<TaskRecord, "id" | "documentNo" | "updates"> & {
   automationRuleId: string;
   automationDedupeKey: string;
@@ -109,11 +275,12 @@ export type AutomationTaskDraft = Omit<TaskRecord, "id" | "documentNo" | "update
 
 function buildTaskDraft(
   rule: TaskAutomationRecord,
+  event: AutomationEvent,
   ctx: AutomationTemplateContext,
   org: OrgAutomationContext | null
 ): AutomationTaskDraft {
-  const entityLabel = `${ctx.incident.documentNo} — ${ctx.incident.title?.trim() || "Incident"}`;
-  const dedupeKey = automationDedupeKey(rule.id, "incident", ctx.incident.id);
+  const link = entityLinkFromEvent(event);
+  const dedupeKey = automationDedupeKey(rule.id, link.entityType || "record", link.dedupeEntityId);
   const assignee = resolveAutomationAssignee(rule, ctx, org);
 
   return {
@@ -126,9 +293,9 @@ function buildTaskDraft(
     assignmentType: assignee.assignmentType,
     assigneeUserId: assignee.assigneeUserId,
     assigneeRoleId: assignee.assigneeRoleId,
-    entityType: "incident",
-    entityId: ctx.incident.id,
-    entityLabel,
+    entityType: link.entityType,
+    entityId: link.entityId,
+    entityLabel: link.entityLabel,
     createdByUserId: "",
     createdBy: `System (${rule.name})`,
     updatedBy: `System (${rule.name})`,
@@ -145,9 +312,16 @@ export type EvaluateAutomationsResult = {
   skipped: number;
 };
 
+function changedFieldsForEvent(event: AutomationEvent): string[] | undefined {
+  if (event.type === "incident.updated" && event.before) {
+    return incidentFieldChanges(event.before, event.incident);
+  }
+  return undefined;
+}
+
 function evaluateRulesForEvent(
   rules: TaskAutomationRecord[],
-  event: IncidentAutomationEvent,
+  event: AutomationEvent,
   ctx: AutomationTemplateContext,
   dedupeIndex: AutomationDedupeIndex,
   org: OrgAutomationContext | null,
@@ -158,9 +332,10 @@ function evaluateRulesForEvent(
 
   for (const raw of rules) {
     const rule = normalizeTaskAutomation(raw);
-    if (!matchesConditions(rule.conditions, event.incident, changedFields)) continue;
+    if (!isModuleEngineLive(rule.module)) continue;
+    if (!matchesEventConditions(event, rule.conditions, changedFields)) continue;
 
-    const draft = buildTaskDraft(rule, ctx, org);
+    const draft = buildTaskDraft(rule, event, ctx, org);
     if (shouldSkipAutomationTask(dedupeIndex, draft.automationDedupeKey, rule.dedupePolicy)) {
       skipped += 1;
       continue;
@@ -173,8 +348,8 @@ function evaluateRulesForEvent(
   return { drafts, skipped };
 }
 
-export function evaluateIncidentAutomations(input: {
-  events: IncidentAutomationEvent[];
+export function evaluateAutomationEvents(input: {
+  events: AutomationEvent[];
   rules: TaskAutomationRecord[];
   tasks: TaskRecord[];
   investigationSlaDays: number;
@@ -187,17 +362,19 @@ export function evaluateIncidentAutomations(input: {
   let skipped = 0;
 
   for (const event of input.events) {
-    const trigger = event.type as TaskAutomationTriggerEvent;
+    const trigger = automationTriggerForEvent(event);
     const rules = triggerIndex.get(trigger) ?? [];
     if (!rules.length) continue;
 
-    const ctx = buildAutomationTemplateContext(event.incident, input.investigationSlaDays);
-    const changedFields =
-      event.type === "incident.updated" && event.before
-        ? incidentFieldChanges(event.before, event.incident)
-        : undefined;
-
-    const result = evaluateRulesForEvent(rules, event, ctx, dedupeIndex, org, changedFields);
+    const ctx = buildTemplateContextFromEvent(event, input.investigationSlaDays);
+    const result = evaluateRulesForEvent(
+      rules,
+      event,
+      ctx,
+      dedupeIndex,
+      org,
+      changedFieldsForEvent(event)
+    );
     drafts.push(...result.drafts);
     skipped += result.skipped;
   }
@@ -205,6 +382,50 @@ export function evaluateIncidentAutomations(input: {
   return { drafts, skipped };
 }
 
+export function evaluateIncidentAutomations(input: {
+  events: IncidentAutomationEvent[];
+  rules: TaskAutomationRecord[];
+  tasks: TaskRecord[];
+  investigationSlaDays: number;
+  org?: OrgAutomationContext | null;
+}): EvaluateAutomationsResult {
+  return evaluateAutomationEvents({
+    events: input.events,
+    rules: input.rules,
+    tasks: input.tasks,
+    investigationSlaDays: input.investigationSlaDays,
+    org: input.org,
+  });
+}
+
+export function evaluateScheduledAutomations(input: {
+  incidents: IncidentRecord[];
+  employees: EmployeeRecord[];
+  rules: TaskAutomationRecord[];
+  tasks: TaskRecord[];
+  investigationSlaDays: number;
+  batchLimit?: number;
+  org?: OrgAutomationContext | null;
+}): EvaluateAutomationsResult {
+  const incidentEvents = scheduledIncidentCandidates(input.incidents, input.investigationSlaDays);
+  const employeeEvents = scheduledEmployeeCredentialCandidates(
+    input.employees,
+    CREDENTIAL_EXPIRY_WARNING_DAYS
+  );
+  const events: AutomationEvent[] = [...incidentEvents, ...employeeEvents];
+  const limit = input.batchLimit ?? TASK_AUTOMATION_SCHEDULED_BATCH_LIMIT;
+  const limited = events.length > limit ? events.slice(0, limit) : events;
+
+  return evaluateAutomationEvents({
+    events: limited,
+    rules: input.rules,
+    tasks: input.tasks,
+    investigationSlaDays: input.investigationSlaDays,
+    org: input.org,
+  });
+}
+
+/** @deprecated Use evaluateScheduledAutomations */
 export function evaluateScheduledIncidentAutomations(input: {
   incidents: IncidentRecord[];
   rules: TaskAutomationRecord[];
@@ -213,15 +434,8 @@ export function evaluateScheduledIncidentAutomations(input: {
   batchLimit?: number;
   org?: OrgAutomationContext | null;
 }): EvaluateAutomationsResult {
-  const events = scheduledIncidentCandidates(input.incidents, input.investigationSlaDays);
-  const limit = input.batchLimit ?? TASK_AUTOMATION_SCHEDULED_BATCH_LIMIT;
-  const limited = events.length > limit ? events.slice(0, limit) : events;
-
-  return evaluateIncidentAutomations({
-    events: limited,
-    rules: input.rules,
-    tasks: input.tasks,
-    investigationSlaDays: input.investigationSlaDays,
-    org: input.org,
+  return evaluateScheduledAutomations({
+    ...input,
+    employees: [],
   });
 }

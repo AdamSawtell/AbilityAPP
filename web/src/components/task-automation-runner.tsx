@@ -3,15 +3,15 @@
 import { useEffect, useRef } from "react";
 import { useData } from "@/lib/data-store";
 import { useOrganization } from "@/lib/organization-store";
-import { evaluateScheduledIncidentAutomations } from "@/lib/task-automation/engine";
+import { evaluateScheduledAutomations } from "@/lib/task-automation/engine";
 import { markScheduledAutomationsRan, shouldRunScheduledAutomations } from "@/lib/task-automation/scheduled";
 
 /**
- * Runs overdue incident automations at most once per browser session day.
- * Event-driven automations fire from data-store on incident save.
+ * Runs overdue incident and credential-expiry automations at most once per browser session day.
+ * Event-driven automations fire from data-store on record save.
  */
 export function TaskAutomationRunner() {
-  const { hydrated, incidents, tasks, taskAutomations, addAutomationTasks } = useData();
+  const { hydrated, incidents, employees, tasks, taskAutomations, addAutomationTasks } = useData();
   const { organization } = useOrganization();
   const attemptedRef = useRef(false);
 
@@ -22,8 +22,9 @@ export function TaskAutomationRunner() {
     if (!shouldRunScheduledAutomations()) return;
     if (!taskAutomations.some((r) => r.active)) return;
 
-    const { drafts } = evaluateScheduledIncidentAutomations({
+    const { drafts } = evaluateScheduledAutomations({
       incidents,
+      employees,
       rules: taskAutomations,
       tasks,
       investigationSlaDays: organization.incidentInvestigationSlaDays,
@@ -37,6 +38,7 @@ export function TaskAutomationRunner() {
   }, [
     hydrated,
     incidents,
+    employees,
     tasks,
     taskAutomations,
     organization.incidentInvestigationSlaDays,

@@ -9,7 +9,9 @@
     "supabase:seed-access": "cd web && npx tsx ../scripts/generate-access-seed.mjs",
     "supabase:seed-employees": "cd web && npx tsx ../scripts/generate-employee-seed.mjs",
     "supabase:seed-locations": "cd web && npx tsx ../scripts/generate-location-seed.mjs",
-    "supabase:seed-bulk": "cd web && npx tsx ../scripts/generate-bulk-dummy-data.mjs"
+    "supabase:seed-bulk": "cd web && npx tsx ../scripts/generate-bulk-dummy-data.mjs",
+    "supabase:seed-workforce": "node scripts/run-workforce-seeds.mjs --linked",
+    "supabase:seed-workforce-local": "node scripts/run-workforce-seeds.mjs --local"
   },
   "keywords": [],
   "author": "",

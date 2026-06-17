@@ -14,6 +14,11 @@ import { useData } from "@/lib/data-store";
 import { accountableManagerForIncident } from "@/lib/org-structure-resolver";
 import { useOrgStructure } from "@/lib/org-structure-store";
 import {
+  canPerformIncidentManagerReview,
+  canCloseReportableIncident,
+  incidentStatusOptionsForUser,
+} from "@/lib/incident-manager-access";
+import {
   incidentActionTableConfig,
   incidentEvidenceTableConfig,
   incidentNotificationTableConfig,
@@ -27,7 +32,6 @@ import {
   incidentCategoryOptions,
   incidentServiceTypeOptions,
   incidentSeverityOptions,
-  incidentStatusOptions,
   incidentTabGroups,
   isNdisReportOverdue,
   ndisDeadlineLabel,
@@ -175,7 +179,7 @@ export function IncidentTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { session, canWindow } = useAuth();
+  const { session, canWindow, users } = useAuth();
   const { clients, employees, locations, getTasksByEntity } = useData();
   const { positions, assignments } = useOrgStructure();
   const entityIndex = useTaskEntityIndex();
@@ -184,6 +188,26 @@ export function IncidentTabbedView({
     const byId = new Map(employees.map((e) => [e.id, e]));
     return accountableManagerForIncident(record, positions, assignments, byId);
   }, [record, positions, assignments, employees]);
+
+  const reviewAccess = useMemo(() => {
+    const userEmployeeId = users.find((u) => u.id === session?.userId)?.employeeBpId ?? "";
+    return {
+      userEmployeeId,
+      canOverride: canWindow("incident-manager-override"),
+    };
+  }, [users, session?.userId, canWindow]);
+
+  const canManagerReview = canPerformIncidentManagerReview(
+    accountableManager?.employeeId,
+    reviewAccess
+  );
+  const allowedStatuses = incidentStatusOptionsForUser(
+    record,
+    reviewAccess,
+    accountableManager?.employeeId
+  );
+  const reportableCloseBlocked =
+    record.isReportable && !canCloseReportableIncident(record, reviewAccess);
 
   const taskCount = getTasksByEntity("incident", record.id).length;
   const allowedTabs = detailTabsForRole("incidents", session?.windowKeys ?? []);
@@ -333,9 +357,16 @@ export function IncidentTabbedView({
                     ) : null}
                   </p>
                 ) : null}
+                {!canManagerReview && record.isReportable && record.status === "Submitted" ? (
+                  <p className="text-xs text-amber-800">
+                    Only the accountable manager
+                    {accountableManager ? ` (${accountableManager.employeeName})` : ""} or someone with
+                    manager review override can sign off reportable incidents.
+                  </p>
+                ) : null}
                 <div className="flex flex-wrap items-center gap-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Manager workflow</p>
-                {canAdvanceToManagerReview(record) ? (
+                {canAdvanceToManagerReview(record) && canManagerReview ? (
                   <button
                     type="button"
                     onClick={() => onWorkflowAdvance("manager_review")}
@@ -344,7 +375,9 @@ export function IncidentTabbedView({
                     Mark manager reviewed
                   </button>
                 ) : null}
-                {canAdvanceToCommissionNotified(record) && record.status !== "Commission notified" ? (
+                {canAdvanceToCommissionNotified(record) &&
+                record.status !== "Commission notified" &&
+                canManagerReview ? (
                   <button
                     type="button"
                     onClick={() => onWorkflowAdvance("commission_notified")}
@@ -378,12 +411,17 @@ export function IncidentTabbedView({
                   value={record.status}
                   onChange={(e) => onChange("status", e.target.value)}
                 >
-                  {incidentStatusOptions.map((o) => (
+                  {allowedStatuses.map((o) => (
                     <option key={o} value={o}>
                       {o}
                     </option>
                   ))}
                 </select>
+                {reportableCloseBlocked ? (
+                  <p className="mt-1 text-xs text-amber-800">
+                    Reportable incidents must be manager reviewed before they can be closed.
+                  </p>
+                ) : null}
               </Field>
               <Field label="Severity">
                 <select

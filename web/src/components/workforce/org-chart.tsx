@@ -28,6 +28,10 @@ import {
   OrgAssignPrimaryConfirmDialog,
   type PendingPrimaryAssign,
 } from "@/components/workforce/org-assign-primary-confirm";
+import {
+  OrgAssignActingConfirmDialog,
+  type PendingActingAssign,
+} from "@/components/workforce/org-assign-acting-confirm";
 
 const toneClasses = {
   emerald: "bg-emerald-50 text-emerald-800 ring-emerald-200",
@@ -356,8 +360,13 @@ export function OrgPositionEditor({
   const canEdit = canWindow("workforce-org-edit");
 
   const [pendingPrimary, setPendingPrimary] = useState<PendingPrimaryAssign | null>(null);
+  const [pendingActing, setPendingActing] = useState<PendingActingAssign | null>(null);
 
   const employeeNameById = useMemo(() => new Map(employees.map((e) => [e.id, e.name])), [employees]);
+  const actingEmployeeId =
+    assignments.find(
+      (a) => a.positionId === positionId && a.assignmentType === "acting" && !a.effectiveTo
+    )?.employeeId ?? "";
 
   const position = positions.find((p) => p.id === positionId) ?? null;
   const isRoot = position?.id === "pos-org-root";
@@ -384,6 +393,16 @@ export function OrgPositionEditor({
       clearPrimary(pendingPrimary.positionId);
     }
     setPendingPrimary(null);
+  }
+
+  function confirmActingAssign() {
+    if (!pendingActing) return;
+    if (pendingActing.employeeId) {
+      assignActing(pendingActing.positionId, pendingActing.employeeId);
+    } else {
+      clearActing(pendingActing.positionId);
+    }
+    setPendingActing(null);
   }
 
   return (
@@ -474,16 +493,16 @@ export function OrgPositionEditor({
           <label className="block text-xs font-medium text-slate-700">
             Acting holder
             <select
-              value={
-                assignments.find(
-                  (a) => a.positionId === position.id && a.assignmentType === "acting" && !a.effectiveTo
-                )?.employeeId ?? ""
-              }
+              value={actingEmployeeId}
               disabled={!canEdit}
               onChange={(e) => {
                 const id = e.target.value;
-                if (id) assignActing(position.id, id);
-                else clearActing(position.id);
+                if (id === actingEmployeeId) return;
+                setPendingActing({
+                  positionId: position.id,
+                  employeeId: id,
+                  previousEmployeeId: actingEmployeeId,
+                });
               }}
               className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-50"
             >
@@ -594,6 +613,15 @@ export function OrgPositionEditor({
           employeeNameById={employeeNameById}
           onConfirm={confirmPrimaryAssign}
           onCancel={() => setPendingPrimary(null)}
+        />
+      ) : null}
+      {pendingActing ? (
+        <OrgAssignActingConfirmDialog
+          pending={pendingActing}
+          positions={positions}
+          employeeNameById={employeeNameById}
+          onConfirm={confirmActingAssign}
+          onCancel={() => setPendingActing(null)}
         />
       ) : null}
     </div>

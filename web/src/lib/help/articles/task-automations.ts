@@ -5,7 +5,7 @@ export const taskAutomationsArticle: HelpArticle = {
   slug: "task-automations",
   title: "Task automations: configure in-app alerts",
   summary:
-    "Create rules that automatically assign tasks to a role when something happens in AbilityAPP. Incidents are live today; enquiry, client, location, and employee rule types can be configured ahead of future releases.",
+    "Create rules that automatically assign tasks when something happens in AbilityAPP. All record types are live, including org-position and accountable-manager assignment.",
   category: "Admin",
   keywords: [
     "task automation",
@@ -28,12 +28,12 @@ export const taskAutomationsArticle: HelpArticle = {
     {
       id: "what-are-task-automations",
       title: "What task automations are",
-      body: "Task automations replace external email for many operational alerts. Instead of sending a message outside the system, AbilityAPP creates a task in the same format every time: title, description, priority, due date, task type, and a link back to the record that caused the alert.\n\nTasks appear in the normal task hub. Users who hold the assigned role see them under Tasks → My role. Users with a direct assignment see them under Assigned to me. Completing the task is the acknowledgement that someone handled the alert.",
+      body:     "Task automations replace external email for many operational alerts. Rules can assign to a security role, an org position holder, or the incident accountable manager.\n\nAll rule types are live: enquiry, client, location, employee (including scheduled credential expiry), and incident (including scheduled NDIS and investigation SLA checks).",
       bullets: [
         "Automations are rules, not one-off tasks.",
         "Each rule has a rule type (enquiry, client, location, employee, or incident).",
-        "Only incident rules run automatically in the current release.",
-        "Other rule types can be saved now so your organisation is ready when those engines go live.",
+        "Assign to: Security role, Org position holder, or Incident accountable manager.",
+        "Scheduled scans run once per browser day for overdue incidents and expiring credentials.",
       ],
       relatedRoutes: ["/admin/task-automations"],
       windowKeys: ["admin-task-automations"],

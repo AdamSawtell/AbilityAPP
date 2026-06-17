@@ -90,6 +90,15 @@ export const INCIDENT_EXTRA_WINDOWS: AccessWindow[] = [
     abilityErpName: "Incident Report — Dashboard & analytics",
     showInSidebar: false,
   },
+  {
+    key: "incident-manager-override",
+    label: "Override manager review",
+    group: "People",
+    href: "/incidents",
+    parentWindowKey: "incidents",
+    abilityErpName: "Incident Report — manager review override",
+    showInSidebar: false,
+  },
 ];
 
 export const CONTRACT_DEPENDENT_WINDOWS = buildDetailWindows(

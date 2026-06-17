@@ -155,3 +155,16 @@ export function filterOrgPositions(
 
   return positions.filter((p) => keepIds.has(p.id));
 }
+
+export function orgChartFilterStats(
+  allPositions: OrgPositionRecord[],
+  filters: OrgChartFilters
+): { visible: number; total: number; hidden: number } {
+  const filtered = filterOrgPositions(allPositions, filters);
+  const visibleIds = new Set(filtered.map((p) => p.id));
+  return {
+    visible: filtered.length,
+    total: allPositions.length,
+    hidden: Math.max(0, allPositions.length - visibleIds.size),
+  };
+}

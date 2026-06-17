@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { OrgChart, OrgPositionEditor } from "@/components/workforce/org-chart";
@@ -7,13 +8,18 @@ import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planni
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { ORG_BUSINESS_AREAS } from "@/lib/org-structure";
-import type { OrgChartFilters } from "@/lib/org-structure-tree";
+import {
+  filterOrgPositions,
+  isEmployeeOnLeaveToday,
+  orgChartFilterStats,
+  type OrgChartFilters,
+} from "@/lib/org-structure-tree";
 import { useOrgStructure } from "@/lib/org-structure-store";
 
 export function OrganisationStructurePage() {
   const { canWindow } = useAuth();
-  const { locations } = useData();
-  const { hydrated } = useOrgStructure();
+  const { employees, locations } = useData();
+  const { hydrated, positions } = useOrgStructure();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [businessArea, setBusinessArea] = useState("");
   const [locationId, setLocationId] = useState("");
@@ -27,6 +33,20 @@ export function OrganisationStructurePage() {
   );
 
   const filterActive = Boolean(businessArea || locationId);
+
+  const filterSummary = useMemo(() => {
+    const stats = orgChartFilterStats(positions, filters);
+    if (!filterActive) return null;
+    const filtered = filterOrgPositions(positions, filters);
+    const empById = new Map(employees.map((e) => [e.id, e]));
+    let onLeave = 0;
+    for (const p of filtered) {
+      if (!p.primaryEmployeeId) continue;
+      const emp = empById.get(p.primaryEmployeeId);
+      if (emp && isEmployeeOnLeaveToday(emp)) onLeave += 1;
+    }
+    return { ...stats, onLeave };
+  }, [positions, filters, filterActive, employees]);
 
   const canView = canWindow("workforce-organisation") || canWindow("workforce-planning");
 
@@ -49,7 +69,7 @@ export function OrganisationStructurePage() {
   return (
     <AppShell
       title="Organisation structure"
-      subtitle="Position tree, holders, and vacant-role escalation to parent managers."
+      subtitle="Position tree, holders, vacant-role escalation, and accountable manager routing."
       breadcrumbs={[
         { label: "Home", href: "/" },
         { label: "Workforce planning", href: "/workforce-planning" },
@@ -58,6 +78,11 @@ export function OrganisationStructurePage() {
       audit={{ moduleLabel: "Organisation structure" }}
     >
       <WorkforcePlanningSubnav />
+      <p className="mb-4 text-sm text-slate-600">
+        <Link href="/help/workforce-organisation" className="font-medium text-[#b51266] hover:underline">
+          Read the full organisation structure and automations guide
+        </Link>
+      </p>
 
       {!hydrated ? (
         <p className="text-sm text-slate-500">Loading organisation structure…</p>
@@ -105,6 +130,12 @@ export function OrganisationStructurePage() {
               >
                 Clear filters
               </button>
+            ) : null}
+            {filterSummary ? (
+              <p className="text-xs text-slate-500">
+                Showing {filterSummary.visible} of {filterSummary.total} positions
+                {filterSummary.onLeave ? ` · ${filterSummary.onLeave} primary holder(s) on leave` : ""}
+              </p>
             ) : null}
           </div>
           <div className="grid gap-6 xl:grid-cols-[1fr_320px]">

@@ -45,8 +45,13 @@ import {
   type TaskRecord,
 } from "@/lib/task";
 import { initialTaskAutomations, sortTaskAutomations, type TaskAutomationRecord } from "@/lib/task-automation";
-import { evaluateIncidentAutomations, type AutomationTaskDraft } from "@/lib/task-automation/engine";
+import { evaluateAutomationEvents, type AutomationTaskDraft } from "@/lib/task-automation/engine";
+import { clientEventsFromSave } from "@/lib/task-automation/client-triggers";
+import { employeeEventsFromSave } from "@/lib/task-automation/employee-triggers";
+import { enquiryEventsFromSave } from "@/lib/task-automation/enquiry-triggers";
+import type { AutomationEvent } from "@/lib/task-automation/events";
 import { incidentEventsFromSave } from "@/lib/task-automation/incident-triggers";
+import { locationEventsFromSave } from "@/lib/task-automation/location-triggers";
 import { investigationSlaDays } from "@/lib/incident-analytics";
 import { defaultOrganization } from "@/lib/organization";
 import { convertEnquiryToClient } from "@/lib/convert";
@@ -434,28 +439,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [clientsRef, locationsRef, persistRemote]
   );
 
-  const addEnquiry = useCallback(
-    (partial: EnquiryRecord) => {
-      const prev = enquiriesRef.current;
-      const next = createEnquiry(partial, prev);
-      const created = persistRecordAudit("enquiry", next, true);
-      setEnquiries((current) => [...current, created]);
-      void persistRemote((supabase) => saveEnquiry(supabase, created));
-      return created;
-    },
-    [persistRemote, enquiriesRef]
-  );
-
-  const updateEnquiry = useCallback(
-    (record: EnquiryRecord, audit?: AuditLogOptions) => {
-      const before = enquiriesRef.current.find((e) => e.id === record.id);
-      const stamped = persistRecordAudit("enquiry", record, false, before, audit);
-      setEnquiries((prev) => prev.map((e) => (e.id === stamped.id ? stamped : e)));
-      void persistRemote((supabase) => saveEnquiry(supabase, stamped));
-    },
-    [persistRemote, enquiriesRef]
-  );
-
   const addAutomationTasks = useCallback(
     (drafts: AutomationTaskDraft[]) => {
       if (!drafts.length) return;
@@ -490,13 +473,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote]
   );
 
-  const processIncidentAutomations = useCallback(
-    (incident: IncidentRecord, before?: IncidentRecord) => {
+  const runAutomationEvents = useCallback(
+    (events: AutomationEvent[]) => {
+      if (!events.length) return;
       const rules = automationsRef.current;
       if (!rules.some((r) => r.active)) return;
 
-      const { drafts } = evaluateIncidentAutomations({
-        events: incidentEventsFromSave(incident, before),
+      const { drafts } = evaluateAutomationEvents({
+        events,
         rules,
         tasks: tasksRef.current,
         investigationSlaDays: readInvestigationSlaDays(),
@@ -507,6 +491,37 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
     },
     [addAutomationTasks, automationsRef, tasksRef]
+  );
+
+  const addEnquiry = useCallback(
+    (partial: EnquiryRecord) => {
+      const prev = enquiriesRef.current;
+      const next = createEnquiry(partial, prev);
+      const created = persistRecordAudit("enquiry", next, true);
+      setEnquiries((current) => [...current, created]);
+      void persistRemote((supabase) => saveEnquiry(supabase, created));
+      runAutomationEvents(enquiryEventsFromSave(created));
+      return created;
+    },
+    [persistRemote, enquiriesRef, runAutomationEvents]
+  );
+
+  const updateEnquiry = useCallback(
+    (record: EnquiryRecord, audit?: AuditLogOptions) => {
+      const before = enquiriesRef.current.find((e) => e.id === record.id);
+      const stamped = persistRecordAudit("enquiry", record, false, before, audit);
+      setEnquiries((prev) => prev.map((e) => (e.id === stamped.id ? stamped : e)));
+      void persistRemote((supabase) => saveEnquiry(supabase, stamped));
+      runAutomationEvents(enquiryEventsFromSave(stamped, before));
+    },
+    [persistRemote, enquiriesRef, runAutomationEvents]
+  );
+
+  const processIncidentAutomations = useCallback(
+    (incident: IncidentRecord, before?: IncidentRecord) => {
+      runAutomationEvents(incidentEventsFromSave(incident, before));
+    },
+    [runAutomationEvents]
   );
 
   const upsertTaskAutomation = useCallback(
@@ -579,8 +594,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         exists ? current.map((c) => (c.id === stamped.id ? stamped : c)) : [...current, stamped]
       );
       void persistRemote((supabase) => saveClient(supabase, stamped));
+      runAutomationEvents(clientEventsFromSave(stamped, before));
     },
-    [persistRemote, clientsRef]
+    [persistRemote, clientsRef, runAutomationEvents]
   );
 
   const addContract = useCallback(
@@ -680,8 +696,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         exists ? current.map((e) => (e.id === stamped.id ? stamped : e)) : [...current, stamped]
       );
       void persistRemote((supabase) => saveEmployee(supabase, stamped));
+      runAutomationEvents(employeeEventsFromSave(stamped, before));
     },
-    [persistRemote, employeesRef]
+    [persistRemote, employeesRef, runAutomationEvents]
   );
 
   const addEmployee = useCallback(
@@ -691,9 +708,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const created = persistRecordAudit("employee", next, true);
       setEmployees((current) => [...current, created]);
       void persistRemote((supabase) => saveEmployee(supabase, created));
+      runAutomationEvents(employeeEventsFromSave(created));
       return created;
     },
-    [persistRemote, employeesRef]
+    [persistRemote, employeesRef, runAutomationEvents]
   );
 
   const upsertLocation = useCallback(
@@ -707,8 +725,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         exists ? current.map((l) => (l.id === stamped.id ? stamped : l)) : [...current, stamped]
       );
       void persistRemote((supabase) => saveLocation(supabase, stamped));
+      runAutomationEvents(locationEventsFromSave(stamped, before));
     },
-    [persistRemote, locationsRef]
+    [persistRemote, locationsRef, runAutomationEvents]
   );
 
   const addLocation = useCallback(
@@ -718,9 +737,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const created = persistRecordAudit("location", next, true);
       setLocations((current) => [...current, created]);
       void persistRemote((supabase) => saveLocation(supabase, created));
+      runAutomationEvents(locationEventsFromSave(created));
       return created;
     },
-    [persistRemote, locationsRef]
+    [persistRemote, locationsRef, runAutomationEvents]
   );
 
   const getEmployeeById = useCallback(

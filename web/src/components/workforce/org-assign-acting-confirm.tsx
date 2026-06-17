@@ -1,0 +1,87 @@
+"use client";
+
+import type { OrgPositionRecord } from "@/lib/org-structure";
+
+export type PendingActingAssign = {
+  positionId: string;
+  employeeId: string;
+  previousEmployeeId: string;
+};
+
+export function OrgAssignActingConfirmDialog({
+  pending,
+  positions,
+  employeeNameById,
+  onConfirm,
+  onCancel,
+}: {
+  pending: PendingActingAssign;
+  positions: OrgPositionRecord[];
+  employeeNameById: Map<string, string>;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const position = positions.find((p) => p.id === pending.positionId);
+  if (!position) return null;
+
+  const nextName = pending.employeeId
+    ? employeeNameById.get(pending.employeeId) ?? pending.employeeId
+    : "";
+  const prevName = pending.previousEmployeeId
+    ? employeeNameById.get(pending.previousEmployeeId) ?? pending.previousEmployeeId
+    : "";
+
+  const clearing = !pending.employeeId;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl">
+        <h3 className="text-base font-semibold text-slate-900">Confirm acting holder change</h3>
+        {clearing ? (
+          <p className="mt-2 text-sm text-slate-600">
+            Clear the acting holder for <span className="font-medium text-slate-900">{position.title}</span>
+            {prevName ? (
+              <>
+                {" "}
+                (currently <span className="font-medium text-slate-900">{prevName}</span>)?
+              </>
+            ) : (
+              "?"
+            )}
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-slate-600">
+            Assign <span className="font-medium text-slate-900">{nextName}</span> as acting holder of{" "}
+            <span className="font-medium text-slate-900">{position.title}</span>
+            {prevName ? (
+              <>
+                , replacing <span className="font-medium text-slate-900">{prevName}</span>?
+              </>
+            ) : (
+              "?"
+            )}
+          </p>
+        )}
+        <p className="mt-2 text-xs text-slate-500">
+          Acting holders cover leave or vacancy. Escalation uses the acting person before the parent manager.
+        </p>
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+          >
+            Confirm assignment
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
