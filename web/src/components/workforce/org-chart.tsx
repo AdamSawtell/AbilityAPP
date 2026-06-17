@@ -196,55 +196,56 @@ function OrgChartChildRows({
   renderItem,
 }: {
   rows: OrgChartDisplayRow[];
-  renderItem: (item: OrgChartDisplayItem) => React.ReactNode;
+  renderItem: (item: OrgChartDisplayItem, rowLayout: "row" | "column") => React.ReactNode;
 }) {
   return (
-    <>
+    <div className="flex w-full min-w-0 flex-col items-center self-stretch">
       {rows.map((row, rowIndex) => (
-        <div key={`row-${rowIndex}`} className="flex w-full flex-col items-center">
-          {rowIndex > 0 ? <div className="my-2 h-4 w-px bg-slate-300" aria-hidden /> : null}
+        <div key={`row-${rowIndex}`} className="flex w-full min-w-0 flex-col items-center">
+          <div className="my-2 h-4 w-px shrink-0 bg-slate-300" aria-hidden />
           {row.layout === "row" && row.items.length > 1 ? (
-            <div className="flex w-full flex-col items-center">
-              <div className="h-4 w-px bg-slate-300" aria-hidden />
-              <div className="h-px w-full max-w-4xl bg-slate-300" aria-hidden />
+            <div
+              className="mb-2 flex w-full min-w-0 items-center justify-center px-2"
+              aria-hidden
+            >
+              <div className="h-px min-w-[4rem] flex-1 max-w-3xl bg-slate-300" />
             </div>
-          ) : rowIndex === 0 ? (
-            <div className="my-2 h-4 w-px bg-slate-300" aria-hidden />
           ) : null}
-          <ul
+          <div
             className={
               row.layout === "row"
-                ? "flex w-full max-w-6xl flex-row flex-wrap items-start justify-center gap-3"
+                ? "flex w-max max-w-full flex-row flex-nowrap items-start justify-center gap-4 overflow-x-auto pb-1"
                 : "flex w-full max-w-sm flex-col items-stretch gap-2"
             }
           >
             {row.items.map((item) => {
               const key = item.kind === "position" ? item.node.id : item.groupKey;
               return (
-                <li
+                <div
                   key={key}
                   className={
                     row.layout === "row"
-                      ? "flex w-[11rem] shrink-0 flex-col items-center sm:w-[12rem]"
+                      ? "flex shrink-0 flex-col items-center"
                       : "w-full"
                   }
                 >
                   {row.layout === "row" && row.items.length > 1 ? (
                     <div className="mb-2 h-4 w-px bg-slate-300" aria-hidden />
                   ) : null}
-                  {renderItem(item)}
-                </li>
+                  {renderItem(item, row.layout)}
+                </div>
               );
             })}
-          </ul>
+          </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
 function renderOrgChildItem(
   item: OrgChartDisplayItem,
+  rowLayout: "row" | "column",
   ctx: {
     employeeNameById: Map<string, string>;
     employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
@@ -314,6 +315,7 @@ function renderOrgChildItem(
       onDropOnTarget={ctx.onDropOnTarget}
       compact={ctx.compact}
       hideChildren={ctx.hideChildren}
+      inPeerRow={rowLayout === "row"}
     />
   );
 }
@@ -406,6 +408,7 @@ function OrgSiblingGroup({
                 onDropOnTarget={onDropOnTarget}
                 compact
                 hideChildren
+                inPeerRow={false}
               />
             ))}
           </ul>
@@ -436,6 +439,7 @@ function OrgTreeBranch({
   onDropOnTarget,
   compact,
   hideChildren,
+  inPeerRow,
 }: {
   node: OrgPositionNode;
   employeeNameById: Map<string, string>;
@@ -457,6 +461,7 @@ function OrgTreeBranch({
   onDropOnTarget: (targetId: string) => void;
   compact?: boolean;
   hideChildren?: boolean;
+  inPeerRow?: boolean;
 }) {
   const employeeName = node.primaryEmployeeId ? employeeNameById.get(node.primaryEmployeeId) ?? "Unknown" : "";
   const acting = actingAssignmentForPosition(activeAssignments(assignments), node.id);
@@ -542,17 +547,24 @@ function OrgTreeBranch({
     />
   );
 
+  const cardWidth = compact || inPeerRow ? "w-[12rem]" : "w-full max-w-sm";
+  const branchClass = inPeerRow
+    ? "inline-flex flex-col items-center"
+    : "flex w-full min-w-0 flex-col items-center";
+
   if (hideChildren) {
-    return <div className="w-full">{card}</div>;
+    return <div className={cardWidth}>{card}</div>;
   }
 
   return (
-    <div className="flex w-full flex-col items-center">
-      <div className={compact ? "w-full" : "w-full max-w-sm"}>{card}</div>
+    <div className={branchClass}>
+      <div className={cardWidth}>{card}</div>
       {node.children.length > 0 ? (
         <OrgChartChildRows
           rows={childRows}
-          renderItem={(item) => renderOrgChildItem(item, { ...childCtx, hideChildren: false })}
+          renderItem={(item, rowLayout) =>
+            renderOrgChildItem(item, rowLayout, { ...childCtx, hideChildren: false })
+          }
         />
       ) : null}
     </div>
@@ -677,7 +689,7 @@ export function OrgChart({
           lines={visibleReportingLines}
           revision={`${chartRevision}-${visibleReportingLines.length}`}
         />
-        <div className="relative mx-auto flex w-full min-w-[min(100%,52rem)] flex-col items-center gap-0">
+        <div className="relative mx-auto flex w-max min-w-full flex-col items-center">
           {tree.map((root) => (
             <OrgTreeBranch
               key={root.id}

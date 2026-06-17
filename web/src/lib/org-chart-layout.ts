@@ -64,21 +64,10 @@ function forceRowLayoutForChildren(children: OrgPositionNode[]): boolean {
 }
 
 function rowLayoutForItems(items: OrgChartDisplayItem[], childNodes: OrgPositionNode[]): boolean {
-  if (forceRowLayoutForChildren(childNodes)) return true;
-  if (items.length <= 1) return true;
   if (items.some((item) => item.kind === "group")) return false;
-
-  const positions = items.filter(
-    (item): item is Extract<OrgChartDisplayItem, { kind: "position" }> => item.kind === "position"
-  );
-  if (positions.length !== items.length || positions.length > 8) return false;
-
-  const roleIds = [...new Set(positions.map((item) => item.node.securityRoleId?.trim() ?? ""))];
-  if (roleIds.length === 1 && shouldCollapseSiblingGroup(roleIds[0], positions.length)) {
-    return false;
-  }
-
-  return true;
+  if (forceRowLayoutForChildren(childNodes)) return true;
+  if (items.length >= 2) return true;
+  return items.length <= 1;
 }
 
 /**
