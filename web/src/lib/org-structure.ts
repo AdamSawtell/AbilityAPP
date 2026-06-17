@@ -7,10 +7,22 @@ import {
   leadershipOrgPositions,
   leadershipPositionAssignments,
 } from "@/lib/org-leadership-seed";
+import { leadershipReportingLines } from "@/lib/org-reporting-lines-seed";
 
 export type OrgPositionStatus = "filled" | "vacant" | "under_recruitment" | "frozen";
 
 export type PositionAssignmentType = "primary" | "acting" | "temporary";
+
+export type OrgPositionReportingLineType = "dotted";
+
+export type OrgPositionReportingLineRecord = {
+  id: string;
+  positionId: string;
+  reportsToPositionId: string;
+  lineType: OrgPositionReportingLineType;
+  label: string;
+  sortOrder: number;
+};
 
 export type OrgPositionRecord = {
   id: string;
@@ -82,6 +94,17 @@ export function normalizeOrgPosition(raw: OrgPositionRecord): OrgPositionRecord 
     costCentre: raw.costCentre ?? "",
     sortOrder: Number.isFinite(raw.sortOrder) ? raw.sortOrder : 0,
     status,
+  };
+}
+
+export function normalizePositionReportingLine(
+  raw: OrgPositionReportingLineRecord
+): OrgPositionReportingLineRecord {
+  return {
+    ...raw,
+    lineType: raw.lineType === "dotted" ? "dotted" : "dotted",
+    label: raw.label ?? "",
+    sortOrder: Number.isFinite(raw.sortOrder) ? raw.sortOrder : 0,
   };
 }
 
@@ -186,6 +209,8 @@ export const initialPositionAssignments: PositionAssignmentRecord[] = [
   ...bulkPositionAssignments,
 ];
 
+export const initialOrgReportingLines: OrgPositionReportingLineRecord[] = [...leadershipReportingLines];
+
 let positionSeq = 200;
 
 export function newOrgPositionId(): string {
@@ -198,4 +223,11 @@ let assignmentSeq = 200;
 export function newPositionAssignmentId(): string {
   assignmentSeq += 1;
   return `pa-${Date.now()}-${assignmentSeq}`;
+}
+
+let reportingLineSeq = 200;
+
+export function newOrgReportingLineId(): string {
+  reportingLineSeq += 1;
+  return `orl-${Date.now()}-${reportingLineSeq}`;
 }

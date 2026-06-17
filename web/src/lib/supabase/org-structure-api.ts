@@ -2,7 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   normalizeOrgPosition,
   normalizePositionAssignment,
+  normalizePositionReportingLine,
   type OrgPositionRecord,
+  type OrgPositionReportingLineRecord,
   type PositionAssignmentRecord,
 } from "@/lib/org-structure";
 
@@ -29,6 +31,15 @@ type PositionAssignmentRow = {
   effective_from: string | null;
   effective_to: string | null;
   notes: string;
+};
+
+type OrgPositionReportingLineRow = {
+  id: string;
+  position_id: string;
+  reports_to_position_id: string;
+  line_type: string;
+  label: string;
+  sort_order: number;
 };
 
 function positionFromRow(row: OrgPositionRow): OrgPositionRecord {
@@ -91,21 +102,48 @@ function assignmentToRow(record: PositionAssignmentRecord): PositionAssignmentRo
   };
 }
 
+function reportingLineFromRow(row: OrgPositionReportingLineRow): OrgPositionReportingLineRecord {
+  return normalizePositionReportingLine({
+    id: row.id,
+    positionId: row.position_id,
+    reportsToPositionId: row.reports_to_position_id,
+    lineType: row.line_type === "dotted" ? "dotted" : "dotted",
+    label: row.label ?? "",
+    sortOrder: row.sort_order ?? 0,
+  });
+}
+
+function reportingLineToRow(record: OrgPositionReportingLineRecord): OrgPositionReportingLineRow {
+  const n = normalizePositionReportingLine(record);
+  return {
+    id: n.id,
+    position_id: n.positionId,
+    reports_to_position_id: n.reportsToPositionId,
+    line_type: n.lineType,
+    label: n.label,
+    sort_order: n.sortOrder,
+  };
+}
+
 export type OrgStructureData = {
   positions: OrgPositionRecord[];
   assignments: PositionAssignmentRecord[];
+  reportingLines: OrgPositionReportingLineRecord[];
 };
 
 export async function fetchOrgStructure(supabase: SupabaseClient): Promise<OrgStructureData> {
-  const [positionsRes, assignmentsRes] = await Promise.all([
+  const [positionsRes, assignmentsRes, linesRes] = await Promise.all([
     supabase.from("org_position").select("*").order("sort_order"),
     supabase.from("position_assignment").select("*").order("effective_from"),
+    supabase.from("org_position_reporting_line").select("*").order("sort_order"),
   ]);
   if (positionsRes.error) throw positionsRes.error;
   if (assignmentsRes.error) throw assignmentsRes.error;
+  if (linesRes.error) throw linesRes.error;
   return {
     positions: (positionsRes.data ?? []).map((r) => positionFromRow(r as OrgPositionRow)),
     assignments: (assignmentsRes.data ?? []).map((r) => assignmentFromRow(r as PositionAssignmentRow)),
+    reportingLines: (linesRes.data ?? []).map((r) => reportingLineFromRow(r as OrgPositionReportingLineRow)),
   };
 }
 
@@ -126,5 +164,15 @@ export async function savePositionAssignment(supabase: SupabaseClient, record: P
 
 export async function deletePositionAssignment(supabase: SupabaseClient, id: string) {
   const { error } = await supabase.from("position_assignment").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function saveOrgReportingLine(supabase: SupabaseClient, record: OrgPositionReportingLineRecord) {
+  const { error } = await supabase.from("org_position_reporting_line").upsert(reportingLineToRow(record));
+  if (error) throw error;
+}
+
+export async function deleteOrgReportingLine(supabase: SupabaseClient, id: string) {
+  const { error } = await supabase.from("org_position_reporting_line").delete().eq("id", id);
   if (error) throw error;
 }

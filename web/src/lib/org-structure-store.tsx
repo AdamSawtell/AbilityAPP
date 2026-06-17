@@ -3,26 +3,33 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   initialOrgPositions,
+  initialOrgReportingLines,
   initialPositionAssignments,
   newOrgPositionId,
+  newOrgReportingLineId,
   newPositionAssignmentId,
   normalizeOrgPosition,
   normalizePositionAssignment,
+  normalizePositionReportingLine,
   type OrgPositionRecord,
+  type OrgPositionReportingLineRecord,
   type PositionAssignmentRecord,
 } from "@/lib/org-structure";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   deleteOrgPosition,
+  deleteOrgReportingLine,
   deletePositionAssignment,
   fetchOrgStructure,
   saveOrgPosition,
+  saveOrgReportingLine,
   savePositionAssignment,
 } from "@/lib/supabase/org-structure-api";
 
 type OrgStructureStore = {
   positions: OrgPositionRecord[];
   assignments: PositionAssignmentRecord[];
+  reportingLines: OrgPositionReportingLineRecord[];
   hydrated: boolean;
   source: "supabase" | "local";
   upsertPosition: (record: OrgPositionRecord) => void;
@@ -33,6 +40,8 @@ type OrgStructureStore = {
   assignActing: (positionId: string, employeeId: string, effectiveFrom?: string, effectiveTo?: string) => void;
   clearActing: (positionId: string) => void;
   addPosition: (partial: Omit<OrgPositionRecord, "id">) => OrgPositionRecord;
+  addDottedReportingLine: (positionId: string, reportsToPositionId: string, label?: string) => void;
+  removeDottedReportingLine: (id: string) => void;
 };
 
 const OrgStructureContext = createContext<OrgStructureStore | null>(null);
@@ -40,6 +49,8 @@ const OrgStructureContext = createContext<OrgStructureStore | null>(null);
 export function OrgStructureProvider({ children }: { children: React.ReactNode }) {
   const [positions, setPositions] = useState<OrgPositionRecord[]>(initialOrgPositions);
   const [assignments, setAssignments] = useState<PositionAssignmentRecord[]>(initialPositionAssignments);
+  const [reportingLines, setReportingLines] =
+    useState<OrgPositionReportingLineRecord[]>(initialOrgReportingLines);
   const [hydrated, setHydrated] = useState(false);
   const [source, setSource] = useState<"supabase" | "local">("local");
 
@@ -54,6 +65,7 @@ export function OrgStructureProvider({ children }: { children: React.ReactNode }
           if (!cancelled && data.positions.length) {
             setPositions(data.positions);
             setAssignments(data.assignments);
+            setReportingLines(data.reportingLines);
             setSource("supabase");
             setHydrated(true);
             return;
@@ -66,6 +78,7 @@ export function OrgStructureProvider({ children }: { children: React.ReactNode }
       if (!cancelled) {
         setPositions(initialOrgPositions);
         setAssignments(initialPositionAssignments);
+        setReportingLines(initialOrgReportingLines);
         setSource("local");
         setHydrated(true);
       }
@@ -97,6 +110,16 @@ export function OrgStructureProvider({ children }: { children: React.ReactNode }
     [source]
   );
 
+  const persistReportingLine = useCallback(
+    (record: OrgPositionReportingLineRecord) => {
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const supabase = createClient();
+        void saveOrgReportingLine(supabase, record);
+      }
+    },
+    [source]
+  );
+
   const upsertPosition = useCallback(
     (record: OrgPositionRecord) => {
       const normalized = normalizeOrgPosition(record);
@@ -114,6 +137,9 @@ export function OrgStructureProvider({ children }: { children: React.ReactNode }
       if (id === "pos-org-root") return;
       setPositions((prev) => prev.filter((p) => p.id !== id));
       setAssignments((prev) => prev.filter((a) => a.positionId !== id));
+      setReportingLines((prev) =>
+        prev.filter((line) => line.positionId !== id && line.reportsToPositionId !== id)
+      );
       if (source === "supabase" && isSupabaseConfigured()) {
         const supabase = createClient();
         void deleteOrgPosition(supabase, id);
@@ -266,10 +292,51 @@ export function OrgStructureProvider({ children }: { children: React.ReactNode }
     [upsertPosition]
   );
 
+  const addDottedReportingLine = useCallback(
+    (positionId: string, reportsToPositionId: string, label = "") => {
+      if (!positionId || !reportsToPositionId || positionId === reportsToPositionId) return;
+      const created = normalizePositionReportingLine({
+        id: newOrgReportingLineId(),
+        positionId,
+        reportsToPositionId,
+        lineType: "dotted",
+        label,
+        sortOrder: 0,
+      });
+      setReportingLines((prev) => {
+        if (
+          prev.some(
+            (line) =>
+              line.positionId === created.positionId &&
+              line.reportsToPositionId === created.reportsToPositionId &&
+              line.lineType === "dotted"
+          )
+        ) {
+          return prev;
+        }
+        return [...prev, created];
+      });
+      persistReportingLine(created);
+    },
+    [persistReportingLine]
+  );
+
+  const removeDottedReportingLine = useCallback(
+    (id: string) => {
+      setReportingLines((prev) => prev.filter((line) => line.id !== id));
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const supabase = createClient();
+        void deleteOrgReportingLine(supabase, id);
+      }
+    },
+    [source]
+  );
+
   const value = useMemo(
     () => ({
       positions,
       assignments,
+      reportingLines,
       hydrated,
       source,
       upsertPosition,
@@ -280,10 +347,13 @@ export function OrgStructureProvider({ children }: { children: React.ReactNode }
       assignActing,
       clearActing,
       addPosition,
+      addDottedReportingLine,
+      removeDottedReportingLine,
     }),
     [
       positions,
       assignments,
+      reportingLines,
       hydrated,
       source,
       upsertPosition,
@@ -294,6 +364,8 @@ export function OrgStructureProvider({ children }: { children: React.ReactNode }
       assignActing,
       clearActing,
       addPosition,
+      addDottedReportingLine,
+      removeDottedReportingLine,
     ]
   );
 

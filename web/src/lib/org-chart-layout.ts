@@ -41,7 +41,30 @@ export function siblingChartTier(node: OrgPositionNode): number {
   return 5;
 }
 
-function rowLayoutForItems(items: OrgChartDisplayItem[]): boolean {
+/** Roles that always render as peer rows when they share a parent. */
+export const ORG_CHART_PEER_ROW_ROLE_IDS = new Set([
+  "role-board",
+  "role-ceo",
+  "role-exec-operations",
+  "role-exec-hr",
+  "role-exec-finance",
+  "role-exec-ict",
+  "role-exec-quality",
+  "role-team-leader",
+]);
+
+function isPeerRowRole(securityRoleId: string): boolean {
+  const role = securityRoleId.trim();
+  return ORG_CHART_PEER_ROW_ROLE_IDS.has(role) || role.startsWith("role-exec-");
+}
+
+function forceRowLayoutForChildren(children: OrgPositionNode[]): boolean {
+  if (children.length < 2) return children.length === 1;
+  return children.every((child) => isPeerRowRole(child.securityRoleId ?? ""));
+}
+
+function rowLayoutForItems(items: OrgChartDisplayItem[], childNodes: OrgPositionNode[]): boolean {
+  if (forceRowLayoutForChildren(childNodes)) return true;
   if (items.length <= 1) return true;
   if (items.some((item) => item.kind === "group")) return false;
 
@@ -133,13 +156,16 @@ export function layoutOrgChildRows(
 
   const sortedTiers = [...tiers.keys()].sort((a, b) => a - b);
   if (sortedTiers.length <= 1) {
-    return [{ layout: rowLayoutForItems(items) ? "row" : "column", items }];
+    return [{ layout: rowLayoutForItems(items, children) ? "row" : "column", items }];
   }
 
   return sortedTiers.map((tier) => {
     const tierItems = tiers.get(tier) ?? [];
+    const tierNodes = tierItems
+      .filter((item): item is Extract<OrgChartDisplayItem, { kind: "position" }> => item.kind === "position")
+      .map((item) => item.node);
     return {
-      layout: rowLayoutForItems(tierItems) ? "row" : "column",
+      layout: rowLayoutForItems(tierItems, tierNodes) ? "row" : "column",
       items: tierItems,
     };
   });

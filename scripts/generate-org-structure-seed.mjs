@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const { initialOrgPositions, initialPositionAssignments } = await import(
+const { initialOrgPositions, initialPositionAssignments, initialOrgReportingLines } = await import(
   pathToFileURL(join(root, "web", "src", "lib", "org-structure.ts")).href
 );
 
@@ -39,9 +39,15 @@ const assignmentRows = baseAssignments.map(
     `  (${sqlVal(a.id)}, ${sqlVal(a.positionId)}, ${sqlVal(a.employeeId)}, ${sqlVal(a.assignmentType)}, ${sqlVal(a.effectiveFrom)}, null, ${sqlVal(a.notes)})`
 );
 
+const reportingLineRows = initialOrgReportingLines.map(
+  (line) =>
+    `  (${sqlVal(line.id)}, ${sqlVal(line.positionId)}, ${sqlVal(line.reportsToPositionId)}, ${sqlVal(line.lineType)}, ${sqlText(line.label)}, ${line.sortOrder})`
+);
+
 const sql = `-- Organisation structure seed (generated)
 -- Re-run: npx supabase db query --linked -f supabase/seed-org-structure.sql
 
+delete from public.org_position_reporting_line where position_id like 'pos-%';
 delete from public.position_assignment where position_id like 'pos-%';
 delete from public.org_position where id like 'pos-%';
 
@@ -74,6 +80,18 @@ on conflict (id) do update set
   effective_from = excluded.effective_from,
   effective_to = excluded.effective_to,
   notes = excluded.notes,
+  updated_at = now();
+
+insert into public.org_position_reporting_line (
+  id, position_id, reports_to_position_id, line_type, label, sort_order
+) values
+${reportingLineRows.join(",\n")}
+on conflict (id) do update set
+  position_id = excluded.position_id,
+  reports_to_position_id = excluded.reports_to_position_id,
+  line_type = excluded.line_type,
+  label = excluded.label,
+  sort_order = excluded.sort_order,
   updated_at = now();
 
 -- Bulk support workers: npx supabase db query --linked -f supabase/seed-org-structure-bulk.sql

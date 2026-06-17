@@ -87,7 +87,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     {
       id: "chart-layout",
       title: "Reading a large chart",
-      body: "Peers at the same level appear side by side — board members, executives, and team leaders each form a row under their manager. The CEO sits on the row below the board.\n\nSupport workers (three or more under one team leader) collapse into Support Worker × N. Click Expand to see each holder. Team leaders always stay visible as separate cards with their worker group underneath.\n\nUse business area and location filters to narrow the tree when you only need one site.",
+      body: "Peers at the same level appear side by side — board members, executives, and team leaders each form a row under their manager. The CEO sits on the row below the board.\n\nBoard members are peers under the Board of Directors container. Their reporting to the chair uses dotted lines (⋯→ on the card) so peers stay alongside while accountability to the chair is still visible.\n\nSupport workers (three or more under one team leader) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view for executive council or functional delivery lenses. Dotted lines show secondary accountability — escalation still follows the solid reporting line.",
       relatedRoutes: ["/workforce-planning/organisation"],
     },
     {
@@ -114,6 +114,18 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Board chair Eleanor Wright (EleanorWright) and all manager/officer seed logins use password welcome unless noted.",
       ],
       relatedRoutes: ["/admin/users", "/workforce-planning/organisation"],
+    },
+    {
+      id: "dotted-reporting",
+      title: "Dotted (matrix) reporting lines",
+      body: "Solid reporting (drag-and-drop reparent) drives escalation, accountable manager routing, and task automations. Dotted lines are secondary — they appear on the chart and in the position editor but do not change who receives escalations.\n\nExample: four board members sit side by side as peers under Board of Directors. Each member has a dotted line to the chair for board protocol, while the CEO remains on a solid line under the board container.",
+      steps: [
+        "Select a position in the chart.",
+        "In Also reports to (dotted), choose a target position and click Add.",
+        "Dotted connectors render on the chart; cards show ⋯→ target title.",
+        "Remove a dotted line with Remove in the editor.",
+      ],
+      relatedRoutes: ["/workforce-planning/organisation"],
     },
     {
       id: "reparent",

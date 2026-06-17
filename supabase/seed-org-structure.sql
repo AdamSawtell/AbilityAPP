@@ -1,6 +1,7 @@
 -- Organisation structure seed (generated)
 -- Re-run: npx supabase db query --linked -f supabase/seed-org-structure.sql
 
+delete from public.org_position_reporting_line where position_id like 'pos-%';
 delete from public.position_assignment where position_id like 'pos-%';
 delete from public.org_position where id like 'pos-%';
 
@@ -85,6 +86,25 @@ on conflict (id) do update set
   effective_from = excluded.effective_from,
   effective_to = excluded.effective_to,
   notes = excluded.notes,
+  updated_at = now();
+
+insert into public.org_position_reporting_line (
+  id, position_id, reports_to_position_id, line_type, label, sort_order
+) values
+  ('orl-board-2-chair', 'pos-board-2', 'pos-board-1', 'dotted', 'Reports to chair', 10),
+  ('orl-board-3-chair', 'pos-board-3', 'pos-board-1', 'dotted', 'Reports to chair', 20),
+  ('orl-board-4-chair', 'pos-board-4', 'pos-board-1', 'dotted', 'Reports to chair', 30),
+  ('orl-exec-ops-board', 'pos-exec-ops', 'pos-board', 'dotted', 'Governance', 10),
+  ('orl-exec-hr-board', 'pos-exec-hr', 'pos-board', 'dotted', 'Governance', 20),
+  ('orl-exec-finance-board', 'pos-exec-finance', 'pos-board', 'dotted', 'Governance', 30),
+  ('orl-exec-ict-board', 'pos-exec-ict', 'pos-board', 'dotted', 'Governance', 40),
+  ('orl-exec-quality-board', 'pos-exec-quality', 'pos-board', 'dotted', 'Governance', 50)
+on conflict (id) do update set
+  position_id = excluded.position_id,
+  reports_to_position_id = excluded.reports_to_position_id,
+  line_type = excluded.line_type,
+  label = excluded.label,
+  sort_order = excluded.sort_order,
   updated_at = now();
 
 -- Bulk support workers: npx supabase db query --linked -f supabase/seed-org-structure-bulk.sql

@@ -123,6 +123,54 @@ export type OrgChartFilters = {
   locationId?: string;
 };
 
+export type OrgChartLens = "accountability" | "executive_council" | "functional";
+
+function keepWithAncestors(positions: OrgPositionRecord[], seedIds: Set<string>): OrgPositionRecord[] {
+  const parentById = new Map(positions.map((p) => [p.id, p.parentPositionId?.trim() ?? ""]));
+  const keepIds = new Set<string>(["pos-org-root"]);
+
+  for (const id of seedIds) {
+    let current: string | undefined = id;
+    while (current) {
+      keepIds.add(current);
+      const parent = parentById.get(current);
+      if (!parent) break;
+      current = parent;
+    }
+  }
+
+  return positions.filter((p) => keepIds.has(p.id));
+}
+
+function isExecutiveCouncilPosition(position: OrgPositionRecord): boolean {
+  if (position.id === "pos-org-root" || position.id === "pos-board") return true;
+  if (position.id.startsWith("pos-board-")) return true;
+  if (position.securityRoleId === "role-ceo") return true;
+  if (position.securityRoleId?.startsWith("role-exec-")) return true;
+  return false;
+}
+
+/** View lenses — accountability is the full tree; others prune for focus. */
+export function applyOrgChartLens(
+  positions: OrgPositionRecord[],
+  lens: OrgChartLens
+): OrgPositionRecord[] {
+  if (lens === "accountability") return positions;
+
+  if (lens === "executive_council") {
+    const councilIds = new Set(
+      positions.filter((p) => isExecutiveCouncilPosition(p)).map((p) => p.id)
+    );
+    return keepWithAncestors(positions, councilIds);
+  }
+
+  if (lens === "functional") {
+    return positions.filter((p) => !/^pos-board-[1-4]$/.test(p.id));
+  }
+
+  return positions;
+}
+
 /** Keep nodes matching filters plus all ancestors (root always shown). */
 export function filterOrgPositions(
   positions: OrgPositionRecord[],

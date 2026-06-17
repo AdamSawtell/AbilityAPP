@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-store";
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
@@ -15,14 +15,17 @@ import {
 import {
   actingAssignmentForPosition,
   activeAssignments,
+  applyOrgChartLens,
   buildOrgTree,
   filterOrgPositions,
   isEmployeeOnLeaveToday,
   positionStatusTone,
   wouldCreateOrgCycle,
   type OrgChartFilters,
+  type OrgChartLens,
 } from "@/lib/org-structure-tree";
 import type { PositionAssignmentRecord } from "@/lib/org-structure";
+import { OrgChartDottedLines } from "@/components/workforce/org-chart-dotted-lines";
 import { useOrgStructure } from "@/lib/org-structure-store";
 import { OrgReparentConfirmDialog, type PendingReparent } from "@/components/workforce/org-reparent-confirm";
 import {
@@ -56,6 +59,7 @@ function PositionCard({
   locationLabel,
   roleLabel,
   holderRoleMisaligned,
+  dottedTargets,
   canEdit,
   selected,
   dragOver,
@@ -74,6 +78,7 @@ function PositionCard({
   locationLabel: string;
   roleLabel: string;
   holderRoleMisaligned?: boolean;
+  dottedTargets?: { title: string; label: string }[];
   canEdit: boolean;
   selected: boolean;
   dragOver: boolean;
@@ -92,6 +97,7 @@ function PositionCard({
 
   return (
     <div
+      data-org-position-id={node.id}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -149,6 +155,20 @@ function PositionCard({
           ) : (
             <p className={`mt-1.5 text-slate-500 ${compact ? "text-[10px]" : "text-xs"}`}>Root of the organisation tree</p>
           )}
+          {dottedTargets?.length ? (
+            <div className="mt-1 space-y-0.5">
+              {dottedTargets.map((target) => (
+                <p
+                  key={`${target.title}-${target.label}`}
+                  className={`truncate text-violet-700 ${compact ? "text-[10px]" : "text-xs"}`}
+                  title={target.label || "Dotted reporting line"}
+                >
+                  ⋯→ {target.title}
+                  {target.label ? <span className="text-violet-500"> · {target.label}</span> : null}
+                </p>
+              ))}
+            </div>
+          ) : null}
         </button>
         {canEdit && !isRoot ? (
           <span
@@ -205,7 +225,7 @@ function OrgChartChildRows({
                   key={key}
                   className={
                     row.layout === "row"
-                      ? "flex min-w-[11rem] max-w-xs flex-1 flex-col items-center"
+                      ? "flex w-[11rem] shrink-0 flex-col items-center sm:w-[12rem]"
                       : "w-full"
                   }
                 >
@@ -233,6 +253,7 @@ function renderOrgChildItem(
     users: AppUserRecord[];
     roles: AppRoleRecord[];
     assignments: PositionAssignmentRecord[];
+    dottedTargetsByPositionId: Map<string, { title: string; label: string }[]>;
     canEdit: boolean;
     selectedId: string | null;
     dragId: string | null;
@@ -257,6 +278,7 @@ function renderOrgChildItem(
         users={ctx.users}
         roles={ctx.roles}
         assignments={ctx.assignments}
+        dottedTargetsByPositionId={ctx.dottedTargetsByPositionId}
         canEdit={ctx.canEdit}
         selectedId={ctx.selectedId}
         dragId={ctx.dragId}
@@ -280,6 +302,7 @@ function renderOrgChildItem(
       users={ctx.users}
       roles={ctx.roles}
       assignments={ctx.assignments}
+      dottedTargetsByPositionId={ctx.dottedTargetsByPositionId}
       canEdit={ctx.canEdit}
       selectedId={ctx.selectedId}
       dragId={ctx.dragId}
@@ -304,6 +327,7 @@ function OrgSiblingGroup({
   users,
   roles,
   assignments,
+  dottedTargetsByPositionId,
   canEdit,
   selectedId,
   dragId,
@@ -322,6 +346,7 @@ function OrgSiblingGroup({
   users: AppUserRecord[];
   roles: AppRoleRecord[];
   assignments: PositionAssignmentRecord[];
+  dottedTargetsByPositionId: Map<string, { title: string; label: string }[]>;
   canEdit: boolean;
   selectedId: string | null;
   dragId: string | null;
@@ -369,6 +394,7 @@ function OrgSiblingGroup({
                 users={users}
                 roles={roles}
                 assignments={assignments}
+                dottedTargetsByPositionId={dottedTargetsByPositionId}
                 canEdit={canEdit}
                 selectedId={selectedId}
                 dragId={dragId}
@@ -398,6 +424,7 @@ function OrgTreeBranch({
   users,
   roles,
   assignments,
+  dottedTargetsByPositionId,
   canEdit,
   selectedId,
   dragId,
@@ -418,6 +445,7 @@ function OrgTreeBranch({
   users: AppUserRecord[];
   roles: AppRoleRecord[];
   assignments: PositionAssignmentRecord[];
+  dottedTargetsByPositionId: Map<string, { title: string; label: string }[]>;
   canEdit: boolean;
   selectedId: string | null;
   dragId: string | null;
@@ -470,6 +498,7 @@ function OrgTreeBranch({
     users,
     roles,
     assignments,
+    dottedTargetsByPositionId,
     canEdit,
     selectedId,
     dragId,
@@ -492,6 +521,7 @@ function OrgTreeBranch({
       locationLabel={locationLabel}
       roleLabel={roleLabel}
       holderRoleMisaligned={holderRoleMisaligned}
+      dottedTargets={dottedTargetsByPositionId.get(node.id)}
       canEdit={canEdit}
       selected={selectedId === node.id}
       dragOver={dropTargetId === node.id && dragId !== node.id}
@@ -533,17 +563,21 @@ export function OrgChart({
   selectedId,
   onSelect,
   filters,
+  lens = "accountability",
 }: {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   filters?: OrgChartFilters;
+  lens?: OrgChartLens;
 }) {
   const { employees, locations } = useData();
-  const { positions, assignments, reparentPosition } = useOrgStructure();
+  const { positions, assignments, reportingLines, reparentPosition } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
+  const chartContainerRef = useRef<HTMLDivElement>(null);
 
   const roleNameById = useMemo(() => new Map(roles.map((r) => [r.id, r.name])), [roles]);
+  const positionTitleById = useMemo(() => new Map(positions.map((p) => [p.id, p.title])), [positions]);
 
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
@@ -553,11 +587,40 @@ export function OrgChart({
   const employeeNameById = useMemo(() => new Map(employees.map((e) => [e.id, e.name])), [employees]);
   const employeesById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
   const locationNameById = useMemo(() => new Map(locations.map((l) => [l.id, l.name])), [locations]);
+  const lensPositions = useMemo(() => applyOrgChartLens(positions, lens), [positions, lens]);
   const filteredPositions = useMemo(
-    () => filterOrgPositions(positions, filters ?? {}),
-    [positions, filters]
+    () => filterOrgPositions(lensPositions, filters ?? {}),
+    [lensPositions, filters]
   );
   const tree = useMemo(() => buildOrgTree(filteredPositions), [filteredPositions]);
+
+  const dottedTargetsByPositionId = useMemo(() => {
+    const map = new Map<string, { title: string; label: string }[]>();
+    for (const line of reportingLines) {
+      if (line.lineType !== "dotted") continue;
+      const title = positionTitleById.get(line.reportsToPositionId) ?? line.reportsToPositionId;
+      const list = map.get(line.positionId) ?? [];
+      list.push({ title, label: line.label });
+      map.set(line.positionId, list);
+    }
+    return map;
+  }, [reportingLines, positionTitleById]);
+
+  const visiblePositionIds = useMemo(() => new Set(filteredPositions.map((p) => p.id)), [filteredPositions]);
+  const visibleReportingLines = useMemo(
+    () =>
+      reportingLines.filter(
+        (line) =>
+          visiblePositionIds.has(line.positionId) && visiblePositionIds.has(line.reportsToPositionId)
+      ),
+    [reportingLines, visiblePositionIds]
+  );
+
+  const chartRevision = useMemo(
+    () =>
+      `${filteredPositions.length}-${visibleReportingLines.map((line) => line.id).join(",")}-${lens}-${selectedId ?? ""}`,
+    [filteredPositions.length, visibleReportingLines, lens, selectedId]
+  );
 
   function requestReparent(targetId: string) {
     setDropTargetId(null);
@@ -599,8 +662,22 @@ export function OrgChart({
       {error ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{error}</p>
       ) : null}
-      <div className="max-h-[70vh] overflow-x-auto overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-6">
-        <div className="mx-auto flex w-full min-w-[min(100%,48rem)] flex-col items-center gap-0">
+      {visibleReportingLines.length ? (
+        <p className="text-xs text-violet-800">
+          <span className="font-medium">Dotted lines</span> — secondary accountability (escalation still follows solid
+          reporting).
+        </p>
+      ) : null}
+      <div
+        ref={chartContainerRef}
+        className="relative max-h-[70vh] overflow-x-auto overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-6"
+      >
+        <OrgChartDottedLines
+          containerRef={chartContainerRef}
+          lines={visibleReportingLines}
+          revision={`${chartRevision}-${visibleReportingLines.length}`}
+        />
+        <div className="relative mx-auto flex w-full min-w-[min(100%,52rem)] flex-col items-center gap-0">
           {tree.map((root) => (
             <OrgTreeBranch
               key={root.id}
@@ -612,6 +689,7 @@ export function OrgChart({
               users={users}
               roles={roles}
               assignments={assignments}
+              dottedTargetsByPositionId={dottedTargetsByPositionId}
               canEdit={canEdit}
               selectedId={selectedId}
               dragId={dragId}
@@ -649,7 +727,7 @@ export function OrgPositionEditor({
   onSelectPosition?: (id: string) => void;
 }) {
   const { employees, locations } = useData();
-  const { positions, assignments, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition } = useOrgStructure();
+  const { positions, assignments, reportingLines, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition, addDottedReportingLine, removeDottedReportingLine } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
   const canEdit = canWindow("workforce-org-edit");
   const canManageAccess =
@@ -662,6 +740,7 @@ export function OrgPositionEditor({
 
   const [pendingPrimary, setPendingPrimary] = useState<PendingPrimaryAssign | null>(null);
   const [pendingActing, setPendingActing] = useState<PendingActingAssign | null>(null);
+  const [dottedTargetId, setDottedTargetId] = useState("");
 
   const employeeNameById = useMemo(() => new Map(employees.map((e) => [e.id, e.name])), [employees]);
   const actingEmployeeId =
@@ -675,6 +754,10 @@ export function OrgPositionEditor({
     : undefined;
   const isRoot = position?.id === "pos-org-root";
   const parent = position?.parentPositionId ? positions.find((p) => p.id === position.parentPositionId) : undefined;
+  const dottedLinesForPosition = reportingLines.filter((line) => line.positionId === positionId);
+  const dottedTargetCandidates = positions.filter(
+    (p) => p.id !== positionId && p.id !== position?.parentPositionId
+  );
   const linkedLocation = position?.locationId ? locations.find((l) => l.id === position.locationId) : undefined;
 
   if (!position) {
@@ -772,6 +855,69 @@ export function OrgPositionEditor({
             >
               {parent.title}
             </button>
+          </div>
+        ) : null}
+
+        {!isRoot ? (
+          <div className="rounded-xl border border-violet-100 bg-violet-50/40 p-3">
+            <p className="text-xs font-semibold text-violet-900">Also reports to (dotted)</p>
+            <p className="mt-0.5 text-[10px] text-violet-800">
+              Secondary accountability for the chart. Escalation and tasks still use the solid line above.
+            </p>
+            {dottedLinesForPosition.length ? (
+              <ul className="mt-2 space-y-1">
+                {dottedLinesForPosition.map((line) => {
+                  const target = positions.find((p) => p.id === line.reportsToPositionId);
+                  return (
+                    <li key={line.id} className="flex items-center justify-between gap-2 text-xs text-violet-900">
+                      <span className="truncate">⋯→ {target?.title ?? line.reportsToPositionId}</span>
+                      {canEdit ? (
+                        <button
+                          type="button"
+                          onClick={() => removeDottedReportingLine(line.id)}
+                          className="shrink-0 text-violet-700 hover:underline"
+                        >
+                          Remove
+                        </button>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="mt-2 text-xs text-violet-800/80">No dotted lines.</p>
+            )}
+            {canEdit ? (
+              <div className="mt-2 flex flex-wrap items-end gap-2">
+                <label className="min-w-0 flex-1 text-[10px] font-medium text-violet-900">
+                  Add dotted line to
+                  <select
+                    value={dottedTargetId}
+                    onChange={(e) => setDottedTargetId(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-violet-200 bg-white px-2 py-1.5 text-xs"
+                  >
+                    <option value="">— Select position —</option>
+                    {dottedTargetCandidates.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  disabled={!dottedTargetId}
+                  onClick={() => {
+                    if (!dottedTargetId || !positionId) return;
+                    addDottedReportingLine(positionId, dottedTargetId);
+                    setDottedTargetId("");
+                  }}
+                  className="rounded-lg bg-violet-700 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </div>
+            ) : null}
           </div>
         ) : null}
 

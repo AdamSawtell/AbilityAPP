@@ -9,10 +9,12 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { ORG_BUSINESS_AREAS } from "@/lib/org-structure";
 import {
+  applyOrgChartLens,
   filterOrgPositions,
   isEmployeeOnLeaveToday,
   orgChartFilterStats,
   type OrgChartFilters,
+  type OrgChartLens,
 } from "@/lib/org-structure-tree";
 import { useOrgStructure } from "@/lib/org-structure-store";
 import { countHolderMisalignments } from "@/lib/org-position-role-alignment";
@@ -24,6 +26,7 @@ export function OrganisationStructurePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [businessArea, setBusinessArea] = useState("");
   const [locationId, setLocationId] = useState("");
+  const [chartLens, setChartLens] = useState<OrgChartLens>("accountability");
 
   const filters = useMemo<OrgChartFilters>(
     () => ({
@@ -36,9 +39,10 @@ export function OrganisationStructurePage() {
   const filterActive = Boolean(businessArea || locationId);
 
   const filterSummary = useMemo(() => {
-    const stats = orgChartFilterStats(positions, filters);
-    if (!filterActive) return null;
-    const filtered = filterOrgPositions(positions, filters);
+    const lensPositions = applyOrgChartLens(positions, chartLens);
+    const stats = orgChartFilterStats(lensPositions, filters);
+    if (!filterActive && chartLens === "accountability") return null;
+    const filtered = filterOrgPositions(lensPositions, filters);
     const empById = new Map(employees.map((e) => [e.id, e]));
     let onLeave = 0;
     for (const p of filtered) {
@@ -47,7 +51,7 @@ export function OrganisationStructurePage() {
       if (emp && isEmployeeOnLeaveToday(emp)) onLeave += 1;
     }
     return { ...stats, onLeave };
-  }, [positions, filters, filterActive, employees]);
+  }, [positions, filters, filterActive, employees, chartLens]);
 
   const canView = canWindow("workforce-organisation") || canWindow("workforce-planning");
   const canEdit = canWindow("workforce-org-edit");
@@ -97,6 +101,18 @@ export function OrganisationStructurePage() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <label className="block text-xs font-medium text-slate-700">
+              Chart view
+              <select
+                value={chartLens}
+                onChange={(e) => setChartLens(e.target.value as OrgChartLens)}
+                className="mt-1 block min-w-[12rem] rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              >
+                <option value="accountability">Accountability tree</option>
+                <option value="executive_council">Executive council</option>
+                <option value="functional">Functional delivery</option>
+              </select>
+            </label>
+            <label className="block text-xs font-medium text-slate-700">
               Business area
               <select
                 value={businessArea}
@@ -141,6 +157,7 @@ export function OrganisationStructurePage() {
             {filterSummary ? (
               <p className="text-xs text-slate-500">
                 Showing {filterSummary.visible} of {filterSummary.total} positions
+                {chartLens !== "accountability" ? ` · ${chartLens.replace("_", " ")} view` : ""}
                 {filterSummary.onLeave ? ` · ${filterSummary.onLeave} primary holder(s) on leave` : ""}
               </p>
             ) : null}
@@ -151,7 +168,7 @@ export function OrganisationStructurePage() {
             ) : null}
           </div>
           <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
-            <OrgChart selectedId={selectedId} onSelect={setSelectedId} filters={filters} />
+            <OrgChart selectedId={selectedId} onSelect={setSelectedId} filters={filters} lens={chartLens} />
             <OrgPositionEditor
               positionId={selectedId}
               onClose={() => setSelectedId(null)}
