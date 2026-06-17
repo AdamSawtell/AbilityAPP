@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { useData } from "@/lib/data-store";
 import { addDays, formatMonthYear, isoFromDate, isSameDay, monthGridDays } from "@/lib/personal-calendar";
+import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planning-subnav";
 
 type LeaveCalendarEvent = {
   id: string;
@@ -99,6 +100,7 @@ export function WorkforcePlanningPage() {
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Workforce planning" }]}
       audit={{ moduleLabel: "Workforce planning" }}
     >
+      <WorkforcePlanningSubnav />
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <h2 className="text-lg font-semibold text-slate-900">Organisation leave calendar</h2>

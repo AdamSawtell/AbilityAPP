@@ -115,14 +115,6 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
-    key: "workforce-planning",
-    label: "Workforce planning",
-    group: "People",
-    href: "/workforce-planning",
-    abilityErpName: "Workforce planning",
-    showInSidebar: true,
-  },
-  {
     key: "products",
     label: "Products",
     group: "Services",
@@ -161,6 +153,34 @@ const MODULE_WINDOWS: AccessWindow[] = [
     href: "/reports",
     abilityErpName: "Reports",
     showInSidebar: true,
+  },
+];
+
+const WORKFORCE_WINDOWS: AccessWindow[] = [
+  {
+    key: "workforce-planning",
+    label: "Workforce planning",
+    group: "Workforce planning",
+    href: "/workforce-planning",
+    abilityErpName: "Workforce planning",
+    showInSidebar: true,
+  },
+  {
+    key: "workforce-organisation",
+    label: "Organisation structure",
+    group: "Workforce planning",
+    href: "/workforce-planning/organisation",
+    parentWindowKey: "workforce-planning",
+    abilityErpName: "Organisation structure",
+    showInSidebar: false,
+  },
+  {
+    key: "workforce-org-edit",
+    label: "Edit organisation structure",
+    group: "Workforce planning",
+    parentWindowKey: "workforce-organisation",
+    abilityErpName: "Organisation structure — edit",
+    showInSidebar: false,
   },
 ];
 
@@ -241,6 +261,7 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
   ...LOCATION_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[4],
   ...EMPLOYEE_DEPENDENT_WINDOWS,
+  ...WORKFORCE_WINDOWS,
   MODULE_WINDOWS[5],
   ...PRODUCT_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[6],

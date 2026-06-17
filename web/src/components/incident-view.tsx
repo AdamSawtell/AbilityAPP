@@ -11,6 +11,8 @@ import { TaskEntitySearchPicker } from "@/components/task-entity-search";
 import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { accountableManagerForIncident } from "@/lib/org-structure-resolver";
+import { useOrgStructure } from "@/lib/org-structure-store";
 import {
   incidentActionTableConfig,
   incidentEvidenceTableConfig,
@@ -175,7 +177,13 @@ export function IncidentTabbedView({
   const searchParams = useSearchParams();
   const { session, canWindow } = useAuth();
   const { clients, employees, locations, getTasksByEntity } = useData();
+  const { positions, assignments } = useOrgStructure();
   const entityIndex = useTaskEntityIndex();
+
+  const accountableManager = useMemo(() => {
+    const byId = new Map(employees.map((e) => [e.id, e]));
+    return accountableManagerForIncident(record, positions, assignments, byId);
+  }, [record, positions, assignments, employees]);
 
   const taskCount = getTasksByEntity("incident", record.id).length;
   const allowedTabs = detailTabsForRole("incidents", session?.windowKeys ?? []);
@@ -309,7 +317,23 @@ export function IncidentTabbedView({
             <NdisComplianceBanner record={record} />
 
             {onWorkflowAdvance && record.status !== "Closed" && record.status !== "Draft" ? (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
+              <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-3">
+                {accountableManager ? (
+                  <p className="text-sm text-slate-700">
+                    <span className="font-medium text-slate-900">Accountable manager: </span>
+                    {accountableManager.employeeName}
+                    {accountableManager.positionTitle ? (
+                      <span className="text-slate-500"> ({accountableManager.positionTitle})</span>
+                    ) : null}
+                    {accountableManager.reason === "parent_escalation" ? (
+                      <span className="ml-1 text-xs text-amber-700">— escalated from vacant parent role</span>
+                    ) : null}
+                    {accountableManager.reason === "acting" ? (
+                      <span className="ml-1 text-xs text-sky-700">— acting assignment</span>
+                    ) : null}
+                  </p>
+                ) : null}
+                <div className="flex flex-wrap items-center gap-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Manager workflow</p>
                 {canAdvanceToManagerReview(record) ? (
                   <button
@@ -335,6 +359,7 @@ export function IncidentTabbedView({
                     {record.managerReviewedBy ? ` by ${record.managerReviewedBy}` : ""}
                   </span>
                 ) : null}
+                </div>
               </div>
             ) : null}
 

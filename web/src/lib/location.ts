@@ -1,3 +1,5 @@
+import { bulkLocations } from "@/lib/location-bulk-seed";
+
 export type LocationAlertRow = {
   id: string;
   lineNo: number;
@@ -398,4 +400,5 @@ export const initialLocations: LocationRecord[] = [
     ],
     activities: [],
   },
+  ...bulkLocations,
 ];

@@ -19,11 +19,20 @@ const peopleLinks = [
     windowKey: "employees",
     match: (path: string) => path.startsWith("/employees"),
   },
+];
+
+const workforceLinks = [
   {
     href: "/workforce-planning",
-    label: "Workforce planning",
+    label: "Leave calendar",
     windowKey: "workforce-planning",
-    match: (path: string) => path.startsWith("/workforce-planning"),
+    match: (path: string) => path === "/workforce-planning",
+  },
+  {
+    href: "/workforce-planning/organisation",
+    label: "Organisation structure",
+    windowKey: "workforce-organisation",
+    match: (path: string) => path.startsWith("/workforce-planning/organisation"),
   },
 ];
 
@@ -86,6 +95,17 @@ function NavIcon({ name }: { name: string }) {
     return (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+      </svg>
+    );
+  }
+  if (name === "workforce") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+        />
       </svg>
     );
   }
@@ -276,6 +296,7 @@ export function SidebarNav() {
   const showIncidents = canWindow("incidents");
   const showLocations = canWindow("locations");
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
+  const visibleWorkforceLinks = workforceLinks.filter((l) => canWindow(l.windowKey));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
   const visibleReports = useMemo(() => {
@@ -300,6 +321,7 @@ export function SidebarNav() {
     showIncidents ||
     showLocations ||
     visiblePeopleLinks.length > 0 ||
+    visibleWorkforceLinks.length > 0 ||
     visibleServiceLinks.length > 0 ||
     showReports ||
     visibleAdminLinks.length > 0;
@@ -319,8 +341,8 @@ export function SidebarNav() {
     if (key === "clients" && (pathname.startsWith("/clients") || pathname.startsWith("/service-agreements")))
       return true;
     if (key === "locations" && pathname.startsWith("/locations")) return true;
-    if (key === "people" && (pathname.startsWith("/employees") || pathname.startsWith("/workforce-planning")))
-      return true;
+    if (key === "people" && pathname.startsWith("/employees")) return true;
+    if (key === "workforce" && pathname.startsWith("/workforce-planning")) return true;
     if (key === "incidents" && pathname.startsWith("/incidents")) return true;
     if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
@@ -555,6 +577,41 @@ export function SidebarNav() {
         </div>
       ) : null}
 
+      {visibleWorkforceLinks.length > 0 ? (
+        <div
+          className={sectionDividerClass(
+            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0
+          )}
+        >
+          <SectionHeader
+            label="Workforce planning"
+            icon={<NavIcon name="workforce" />}
+            sectionKey="workforce"
+            open={isOpen("workforce")}
+            onToggle={toggleSection}
+            href="/workforce-planning"
+            active={pathname.startsWith("/workforce-planning")}
+          />
+          {isOpen("workforce") ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              {visibleWorkforceLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
+                    link.match(pathname)
+                      ? "bg-indigo-50 text-indigo-900 ring-1 ring-indigo-200/60"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {showIncidents ? (
         <div
           className={sectionDividerClass(
@@ -562,7 +619,8 @@ export function SidebarNav() {
               showEnquiries ||
               showClients ||
               showLocations ||
-              visiblePeopleLinks.length > 0
+              visiblePeopleLinks.length > 0 ||
+              visibleWorkforceLinks.length > 0
           )}
         >
           <SectionHeader

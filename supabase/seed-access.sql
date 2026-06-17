@@ -5,7 +5,8 @@ insert into public.app_role (id, role_key, name, description, active)
 values
   ('role-admin', 'AbilityAPP_Admin', 'AbilityAPP Admin', 'Full system access — all windows and processes', true),
   ('role-intake', 'Intake_Coordinator', 'Intake Coordinator', 'Enquiries and convert-to-client process', true),
-  ('role-coordinator', 'Support_Coordinator', 'Support Coordinator', 'Client records and service catalog (no admin)', true)
+  ('role-coordinator', 'Support_Coordinator', 'Support Coordinator', 'Client records and service catalog (no admin)', true),
+  ('role-support-worker', 'Support_Worker', 'Support Worker', 'Frontline staff — assigned tasks, clients, incidents, and rostered locations', true)
 on conflict (id) do update set
   role_key = excluded.role_key, name = excluded.name, description = excluded.description, active = excluded.active;
 
@@ -13,7 +14,17 @@ insert into public.app_user (id, username, email, first_name, last_name, phone, 
 values
   ('user-superuser', 'SuperUser', 'superuser@abilityapp.local', 'Super', 'User', '', true, null, 'Full access administrator (AbilityAPP SuperUser equivalent)'),
   ('user-isla', 'IslaRobinson', 'isla.robinson@abilityerp.local', 'Isla', 'Robinson', '', true, 'emp-isla', 'Intake and client coordination'),
-  ('user-gabriela', 'GabrielaWilson', 'gabriela.wilson@abilityerp.local', 'Gabriela', 'Wilson', '', true, 'emp-gabriela', 'Enquiry processing')
+  ('user-gabriela', 'GabrielaWilson', 'gabriela.wilson@abilityerp.local', 'Gabriela', 'Wilson', '', true, 'emp-gabriela', 'Enquiry processing'),
+  ('user-sw-01', 'AvaThomas', 'avathomas@abilityerp.local', 'Ava', 'Thomas', '', true, 'emp-sw-001', 'Bulk seed support worker login'),
+  ('user-sw-02', 'NoahJackson', 'noahjackson@abilityerp.local', 'Noah', 'Jackson', '', true, 'emp-sw-002', 'Bulk seed support worker login'),
+  ('user-sw-03', 'MiaWhite', 'miawhite@abilityerp.local', 'Mia', 'White', '', true, 'emp-sw-003', 'Bulk seed support worker login'),
+  ('user-sw-04', 'LiamHarris', 'liamharris@abilityerp.local', 'Liam', 'Harris', '', true, 'emp-sw-004', 'Bulk seed support worker login'),
+  ('user-sw-05', 'ZoeMartin', 'zoemartin@abilityerp.local', 'Zoe', 'Martin', '', true, 'emp-sw-005', 'Bulk seed support worker login'),
+  ('user-sw-06', 'EthanThompson', 'ethanthompson@abilityerp.local', 'Ethan', 'Thompson', '', true, 'emp-sw-006', 'Bulk seed support worker login'),
+  ('user-sw-07', 'ChloeGarcia', 'chloegarcia@abilityerp.local', 'Chloe', 'Garcia', '', true, 'emp-sw-007', 'Bulk seed support worker login'),
+  ('user-sw-08', 'MasonRobinson', 'masonrobinson@abilityerp.local', 'Mason', 'Robinson', '', true, 'emp-sw-008', 'Bulk seed support worker login'),
+  ('user-sw-09', 'RubyClark', 'rubyclark@abilityerp.local', 'Ruby', 'Clark', '', true, 'emp-sw-009', 'Bulk seed support worker login'),
+  ('user-sw-10', 'LucasLewis', 'lucaslewis@abilityerp.local', 'Lucas', 'Lewis', '', true, 'emp-sw-010', 'Bulk seed support worker login')
 on conflict (id) do update set
   username = excluded.username, email = excluded.email, first_name = excluded.first_name, last_name = excluded.last_name, phone = excluded.phone, active = excluded.active, employee_bp_id = excluded.employee_bp_id, notes = excluded.notes;
 
@@ -22,10 +33,20 @@ values
   ('user-superuser', 'role-admin'),
   ('user-isla', 'role-intake'),
   ('user-isla', 'role-coordinator'),
-  ('user-gabriela', 'role-intake')
+  ('user-gabriela', 'role-intake'),
+  ('user-sw-01', 'role-support-worker'),
+  ('user-sw-02', 'role-support-worker'),
+  ('user-sw-03', 'role-support-worker'),
+  ('user-sw-04', 'role-support-worker'),
+  ('user-sw-05', 'role-support-worker'),
+  ('user-sw-06', 'role-support-worker'),
+  ('user-sw-07', 'role-support-worker'),
+  ('user-sw-08', 'role-support-worker'),
+  ('user-sw-09', 'role-support-worker'),
+  ('user-sw-10', 'role-support-worker')
 on conflict do nothing;
 
-delete from public.app_role_window where role_id in ('role-admin', 'role-intake', 'role-coordinator');
+delete from public.app_role_window where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker');
 insert into public.app_role_window (role_id, window_key)
 values
   ('role-admin', 'home'),
@@ -91,18 +112,21 @@ values
   ('role-admin', 'employee-skills'),
   ('role-admin', 'employee-system-access'),
   ('role-admin', 'workforce-planning'),
+  ('role-admin', 'workforce-organisation'),
+  ('role-admin', 'workforce-org-edit'),
+  ('role-admin', 'products'),
   ('role-admin', 'product-overview'),
   ('role-admin', 'product-pricing'),
-  ('role-admin', 'products'),
+  ('role-admin', 'price-lists'),
   ('role-admin', 'price-list-overview'),
   ('role-admin', 'price-list-lines'),
-  ('role-admin', 'price-lists'),
+  ('role-admin', 'service-agreements'),
   ('role-admin', 'service-agreement-overview'),
   ('role-admin', 'service-agreement-lines'),
-  ('role-admin', 'service-agreements'),
+  ('role-admin', 'contracts'),
   ('role-admin', 'contract-overview'),
   ('role-admin', 'contract-audit'),
-  ('role-admin', 'contracts'),
+  ('role-admin', 'reports'),
   ('role-admin', 'reports-advance'),
   ('role-admin', 'admin-organization'),
   ('role-admin', 'admin-reference-data'),
@@ -167,6 +191,8 @@ values
   ('role-coordinator', 'tasks-for-my-role'),
   ('role-coordinator', 'tasks-all'),
   ('role-coordinator', 'tasks-past'),
+  ('role-coordinator', 'workforce-planning'),
+  ('role-coordinator', 'workforce-organisation'),
   ('role-coordinator', 'clients'),
   ('role-coordinator', 'client-overview'),
   ('role-coordinator', 'client-alerts'),
@@ -213,10 +239,54 @@ values
   ('role-coordinator', 'service-agreement-lines'),
   ('role-coordinator', 'employees'),
   ('role-coordinator', 'employee-overview'),
-  ('role-coordinator', 'employee-incidents')
+  ('role-coordinator', 'employee-incidents'),
+  ('role-support-worker', 'home'),
+  ('role-support-worker', 'reports'),
+  ('role-support-worker', 'tasks-assigned-to-me'),
+  ('role-support-worker', 'tasks-for-my-role'),
+  ('role-support-worker', 'tasks-past'),
+  ('role-support-worker', 'workforce-planning'),
+  ('role-support-worker', 'clients'),
+  ('role-support-worker', 'client-overview'),
+  ('role-support-worker', 'client-alerts'),
+  ('role-support-worker', 'client-activity'),
+  ('role-support-worker', 'client-full-profile'),
+  ('role-support-worker', 'client-bp-associations'),
+  ('role-support-worker', 'client-locations'),
+  ('role-support-worker', 'client-incidents'),
+  ('role-support-worker', 'client-requests'),
+  ('role-support-worker', 'client-restrictive-practices'),
+  ('role-support-worker', 'client-consents-and-legal-orders'),
+  ('role-support-worker', 'client-plan-and-assessment'),
+  ('role-support-worker', 'client-support-plan'),
+  ('role-support-worker', 'client-goals'),
+  ('role-support-worker', 'client-progress-review'),
+  ('role-support-worker', 'client-contact-activity'),
+  ('role-support-worker', 'client-risks'),
+  ('role-support-worker', 'client-service-agreements'),
+  ('role-support-worker', 'client-support-receiver-needs-and-rules'),
+  ('role-support-worker', 'incidents'),
+  ('role-support-worker', 'incident-overview'),
+  ('role-support-worker', 'incident-parties-and-links'),
+  ('role-support-worker', 'incident-investigation'),
+  ('role-support-worker', 'incident-notifications'),
+  ('role-support-worker', 'incidents-compliance'),
+  ('role-support-worker', 'incidents-dashboard'),
+  ('role-support-worker', 'locations'),
+  ('role-support-worker', 'location-overview'),
+  ('role-support-worker', 'location-contact-and-address'),
+  ('role-support-worker', 'location-alerts'),
+  ('role-support-worker', 'location-clients'),
+  ('role-support-worker', 'location-employees'),
+  ('role-support-worker', 'location-incidents'),
+  ('role-support-worker', 'location-products-and-services'),
+  ('role-support-worker', 'location-activity'),
+  ('role-support-worker', 'employees'),
+  ('role-support-worker', 'employee-overview'),
+  ('role-support-worker', 'employee-incidents')
 on conflict do nothing;
 
-delete from public.app_role_process where role_id in ('role-admin', 'role-intake', 'role-coordinator');
+delete from public.app_role_process where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker');
 insert into public.app_role_process (role_id, process_id)
 values
   ('role-admin', 'enquiry-to-client'),
@@ -242,10 +312,14 @@ values
   ('role-coordinator', 'assign-task'),
   ('role-coordinator', 'action-task'),
   ('role-coordinator', 'report-incident'),
-  ('role-coordinator', 'notify-ndis-reportable')
+  ('role-coordinator', 'notify-ndis-reportable'),
+  ('role-support-worker', 'assign-task'),
+  ('role-support-worker', 'action-task'),
+  ('role-support-worker', 'report-incident'),
+  ('role-support-worker', 'assign-location-employee')
 on conflict do nothing;
 
-delete from public.app_role_report where role_id in ('role-admin', 'role-intake', 'role-coordinator');
+delete from public.app_role_report where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker');
 insert into public.app_role_report (role_id, report_id)
 values
   ('role-admin', 'client-register'),
@@ -266,10 +340,13 @@ values
   ('role-coordinator', 'location-register'),
   ('role-coordinator', 'tasks-all'),
   ('role-coordinator', 'incident-register'),
-  ('role-coordinator', 'ndis-reportable-incidents')
+  ('role-coordinator', 'ndis-reportable-incidents'),
+  ('role-support-worker', 'tasks-all'),
+  ('role-support-worker', 'location-register'),
+  ('role-support-worker', 'incident-register')
 on conflict do nothing;
 
-delete from public.app_role_task_type where role_id in ('role-admin', 'role-intake', 'role-coordinator');
+delete from public.app_role_task_type where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker');
 insert into public.app_role_task_type (role_id, task_type_id, can_see, can_select, can_create)
 values
   ('role-admin', 'tt-review', true, true, true),
@@ -285,6 +362,9 @@ values
   ('role-coordinator', 'tt-review', true, true, true),
   ('role-coordinator', 'tt-approve', true, true, true),
   ('role-coordinator', 'tt-check', true, true, true),
-  ('role-coordinator', 'tt-decide', true, true, true)
+  ('role-coordinator', 'tt-decide', true, true, true),
+  ('role-support-worker', 'tt-check', true, true, true),
+  ('role-support-worker', 'tt-other', true, true, true),
+  ('role-support-worker', 'tt-review', true, true, true)
 on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;

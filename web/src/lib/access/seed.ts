@@ -1,6 +1,7 @@
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import { ALL_PROCESS_IDS, ALL_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
+import { bulkStaffUserLinks } from "@/lib/employee-bulk-seed";
 import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import {
   fullTaskTypePermissions,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/task-type";
 
 const TASK_ACCESS = [...TASK_WINDOW_KEYS];
+const SUPPORT_WORKER_TASK_ACCESS = ["tasks-assigned-to-me", "tasks-for-my-role", "tasks-past"] as const;
 const ALL_TASK_TYPE_IDS = INITIAL_TASK_TYPES.map((t) => t.id);
 
 /** Read employee records and linked incidents (not full HR file). */
@@ -52,6 +54,18 @@ export const SEED_USERS: AppUserRecord[] = [
     notes: "Enquiry processing",
     roleIds: ["role-intake"],
   },
+  ...bulkStaffUserLinks.map((link) => ({
+    id: link.userId,
+    username: link.username,
+    email: `${link.username.toLowerCase()}@abilityerp.local`,
+    firstName: link.firstName,
+    lastName: link.lastName,
+    phone: "",
+    active: true,
+    employeeBpId: link.employeeId,
+    notes: "Bulk seed support worker login",
+    roleIds: ["role-support-worker"],
+  })),
 ];
 
 export const SEED_ROLES: AppRoleRecord[] = [
@@ -93,12 +107,32 @@ export const SEED_ROLES: AppRoleRecord[] = [
       "home",
       "reports",
       ...TASK_ACCESS,
+      "workforce-planning",
+      "workforce-organisation",
       ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
     processIds: ["assign-location-client", "assign-location-employee", "assign-location-product", "assign-task", "action-task", "report-incident", "notify-ndis-reportable"],
     reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
+  },
+  {
+    id: "role-support-worker",
+    roleKey: "Support_Worker",
+    name: "Support Worker",
+    description: "Frontline staff — assigned tasks, clients, incidents, and rostered locations",
+    active: true,
+    windowKeys: [
+      "home",
+      "reports",
+      ...SUPPORT_WORKER_TASK_ACCESS,
+      "workforce-planning",
+      ...windowKeysWithDependents("clients", "incidents", "locations"),
+      ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
+    ],
+    processIds: ["assign-task", "action-task", "report-incident", "assign-location-employee"],
+    reportIds: ["tasks-all", "location-register", "incident-register"],
+    taskTypePermissions: permissionsForTypes(["tt-check", "tt-other", "tt-review"]),
   },
 ];
 

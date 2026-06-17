@@ -1,4 +1,5 @@
 import { syncCredentialStatuses } from "@/lib/employee-compliance";
+import { bulkEmployees } from "@/lib/employee-bulk-seed";
 
 export type EmployeeCredentialRow = {
   id: string;
@@ -866,6 +867,7 @@ export const initialEmployees: EmployeeRecord[] = [
     updatedBy: "SuperUser",
     ...emptyLineCollections,
   },
+  ...bulkEmployees,
 ];
 
 export function formatEmployeeAddress(loc: EmployeeLocationRow): string {
