@@ -1,7 +1,10 @@
 import type { OrgPositionNode } from "@/lib/org-structure";
 
-/** Threshold: collapse siblings that share a role type when count exceeds this. */
+/** Collapse sibling groups when count reaches this threshold (bulk roles only). */
 export const ORG_CHART_COLLAPSE_THRESHOLD = 3;
+
+/** Only these security roles auto-collapse into an expandable group. */
+export const ORG_CHART_COLLAPSE_ROLE_IDS = new Set(["role-support-worker"]);
 
 export type OrgChartDisplayItem =
   | { kind: "position"; node: OrgPositionNode }
@@ -14,13 +17,50 @@ export type OrgChartDisplayItem =
       nodes: OrgPositionNode[];
     };
 
+export type OrgChartDisplayRow = {
+  layout: "row" | "column";
+  items: OrgChartDisplayItem[];
+};
+
 export function siblingGroupKey(node: OrgPositionNode): string {
   return node.securityRoleId?.trim() || node.title?.trim() || node.id;
 }
 
+export function shouldCollapseSiblingGroup(securityRoleId: string, count: number): boolean {
+  if (count < ORG_CHART_COLLAPSE_THRESHOLD) return false;
+  return ORG_CHART_COLLAPSE_ROLE_IDS.has(securityRoleId.trim());
+}
+
+/** Visual tier for multi-row sibling layout (lower = higher on chart). */
+export function siblingChartTier(node: OrgPositionNode): number {
+  const role = node.securityRoleId?.trim() ?? "";
+  if (role === "role-board") return 1;
+  if (role === "role-ceo") return 2;
+  if (role.startsWith("role-exec-")) return 3;
+  if (role === "role-team-leader") return 10;
+  return 5;
+}
+
+function rowLayoutForItems(items: OrgChartDisplayItem[]): boolean {
+  if (items.length <= 1) return true;
+  if (items.some((item) => item.kind === "group")) return false;
+
+  const positions = items.filter(
+    (item): item is Extract<OrgChartDisplayItem, { kind: "position" }> => item.kind === "position"
+  );
+  if (positions.length !== items.length || positions.length > 8) return false;
+
+  const roleIds = [...new Set(positions.map((item) => item.node.securityRoleId?.trim() ?? ""))];
+  if (roleIds.length === 1 && shouldCollapseSiblingGroup(roleIds[0], positions.length)) {
+    return false;
+  }
+
+  return true;
+}
+
 /**
- * When many siblings share the same security role, collapse into one expandable group
- * so the chart stacks vertically instead of sprawling horizontally.
+ * When many siblings share the same bulk security role, collapse into one expandable group.
+ * Team leaders, execs, and board members stay as individual cards.
  */
 export function layoutOrgChildren(
   children: OrgPositionNode[],
@@ -43,8 +83,8 @@ export function layoutOrgChildren(
   for (const [key, nodes] of byKey) {
     nodes.sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
-    if (nodes.length >= ORG_CHART_COLLAPSE_THRESHOLD) {
-      const securityRoleId = nodes[0].securityRoleId ?? "";
+    const securityRoleId = nodes[0].securityRoleId ?? "";
+    if (shouldCollapseSiblingGroup(securityRoleId, nodes.length)) {
       const roleLabel = securityRoleId ? roleNameById.get(securityRoleId) ?? "" : "";
       const title = roleLabel || nodes[0].title;
       items.push({
@@ -69,4 +109,38 @@ export function layoutOrgChildren(
   });
 
   return items;
+}
+
+/**
+ * Lay out direct children in one or more rows.
+ * Board members and execs appear side by side; CEO sits on the row below the board;
+ * support workers collapse under each team leader.
+ */
+export function layoutOrgChildRows(
+  children: OrgPositionNode[],
+  roleNameById: Map<string, string>
+): OrgChartDisplayRow[] {
+  const items = layoutOrgChildren(children, roleNameById);
+  if (!items.length) return [];
+
+  const tiers = new Map<number, OrgChartDisplayItem[]>();
+  for (const item of items) {
+    const tier = item.kind === "position" ? siblingChartTier(item.node) : 50;
+    const list = tiers.get(tier) ?? [];
+    list.push(item);
+    tiers.set(tier, list);
+  }
+
+  const sortedTiers = [...tiers.keys()].sort((a, b) => a - b);
+  if (sortedTiers.length <= 1) {
+    return [{ layout: rowLayoutForItems(items) ? "row" : "column", items }];
+  }
+
+  return sortedTiers.map((tier) => {
+    const tierItems = tiers.get(tier) ?? [];
+    return {
+      layout: rowLayoutForItems(tierItems) ? "row" : "column",
+      items: tierItems,
+    };
+  });
 }

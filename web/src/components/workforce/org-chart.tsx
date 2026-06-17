@@ -33,8 +33,8 @@ import {
   OrgAssignActingConfirmDialog,
   type PendingActingAssign,
 } from "@/components/workforce/org-assign-acting-confirm";
-import type { OrgChartDisplayItem } from "@/lib/org-chart-layout";
-import { layoutOrgChildren } from "@/lib/org-chart-layout";
+import type { OrgChartDisplayItem, OrgChartDisplayRow } from "@/lib/org-chart-layout";
+import { layoutOrgChildRows } from "@/lib/org-chart-layout";
 import { checkHolderRoleAlignment, positionHolderAlignmentIssues } from "@/lib/org-position-role-alignment";
 import {
   HolderRoleAlignmentAlert,
@@ -87,6 +87,7 @@ function PositionCard({
 }) {
   const tone = positionStatusTone(node.status);
   const isRoot = node.id === "pos-org-root";
+  const isStructural = !isRoot && !node.primaryEmployeeId && node.children.length > 0;
   const showRoleBadge = roleLabel && roleLabel !== node.title;
 
   return (
@@ -139,6 +140,8 @@ function PositionCard({
                     <span className="text-amber-700"> · login role mismatch</span>
                   ) : null}
                 </>
+              ) : isStructural ? (
+                <span className="text-slate-500">Governance body — see members below</span>
               ) : (
                 <span className="italic text-amber-700">Vacant — escalates to parent</span>
               )}
@@ -165,6 +168,130 @@ function PositionCard({
         ) : null}
       </div>
     </div>
+  );
+}
+
+function OrgChartChildRows({
+  rows,
+  renderItem,
+}: {
+  rows: OrgChartDisplayRow[];
+  renderItem: (item: OrgChartDisplayItem) => React.ReactNode;
+}) {
+  return (
+    <>
+      {rows.map((row, rowIndex) => (
+        <div key={`row-${rowIndex}`} className="flex w-full flex-col items-center">
+          {rowIndex > 0 ? <div className="my-2 h-4 w-px bg-slate-300" aria-hidden /> : null}
+          {row.layout === "row" && row.items.length > 1 ? (
+            <div className="flex w-full flex-col items-center">
+              <div className="h-4 w-px bg-slate-300" aria-hidden />
+              <div className="h-px w-full max-w-4xl bg-slate-300" aria-hidden />
+            </div>
+          ) : rowIndex === 0 ? (
+            <div className="my-2 h-4 w-px bg-slate-300" aria-hidden />
+          ) : null}
+          <ul
+            className={
+              row.layout === "row"
+                ? "flex w-full max-w-6xl flex-row flex-wrap items-start justify-center gap-3"
+                : "flex w-full max-w-sm flex-col items-stretch gap-2"
+            }
+          >
+            {row.items.map((item) => {
+              const key = item.kind === "position" ? item.node.id : item.groupKey;
+              return (
+                <li
+                  key={key}
+                  className={
+                    row.layout === "row"
+                      ? "flex min-w-[11rem] max-w-xs flex-1 flex-col items-center"
+                      : "w-full"
+                  }
+                >
+                  {row.layout === "row" && row.items.length > 1 ? (
+                    <div className="mb-2 h-4 w-px bg-slate-300" aria-hidden />
+                  ) : null}
+                  {renderItem(item)}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function renderOrgChildItem(
+  item: OrgChartDisplayItem,
+  ctx: {
+    employeeNameById: Map<string, string>;
+    employeesById: Map<string, import("@/lib/employee").EmployeeRecord>;
+    locationNameById: Map<string, string>;
+    roleNameById: Map<string, string>;
+    users: AppUserRecord[];
+    roles: AppRoleRecord[];
+    assignments: PositionAssignmentRecord[];
+    canEdit: boolean;
+    selectedId: string | null;
+    dragId: string | null;
+    dropTargetId: string | null;
+    onSelect: (id: string) => void;
+    onDragStart: (id: string) => void;
+    onDragOverTarget: (id: string) => void;
+    onDragLeaveTarget: () => void;
+    onDropOnTarget: (targetId: string) => void;
+    compact?: boolean;
+    hideChildren?: boolean;
+  }
+) {
+  if (item.kind === "group") {
+    return (
+      <OrgSiblingGroup
+        item={item}
+        employeeNameById={ctx.employeeNameById}
+        employeesById={ctx.employeesById}
+        locationNameById={ctx.locationNameById}
+        roleNameById={ctx.roleNameById}
+        users={ctx.users}
+        roles={ctx.roles}
+        assignments={ctx.assignments}
+        canEdit={ctx.canEdit}
+        selectedId={ctx.selectedId}
+        dragId={ctx.dragId}
+        dropTargetId={ctx.dropTargetId}
+        onSelect={ctx.onSelect}
+        onDragStart={ctx.onDragStart}
+        onDragOverTarget={ctx.onDragOverTarget}
+        onDragLeaveTarget={ctx.onDragLeaveTarget}
+        onDropOnTarget={ctx.onDropOnTarget}
+      />
+    );
+  }
+
+  return (
+    <OrgTreeBranch
+      node={item.node}
+      employeeNameById={ctx.employeeNameById}
+      employeesById={ctx.employeesById}
+      locationNameById={ctx.locationNameById}
+      roleNameById={ctx.roleNameById}
+      users={ctx.users}
+      roles={ctx.roles}
+      assignments={ctx.assignments}
+      canEdit={ctx.canEdit}
+      selectedId={ctx.selectedId}
+      dragId={ctx.dragId}
+      dropTargetId={ctx.dropTargetId}
+      onSelect={ctx.onSelect}
+      onDragStart={ctx.onDragStart}
+      onDragOverTarget={ctx.onDragOverTarget}
+      onDragLeaveTarget={ctx.onDragLeaveTarget}
+      onDropOnTarget={ctx.onDropOnTarget}
+      compact={ctx.compact}
+      hideChildren={ctx.hideChildren}
+    />
   );
 }
 
@@ -210,7 +337,7 @@ function OrgSiblingGroup({
   const vacantCount = item.nodes.length - filledCount;
 
   return (
-    <li className="w-full max-w-sm">
+    <div className="w-full max-w-sm">
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <button
           type="button"
@@ -258,7 +385,7 @@ function OrgSiblingGroup({
           </ul>
         ) : null}
       </div>
-    </li>
+    </div>
   );
 }
 
@@ -330,10 +457,31 @@ function OrgTreeBranch({
           roles,
         }))
   );
-  const childItems = useMemo(
-    () => layoutOrgChildren(node.children, roleNameById),
+  const childRows = useMemo(
+    () => layoutOrgChildRows(node.children, roleNameById),
     [node.children, roleNameById]
   );
+
+  const childCtx = {
+    employeeNameById,
+    employeesById,
+    locationNameById,
+    roleNameById,
+    users,
+    roles,
+    assignments,
+    canEdit,
+    selectedId,
+    dragId,
+    dropTargetId,
+    onSelect,
+    onDragStart,
+    onDragOverTarget,
+    onDragLeaveTarget,
+    onDropOnTarget,
+    compact,
+    hideChildren,
+  };
 
   const card = (
     <PositionCard
@@ -365,65 +513,19 @@ function OrgTreeBranch({
   );
 
   if (hideChildren) {
-    return <li className="w-full">{card}</li>;
+    return <div className="w-full">{card}</div>;
   }
 
   return (
-    <li className="flex w-full flex-col items-center">
+    <div className="flex w-full flex-col items-center">
       <div className={compact ? "w-full" : "w-full max-w-sm"}>{card}</div>
       {node.children.length > 0 ? (
-        <>
-          <div className="my-2 h-4 w-px bg-slate-300" />
-          <ul className="flex w-full max-w-sm flex-col items-stretch gap-2">
-            {childItems.map((item) =>
-              item.kind === "group" ? (
-                <OrgSiblingGroup
-                  key={item.groupKey}
-                  item={item}
-                  employeeNameById={employeeNameById}
-                  employeesById={employeesById}
-                  locationNameById={locationNameById}
-                  roleNameById={roleNameById}
-                  users={users}
-                  roles={roles}
-                  assignments={assignments}
-                  canEdit={canEdit}
-                  selectedId={selectedId}
-                  dragId={dragId}
-                  dropTargetId={dropTargetId}
-                  onSelect={onSelect}
-                  onDragStart={onDragStart}
-                  onDragOverTarget={onDragOverTarget}
-                  onDragLeaveTarget={onDragLeaveTarget}
-                  onDropOnTarget={onDropOnTarget}
-                />
-              ) : (
-                <OrgTreeBranch
-                  key={item.node.id}
-                  node={item.node}
-                  employeeNameById={employeeNameById}
-                  employeesById={employeesById}
-                  locationNameById={locationNameById}
-                  roleNameById={roleNameById}
-                  users={users}
-                  roles={roles}
-                  assignments={assignments}
-                  canEdit={canEdit}
-                  selectedId={selectedId}
-                  dragId={dragId}
-                  dropTargetId={dropTargetId}
-                  onSelect={onSelect}
-                  onDragStart={onDragStart}
-                  onDragOverTarget={onDragOverTarget}
-                  onDragLeaveTarget={onDragLeaveTarget}
-                  onDropOnTarget={onDropOnTarget}
-                />
-              )
-            )}
-          </ul>
-        </>
+        <OrgChartChildRows
+          rows={childRows}
+          renderItem={(item) => renderOrgChildItem(item, { ...childCtx, hideChildren: false })}
+        />
       ) : null}
-    </li>
+    </div>
   );
 }
 
@@ -497,8 +599,8 @@ export function OrgChart({
       {error ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{error}</p>
       ) : null}
-      <div className="max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-6">
-        <ul className="mx-auto flex w-full max-w-lg flex-col items-center gap-0">
+      <div className="max-h-[70vh] overflow-x-auto overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-6">
+        <div className="mx-auto flex w-full min-w-[min(100%,48rem)] flex-col items-center gap-0">
           {tree.map((root) => (
             <OrgTreeBranch
               key={root.id}
@@ -521,7 +623,7 @@ export function OrgChart({
               onDropOnTarget={requestReparent}
             />
           ))}
-        </ul>
+        </div>
       </div>
       {pendingReparent ? (
         <OrgReparentConfirmDialog

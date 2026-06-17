@@ -87,7 +87,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     {
       id: "chart-layout",
       title: "Reading a large chart",
-      body: "Sibling positions stack vertically instead of spreading across the page. When three or more positions share the same security role under one manager, they collapse into a single group (for example Support Worker × 11). Click Expand to see each holder.\n\nUse business area and location filters to narrow the tree when you only need one site.",
+      body: "Peers at the same level appear side by side — board members, executives, and team leaders each form a row under their manager. The CEO sits on the row below the board.\n\nSupport workers (three or more under one team leader) collapse into Support Worker × N. Click Expand to see each holder. Team leaders always stay visible as separate cards with their worker group underneath.\n\nUse business area and location filters to narrow the tree when you only need one site.",
       relatedRoutes: ["/workforce-planning/organisation"],
     },
     {
