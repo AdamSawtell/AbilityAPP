@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
 import { ReportTable } from "@/components/report-table";
-import { useAuth } from "@/lib/auth-store";
+import { useAdminPageAccess } from "@/lib/access/window-surface";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import type { ReportResult } from "@/lib/reports/types";
 
@@ -15,14 +15,14 @@ order by name
 limit 100`;
 
 export function ReportsAdvanceView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
-  const { canWindow } = useAuth();
+  const { hasAccess } = useAdminPageAccess(variant);
   const [sql, setSql] = useState(STARTER_SQL);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<ReportResult | null>(null);
   const [ranAt, setRanAt] = useState<string | null>(null);
 
-  const canUse = canWindow("reports-advance");
+  const canUse = hasAccess("reports-advance");
   const Shell = variant === "system" ? SystemShell : AppShell;
 
   const runQuery = useCallback(async () => {

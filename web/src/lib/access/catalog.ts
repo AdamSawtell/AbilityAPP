@@ -1,6 +1,11 @@
 /**
  * Registered windows (menus / functions) and processes for role-based access.
- * Keys are stored in app_role_window and app_role_process.
+ *
+ * **Surface rule (required):** each window is `app` or `system`, never both.
+ * - `app` — workspace sidebar + role window keys (`app_role_window`).
+ * - `system` — System nav only; any signed-in System operator may use it (no role grant).
+ *
+ * See `web/AGENTS.md` — Window surfaces.
  *
  * Dependent windows (parentWindowKey set) are tabs or sub-functions inside a parent
  * window — e.g. Credentials Assigned on Business Partner (Employee).
@@ -21,7 +26,7 @@ import {
 } from "@/lib/access/detail-windows";
 import type { AccessProcess, AccessWindow } from "@/lib/access/catalog-types";
 
-export type { AccessProcess, AccessWindow, AccessWindowGroup } from "@/lib/access/catalog-types";
+export type { AccessProcess, AccessWindow, AccessWindowGroup, AccessWindowSurface } from "@/lib/access/catalog-types";
 
 const PARENT_WINDOWS: AccessWindow[] = [
   { key: "home", label: "Home", group: "Core", href: "/", showInSidebar: true },
@@ -169,6 +174,7 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     key: "workforce-organisation",
     label: "Organisation structure",
     group: "Workforce planning",
+    surface: "system",
     href: "/system/admin/organisation-structure",
     parentWindowKey: "workforce-planning",
     abilityErpName: "Organisation structure",
@@ -178,6 +184,7 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     key: "workforce-org-edit",
     label: "Edit organisation structure",
     group: "Workforce planning",
+    surface: "system",
     parentWindowKey: "workforce-organisation",
     abilityErpName: "Organisation structure — edit",
     showInSidebar: false,
@@ -186,6 +193,7 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     key: "workforce-org-chart-tier",
     label: "Edit org chart tiers",
     group: "Workforce planning",
+    surface: "system",
     parentWindowKey: "workforce-organisation",
     abilityErpName: "Organisation structure — chart tiers",
     showInSidebar: false,
@@ -197,6 +205,7 @@ const REPORT_WINDOWS: AccessWindow[] = [
     key: "reports-advance",
     label: "Reports Advance",
     group: "Core",
+    surface: "system",
     parentWindowKey: "reports",
     href: "/system/admin/reports-advance",
     abilityErpName: "Reports — SQL console",
@@ -225,6 +234,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     key: "admin-roles",
     label: "Roles",
     group: "Admin",
+    surface: "system",
     href: "/system/admin/roles",
     abilityErpName: "Role",
     showInSidebar: true,
@@ -233,6 +243,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     key: "admin-task-management",
     label: "Task management",
     group: "Admin",
+    surface: "system",
     href: "/system/admin/task-management",
     abilityErpName: "Request type / Task management",
     showInSidebar: true,
@@ -241,6 +252,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     key: "admin-task-automations",
     label: "Task automations",
     group: "Admin",
+    surface: "system",
     href: "/system/admin/task-automations",
     abilityErpName: "Task automation rules",
     showInSidebar: true,
@@ -340,6 +352,28 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
 ];
 
 export const ALL_WINDOW_KEYS = ACCESS_WINDOWS.map((w) => w.key);
+
+/** Windows assignable via workspace roles — excludes System-surface windows. */
+export const APP_WINDOW_KEYS = ACCESS_WINDOWS.filter((w) => w.surface !== "system").map((w) => w.key);
+
+export const SYSTEM_SURFACE_WINDOW_KEYS = ACCESS_WINDOWS.filter((w) => w.surface === "system").map((w) => w.key);
+
+export function windowSurface(key: string): "app" | "system" {
+  return windowByKey(key)?.surface ?? "app";
+}
+
+export function isSystemSurfaceWindow(key: string): boolean {
+  return windowSurface(key) === "system";
+}
+
+export function appRoleWindows() {
+  return ACCESS_WINDOWS.filter((w) => w.surface !== "system");
+}
+
+export function sanitizeAppWindowKeys(windowKeys: string[]): string[] {
+  return windowKeys.filter((key) => !isSystemSurfaceWindow(key));
+}
+
 export const ALL_PROCESS_IDS = ACCESS_PROCESSES.map((p) => p.id);
 
 export { EMPLOYEE_DEPENDENT_WINDOWS, CLIENT_DEPENDENT_WINDOWS, LOCATION_DEPENDENT_WINDOWS };
@@ -366,7 +400,11 @@ export function canAccessWindow(windowKeys: string[], key: string): boolean {
 
 export function sidebarWindows(windowKeys: string[]) {
   return ACCESS_WINDOWS.filter(
-    (w) => w.showInSidebar !== false && w.href && canAccessWindow(windowKeys, w.key)
+    (w) =>
+      w.surface !== "system" &&
+      w.showInSidebar !== false &&
+      w.href &&
+      canAccessWindow(windowKeys, w.key)
   );
 }
 

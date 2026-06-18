@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
-import { ACCESS_PROCESSES, ACCESS_WINDOWS, childWindows } from "@/lib/access/catalog";
+import { ACCESS_PROCESSES, ACCESS_WINDOWS, appRoleWindows, childWindows, sanitizeAppWindowKeys } from "@/lib/access/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { useAuth } from "@/lib/auth-store";
@@ -19,8 +19,8 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
 
   const record = draft ?? roles.find((r) => r.id === activeId) ?? null;
   const windowsByGroup = useMemo(() => {
-    const map = new Map<string, typeof ACCESS_WINDOWS>();
-    for (const w of ACCESS_WINDOWS) {
+    const map = new Map<string, ReturnType<typeof appRoleWindows>>();
+    for (const w of appRoleWindows()) {
       const list = map.get(w.group) ?? [];
       list.push(w);
       map.set(w.group, list);
@@ -34,7 +34,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
     setActiveId(id);
     setDraft({
       ...role,
-      windowKeys: [...role.windowKeys],
+      windowKeys: sanitizeAppWindowKeys([...role.windowKeys]),
       processIds: [...role.processIds],
       reportIds: [...(role.reportIds ?? [])],
       taskTypePermissions: [...(role.taskTypePermissions ?? [])],
@@ -94,7 +94,10 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
 
   async function save() {
     if (!record?.roleKey.trim() || !record.name.trim()) return;
-    await upsertRole(record);
+    await upsertRole({
+      ...record,
+      windowKeys: sanitizeAppWindowKeys(record.windowKeys),
+    });
     setDraft(null);
   }
 
@@ -173,8 +176,10 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 className="mb-3 text-sm font-semibold text-slate-900">Windows / functions</h2>
                 <p className="mb-4 text-xs text-slate-500">
-                  Top-level windows appear in the sidebar. Dependent windows (indented) are tabs or sub-functions
-                  inside a parent — e.g. Overview under Clients, or Credentials Assigned under Employees.
+                  Top-level windows appear in the workspace sidebar. Dependent windows (indented) are tabs or
+                  sub-functions inside a parent — e.g. Overview under Clients, or Credentials Assigned under
+                  Employees. System-only windows (roles, task management, organisation structure, Reports Advance,
+                  and similar) are available to every signed-in System operator and are not listed here.
                 </p>
                 {[...windowsByGroup.entries()].map(([group, items]) => {
                   const topLevel = items.filter((w) => !w.parentWindowKey);

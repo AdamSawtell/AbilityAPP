@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import type { AuthSession } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
-import { canAccessWindow } from "@/lib/access/catalog";
+import { canAccessWindow, sanitizeAppWindowKeys } from "@/lib/access/catalog";
 import { agentIdsForRole } from "@/lib/ai/seed";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
@@ -118,7 +118,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
         email: user.email,
         activeRoleId: merged.id,
         activeRoleName: merged.name,
-        windowKeys: merged.windowKeys,
+        windowKeys: sanitizeAppWindowKeys(merged.windowKeys),
         processIds: merged.processIds,
         reportIds: merged.reportIds ?? [],
         taskTypePermissions: merged.taskTypePermissions,
@@ -140,7 +140,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
     email: user.email,
     activeRoleId: merged.id,
     activeRoleName: merged.name,
-    windowKeys: merged.windowKeys,
+    windowKeys: sanitizeAppWindowKeys(merged.windowKeys),
     processIds: merged.processIds,
     reportIds: merged.reportIds ?? [],
     taskTypePermissions: merged.taskTypePermissions,

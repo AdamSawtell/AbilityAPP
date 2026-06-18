@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { AppUserRecord } from "@/lib/access/types";
 import { hashPassword } from "@/lib/auth/password.server";
 import { getAuthSessionFromRequest, sessionHasWindow } from "@/lib/auth/session.server";
+import { readSystemSessionFromCookies } from "@/lib/system/session.server";
 import { saveUser } from "@/lib/supabase/access-api";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
@@ -11,12 +12,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Supabase is not configured" }, { status: 503 });
   }
 
-  const session = await getAuthSessionFromRequest();
-  if (!session) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  }
-  if (!sessionHasWindow(session, "employee-system-access") && !sessionHasWindow(session, "admin-roles") && !sessionHasWindow(session, "workforce-org-edit")) {
-    return NextResponse.json({ error: "You do not have permission to manage system access" }, { status: 403 });
+  const systemSession = await readSystemSessionFromCookies();
+  if (!systemSession) {
+    const session = await getAuthSessionFromRequest();
+    if (!session) {
+      return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+    }
+    if (!sessionHasWindow(session, "employee-system-access")) {
+      return NextResponse.json({ error: "You do not have permission to manage system access" }, { status: 403 });
+    }
   }
 
   let body: { user?: AppUserRecord; password?: string };

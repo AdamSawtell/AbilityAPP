@@ -1,4 +1,4 @@
-import { ALL_PROCESS_IDS, ALL_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
+import { ALL_PROCESS_IDS, APP_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
@@ -46,7 +46,6 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       "reports",
       ...TASK_ACCESS,
       "workforce-planning",
-      "workforce-organisation",
       "workforce-org-edit",
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees", "enquiries"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
@@ -66,7 +65,6 @@ export function managerAccess(
       "reports",
       ...TASK_ACCESS,
       "workforce-planning",
-      "workforce-organisation",
       ...extraWindows,
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
@@ -98,7 +96,7 @@ export function officerAccess(
 
 export function boardAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
   return {
-    windowKeys: ["home", "reports", "workforce-planning", "workforce-organisation", "incidents", "incidents-dashboard"],
+    windowKeys: ["home", "reports", "workforce-planning", "incidents", "incidents-dashboard"],
     processIds: [],
     reportIds: ["incident-register", "ndis-reportable-incidents", "client-register"],
     taskTypePermissions: permissionsForTypes(["tt-review"]),
@@ -128,7 +126,7 @@ export function adminRole(allTaskTypeIds: string[]): AppRoleRecord {
     name: "AbilityAPP Admin",
     description: "Full system access — all windows and processes",
     active: true,
-    windowKeys: [...ALL_WINDOW_KEYS],
+    windowKeys: [...APP_WINDOW_KEYS],
     processIds: [...ALL_PROCESS_IDS],
     reportIds: [...ALL_REPORT_IDS],
     taskTypePermissions: fullTaskTypePermissions(allTaskTypeIds),

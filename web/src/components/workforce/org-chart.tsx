@@ -191,17 +191,19 @@ export function OrgChart({
   onSelect,
   filters,
   lens = "accountability",
+  systemOperatorAccess = false,
 }: {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   filters?: OrgChartFilters;
   lens?: OrgChartLens;
+  systemOperatorAccess?: boolean;
 }) {
   const { employees, locations } = useData();
   const { positions, assignments, reportingLines, reparentPosition } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
   const { tiers: tierConfigs } = useOrgChartTierConfig();
-  const canEdit = canWindow("workforce-org-edit");
+  const canEdit = systemOperatorAccess || canWindow("workforce-org-edit");
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
   const roleNameById = useMemo(() => new Map(roles.map((r) => [r.id, r.name])), [roles]);
@@ -389,20 +391,22 @@ export function OrgPositionEditor({
   onClose,
   onCreated,
   onSelectPosition,
+  systemOperatorAccess = false,
 }: {
   positionId: string | null;
   onClose: () => void;
   onCreated?: (id: string) => void;
   onSelectPosition?: (id: string) => void;
+  systemOperatorAccess?: boolean;
 }) {
   const { employees, locations } = useData();
   const { positions, assignments, reportingLines, upsertPosition, assignPrimary, clearPrimary, assignActing, clearActing, addPosition, addDottedReportingLine, removeDottedReportingLine } = useOrgStructure();
   const { canWindow, roles, users } = useAuth();
   const { activeTiers, tierLabel } = useOrgChartTierConfig();
-  const canEdit = canWindow("workforce-org-edit");
-  const canEditChartTier = canWindow("workforce-org-chart-tier");
+  const canEdit = systemOperatorAccess || canWindow("workforce-org-edit");
+  const canEditChartTier = systemOperatorAccess || canWindow("workforce-org-chart-tier");
   const canManageAccess =
-    canEdit || canWindow("employee-system-access") || canWindow("admin-roles");
+    systemOperatorAccess || canEdit || canWindow("employee-system-access");
 
   const activeRoles = useMemo(() => roles.filter((r) => r.active), [roles]);
   const employeesById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);

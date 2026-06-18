@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
 import { useAuth } from "@/lib/auth-store";
+import { useAdminPageAccess } from "@/lib/access/window-surface";
 import type { AppRoleRecord, TaskTypePermission } from "@/lib/access/types";
 import {
   activeTaskTypes,
@@ -44,9 +45,10 @@ function PermissionToggle({
 }
 
 export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
-  const { roles, upsertRole, canWindow } = useAuth();
+  const { roles, upsertRole } = useAuth();
   const { taskTypes, upsertTaskType, resetTaskTypes } = useTaskTypes();
-  const hasAccess = canWindow("admin-task-management");
+  const { hasAccess } = useAdminPageAccess(variant);
+  const hasPageAccess = hasAccess("admin-task-management");
 
   const [typeDraft, setTypeDraft] = useState<TaskTypeRecord | null>(null);
   const [activeTypeId, setActiveTypeId] = useState<string | null>(taskTypes[0]?.id ?? null);
@@ -77,11 +79,13 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
 
   const Shell = variant === "system" ? SystemShell : AppShell;
 
-  if (!hasAccess) {
+  if (!hasPageAccess) {
     return (
       <Shell title="Task management" audit={{ moduleLabel: "Task type administration" }}>
         <p className="text-sm text-slate-600">
-          You do not have access to task administration. Ask an administrator to grant the Task management window for your role.
+          {variant === "system"
+            ? "Sign in to System to manage task types and permissions."
+            : "Task management is in System. Ask a System operator for access."}
         </p>
       </Shell>
     );

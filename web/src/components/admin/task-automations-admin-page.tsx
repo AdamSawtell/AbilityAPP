@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
 import { useAuth } from "@/lib/auth-store";
+import { useAdminPageAccess } from "@/lib/access/window-surface";
 import { useData } from "@/lib/data-store";
 import { useOrganization } from "@/lib/organization-store";
 import { useTaskTypes } from "@/lib/task-type-store";
@@ -59,7 +60,7 @@ function Field({
 }
 
 export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
-  const { roles, users, canWindow } = useAuth();
+  const { roles, users } = useAuth();
   const {
     taskAutomations,
     upsertTaskAutomation,
@@ -75,7 +76,8 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
   const { taskTypes, getTaskTypeName } = useTaskTypes();
   const { getOptions } = useReferenceData();
   const { positions, assignments } = useOrgStructure();
-  const hasAccess = canWindow("admin-task-automations") || canWindow("admin-task-management");
+  const { hasAnyAccess } = useAdminPageAccess(variant);
+  const hasPageAccess = hasAnyAccess(["admin-task-automations", "admin-task-management"]);
 
   const sorted = useMemo(() => sortTaskAutomations(taskAutomations), [taskAutomations]);
   const grouped = useMemo(() => groupTaskAutomationsByModule(taskAutomations), [taskAutomations]);
@@ -154,11 +156,13 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
   const Shell = variant === "system" ? SystemShell : AppShell;
   const guideHref = variant === "system" ? "/system/guides/task-automations" : "/help/task-automations";
 
-  if (!hasAccess) {
+  if (!hasPageAccess) {
     return (
       <Shell title="Task automations" audit={{ moduleLabel: "Task automation administration" }}>
         <p className="text-sm text-slate-600">
-          You do not have access to task automation administration. Ask an administrator to grant the Task automations window for your role.
+          {variant === "system"
+            ? "Sign in to System to manage task automations."
+            : "Task automations are managed in System. Ask a System operator for access."}
         </p>
       </Shell>
     );

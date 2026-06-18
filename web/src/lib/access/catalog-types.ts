@@ -1,9 +1,14 @@
 export type AccessWindowGroup = "Core" | "Locations" | "People" | "Workforce planning" | "Services" | "Admin";
 
+/** Where the window is exposed — never both app and system. */
+export type AccessWindowSurface = "app" | "system";
+
 export type AccessWindow = {
   key: string;
   label: string;
   group: AccessWindowGroup;
+  /** App (workspace) or System operator console — default app. */
+  surface?: AccessWindowSurface;
   /** Sidebar route; omit for tab-only dependent windows */
   href?: string;
   abilityErpName?: string;

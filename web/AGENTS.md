@@ -49,6 +49,25 @@ Assign each new list in `web/src/lib/system/reference-data-sections.ts`. Shared 
 
 System UI uses the same light theme as `AppShell` — not a separate dark mode.
 
+## Window surfaces (required)
+
+Every registered window in `web/src/lib/access/catalog.ts` lives on **one surface only**:
+
+| Surface | Where it appears | Access |
+|--------|------------------|--------|
+| `app` (default) | Workspace sidebar and record tabs | Role window keys in `app_role_window` |
+| `system` | System nav (`web/src/lib/system/nav.ts`) only | Any signed-in **System operator** — no role grant |
+
+**Rules when adding or moving a window**
+
+1. Set `surface: "system"` when the route is under `/system/` and it is operator setup (roles, task management, organisation structure, Reports Advance, etc.).
+2. Do **not** list System-surface windows in the workspace Admin sidebar (`sidebar-nav.tsx` filters them out).
+3. Do **not** include System-surface keys in role seeds, `seed-access.sql`, or the Roles admin checkbox list.
+4. Gate System pages with `useAdminPageAccess(variant)` (client) or `readSystemSessionFromCookies()` (API) — not `canWindow()` for System-surface keys.
+5. Add matching links only in `SYSTEM_NAV_SECTIONS` — never duplicate the same window in both navs.
+
+Helper exports: `APP_WINDOW_KEYS`, `isSystemSurfaceWindow()`, `sanitizeAppWindowKeys()`, `appRoleWindows()`.
+
 ## In-app help (required for new UI)
 
 User-facing how-to content lives in `web/src/lib/help/articles/`. Update it when you add windows, tabs, reports, or workflows.

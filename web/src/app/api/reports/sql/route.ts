@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { getAuthSessionFromRequest, sessionHasWindow } from "@/lib/auth/session.server";
+import { readSystemSessionFromCookies } from "@/lib/system/session.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { rowsJsonToReportResult } from "@/lib/reports/sql-results";
 import { validateReadonlySql } from "@/lib/reports/sql-validate";
@@ -15,12 +15,9 @@ function createServiceClient() {
 }
 
 export async function POST(request: Request) {
-  const session = await getAuthSessionFromRequest();
-  if (!session) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  }
-  if (!sessionHasWindow(session, "reports") || !sessionHasWindow(session, "reports-advance")) {
-    return NextResponse.json({ error: "Your role does not have access to Reports Advance" }, { status: 403 });
+  const systemSession = await readSystemSessionFromCookies();
+  if (!systemSession) {
+    return NextResponse.json({ error: "Sign in to System to use Reports Advance" }, { status: 403 });
   }
 
   let body: { sql?: string };

@@ -17,7 +17,6 @@ export function ReportsIndexView() {
   );
 
   const accessible = ACCESS_REPORTS.filter((r) => canReport(r.id));
-  const showAdvance = canWindow("reports-advance");
 
   return (
     <AppShell
@@ -28,25 +27,10 @@ export function ReportsIndexView() {
     >
       {!canWindow("reports") ? (
         <p className="text-sm text-slate-500">Your role does not have access to reports.</p>
-      ) : accessible.length === 0 && !showAdvance ? (
+      ) : accessible.length === 0 ? (
         <p className="text-sm text-slate-500">No reports are assigned to your role. Ask an administrator to grant report access.</p>
       ) : (
         <div className="space-y-8">
-          {showAdvance ? (
-            <section>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Advanced</h2>
-              <Link
-                href="/system/admin/reports-advance"
-                className="block rounded-xl border border-slate-800 bg-slate-950 p-4 text-white shadow-sm transition hover:border-[#d4147a]"
-              >
-                <p className="font-medium">Reports Advance</p>
-                <p className="mt-1 text-xs text-slate-400">
-                  SQL console — write read-only queries against the database and export results to CSV.
-                </p>
-                <p className="mt-3 font-mono text-[10px] uppercase tracking-wide text-emerald-400">SELECT only · CSV export</p>
-              </Link>
-            </section>
-          ) : null}
           {MODULE_ORDER.map((module) => {
             const reports = grouped.get(module);
             if (!reports?.length) return null;

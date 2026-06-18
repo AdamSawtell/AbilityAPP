@@ -37,7 +37,7 @@ const serviceLinks = [
 ];
 
 const adminLinks = ACCESS_WINDOWS.filter(
-  (w) => w.group === "Admin" && w.showInSidebar !== false && w.href
+  (w) => w.group === "Admin" && w.surface !== "system" && w.showInSidebar !== false && w.href
 ).map((w) => ({
   href: w.href!,
   label: w.label,
@@ -306,7 +306,7 @@ export function SidebarNav() {
     }
     return map;
   }, [visibleReports]);
-  const showReports = canWindow("reports") && (visibleReports.length > 0 || canWindow("reports-advance"));
+  const showReports = canWindow("reports") && visibleReports.length > 0;
   const hasCoreNav = showHome || showTasks;
   const hasAnyNav =
     hasCoreNav ||

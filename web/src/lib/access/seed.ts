@@ -1,3 +1,4 @@
+import { sanitizeAppWindowKeys } from "@/lib/access/catalog";
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import { INITIAL_TASK_TYPES, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
 import { bulkStaffUserLinks } from "@/lib/employee-bulk-seed";
@@ -45,7 +46,6 @@ const COORDINATOR_ACCESS = {
     "reports",
     ...TASK_ACCESS,
     "workforce-planning",
-    "workforce-organisation",
     ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],
@@ -60,8 +60,6 @@ const TEAM_LEADER_ACCESS = {
     "reports",
     ...TASK_ACCESS,
     "workforce-planning",
-    "workforce-organisation",
-    "workforce-org-edit",
     ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],
@@ -79,7 +77,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-exec-finance", "Finance_Executive", "CFO", "Chief financial officer", executiveAccess()),
   defineRole("role-exec-ict", "ICT_Executive", "ICT Executive", "Executive lead for systems and technology", executiveAccess()),
   defineRole("role-exec-quality", "Quality_Executive", "Quality Executive", "Executive lead for quality and compliance", executiveAccess()),
-  defineRole("role-hr-manager", "HR_Manager", "HR Manager", "HR team leadership", managerAccess(["workforce-organisation"])),
+  defineRole("role-hr-manager", "HR_Manager", "HR Manager", "HR team leadership", managerAccess()),
   defineRole("role-hr-officer", "HR_Officer", "HR Officer", "HR administration and employee records", officerAccess(["employees", "employee-overview"])),
   defineRole("role-ict-manager", "ICT_Manager", "ICT Manager", "ICT team leadership and system support", managerAccess()),
   defineRole("role-ict-officer", "ICT_Officer", "ICT Officer", "ICT support and administration", officerAccess()),
@@ -87,7 +85,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess()),
   defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", managerAccess(["incidents-compliance", "incidents-dashboard"])),
   defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", officerAccess(["incidents-compliance"])),
-  defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", managerAccess(["workforce-organisation"])),
+  defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", managerAccess()),
   defineRole("role-rostering-officer", "Rostering_Officer", "Rostering Officer", "Roster administration", officerAccess(["workforce-planning"])),
   defineRole("role-intake", "Intake_Coordinator", "Intake Coordinator", "Enquiries and convert-to-client process", INTAKE_ACCESS),
   defineRole("role-coordinator", "Support_Coordinator", "Support Coordinator", "Client records and service catalog", COORDINATOR_ACCESS),
@@ -267,7 +265,7 @@ export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
     };
   }
 
-  const windowKeys = [...new Set([...role.windowKeys, ...seed.windowKeys])];
+  const windowKeys = sanitizeAppWindowKeys([...new Set([...role.windowKeys, ...seed.windowKeys])]);
   const processIds = [...new Set([...role.processIds, ...seed.processIds])];
   const reportIds = [...new Set([...(role.reportIds ?? []), ...(seed.reportIds ?? [])])];
   const taskTypePermissions = mergeTaskTypePermissions(
