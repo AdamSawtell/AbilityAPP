@@ -2,16 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { DocumentViewerModal } from "@/components/my-workplace/document-viewer-modal";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
 import { StatusBadge } from "@/components/status-badge";
+import { useData } from "@/lib/data-store";
+import type { EmployeeRecord } from "@/lib/employee";
 import type { MyContractView } from "@/lib/my-workplace/types";
 
 export function MyContractsPage() {
+  const { upsertEmployee } = useData();
   const [contracts, setContracts] = useState<MyContractView[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [ackId, setAckId] = useState("");
+  const [viewerDoc, setViewerDoc] = useState<MyContractView | null>(null);
 
   function loadContracts() {
     void fetch("/api/my/contracts", { credentials: "include" })
@@ -38,8 +43,9 @@ export function MyContractsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ documentId }),
       });
-      const body = (await res.json()) as { error?: string; contracts?: MyContractView[] };
+      const body = (await res.json()) as { error?: string; contracts?: MyContractView[]; employee?: EmployeeRecord };
       if (!res.ok) throw new Error(body.error ?? "Acknowledge failed");
+      if (body.employee) upsertEmployee(body.employee);
       setContracts(body.contracts ?? []);
       setMessage("Document acknowledged.");
     } catch (err) {
@@ -85,6 +91,13 @@ export function MyContractsPage() {
                     </div>
                     <div className="flex flex-col items-start gap-2">
                       <StatusBadge status={needsAck ? "Requested" : doc.acknowledged ? "Approved" : doc.status} />
+                      <button
+                        type="button"
+                        onClick={() => setViewerDoc(doc)}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                      >
+                        View document
+                      </button>
                       {needsAck ? (
                         <button
                           type="button"
@@ -102,6 +115,12 @@ export function MyContractsPage() {
             })
           )}
         </div>
+        <DocumentViewerModal
+          open={Boolean(viewerDoc)}
+          title={viewerDoc?.name ?? "Document"}
+          documentRef={viewerDoc?.documentRef ?? ""}
+          onClose={() => setViewerDoc(null)}
+        />
       </AppShell>
     </MyWorkplaceGuard>
   );

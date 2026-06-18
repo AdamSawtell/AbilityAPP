@@ -36,8 +36,8 @@ export async function PUT(request: Request) {
   }
 
   try {
-    const rows = await saveMyAvailability(ctx, body.rows);
-    return NextResponse.json({ rows });
+    const { employee, rows } = await saveMyAvailability(ctx, body.rows);
+    return NextResponse.json({ employee, rows });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not save availability";
     return NextResponse.json({ error: message }, { status: 500 });

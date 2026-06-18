@@ -172,6 +172,20 @@ function countWeekdaysInclusive(startIso: string, endIso: string): number {
   return days;
 }
 
+function assertLeaveBalance(employee: EmployeeRecord, leaveType: string, daysRequested: number): void {
+  if (daysRequested <= 0) {
+    throw new Error("Select valid dates with at least one weekday in the range");
+  }
+  const entitlement = employee.leaveEntitlements.find(
+    (row) => row.leaveType.trim().toLowerCase() === leaveType.trim().toLowerCase()
+  );
+  if (entitlement && daysRequested > entitlement.balanceDays) {
+    throw new Error(
+      `Insufficient ${entitlement.leaveType} balance: ${entitlement.balanceDays} day(s) available, ${daysRequested} requested`
+    );
+  }
+}
+
 export async function submitMyLeave(
   ctx: MyWorkplaceContext,
   payload: MyLeaveSubmitPayload
@@ -179,15 +193,19 @@ export async function submitMyLeave(
   const employee = await loadMyEmployee(ctx.employeeId);
   if (!employee) throw new Error("Employee record not found");
 
+  const leaveType = payload.leaveType.trim();
+  const daysRequested = countWeekdaysInclusive(payload.startDate, payload.endDate);
+  assertLeaveBalance(employee, leaveType, daysRequested);
+
   const now = new Date().toISOString();
   const lineNo = employee.leaveRequests.length + 1;
   const request: EmployeeLeaveRequestRow = {
     id: newLineId("leave-req"),
     lineNo,
-    leaveType: payload.leaveType.trim(),
+    leaveType,
     startDate: payload.startDate,
     endDate: payload.endDate,
-    daysRequested: countWeekdaysInclusive(payload.startDate, payload.endDate),
+    daysRequested,
     status: "Requested",
     notes: payload.notes.trim(),
     submittedAt: now,
@@ -248,7 +266,7 @@ export async function saveMyProfile(ctx: MyWorkplaceContext, payload: MyProfileP
 export async function saveMyAvailability(
   ctx: MyWorkplaceContext,
   rows: EmployeeAvailabilityRow[]
-): Promise<EmployeeAvailabilityRow[]> {
+): Promise<{ employee: EmployeeRecord; rows: EmployeeAvailabilityRow[] }> {
   const supabase = isSupabaseConfigured() ? serviceClient() : null;
   const normalized = rows.map((row, index) => ({
     ...row,
@@ -272,15 +290,26 @@ export async function saveMyAvailability(
       );
       if (error) throw error;
     }
+    const reloaded = await loadMyEmployee(ctx.employeeId);
+    if (!reloaded) throw new Error("Employee record not found");
+    return { employee: reloaded, rows: normalized };
   }
 
-  return normalized;
+  const employee = await loadMyEmployee(ctx.employeeId);
+  if (!employee) throw new Error("Employee record not found");
+  return {
+    employee: normalizeEmployee({
+      ...employee,
+      updatedBy: ctx.session.displayName,
+    }),
+    rows: normalized,
+  };
 }
 
 export async function acknowledgeMyContract(
   ctx: MyWorkplaceContext,
   documentId: string
-): Promise<EmployeeDocumentAcknowledgement> {
+): Promise<{ acknowledgement: EmployeeDocumentAcknowledgement; employee: EmployeeRecord }> {
   const employee = await loadMyEmployee(ctx.employeeId);
   if (!employee) throw new Error("Employee record not found");
   const doc = employee.documents.find((d) => d.id === documentId);
@@ -305,7 +334,9 @@ export async function acknowledgeMyContract(
     if (error) throw error;
   }
 
-  return ack;
+  const reloaded = await loadMyEmployee(ctx.employeeId);
+  if (!reloaded) throw new Error("Employee record not found");
+  return { acknowledgement: ack, employee: reloaded };
 }
 
 export async function submitMyCredential(
@@ -373,15 +404,19 @@ export async function submitLeaveOnBehalf(
   const employee = await loadMyEmployee(employeeId);
   if (!employee) throw new Error("Employee record not found");
 
+  const leaveType = payload.leaveType.trim();
+  const daysRequested = countWeekdaysInclusive(payload.startDate, payload.endDate);
+  assertLeaveBalance(employee, leaveType, daysRequested);
+
   const now = new Date().toISOString();
   const lineNo = employee.leaveRequests.length + 1;
   const request: EmployeeLeaveRequestRow = {
     id: newLineId("leave-req"),
     lineNo,
-    leaveType: payload.leaveType.trim(),
+    leaveType,
     startDate: payload.startDate,
     endDate: payload.endDate,
-    daysRequested: countWeekdaysInclusive(payload.startDate, payload.endDate),
+    daysRequested,
     status: "Requested",
     notes: payload.notes.trim(),
     submittedAt: now,

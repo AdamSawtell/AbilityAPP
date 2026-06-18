@@ -54,7 +54,7 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees", "enquiries"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf"],
+    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf", "review-employee-credential", "approve-leave-request"],
     reportIds: [...EXEC_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   };
@@ -74,7 +74,7 @@ export function managerAccess(
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf"],
+    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf", "review-employee-credential", "approve-leave-request"],
     reportIds: [...MANAGER_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   };

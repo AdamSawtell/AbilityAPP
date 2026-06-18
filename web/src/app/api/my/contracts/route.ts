@@ -38,11 +38,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    const acknowledgement = await acknowledgeMyContract(ctx, body.documentId.trim());
-    const employee = await loadMyEmployee(ctx.employeeId);
+    const { acknowledgement, employee } = await acknowledgeMyContract(ctx, body.documentId.trim());
     const acknowledgements = await loadMyAcknowledgements(ctx.employeeId);
-    const contracts = buildMyContracts(employee?.documents ?? [], acknowledgements);
-    return NextResponse.json({ acknowledgement, contracts });
+    const contracts = buildMyContracts(employee.documents, acknowledgements);
+    return NextResponse.json({ acknowledgement, contracts, employee });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not acknowledge document";
     return NextResponse.json({ error: message }, { status: 500 });

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
+import { CredentialEvidenceUpload } from "@/components/my-workplace/credential-evidence-upload";
+import { useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
 import { useData } from "@/lib/data-store";
 import type { EmployeeCredentialRow, EmployeeRecord } from "@/lib/employee";
 import { credentialTypeOptions } from "@/lib/employee-line-tables";
@@ -32,6 +34,7 @@ const emptyForm: MyCredentialSubmitPayload = {
 
 export function MyCredentialsPage() {
   const { upsertEmployee } = useData();
+  const { employee: myEmployee } = useMyEmployee();
   const [credentials, setCredentials] = useState<EmployeeCredentialRow[]>([]);
   const [form, setForm] = useState<MyCredentialSubmitPayload>(emptyForm);
   const [showForm, setShowForm] = useState(false);
@@ -171,6 +174,14 @@ export function MyCredentialsPage() {
                 />
                 <span className="mt-1 block text-xs text-slate-500">HR uses this to verify your credential before sign-off.</span>
               </label>
+              {myEmployee?.id ? (
+                <div className="sm:col-span-2">
+                  <CredentialEvidenceUpload
+                    employeeId={myEmployee.id}
+                    onUploaded={(fileUrl) => setForm((current) => ({ ...current, evidenceRef: fileUrl }))}
+                  />
+                </div>
+              ) : null}
               <label className="sm:col-span-2">
                 <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes (optional)</span>
                 <textarea className={inputClass} rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
@@ -224,7 +235,15 @@ export function MyCredentialsPage() {
                 {cred.evidenceRef ? (
                   <div className="sm:col-span-2">
                     <dt className="text-slate-500">Evidence</dt>
-                    <dd className="break-all">{cred.evidenceRef}</dd>
+                    <dd className="break-all">
+                      {/^https?:\/\//i.test(cred.evidenceRef) ? (
+                        <a href={cred.evidenceRef} target="_blank" rel="noreferrer" className="text-[#b51266] hover:underline">
+                          View evidence
+                        </a>
+                      ) : (
+                        cred.evidenceRef
+                      )}
+                    </dd>
                   </div>
                 ) : null}
                 {cred.reviewNotes ? (

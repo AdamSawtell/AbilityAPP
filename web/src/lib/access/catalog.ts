@@ -420,6 +420,18 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     description: "Managers and rostering staff submit leave for an employee from workforce planning",
     parentWindowKey: "workforce-planning",
   },
+  {
+    id: "review-employee-credential",
+    label: "Review employee credential",
+    description: "HR reviews staff-submitted credentials and signs off or rejects with feedback",
+    parentWindowKey: "workforce-planning",
+  },
+  {
+    id: "approve-leave-request",
+    label: "Approve leave request",
+    description: "Managers and HR approve or decline pending leave requests",
+    parentWindowKey: "workforce-planning",
+  },
 ];
 
 export const MY_WORKPLACE_WINDOW_KEYS = MY_WORKPLACE_WINDOWS.map((w) => w.key);

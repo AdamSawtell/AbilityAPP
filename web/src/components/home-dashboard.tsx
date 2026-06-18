@@ -17,6 +17,7 @@ import { taskCountsForSession, visibleTaskViews } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
 import type { MyWorkplaceSummary } from "@/lib/my-workplace/types";
 import type { MyActionItem } from "@/lib/my-workplace/compliance-dashboard";
+import type { WorkforceReviewSummary } from "@/lib/workforce/review-queue";
 
 function SummaryCard({
   title,
@@ -69,9 +70,11 @@ export function HomeDashboard() {
   const taskStats = session ? taskDashboardStats(tasks, session) : null;
   const showTasks = taskViews.length > 0;
   const showMyWorkplace = canWindow("my-workplace");
+  const showWorkforceReviews = canWindow("workforce-planning") && (canProcess("review-employee-credential") || canProcess("approve-leave-request"));
   const openTaskCount = taskCounts ? taskCounts.assignedToMe + taskCounts.myRole : 0;
   const [mySummary, setMySummary] = useState<MyWorkplaceSummary | null>(null);
   const [myActionItems, setMyActionItems] = useState<MyActionItem[]>([]);
+  const [reviewSummary, setReviewSummary] = useState<WorkforceReviewSummary | null>(null);
 
   useEffect(() => {
     if (!showMyWorkplace) return;
@@ -83,6 +86,16 @@ export function HomeDashboard() {
       })
       .catch(() => undefined);
   }, [showMyWorkplace]);
+
+  useEffect(() => {
+    if (!showWorkforceReviews) return;
+    void fetch("/api/workforce/reviews", { credentials: "include" })
+      .then(async (res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.summary) setReviewSummary(data.summary as WorkforceReviewSummary);
+      })
+      .catch(() => undefined);
+  }, [showWorkforceReviews]);
 
   const myAttentionCount = mySummary
     ? mySummary.actionItemsCount
@@ -193,7 +206,28 @@ export function HomeDashboard() {
             {myAttentionCount > 0 ? ` (${myAttentionCount})` : ""}
           </Link>
         ) : null}
+        {showWorkforceReviews && reviewSummary && reviewSummary.total > 0 ? (
+          <Link
+            href="/workforce-planning#reviews"
+            className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-900 shadow-sm hover:bg-amber-100"
+          >
+            Review queue ({reviewSummary.total})
+          </Link>
+        ) : null}
       </div>
+
+      {showWorkforceReviews && reviewSummary && reviewSummary.total > 0 ? (
+        <div className="mb-8 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-amber-900">Workforce reviews waiting</p>
+          <p className="mt-1 text-sm text-amber-800/90">
+            {reviewSummary.pendingCredentials} credential{reviewSummary.pendingCredentials === 1 ? "" : "s"} and{" "}
+            {reviewSummary.pendingLeave} leave request{reviewSummary.pendingLeave === 1 ? "" : "s"} need your decision.
+          </p>
+          <Link href="/workforce-planning#reviews" className="mt-3 inline-block text-sm font-medium text-amber-900 hover:underline">
+            Open review queue
+          </Link>
+        </div>
+      ) : null}
 
       {showMyWorkplace && myActionItems.length > 0 ? (
         <div className="mb-8 rounded-2xl border border-[#f9a8d4]/30 bg-gradient-to-br from-[#fdf2f8]/80 to-white p-5 shadow-sm">

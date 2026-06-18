@@ -176,3 +176,68 @@ export async function persistMyCredential(
   });
   if (actError) throw actError;
 }
+
+export async function persistCredentialReview(
+  supabase: SupabaseClient,
+  employeeId: string,
+  credentialId: string,
+  update: { status: string; reviewNotes: string; reviewedBy: string; reviewedAt: string },
+  activity: EmployeeActivityRow
+): Promise<void> {
+  const { error } = await supabase
+    .from("employee_credential")
+    .update({
+      status: update.status,
+      review_notes: update.reviewNotes,
+      reviewed_by: update.reviewedBy,
+      reviewed_at: update.reviewedAt,
+      updated_by: update.reviewedBy,
+    })
+    .eq("id", credentialId)
+    .eq("employee_id", employeeId);
+  if (error) throw error;
+
+  const { error: actError } = await supabase.from("employee_activity").insert({
+    id: activity.id,
+    employee_id: employeeId,
+    line_no: activity.lineNo,
+    activity_date: activity.date || null,
+    activity_type: activity.activityType,
+    subject: activity.subject,
+    description: activity.description,
+    created_by: activity.createdBy,
+  });
+  if (actError) throw actError;
+}
+
+export async function persistLeaveReview(
+  supabase: SupabaseClient,
+  employeeId: string,
+  requestId: string,
+  update: { status: string; reviewedBy: string; reviewedAt: string; declineReason: string },
+  activity: EmployeeActivityRow
+): Promise<void> {
+  const { error } = await supabase
+    .from("employee_leave_request")
+    .update({
+      status: update.status,
+      reviewed_by: update.reviewedBy,
+      reviewed_at: update.reviewedAt,
+      decline_reason: update.declineReason,
+    })
+    .eq("id", requestId)
+    .eq("employee_id", employeeId);
+  if (error) throw error;
+
+  const { error: actError } = await supabase.from("employee_activity").insert({
+    id: activity.id,
+    employee_id: employeeId,
+    line_no: activity.lineNo,
+    activity_date: activity.date || null,
+    activity_type: activity.activityType,
+    subject: activity.subject,
+    description: activity.description,
+    created_by: activity.createdBy,
+  });
+  if (actError) throw actError;
+}

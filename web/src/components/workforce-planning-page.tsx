@@ -9,6 +9,7 @@ import { useReferenceData } from "@/lib/config-store";
 import type { EmployeeRecord } from "@/lib/employee";
 import { addDays, formatMonthYear, isoFromDate, isSameDay, monthGridDays } from "@/lib/personal-calendar";
 import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planning-subnav";
+import { WorkforceReviewQueuePanel } from "@/components/workforce/workforce-review-queue";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -152,6 +153,7 @@ export function WorkforcePlanningPage() {
       audit={{ moduleLabel: "Workforce planning" }}
     >
       <WorkforcePlanningSubnav />
+      <WorkforceReviewQueuePanel />
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <h2 className="text-lg font-semibold text-slate-900">Organisation leave calendar</h2>

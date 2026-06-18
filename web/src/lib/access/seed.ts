@@ -101,7 +101,16 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-exec-ict", "ICT_Executive", "ICT Executive", "Executive lead for systems and technology", executiveAccess()),
   defineRole("role-exec-quality", "Quality_Executive", "Quality Executive", "Executive lead for quality and compliance", executiveAccess()),
   defineRole("role-hr-manager", "HR_Manager", "HR Manager", "HR team leadership", managerAccess(["workforce-organisation"])),
-  defineRole("role-hr-officer", "HR_Officer", "HR Officer", "HR administration and employee records", officerAccess(["employees", "employee-overview"])),
+  defineRole(
+    "role-hr-officer",
+    "HR_Officer",
+    "HR Officer",
+    "HR administration and employee records",
+    {
+      ...officerAccess(["employees", "employee-overview", "employee-credentials-assigned"]),
+      processIds: [...officerAccess(["employees", "employee-overview"]).processIds, "review-employee-credential", "approve-leave-request"],
+    }
+  ),
   defineRole("role-ict-manager", "ICT_Manager", "ICT Manager", "ICT team leadership and system support", managerAccess()),
   defineRole("role-ict-officer", "ICT_Officer", "ICT Officer", "ICT support and administration", officerAccess()),
   defineRole("role-finance-manager", "Finance_Manager", "Finance Manager", "Finance team leadership", managerAccess()),

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
+import { useData } from "@/lib/data-store";
+import type { EmployeeRecord } from "@/lib/employee";
 import { dayLabels } from "@/lib/my-workplace/types";
 import type { EmployeeAvailabilityRow } from "@/lib/employee";
 
@@ -13,6 +15,7 @@ const inputClass =
 const AVAILABILITY_OPTIONS = ["Available", "Preferred", "Unavailable"];
 
 export function MyAvailabilityPage() {
+  const { upsertEmployee } = useData();
   const [rows, setRows] = useState<EmployeeAvailabilityRow[]>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -45,8 +48,9 @@ export function MyAvailabilityPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rows }),
       });
-      const body = (await res.json()) as { error?: string; rows?: EmployeeAvailabilityRow[] };
+      const body = (await res.json()) as { error?: string; employee?: EmployeeRecord; rows?: EmployeeAvailabilityRow[] };
       if (!res.ok) throw new Error(body.error ?? "Save failed");
+      if (body.employee) upsertEmployee(body.employee);
       setRows(body.rows ?? rows);
       setMessage("Availability saved.");
     } catch (err) {

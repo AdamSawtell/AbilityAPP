@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs, useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
+import { MyLeaveCalendar } from "@/components/my-workplace/my-leave-calendar";
 import { StatusBadge } from "@/components/status-badge";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -87,6 +88,8 @@ export function MyLeavePage() {
         audit={{ moduleLabel: "My leave" }}
       >
         <MyWorkplaceSubnav />
+
+        <MyLeaveCalendar leaveRequests={leaveRequests} />
 
         {entitlements.length > 0 ? (
           <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
