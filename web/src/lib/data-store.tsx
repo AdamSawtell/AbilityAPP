@@ -135,7 +135,7 @@ type DataStore = {
     options?: { assigneeDisplayName?: string }
   ) => TaskRecord;
   addAutomationTasks: (drafts: AutomationTaskDraft[]) => void;
-  upsertTaskAutomation: (rule: TaskAutomationRecord) => void;
+  upsertTaskAutomation: (rule: TaskAutomationRecord) => Promise<void>;
   deleteTaskAutomation: (id: string) => void;
   mutateTask: (id: string, mutator: (task: TaskRecord) => TaskRecord) => void;
   relinkEntityTasks: (
@@ -525,7 +525,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const upsertTaskAutomation = useCallback(
-    (rule: TaskAutomationRecord) => {
+    async (rule: TaskAutomationRecord) => {
       setTaskAutomations((prev) => {
         const exists = prev.some((r) => r.id === rule.id);
         const merged = exists ? prev.map((r) => (r.id === rule.id ? rule : r)) : [...prev, rule];
@@ -533,7 +533,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       });
       if (source === "supabase" && isSupabaseConfigured()) {
         const supabase = createClient();
-        void saveTaskAutomation(supabase, rule);
+        await saveTaskAutomation(supabase, rule);
       }
     },
     [source]

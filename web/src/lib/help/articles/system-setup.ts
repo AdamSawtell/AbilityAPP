@@ -254,7 +254,7 @@ export const systemTasksSetupArticle: HelpArticle = {
     {
       id: "automations",
       title: "Task automations",
-      body: "System → Tasks → Task automations holds rules that create tasks when records change or on schedules. Incident automations are live today; other module engines can be configured ahead of release.\n\nFor step-by-step configuration, read [Task automations](/system/guides/task-automations).",
+      body: "System → Admin → Task automations holds rules that create tasks when records change or on schedules. All rule types run when their triggers fire.\n\nFor step-by-step configuration, read [Task automations](/system/guides/task-automations).",
       relatedRoutes: ["/system/admin/task-automations", "/system/guides/task-automations"],
     },
   ],

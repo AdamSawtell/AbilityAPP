@@ -1,16 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import type { EmployeeRecord } from "@/lib/employee";
 import type { OrgPositionRecord, PositionAssignmentRecord } from "@/lib/org-structure";
 import { groupPositionsByChartTier } from "@/lib/org-chart-tiers";
 import { shouldCollapseSiblingGroup } from "@/lib/org-chart-layout";
-import {
-  actingAssignmentForPosition,
-  activeAssignments,
-  isEmployeeOnLeaveToday,
-} from "@/lib/org-structure-tree";
+import { activeAssignments, isEmployeeOnLeaveToday } from "@/lib/org-structure-tree";
 import { checkHolderRoleAlignment } from "@/lib/org-position-role-alignment";
 
 export type OrgChartTierCardProps = {
@@ -34,6 +30,16 @@ export type OrgChartTierCardProps = {
   onDrop: (e: React.DragEvent) => void;
 };
 
+type PositionSlotDerived = {
+  employeeName: string;
+  actingName: string;
+  onLeave: boolean;
+  locationLabel: string;
+  roleLabel: string;
+  parentTitle: string;
+  holderRoleMisaligned: boolean;
+};
+
 type TierViewContext = {
   employeesById: Map<string, EmployeeRecord>;
   employeeNameById: Map<string, string>;
@@ -44,6 +50,7 @@ type TierViewContext = {
   roles: AppRoleRecord[];
   assignments: PositionAssignmentRecord[];
   dottedTargetsByPositionId: Map<string, { title: string; label: string }[]>;
+  slotDerivedByPositionId: Map<string, PositionSlotDerived>;
   canEdit: boolean;
   selectedId: string | null;
   dragId: string | null;
@@ -56,7 +63,80 @@ type TierViewContext = {
   renderCard: (props: OrgChartTierCardProps) => React.ReactNode;
 };
 
-function TierPositionSlot({
+function buildSlotDerivedByPositionId(
+  positions: OrgPositionRecord[],
+  ctx: Pick<
+    TierViewContext,
+    | "employeesById"
+    | "employeeNameById"
+    | "locationNameById"
+    | "roleNameById"
+    | "positionTitleById"
+    | "users"
+    | "roles"
+    | "assignments"
+  >
+): Map<string, PositionSlotDerived> {
+  const active = activeAssignments(ctx.assignments);
+  const actingByPositionId = new Map<string, PositionAssignmentRecord>();
+  for (const assignment of active) {
+    if (assignment.assignmentType === "acting") {
+      actingByPositionId.set(assignment.positionId, assignment);
+    }
+  }
+
+  const derived = new Map<string, PositionSlotDerived>();
+  for (const position of positions) {
+    const employeeName = position.primaryEmployeeId
+      ? ctx.employeeNameById.get(position.primaryEmployeeId) ?? "Unknown"
+      : "";
+    const acting = actingByPositionId.get(position.id);
+    const actingName = acting?.employeeId ? ctx.employeeNameById.get(acting.employeeId) ?? "" : "";
+    const primaryEmployee = position.primaryEmployeeId
+      ? ctx.employeesById.get(position.primaryEmployeeId)
+      : undefined;
+    const onLeave = primaryEmployee ? isEmployeeOnLeaveToday(primaryEmployee) : false;
+    const locationLabel = position.locationId
+      ? ctx.locationNameById.get(position.locationId) ?? ""
+      : position.site;
+    const roleLabel = position.securityRoleId ? ctx.roleNameById.get(position.securityRoleId) ?? "" : "";
+    const parentTitle = position.parentPositionId
+      ? ctx.positionTitleById.get(position.parentPositionId) ?? ""
+      : "";
+    const holderRoleMisaligned = Boolean(
+      (position.primaryEmployeeId &&
+        checkHolderRoleAlignment({
+          employeeId: position.primaryEmployeeId,
+          employeeName,
+          requiredRoleId: position.securityRoleId,
+          users: ctx.users,
+          roles: ctx.roles,
+        })) ||
+        (acting?.employeeId &&
+          checkHolderRoleAlignment({
+            employeeId: acting.employeeId,
+            employeeName: actingName,
+            requiredRoleId: position.securityRoleId,
+            users: ctx.users,
+            roles: ctx.roles,
+          }))
+    );
+
+    derived.set(position.id, {
+      employeeName,
+      actingName,
+      onLeave,
+      locationLabel,
+      roleLabel,
+      parentTitle,
+      holderRoleMisaligned,
+    });
+  }
+
+  return derived;
+}
+
+const TierPositionSlot = memo(function TierPositionSlot({
   position,
   compact,
   ctx,
@@ -66,15 +146,8 @@ function TierPositionSlot({
   ctx: TierViewContext;
 }) {
   const {
-    employeesById,
-    employeeNameById,
-    locationNameById,
-    roleNameById,
-    positionTitleById,
-    users,
-    roles,
-    assignments,
     dottedTargetsByPositionId,
+    slotDerivedByPositionId,
     canEdit,
     selectedId,
     dragId,
@@ -87,50 +160,25 @@ function TierPositionSlot({
     renderCard,
   } = ctx;
 
-  const employeeName = position.primaryEmployeeId
-    ? employeeNameById.get(position.primaryEmployeeId) ?? "Unknown"
-    : "";
-  const acting = actingAssignmentForPosition(activeAssignments(assignments), position.id);
-  const actingName = acting?.employeeId ? employeeNameById.get(acting.employeeId) ?? "" : "";
-  const primaryEmployee = position.primaryEmployeeId
-    ? employeesById.get(position.primaryEmployeeId)
-    : undefined;
-  const onLeave = primaryEmployee ? isEmployeeOnLeaveToday(primaryEmployee) : false;
-  const locationLabel = position.locationId
-    ? locationNameById.get(position.locationId) ?? ""
-    : position.site;
-  const roleLabel = position.securityRoleId ? roleNameById.get(position.securityRoleId) ?? "" : "";
-  const parentTitle = position.parentPositionId
-    ? positionTitleById.get(position.parentPositionId) ?? ""
-    : "";
-  const holderRoleMisaligned = Boolean(
-    (position.primaryEmployeeId &&
-      checkHolderRoleAlignment({
-        employeeId: position.primaryEmployeeId,
-        employeeName,
-        requiredRoleId: position.securityRoleId,
-        users,
-        roles,
-      })) ||
-      (acting?.employeeId &&
-        checkHolderRoleAlignment({
-          employeeId: acting.employeeId,
-          employeeName: actingName,
-          requiredRoleId: position.securityRoleId,
-          users,
-          roles,
-        }))
-  );
+  const slot = slotDerivedByPositionId.get(position.id) ?? {
+    employeeName: "",
+    actingName: "",
+    onLeave: false,
+    locationLabel: "",
+    roleLabel: "",
+    parentTitle: "",
+    holderRoleMisaligned: false,
+  };
 
   const cardProps: OrgChartTierCardProps = {
     position,
-    employeeName,
-    actingName,
-    onLeave,
-    locationLabel,
-    roleLabel,
-    parentTitle,
-    holderRoleMisaligned,
+    employeeName: slot.employeeName,
+    actingName: slot.actingName,
+    onLeave: slot.onLeave,
+    locationLabel: slot.locationLabel,
+    roleLabel: slot.roleLabel,
+    parentTitle: slot.parentTitle,
+    holderRoleMisaligned: slot.holderRoleMisaligned,
     dottedTargets: dottedTargetsByPositionId.get(position.id) ?? [],
     canEdit,
     selected: selectedId === position.id,
@@ -153,7 +201,7 @@ function TierPositionSlot({
   return (
     <div className={compact ? "w-full" : "w-[12rem] shrink-0"}>{renderCard(cardProps)}</div>
   );
-}
+});
 
 function TierDeliveryGroup({
   title,
@@ -203,7 +251,7 @@ export function OrgChartTierView({
   tierConfigs,
   renderCard,
   ...ctx
-}: TierViewContext & {
+}: Omit<TierViewContext, "slotDerivedByPositionId"> & {
   positions: OrgPositionRecord[];
   tierConfigs?: import("@/lib/org-chart-tier-config").OrgChartTierConfigRecord[];
 }) {
@@ -211,55 +259,83 @@ export function OrgChartTierView({
     () => groupPositionsByChartTier(positions, tierConfigs),
     [positions, tierConfigs]
   );
-  const slotCtx: TierViewContext = { ...ctx, renderCard };
+
+  const slotDerivedByPositionId = useMemo(
+    () =>
+      buildSlotDerivedByPositionId(positions, {
+        employeesById: ctx.employeesById,
+        employeeNameById: ctx.employeeNameById,
+        locationNameById: ctx.locationNameById,
+        roleNameById: ctx.roleNameById,
+        positionTitleById: ctx.positionTitleById,
+        users: ctx.users,
+        roles: ctx.roles,
+        assignments: ctx.assignments,
+      }),
+    [
+      positions,
+      ctx.employeesById,
+      ctx.employeeNameById,
+      ctx.locationNameById,
+      ctx.roleNameById,
+      ctx.positionTitleById,
+      ctx.users,
+      ctx.roles,
+      ctx.assignments,
+    ]
+  );
+
+  const bandLayouts = useMemo(() => {
+    return bands.map((band) => {
+      const swNodes = band.positions.filter((p) => p.securityRoleId === "role-support-worker");
+      const collapseSw = shouldCollapseSiblingGroup("role-support-worker", swNodes.length);
+
+      const singles = collapseSw
+        ? band.positions.filter((p) => p.securityRoleId !== "role-support-worker")
+        : [...band.positions];
+
+      singles.sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
+
+      const swGroup =
+        collapseSw && swNodes.length
+          ? {
+              title: ctx.roleNameById.get("role-support-worker") ?? "Support Worker",
+              roleLabel: ctx.roleNameById.get("role-support-worker") ?? "Support Worker",
+              nodes: swNodes,
+            }
+          : null;
+
+      return { band, singles, swGroup };
+    });
+  }, [bands, ctx.roleNameById]);
+
+  const slotCtx: TierViewContext = { ...ctx, slotDerivedByPositionId, renderCard };
 
   return (
     <div className="flex w-max min-w-full flex-col gap-6">
-      {bands.map((band) => {
-        const singles: OrgPositionRecord[] = [];
-        const swNodes = band.positions.filter((p) => p.securityRoleId === "role-support-worker");
-
-        if (shouldCollapseSiblingGroup("role-support-worker", swNodes.length)) {
-          singles.push(...band.positions.filter((p) => p.securityRoleId !== "role-support-worker"));
-        } else {
-          singles.push(...band.positions);
-        }
-
-        singles.sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
-
-        const swGroup =
-          shouldCollapseSiblingGroup("role-support-worker", swNodes.length) && swNodes.length
-            ? {
-                title: ctx.roleNameById.get("role-support-worker") ?? "Support Worker",
-                roleLabel: ctx.roleNameById.get("role-support-worker") ?? "Support Worker",
-                nodes: swNodes,
-              }
-            : null;
-
-        return (
-          <section key={band.tier} className="w-full">
-            <div className="mb-2 flex items-center gap-2 px-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{band.label}</h3>
-              <span className="text-[10px] text-slate-400">
-                {band.positions.length} position{band.positions.length === 1 ? "" : "s"}
-              </span>
-            </div>
-            <div className="flex w-max min-w-full flex-row flex-nowrap items-start justify-center gap-4 overflow-x-auto pb-2">
-              {singles.map((position) => (
-                <TierPositionSlot key={position.id} position={position} ctx={slotCtx} />
-              ))}
-              {swGroup ? (
-                <TierDeliveryGroup
-                  title={swGroup.title}
-                  roleLabel={swGroup.roleLabel}
-                  nodes={swGroup.nodes}
-                  ctx={slotCtx}
-                />
-              ) : null}
-            </div>
-          </section>
-        );
-      })}
+      {bandLayouts.map(({ band, singles, swGroup }) => (
+        <section key={band.tier} className="w-full">
+          <div className="mb-2 flex items-center gap-2 px-1">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{band.label}</h3>
+            <span className="text-[10px] text-slate-400">
+              {band.positions.length} position{band.positions.length === 1 ? "" : "s"}
+            </span>
+          </div>
+          <div className="flex w-max min-w-full flex-row flex-nowrap items-start justify-center gap-4 overflow-x-auto pb-2">
+            {singles.map((position) => (
+              <TierPositionSlot key={position.id} position={position} ctx={slotCtx} />
+            ))}
+            {swGroup ? (
+              <TierDeliveryGroup
+                title={swGroup.title}
+                roleLabel={swGroup.roleLabel}
+                nodes={swGroup.nodes}
+                ctx={slotCtx}
+              />
+            ) : null}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

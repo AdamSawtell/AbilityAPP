@@ -160,6 +160,9 @@ export function ReportsAdvanceView({ variant = "workspace" }: { variant?: "works
             rows={result.rows}
             maxColumns={Math.max(result.columns.length, 20)}
             exportFilename={`reports-advance-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.csv`}
+            paginate
+            pageSize={50}
+            richCells
           />
         ) : (
           <p className="text-sm text-slate-500">Run a query to see results here.</p>

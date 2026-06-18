@@ -13,7 +13,7 @@ import { fetchReferenceCatalog, replaceReferenceOptions } from "@/lib/supabase/r
 type ReferenceDataStore = {
   catalog: ReferenceDataCatalog;
   getOptions: (key: string) => string[];
-  setOptions: (key: string, options: string[]) => void;
+  setOptions: (key: string, options: string[]) => Promise<void>;
   resetKey: (key: string) => void;
   resetAll: () => void;
   source: "supabase" | "local";
@@ -112,16 +112,14 @@ export function ReferenceDataProvider({ children }: { children: React.ReactNode 
   );
 
   const setOptions = useCallback(
-    (key: string, options: string[]) => {
+    async (key: string, options: string[]) => {
       const trimmed = options.filter((o) => o.trim());
 
       if (source === "supabase" && isSupabaseConfigured()) {
-        void (async () => {
-          const supabase = createClient();
-          await replaceReferenceOptions(supabase, key, trimmed);
-          const next = await fetchReferenceCatalog(supabase);
-          setRemoteCatalog(next);
-        })();
+        const supabase = createClient();
+        await replaceReferenceOptions(supabase, key, trimmed);
+        const next = await fetchReferenceCatalog(supabase);
+        setRemoteCatalog(next);
         return;
       }
 

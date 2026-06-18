@@ -72,6 +72,7 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
   const [activeId, setActiveId] = useState<string | null>(sorted[0]?.id ?? null);
   const [draft, setDraft] = useState<TaskAutomationRecord | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveError, setSaveError] = useState("");
   const [previewIncidentId, setPreviewIncidentId] = useState("inc-1000003");
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -175,19 +176,25 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
     setSaveState("idle");
   }
 
-  function saveRule() {
+  async function saveRule() {
     if (!record?.name.trim()) return;
     setSaveState("saving");
-    upsertTaskAutomation(
-      normalizeTaskAutomation({
-        ...record,
-        name: record.name.trim(),
-        titleTemplate: record.titleTemplate.trim(),
-        descriptionTemplate: record.descriptionTemplate.trim(),
-      })
-    );
-    setDraft(null);
-    setSaveState("saved");
+    setSaveError("");
+    try {
+      await upsertTaskAutomation(
+        normalizeTaskAutomation({
+          ...record,
+          name: record.name.trim(),
+          titleTemplate: record.titleTemplate.trim(),
+          descriptionTemplate: record.descriptionTemplate.trim(),
+        })
+      );
+      setDraft(null);
+      setSaveState("saved");
+    } catch {
+      setSaveState("idle");
+      setSaveError("Could not save rule. Check your connection and try again.");
+    }
   }
 
   function removeRule() {
@@ -335,6 +342,11 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
               <p className="mb-4 text-xs text-slate-500">
                 {saveState === "saved" ? "Saved." : isDirty ? "Unsaved changes." : "No changes."}
               </p>
+              {saveError ? (
+                <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                  {saveError}
+                </p>
+              ) : null}
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Name">

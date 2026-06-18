@@ -26,6 +26,7 @@ export function ReferenceDataAdminView({
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveError, setSaveError] = useState("");
 
   const systemSection: SystemReferenceSectionKey | null =
     variant === "system" && sectionKey && isSystemReferenceSectionKey(sectionKey) ? sectionKey : null;
@@ -62,15 +63,21 @@ export function ReferenceDataAdminView({
     setSaveState("idle");
   }
 
-  function saveKey() {
+  async function saveKey() {
     if (!activeKey) return;
     setSaveState("saving");
+    setSaveError("");
     const options = draftText
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean);
-    setOptions(activeKey, options);
-    setSaveState("saved");
+    try {
+      await setOptions(activeKey, options);
+      setSaveState("saved");
+    } catch {
+      setSaveState("idle");
+      setSaveError("Could not save options. Check your connection and try again.");
+    }
   }
 
   function resetSectionToDefaults() {
@@ -242,6 +249,11 @@ export function ReferenceDataAdminView({
                 >
                   {saveState === "saving" ? "Saving..." : "Save options"}
                 </button>
+                {saveError ? (
+                  <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                    {saveError}
+                  </p>
+                ) : null}
                 <p className="mt-2 text-xs text-slate-500">
                   {saveState === "saved" ? "Saved." : isDirty ? "Unsaved changes." : "No changes."}
                 </p>
