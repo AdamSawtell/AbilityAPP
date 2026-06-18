@@ -174,7 +174,7 @@ export const systemOrganisationArticle: HelpArticle = {
         "Add or reorder tier rows — label and sort order.",
         "Save. Existing positions use the updated tier names on the chart.",
       ],
-      relatedRoutes: ["/system/org-chart-tiers", "/system/admin/organisation-structure"],
+      relatedRoutes: ["/system/org-chart-tiers", "/workforce-planning/organisation"],
     },
   ],
 };
@@ -219,7 +219,7 @@ export const systemRolesAccessArticle: HelpArticle = {
       id: "org-positions",
       title: "Roles vs org chart positions",
       body: "Security roles control app access. Org chart positions in Workforce planning assign holders to slots in the reporting tree. Each position links to exactly one security role — many positions can share the same role.\n\nSee [Workforce organisation structure](/help/workforce-organisation) for the position tree and automations.",
-      relatedRoutes: ["/system/admin/organisation-structure", "/help/workforce-organisation"],
+      relatedRoutes: ["/workforce-planning/organisation", "/help/workforce-organisation"],
     },
   ],
 };

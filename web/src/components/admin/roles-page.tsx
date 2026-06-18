@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
-import { ACCESS_PROCESSES, ACCESS_WINDOWS, appRoleWindows, childWindows, sanitizeAppWindowKeys } from "@/lib/access/catalog";
+import { ACCESS_PROCESSES, ACCESS_WINDOWS, appChildWindows, appRoleWindows, sanitizeAppWindowKeys } from "@/lib/access/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { useAuth } from "@/lib/auth-store";
@@ -66,7 +66,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
       : [...record.windowKeys, key];
 
     if (has && win && !win.parentWindowKey) {
-      const dependents = childWindows(key).map((c) => c.key);
+      const dependents = appChildWindows(key).map((c) => c.key);
       nextKeys = nextKeys.filter((k) => !dependents.includes(k));
     }
 
@@ -112,7 +112,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
           ? [{ label: "System", href: "/system" }, { label: "Admin", href: "/system/admin/roles" }, { label: "Roles" }]
           : [
               { label: "Home", href: "/" },
-              { label: "Admin", href: "/system/admin/roles" },
+              { label: "Admin", href: "/admin/roles" },
               { label: "Roles" },
             ]
       }
@@ -178,7 +178,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                 <p className="mb-4 text-xs text-slate-500">
                   Top-level windows appear in the workspace sidebar. Dependent windows (indented) are tabs or
                   sub-functions inside a parent — e.g. Overview under Clients, or Credentials Assigned under
-                  Employees. System-only windows (roles, task management, organisation structure, Reports Advance,
+                  Employees.                   System-only windows (task management, Reports Advance,
                   and similar) are available to every signed-in System operator and are not listed here.
                 </p>
                 {[...windowsByGroup.entries()].map(([group, items]) => {
@@ -205,9 +205,9 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                             />
                             {w.label}
                           </label>
-                          {childWindows(w.key).length > 0 ? (
+                          {appChildWindows(w.key).length > 0 ? (
                             <div className="ml-4 mt-2 flex flex-wrap gap-2 border-l border-slate-200 pl-3">
-                              {childWindows(w.key).map((child) => (
+                              {appChildWindows(w.key).map((child) => (
                                 <label
                                   key={child.key}
                                   title={child.abilityErpName}

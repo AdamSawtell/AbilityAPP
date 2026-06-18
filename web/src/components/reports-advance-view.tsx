@@ -67,7 +67,7 @@ export function ReportsAdvanceView({ variant = "workspace" }: { variant?: "works
           variant === "system"
             ? [
                 { label: "System", href: "/system" },
-                { label: "Admin", href: "/system/admin/roles" },
+                { label: "Reports" },
                 { label: "Reports Advance" },
               ]
             : [
@@ -77,12 +77,16 @@ export function ReportsAdvanceView({ variant = "workspace" }: { variant?: "works
               ]
         }
       >
-        <p className="text-sm text-slate-500">Your role does not have access to Reports Advance.</p>
+        <p className="text-sm text-slate-500">
+          {variant === "system"
+            ? "Sign in to System to use Reports Advance."
+            : "Reports Advance is in System setup under Reports."}
+        </p>
         <Link
-          href={variant === "system" ? "/system/admin/reports-advance" : "/reports"}
+          href={variant === "system" ? "/system" : "/reports"}
           className="mt-4 inline-block text-sm font-medium text-[#d4147a] hover:underline"
         >
-          {variant === "system" ? "Back to System Admin" : "Back to reports"}
+          {variant === "system" ? "Back to System" : "Back to reports"}
         </Link>
       </Shell>
     );
@@ -96,7 +100,7 @@ export function ReportsAdvanceView({ variant = "workspace" }: { variant?: "works
         variant === "system"
           ? [
               { label: "System", href: "/system" },
-              { label: "Admin", href: "/system/admin/roles" },
+              { label: "Reports" },
               { label: "Reports Advance" },
             ]
           : [

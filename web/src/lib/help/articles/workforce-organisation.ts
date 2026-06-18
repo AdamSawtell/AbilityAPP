@@ -25,7 +25,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     "how to",
   ],
   relatedRoutes: [
-    "/system/admin/organisation-structure",
+    "/workforce-planning/organisation",
     "/workforce-planning",
     "/system/admin/task-automations",
     "/incidents",
@@ -46,7 +46,7 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Acting assignments cover leave without changing reporting lines.",
         "Task automations can assign to a security role, an org position holder, or the incident accountable manager.",
       ],
-      relatedRoutes: ["/system/admin/organisation-structure"],
+      relatedRoutes: ["/workforce-planning/organisation"],
       windowKeys: ["workforce-organisation"],
     },
     {
@@ -59,7 +59,7 @@ export const workforceOrganisationArticle: HelpArticle = {
         "workforce-org-chart-tier — change chart tier bands (typically admin only; assign in System → Admin → Roles)",
         "incident-manager-override — sign off reportable incidents when you are not the accountable manager (typically admin)",
       ],
-      relatedRoutes: ["/system/admin/roles", "/system/admin/organisation-structure"],
+      relatedRoutes: ["/admin/roles", "/workforce-planning/organisation"],
       windowKeys: ["workforce-organisation", "workforce-org-edit", "incident-manager-override"],
     },
     {
@@ -72,7 +72,7 @@ export const workforceOrganisationArticle: HelpArticle = {
         "The chart shows tier bands from governance through delivery staff.",
         "Click a card to open the position editor on the right.",
       ],
-      relatedRoutes: ["/system/admin/organisation-structure"],
+      relatedRoutes: ["/workforce-planning/organisation"],
     },
     {
       id: "filters",
@@ -83,13 +83,13 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Review the filtered subtree — site team leaders and their support workers appear under Operations nodes.",
         "Click Clear filters to return to the full tree.",
       ],
-      relatedRoutes: ["/system/admin/organisation-structure"],
+      relatedRoutes: ["/workforce-planning/organisation"],
     },
     {
       id: "chart-layout",
       title: "Reading a large chart",
       body: "The chart uses manually managed tiers — horizontal bands labelled Tier 1 through Tier 7. Each position sits on the tier set in the Chart tier section of the position editor (right panel after you click a card).\n\nChanging tiers requires Organisation structure — chart tiers in System → Admin → Roles (seeded on AbilityAPP Admin only). Other editors can view the current tier but cannot change it.\n\nTypical bands: governance and board (tiers 1–2), CEO (3), executives (4), managers (5), team leaders (6), support workers (7). Peers on the same tier appear side by side; scroll sideways on wide rows.\n\nDrag the grip (⋮⋮) onto another card to change solid reporting (Reports to in the editor). Change Chart tier if a card is on the wrong row (admin permission).\n\nDotted lines (⋯→ on cards) show secondary accountability without moving the card tier.\n\nSupport workers (three or more on tier 7) collapse into Support Worker × N. Click Expand to see each holder.\n\nUse Chart view lenses to focus on executive council or functional delivery.",
-      relatedRoutes: ["/system/admin/organisation-structure"],
+      relatedRoutes: ["/workforce-planning/organisation"],
     },
     {
       id: "security-role",
@@ -102,7 +102,7 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Set Position title if you need a site-specific label.",
         "Assign primary and acting holders as needed.",
       ],
-      relatedRoutes: ["/system/admin/roles", "/system/admin/organisation-structure"],
+      relatedRoutes: ["/admin/roles", "/workforce-planning/organisation"],
     },
     {
       id: "holder-login-role",
@@ -114,7 +114,7 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Click Add role to login or Create login with role on the warning — requires Organisation structure — edit or Employee system-access access.",
         "Board chair Eleanor Wright (EleanorWright) and all manager/officer seed logins use password welcome unless noted.",
       ],
-      relatedRoutes: ["/employees", "/system/admin/organisation-structure"],
+      relatedRoutes: ["/employees", "/workforce-planning/organisation"],
     },
     {
       id: "dotted-reporting",
@@ -126,7 +126,7 @@ export const workforceOrganisationArticle: HelpArticle = {
         "Dotted connectors render on the chart; cards show ⋯→ target title.",
         "Remove a dotted line with Remove in the editor.",
       ],
-      relatedRoutes: ["/system/admin/organisation-structure"],
+      relatedRoutes: ["/workforce-planning/organisation"],
     },
     {
       id: "reparent",

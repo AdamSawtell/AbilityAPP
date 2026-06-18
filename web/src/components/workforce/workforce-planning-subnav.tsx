@@ -5,14 +5,26 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-store";
 
 const tabs = [
-  { href: "/workforce-planning", label: "Leave calendar", windowKey: "workforce-planning", exact: true },
+  {
+    href: "/workforce-planning",
+    label: "Leave calendar",
+    canShow: (canWindow: (key: string) => boolean) => canWindow("workforce-planning"),
+    exact: true,
+  },
+  {
+    href: "/workforce-planning/organisation",
+    label: "Organisation structure",
+    canShow: (canWindow: (key: string) => boolean) =>
+      canWindow("workforce-organisation") || canWindow("workforce-planning"),
+    exact: false,
+  },
 ] as const;
 
 export function WorkforcePlanningSubnav() {
   const pathname = usePathname();
   const { canWindow } = useAuth();
 
-  const visible = tabs.filter((t) => canWindow(t.windowKey));
+  const visible = tabs.filter((t) => t.canShow(canWindow));
   if (visible.length <= 1) return null;
 
   return (

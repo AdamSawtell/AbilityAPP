@@ -1,5 +1,5 @@
-import { RolesAdminView } from "@/components/admin/roles-page";
+import { redirect } from "next/navigation";
 
-export default function SystemRolesPage() {
-  return <RolesAdminView variant="system" />;
+export default function SystemRolesRedirect() {
+  redirect("/admin/roles");
 }

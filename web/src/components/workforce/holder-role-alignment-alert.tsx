@@ -85,7 +85,7 @@ export function HolderRoleAlignmentAlert({
             Employees → System access
           </Link>
           {issue.kind === "no_required_role" ? (
-            <Link href="/system/admin/roles" className="font-medium text-amber-900 underline hover:text-amber-950">
+            <Link href="/admin/roles" className="font-medium text-amber-900 underline hover:text-amber-950">
               System → Admin → Roles
             </Link>
           ) : null}

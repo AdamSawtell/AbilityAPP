@@ -164,7 +164,23 @@ export function SystemNav() {
         );
       })}
 
-      <div className="mt-auto border-t border-slate-200 pt-4">
+      <div className="mt-auto border-t border-slate-200 pt-3">
+        <Link
+          href="/system/guides"
+          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+            pathname.startsWith("/system/guides")
+              ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/60"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          }`}
+        >
+          <span className={pathname.startsWith("/system/guides") ? "text-[#d4147a]" : "text-slate-400"}>
+            <SystemNavIcon name="guides" />
+          </span>
+          <span>How-to guide</span>
+        </Link>
+      </div>
+
+      <div className="border-t border-slate-200 pt-4">
         <p className="truncate px-3 text-xs text-slate-500" title={orgName}>
           {orgName}
         </p>

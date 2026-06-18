@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { OrganisationStructurePage } from "@/components/workforce/organisation-structure-page";
 
 export default function OrganisationStructureRoute() {
-  redirect("/system/admin/organisation-structure");
+  return <OrganisationStructurePage variant="workspace" />;
 }

@@ -406,7 +406,7 @@ export function OrgPositionEditor({
   const canEdit = systemOperatorAccess || canWindow("workforce-org-edit");
   const canEditChartTier = systemOperatorAccess || canWindow("workforce-org-chart-tier");
   const canManageAccess =
-    systemOperatorAccess || canEdit || canWindow("employee-system-access");
+    systemOperatorAccess || canEdit || canWindow("employee-system-access") || canWindow("admin-roles");
 
   const activeRoles = useMemo(() => roles.filter((r) => r.active), [roles]);
   const employeesById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);

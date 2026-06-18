@@ -54,7 +54,7 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
     title: "Tasks setup",
     summary: "Task types, priority options, and automations that create work for roles.",
     checklist: [
-      "Configure task types and role permissions under Admin → Task management.",
+      "Configure task types and role permissions under Tasks → Task management.",
       "Set priority options in Reference data.",
       "Add automation rules when records change.",
     ],
@@ -128,21 +128,22 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
   workforce: {
     sectionKey: "workforce",
     title: "Workforce planning setup",
-    summary: "Leave types and statuses. Position tree is under Admin → Organisation structure.",
+    summary: "Leave types and statuses. Position tree is in workspace Workforce planning → Organisation structure.",
     checklist: [
       "Set leave type and leave request status options.",
-      "Configure org chart tiers, then maintain positions under Organisation structure.",
+      "Configure org chart tiers in System, then maintain positions under Organisation structure.",
     ],
     setupLinks: [
-      refDataLink("workforce"),
       {
-        href: "/system/admin/organisation-structure",
+        href: "/workforce-planning/organisation",
         label: "Organisation structure",
-        description: "Position tree and holders (System Admin).",
+        description: "Position tree and holders (workspace).",
       },
+      refDataLink("workforce"),
     ],
     workspaceLinks: [
       { href: "/workforce-planning", label: "Leave calendar", description: "Organisation leave view." },
+      { href: "/workforce-planning/organisation", label: "Organisation structure", description: "Position tree." },
     ],
     guideSlug: "workforce-setup",
   },
@@ -186,7 +187,7 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
     summary: "Report catalogue access is controlled by roles. Use Reports Advance for ad-hoc SQL.",
     checklist: [
       "Grant report windows per role under Admin → Roles.",
-      "Use Reports Advance for one-off exports (admin only).",
+      "Use Reports Advance for one-off exports (System → Reports).",
     ],
     setupLinks: [
       refDataLink("reports"),
@@ -218,21 +219,16 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
   admin: {
     sectionKey: "admin",
     title: "Admin setup",
-    summary: "Roles, shared reference data, task admin, reports advance, and organisation structure.",
+    summary: "Shared reference data used across modules. Role windows and permissions are in workspace Admin → Roles.",
     checklist: [
       "Configure shared reference data first (gender, states, Yes/No, alerts).",
-      "Set roles, task types, and automations.",
-      "Maintain organisation structure for manager routing.",
+      "Grant windows, processes, and reports per role in workspace Admin → Roles.",
     ],
     setupLinks: [
-      { href: "/system/admin/roles", label: "Roles", description: "Windows and permissions." },
+      { href: "/admin/roles", label: "Roles", description: "Windows and permissions (workspace Admin)." },
       { href: "/system/reference-data/admin", label: "Shared reference data", description: "Cross-module lists." },
-      { href: "/system/admin/task-management", label: "Task management", description: "Task types." },
-      { href: "/system/admin/task-automations", label: "Task automations", description: "Automation rules." },
-      { href: "/system/admin/organisation-structure", label: "Organisation structure", description: "Position tree." },
-      { href: "/system/admin/reports-advance", label: "Reports Advance", description: "SQL console." },
     ],
-    workspaceLinks: [],
+    workspaceLinks: [{ href: "/admin/roles", label: "Roles", description: "Security roles for workspace access." }],
     guideSlug: "roles-and-access",
   },
 };

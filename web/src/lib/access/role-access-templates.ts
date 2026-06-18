@@ -46,6 +46,7 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       "reports",
       ...TASK_ACCESS,
       "workforce-planning",
+      "workforce-organisation",
       "workforce-org-edit",
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees", "enquiries"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
@@ -96,7 +97,7 @@ export function officerAccess(
 
 export function boardAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
   return {
-    windowKeys: ["home", "reports", "workforce-planning", "incidents", "incidents-dashboard"],
+    windowKeys: ["home", "reports", "workforce-planning", "workforce-organisation", "incidents", "incidents-dashboard"],
     processIds: [],
     reportIds: ["incident-register", "ndis-reportable-incidents", "client-register"],
     taskTypePermissions: permissionsForTypes(["tt-review"]),

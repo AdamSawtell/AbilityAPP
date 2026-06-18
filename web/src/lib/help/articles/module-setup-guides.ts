@@ -24,7 +24,7 @@ function moduleSetupArticle(
         title: `Open ${title.toLowerCase()}`,
         steps: [
           "Sign in to System setup.",
-          `Open the module in the sidebar and choose Module setup, or go to ${setupRoute}.`,
+          `Open ${setupRoute} from Setup guides on the System home page, or use the direct link.`,
           "Work through the checklist, then open Reference data for dropdown lists.",
         ],
         relatedRoutes: [setupRoute],

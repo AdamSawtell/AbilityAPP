@@ -7,7 +7,6 @@ import { SystemShell } from "@/components/system/system-shell";
 import { OrgChart, OrgPositionEditor } from "@/components/workforce/org-chart";
 import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planning-subnav";
 import { useAuth } from "@/lib/auth-store";
-import { useAdminPageAccess } from "@/lib/access/window-surface";
 import { useData } from "@/lib/data-store";
 import { ORG_BUSINESS_AREAS } from "@/lib/org-structure";
 import {
@@ -23,7 +22,6 @@ import { countHolderMisalignments } from "@/lib/org-position-role-alignment";
 
 export function OrganisationStructurePage({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { canWindow, users, roles } = useAuth();
-  const { isSystemOperator } = useAdminPageAccess(variant);
   const { employees, locations } = useData();
   const { hydrated, positions, assignments } = useOrgStructure();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -56,10 +54,9 @@ export function OrganisationStructurePage({ variant = "workspace" }: { variant?:
     return { ...stats, onLeave };
   }, [positions, filters, filterActive, employees, chartLens]);
 
-  const systemOperatorAccess = variant === "system" && isSystemOperator;
-  const canView = systemOperatorAccess || canWindow("workforce-planning");
-  const canEdit = systemOperatorAccess || canWindow("workforce-org-edit");
-  const canEditChartTier = systemOperatorAccess || canWindow("workforce-org-chart-tier");
+  const canView = canWindow("workforce-organisation") || canWindow("workforce-planning");
+  const canEdit = canWindow("workforce-org-edit");
+  const canEditChartTier = canWindow("workforce-org-chart-tier");
   const Shell = variant === "system" ? SystemShell : AppShell;
 
   const roleMisalignmentCount = useMemo(
@@ -75,7 +72,7 @@ export function OrganisationStructurePage({ variant = "workspace" }: { variant?:
           variant === "system"
             ? [
                 { label: "System", href: "/system" },
-                { label: "Admin", href: "/system/admin/roles" },
+                { label: "Workforce planning" },
                 { label: "Organisation structure" },
               ]
             : [
@@ -99,7 +96,7 @@ export function OrganisationStructurePage({ variant = "workspace" }: { variant?:
         variant === "system"
           ? [
               { label: "System", href: "/system" },
-              { label: "Admin", href: "/system/admin/roles" },
+              { label: "Workforce planning" },
               { label: "Organisation structure" },
             ]
           : [
@@ -215,7 +212,6 @@ export function OrganisationStructurePage({ variant = "workspace" }: { variant?:
                 onSelect={setSelectedId}
                 filters={filters}
                 lens={chartLens}
-                systemOperatorAccess={systemOperatorAccess}
               />
             </div>
             <div className="w-full shrink-0 xl:w-80">
@@ -224,7 +220,6 @@ export function OrganisationStructurePage({ variant = "workspace" }: { variant?:
                 onClose={() => setSelectedId(null)}
                 onCreated={setSelectedId}
                 onSelectPosition={setSelectedId}
-                systemOperatorAccess={systemOperatorAccess}
               />
             </div>
           </div>

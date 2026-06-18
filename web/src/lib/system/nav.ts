@@ -9,13 +9,16 @@
  *   - icon name (add to `SystemNavIconName` + `system-nav-icons.tsx` if new)
  *   - expandable header + submenu pattern
  *
+ * Module setup pages (task management, reports advance, org structure, etc.) sit under their
+ * workspace module — not under Admin. Roles live in workspace Admin (`/admin/roles`).
+ *
+ * **How-to guide** is pinned to the bottom of `system-nav.tsx` (mirrors workspace `/help`).
+ *
  * Every section's submenu must end with **Reference data** (use `withReferenceData`).
  * Assign each list in `reference-data-sections.ts` when adding keys in `reference-data.ts`.
  *
  * Also update `SYSTEM_HOME_LINKS` when a setup page ships.
  */
-
-import { moduleSetupHref } from "@/lib/system/module-setup";
 
 export type SystemNavIconName =
   | "home"
@@ -63,28 +66,14 @@ export function referenceDataNavLink(sectionKey: string): SystemNavLink {
 }
 
 /** Reference data is always the last submenu item for a section. */
-export function moduleSetupNavLink(sectionKey: string): SystemNavLink {
-  const href = moduleSetupHref(sectionKey as import("@/lib/system/reference-data-sections").SystemReferenceSectionKey);
-  return {
-    href,
-    label: "Module setup",
-    match: (p) => p.startsWith(href),
-  };
-}
-
-export function withModuleSetup(sectionKey: string, links: SystemNavLink[]): SystemNavLink[] {
-  const without = links.filter((l) => l.label !== "Module setup");
-  return [moduleSetupNavLink(sectionKey), ...without];
-}
-
 export function withReferenceData(sectionKey: string, links: SystemNavLink[]): SystemNavLink[] {
   const withoutRef = links.filter((l) => l.label !== "Reference data");
   return [...withoutRef, referenceDataNavLink(sectionKey)];
 }
 
-/** Module setup first, other links, reference data last. */
+/** @deprecated Use withReferenceData — module setup pages are not sidebar items. */
 export function withModuleNav(sectionKey: string, links: SystemNavLink[]): SystemNavLink[] {
-  return withReferenceData(sectionKey, withModuleSetup(sectionKey, links));
+  return withReferenceData(sectionKey, links);
 }
 
 export function systemNavSectionLabel(sectionKey: string): string {
@@ -110,22 +99,21 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     ]),
   },
   {
-    key: "guides",
-    label: "How-to guide",
-    icon: "guides",
-    links: [
-      {
-        href: "/system/guides",
-        label: "Setup guides",
-        match: (p) => p.startsWith("/system/guides"),
-      },
-    ],
-  },
-  {
     key: "tasks",
     label: "Tasks",
     icon: "task",
-    links: withModuleNav("tasks", []),
+    links: withModuleNav("tasks", [
+      {
+        href: "/system/admin/task-management",
+        label: "Task management",
+        match: (p) => p.startsWith("/system/admin/task-management"),
+      },
+      {
+        href: "/system/admin/task-automations",
+        label: "Task automations",
+        match: (p) => p.startsWith("/system/admin/task-automations"),
+      },
+    ]),
   },
   {
     key: "enquiries",
@@ -173,7 +161,13 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "reports",
     label: "Reports",
     icon: "report",
-    links: withModuleNav("reports", []),
+    links: withModuleNav("reports", [
+      {
+        href: "/system/admin/reports-advance",
+        label: "Reports Advance",
+        match: (p) => p.startsWith("/system/admin/reports-advance"),
+      },
+    ]),
   },
   {
     key: "ai",
@@ -197,33 +191,7 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "admin",
     label: "Admin",
     icon: "admin",
-    links: withModuleNav("admin", [
-      {
-        href: "/system/admin/roles",
-        label: "Roles",
-        match: (p) => p.startsWith("/system/admin/roles"),
-      },
-      {
-        href: "/system/admin/task-management",
-        label: "Task management",
-        match: (p) => p.startsWith("/system/admin/task-management"),
-      },
-      {
-        href: "/system/admin/task-automations",
-        label: "Task automations",
-        match: (p) => p.startsWith("/system/admin/task-automations"),
-      },
-      {
-        href: "/system/admin/reports-advance",
-        label: "Reports Advance",
-        match: (p) => p.startsWith("/system/admin/reports-advance"),
-      },
-      {
-        href: "/system/admin/organisation-structure",
-        label: "Organisation structure",
-        match: (p) => p.startsWith("/system/admin/organisation-structure"),
-      },
-    ]),
+    links: withModuleNav("admin", []),
   },
 ];
 
@@ -234,12 +202,6 @@ export const SYSTEM_HOME_LINKS: {
   description: string;
   comingSoon?: boolean;
 }[] = [
-  {
-    sectionKey: "guides",
-    href: "/system/guides",
-    title: "Setup guides",
-    description: "Go-live checklist and how-to articles for organisation, reference data, roles, tasks, and AI.",
-  },
   {
     sectionKey: "organisation",
     href: "/system/organization",
@@ -253,39 +215,33 @@ export const SYSTEM_HOME_LINKS: {
     description: "Define chart band labels and order. Position assignment stays in Workforce planning.",
   },
   {
-    sectionKey: "admin",
-    href: "/system/admin/roles",
-    title: "Roles",
-    description: "Windows, processes, reports, and task-type permissions for each security role.",
-  },
-  {
-    sectionKey: "admin",
+    sectionKey: "tasks",
     href: "/system/admin/task-management",
     title: "Task management",
     description: "Request types, defaults, and how tasks behave across the workspace.",
   },
   {
-    sectionKey: "admin",
+    sectionKey: "tasks",
     href: "/system/admin/task-automations",
     title: "Task automations",
     description: "Rules that create or assign tasks when records change or schedules fire.",
   },
   {
-    sectionKey: "admin",
+    sectionKey: "reports",
     href: "/system/admin/reports-advance",
     title: "Reports Advance",
     description: "Read-only SQL console for advanced exports and investigations.",
-  },
-  {
-    sectionKey: "admin",
-    href: "/system/admin/organisation-structure",
-    title: "Organisation structure",
-    description: "Maintain the position tree, holders, and routing for manager accountability.",
   },
   {
     sectionKey: "ai",
     href: "/system/ai/assistants",
     title: "AI assistants",
     description: "Configure bots, prompts, tools, and which roles can use them on Home.",
+  },
+  {
+    sectionKey: "guides",
+    href: "/system/guides",
+    title: "Setup guides",
+    description: "Go-live checklist and how-to articles for organisation, reference data, roles, tasks, and AI.",
   },
 ];

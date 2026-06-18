@@ -174,8 +174,7 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     key: "workforce-organisation",
     label: "Organisation structure",
     group: "Workforce planning",
-    surface: "system",
-    href: "/system/admin/organisation-structure",
+    href: "/workforce-planning/organisation",
     parentWindowKey: "workforce-planning",
     abilityErpName: "Organisation structure",
     showInSidebar: false,
@@ -184,7 +183,6 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     key: "workforce-org-edit",
     label: "Edit organisation structure",
     group: "Workforce planning",
-    surface: "system",
     parentWindowKey: "workforce-organisation",
     abilityErpName: "Organisation structure — edit",
     showInSidebar: false,
@@ -193,7 +191,6 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     key: "workforce-org-chart-tier",
     label: "Edit org chart tiers",
     group: "Workforce planning",
-    surface: "system",
     parentWindowKey: "workforce-organisation",
     abilityErpName: "Organisation structure — chart tiers",
     showInSidebar: false,
@@ -234,8 +231,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     key: "admin-roles",
     label: "Roles",
     group: "Admin",
-    surface: "system",
-    href: "/system/admin/roles",
+    href: "/admin/roles",
     abilityErpName: "Role",
     showInSidebar: true,
   },
@@ -388,6 +384,10 @@ export function processById(id: string) {
 
 export function childWindows(parentKey: string) {
   return ACCESS_WINDOWS.filter((w) => w.parentWindowKey === parentKey);
+}
+
+export function appChildWindows(parentKey: string) {
+  return childWindows(parentKey).filter((w) => w.surface !== "system");
 }
 
 /** True when the role grants the window and any required parent window. */

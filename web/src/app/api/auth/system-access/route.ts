@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Not signed in" }, { status: 401 });
     }
-    if (!sessionHasWindow(session, "employee-system-access")) {
+    if (!sessionHasWindow(session, "employee-system-access") && !sessionHasWindow(session, "admin-roles")) {
       return NextResponse.json({ error: "You do not have permission to manage system access" }, { status: 403 });
     }
   }
