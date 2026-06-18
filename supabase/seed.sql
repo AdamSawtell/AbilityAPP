@@ -3,57 +3,94 @@
 
 insert into public.reference_list (key, label, "group", description, sort_order)
 values
-  ('clientStatus', 'Client status', 'Client', null, 0),
-  ('gender', 'Gender', 'Client', 'Shared with enquiries', 1),
-  ('decisionMaking', 'Decision making', 'Client', null, 2),
-  ('livingArrangement', 'Living arrangement', 'Client', null, 3),
-  ('salesRepresentative', 'Sales representative', 'Client', null, 4),
-  ('fundingBody', 'Funding body', 'Client', 'Shared with enquiries', 5),
-  ('aboriginalTorresStraitIslander', 'Aboriginal / Torres Strait Islander', 'Client', null, 6),
-  ('culturalAffiliation', 'Cultural affiliation', 'Client', null, 7),
-  ('disability', 'Disability', 'Client', 'Shared with enquiries', 8),
-  ('businessPartnerGroup', 'Business partner group', 'Client', null, 9),
-  ('lgbtiqa', 'LGBTIQA+', 'Client', null, 10),
-  ('alertType', 'Alert type', 'Client', null, 11),
-  ('restrictivePracticeType', 'Restrictive practice type', 'Client', null, 111),
-  ('consentType', 'Consent type', 'Client', null, 112),
-  ('showAsAlert', 'Show as alert', 'Client', 'Yes / No', 12),
-  ('activityType', 'Activity type', 'Client', null, 13),
-  ('addressType', 'Address type', 'Client', null, 14),
-  ('australianState', 'State / territory', 'Client', null, 15),
-  ('country', 'Country', 'Client', null, 16),
-  ('enquiryStatus', 'Enquiry status', 'Enquiry', null, 17),
-  ('enquirySource', 'Enquiry source', 'Enquiry', null, 18),
-  ('isEnquiryForSelf', 'Is enquiry for self', 'Enquiry', null, 19),
-  ('thirdPartyConsent', '3rd party consent', 'Enquiry', null, 20),
-  ('relationshipType', 'Relationship type', 'Enquiry', null, 21),
-  ('preferredCommunicationMethod', 'Preferred communication method', 'Enquiry', null, 22),
-  ('enquiryQuery', 'Enquiry saved queries', 'Enquiry', 'List filters', 23),
-  ('primaryLanguage', 'Primary language', 'Support plan', null, 24),
-  ('financialArrangement', 'Financial arrangement', 'Support plan', null, 25),
-  ('goalNumber', 'Goal number', 'Support plan', null, 26),
-  ('goalTerm', 'Goal term', 'Support plan', null, 27),
-  ('goalType', 'Goal type', 'Support plan', null, 28),
-  ('documentType', 'Plan document type', 'Support plan', null, 29),
-  ('planType', 'Plan type', 'Support plan', null, 30),
-  ('documentStatus', 'Document status', 'Support plan', null, 31),
-  ('assessmentType', 'Assessment type', 'Support plan', null, 32),
-  ('progressReviewType', 'Progress review type', 'Support plan', null, 33),
-  ('goalProgress', 'Goal progress', 'Support plan', null, 34),
-  ('productCategory', 'Product category', 'Products & services', null, 35),
-  ('uom', 'Unit of measure', 'Products & services', null, 36),
-  ('productType', 'Product type', 'Products & services', null, 37),
-  ('serviceAgreementTerm', 'Service agreement term', 'Products & services', null, 38),
-  ('serviceAgreementStatus', 'Service agreement status', 'Products & services', null, 39),
-  ('fundingType', 'Funding type', 'Products & services', null, 40),
-  ('fundingManagementType', 'Funding management type', 'Products & services', null, 41),
-  ('budgetRules', 'Budget rules', 'Products & services', null, 42),
-  ('registrationGroup', 'NDIS registration group', 'Products & services', null, 43),
-  ('claimType', 'Claim type', 'Products & services', null, 44),
-  ('contractType', 'Contract type', 'Contracts', null, 45),
-  ('contractTerm', 'Contract term', 'Contracts', null, 46),
-  ('auditAction', 'Audit action', 'Contracts', null, 47),
-  ('yesNo', 'Yes / No', 'General', null, 48)
+  ('yesNo', 'Yes / No', 'Shared', 'Used across clients, employees, locations, and plans', 0),
+  ('showAsAlert', 'Show as alert', 'Shared', 'Yes / No on alert lines', 1),
+  ('gender', 'Gender', 'Shared', 'Clients, enquiries, and employees', 2),
+  ('fundingBody', 'Funding body', 'Shared', 'Clients and enquiries', 3),
+  ('disability', 'Disability', 'Shared', 'Clients and enquiries', 4),
+  ('addressType', 'Address type', 'Shared', 'Client, employee, and location addresses', 5),
+  ('australianState', 'State / territory', 'Shared', null, 6),
+  ('country', 'Country', 'Shared', null, 7),
+  ('primaryLanguage', 'Primary language', 'Shared', 'Support plans and profiles', 8),
+  ('contactRelationship', 'Contact relationship', 'Shared', 'Client contacts and employee emergency contacts', 9),
+  ('clientStatus', 'Client status', 'Client', null, 10),
+  ('decisionMaking', 'Decision making', 'Client', null, 11),
+  ('livingArrangement', 'Living arrangement', 'Client', null, 12),
+  ('salesRepresentative', 'Sales representative', 'Client', null, 13),
+  ('aboriginalTorresStraitIslander', 'Aboriginal / Torres Strait Islander', 'Client', null, 14),
+  ('culturalAffiliation', 'Cultural affiliation', 'Client', null, 15),
+  ('businessPartnerGroup', 'Business partner group', 'Client', null, 16),
+  ('lgbtiqa', 'LGBTIQA+', 'Client', null, 17),
+  ('alertType', 'Alert type', 'Client', null, 18),
+  ('restrictivePracticeType', 'Restrictive practice type', 'Client', null, 19),
+  ('consentType', 'Consent type', 'Client', null, 20),
+  ('riskType', 'Risk type', 'Client', null, 21),
+  ('bpAssociationType', 'BP association type', 'Client', null, 22),
+  ('contactActivityType', 'Contact activity type', 'Client', null, 23),
+  ('needRuleCategory', 'Need / rule category', 'Client', null, 24),
+  ('activityType', 'Activity type', 'Client', null, 25),
+  ('enquiryStatus', 'Enquiry status', 'Enquiry', null, 26),
+  ('enquirySource', 'Enquiry source', 'Enquiry', null, 27),
+  ('isEnquiryForSelf', 'Is enquiry for self', 'Enquiry', null, 28),
+  ('thirdPartyConsent', '3rd party consent', 'Enquiry', null, 29),
+  ('relationshipType', 'Relationship type', 'Enquiry', null, 30),
+  ('preferredCommunicationMethod', 'Preferred communication method', 'Enquiry', null, 31),
+  ('enquiryQuery', 'Enquiry saved queries', 'Enquiry', 'List filters', 32),
+  ('financialArrangement', 'Financial arrangement', 'Support plan', null, 33),
+  ('goalNumber', 'Goal number', 'Support plan', null, 34),
+  ('goalTerm', 'Goal term', 'Support plan', null, 35),
+  ('goalType', 'Goal type', 'Support plan', null, 36),
+  ('documentType', 'Plan document type', 'Support plan', null, 37),
+  ('planType', 'Plan type', 'Support plan', null, 38),
+  ('documentStatus', 'Document status', 'Support plan', null, 39),
+  ('assessmentType', 'Assessment type', 'Support plan', null, 40),
+  ('progressReviewType', 'Progress review type', 'Support plan', null, 41),
+  ('goalProgress', 'Goal progress', 'Support plan', null, 42),
+  ('employeeAlertType', 'Employee alert type', 'People', null, 43),
+  ('employeeSkillType', 'Employee skill type', 'People', null, 44),
+  ('skillProficiency', 'Skill proficiency', 'People', null, 45),
+  ('employeeDocumentType', 'Employee document type', 'People', null, 46),
+  ('employeeActivityType', 'Employee activity type', 'People', null, 47),
+  ('employeeDocumentStatus', 'Employee document status', 'People', null, 48),
+  ('emergencyContactType', 'Emergency contact type', 'People', null, 49),
+  ('employmentType', 'Employment type', 'People', null, 50),
+  ('payMethod', 'Pay method', 'People', null, 51),
+  ('credentialType', 'Credential type', 'People', null, 52),
+  ('credentialStatus', 'Credential status', 'People', null, 53),
+  ('department', 'Department', 'People', null, 54),
+  ('employmentStatus', 'Employment status', 'People', null, 55),
+  ('taskPriority', 'Task priority', 'Tasks', 'Low, Normal, High — used on tasks and automations', 56),
+  ('leaveType', 'Leave type', 'Workforce', null, 57),
+  ('employeeLeaveStatus', 'Leave request status', 'Workforce', null, 58),
+  ('locationType', 'Location type', 'Locations', null, 59),
+  ('locationStatus', 'Location status', 'Locations', null, 60),
+  ('locationClientRole', 'Client assignment role', 'Locations', null, 61),
+  ('locationEmployeeRole', 'Employee assignment role', 'Locations', null, 62),
+  ('locationAlertType', 'Location alert type', 'Locations', null, 63),
+  ('locationActivityType', 'Location activity type', 'Locations', null, 64),
+  ('productCategory', 'Product category', 'Products & services', null, 65),
+  ('uom', 'Unit of measure', 'Products & services', null, 66),
+  ('productType', 'Product type', 'Products & services', null, 67),
+  ('serviceAgreementTerm', 'Service agreement term', 'Products & services', null, 68),
+  ('serviceAgreementStatus', 'Service agreement status', 'Products & services', null, 69),
+  ('fundingType', 'Funding type', 'Products & services', null, 70),
+  ('fundingManagementType', 'Funding management type', 'Products & services', null, 71),
+  ('budgetRules', 'Budget rules', 'Products & services', null, 72),
+  ('registrationGroup', 'NDIS registration group', 'Products & services', null, 73),
+  ('claimType', 'Claim type', 'Products & services', null, 74),
+  ('contractType', 'Contract type', 'Contracts', null, 75),
+  ('contractTerm', 'Contract term', 'Contracts', null, 76),
+  ('auditAction', 'Audit action', 'Contracts', null, 77),
+  ('partyType', 'Party type', 'Incident reports', null, 78),
+  ('partyRole', 'Party role', 'Incident reports', null, 79),
+  ('incidentActionType', 'Incident action type', 'Incident reports', null, 80),
+  ('notificationTarget', 'Notification target', 'Incident reports', null, 81),
+  ('notificationMethod', 'Notification method', 'Incident reports', null, 82),
+  ('incidentStatus', 'Incident status', 'Incident reports', null, 83),
+  ('incidentSeverity', 'Incident severity', 'Incident reports', null, 84),
+  ('ndisReportableType', 'NDIS reportable type', 'Incident reports', null, 85),
+  ('incidentCategory', 'Incident category', 'Incident reports', null, 86),
+  ('incidentServiceType', 'Incident service type', 'Incident reports', null, 87)
 on conflict (key) do update set
   label = excluded.label,
   "group" = excluded."group",
@@ -319,6 +356,80 @@ cross join (values
   ('Other', 'Other', 6)
 ) as v(value, label, sort_order)
 where l.key = 'consentType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- riskType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Allergy', 'Allergy', 0),
+  ('Choking', 'Choking', 1),
+  ('Falls', 'Falls', 2),
+  ('Behaviour', 'Behaviour', 3),
+  ('Medical', 'Medical', 4),
+  ('Environmental', 'Environmental', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'riskType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- bpAssociationType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Family / friend', 'Family / friend', 0),
+  ('Guardian', 'Guardian', 1),
+  ('Support coordinator', 'Support coordinator', 2),
+  ('Referrer', 'Referrer', 3),
+  ('Health provider', 'Health provider', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'bpAssociationType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- contactActivityType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Phone call', 'Phone call', 0),
+  ('Email', 'Email', 1),
+  ('Meeting', 'Meeting', 2),
+  ('Visit', 'Visit', 3),
+  ('Note', 'Note', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'contactActivityType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- needRuleCategory
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Personal care', 'Personal care', 0),
+  ('Meals', 'Meals', 1),
+  ('Mobility', 'Mobility', 2),
+  ('Communication', 'Communication', 3),
+  ('Behaviour', 'Behaviour', 4),
+  ('Household', 'Household', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'needRuleCategory'
 on conflict (list_id, value) do update set
   label = excluded.label,
   sort_order = excluded.sort_order,
@@ -956,6 +1067,583 @@ cross join (values
   ('Terminated', 'Terminated', 4)
 ) as v(value, label, sort_order)
 where l.key = 'auditAction'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employeeAlertType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Compliance', 'Compliance', 0),
+  ('Operational', 'Operational', 1),
+  ('HR', 'HR', 2),
+  ('Safety', 'Safety', 3),
+  ('Other', 'Other', 4)
+) as v(value, label, sort_order)
+where l.key = 'employeeAlertType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employeeSkillType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Language', 'Language', 0),
+  ('Skill', 'Skill', 1),
+  ('Specialisation', 'Specialisation', 2)
+) as v(value, label, sort_order)
+where l.key = 'employeeSkillType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- skillProficiency
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Basic', 'Basic', 0),
+  ('Intermediate', 'Intermediate', 1),
+  ('Advanced', 'Advanced', 2),
+  ('Native', 'Native', 3),
+  ('Fluent', 'Fluent', 4)
+) as v(value, label, sort_order)
+where l.key = 'skillProficiency'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employeeDocumentType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Employment contract', 'Employment contract', 0),
+  ('Position description', 'Position description', 1),
+  ('Photo ID', 'Photo ID', 2),
+  ('Right to work', 'Right to work', 3),
+  ('Signed policy', 'Signed policy', 4),
+  ('Qualification', 'Qualification', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'employeeDocumentType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employeeActivityType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Note', 'Note', 0),
+  ('Onboarding', 'Onboarding', 1),
+  ('Training', 'Training', 2),
+  ('Performance review', 'Performance review', 3),
+  ('Incident', 'Incident', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'employeeActivityType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- leaveType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Annual leave', 'Annual leave', 0),
+  ('Personal / carer''s leave', 'Personal / carer''s leave', 1),
+  ('Long service leave', 'Long service leave', 2),
+  ('Parental leave', 'Parental leave', 3),
+  ('Unpaid leave', 'Unpaid leave', 4)
+) as v(value, label, sort_order)
+where l.key = 'leaveType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- partyType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Client', 'Client', 0),
+  ('Employee', 'Employee', 1),
+  ('Witness', 'Witness', 2),
+  ('Other', 'Other', 3)
+) as v(value, label, sort_order)
+where l.key = 'partyType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- partyRole
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Affected person', 'Affected person', 0),
+  ('Reporter', 'Reporter', 1),
+  ('Witness', 'Witness', 2),
+  ('Staff involved', 'Staff involved', 3),
+  ('Manager notified', 'Manager notified', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'partyRole'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- incidentActionType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Immediate response', 'Immediate response', 0),
+  ('Investigation step', 'Investigation step', 1),
+  ('Corrective action', 'Corrective action', 2),
+  ('Evidence collected', 'Evidence collected', 3),
+  ('Risk review', 'Risk review', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'incidentActionType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- notificationTarget
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Internal manager', 'Internal manager', 0),
+  ('NDIS Commission', 'NDIS Commission', 1),
+  ('Participant / family', 'Participant / family', 2),
+  ('Guardian', 'Guardian', 3),
+  ('Police', 'Police', 4),
+  ('Other regulator', 'Other regulator', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'notificationTarget'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- notificationMethod
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Phone', 'Phone', 0),
+  ('Email', 'Email', 1),
+  ('NDIS portal', 'NDIS portal', 2),
+  ('In person', 'In person', 3),
+  ('Written letter', 'Written letter', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'notificationMethod'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- incidentStatus
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Draft', 'Draft', 0),
+  ('Submitted', 'Submitted', 1),
+  ('Manager reviewed', 'Manager reviewed', 2),
+  ('Commission notified', 'Commission notified', 3),
+  ('Under investigation', 'Under investigation', 4),
+  ('Actions in progress', 'Actions in progress', 5),
+  ('Closed', 'Closed', 6)
+) as v(value, label, sort_order)
+where l.key = 'incidentStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- incidentSeverity
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Low', 'Low', 0),
+  ('Medium', 'Medium', 1),
+  ('High', 'High', 2),
+  ('Critical', 'Critical', 3)
+) as v(value, label, sort_order)
+where l.key = 'incidentSeverity'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- ndisReportableType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Death', 'Death', 0),
+  ('Serious injury', 'Serious injury', 1),
+  ('Abuse or neglect', 'Abuse or neglect', 2),
+  ('Unlawful sexual or physical contact or assault', 'Unlawful sexual or physical contact or assault', 3),
+  ('Sexual misconduct', 'Sexual misconduct', 4),
+  ('Unauthorised restrictive practice', 'Unauthorised restrictive practice', 5)
+) as v(value, label, sort_order)
+where l.key = 'ndisReportableType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employeeDocumentStatus
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Current', 'Current', 0),
+  ('Expiring soon', 'Expiring soon', 1),
+  ('Expired', 'Expired', 2),
+  ('Archived', 'Archived', 3)
+) as v(value, label, sort_order)
+where l.key = 'employeeDocumentStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- contactRelationship
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Spouse', 'Spouse', 0),
+  ('Partner', 'Partner', 1),
+  ('Parent', 'Parent', 2),
+  ('Sibling', 'Sibling', 3),
+  ('Child', 'Child', 4),
+  ('Friend', 'Friend', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'contactRelationship'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- emergencyContactType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Emergency', 'Emergency', 0),
+  ('Next of kin', 'Next of kin', 1)
+) as v(value, label, sort_order)
+where l.key = 'emergencyContactType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employmentType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Full-time', 'Full-time', 0),
+  ('Part-time', 'Part-time', 1),
+  ('Casual', 'Casual', 2),
+  ('Contractor', 'Contractor', 3),
+  ('Volunteer', 'Volunteer', 4)
+) as v(value, label, sort_order)
+where l.key = 'employmentType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- payMethod
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Bank', 'Bank', 0),
+  ('Cash', 'Cash', 1),
+  ('Cheque', 'Cheque', 2)
+) as v(value, label, sort_order)
+where l.key = 'payMethod'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- credentialType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('NDIS Worker Screening', 'NDIS Worker Screening', 0),
+  ('Working with Children Check', 'Working with Children Check', 1),
+  ('Police Check', 'Police Check', 2),
+  ('First Aid Certificate', 'First Aid Certificate', 3),
+  ('CPR Certificate', 'CPR Certificate', 4),
+  ('Manual Handling', 'Manual Handling', 5),
+  ('Driver Licence', 'Driver Licence', 6),
+  ('Visa / work rights', 'Visa / work rights', 7),
+  ('Qualification', 'Qualification', 8),
+  ('Insurance', 'Insurance', 9),
+  ('Other', 'Other', 10)
+) as v(value, label, sort_order)
+where l.key = 'credentialType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- credentialStatus
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Current', 'Current', 0),
+  ('Expiring soon', 'Expiring soon', 1),
+  ('Expired', 'Expired', 2),
+  ('Pending', 'Pending', 3),
+  ('Revoked', 'Revoked', 4)
+) as v(value, label, sort_order)
+where l.key = 'credentialStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- department
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Executive', 'Executive', 0),
+  ('Intake', 'Intake', 1),
+  ('Client services', 'Client services', 2),
+  ('Support coordination', 'Support coordination', 3),
+  ('Finance', 'Finance', 4),
+  ('HR', 'HR', 5),
+  ('IT', 'IT', 6),
+  ('Operations', 'Operations', 7)
+) as v(value, label, sort_order)
+where l.key = 'department'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employmentStatus
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Active', 'Active', 0),
+  ('On leave', 'On leave', 1),
+  ('Terminated', 'Terminated', 2)
+) as v(value, label, sort_order)
+where l.key = 'employmentStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- taskPriority
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Low', 'Low', 0),
+  ('Normal', 'Normal', 1),
+  ('High', 'High', 2)
+) as v(value, label, sort_order)
+where l.key = 'taskPriority'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- employeeLeaveStatus
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Draft', 'Draft', 0),
+  ('Requested', 'Requested', 1),
+  ('Approved', 'Approved', 2),
+  ('Declined', 'Declined', 3),
+  ('Cancelled', 'Cancelled', 4),
+  ('Taken', 'Taken', 5)
+) as v(value, label, sort_order)
+where l.key = 'employeeLeaveStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- locationType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('SIL house', 'SIL house', 0),
+  ('Day program', 'Day program', 1),
+  ('Community hub', 'Community hub', 2),
+  ('Office', 'Office', 3),
+  ('Respite', 'Respite', 4),
+  ('Therapy room', 'Therapy room', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'locationType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- locationStatus
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Active', 'Active', 0),
+  ('Inactive', 'Inactive', 1),
+  ('Planned', 'Planned', 2),
+  ('Closed', 'Closed', 3)
+) as v(value, label, sort_order)
+where l.key = 'locationStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- locationClientRole
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Resident', 'Resident', 0),
+  ('Regular attendee', 'Regular attendee', 1),
+  ('Occasional', 'Occasional', 2),
+  ('Visitor', 'Visitor', 3)
+) as v(value, label, sort_order)
+where l.key = 'locationClientRole'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- locationEmployeeRole
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Site manager', 'Site manager', 0),
+  ('Support worker', 'Support worker', 1),
+  ('Team leader', 'Team leader', 2),
+  ('Relief staff', 'Relief staff', 3),
+  ('Allied health', 'Allied health', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'locationEmployeeRole'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- locationAlertType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Safety', 'Safety', 0),
+  ('Access', 'Access', 1),
+  ('Operational', 'Operational', 2),
+  ('Clinical', 'Clinical', 3),
+  ('Maintenance', 'Maintenance', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'locationAlertType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- locationActivityType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Site visit', 'Site visit', 0),
+  ('Maintenance', 'Maintenance', 1),
+  ('Incident follow-up', 'Incident follow-up', 2),
+  ('Phone call', 'Phone call', 3),
+  ('Note', 'Note', 4),
+  ('Other', 'Other', 5)
+) as v(value, label, sort_order)
+where l.key = 'locationActivityType'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- incidentCategory
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Operational', 'Operational', 0),
+  ('Near miss', 'Near miss', 1),
+  ('Injury', 'Injury', 2),
+  ('Behaviour', 'Behaviour', 3),
+  ('Restrictive practice', 'Restrictive practice', 4),
+  ('Property damage', 'Property damage', 5),
+  ('Other', 'Other', 6)
+) as v(value, label, sort_order)
+where l.key = 'incidentCategory'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- incidentServiceType
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('NDIS Support', 'NDIS Support', 0),
+  ('SIL', 'SIL', 1),
+  ('Community Participation', 'Community Participation', 2),
+  ('Therapy', 'Therapy', 3),
+  ('Transport', 'Transport', 4),
+  ('Administration', 'Administration', 5),
+  ('Unassigned', 'Unassigned', 6)
+) as v(value, label, sort_order)
+where l.key = 'incidentServiceType'
 on conflict (list_id, value) do update set
   label = excluded.label,
   sort_order = excluded.sort_order,
