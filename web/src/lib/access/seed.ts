@@ -8,9 +8,16 @@ import {
   boardAccess,
   defineRole,
   executiveAccess,
+  EXEC_PROCESSES,
+  HR_CREDENTIAL_REVIEW_PROCESSES,
+  MANAGER_LEAVE_APPROVAL_PROCESSES,
   managerAccess,
+  MY_WORKPLACE_STAFF_PROCESSES,
   officerAccess,
   supportWorkerAccess,
+  WORKFORCE_ON_BEHALF_PROCESSES,
+  workforceHrReviewAccess,
+  workforceManagerLeaveAccess,
 } from "@/lib/access/role-access-templates";
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 
@@ -48,6 +55,12 @@ const INTAKE_ACCESS = {
   taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
 };
 
+const COORDINATOR_OPERATIONS_PROCESSES = [
+  ...EXEC_PROCESSES,
+  ...MY_WORKPLACE_STAFF_PROCESSES,
+  ...WORKFORCE_ON_BEHALF_PROCESSES,
+] as const;
+
 const COORDINATOR_ACCESS = {
   windowKeys: [
     "home",
@@ -64,7 +77,7 @@ const COORDINATOR_ACCESS = {
     ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],
-  processIds: [...executiveAccess().processIds, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf"],
+  processIds: [...COORDINATOR_OPERATIONS_PROCESSES],
   reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
   taskTypePermissions: managerAccess().taskTypePermissions,
 };
@@ -86,7 +99,7 @@ const TEAM_LEADER_ACCESS = {
     ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],
-  processIds: [...executiveAccess().processIds, "submit-leave-on-behalf"],
+  processIds: workforceManagerLeaveAccess().processIds,
   reportIds: managerAccess().reportIds,
   taskTypePermissions: managerAccess().taskTypePermissions,
 };
@@ -94,13 +107,22 @@ const TEAM_LEADER_ACCESS = {
 export const SEED_ROLES: AppRoleRecord[] = [
   adminRole(ALL_TASK_TYPE_IDS),
   defineRole("role-board", "Board_Member", "Board Member", "Governance oversight — read-focused access", boardAccess()),
-  defineRole("role-ceo", "Chief_Executive_Officer", "CEO", "Chief executive — full operational leadership", executiveAccess()),
+  defineRole("role-ceo", "Chief_Executive_Officer", "CEO", "Chief executive — full operational leadership", {
+    ...executiveAccess(),
+    ...workforceHrReviewAccess(),
+  }),
   defineRole("role-exec-operations", "Operations_Executive", "Operations Executive", "Executive lead for service delivery and rostering", executiveAccess()),
-  defineRole("role-exec-hr", "HR_Executive", "HR Executive", "Executive lead for people and culture", executiveAccess()),
+  defineRole("role-exec-hr", "HR_Executive", "HR Executive", "Executive lead for people and culture", {
+    ...executiveAccess(),
+    ...workforceHrReviewAccess(),
+  }),
   defineRole("role-exec-finance", "Finance_Executive", "CFO", "Chief financial officer", executiveAccess()),
   defineRole("role-exec-ict", "ICT_Executive", "ICT Executive", "Executive lead for systems and technology", executiveAccess()),
   defineRole("role-exec-quality", "Quality_Executive", "Quality Executive", "Executive lead for quality and compliance", executiveAccess()),
-  defineRole("role-hr-manager", "HR_Manager", "HR Manager", "HR team leadership", managerAccess(["workforce-organisation"])),
+  defineRole("role-hr-manager", "HR_Manager", "HR Manager", "HR team leadership", {
+    ...managerAccess(["workforce-organisation"]),
+    ...workforceHrReviewAccess(),
+  }),
   defineRole(
     "role-hr-officer",
     "HR_Officer",
@@ -108,7 +130,11 @@ export const SEED_ROLES: AppRoleRecord[] = [
     "HR administration and employee records",
     {
       ...officerAccess(["employees", "employee-overview", "employee-credentials-assigned"]),
-      processIds: [...officerAccess(["employees", "employee-overview"]).processIds, "review-employee-credential", "approve-leave-request"],
+      processIds: [
+        ...officerAccess(["employees", "employee-overview", "employee-credentials-assigned"]).processIds,
+        ...HR_CREDENTIAL_REVIEW_PROCESSES,
+        ...MANAGER_LEAVE_APPROVAL_PROCESSES,
+      ],
     }
   ),
   defineRole("role-ict-manager", "ICT_Manager", "ICT Manager", "ICT team leadership and system support", managerAccess()),
@@ -117,7 +143,10 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess()),
   defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", managerAccess(["incidents-compliance", "incidents-dashboard"])),
   defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", officerAccess(["incidents-compliance"])),
-  defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", managerAccess(["workforce-organisation"])),
+  defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", {
+    ...managerAccess(["workforce-organisation"]),
+    ...workforceManagerLeaveAccess(),
+  }),
   defineRole("role-rostering-officer", "Rostering_Officer", "Rostering Officer", "Roster administration", officerAccess(["workforce-planning"])),
   defineRole("role-intake", "Intake_Coordinator", "Intake Coordinator", "Enquiries and convert-to-client process", INTAKE_ACCESS),
   defineRole("role-coordinator", "Support_Coordinator", "Support Coordinator", "Client records and service catalog", COORDINATOR_ACCESS),

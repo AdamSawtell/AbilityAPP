@@ -241,3 +241,17 @@ export async function persistLeaveReview(
   });
   if (actError) throw actError;
 }
+
+export async function persistLeaveEntitlementBalance(
+  supabase: SupabaseClient,
+  employeeId: string,
+  entitlementId: string,
+  balanceDays: number
+): Promise<void> {
+  const { error } = await supabase
+    .from("employee_leave_entitlement")
+    .update({ balance_days: balanceDays })
+    .eq("id", entitlementId)
+    .eq("employee_id", employeeId);
+  if (error) throw error;
+}

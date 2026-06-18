@@ -27,7 +27,7 @@ const MANAGER_REPORTS = [
 
 const OFFICER_REPORTS = ["tasks-all", "location-register", "incident-register"] as const;
 
-const EXEC_PROCESSES = [
+export const EXEC_PROCESSES = [
   "assign-location-client",
   "assign-location-employee",
   "assign-location-product",
@@ -40,6 +40,22 @@ const EXEC_PROCESSES = [
 const OFFICER_PROCESSES = ["assign-task", "action-task", "report-incident"] as const;
 
 const MY_WORKPLACE_ACCESS = [...MY_WORKPLACE_WINDOW_KEYS] as const;
+
+/** Staff self-service — not HR/manager review. */
+export const MY_WORKPLACE_STAFF_PROCESSES = ["submit-leave-request", "submit-employee-credential"] as const;
+
+export const WORKFORCE_ON_BEHALF_PROCESSES = ["submit-leave-on-behalf"] as const;
+
+/** HR credential sign-off — not granted to coordinators or general executives. */
+export const HR_CREDENTIAL_REVIEW_PROCESSES = ["review-employee-credential"] as const;
+
+/** Manager leave inbox — direct reports only unless paired with HR credential review. */
+export const MANAGER_LEAVE_APPROVAL_PROCESSES = ["approve-leave-request"] as const;
+
+const WORKPLACE_OPERATIONS_PROCESSES = [
+  ...MY_WORKPLACE_STAFF_PROCESSES,
+  ...WORKFORCE_ON_BEHALF_PROCESSES,
+] as const;
 
 export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
   return {
@@ -54,9 +70,25 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees", "enquiries"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf", "review-employee-credential", "approve-leave-request"],
+    processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
     reportIds: [...EXEC_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
+  };
+}
+
+export function workforceHrReviewAccess(): Pick<AppRoleRecord, "processIds"> {
+  return {
+    processIds: [
+      ...executiveAccess().processIds,
+      ...HR_CREDENTIAL_REVIEW_PROCESSES,
+      ...MANAGER_LEAVE_APPROVAL_PROCESSES,
+    ],
+  };
+}
+
+export function workforceManagerLeaveAccess(): Pick<AppRoleRecord, "processIds"> {
+  return {
+    processIds: [...managerAccess().processIds, ...MANAGER_LEAVE_APPROVAL_PROCESSES],
   };
 }
 
@@ -74,7 +106,7 @@ export function managerAccess(
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf", "review-employee-credential", "approve-leave-request"],
+    processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
     reportIds: [...MANAGER_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   };
@@ -94,7 +126,7 @@ export function officerAccess(
       ...windowKeysWithDependents("clients", "incidents", "locations"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...OFFICER_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf"],
+    processIds: [...OFFICER_PROCESSES, ...MY_WORKPLACE_STAFF_PROCESSES, ...WORKFORCE_ON_BEHALF_PROCESSES],
     reportIds: [...OFFICER_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-other"]),
   };

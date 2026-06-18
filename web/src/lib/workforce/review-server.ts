@@ -4,7 +4,7 @@ import { newLineId } from "@/lib/client-line-tables";
 import type { EmployeeCredentialRow, EmployeeLeaveRequestRow, EmployeeRecord } from "@/lib/employee";
 import { initialEmployees } from "@/lib/employee";
 import { loadMyEmployee } from "@/lib/my-workplace/server";
-import { persistCredentialReview, persistLeaveReview } from "@/lib/my-workplace/persist";
+import { persistCredentialReview, persistLeaveEntitlementBalance, persistLeaveReview } from "@/lib/my-workplace/persist";
 import { fetchUsers } from "@/lib/supabase/access-api";
 import {
   employeeCredentialFromRow,
@@ -50,8 +50,8 @@ export function canApproveLeave(session: AuthSession): boolean {
   return session.processIds.includes("approve-leave-request");
 }
 
-function hrSeesAllLeave(session: AuthSession): boolean {
-  return canReviewCredentials(session) || session.windowKeys.includes("employees");
+function seesAllPendingLeave(session: AuthSession): boolean {
+  return canReviewCredentials(session);
 }
 
 function buildQueueFromEmployees(
@@ -61,7 +61,7 @@ function buildQueueFromEmployees(
 ): WorkforceReviewQueue {
   const credentials: CredentialReviewItem[] = [];
   const leaveRequests: LeaveReviewItem[] = [];
-  const seeAllLeave = hrSeesAllLeave(session);
+  const seeAllLeave = seesAllPendingLeave(session);
 
   for (const employee of employees) {
     if (canReviewCredentials(session)) {
@@ -209,7 +209,7 @@ export async function applyWorkforceReview(
   if (!canApproveLeave(session)) throw new Error("Leave approval not permitted");
 
   const reviewerEmployeeId = await resolveEmployeeId(session);
-  if (!hrSeesAllLeave(session) && employee.reportsToId !== reviewerEmployeeId) {
+  if (!seesAllPendingLeave(session) && employee.reportsToId !== reviewerEmployeeId) {
     throw new Error("You can only approve leave for your direct reports");
   }
 
@@ -236,6 +236,21 @@ export async function applyWorkforceReview(
       reviewedAt: now,
       declineReason,
     }, activity);
+
+    if (action.decision === "approve") {
+      const entitlement = employee.leaveEntitlements.find(
+        (row) => row.leaveType.trim().toLowerCase() === request.leaveType.trim().toLowerCase()
+      );
+      if (entitlement) {
+        const newBalance = Math.max(0, entitlement.balanceDays - request.daysRequested);
+        await persistLeaveEntitlementBalance(
+          serviceClient(),
+          action.employeeId,
+          entitlement.id,
+          newBalance
+        );
+      }
+    }
   }
 
   const reloaded = await loadMyEmployee(action.employeeId);

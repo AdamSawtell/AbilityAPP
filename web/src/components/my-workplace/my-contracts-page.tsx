@@ -82,7 +82,11 @@ export function MyContractsPage() {
                       <h2 className="mt-1 text-lg font-semibold text-slate-900">{doc.name}</h2>
                       <p className="mt-1 text-sm text-slate-600">
                         {doc.issueDate ? `Issued ${doc.issueDate}` : "—"}
-                        {doc.documentRef ? ` · Ref ${doc.documentRef}` : ""}
+                        {doc.documentRef
+                          ? /^https?:\/\//i.test(doc.documentRef.trim())
+                            ? " · Online document"
+                            : ` · Ref ${doc.documentRef}`
+                          : ""}
                       </p>
                       {doc.notes ? <p className="mt-2 text-sm text-slate-600">{doc.notes}</p> : null}
                       {doc.acknowledgedAt ? (

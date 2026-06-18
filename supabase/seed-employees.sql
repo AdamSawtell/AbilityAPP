@@ -277,12 +277,28 @@ on conflict (id) do update set
   name = excluded.name, proficiency = excluded.proficiency;
 
 insert into public.employee_document (
-  id, employee_id, line_no, document_type, name, document_ref, issue_date, expiry_date, status, notes
+  id, employee_id, line_no, document_type, name, document_ref, issue_date, expiry_date, status, notes, staff_visible, requires_acknowledgement
 )
 values
-  ('doc-isla-contract', 'emp-isla', 1, 'Employment contract', 'Permanent employment agreement', 'DOC-EMP-ISLA-2019', '2019-03-01', null, 'Current', '')
+  (
+    'doc-isla-contract',
+    'emp-isla',
+    1,
+    'Employment contract',
+    'Permanent employment agreement',
+    'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.pdf',
+    '2019-03-01',
+    null,
+    'Current',
+    '',
+    true,
+    true
+  )
 on conflict (id) do update set
-  name = excluded.name, document_ref = excluded.document_ref;
+  name = excluded.name,
+  document_ref = excluded.document_ref,
+  staff_visible = excluded.staff_visible,
+  requires_acknowledgement = excluded.requires_acknowledgement;
 
 insert into public.employee_activity (
   id, employee_id, line_no, activity_date, activity_type, subject, description, created_by
