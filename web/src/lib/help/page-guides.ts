@@ -70,6 +70,13 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/system/reference-data", slug: "reference-data", surface: "system" },
   { prefix: "/system", slug: "core-system-setup", surface: "system" },
 
+  // App — my workplace
+  { prefix: "/my/contracts", slug: "my-workplace", surface: "app" },
+  { prefix: "/my/availability", slug: "my-workplace", surface: "app" },
+  { prefix: "/my/profile", slug: "my-workplace", surface: "app" },
+  { prefix: "/my/leave", slug: "my-workplace", surface: "app" },
+  { prefix: "/my", slug: "my-workplace", surface: "app" },
+
   // App — workforce & admin
   { prefix: "/workforce-planning/organisation", slug: "workforce-organisation", surface: "app" },
   { prefix: "/workforce-planning", slug: "workforce-leave-calendar", surface: "app" },

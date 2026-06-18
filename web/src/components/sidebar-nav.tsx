@@ -21,12 +21,28 @@ const peopleLinks = [
   },
 ];
 
+const myWorkplaceLinks = [
+  {
+    href: "/my",
+    label: "My workplace",
+    match: (path: string) => path.startsWith("/my"),
+    canShow: (canWindow: (key: string) => boolean) => canWindow("my-workplace"),
+  },
+];
+
 const workforceLinks = [
   {
     href: "/workforce-planning",
     label: "Leave calendar",
-    windowKey: "workforce-planning",
     match: (path: string) => path === "/workforce-planning",
+    canShow: (canWindow: (key: string) => boolean) => canWindow("workforce-planning"),
+  },
+  {
+    href: "/workforce-planning/organisation",
+    label: "Organisation structure",
+    match: (path: string) => path.startsWith("/workforce-planning/organisation"),
+    canShow: (canWindow: (key: string) => boolean) =>
+      canWindow("workforce-organisation") || canWindow("workforce-planning"),
   },
 ];
 
@@ -82,6 +98,14 @@ function NavIcon({ name }: { name: string }) {
           strokeLinejoin="round"
           d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM9 12.75 11.25 15 15 9.75"
         />
+      </svg>
+    );
+  }
+  if (name === "my-workplace") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 12.75V15" />
       </svg>
     );
   }
@@ -290,7 +314,8 @@ export function SidebarNav() {
   const showIncidents = canWindow("incidents");
   const showLocations = canWindow("locations");
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
-  const visibleWorkforceLinks = workforceLinks.filter((l) => canWindow(l.windowKey));
+  const visibleMyWorkplaceLinks = myWorkplaceLinks.filter((l) => l.canShow(canWindow));
+  const visibleWorkforceLinks = workforceLinks.filter((l) => l.canShow(canWindow));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
   const visibleReports = useMemo(() => {
@@ -315,6 +340,7 @@ export function SidebarNav() {
     showIncidents ||
     showLocations ||
     visiblePeopleLinks.length > 0 ||
+    visibleMyWorkplaceLinks.length > 0 ||
     visibleWorkforceLinks.length > 0 ||
     visibleServiceLinks.length > 0 ||
     showReports ||
@@ -571,10 +597,33 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {visibleWorkforceLinks.length > 0 ? (
+      {visibleMyWorkplaceLinks.length > 0 ? (
         <div
           className={sectionDividerClass(
             hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0
+          )}
+        >
+          {visibleMyWorkplaceLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
+                link.match(pathname)
+                  ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/40"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              }`}
+            >
+              <NavIcon name="my-workplace" />
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+
+      {visibleWorkforceLinks.length > 0 ? (
+        <div
+          className={sectionDividerClass(
+            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0 || visibleMyWorkplaceLinks.length > 0
           )}
         >
           <SectionHeader
@@ -583,7 +632,7 @@ export function SidebarNav() {
             sectionKey="workforce"
             open={isOpen("workforce")}
             onToggle={toggleSection}
-            href="/workforce-planning"
+            href={visibleWorkforceLinks[0]?.href ?? "/workforce-planning"}
             active={pathname.startsWith("/workforce-planning")}
           />
           {isOpen("workforce") ? (

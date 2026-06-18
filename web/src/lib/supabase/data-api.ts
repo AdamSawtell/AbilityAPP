@@ -963,6 +963,8 @@ export async function saveEmployee(supabase: SupabaseClient, record: EmployeeRec
         expiry_date: d.expiryDate || null,
         status: d.status,
         notes: d.notes,
+        staff_visible: d.staffVisible !== false,
+        requires_acknowledgement: Boolean(d.requiresAcknowledgement),
       }))
     );
     if (error) throw error;
@@ -1014,6 +1016,10 @@ export async function saveEmployee(supabase: SupabaseClient, record: EmployeeRec
         days_requested: l.daysRequested,
         status: l.status,
         notes: l.notes,
+        submitted_at: l.submittedAt || null,
+        reviewed_at: l.reviewedAt || null,
+        reviewed_by: l.reviewedBy ?? "",
+        decline_reason: l.declineReason ?? "",
       }))
     );
     if (error) throw error;

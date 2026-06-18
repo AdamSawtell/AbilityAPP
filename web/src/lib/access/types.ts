@@ -35,6 +35,7 @@ export type AuthSession = {
   username: string;
   displayName: string;
   email: string;
+  employeeBpId: string;
   activeRoleId: string;
   activeRoleName: string;
   windowKeys: string[];

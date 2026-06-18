@@ -129,7 +129,21 @@ export const bulkEmployees: EmployeeRecord[] = [
         notes: "",
       },
     ],
-    documents: [],
+    documents: [
+      {
+        id: "emp-doc-sw-001-contract",
+        lineNo: 1,
+        documentType: "Employment contract",
+        name: "Casual employment agreement",
+        documentRef: "HR-CON-2024-001",
+        issueDate: "2024-03-01",
+        expiryDate: "",
+        status: "Current",
+        notes: "Review terms and acknowledge in My workplace.",
+        staffVisible: true,
+        requiresAcknowledgement: true,
+      },
+    ],
     activities: [],
     leaveEntitlements: [],
     leaveRequests: [

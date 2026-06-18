@@ -86,6 +86,8 @@ export type EmployeeDocumentRow = {
   expiryDate: string;
   status: string;
   notes: string;
+  staffVisible?: boolean;
+  requiresAcknowledgement?: boolean;
 };
 
 export type EmployeeActivityRow = {
@@ -116,6 +118,27 @@ export type EmployeeLeaveRequestRow = {
   daysRequested: number;
   status: string;
   notes: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  declineReason?: string;
+};
+
+export type EmployeeAvailabilityRow = {
+  id: string;
+  lineNo: number;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  availability: string;
+  notes: string;
+};
+
+export type EmployeeDocumentAcknowledgement = {
+  id: string;
+  documentId: string;
+  acknowledgedAt: string;
+  acknowledgedByUserId: string;
 };
 
 export type EmployeeRecord = {

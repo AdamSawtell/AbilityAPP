@@ -8,6 +8,8 @@ import type {
   EmployeeAlertRow,
   EmployeeCredentialRow,
   EmployeeDocumentRow,
+  EmployeeDocumentAcknowledgement,
+  EmployeeAvailabilityRow,
   EmployeeEmergencyContactRow,
   EmployeeLeaveEntitlementRow,
   EmployeeLeaveRequestRow,
@@ -1279,6 +1281,8 @@ export type EmployeeDocumentRowDb = {
   expiry_date: string | null;
   status: string;
   notes: string;
+  staff_visible?: boolean;
+  requires_acknowledgement?: boolean;
 };
 
 export type EmployeeActivityRowDb = {
@@ -1312,6 +1316,29 @@ export type EmployeeLeaveRequestRowDb = {
   days_requested: number;
   status: string;
   notes: string;
+  submitted_at?: string | null;
+  reviewed_at?: string | null;
+  reviewed_by?: string;
+  decline_reason?: string;
+};
+
+export type EmployeeAvailabilityRowDb = {
+  id: string;
+  employee_id: string;
+  line_no: number;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  availability: string;
+  notes: string;
+};
+
+export type EmployeeDocumentAcknowledgementRowDb = {
+  id: string;
+  employee_id: string;
+  document_id: string;
+  acknowledged_at: string;
+  acknowledged_by_user_id: string;
 };
 
 export type EmployeeCredentialRowDb = {
@@ -1407,6 +1434,8 @@ export function employeeDocumentFromRow(row: EmployeeDocumentRowDb): EmployeeDoc
     expiryDate: strDate(row.expiry_date),
     status: row.status,
     notes: row.notes,
+    staffVisible: row.staff_visible !== false,
+    requiresAcknowledgement: Boolean(row.requires_acknowledgement),
   };
 }
 
@@ -1443,6 +1472,31 @@ export function employeeLeaveRequestFromRow(row: EmployeeLeaveRequestRowDb): Emp
     daysRequested: Number(row.days_requested) || 0,
     status: row.status,
     notes: row.notes,
+    submittedAt: row.submitted_at ?? undefined,
+    reviewedAt: row.reviewed_at ?? undefined,
+    reviewedBy: row.reviewed_by ?? "",
+    declineReason: row.decline_reason ?? "",
+  };
+}
+
+export function employeeAvailabilityFromRow(row: EmployeeAvailabilityRowDb): EmployeeAvailabilityRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    dayOfWeek: row.day_of_week,
+    startTime: (row.start_time ?? "09:00").slice(0, 5),
+    endTime: (row.end_time ?? "17:00").slice(0, 5),
+    availability: row.availability,
+    notes: row.notes,
+  };
+}
+
+export function employeeDocumentAckFromRow(row: EmployeeDocumentAcknowledgementRowDb): EmployeeDocumentAcknowledgement {
+  return {
+    id: row.id,
+    documentId: row.document_id,
+    acknowledgedAt: row.acknowledged_at,
+    acknowledgedByUserId: row.acknowledged_by_user_id,
   };
 }
 

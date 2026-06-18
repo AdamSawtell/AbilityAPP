@@ -177,7 +177,7 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     href: "/workforce-planning/organisation",
     parentWindowKey: "workforce-planning",
     abilityErpName: "Organisation structure",
-    showInSidebar: false,
+    showInSidebar: true,
   },
   {
     key: "workforce-org-edit",
@@ -193,6 +193,53 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     group: "Workforce planning",
     parentWindowKey: "workforce-organisation",
     abilityErpName: "Organisation structure — chart tiers",
+    showInSidebar: false,
+  },
+];
+
+const MY_WORKPLACE_WINDOWS: AccessWindow[] = [
+  {
+    key: "my-workplace",
+    label: "My workplace",
+    group: "My workplace",
+    href: "/my",
+    abilityErpName: "My workplace",
+    showInSidebar: true,
+  },
+  {
+    key: "my-leave",
+    label: "My leave",
+    group: "My workplace",
+    href: "/my/leave",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "My leave",
+    showInSidebar: false,
+  },
+  {
+    key: "my-profile",
+    label: "About me",
+    group: "My workplace",
+    href: "/my/profile",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "About me",
+    showInSidebar: false,
+  },
+  {
+    key: "my-availability",
+    label: "My availability",
+    group: "My workplace",
+    href: "/my/availability",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "My availability",
+    showInSidebar: false,
+  },
+  {
+    key: "my-contracts",
+    label: "My contracts",
+    group: "My workplace",
+    href: "/my/contracts",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "My contracts",
     showInSidebar: false,
   },
 ];
@@ -278,6 +325,7 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
   MODULE_WINDOWS[4],
   ...EMPLOYEE_DEPENDENT_WINDOWS,
   ...WORKFORCE_WINDOWS,
+  ...MY_WORKPLACE_WINDOWS,
   MODULE_WINDOWS[5],
   ...PRODUCT_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[6],
@@ -345,7 +393,15 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     label: "Action task",
     description: "Start, complete or cancel tasks assigned to you or your role",
   },
+  {
+    id: "submit-leave-request",
+    label: "Submit leave request",
+    description: "Staff submit leave for manager approval",
+    parentWindowKey: "my-leave",
+  },
 ];
+
+export const MY_WORKPLACE_WINDOW_KEYS = MY_WORKPLACE_WINDOWS.map((w) => w.key);
 
 export const ALL_WINDOW_KEYS = ACCESS_WINDOWS.map((w) => w.key);
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { AppShell } from "@/components/app-shell";
 import { HomeCalendar } from "@/components/home-calendar";
 import { HomeAiChat } from "@/components/home-ai-chat";
@@ -15,6 +15,7 @@ import { formatDisplayDateTime, isNdisReportOverdue } from "@/lib/incident";
 import { incidentHomeStats, recentIncidents } from "@/lib/incident-hub";
 import { taskCountsForSession, visibleTaskViews } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
+import type { MyWorkplaceSummary } from "@/lib/my-workplace/types";
 
 function SummaryCard({
   title,
@@ -66,7 +67,19 @@ export function HomeDashboard() {
   const taskCounts = session ? taskCountsForSession(tasks, session) : null;
   const taskStats = session ? taskDashboardStats(tasks, session) : null;
   const showTasks = taskViews.length > 0;
+  const showMyWorkplace = canWindow("my-workplace");
   const openTaskCount = taskCounts ? taskCounts.assignedToMe + taskCounts.myRole : 0;
+  const [mySummary, setMySummary] = useState<MyWorkplaceSummary | null>(null);
+
+  useEffect(() => {
+    if (!showMyWorkplace) return;
+    void fetch("/api/my", { credentials: "include" })
+      .then(async (res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.summary) setMySummary(data.summary as MyWorkplaceSummary);
+      })
+      .catch(() => undefined);
+  }, [showMyWorkplace]);
 
   const openEnquiries = useMemo(
     () => enquiries.filter((e) => !e.status.startsWith("5_")).length,
@@ -164,7 +177,47 @@ export function HomeDashboard() {
                 : ""}
           </Link>
         ) : null}
+        {showMyWorkplace ? (
+          <Link
+            href="/my"
+            className="rounded-lg border border-[#f9a8d4]/40 bg-[#fdf2f8] px-4 py-2.5 text-sm font-medium text-[#b51266] shadow-sm hover:bg-[#fce7f3]"
+          >
+            My workplace
+            {mySummary && (mySummary.pendingLeaveCount > 0 || mySummary.contractsToAcknowledge > 0)
+              ? ` (${mySummary.pendingLeaveCount + mySummary.contractsToAcknowledge})`
+              : ""}
+          </Link>
+        ) : null}
       </div>
+
+      {showMyWorkplace && mySummary && (mySummary.pendingLeaveCount > 0 || mySummary.contractsToAcknowledge > 0 || !mySummary.availabilityConfigured) ? (
+        <div className="mb-8 rounded-2xl border border-[#f9a8d4]/30 bg-gradient-to-br from-[#fdf2f8]/80 to-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-[#b51266]">My workplace</p>
+          <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
+            {mySummary.pendingLeaveCount > 0 ? (
+              <li>
+                <Link href="/my/leave" className="font-medium text-[#b51266] hover:underline">
+                  {mySummary.pendingLeaveCount} leave request{mySummary.pendingLeaveCount === 1 ? "" : "s"} awaiting approval
+                </Link>
+              </li>
+            ) : null}
+            {mySummary.contractsToAcknowledge > 0 ? (
+              <li>
+                <Link href="/my/contracts" className="font-medium text-[#b51266] hover:underline">
+                  {mySummary.contractsToAcknowledge} contract{mySummary.contractsToAcknowledge === 1 ? "" : "s"} to acknowledge
+                </Link>
+              </li>
+            ) : null}
+            {!mySummary.availabilityConfigured ? (
+              <li>
+                <Link href="/my/availability" className="font-medium text-[#b51266] hover:underline">
+                  Set your working availability
+                </Link>
+              </li>
+            ) : null}
+          </ul>
+        </div>
+      ) : null}
 
       {showIncidents && overdueIncidents.length > 0 ? (
         <div className="mb-8 rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 to-white p-5 shadow-sm ring-1 ring-rose-200/60">

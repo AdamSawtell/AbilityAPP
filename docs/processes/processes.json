@@ -127,6 +127,23 @@
         "web/src/lib/data-store.tsx"
       ],
       "tables": ["task", "task_activity"]
+    },
+    {
+      "number": 8,
+      "id": "submit-leave-request",
+      "name": "Submit leave request",
+      "status": "live",
+      "summary": "Staff submit leave from My workplace; managers approve on the employee Leave tab.",
+      "doc": "docs/processes/08-submit-leave-request.md",
+      "trigger": "Staff submits leave on /my/leave",
+      "entryPoints": [
+        "web/src/components/my-workplace/my-leave-page.tsx",
+        "web/src/app/api/my/leave/route.ts"
+      ],
+      "logic": [
+        "web/src/lib/my-workplace/api.ts"
+      ],
+      "tables": ["employee_leave_request", "employee_activity", "employee_availability", "employee_document_acknowledgement"]
     }
   ]
 }

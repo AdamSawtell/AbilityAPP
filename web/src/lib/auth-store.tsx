@@ -41,6 +41,7 @@ const AuthContext = createContext<AuthStore | null>(null);
 function normalizeSession(raw: AuthSession): AuthSession {
   return {
     ...raw,
+    employeeBpId: raw.employeeBpId ?? "",
     taskTypePermissions: raw.taskTypePermissions ?? [],
     reportIds: raw.reportIds ?? [],
     agentIds: raw.agentIds ?? [],
