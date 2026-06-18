@@ -1,5 +1,57 @@
 import type { HelpArticle } from "@/lib/help/types";
 
+export const workforceLeaveCalendarArticle: HelpArticle = {
+  id: "article-workforce-leave-calendar",
+  slug: "workforce-leave-calendar",
+  title: "Workforce planning: leave calendar",
+  summary:
+    "View team leave on a calendar, filter by site or business area, and open leave requests linked to employees.",
+  category: "People",
+  keywords: [
+    "workforce planning",
+    "leave",
+    "leave calendar",
+    "annual leave",
+    "sick leave",
+    "roster",
+    "how to",
+  ],
+  relatedRoutes: ["/workforce-planning"],
+  windowKeys: ["workforce-planning"],
+  lastUpdated: "2026-06-18",
+  sections: [
+    {
+      id: "open",
+      title: "Open the leave calendar",
+      steps: [
+        "Sign in with a role that includes Workforce planning.",
+        "Open Workforce planning in the sidebar.",
+        "The default tab is Leave calendar.",
+        "Use the month controls to move between periods.",
+      ],
+      relatedRoutes: ["/workforce-planning"],
+    },
+    {
+      id: "filters",
+      title: "Filter the calendar",
+      body: "Narrow the calendar by business area, location, or employee when your role allows. Filters help coordinators see who is away at a site this week.",
+      relatedRoutes: ["/workforce-planning"],
+    },
+    {
+      id: "organisation",
+      title: "Organisation structure",
+      body: "Switch to Organisation structure to maintain the position tree, holders, and reporting lines. See [Workforce organisation structure](/help/workforce-organisation).",
+      relatedRoutes: ["/workforce-planning/organisation", "/help/workforce-organisation"],
+    },
+    {
+      id: "setup",
+      title: "Configure leave types",
+      body: "Leave type and status lists are maintained in System setup. See [Workforce planning setup](/system/guides/workforce-setup).",
+      relatedRoutes: ["/system/setup/workforce", "/system/guides/workforce-setup"],
+    },
+  ],
+};
+
 export const workforceOrganisationArticle: HelpArticle = {
   id: "article-workforce-organisation",
   slug: "workforce-organisation",
@@ -39,7 +91,7 @@ export const workforceOrganisationArticle: HelpArticle = {
       title: "What this module does",
       body: "Organisation structure is the position tree for your workforce. Each node is a position slot in the reporting tree — not a person and not a new security role. People are assigned as primary or acting holders.\n\nEvery position must link to exactly one role from System → Admin → Roles. That role controls app access (windows, tasks, processes). Many positions can share the same role — for example eleven Support Worker slots all map to the Support Worker role.\n\nThe tree drives escalation when a position is vacant and routes automated tasks to the right manager.",
       bullets: [
-        "Security role — chosen from System → Admin → Roles; defines what holders can do in the app.",
+        "Security role — chosen from Admin → Roles; defines what holders can do in the app.",
         "Position title — optional site-specific label (for example Team Leader — Northern SIL).",
         "Positions can link to a business area and support location.",
         "Vacant positions escalate to the parent position holder.",
@@ -56,7 +108,7 @@ export const workforceOrganisationArticle: HelpArticle = {
       bullets: [
         "workforce-organisation — view the chart and position details",
         "workforce-org-edit — drag reparent, change holders, edit position fields",
-        "workforce-org-chart-tier — change chart tier bands (typically admin only; assign in System → Admin → Roles)",
+        "workforce-org-chart-tier — change chart tier bands (typically admin only; assign in Admin → Roles)",
         "incident-manager-override — sign off reportable incidents when you are not the accountable manager (typically admin)",
       ],
       relatedRoutes: ["/admin/roles", "/workforce-planning/organisation"],
@@ -96,7 +148,7 @@ export const workforceOrganisationArticle: HelpArticle = {
       title: "Link a position to a security role",
       body: "Positions never create new security roles. When you add or edit a position, choose Security role from the dropdown — the list comes from System → Admin → Roles.\n\nThe position title is for display (often a site label). Holders still need the matching role assigned on their user record on Employee → System access.",
       steps: [
-        "Open System → Admin → Roles and confirm the role you need exists (for example Team Leader, Support Worker).",
+        "Open Admin → Roles and confirm the role you need exists (for example Team Leader, Support Worker).",
         "Select a position in the org chart.",
         "Choose Security role in the editor.",
         "Set Position title if you need a site-specific label.",

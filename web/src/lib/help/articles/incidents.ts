@@ -16,7 +16,7 @@ export const incidentsArticle: HelpArticle = {
     "compliance",
     "notification",
   ],
-  relatedRoutes: ["/incidents", "/incidents/new", "/incidents/compliance"],
+  relatedRoutes: ["/incidents", "/incidents/new", "/incidents/compliance", "/incidents/dashboard"],
   windowKeys: ["incidents"],
   lastUpdated: "2026-06-16",
   sections: [

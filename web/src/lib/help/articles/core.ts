@@ -7,7 +7,14 @@ export const tasksArticle: HelpArticle = {
   summary: "Create, assign, filter, and complete tasks across your organisation.",
   category: "Core",
   keywords: ["tasks", "requests", "assign", "due date", "overdue", "complete", "task hub"],
-  relatedRoutes: ["/tasks", "/tasks/new"],
+  relatedRoutes: [
+    "/tasks",
+    "/tasks/new",
+    "/tasks/assigned-to-me",
+    "/tasks/my-role",
+    "/tasks/all",
+    "/tasks/past",
+  ],
   windowKeys: ["tasks-assigned-to-me", "tasks-for-my-role", "tasks-all", "tasks-past"],
   lastUpdated: "2025-06-15",
   sections: [

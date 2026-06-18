@@ -103,10 +103,10 @@ export const adminArticle: HelpArticle = {
   category: "Admin",
   keywords: ["admin", "organisation", "reference data", "roles", "users", "task management", "access", "system"],
   relatedRoutes: [
+    "/admin/roles",
     "/system",
     "/system/organization",
     "/system/reference-data/admin",
-    "/system/admin/roles",
     "/system/admin/task-management",
     "/system/admin/task-automations",
     "/system/guides/core-system-setup",
@@ -143,21 +143,21 @@ export const adminArticle: HelpArticle = {
     {
       id: "roles",
       title: "Roles",
-      body: "Roles bundle window access, business processes, report ids, and task type permissions. Configure under System → Admin → Roles.",
+      body: "Roles bundle window access, business processes, report ids, and task type permissions. Configure under Admin → Roles in the workspace.",
       bullets: [
         "Windows control sidebar items and record tabs",
         "Processes control actions like enquiry-to-client",
         "Reports control the report catalog",
         "Task types control who can create and complete each task type",
       ],
-      relatedRoutes: ["/system/admin/roles"],
+      relatedRoutes: ["/admin/roles"],
       windowKeys: ["admin-roles"],
     },
     {
       id: "users",
       title: "Users and logins",
-      body: "User accounts link to employee records on the System access tab. Assign roles per user from System → Admin → Roles.",
-      relatedRoutes: ["/system/admin/roles", "/employees"],
+      body: "User accounts link to employee records on the System access tab. Assign roles per user from Admin → Roles.",
+      relatedRoutes: ["/admin/roles", "/employees"],
       windowKeys: ["admin-roles", "employee-system-access"],
     },
     {
@@ -208,6 +208,8 @@ export const maintainingGuideArticle: HelpArticle = {
         "keywords improve search and future embeddings",
         "windowKeys filter articles for roles that lack access",
         "Register new articles in web/src/lib/help/articles/index.ts",
+        "Map every AppShell and SystemShell route in web/src/lib/help/page-guides.ts for the footer link",
+        "Run npm run page-guides:check before handoff",
       ],
     },
     {

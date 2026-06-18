@@ -7,7 +7,7 @@ import { enquiriesArticle, tasksArticle } from "@/lib/help/articles/core";
 import { incidentsArticle, reportIncidentQuickArticle } from "@/lib/help/articles/incidents";
 import { gettingStartedArticle, homeArticle, navigationArticle } from "@/lib/help/articles/foundation";
 import { employeesArticle } from "@/lib/help/articles/people";
-import { workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
+import { workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -22,6 +22,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   clientsArticle,
   locationsArticle,
   employeesArticle,
+  workforceLeaveCalendarArticle,
   workforceOrganisationArticle,
   servicesArticle,
   reportsArticle,

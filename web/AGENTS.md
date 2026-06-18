@@ -70,8 +70,12 @@ Helper exports: `APP_WINDOW_KEYS`, `isSystemSurfaceWindow()`, `sanitizeAppWindow
 
 ## In-app help (required for new UI)
 
-User-facing how-to content lives in `web/src/lib/help/articles/`. Update it when you add windows, tabs, reports, or workflows.
+Every window, function, and process needs a how-to guide. User-facing content lives in `web/src/lib/help/articles/`. Update it when you add windows, tabs, reports, or workflows.
 
-1. Add or extend an article with stable `id`, `slug`, `keywords`, and `windowKeys`.
-2. Register the article in `web/src/lib/help/articles/index.ts`.
-3. The UI is at `/help`; the retrieval API is `GET /api/help` (manifest, `?slug=`, `?q=` with `format=chunks` for AI).
+1. Add or extend an article with stable `id`, `slug`, `keywords`, `relatedRoutes`, and `windowKeys`.
+2. Register the article in `web/src/lib/help/articles/index.ts` (workspace) or `system-setup.ts` / `module-setup-guides.ts` (System setup).
+3. Map every `AppShell` / `SystemShell` route in `web/src/lib/help/page-guides.ts` so the footer links to the direct guide.
+4. The workspace index is `/help`; System setup guides are at `/system/guides`. The footer component (`how-to-guide-footer.tsx`) resolves the link from the current pathname.
+5. The retrieval API is `GET /api/help` (manifest, `?slug=`, `?q=` with `format=chunks` for AI).
+
+Run `npm run page-guides:check` after adding routes to confirm coverage.

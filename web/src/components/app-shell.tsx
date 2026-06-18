@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SidebarNav } from "@/components/sidebar-nav";
+import { HowToGuideFooter } from "@/components/how-to-guide-footer";
 import { SessionFooter } from "@/components/session-footer";
 import { RecordAuditFooter } from "@/components/record-audit-footer";
 import type { AppShellAuditProps } from "@/lib/audit";
@@ -90,6 +91,7 @@ export function AppShell({
             {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
           </div>
           {children}
+          <HowToGuideFooter />
           {audit ? <RecordAuditFooter {...audit} /> : null}
         </main>
       </div>

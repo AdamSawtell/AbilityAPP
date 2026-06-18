@@ -186,14 +186,14 @@ export const systemRolesAccessArticle: HelpArticle = {
   summary: "Define security roles, window access, business processes, reports, and link users from employee records.",
   category: "System setup",
   keywords: ["roles", "access", "windows", "permissions", "users", "security", "system admin"],
-  relatedRoutes: ["/system/admin/roles", "/employees"],
+  relatedRoutes: ["/admin/roles", "/employees"],
   windowKeys: ["admin-roles", "employee-system-access"],
   lastUpdated: "2026-06-17",
   sections: [
     {
       id: "roles-page",
-      title: "Configure roles in System",
-      body: "System → Admin → Roles is the canonical place to maintain security roles. Each role bundles:",
+      title: "Configure roles",
+      body: "Admin → Roles in the workspace is where you maintain security roles. Each role bundles:",
       bullets: [
         "Windows — sidebar items, record tabs, and admin screens",
         "Processes — actions such as enquiry-to-client",
@@ -201,12 +201,12 @@ export const systemRolesAccessArticle: HelpArticle = {
         "Task types — see, select, and create rights per task type (also configured on Task management)",
       ],
       steps: [
-        "Open System → Admin → Roles.",
+        "Open Admin → Roles in the workspace sidebar.",
         "Select a role or click Add role.",
         "Tick windows, processes, and reports for that role.",
         "Save the role.",
       ],
-      relatedRoutes: ["/system/admin/roles"],
+      relatedRoutes: ["/admin/roles"],
     },
     {
       id: "users",

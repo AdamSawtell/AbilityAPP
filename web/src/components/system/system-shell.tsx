@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { AppShellAuditProps } from "@/lib/audit";
 import { RecordAuditFooter } from "@/components/record-audit-footer";
+import { HowToGuideFooter } from "@/components/how-to-guide-footer";
 import { SystemHeaderBrand, SystemNav } from "@/components/system/system-nav";
 
 type Breadcrumb = { label: string; href?: string };
@@ -61,6 +62,7 @@ export function SystemShell({
             {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
           </div>
           {children}
+          <HowToGuideFooter />
           {audit ? <RecordAuditFooter {...audit} /> : null}
         </main>
       </div>

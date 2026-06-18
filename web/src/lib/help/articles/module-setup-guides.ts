@@ -92,7 +92,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
     [
       "Set leave type and leave request status options.",
       "Configure org chart tiers under Organisation.",
-      "Maintain positions under Admin → Organisation structure.",
+      "Maintain positions under Workforce planning → Organisation structure.",
       "Leave calendar stays in the workspace at Workforce planning.",
     ]
   ),
