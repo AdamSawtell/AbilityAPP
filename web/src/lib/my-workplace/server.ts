@@ -2,6 +2,7 @@ import type { AuthSession } from "@/lib/access/types";
 import { sessionHasWindow } from "@/lib/auth/session.server";
 import type {
   EmployeeAvailabilityRow,
+  EmployeeCredentialRow,
   EmployeeDocumentAcknowledgement,
   EmployeeLeaveRequestRow,
   EmployeeRecord,
@@ -10,28 +11,36 @@ import { initialEmployees, normalizeEmployee } from "@/lib/employee";
 import { newLineId } from "@/lib/client-line-tables";
 import { SEED_USERS } from "@/lib/access/seed";
 import { fetchUsers } from "@/lib/supabase/access-api";
-import { saveEmployee } from "@/lib/supabase/data-api";
 import {
   employeeAvailabilityFromRow,
   employeeDocumentAckFromRow,
   employeeFromRow,
+  type EmployeeActivityRowDb,
+  type EmployeeAlertRowDb,
   type EmployeeAvailabilityRowDb,
+  type EmployeeCredentialRowDb,
   type EmployeeDocumentAcknowledgementRowDb,
   type EmployeeDocumentRowDb,
   type EmployeeEmergencyContactRowDb,
+  type EmployeeLeaveEntitlementRowDb,
   type EmployeeLeaveRequestRowDb,
   type EmployeeLocationRowDb,
+  type EmployeeSkillRowDb,
   type EmployeeRow,
 } from "@/lib/supabase/mappers";
+import { persistMyCredential, persistMyLeaveRequest, persistMyProfile } from "@/lib/my-workplace/persist";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   isStaffContractDocument,
+  type MyCredentialSubmitPayload,
   type MyLeaveSubmitPayload,
   type MyProfilePayload,
 } from "@/lib/my-workplace/types";
 
-export type { MyContractView, MyLeaveSubmitPayload, MyProfilePayload, MyWorkplaceSummary } from "@/lib/my-workplace/types";
+export type { MyContractView, MyCredentialSubmitPayload, MyLeaveSubmitPayload, MyProfilePayload, MyWorkplaceSummary } from "@/lib/my-workplace/types";
+export type { MyActionItem, MyProfileGap } from "@/lib/my-workplace/compliance-dashboard";
+export { buildMyWorkplaceDashboard } from "@/lib/my-workplace/compliance-dashboard";
 export {
   buildMyContracts,
   buildMySummary,
@@ -77,11 +86,26 @@ async function loadEmployeeRow(supabase: SupabaseClient, employeeId: string): Pr
   const { data: row, error } = await supabase.from("employee").select("*").eq("id", employeeId).maybeSingle();
   if (error || !row) return null;
   const employeeRow = row as EmployeeRow;
-  const [locationsRes, ecRes, docsRes, leaveRes] = await Promise.all([
+  const [
+    locationsRes,
+    ecRes,
+    docsRes,
+    leaveRes,
+    credRes,
+    alertsRes,
+    skillsRes,
+    actsRes,
+    entRes,
+  ] = await Promise.all([
     supabase.from("employee_location").select("*").eq("employee_id", employeeId).order("line_no"),
     supabase.from("employee_emergency_contact").select("*").eq("employee_id", employeeId).order("line_no"),
     supabase.from("employee_document").select("*").eq("employee_id", employeeId).order("line_no"),
     supabase.from("employee_leave_request").select("*").eq("employee_id", employeeId).order("line_no"),
+    supabase.from("employee_credential").select("*").eq("employee_id", employeeId).order("line_no"),
+    supabase.from("employee_alert").select("*").eq("employee_id", employeeId).order("line_no"),
+    supabase.from("employee_skill").select("*").eq("employee_id", employeeId).order("line_no"),
+    supabase.from("employee_activity").select("*").eq("employee_id", employeeId).order("line_no"),
+    supabase.from("employee_leave_entitlement").select("*").eq("employee_id", employeeId).order("line_no"),
   ]);
   return normalizeEmployee(
     employeeFromRow(employeeRow, {
@@ -89,6 +113,11 @@ async function loadEmployeeRow(supabase: SupabaseClient, employeeId: string): Pr
       emergencyContacts: (ecRes.data ?? []) as EmployeeEmergencyContactRowDb[],
       documents: (docsRes.data ?? []) as EmployeeDocumentRowDb[],
       leaveRequests: (leaveRes.data ?? []) as EmployeeLeaveRequestRowDb[],
+      credentials: (credRes.data ?? []) as EmployeeCredentialRowDb[],
+      alerts: (alertsRes.data ?? []) as EmployeeAlertRowDb[],
+      skills: (skillsRes.data ?? []) as EmployeeSkillRowDb[],
+      activities: (actsRes.data ?? []) as EmployeeActivityRowDb[],
+      leaveEntitlements: (entRes.data ?? []) as EmployeeLeaveEntitlementRowDb[],
     })
   );
 }
@@ -166,27 +195,26 @@ export async function submitMyLeave(
     declineReason: "",
   };
 
+  const activity = {
+    id: newLineId("emp-act"),
+    lineNo: employee.activities.length + 1,
+    date: now.slice(0, 10),
+    activityType: "Leave",
+    subject: "Leave request submitted",
+    description: `${request.leaveType}: ${request.startDate} to ${request.endDate}`,
+    createdBy: ctx.session.displayName,
+  };
+
+  if (isSupabaseConfigured()) {
+    await persistMyLeaveRequest(serviceClient(), ctx.employeeId, request, activity);
+  }
+
   const next = normalizeEmployee({
     ...employee,
     leaveRequests: [...employee.leaveRequests, request],
-    activities: [
-      {
-        id: newLineId("emp-act"),
-        lineNo: employee.activities.length + 1,
-        date: now.slice(0, 10),
-        activityType: "Leave",
-        subject: "Leave request submitted",
-        description: `${request.leaveType}: ${request.startDate} to ${request.endDate}`,
-        createdBy: ctx.session.displayName,
-      },
-      ...employee.activities,
-    ],
+    activities: [activity, ...employee.activities],
     updatedBy: ctx.session.displayName,
   });
-
-  if (isSupabaseConfigured()) {
-    await saveEmployee(serviceClient(), next);
-  }
 
   return { request, employee: next };
 }
@@ -195,7 +223,14 @@ export async function saveMyProfile(ctx: MyWorkplaceContext, payload: MyProfileP
   const employee = await loadMyEmployee(ctx.employeeId);
   if (!employee) throw new Error("Employee record not found");
 
-  const next = normalizeEmployee({
+  if (isSupabaseConfigured()) {
+    await persistMyProfile(serviceClient(), ctx.employeeId, ctx.session, payload);
+    const reloaded = await loadMyEmployee(ctx.employeeId);
+    if (!reloaded) throw new Error("Employee record not found");
+    return reloaded;
+  }
+
+  return normalizeEmployee({
     ...employee,
     firstName: payload.firstName.trim(),
     lastName: payload.lastName.trim(),
@@ -208,12 +243,6 @@ export async function saveMyProfile(ctx: MyWorkplaceContext, payload: MyProfileP
     locations: payload.locations,
     updatedBy: ctx.session.displayName,
   });
-
-  if (isSupabaseConfigured()) {
-    await saveEmployee(serviceClient(), next);
-  }
-
-  return next;
 }
 
 export async function saveMyAvailability(
@@ -277,6 +306,111 @@ export async function acknowledgeMyContract(
   }
 
   return ack;
+}
+
+export async function submitMyCredential(
+  ctx: MyWorkplaceContext,
+  payload: MyCredentialSubmitPayload
+): Promise<{ credential: EmployeeCredentialRow; employee: EmployeeRecord }> {
+  const employee = await loadMyEmployee(ctx.employeeId);
+  if (!employee) throw new Error("Employee record not found");
+
+  const credentialType = payload.credentialType.trim();
+  if (!credentialType) throw new Error("Credential type is required");
+  if (!payload.evidenceRef.trim()) throw new Error("Evidence reference is required — add a link or document reference");
+
+  const now = new Date().toISOString();
+  const credential: EmployeeCredentialRow = {
+    id: newLineId("cred"),
+    lineNo: employee.credentials.length + 1,
+    credentialType,
+    credentialNumber: payload.credentialNumber.trim(),
+    issuingBody: payload.issuingBody.trim(),
+    issueDate: payload.issueDate,
+    expiryDate: payload.expiryDate,
+    status: "Pending review",
+    documentRef: "",
+    evidenceRef: payload.evidenceRef.trim(),
+    notes: payload.notes.trim(),
+    staffSubmitted: true,
+    submittedAt: now,
+    submittedByUserId: ctx.session.userId,
+    reviewedBy: "",
+    reviewNotes: "",
+    createdBy: ctx.session.displayName,
+    updatedBy: ctx.session.displayName,
+  };
+
+  const activity = {
+    id: newLineId("emp-act"),
+    lineNo: employee.activities.length + 1,
+    date: now.slice(0, 10),
+    activityType: "Compliance",
+    subject: "Credential submitted for review",
+    description: `${credential.credentialType}${credential.credentialNumber ? ` (${credential.credentialNumber})` : ""}`,
+    createdBy: ctx.session.displayName,
+  };
+
+  if (isSupabaseConfigured()) {
+    await persistMyCredential(serviceClient(), ctx.employeeId, credential, activity);
+  }
+
+  const next = normalizeEmployee({
+    ...employee,
+    credentials: [...employee.credentials, credential],
+    activities: [activity, ...employee.activities],
+    updatedBy: ctx.session.displayName,
+  });
+
+  return { credential, employee: next };
+}
+
+export async function submitLeaveOnBehalf(
+  session: AuthSession,
+  employeeId: string,
+  payload: MyLeaveSubmitPayload
+): Promise<{ request: EmployeeLeaveRequestRow; employee: EmployeeRecord }> {
+  const employee = await loadMyEmployee(employeeId);
+  if (!employee) throw new Error("Employee record not found");
+
+  const now = new Date().toISOString();
+  const lineNo = employee.leaveRequests.length + 1;
+  const request: EmployeeLeaveRequestRow = {
+    id: newLineId("leave-req"),
+    lineNo,
+    leaveType: payload.leaveType.trim(),
+    startDate: payload.startDate,
+    endDate: payload.endDate,
+    daysRequested: countWeekdaysInclusive(payload.startDate, payload.endDate),
+    status: "Requested",
+    notes: payload.notes.trim(),
+    submittedAt: now,
+    reviewedBy: "",
+    declineReason: "",
+  };
+
+  const activity = {
+    id: newLineId("emp-act"),
+    lineNo: employee.activities.length + 1,
+    date: now.slice(0, 10),
+    activityType: "Leave",
+    subject: "Leave request submitted on behalf",
+    description: `${request.leaveType}: ${request.startDate} to ${request.endDate} (by ${session.displayName})`,
+    createdBy: session.displayName,
+  };
+
+  if (isSupabaseConfigured()) {
+    await persistMyLeaveRequest(serviceClient(), employeeId, request, activity);
+  }
+
+  const next = normalizeEmployee({
+    ...employee,
+    leaveRequests: [...employee.leaveRequests, request],
+    activities: [activity, ...employee.activities],
+    updatedBy: session.displayName,
+  });
+
+  return { request, employee: next };
 }
 
 export function defaultAvailabilityRows(): EmployeeAvailabilityRow[] {

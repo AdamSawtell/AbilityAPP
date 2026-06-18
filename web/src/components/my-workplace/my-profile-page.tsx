@@ -1,12 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
 import { useData } from "@/lib/data-store";
 import type { EmployeeEmergencyContactRow, EmployeeLocationRow, EmployeeRecord } from "@/lib/employee";
-import { emptyEmergencyContactRow, renumberLines } from "@/lib/employee-line-tables";
+import { emptyEmergencyContactRow, emptyEmployeeLocationRow, renumberLines } from "@/lib/employee-line-tables";
+import type { MyProfileGap } from "@/lib/my-workplace/compliance-dashboard";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -23,6 +25,7 @@ type ProfileData = {
   employmentType: string;
   emergencyContacts: EmployeeEmergencyContactRow[];
   locations: EmployeeLocationRow[];
+  profileGaps: MyProfileGap[];
 };
 
 export function MyProfilePage() {
@@ -64,6 +67,27 @@ export function MyProfilePage() {
     });
   }
 
+  function updateLocation(index: number, next: EmployeeLocationRow) {
+    if (!profile) return;
+    const locations = profile.locations.map((row, i) => (i === index ? next : row));
+    setProfile({ ...profile, locations });
+  }
+
+  function addLocation() {
+    if (!profile) return;
+    const row = emptyEmployeeLocationRow(profile.locations.length + 1);
+    if (profile.locations.length === 0) row.primaryAddress = "Yes";
+    setProfile({ ...profile, locations: [...profile.locations, row] });
+  }
+
+  function removeLocation(index: number) {
+    if (!profile) return;
+    setProfile({
+      ...profile,
+      locations: renumberLines(profile.locations.filter((_, i) => i !== index)),
+    });
+  }
+
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
     if (!profile) return;
@@ -90,6 +114,11 @@ export function MyProfilePage() {
       if (!res.ok) throw new Error(body.error ?? "Save failed");
       if (body.employee) upsertEmployee(body.employee);
       setMessage("Profile updated.");
+      void fetch("/api/my/profile", { credentials: "include" })
+        .then(async (res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data) setProfile(data as ProfileData);
+        });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -111,11 +140,28 @@ export function MyProfilePage() {
     <MyWorkplaceGuard windowKey="my-profile">
       <AppShell
         title="About me"
-        subtitle="Update contact details your employer can reach you on."
+        subtitle="Update contact details, emergency contacts, and home address."
         breadcrumbs={myWorkplaceBreadcrumbs("About me")}
         audit={{ moduleLabel: "About me" }}
       >
         <MyWorkplaceSubnav />
+
+        {profile.profileGaps.length > 0 ? (
+          <section className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+            <h2 className="text-sm font-semibold text-amber-900">Complete your profile</h2>
+            <ul className="mt-2 space-y-1 text-sm text-amber-900/90">
+              {profile.profileGaps.map((gap) => (
+                <li key={gap.id}>
+                  <Link href={gap.href} className="font-medium hover:underline">
+                    {gap.label}
+                  </Link>
+                  <span className="text-amber-800/80"> — {gap.description}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         <form onSubmit={saveProfile} className="space-y-6">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Employment summary</h2>
@@ -189,6 +235,37 @@ export function MyProfilePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-slate-900">Home address</h2>
+              <button type="button" onClick={addLocation} className="text-sm font-medium text-[#b51266] hover:underline">
+                Add address
+              </button>
+            </div>
+            <div className="mt-4 space-y-4">
+              {profile.locations.map((location, index) => (
+                <div key={location.id} className="rounded-xl border border-slate-200 p-4">
+                  <div className="mb-3 flex justify-between">
+                    <p className="text-sm font-medium text-slate-900">{location.addressType || "Address"} {location.lineNo}</p>
+                    <button type="button" onClick={() => removeLocation(index)} className="text-xs text-red-600">
+                      Remove
+                    </button>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <input className={inputClass} placeholder="Address line 1" value={location.address1} onChange={(e) => updateLocation(index, { ...location, address1: e.target.value })} />
+                    <input className={inputClass} placeholder="Address line 2" value={location.address2} onChange={(e) => updateLocation(index, { ...location, address2: e.target.value })} />
+                    <input className={inputClass} placeholder="Suburb / city" value={location.city} onChange={(e) => updateLocation(index, { ...location, city: e.target.value })} />
+                    <input className={inputClass} placeholder="State" value={location.state} onChange={(e) => updateLocation(index, { ...location, state: e.target.value })} />
+                    <input className={inputClass} placeholder="Postcode" value={location.postcode} onChange={(e) => updateLocation(index, { ...location, postcode: e.target.value })} />
+                  </div>
+                </div>
+              ))}
+              {profile.locations.length === 0 ? (
+                <p className="text-sm text-slate-500">No address on file. Add your home address so we can reach you if needed.</p>
+              ) : null}
             </div>
           </section>
 

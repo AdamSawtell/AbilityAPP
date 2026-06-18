@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
 import {
   buildMyContracts,
-  buildMySummary,
+  buildMyWorkplaceDashboard,
   loadMyAcknowledgements,
   loadMyAvailability,
   loadMyEmployee,
@@ -22,15 +22,18 @@ export async function GET() {
     loadMyAcknowledgements(ctx.employeeId),
   ]);
   const contracts = buildMyContracts(employee.documents, acknowledgements);
-  const summary = buildMySummary(employee.leaveRequests, contracts, availability);
+  const dashboard = buildMyWorkplaceDashboard({ employee, availability, contracts });
 
   return NextResponse.json({
     employeeId: ctx.employeeId,
     employeeName: employee.name,
-    summary,
+    summary: dashboard.summary,
+    actionItems: dashboard.actionItems,
+    profileGaps: dashboard.profileGaps,
     contracts,
     availability,
     leaveRequests: employee.leaveRequests,
     entitlements: employee.leaveEntitlements,
+    credentials: employee.credentials,
   });
 }

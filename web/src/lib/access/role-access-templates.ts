@@ -54,7 +54,7 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees", "enquiries"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...EXEC_PROCESSES, "submit-leave-request"],
+    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf"],
     reportIds: [...EXEC_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   };
@@ -74,7 +74,7 @@ export function managerAccess(
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...EXEC_PROCESSES, "submit-leave-request"],
+    processIds: [...EXEC_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf"],
     reportIds: [...MANAGER_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
   };
@@ -94,7 +94,7 @@ export function officerAccess(
       ...windowKeysWithDependents("clients", "incidents", "locations"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: [...OFFICER_PROCESSES, "submit-leave-request"],
+    processIds: [...OFFICER_PROCESSES, "submit-leave-request", "submit-employee-credential", "submit-leave-on-behalf"],
     reportIds: [...OFFICER_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-other"]),
   };
@@ -120,7 +120,7 @@ export function supportWorkerAccess(): Pick<AppRoleRecord, "windowKeys" | "proce
       ...windowKeysWithDependents("clients", "incidents", "locations"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: ["assign-task", "action-task", "report-incident", "assign-location-employee", "submit-leave-request"],
+    processIds: ["assign-task", "action-task", "report-incident", "assign-location-employee", "submit-leave-request", "submit-employee-credential"],
     reportIds: ["tasks-all", "location-register", "incident-register"],
     taskTypePermissions: permissionsForTypes(["tt-check", "tt-other", "tt-review"]),
   };

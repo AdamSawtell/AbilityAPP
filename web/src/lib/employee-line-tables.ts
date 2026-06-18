@@ -70,7 +70,9 @@ export const credentialTableConfig: GenericTableConfig<EmployeeCredentialRow> = 
     { key: "issueDate", label: "Issue date", type: "date" },
     { key: "expiryDate", label: "Expiry date", type: "date" },
     { key: "status", label: "Status", type: "select", optionsKey: "credentialStatus" },
+    { key: "evidenceRef", label: "Evidence ref", type: "text" },
     { key: "documentRef", label: "Document ref", type: "text" },
+    { key: "reviewNotes", label: "Review notes", type: "textarea", className: "min-w-[200px]" },
     { key: "notes", label: "Notes", type: "textarea", className: "min-w-[200px]" },
   ],
   emptyRow: (lineNo) => ({

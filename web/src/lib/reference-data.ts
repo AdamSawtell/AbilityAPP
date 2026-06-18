@@ -441,7 +441,7 @@ export const defaultReferenceData: ReferenceDataCatalog = {
     "Insurance",
     "Other",
   ],
-  credentialStatus: ["Current", "Expiring soon", "Expired", "Pending", "Revoked"],
+  credentialStatus: ["Current", "Expiring soon", "Expired", "Pending", "Pending review", "Rejected", "Revoked"],
   department: [
     "Executive",
     "Intake",

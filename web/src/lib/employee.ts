@@ -13,7 +13,14 @@ export type EmployeeCredentialRow = {
   expiryDate: string;
   status: string;
   documentRef: string;
+  evidenceRef?: string;
   notes: string;
+  staffSubmitted?: boolean;
+  submittedAt?: string;
+  submittedByUserId?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewNotes?: string;
   createdBy: string;
   updatedBy: string;
 };

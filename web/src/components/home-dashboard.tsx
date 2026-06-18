@@ -16,6 +16,7 @@ import { incidentHomeStats, recentIncidents } from "@/lib/incident-hub";
 import { taskCountsForSession, visibleTaskViews } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
 import type { MyWorkplaceSummary } from "@/lib/my-workplace/types";
+import type { MyActionItem } from "@/lib/my-workplace/compliance-dashboard";
 
 function SummaryCard({
   title,
@@ -70,6 +71,7 @@ export function HomeDashboard() {
   const showMyWorkplace = canWindow("my-workplace");
   const openTaskCount = taskCounts ? taskCounts.assignedToMe + taskCounts.myRole : 0;
   const [mySummary, setMySummary] = useState<MyWorkplaceSummary | null>(null);
+  const [myActionItems, setMyActionItems] = useState<MyActionItem[]>([]);
 
   useEffect(() => {
     if (!showMyWorkplace) return;
@@ -77,9 +79,14 @@ export function HomeDashboard() {
       .then(async (res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.summary) setMySummary(data.summary as MyWorkplaceSummary);
+        if (data?.actionItems) setMyActionItems(data.actionItems as MyActionItem[]);
       })
       .catch(() => undefined);
   }, [showMyWorkplace]);
+
+  const myAttentionCount = mySummary
+    ? mySummary.actionItemsCount
+    : 0;
 
   const openEnquiries = useMemo(
     () => enquiries.filter((e) => !e.status.startsWith("5_")).length,
@@ -183,39 +190,29 @@ export function HomeDashboard() {
             className="rounded-lg border border-[#f9a8d4]/40 bg-[#fdf2f8] px-4 py-2.5 text-sm font-medium text-[#b51266] shadow-sm hover:bg-[#fce7f3]"
           >
             My workplace
-            {mySummary && (mySummary.pendingLeaveCount > 0 || mySummary.contractsToAcknowledge > 0)
-              ? ` (${mySummary.pendingLeaveCount + mySummary.contractsToAcknowledge})`
-              : ""}
+            {myAttentionCount > 0 ? ` (${myAttentionCount})` : ""}
           </Link>
         ) : null}
       </div>
 
-      {showMyWorkplace && mySummary && (mySummary.pendingLeaveCount > 0 || mySummary.contractsToAcknowledge > 0 || !mySummary.availabilityConfigured) ? (
+      {showMyWorkplace && myActionItems.length > 0 ? (
         <div className="mb-8 rounded-2xl border border-[#f9a8d4]/30 bg-gradient-to-br from-[#fdf2f8]/80 to-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-[#b51266]">My workplace</p>
           <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
-            {mySummary.pendingLeaveCount > 0 ? (
-              <li>
-                <Link href="/my/leave" className="font-medium text-[#b51266] hover:underline">
-                  {mySummary.pendingLeaveCount} leave request{mySummary.pendingLeaveCount === 1 ? "" : "s"} awaiting approval
+            {myActionItems.slice(0, 5).map((item) => (
+              <li key={item.id}>
+                <Link href={item.href} className="font-medium text-[#b51266] hover:underline">
+                  {item.title}
                 </Link>
+                <span className="text-slate-600"> — {item.description}</span>
               </li>
-            ) : null}
-            {mySummary.contractsToAcknowledge > 0 ? (
-              <li>
-                <Link href="/my/contracts" className="font-medium text-[#b51266] hover:underline">
-                  {mySummary.contractsToAcknowledge} contract{mySummary.contractsToAcknowledge === 1 ? "" : "s"} to acknowledge
-                </Link>
-              </li>
-            ) : null}
-            {!mySummary.availabilityConfigured ? (
-              <li>
-                <Link href="/my/availability" className="font-medium text-[#b51266] hover:underline">
-                  Set your working availability
-                </Link>
-              </li>
-            ) : null}
+            ))}
           </ul>
+          {myActionItems.length > 5 ? (
+            <Link href="/my" className="mt-3 inline-block text-sm font-medium text-[#b51266] hover:underline">
+              View all on My workplace dashboard
+            </Link>
+          ) : null}
         </div>
       ) : null}
 

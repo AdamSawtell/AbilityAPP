@@ -242,6 +242,15 @@ const MY_WORKPLACE_WINDOWS: AccessWindow[] = [
     abilityErpName: "My contracts",
     showInSidebar: false,
   },
+  {
+    key: "my-credentials",
+    label: "My credentials",
+    group: "My workplace",
+    href: "/my/credentials",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "My credentials",
+    showInSidebar: false,
+  },
 ];
 
 const REPORT_WINDOWS: AccessWindow[] = [
@@ -398,6 +407,18 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     label: "Submit leave request",
     description: "Staff submit leave for manager approval",
     parentWindowKey: "my-leave",
+  },
+  {
+    id: "submit-employee-credential",
+    label: "Submit credential",
+    description: "Staff submit credentials with evidence for HR review and sign-off",
+    parentWindowKey: "my-credentials",
+  },
+  {
+    id: "submit-leave-on-behalf",
+    label: "Submit leave on behalf",
+    description: "Managers and rostering staff submit leave for an employee from workforce planning",
+    parentWindowKey: "workforce-planning",
   },
 ];
 

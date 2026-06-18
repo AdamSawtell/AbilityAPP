@@ -1352,7 +1352,14 @@ export type EmployeeCredentialRowDb = {
   expiry_date: string | null;
   status: string;
   document_ref: string;
+  evidence_ref?: string;
   notes: string;
+  staff_submitted?: boolean;
+  submitted_at?: string | null;
+  submitted_by_user_id?: string;
+  reviewed_at?: string | null;
+  reviewed_by?: string;
+  review_notes?: string;
   created_by: string;
   updated_by: string;
 };
@@ -1511,7 +1518,14 @@ export function employeeCredentialFromRow(row: EmployeeCredentialRowDb): Employe
     expiryDate: strDate(row.expiry_date),
     status: row.status,
     documentRef: row.document_ref,
+    evidenceRef: row.evidence_ref ?? "",
     notes: row.notes,
+    staffSubmitted: row.staff_submitted ?? false,
+    submittedAt: row.submitted_at ?? undefined,
+    submittedByUserId: row.submitted_by_user_id ?? "",
+    reviewedAt: row.reviewed_at ?? undefined,
+    reviewedBy: row.reviewed_by ?? "",
+    reviewNotes: row.review_notes ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };

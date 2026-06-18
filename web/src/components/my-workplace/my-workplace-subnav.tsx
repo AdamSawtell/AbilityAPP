@@ -11,6 +11,7 @@ const tabs = [
   { href: "/my/profile", label: "About me", windowKey: "my-profile" },
   { href: "/my/availability", label: "Availability", windowKey: "my-availability" },
   { href: "/my/contracts", label: "Contracts", windowKey: "my-contracts" },
+  { href: "/my/credentials", label: "Credentials", windowKey: "my-credentials" },
 ] as const;
 
 export function MyWorkplaceSubnav() {

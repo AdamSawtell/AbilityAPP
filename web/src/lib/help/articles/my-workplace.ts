@@ -5,7 +5,7 @@ export const myWorkplaceArticle: HelpArticle = {
   slug: "my-workplace",
   title: "My workplace self-service",
   summary:
-    "Submit leave, update your contact details, set working availability, and acknowledge employment contracts from your own login.",
+    "Submit leave, update your profile, add credentials with evidence, set availability, and acknowledge contracts from your own login.",
   category: "People",
   keywords: [
     "my workplace",
@@ -14,18 +14,21 @@ export const myWorkplaceArticle: HelpArticle = {
     "availability",
     "about me",
     "contracts",
+    "credentials",
+    "compliance",
+    "profile",
     "kiosk",
     "mobility",
     "staff portal",
   ],
-  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/contracts"],
-  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-contracts"],
+  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/contracts", "/my/credentials"],
+  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-contracts", "my-credentials"],
   lastUpdated: "2026-06-18",
   sections: [
     {
       id: "overview",
       title: "What My workplace is",
-      body: "My workplace is the staff self-service area. It shows only your own employee data — not the full HR employee file. Coordinators and HR still use Employees and Workforce planning for organisation-wide views.",
+      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, and items awaiting HR review. Coordinators and HR still use Employees and Workforce planning for organisation-wide views.",
       relatedRoutes: ["/my"],
     },
     {
@@ -48,9 +51,21 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "profile",
       title: "Update About me",
-      body: "Edit contact details and emergency contacts. Payroll, bank, and tax fields stay on the HR record and are not editable here.",
+      body: "Edit contact details, emergency contacts, and home address. The page highlights missing core information so you can complete your profile. Payroll, bank, and tax fields stay on the HR record.",
       relatedRoutes: ["/my/profile"],
       windowKeys: ["my-profile"],
+    },
+    {
+      id: "credentials",
+      title: "Credentials and evidence",
+      steps: [
+        "Open My workplace → Credentials.",
+        "Add a credential with type, dates, and an evidence reference.",
+        "Submit — status shows as Pending review until HR verifies and signs off as Current.",
+        "Expired or expiring credentials appear on your dashboard so you can renew in time.",
+      ],
+      relatedRoutes: ["/my/credentials"],
+      windowKeys: ["my-credentials"],
     },
     {
       id: "availability",

@@ -21,8 +21,10 @@ export function daysUntil(dateStr: string): number | null {
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+const WORKFLOW_CREDENTIAL_STATUSES = new Set(["Revoked", "Pending", "Pending review", "Rejected"]);
+
 export function credentialStatusFromExpiry(expiryDate: string, currentStatus?: string): string {
-  if (currentStatus === "Revoked" || currentStatus === "Pending") return currentStatus;
+  if (currentStatus && WORKFLOW_CREDENTIAL_STATUSES.has(currentStatus)) return currentStatus;
   const days = daysUntil(expiryDate);
   if (days === null) return currentStatus || "Current";
   if (days < 0) return "Expired";

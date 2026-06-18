@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
-import { loadMyEmployee, requireMyWorkplace, saveMyProfile, type MyProfilePayload } from "@/lib/my-workplace/server";
+import { buildProfileGaps } from "@/lib/my-workplace/compliance-dashboard";
+import { loadMyAvailability, loadMyEmployee, requireMyWorkplace, saveMyProfile, type MyProfilePayload } from "@/lib/my-workplace/server";
 
 export async function GET() {
   const session = await getAuthSessionFromRequest();
@@ -9,6 +10,9 @@ export async function GET() {
 
   const employee = await loadMyEmployee(ctx.employeeId);
   if (!employee) return NextResponse.json({ error: "No linked employee record" }, { status: 404 });
+
+  const availability = await loadMyAvailability(ctx.employeeId);
+  const profileGaps = buildProfileGaps(employee, availability);
 
   return NextResponse.json({
     firstName: employee.firstName,
@@ -22,6 +26,7 @@ export async function GET() {
     employmentType: employee.employmentType,
     emergencyContacts: employee.emergencyContacts,
     locations: employee.locations,
+    profileGaps,
   });
 }
 

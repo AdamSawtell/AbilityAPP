@@ -20,9 +20,6 @@ export async function POST(request: Request) {
   const session = await getAuthSessionFromRequest();
   const ctx = await requireMyWorkplace(session, "my-leave");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  if (!session?.processIds.includes("submit-leave-request")) {
-    return NextResponse.json({ error: "Submit leave not permitted for this role" }, { status: 403 });
-  }
 
   let body: { leaveType?: string; startDate?: string; endDate?: string; notes?: string };
   try {

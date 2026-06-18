@@ -14,7 +14,7 @@ const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
 
 export function MyLeavePage() {
-  const { canProcess } = useAuth();
+  const { canWindow } = useAuth();
   const { upsertEmployee } = useData();
   const { employee: localEmployee } = useMyEmployee();
   const { getOptions } = useReferenceData();
@@ -30,7 +30,7 @@ export function MyLeavePage() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const canSubmit = canProcess("submit-leave-request");
+  const canSubmit = canWindow("my-leave");
 
   useEffect(() => {
     void fetch("/api/my/leave", { credentials: "include" })

@@ -3,9 +3,15 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
+import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { useReferenceData } from "@/lib/config-store";
+import type { EmployeeRecord } from "@/lib/employee";
 import { addDays, formatMonthYear, isoFromDate, isSameDay, monthGridDays } from "@/lib/personal-calendar";
 import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planning-subnav";
+
+const inputClass =
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
 
 type LeaveCalendarEvent = {
   id: string;
@@ -33,9 +39,54 @@ function statusPill(status: string) {
 }
 
 export function WorkforcePlanningPage() {
-  const { employees } = useData();
+  const { employees, upsertEmployee } = useData();
+  const { canProcess } = useAuth();
+  const { getOptions } = useReferenceData();
+  const leaveTypes = getOptions("leaveType");
+  const canSubmitOnBehalf = canProcess("submit-leave-on-behalf");
   const [anchor, setAnchor] = useState(() => new Date());
+  const [employeeId, setEmployeeId] = useState("");
+  const [leaveType, setLeaveType] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const today = useMemo(() => new Date(), []);
+
+  const activeEmployees = useMemo(
+    () => [...employees].filter((e) => e.employmentStatus !== "Terminated").sort((a, b) => a.name.localeCompare(b.name)),
+    [employees]
+  );
+
+  async function submitLeaveOnBehalf(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitError("");
+    setSubmitMessage("");
+    try {
+      const res = await fetch("/api/workforce/leave", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId, leaveType, startDate, endDate, notes }),
+      });
+      const body = (await res.json()) as { error?: string; employee?: EmployeeRecord };
+      if (!res.ok) throw new Error(body.error ?? "Submit failed");
+      if (body.employee) upsertEmployee(body.employee);
+      setSubmitMessage("Leave request submitted for the selected employee.");
+      setEmployeeId("");
+      setLeaveType("");
+      setStartDate("");
+      setEndDate("");
+      setNotes("");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Submit failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   const leaveEvents = useMemo<LeaveCalendarEvent[]>(() => {
     const events: LeaveCalendarEvent[] = [];
@@ -215,6 +266,62 @@ export function WorkforcePlanningPage() {
           </table>
         </div>
       </section>
+
+      {canSubmitOnBehalf ? (
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">Submit leave on behalf</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Enter leave for an employee who cannot use My workplace themselves. The request appears on their employee record for approval.
+          </p>
+          <form onSubmit={submitLeaveOnBehalf} className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="sm:col-span-2">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">Employee</span>
+              <select className={inputClass} value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} required>
+                <option value="">Select employee…</option>
+                {activeEmployees.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="sm:col-span-2">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">Leave type</span>
+              <select className={inputClass} value={leaveType} onChange={(e) => setLeaveType(e.target.value)} required>
+                <option value="">Select type…</option>
+                {leaveTypes.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">Start date</span>
+              <input type="date" className={inputClass} value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+            </label>
+            <label>
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">End date</span>
+              <input type="date" className={inputClass} value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+            </label>
+            <label className="sm:col-span-2">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes (optional)</span>
+              <textarea className={inputClass} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </label>
+            <div className="sm:col-span-2">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="rounded-lg bg-[#d4147a] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
+              >
+                {submitting ? "Submitting…" : "Submit leave request"}
+              </button>
+              {submitMessage ? <p className="mt-3 text-sm text-emerald-700">{submitMessage}</p> : null}
+              {submitError ? <p className="mt-3 text-sm text-red-600">{submitError}</p> : null}
+            </div>
+          </form>
+        </section>
+      ) : null}
     </AppShell>
   );
 }

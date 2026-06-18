@@ -33,6 +33,21 @@ export type MyWorkplaceSummary = {
   pendingLeaveCount: number;
   contractsToAcknowledge: number;
   availabilityConfigured: boolean;
+  overdueCount: number;
+  dueSoonCount: number;
+  credentialsPendingReview: number;
+  profileGapsCount: number;
+  actionItemsCount: number;
+};
+
+export type MyCredentialSubmitPayload = {
+  credentialType: string;
+  credentialNumber: string;
+  issuingBody: string;
+  issueDate: string;
+  expiryDate: string;
+  evidenceRef: string;
+  notes: string;
 };
 
 export function isStaffContractDocument(doc: EmployeeDocumentRow): boolean {
@@ -76,5 +91,10 @@ export function buildMySummary(
     pendingLeaveCount: leaveRequests.filter((l) => l.status === "Requested").length,
     contractsToAcknowledge: contracts.filter((c) => c.requiresAcknowledgement && !c.acknowledged).length,
     availabilityConfigured: availability.length > 0,
+    overdueCount: 0,
+    dueSoonCount: 0,
+    credentialsPendingReview: 0,
+    profileGapsCount: 0,
+    actionItemsCount: 0,
   };
 }
