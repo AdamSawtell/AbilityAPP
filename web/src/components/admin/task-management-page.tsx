@@ -66,8 +66,12 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
   }, [roleRecord, sortedTypes]);
   const persistedType = sortedTypes.find((t) => t.id === activeTypeId) ?? null;
   const persistedRole = roles.find((r) => r.id === activeRoleId) ?? null;
-  const typeDirty = Boolean(typeDraft && persistedType && JSON.stringify(typeDraft) !== JSON.stringify(persistedType));
-  const roleDirty = Boolean(roleDraft && persistedRole && JSON.stringify(roleDraft) !== JSON.stringify(persistedRole));
+  const typeDirty = Boolean(
+    typeDraft && (!persistedType || JSON.stringify(typeDraft) !== JSON.stringify(persistedType))
+  );
+  const roleDirty = Boolean(
+    roleDraft && (!persistedRole || JSON.stringify(roleDraft) !== JSON.stringify(persistedRole))
+  );
 
   const Shell = variant === "system" ? SystemShell : AppShell;
 

@@ -77,7 +77,9 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
 
   const record = draft ?? sorted.find((r) => r.id === activeId) ?? null;
   const persistedRecord = sorted.find((r) => r.id === activeId) ?? null;
-  const isDirty = Boolean(draft && persistedRecord && JSON.stringify(draft) !== JSON.stringify(persistedRecord));
+  const isDirty = Boolean(
+    draft && (!persistedRecord || JSON.stringify(draft) !== JSON.stringify(persistedRecord))
+  );
 
   const previewIncident = useMemo(
     () => incidents.find((i) => i.id === previewIncidentId) ?? incidents[0],
