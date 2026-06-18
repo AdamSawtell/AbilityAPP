@@ -13,7 +13,11 @@ import {
   referenceDataKeysForSection,
   type SystemReferenceSectionKey,
 } from "@/lib/system/reference-data-sections";
-import { formatSharedReferenceDataUsage, sharedReferenceDataUsage } from "@/lib/system/reference-data-usage";
+import {
+  formatReferenceDataUsage,
+  referenceDataUsage,
+  sharedReferenceDataUsage,
+} from "@/lib/system/reference-data-usage";
 
 export function ReferenceDataAdminView({
   variant = "workspace",
@@ -22,7 +26,8 @@ export function ReferenceDataAdminView({
   variant?: "workspace" | "system";
   sectionKey?: string;
 }) {
-  const { catalog, keysByGroup, setOptions, resetKey, resetAll, source } = useReferenceDataAdmin();
+  const { catalog, keysByGroup, setOptions, resetKey, resetAll, source, usesBundledDefaults } =
+    useReferenceDataAdmin();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
@@ -140,6 +145,12 @@ export function ReferenceDataAdminView({
         ) : null
       }
     >
+      {usesBundledDefaults ? (
+        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Some lists are showing bundled defaults because the database lists have no options yet. Open a list and
+          save to write options to Supabase.
+        </p>
+      ) : null}
       {groups.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
           <p className="text-sm font-medium text-slate-700">No reference lists in this area yet</p>
@@ -158,7 +169,7 @@ export function ReferenceDataAdminView({
                     const meta = referenceDataMeta[key];
                     const count = catalog[key]?.length ?? 0;
                     const shared = isSharedReferenceDataKey(key);
-                    const usageLines = shared ? formatSharedReferenceDataUsage(key) : [];
+                    const usageLines = formatReferenceDataUsage(key);
                     return (
                       <li key={key}>
                         <button
@@ -174,9 +185,10 @@ export function ReferenceDataAdminView({
                             <span>{meta?.label ?? key}</span>
                             <span className="shrink-0 text-xs text-slate-400">{count}</span>
                           </span>
-                          {shared && usageLines.length > 0 ? (
+                          {usageLines.length > 0 ? (
                             <span className="mt-0.5 line-clamp-2 text-xs font-normal text-slate-500">
-                              Shared: {usageLines.slice(0, 2).join("; ")}
+                              {shared ? "Shared: " : "Used: "}
+                              {usageLines.slice(0, 2).join("; ")}
                               {usageLines.length > 2 ? ` (+${usageLines.length - 2} more)` : ""}
                             </span>
                           ) : null}
@@ -200,16 +212,19 @@ export function ReferenceDataAdminView({
                     {referenceDataMeta[activeKey]?.description ? (
                       <p className="mt-1 text-sm text-slate-500">{referenceDataMeta[activeKey].description}</p>
                     ) : null}
-                    {isSharedReferenceDataKey(activeKey) ? (
+                    {isSharedReferenceDataKey(activeKey) || formatReferenceDataUsage(activeKey).length > 0 ? (
                       <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2.5">
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Shared across workspace
+                          {isSharedReferenceDataKey(activeKey) ? "Shared across workspace" : "Used in workspace"}
                         </p>
                         <p className="mt-1 text-xs text-slate-600">
-                          One list for every module below. Changes apply everywhere it is used.
+                          {isSharedReferenceDataKey(activeKey)
+                            ? "One list for every module below. Changes apply everywhere it is used."
+                            : "Changes apply on the pages and tabs below."}
                         </p>
                         <ul className="mt-2 space-y-1.5">
-                          {(sharedReferenceDataUsage(activeKey) ?? []).map(({ area, pages }) => (
+                          {(sharedReferenceDataUsage(activeKey) ?? referenceDataUsage(activeKey) ?? []).map(
+                            ({ area, pages }) => (
                             <li key={area} className="text-sm text-slate-700">
                               <span className="font-medium text-slate-800">{area}</span>
                               <span className="text-slate-500"> — </span>

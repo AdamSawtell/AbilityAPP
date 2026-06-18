@@ -439,3 +439,84 @@ export function evaluateScheduledIncidentAutomations(input: {
     employees: [],
   });
 }
+
+export type AutomationPreviewSamples = {
+  incident?: IncidentRecord;
+  enquiry?: EnquiryRecord;
+  employee?: EmployeeRecord;
+  credential?: EmployeeCredentialRow;
+  client?: ClientRecord;
+  location?: LocationRecord;
+  alertTitle?: string;
+};
+
+export function buildAutomationPreviewContext(
+  module: import("@/lib/task-automation").TaskAutomationModule,
+  samples: AutomationPreviewSamples,
+  investigationSlaDays: number
+): AutomationTemplateContext {
+  const org = { investigationSlaDays };
+  switch (module) {
+    case "incidents":
+      return { incident: samples.incident, org };
+    case "enquiries":
+      return { enquiry: samples.enquiry, org };
+    case "employees":
+      return { employee: samples.employee, credential: samples.credential, org };
+    case "clients":
+      return { client: samples.client, alertTitle: samples.alertTitle, org };
+    case "locations":
+      return { location: samples.location, alertTitle: samples.alertTitle, org };
+    default:
+      return { org };
+  }
+}
+
+export function previewEventForTrigger(
+  trigger: import("@/lib/task-automation").TaskAutomationTriggerEvent,
+  samples: AutomationPreviewSamples
+): AutomationEvent | null {
+  switch (trigger) {
+    case "incident.created":
+      return samples.incident ? { type: trigger, incident: samples.incident } : null;
+    case "incident.updated":
+      return samples.incident ? { type: trigger, incident: samples.incident } : null;
+    case "incident.reportable_set":
+      return samples.incident ? { type: trigger, incident: samples.incident } : null;
+    case "incident.status_changed":
+      return samples.incident
+        ? { type: trigger, incident: samples.incident, beforeStatus: samples.incident.status }
+        : null;
+    case "incident.ndis_overdue":
+      return samples.incident ? { type: trigger, incident: samples.incident } : null;
+    case "incident.investigation_overdue":
+      return samples.incident ? { type: trigger, incident: samples.incident } : null;
+    case "enquiry.created":
+      return samples.enquiry ? { type: trigger, enquiry: samples.enquiry } : null;
+    case "enquiry.status_changed":
+      return samples.enquiry
+        ? { type: trigger, enquiry: samples.enquiry, beforeStatus: samples.enquiry.status }
+        : null;
+    case "client.created":
+    case "client.updated":
+      return samples.client ? { type: trigger, client: samples.client } : null;
+    case "client.alert_added":
+      return samples.client
+        ? { type: trigger, client: samples.client, alertTitle: samples.alertTitle ?? "Sample alert" }
+        : null;
+    case "location.created":
+      return samples.location ? { type: trigger, location: samples.location } : null;
+    case "location.alert_added":
+      return samples.location
+        ? { type: trigger, location: samples.location, alertTitle: samples.alertTitle ?? "Sample alert" }
+        : null;
+    case "employee.created":
+      return samples.employee ? { type: trigger, employee: samples.employee } : null;
+    case "employee.credential_expiring":
+      return samples.employee && samples.credential
+        ? { type: trigger, employee: samples.employee, credential: samples.credential }
+        : null;
+    default:
+      return null;
+  }
+}

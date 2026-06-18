@@ -1,6 +1,6 @@
 import type { SharedReferenceDataKey } from "@/lib/system/reference-data-sections";
 
-/** Where a shared reference list appears in the workspace (module + page/tab). */
+/** Where a reference list appears in the workspace (module + page/tab). */
 export type ReferenceDataUsageLocation = {
   area: string;
   pages: string[];
@@ -56,13 +56,70 @@ export const SHARED_REFERENCE_DATA_USAGE: Record<SharedReferenceDataKey, Referen
   ],
 };
 
+/** Module-specific lists — one System section owns each key. */
+export const MODULE_REFERENCE_DATA_USAGE: Record<string, ReferenceDataUsageLocation[]> = {
+  enquiryStatus: [{ area: "Enquiries", pages: ["Overview — Status", "List filters"] }],
+  enquirySource: [{ area: "Enquiries", pages: ["Overview — Source"] }],
+  isEnquiryForSelf: [{ area: "Enquiries", pages: ["Participant — Enquiry for self"] }],
+  thirdPartyConsent: [{ area: "Enquiries", pages: ["Participant — Third party consent"] }],
+  relationshipType: [{ area: "Enquiries", pages: ["Contacts — Relationship type"] }],
+  preferredCommunicationMethod: [{ area: "Enquiries", pages: ["Participant — Preferred communication"] }],
+  enquiryQuery: [{ area: "Enquiries", pages: ["List — Saved queries"] }],
+  clientStatus: [{ area: "Clients", pages: ["Overview — Status", "List filters"] }],
+  decisionMaking: [{ area: "Clients", pages: ["Full profile — Decision making"] }],
+  livingArrangement: [{ area: "Clients", pages: ["Full profile — Living arrangement"] }],
+  alertType: [{ area: "Clients", pages: ["Alerts tab — Type"] }],
+  restrictivePracticeType: [{ area: "Clients", pages: ["Restrictive practices — Type"] }],
+  consentType: [{ area: "Clients", pages: ["Consents — Type"] }],
+  riskType: [{ area: "Clients", pages: ["Risks — Type"] }],
+  activityType: [{ area: "Clients", pages: ["Activities — Type"] }],
+  financialArrangement: [{ area: "Clients", pages: ["Support plan — Financial arrangement"] }],
+  goalType: [{ area: "Clients", pages: ["Support plan — Goals"] }],
+  documentType: [{ area: "Clients", pages: ["Plan documents — Type"] }],
+  planType: [{ area: "Clients", pages: ["Support plan — Plan type"] }],
+  locationType: [{ area: "Locations", pages: ["Overview — Type"] }],
+  locationStatus: [{ area: "Locations", pages: ["Overview — Status"] }],
+  locationAlertType: [{ area: "Locations", pages: ["Alerts — Type"] }],
+  employeeAlertType: [{ area: "People", pages: ["Alerts — Type"] }],
+  credentialType: [{ area: "People", pages: ["Credentials — Type"] }],
+  credentialStatus: [{ area: "People", pages: ["Credentials — Status"] }],
+  employmentType: [{ area: "People", pages: ["Employment — Type"] }],
+  employmentStatus: [{ area: "People", pages: ["Employment — Status"] }],
+  department: [{ area: "People", pages: ["Employment — Department"] }],
+  leaveType: [{ area: "Workforce planning", pages: ["Leave calendar — Leave type"] }],
+  employeeLeaveStatus: [{ area: "Workforce planning", pages: ["Leave requests — Status"] }],
+  taskPriority: [{ area: "Tasks", pages: ["New task — Priority", "Task automations — Priority"] }],
+  incidentStatus: [{ area: "Incident reports", pages: ["Overview — Status", "Dashboard filters"] }],
+  incidentSeverity: [{ area: "Incident reports", pages: ["Overview — Severity"] }],
+  partyType: [{ area: "Incident reports", pages: ["Parties — Party type"] }],
+  partyRole: [{ area: "Incident reports", pages: ["Parties — Role"] }],
+  incidentActionType: [{ area: "Incident reports", pages: ["Actions — Type"] }],
+  ndisReportableType: [{ area: "Incident reports", pages: ["NDIS — Reportable type"] }],
+  productCategory: [{ area: "Services", pages: ["Products — Category"] }],
+  productType: [{ area: "Services", pages: ["Products — Type"] }],
+  serviceAgreementStatus: [{ area: "Services", pages: ["Service agreements — Status"] }],
+  contractType: [{ area: "Services", pages: ["Contracts — Type"] }],
+};
+
 export function sharedReferenceDataUsage(key: string): ReferenceDataUsageLocation[] | null {
   if (!(key in SHARED_REFERENCE_DATA_USAGE)) return null;
   return SHARED_REFERENCE_DATA_USAGE[key as SharedReferenceDataKey];
 }
 
+export function referenceDataUsage(key: string): ReferenceDataUsageLocation[] | null {
+  return MODULE_REFERENCE_DATA_USAGE[key] ?? null;
+}
+
 export function formatSharedReferenceDataUsage(key: string): string[] {
   const usage = sharedReferenceDataUsage(key);
+  if (!usage?.length) return [];
+  return usage.flatMap(({ area, pages }) => pages.map((page) => `${area} — ${page}`));
+}
+
+export function formatReferenceDataUsage(key: string): string[] {
+  const shared = formatSharedReferenceDataUsage(key);
+  if (shared.length) return shared;
+  const usage = referenceDataUsage(key);
   if (!usage?.length) return [];
   return usage.flatMap(({ area, pages }) => pages.map((page) => `${area} — ${page}`));
 }

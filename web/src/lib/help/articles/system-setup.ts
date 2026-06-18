@@ -1,3 +1,4 @@
+import { moduleSetupGuideArticles } from "@/lib/help/articles/module-setup-guides";
 import type { HelpArticle } from "@/lib/help/types";
 
 export const coreSystemSetupArticle: HelpArticle = {
@@ -299,6 +300,7 @@ export const SYSTEM_SETUP_ARTICLES: HelpArticle[] = [
   systemRolesAccessArticle,
   systemTasksSetupArticle,
   systemAiSetupArticle,
+  ...moduleSetupGuideArticles,
 ];
 
 export const SYSTEM_SETUP_GUIDE_SLUGS = SYSTEM_SETUP_ARTICLES.map((a) => a.slug);

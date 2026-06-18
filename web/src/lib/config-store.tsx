@@ -17,6 +17,7 @@ type ReferenceDataStore = {
   resetKey: (key: string) => void;
   resetAll: () => void;
   source: "supabase" | "local";
+  usesBundledDefaults: boolean;
 };
 
 const ReferenceDataContext = createContext<ReferenceDataStore | null>(null);
@@ -36,6 +37,36 @@ function mergeCatalog(
     }
   }
   return merged;
+}
+
+/** Bundled defaults fill gaps when Supabase lists exist but have no options yet. */
+function effectiveCatalog(
+  remote: ReferenceDataCatalog | null,
+  overrides: ReferenceDataCatalog,
+  source: "supabase" | "local"
+): ReferenceDataCatalog {
+  const base: ReferenceDataCatalog = { ...defaultReferenceData };
+  if (remote) {
+    for (const [key, options] of Object.entries(remote)) {
+      if (Array.isArray(options) && options.length > 0) {
+        base[key] = options;
+      }
+    }
+  }
+  if (source === "local") {
+    return mergeCatalog(base, overrides);
+  }
+  return base;
+}
+
+function catalogUsesBundledDefaults(
+  remote: ReferenceDataCatalog | null,
+  source: "supabase" | "local"
+): boolean {
+  if (source !== "supabase" || !remote) return false;
+  return Object.entries(remote).some(
+    ([key, options]) => !options?.length && (defaultReferenceData[key]?.length ?? 0) > 0
+  );
 }
 
 function loadOverrides(): ReferenceDataCatalog {
@@ -103,11 +134,18 @@ export function ReferenceDataProvider({ children }: { children: React.ReactNode 
     }
   }, [overrides, hydrated, source]);
 
-  const baseCatalog = remoteCatalog ?? defaultReferenceData;
-  const catalog = useMemo(() => mergeCatalog(baseCatalog, overrides), [baseCatalog, overrides]);
+  const baseCatalog = useMemo(
+    () => effectiveCatalog(remoteCatalog, overrides, source),
+    [remoteCatalog, overrides, source]
+  );
+  const catalog = baseCatalog;
+  const usesBundledDefaults = useMemo(
+    () => catalogUsesBundledDefaults(remoteCatalog, source),
+    [remoteCatalog, source]
+  );
 
   const getOptions = useCallback(
-    (key: string) => catalog[key] ?? defaultReferenceData[key] ?? [],
+    (key: string) => catalog[key] ?? [],
     [catalog]
   );
 
@@ -146,8 +184,8 @@ export function ReferenceDataProvider({ children }: { children: React.ReactNode 
   }, [source]);
 
   const value = useMemo(
-    () => ({ catalog, getOptions, setOptions, resetKey, resetAll, source }),
-    [catalog, getOptions, setOptions, resetKey, resetAll, source]
+    () => ({ catalog, getOptions, setOptions, resetKey, resetAll, source, usesBundledDefaults }),
+    [catalog, getOptions, setOptions, resetKey, resetAll, source, usesBundledDefaults]
   );
 
   if (!hydrated) {
@@ -168,7 +206,8 @@ export function useReferenceData() {
 }
 
 export function useReferenceDataAdmin() {
-  const { catalog, setOptions, resetKey, resetAll, source } = useReferenceData();
+  const { catalog, getOptions, setOptions, resetKey, resetAll, source, usesBundledDefaults } =
+    useReferenceData();
   const keysByGroup = useMemo(() => {
     const groups = new Map<ReferenceDataGroup, string[]>();
     for (const key of Object.keys(referenceDataMeta)) {
@@ -179,5 +218,5 @@ export function useReferenceDataAdmin() {
     }
     return groups;
   }, []);
-  return { catalog, keysByGroup, setOptions, resetKey, resetAll, source };
+  return { catalog, keysByGroup, getOptions, setOptions, resetKey, resetAll, source, usesBundledDefaults };
 }

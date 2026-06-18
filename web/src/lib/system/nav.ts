@@ -15,6 +15,8 @@
  * Also update `SYSTEM_HOME_LINKS` when a setup page ships.
  */
 
+import { moduleSetupHref } from "@/lib/system/module-setup";
+
 export type SystemNavIconName =
   | "home"
   | "task"
@@ -61,9 +63,28 @@ export function referenceDataNavLink(sectionKey: string): SystemNavLink {
 }
 
 /** Reference data is always the last submenu item for a section. */
+export function moduleSetupNavLink(sectionKey: string): SystemNavLink {
+  const href = moduleSetupHref(sectionKey as import("@/lib/system/reference-data-sections").SystemReferenceSectionKey);
+  return {
+    href,
+    label: "Module setup",
+    match: (p) => p.startsWith(href),
+  };
+}
+
+export function withModuleSetup(sectionKey: string, links: SystemNavLink[]): SystemNavLink[] {
+  const without = links.filter((l) => l.label !== "Module setup");
+  return [moduleSetupNavLink(sectionKey), ...without];
+}
+
 export function withReferenceData(sectionKey: string, links: SystemNavLink[]): SystemNavLink[] {
   const withoutRef = links.filter((l) => l.label !== "Reference data");
   return [...withoutRef, referenceDataNavLink(sectionKey)];
+}
+
+/** Module setup first, other links, reference data last. */
+export function withModuleNav(sectionKey: string, links: SystemNavLink[]): SystemNavLink[] {
+  return withReferenceData(sectionKey, withModuleSetup(sectionKey, links));
 }
 
 export function systemNavSectionLabel(sectionKey: string): string {
@@ -75,7 +96,7 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "organisation",
     label: "Organisation",
     icon: "organisation",
-    links: withReferenceData("organisation", [
+    links: withModuleNav("organisation", [
       {
         href: "/system/organization",
         label: "Organisation profile",
@@ -104,61 +125,61 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "tasks",
     label: "Tasks",
     icon: "task",
-    links: withReferenceData("tasks", []),
+    links: withModuleNav("tasks", []),
   },
   {
     key: "enquiries",
     label: "Enquiries",
     icon: "enquiry",
-    links: withReferenceData("enquiries", []),
+    links: withModuleNav("enquiries", []),
   },
   {
     key: "clients",
     label: "Clients",
     icon: "client",
-    links: withReferenceData("clients", []),
+    links: withModuleNav("clients", []),
   },
   {
     key: "locations",
     label: "Locations",
     icon: "location",
-    links: withReferenceData("locations", []),
+    links: withModuleNav("locations", []),
   },
   {
     key: "people",
     label: "People",
     icon: "employee",
-    links: withReferenceData("people", []),
+    links: withModuleNav("people", []),
   },
   {
     key: "workforce",
     label: "Workforce planning",
     icon: "workforce",
-    links: withReferenceData("workforce", []),
+    links: withModuleNav("workforce", []),
   },
   {
     key: "incidents",
     label: "Incident reports",
     icon: "incident",
-    links: withReferenceData("incidents", []),
+    links: withModuleNav("incidents", []),
   },
   {
     key: "services",
     label: "Services",
     icon: "services",
-    links: withReferenceData("services", []),
+    links: withModuleNav("services", []),
   },
   {
     key: "reports",
     label: "Reports",
     icon: "report",
-    links: withReferenceData("reports", []),
+    links: withModuleNav("reports", []),
   },
   {
     key: "ai",
     label: "AI",
     icon: "ai",
-    links: withReferenceData("ai", [
+    links: withModuleNav("ai", [
       {
         href: "/system/ai/assistants",
         label: "AI assistants",
@@ -170,13 +191,13 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "integrations",
     label: "Integrations",
     icon: "integrations",
-    links: withReferenceData("integrations", []),
+    links: withModuleNav("integrations", []),
   },
   {
     key: "admin",
     label: "Admin",
     icon: "admin",
-    links: withReferenceData("admin", [
+    links: withModuleNav("admin", [
       {
         href: "/system/admin/roles",
         label: "Roles",

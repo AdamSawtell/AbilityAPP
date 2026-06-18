@@ -54,6 +54,8 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
   const [roleDraft, setRoleDraft] = useState<AppRoleRecord | null>(null);
   const [typeSaveState, setTypeSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [roleSaveState, setRoleSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [typeSaveError, setTypeSaveError] = useState("");
+  const [roleSaveError, setRoleSaveError] = useState("");
 
   const sortedTypes = useMemo(() => sortTaskTypes(taskTypes), [taskTypes]);
   const activeTypes = useMemo(() => activeTaskTypes(taskTypes), [taskTypes]);
@@ -111,18 +113,24 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
   async function saveType() {
     if (!typeRecord?.name.trim()) return;
     setTypeSaveState("saving");
-    upsertTaskType(normalizeTaskType({ ...typeRecord, name: typeRecord.name.trim() }));
-    setTypeDraft(null);
+    setTypeSaveError("");
+    try {
+      upsertTaskType(normalizeTaskType({ ...typeRecord, name: typeRecord.name.trim() }));
+      setTypeDraft(null);
 
-    const adminRole = roles.find((r) => r.id === "role-admin");
-    if (adminRole) {
-      const allTypeIds = [...new Set([...sortedTypes.map((t) => t.id), typeRecord.id])];
-      await upsertRole({
-        ...adminRole,
-        taskTypePermissions: fullTaskTypePermissions(allTypeIds),
-      });
+      const adminRole = roles.find((r) => r.id === "role-admin");
+      if (adminRole) {
+        const allTypeIds = [...new Set([...sortedTypes.map((t) => t.id), typeRecord.id])];
+        await upsertRole({
+          ...adminRole,
+          taskTypePermissions: fullTaskTypePermissions(allTypeIds),
+        });
+      }
+      setTypeSaveState("saved");
+    } catch {
+      setTypeSaveState("idle");
+      setTypeSaveError("Could not save task type. Check your connection and try again.");
     }
-    setTypeSaveState("saved");
   }
 
   function openRole(id: string) {
@@ -150,9 +158,15 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
   async function saveRolePermissions() {
     if (!roleRecord) return;
     setRoleSaveState("saving");
-    await upsertRole(roleRecord);
-    setRoleDraft(null);
-    setRoleSaveState("saved");
+    setRoleSaveError("");
+    try {
+      await upsertRole(roleRecord);
+      setRoleDraft(null);
+      setRoleSaveState("saved");
+    } catch {
+      setRoleSaveState("idle");
+      setRoleSaveError("Could not save role permissions. Check your connection and try again.");
+    }
   }
 
   return (
@@ -278,6 +292,11 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
               <p className="text-xs text-slate-500">
                 {typeSaveState === "saved" ? "Saved." : typeDirty ? "Unsaved changes." : "No changes."}
               </p>
+              {typeSaveError ? (
+                <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                  {typeSaveError}
+                </p>
+              ) : null}
             </div>
           ) : null}
         </section>
@@ -364,6 +383,11 @@ export function TaskManagementAdminView({ variant = "workspace" }: { variant?: "
           <p className="mt-2 text-xs text-slate-500">
             {roleSaveState === "saved" ? "Saved." : roleDirty ? "Unsaved changes." : "No changes."}
           </p>
+          {roleSaveError ? (
+            <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+              {roleSaveError}
+            </p>
+          ) : null}
         </section>
       </div>
     </Shell>

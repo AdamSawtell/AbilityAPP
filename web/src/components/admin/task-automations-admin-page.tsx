@@ -27,11 +27,11 @@ import {
   type TaskAutomationTriggerEvent,
 } from "@/lib/task-automation";
 import {
-  buildAutomationTemplateContext,
-  evaluateIncidentAutomations,
+  buildAutomationPreviewContext,
+  evaluateAutomationEvents,
+  previewEventForTrigger,
   renderAutomationTemplate,
 } from "@/lib/task-automation/engine";
-import { incidentEventsFromSave } from "@/lib/task-automation/incident-triggers";
 import { useReferenceData } from "@/lib/config-store";
 import { useOrgStructure } from "@/lib/org-structure-store";
 
@@ -60,7 +60,17 @@ function Field({
 
 export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { roles, users, canWindow } = useAuth();
-  const { taskAutomations, upsertTaskAutomation, deleteTaskAutomation, incidents, tasks, employees } = useData();
+  const {
+    taskAutomations,
+    upsertTaskAutomation,
+    deleteTaskAutomation,
+    incidents,
+    enquiries,
+    clients,
+    locations,
+    tasks,
+    employees,
+  } = useData();
   const { organization } = useOrganization();
   const { taskTypes, getTaskTypeName } = useTaskTypes();
   const { getOptions } = useReferenceData();
@@ -73,7 +83,7 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
   const [draft, setDraft] = useState<TaskAutomationRecord | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [saveError, setSaveError] = useState("");
-  const [previewIncidentId, setPreviewIncidentId] = useState("inc-1000003");
+  const [previewSampleId, setPreviewSampleId] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
   const record = draft ?? sorted.find((r) => r.id === activeId) ?? null;
@@ -82,34 +92,44 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
     draft && (!persistedRecord || JSON.stringify(draft) !== JSON.stringify(persistedRecord))
   );
 
-  const previewIncident = useMemo(
-    () => incidents.find((i) => i.id === previewIncidentId) ?? incidents[0],
-    [incidents, previewIncidentId]
-  );
+  const previewSamples = useMemo(() => {
+    const employee = employees.find((e) => e.id === previewSampleId) ?? employees[0];
+    const credential = employee?.credentials?.find((c) => c.expiryDate) ?? employee?.credentials?.[0];
+    return {
+      incident: incidents.find((i) => i.id === previewSampleId) ?? incidents[0],
+      enquiry: enquiries.find((e) => e.id === previewSampleId) ?? enquiries[0],
+      client: clients.find((c) => c.id === previewSampleId) ?? clients[0],
+      location: locations.find((l) => l.id === previewSampleId) ?? locations[0],
+      employee,
+      credential,
+      alertTitle: "Sample alert",
+    };
+  }, [incidents, enquiries, clients, locations, employees, previewSampleId]);
+
+  const previewContext = useMemo(() => {
+    if (!record) return null;
+    return buildAutomationPreviewContext(
+      record.module,
+      previewSamples,
+      organization.incidentInvestigationSlaDays
+    );
+  }, [record, previewSamples, organization.incidentInvestigationSlaDays]);
 
   const preview = useMemo(() => {
-    if (!record || !previewIncident) return null;
-    const ctx = buildAutomationTemplateContext(previewIncident, organization.incidentInvestigationSlaDays);
+    if (!record || !previewContext) return null;
     return {
-      title: renderAutomationTemplate(record.titleTemplate, ctx),
-      description: renderAutomationTemplate(record.descriptionTemplate, ctx),
+      title: renderAutomationTemplate(record.titleTemplate, previewContext),
+      description: renderAutomationTemplate(record.descriptionTemplate, previewContext),
     };
-  }, [record, previewIncident, organization.incidentInvestigationSlaDays]);
+  }, [record, previewContext]);
 
   const dryRun = useMemo(() => {
-    if (!record || !previewIncident) return [];
-    const events =
-      record.triggerEvent === "incident.ndis_overdue"
-        ? [{ type: "incident.ndis_overdue" as const, incident: previewIncident }]
-        : record.triggerEvent === "incident.investigation_overdue"
-          ? [{ type: "incident.investigation_overdue" as const, incident: previewIncident }]
-          : incidentEventsFromSave(previewIncident);
+    if (!record) return [];
+    const event = previewEventForTrigger(record.triggerEvent, previewSamples);
+    if (!event) return [];
 
-    const matching = events.filter((e) => e.type === record.triggerEvent);
-    if (!matching.length) return [];
-
-    return evaluateIncidentAutomations({
-      events: matching,
+    return evaluateAutomationEvents({
+      events: [event],
       rules: [record],
       tasks,
       investigationSlaDays: organization.incidentInvestigationSlaDays,
@@ -120,7 +140,16 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
         users: users.map((u) => ({ id: u.id, employeeBpId: u.employeeBpId })),
       },
     }).drafts;
-  }, [record, previewIncident, tasks, organization.incidentInvestigationSlaDays, positions, assignments, employees, users]);
+  }, [
+    record,
+    previewSamples,
+    tasks,
+    organization.incidentInvestigationSlaDays,
+    positions,
+    assignments,
+    employees,
+    users,
+  ]);
 
   const Shell = variant === "system" ? SystemShell : AppShell;
   const guideHref = variant === "system" ? "/system/guides/task-automations" : "/help/task-automations";
@@ -643,22 +672,72 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
               </div>
             </section>
 
-            {record.module === "incidents" && engineLive ? (
+            {engineLive ? (
             <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-lg font-semibold text-slate-900">Preview</h2>
               <div className="mb-4 grid gap-4 md:grid-cols-2">
-                <Field label="Sample incident">
-                  <select
-                    className={inputClass}
-                    value={previewIncident?.id ?? ""}
-                    onChange={(e) => setPreviewIncidentId(e.target.value)}
-                  >
-                    {incidents.map((i) => (
-                      <option key={i.id} value={i.id}>
-                        {i.documentNo} — {i.title || "Untitled"}
-                      </option>
-                    ))}
-                  </select>
+                <Field label={`Sample ${taskAutomationModuleLabel(record.module).toLowerCase()}`}>
+                  {record.module === "incidents" ? (
+                    <select
+                      className={inputClass}
+                      value={previewSamples.incident?.id ?? ""}
+                      onChange={(e) => setPreviewSampleId(e.target.value)}
+                    >
+                      {incidents.map((i) => (
+                        <option key={i.id} value={i.id}>
+                          {i.documentNo} — {i.title || "Untitled"}
+                        </option>
+                      ))}
+                    </select>
+                  ) : record.module === "enquiries" ? (
+                    <select
+                      className={inputClass}
+                      value={previewSamples.enquiry?.id ?? ""}
+                      onChange={(e) => setPreviewSampleId(e.target.value)}
+                    >
+                      {enquiries.map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.documentNo} — {e.firstName} {e.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  ) : record.module === "clients" ? (
+                    <select
+                      className={inputClass}
+                      value={previewSamples.client?.id ?? ""}
+                      onChange={(e) => setPreviewSampleId(e.target.value)}
+                    >
+                      {clients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.searchKey} — {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : record.module === "locations" ? (
+                    <select
+                      className={inputClass}
+                      value={previewSamples.location?.id ?? ""}
+                      onChange={(e) => setPreviewSampleId(e.target.value)}
+                    >
+                      {locations.map((l) => (
+                        <option key={l.id} value={l.id}>
+                          {l.searchKey} — {l.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select
+                      className={inputClass}
+                      value={previewSamples.employee?.id ?? ""}
+                      onChange={(e) => setPreviewSampleId(e.target.value)}
+                    >
+                      {employees.map((emp) => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.searchKey} — {emp.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </Field>
                 <Field label="Task type label">{getTaskTypeName(record.taskTypeId)}</Field>
               </div>
@@ -668,24 +747,25 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
                   <p className="text-sm font-medium text-slate-900">{preview.title}</p>
                   <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">{preview.description}</p>
                 </div>
-              ) : null}
+              ) : (
+                <p className="text-sm text-slate-500">Add a sample record in the workspace to preview templates.</p>
+              )}
 
               <p className="mt-4 text-sm text-slate-600">
                 {dryRun.length
-                  ? `Dry run: would create ${dryRun.length} task(s) for this incident with current trigger and conditions.`
-                  : "Dry run: this rule would not fire for the selected incident (trigger or conditions not met, or dedupe would skip)."}
+                  ? `Dry run: would create ${dryRun.length} task(s) for this ${taskAutomationModuleLabel(record.module).toLowerCase()} record with the current trigger and conditions.`
+                  : `Dry run: this rule would not fire for the selected record (trigger or conditions not met, missing sample data, or dedupe would skip).`}
               </p>
             </section>
-            ) : record.module !== "incidents" || !engineLive ? (
+            ) : (
               <section className="rounded-xl border border-amber-100 bg-amber-50/50 p-6 shadow-sm ring-1 ring-amber-200/60">
                 <h2 className="mb-2 text-lg font-semibold text-slate-900">Preview not available</h2>
                 <p className="text-sm text-slate-600">
-                  Live preview and dry run are available for <strong>Incident</strong> rules while that rule type is
-                  active in the engine. You can still save {taskAutomationModuleLabel(record.module)} rules to prepare
-                  for a future release.
+                  Automatic task creation is not active for {taskAutomationModuleLabel(record.module)} rules yet. You
+                  can still save rules for a future release.
                 </p>
               </section>
-            ) : null}
+            )}
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-sm text-slate-500">
