@@ -22,7 +22,20 @@ Go to **Admin → AI assistants** (`/admin/ai-agents`):
 
 | Tab | What you can change |
 |-----|---------------------|
-| **Assistants** | Name, key, model, system prompt, which tools each assistant can call |
+| **Assistants** | Name, key, model, system prompt, **skill packs** (recommended), and individual capabilities (fine-tune) |
+
+Skill packs live in `web/src/lib/ai/skill-packs.ts`. Each pack maps to one **page function** (lookup, create, update, activity, workflow, hub, legacy) under a **menu module** (Clients, Tasks, etc.).
+
+| Function | When to add a pack | Tool naming |
+|----------|-------------------|-------------|
+| lookup | List/search/detail on a page | `{entity}_search`, `{entity}_get`, `{entity}_list_recent` |
+| create | `/new` prepare flow | `{entity}_create_prepare` |
+| update | Edit existing record | `{entity}_patch_prepare`, etc. |
+| activity | Notes tab | `{entity}_activity_prepare`, `activity_search` |
+| hub | Role coordinator bundle | Combine lookup + create + update for that menu |
+| legacy | Retired chat-confirm | `*_draft_*` — mark `deprecated: true` |
+
+When you add a new menu page, add catalog tools first, then packs: `pack-{module}-lookup`, `pack-{module}-create`, and so on. Menus without tools yet (People, Locations, Delivery, Reports) follow the same pattern when tools ship.
 | **Role access** | Which app roles see which assistants on Home |
 
 Click **Save assistant** after edits. Use **Restore defaults** to reload built-in assistants.
