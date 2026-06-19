@@ -1,18 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EnquiryForm } from "@/components/enquiry-form";
+import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
+import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { emptyEnquiry, formSections, type EnquiryRecord } from "@/lib/enquiry";
 
-export default function NewEnquiryPage() {
+function NewEnquiryPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const aiDraftId = searchParams.get("aiDraft");
+  const { session } = useAuth();
   const { addEnquiry } = useData();
+  const draftLoad = useAiDraftLoader(aiDraftId);
   const [record, setRecord] = useState<EnquiryRecord>(emptyEnquiry());
   const [error, setError] = useState("");
+  const [appliedDraft, setAppliedDraft] = useState(false);
+
+  useEffect(() => {
+    if (!draftLoad.payload || appliedDraft || draftLoad.loading) return;
+    const p = draftLoad.payload;
+    setRecord((prev) => ({
+      ...prev,
+      firstName: String(p.firstName ?? prev.firstName),
+      lastName: String(p.lastName ?? prev.lastName),
+      email: String(p.email ?? prev.email),
+      phone: String(p.phone ?? prev.phone),
+      fundingBody: String(p.fundingBody ?? prev.fundingBody),
+      disability: String(p.disability ?? prev.disability),
+      services: String(p.services ?? prev.services),
+      description: String(p.description ?? prev.description),
+      enquirySource: String(p.enquirySource ?? prev.enquirySource),
+      status: String(p.status ?? prev.status),
+      updatedBy: session?.displayName ?? prev.updatedBy,
+    }));
+    setAppliedDraft(true);
+  }, [draftLoad.payload, draftLoad.loading, appliedDraft, session?.displayName]);
 
   function onChange(key: keyof EnquiryRecord, value: string) {
     setRecord((prev) => ({ ...prev, [key]: value }));
@@ -24,20 +52,38 @@ export default function NewEnquiryPage() {
       setError("First name and last name are required.");
       return;
     }
-    const created = addEnquiry(record);
+    const created = addEnquiry({
+      ...record,
+      createdBy: session?.displayName ?? record.createdBy,
+      updatedBy: session?.displayName ?? record.updatedBy,
+    });
+    trackAiPrepareSaved({
+      draftId: aiDraftId ?? undefined,
+      entityType: "enquiry",
+      entityId: created.id,
+      entityLabel: `${created.documentNo} — ${created.firstName} ${created.lastName}`,
+    });
     router.push(`/enquiries/${created.id}`);
+  }
+
+  if (draftLoad.error) {
+    return (
+      <AppShell title="New enquiry" audit={{ moduleLabel: "Enquiries" }}>
+        <p className="text-sm text-red-700">{draftLoad.error}</p>
+      </AppShell>
+    );
   }
 
   return (
     <AppShell
       title="New enquiry"
-      subtitle="Capture intake details. A document number is assigned when you create the record."
+      subtitle={aiDraftId ? "Review the details your assistant prepared, then create the record." : "Capture intake details. A document number is assigned when you create the record."}
       breadcrumbs={[
         { label: "Home", href: "/" },
         { label: "Enquiries", href: "/enquiries" },
         { label: "New" },
       ]}
-      audit={{ moduleLabel: "New enquiry" }}
+      audit={{ moduleLabel: "Enquiries" }}
       actions={
         <>
           <Link
@@ -56,10 +102,24 @@ export default function NewEnquiryPage() {
         </>
       }
     >
+      {aiDraftId ? (
+        <p className="mb-4 rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          Prepared by your AI assistant. Check every field, then click Create enquiry.
+        </p>
+      ) : null}
       {error ? (
         <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>
       ) : null}
+      {draftLoad.loading ? <p className="text-sm text-slate-500">Loading draft…</p> : null}
       <EnquiryForm record={record} sections={formSections} onChange={onChange} />
     </AppShell>
+  );
+}
+
+export default function NewEnquiryPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-sm text-slate-500">Loading…</p>}>
+      <NewEnquiryPageInner />
+    </Suspense>
   );
 }

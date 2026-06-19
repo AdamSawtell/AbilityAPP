@@ -35,13 +35,12 @@ export const SEED_AGENTS: AiAgentRecord[] = [
     name: "Task assistant",
     description: "Draft tasks through conversation (confirmation required before creating).",
     systemPrompt:
-      "You are the AbilityAPP task assistant. Create tasks with the fewest questions possible.\n\nAsk ONE question at a time — never list multiple questions in one message.\n1. Title — what should the task be called?\n2. Assignment — assign to a user or a role? Who?\n3. Summarise title, assignee, and due date (if any), then ask the user to confirm.\n\nIf the user gives title, assignee, and due date in one message, call task_draft_create immediately — do not ask again.\n\nDo not ask about priority, task type, or linked records unless the user mentions them. Use defaults: task type tt-other, Normal priority, no linked record.\n\nUse task_search to answer questions about existing tasks before guessing.\n\nWhen you have title and assignment, call task_draft_create, show a one-line summary, and ask whether to create the task. Only call task_draft_confirm after a clear yes — this saves to the database.",
+      "You are the AbilityAPP task assistant. Create tasks with the fewest questions possible.\n\nAsk ONE question at a time.\n\nWhen you have title and assignment, use task_create_prepare — never save yourself. Send the user the review link to open the form and create the task.\n\nUse task_search before guessing. Task updates still use task_update_draft_* with user confirmation on the form where available.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
       { type: "tool", key: "help_search" },
-      { type: "tool", key: "task_draft_create" },
-      { type: "tool", key: "task_draft_confirm" },
+      { type: "tool", key: "task_create_prepare" },
       { type: "tool", key: "task_search" },
       { type: "tool", key: "task_update_draft_create" },
       { type: "tool", key: "task_update_draft_confirm" },
@@ -53,7 +52,7 @@ export const SEED_AGENTS: AiAgentRecord[] = [
     name: "Client assistant",
     description: "Create clients, log activity, update fields, and answer questions across all clients.",
     systemPrompt:
-      "You are the AbilityAPP client assistant. Help users create clients, update client fields, log activity notes, look up client details, and answer questions across all clients.\n\nUse tools before answering factual questions.\n\nCreating clients: use client_create_prepare once you have first and last name — never save yourself. Send the user the review link to open the form and click Save.\n\nDo not use client_draft_confirm or client_draft_create for new clients.\n\nUpdating clients: client_patch_draft_create for status, phone, email, funding — then client_patch_draft_confirm.\nLogging activity: client_activity_draft_create → client_activity_draft_confirm.\nSearching: client_list_recent, client_search, client_get, activity_search.\n\nSummarise with names, search keys, dates, and href links.",
+      "You are the AbilityAPP client assistant. Help users create clients, update client fields, log activity notes, look up client details, and answer questions across all clients.\n\nUse tools before answering factual questions.\n\nCreating clients: client_create_prepare — never save yourself.\nUpdating clients: client_patch_prepare — never save yourself.\nLogging activity: client_activity_prepare — never save yourself.\nSearching: client_list_recent, client_search, client_get, activity_search.\n\nSummarise with names, search keys, dates, and review links.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
@@ -64,10 +63,8 @@ export const SEED_AGENTS: AiAgentRecord[] = [
       { type: "tool", key: "activity_search" },
       { type: "tool", key: "records_updated_since" },
       { type: "tool", key: "client_create_prepare" },
-      { type: "tool", key: "client_patch_draft_create" },
-      { type: "tool", key: "client_patch_draft_confirm" },
-      { type: "tool", key: "client_activity_draft_create" },
-      { type: "tool", key: "client_activity_draft_confirm" },
+      { type: "tool", key: "client_patch_prepare" },
+      { type: "tool", key: "client_activity_prepare" },
     ],
   },
   {
@@ -76,15 +73,14 @@ export const SEED_AGENTS: AiAgentRecord[] = [
     name: "Enquiry assistant",
     description: "Create enquiries, search intake records, and convert enquiries to clients.",
     systemPrompt:
-      "You are the AbilityAPP enquiry assistant. Help users create enquiries, search intake records, view enquiry details, and convert enquiries to clients.\n\nUse tools before answering factual questions.\n\nCreating enquiries: enquiry_draft_create → enquiry_draft_confirm.\nConverting to client: enquiry_convert_draft_create → enquiry_convert_draft_confirm (requires user confirmation).\nSearching: enquiry_search, enquiry_get.\n\nAsk one question at a time. Summarise with document numbers and names.",
+      "You are the AbilityAPP enquiry assistant. Help users create enquiries, search intake records, view enquiry details, and convert enquiries to clients.\n\nUse tools before answering factual questions.\n\nCreating enquiries: enquiry_create_prepare — never save yourself.\nConverting to client: enquiry_convert_draft_create → enquiry_convert_draft_confirm (user confirms in chat for conversion only).\nSearching: enquiry_search, enquiry_get.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
       { type: "tool", key: "help_search" },
       { type: "tool", key: "enquiry_search" },
       { type: "tool", key: "enquiry_get" },
-      { type: "tool", key: "enquiry_draft_create" },
-      { type: "tool", key: "enquiry_draft_confirm" },
+      { type: "tool", key: "enquiry_create_prepare" },
       { type: "tool", key: "enquiry_convert_draft_create" },
       { type: "tool", key: "enquiry_convert_draft_confirm" },
       { type: "tool", key: "activity_search" },
@@ -110,7 +106,7 @@ export const SEED_AGENTS: AiAgentRecord[] = [
 - Follow-up tasks: task_search, task_draft_create → task_draft_confirm
 
 ## Reporting new incidents
-incident_draft_create → summarise title, severity, reportable type, linked client → incident_draft_confirm only after explicit user approval.
+Use incident_create_prepare when you have enough detail — never save yourself. Send the user the review link.
 
 ## Updating existing incidents (confirmation required)
 incident_update_draft_create actions:
@@ -141,16 +137,14 @@ Then incident_update_draft_confirm after clear yes.
       { type: "tool", key: "incident_list_recent" },
       { type: "tool", key: "incident_compliance_summary" },
       { type: "tool", key: "incident_linked_search" },
-      { type: "tool", key: "incident_draft_create" },
-      { type: "tool", key: "incident_draft_confirm" },
+      { type: "tool", key: "incident_create_prepare" },
       { type: "tool", key: "incident_update_draft_create" },
       { type: "tool", key: "incident_update_draft_confirm" },
       { type: "tool", key: "client_search" },
       { type: "tool", key: "client_get" },
       { type: "tool", key: "activity_search" },
       { type: "tool", key: "task_search" },
-      { type: "tool", key: "task_draft_create" },
-      { type: "tool", key: "task_draft_confirm" },
+      { type: "tool", key: "task_create_prepare" },
     ],
   },
   {
@@ -178,6 +172,11 @@ export const SEED_ROLE_AGENTS: Record<string, string[]> = {
   "role-intake": ["agent-training", "agent-workspace", "agent-clients", "agent-enquiries", "agent-incidents"],
   "role-coordinator": ["agent-training", "agent-workspace", "agent-clients", "agent-incidents"],
   "role-support-worker": ["agent-support-worker"],
+  "role-team-leader": ["agent-training", "agent-workspace", "agent-support-worker", "agent-tasks"],
+  "role-quality-manager": ["agent-training", "agent-incidents"],
+  "role-quality-officer": ["agent-training", "agent-incidents"],
+  "role-rostering-manager": ["agent-training", "agent-workspace", "agent-tasks"],
+  "role-hr-manager": ["agent-training", "agent-workspace", "agent-tasks"],
 };
 
 export function agentIdsForRole(roleId: string): string[] {

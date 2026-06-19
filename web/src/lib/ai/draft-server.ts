@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import { auditNewId } from "@/lib/audit-monitoring/shared";
+import { logAiPrepareCreated } from "@/lib/ai/prepare-audit";
 
 export type AiDraftRow = {
   id: string;
@@ -41,6 +42,13 @@ export async function createAiDraft(
     expires_at: expiresAt,
   });
   if (error) throw new Error(error.message);
+
+  void logAiPrepareCreated(session, {
+    draftId: id,
+    entityType: input.entityType,
+    entityLabel: input.summary,
+    targetRoute: input.targetRoute,
+  });
 
   return { id, href };
 }

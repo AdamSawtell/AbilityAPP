@@ -58,6 +58,31 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     description: "Fill a new client form for the user to review and save — does not write to the database.",
   },
   {
+    key: "client_patch_prepare",
+    label: "Prepare client field update",
+    description: "Open an existing client with suggested field changes for human review and save.",
+  },
+  {
+    key: "client_activity_prepare",
+    label: "Prepare client activity note",
+    description: "Open a client Activity tab with a prepared note for human review and save.",
+  },
+  {
+    key: "task_create_prepare",
+    label: "Prepare new task (review & save)",
+    description: "Fill a new task form for the user to review and create — does not write to the database.",
+  },
+  {
+    key: "enquiry_create_prepare",
+    label: "Prepare new enquiry (review & save)",
+    description: "Fill a new enquiry form for the user to review and create.",
+  },
+  {
+    key: "incident_create_prepare",
+    label: "Prepare incident report (review & submit)",
+    description: "Pre-fill the incident wizard for human review and submit.",
+  },
+  {
     key: "client_draft_create",
     label: "Create client draft",
     description: "Prepare a client for user confirmation (does not create until confirmed).",

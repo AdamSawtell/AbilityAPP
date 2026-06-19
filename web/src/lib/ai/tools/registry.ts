@@ -137,8 +137,35 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     type: "function",
     function: {
       name: "task_draft_confirm",
-      description: "Confirm the pending task draft after explicit user approval. Saves the task to the database.",
+      description: "Legacy — disabled. Use task_create_prepare instead.",
       parameters: { type: "object", properties: {} },
+    },
+  },
+  task_create_prepare: {
+    type: "function",
+    function: {
+      name: "task_create_prepare",
+      description:
+        "Prepare a new task for human review and save. Needs title and assignee (user or role). Never save yourself.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+          taskTypeId: { type: "string" },
+          priority: { type: "string" },
+          dueDate: { type: "string" },
+          assignmentType: { type: "string", enum: ["user", "role"] },
+          assigneeUserId: { type: "string" },
+          assigneeUserName: { type: "string" },
+          assigneeRoleId: { type: "string" },
+          assigneeRoleName: { type: "string" },
+          entityType: { type: "string" },
+          entityId: { type: "string" },
+          entityLabel: { type: "string" },
+        },
+        required: ["title"],
+      },
     },
   },
   client_draft_create: {
@@ -191,8 +218,51 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     type: "function",
     function: {
       name: "client_draft_confirm",
-      description: "Confirm the pending client draft after explicit user approval. Saves the client to the database.",
+      description: "Legacy — disabled. Use client_create_prepare instead.",
       parameters: { type: "object", properties: {} },
+    },
+  },
+  client_patch_prepare: {
+    type: "function",
+    function: {
+      name: "client_patch_prepare",
+      description:
+        "Prepare client field updates for human review. Identify the client and fields to change; never save yourself.",
+      parameters: {
+        type: "object",
+        properties: {
+          clientId: { type: "string" },
+          searchKey: { type: "string" },
+          clientName: { type: "string" },
+          status: { type: "string" },
+          email: { type: "string" },
+          phone: { type: "string" },
+          fundingBody: { type: "string" },
+          disability: { type: "string" },
+          services: { type: "string" },
+          preferredName: { type: "string" },
+        },
+      },
+    },
+  },
+  client_activity_prepare: {
+    type: "function",
+    function: {
+      name: "client_activity_prepare",
+      description:
+        "Prepare a client activity note for human review. Needs client plus subject or notes; never save yourself.",
+      parameters: {
+        type: "object",
+        properties: {
+          clientId: { type: "string" },
+          searchKey: { type: "string" },
+          clientName: { type: "string" },
+          subject: { type: "string" },
+          notes: { type: "string" },
+          description: { type: "string" },
+          activityType: { type: "string" },
+        },
+      },
     },
   },
   client_activity_draft_create: {
@@ -342,8 +412,32 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     type: "function",
     function: {
       name: "enquiry_draft_confirm",
-      description: "Confirm and save the pending enquiry to the database.",
+      description: "Legacy — disabled. Use enquiry_create_prepare instead.",
       parameters: { type: "object", properties: {} },
+    },
+  },
+  enquiry_create_prepare: {
+    type: "function",
+    function: {
+      name: "enquiry_create_prepare",
+      description:
+        "Prepare a new enquiry for human review. Needs first and last name. Never save yourself.",
+      parameters: {
+        type: "object",
+        properties: {
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          email: { type: "string" },
+          phone: { type: "string" },
+          fundingBody: { type: "string" },
+          disability: { type: "string" },
+          services: { type: "string" },
+          description: { type: "string" },
+          enquirySource: { type: "string" },
+          status: { type: "string" },
+        },
+        required: ["firstName", "lastName"],
+      },
     },
   },
   enquiry_convert_draft_create: {
@@ -476,8 +570,32 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     type: "function",
     function: {
       name: "incident_draft_confirm",
-      description: "Confirm and save the pending incident draft to the database.",
+      description: "Legacy — disabled. Use incident_create_prepare instead.",
       parameters: { type: "object", properties: {} },
+    },
+  },
+  incident_create_prepare: {
+    type: "function",
+    function: {
+      name: "incident_create_prepare",
+      description:
+        "Prepare a new incident report for human review. Needs title or description. Never save yourself.",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+          whatHappened: { type: "string" },
+          severity: { type: "string" },
+          category: { type: "string" },
+          isReportable: { type: "boolean" },
+          reportableType: { type: "string" },
+          clientId: { type: "string" },
+          clientName: { type: "string" },
+          employeeId: { type: "string" },
+          locationId: { type: "string" },
+        },
+      },
     },
   },
   incident_update_draft_create: {

@@ -11,6 +11,8 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
+import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { ClientLineCollectionKey } from "@/lib/client-line-tables";
 import { emptyClientRecord, normalizeClient, type ClientRecord } from "@/lib/client";
@@ -84,11 +86,24 @@ export function ClientListView() {
 }
 
 export function ClientDetailView({ id }: { id: string }) {
+  return (
+    <Suspense fallback={<ClientTabbedViewFallback />}>
+      <ClientDetailViewInner id={id} />
+    </Suspense>
+  );
+}
+
+function ClientDetailViewInner({ id }: { id: string }) {
+  const searchParams = useSearchParams();
+  const aiDraftId = searchParams.get("aiDraft");
+  const draftLoad = useAiDraftLoader(aiDraftId);
+  const { session } = useAuth();
   const { clients, upsertClient, getServiceAgreementsByClientId, getSupportPlanByClientId } = useData();
   const { openClient, setTabDirty, touchTab } = useWorkspace();
   const stored = clients.find((c) => c.id === id);
   const [draft, setDraft] = useState<ClientRecord | null>(null);
   const [saved, setSaved] = useState(false);
+  const [draftApplied, setDraftApplied] = useState(false);
 
   const client = draft ?? stored ?? null;
   const enquiryLink = client?.enquiryId;
@@ -99,6 +114,42 @@ export function ClientDetailView({ id }: { id: string }) {
   const goalCount = supportPlan?.goals.length ?? 0;
   const progressReviewCount = supportPlan?.progressReviews?.length ?? 0;
   const tabKey = workspaceKey("client", id);
+
+  useEffect(() => {
+    if (!stored || !draftLoad.payload || draftApplied || draftLoad.loading) return;
+    const p = draftLoad.payload;
+    if (draftLoad.entityType === "client_patch") {
+      const fields = (p.fields ?? p) as Record<string, string>;
+      setDraft(
+        normalizeClient({
+          ...stored,
+          ...fields,
+          updatedBy: session?.displayName ?? stored.updatedBy,
+        })
+      );
+      setDraftApplied(true);
+      return;
+    }
+    if (draftLoad.entityType === "client_activity") {
+      const row = {
+        id: `act-ai-${Date.now()}`,
+        lineNo: stored.activity.length + 1,
+        date: new Date().toISOString().slice(0, 10),
+        activityType: String(p.activityType ?? "Note"),
+        subject: String(p.subject ?? ""),
+        description: String(p.description ?? p.notes ?? ""),
+        createdBy: session?.displayName ?? "User",
+      };
+      setDraft(
+        normalizeClient({
+          ...stored,
+          activity: [...stored.activity, row],
+          updatedBy: session?.displayName ?? stored.updatedBy,
+        })
+      );
+      setDraftApplied(true);
+    }
+  }, [stored, draftLoad.payload, draftLoad.entityType, draftLoad.loading, draftApplied, session?.displayName]);
 
   useEffect(() => {
     if (!stored) return;
@@ -147,7 +198,14 @@ export function ClientDetailView({ id }: { id: string }) {
 
   function onSave() {
     if (!client) return;
-    upsertClient(normalizeClient(client));
+    const normalized = normalizeClient(client);
+    upsertClient(normalized);
+    trackAiPrepareSaved({
+      draftId: aiDraftId ?? undefined,
+      entityType: draftLoad.entityType === "client_activity" ? "client_activity" : "client",
+      entityId: normalized.id,
+      entityLabel: normalized.name,
+    });
     setDraft(null);
     setSaved(true);
   }
@@ -194,6 +252,12 @@ export function ClientDetailView({ id }: { id: string }) {
             : undefined
         }
       >
+        {aiDraftId && draftApplied ? (
+          <p className="mb-4 rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+            Prepared by your AI assistant. Check the changes, then click Save.
+          </p>
+        ) : null}
+        {draftLoad.error ? <p className="mb-4 text-sm text-red-700">{draftLoad.error}</p> : null}
         <ClientCoreSummary client={client} />
 
         <div className="mb-3 flex items-center gap-3">
@@ -337,6 +401,12 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
     if (!current) return;
     const normalized = normalizeClient(current);
     upsertClient(normalized);
+    trackAiPrepareSaved({
+      draftId: aiDraftId ?? undefined,
+      entityType: "client",
+      entityId: normalized.id,
+      entityLabel: normalized.name,
+    });
     setSaved(true);
     router.push(`/clients/${normalized.id}`);
   }

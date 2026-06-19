@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type KeyboardEvent } from "react";
+import { useMemo, useState, useEffect, type KeyboardEvent } from "react";
 import { TaskEntitySearchPicker } from "@/components/task-entity-search";
 import { useAuth } from "@/lib/auth-store";
 import { displayName } from "@/lib/access/types";
@@ -31,6 +31,7 @@ type TaskFormProps = {
   fixedEntity?: TaskEntityOption;
   showEntityPicker?: boolean;
   submitLabel?: string;
+  initialValues?: Partial<TaskFormValues>;
   onSubmit: (values: TaskFormValues) => void;
   onCancel?: () => void;
 };
@@ -39,6 +40,7 @@ export function TaskForm({
   fixedEntity,
   showEntityPicker = true,
   submitLabel = "Create task",
+  initialValues,
   onSubmit,
   onCancel,
 }: TaskFormProps) {
@@ -66,6 +68,26 @@ export function TaskForm({
   const [highlightedRoleIndex, setHighlightedRoleIndex] = useState(0);
   const [linkedEntity, setLinkedEntity] = useState<TaskEntityOption | null>(fixedEntity ?? null);
   const [entityTypeFilter, setEntityTypeFilter] = useState<TaskEntityType | "">("");
+
+  useEffect(() => {
+    if (!initialValues) return;
+    if (initialValues.title) setTitle(initialValues.title);
+    if (initialValues.description) setDescription(initialValues.description);
+    if (initialValues.taskTypeId) setTaskTypeId(initialValues.taskTypeId);
+    if (initialValues.priority) setPriority(initialValues.priority);
+    if (initialValues.dueDate) setDueDate(initialValues.dueDate);
+    if (initialValues.assignmentType) setAssignmentType(initialValues.assignmentType);
+    if (initialValues.assigneeUserId) setAssigneeUserId(initialValues.assigneeUserId);
+    if (initialValues.assigneeRoleId) setAssigneeRoleId(initialValues.assigneeRoleId);
+    if (initialValues.entityType && initialValues.entityId) {
+      setLinkedEntity({
+        entityType: initialValues.entityType as TaskEntityType,
+        entityId: initialValues.entityId,
+        label: initialValues.entityLabel || initialValues.entityId,
+      });
+    }
+  }, [initialValues]);
+
   const effectiveTaskTypeId = taskTypeId || availableTypes[0]?.id || "";
   const activeUsers = useMemo(() => users.filter((u) => u.active), [users]);
   const activeRoles = useMemo(() => roles.filter((r) => r.active), [roles]);

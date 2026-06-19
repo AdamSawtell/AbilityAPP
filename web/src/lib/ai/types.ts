@@ -16,11 +16,14 @@ export type AiToolName =
   | "task_search"
   | "task_draft_create"
   | "task_draft_confirm"
+  | "task_create_prepare"
   | "task_update_draft_create"
   | "task_update_draft_confirm"
   | "client_draft_create"
   | "client_draft_confirm"
   | "client_create_prepare"
+  | "client_patch_prepare"
+  | "client_activity_prepare"
   | "client_patch_draft_create"
   | "client_patch_draft_confirm"
   | "client_activity_draft_create"
@@ -29,6 +32,7 @@ export type AiToolName =
   | "enquiry_get"
   | "enquiry_draft_create"
   | "enquiry_draft_confirm"
+  | "enquiry_create_prepare"
   | "enquiry_convert_draft_create"
   | "enquiry_convert_draft_confirm"
   | "incident_search"
@@ -38,6 +42,7 @@ export type AiToolName =
   | "incident_linked_search"
   | "incident_draft_create"
   | "incident_draft_confirm"
+  | "incident_create_prepare"
   | "incident_update_draft_create"
   | "incident_update_draft_confirm";
 
@@ -148,7 +153,7 @@ export type ChatThreadState = {
 };
 
 export type AiWriteResult = {
-  kind: "client" | "client_prepare" | "task" | "client_activity" | "enquiry" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_update";
+  kind: "client" | "client_prepare" | "client_patch_prepare" | "client_activity_prepare" | "task" | "task_prepare" | "client_activity" | "enquiry" | "enquiry_prepare" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_prepare" | "incident_update";
   label: string;
   href: string;
 };
@@ -164,6 +169,7 @@ export type ChatRequestBody = {
   agentId: string;
   messages: ChatMessage[];
   threadState?: ChatThreadState;
+  pagePath?: string;
 };
 
 export type ChatResponseBody = {

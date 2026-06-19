@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { TaskActivityTimeline } from "@/components/task-activity-timeline";
@@ -15,6 +15,8 @@ import { useData } from "@/lib/data-store";
 import { auditMetaFromTask, taskUpdatesToAuditEvents } from "@/lib/audit";
 import { taskAssignedToRole, taskAssignedToUser, type TaskListView } from "@/lib/task-access";
 import { useTaskTypes } from "@/lib/task-type-store";
+import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
+import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { trackProcessExecution } from "@/lib/process-audit/track.client";
 import { canSeeTaskType } from "@/lib/task-type-access";
 import {
@@ -78,9 +80,38 @@ export function TaskListView({ view }: { view: TaskListView }) {
 }
 
 export function TaskCreateView() {
+  return (
+    <Suspense fallback={<p className="p-8 text-sm text-slate-500">Loading…</p>}>
+      <TaskCreateViewInner />
+    </Suspense>
+  );
+}
+
+function TaskCreateViewInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const aiDraftId = searchParams.get("aiDraft");
+  const draftLoad = useAiDraftLoader(aiDraftId);
   const { addTask } = useData();
   const { session, canProcess, users, roles } = useAuth();
+
+  const initialValues = useMemo((): Partial<TaskFormValues> | undefined => {
+    const p = draftLoad.payload;
+    if (!p) return undefined;
+    return {
+      title: String(p.title ?? ""),
+      description: String(p.description ?? ""),
+      taskTypeId: String(p.taskTypeId ?? "tt-other"),
+      priority: (String(p.priority ?? "Normal") as TaskFormValues["priority"]),
+      dueDate: String(p.dueDate ?? ""),
+      assignmentType: p.assignmentType === "role" ? "role" : "user",
+      assigneeUserId: String(p.assigneeUserId ?? ""),
+      assigneeRoleId: String(p.assigneeRoleId ?? ""),
+      entityType: (String(p.entityType ?? "") as TaskFormValues["entityType"]),
+      entityId: String(p.entityId ?? ""),
+      entityLabel: String(p.entityLabel ?? ""),
+    };
+  }, [draftLoad.payload]);
 
   if (!session) return null;
   const userSession = session;
@@ -122,21 +153,41 @@ export function TaskCreateView() {
       },
       { assigneeDisplayName }
     );
+    trackAiPrepareSaved({
+      draftId: aiDraftId ?? undefined,
+      entityType: "task",
+      entityId: task.id,
+      entityLabel: `${task.documentNo} — ${task.title}`,
+    });
     router.push(`/tasks/${task.id}`);
+  }
+
+  if (draftLoad.error) {
+    return (
+      <AppShell title="New task" audit={{ moduleLabel: "Tasks" }}>
+        <p className="text-sm text-red-700">{draftLoad.error}</p>
+      </AppShell>
+    );
   }
 
   return (
     <AppShell
       title="New task"
-      subtitle="Assign work to any user or role, optionally linked to a record."
+      subtitle={aiDraftId ? "Review the task your assistant prepared, then create it." : "Assign work to any user or role, optionally linked to a record."}
       breadcrumbs={[
         { label: "Home", href: "/" },
         { label: "Tasks", href: "/tasks" },
         { label: "New task" },
       ]}
-      audit={{ moduleLabel: "New task" }}
+      audit={{ moduleLabel: "Tasks" }}
     >
-      <TaskForm onSubmit={handleCreate} onCancel={() => router.push("/tasks")} />
+      {aiDraftId ? (
+        <p className="mb-4 rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          Prepared by your AI assistant. Check every field, then create the task.
+        </p>
+      ) : null}
+      {draftLoad.loading ? <p className="mb-4 text-sm text-slate-500">Loading draft…</p> : null}
+      <TaskForm initialValues={initialValues} onSubmit={handleCreate} onCancel={() => router.push("/tasks")} />
     </AppShell>
   );
 }

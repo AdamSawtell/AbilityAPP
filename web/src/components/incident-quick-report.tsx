@@ -114,9 +114,10 @@ type IncidentQuickReportWizardProps = {
 export function IncidentQuickReportWizard({
   initialEmployeeId = "",
   reporterName = "",
+  initialRecord,
   onSubmit,
   onCancel,
-}: IncidentQuickReportWizardProps) {
+}: IncidentQuickReportWizardProps & { initialRecord?: Partial<IncidentRecord> }) {
   const entityIndex = useTaskEntityIndex();
   const { clients, employees, locations, products } = useData();
   const [step, setStep] = useState<Step>("What happened");
@@ -125,8 +126,9 @@ export function IncidentQuickReportWizard({
     const base = emptyIncident();
     return {
       ...base,
-      primaryEmployeeId: initialEmployeeId,
-      awareAt: base.awareAt,
+      ...initialRecord,
+      primaryEmployeeId: initialRecord?.primaryEmployeeId || initialEmployeeId,
+      awareAt: initialRecord?.awareAt ?? base.awareAt,
     };
   });
 

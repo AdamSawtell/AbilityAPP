@@ -426,6 +426,11 @@ export const TASK_WINDOW_KEYS = TASK_WINDOWS.map((w) => w.key);
 
 export const ACCESS_PROCESSES: AccessProcess[] = [
   {
+    id: "ai-prepare-record",
+    label: "AI prepare record",
+    description: "Assistant prepares a draft for human review and save on a form",
+  },
+  {
     id: "enquiry-to-client",
     label: "Enquiry → Client",
     description: "Convert an enquiry to a support receiver client",

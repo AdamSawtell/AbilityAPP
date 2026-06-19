@@ -11,6 +11,7 @@ on:
       - "supabase/seed.sql"
       - "supabase/seed-entities.sql"
       - "supabase/seed-access.sql"
+      - "supabase/seed-ai.sql"
       - "supabase/seed-employees.sql"
       - ".github/workflows/supabase-migrate.yml"
   workflow_dispatch:
@@ -40,6 +41,7 @@ jobs:
             supabase db query --db-url "$SUPABASE_DB_URL" -f supabase/seed-entities.sql
             supabase db query --db-url "$SUPABASE_DB_URL" -f supabase/seed-employees.sql
             supabase db query --db-url "$SUPABASE_DB_URL" -f supabase/seed-access.sql
+            supabase db query --db-url "$SUPABASE_DB_URL" -f supabase/seed-ai.sql
           }
 
           use_link() {
@@ -49,6 +51,7 @@ jobs:
             supabase db query --linked -f supabase/seed-entities.sql
             supabase db query --linked -f supabase/seed-employees.sql
             supabase db query --linked -f supabase/seed-access.sql
+            supabase db query --linked -f supabase/seed-ai.sql
           }
 
           if [ -n "$SUPABASE_DB_URL" ]; then

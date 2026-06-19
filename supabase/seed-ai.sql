@@ -86,8 +86,7 @@ values
   ('agent-workspace', 'tool', 'records_updated_since'),
   ('agent-workspace', 'tool', 'task_search'),
   ('agent-tasks', 'tool', 'help_search'),
-  ('agent-tasks', 'tool', 'task_draft_create'),
-  ('agent-tasks', 'tool', 'task_draft_confirm'),
+  ('agent-tasks', 'tool', 'task_create_prepare'),
   ('agent-tasks', 'tool', 'task_search'),
   ('agent-tasks', 'tool', 'task_update_draft_create'),
   ('agent-tasks', 'tool', 'task_update_draft_confirm'),
@@ -98,15 +97,12 @@ values
   ('agent-clients', 'tool', 'activity_search'),
   ('agent-clients', 'tool', 'records_updated_since'),
   ('agent-clients', 'tool', 'client_create_prepare'),
-  ('agent-clients', 'tool', 'client_patch_draft_create'),
-  ('agent-clients', 'tool', 'client_patch_draft_confirm'),
-  ('agent-clients', 'tool', 'client_activity_draft_create'),
-  ('agent-clients', 'tool', 'client_activity_draft_confirm'),
+  ('agent-clients', 'tool', 'client_patch_prepare'),
+  ('agent-clients', 'tool', 'client_activity_prepare'),
   ('agent-enquiries', 'tool', 'help_search'),
   ('agent-enquiries', 'tool', 'enquiry_search'),
   ('agent-enquiries', 'tool', 'enquiry_get'),
-  ('agent-enquiries', 'tool', 'enquiry_draft_create'),
-  ('agent-enquiries', 'tool', 'enquiry_draft_confirm'),
+  ('agent-enquiries', 'tool', 'enquiry_create_prepare'),
   ('agent-enquiries', 'tool', 'enquiry_convert_draft_create'),
   ('agent-enquiries', 'tool', 'enquiry_convert_draft_confirm'),
   ('agent-enquiries', 'tool', 'activity_search'),
@@ -116,16 +112,14 @@ values
   ('agent-incidents', 'tool', 'incident_list_recent'),
   ('agent-incidents', 'tool', 'incident_compliance_summary'),
   ('agent-incidents', 'tool', 'incident_linked_search'),
-  ('agent-incidents', 'tool', 'incident_draft_create'),
-  ('agent-incidents', 'tool', 'incident_draft_confirm'),
+  ('agent-incidents', 'tool', 'incident_create_prepare'),
   ('agent-incidents', 'tool', 'incident_update_draft_create'),
   ('agent-incidents', 'tool', 'incident_update_draft_confirm'),
   ('agent-incidents', 'tool', 'client_search'),
   ('agent-incidents', 'tool', 'client_get'),
   ('agent-incidents', 'tool', 'activity_search'),
   ('agent-incidents', 'tool', 'task_search'),
-  ('agent-incidents', 'tool', 'task_draft_create'),
-  ('agent-incidents', 'tool', 'task_draft_confirm'),
+  ('agent-incidents', 'tool', 'task_create_prepare'),
   ('agent-support-worker', 'tool', 'help_search'),
   ('agent-support-worker', 'tool', 'client_search'),
   ('agent-support-worker', 'tool', 'client_get'),
@@ -134,7 +128,7 @@ values
   ('agent-support-worker', 'tool', 'client_create_prepare')
 on conflict do nothing;
 
-delete from public.app_role_agent where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker');
+delete from public.app_role_agent where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker', 'role-team-leader', 'role-quality-manager', 'role-quality-officer', 'role-rostering-manager', 'role-hr-manager');
 insert into public.app_role_agent (role_id, agent_id)
 values
   ('role-admin', 'agent-training'),
@@ -152,5 +146,19 @@ values
   ('role-coordinator', 'agent-workspace'),
   ('role-coordinator', 'agent-clients'),
   ('role-coordinator', 'agent-incidents'),
-  ('role-support-worker', 'agent-support-worker')
+  ('role-support-worker', 'agent-support-worker'),
+  ('role-team-leader', 'agent-training'),
+  ('role-team-leader', 'agent-workspace'),
+  ('role-team-leader', 'agent-support-worker'),
+  ('role-team-leader', 'agent-tasks'),
+  ('role-quality-manager', 'agent-training'),
+  ('role-quality-manager', 'agent-incidents'),
+  ('role-quality-officer', 'agent-training'),
+  ('role-quality-officer', 'agent-incidents'),
+  ('role-rostering-manager', 'agent-training'),
+  ('role-rostering-manager', 'agent-workspace'),
+  ('role-rostering-manager', 'agent-tasks'),
+  ('role-hr-manager', 'agent-training'),
+  ('role-hr-manager', 'agent-workspace'),
+  ('role-hr-manager', 'agent-tasks')
 on conflict do nothing;

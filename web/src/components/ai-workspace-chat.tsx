@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -62,6 +62,7 @@ function MessageBubble({ message }: { message: UiMessage }) {
 
 export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const { session, canAgent } = useAuth();
+  const pathname = usePathname();
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
   const [configured, setConfigured] = useState(true);
@@ -178,6 +179,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
             agentId,
             messages: nextMessages,
             threadState: threadStateRef.current,
+            pagePath: pathname,
           }),
         });
         const data = (await res.json()) as ChatResponseBody & { error?: string };
@@ -211,7 +213,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         setLoading(false);
       }
     },
-    [agentId, input, loading]
+    [agentId, input, loading, pathname]
   );
 
   const resetChat = useCallback(() => {
@@ -227,7 +229,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   if (!session) return null;
 
   const canSend = configured && Boolean(agentId) && !loading && Boolean(input.trim());
-  const prepareLink = lastWrite?.href && lastWrite.kind === "client_prepare";
+  const prepareLink = lastWrite?.href && lastWrite.kind.endsWith("_prepare");
 
   return (
     <div className={`flex min-h-0 flex-col bg-slate-50/80 ${className}`}>

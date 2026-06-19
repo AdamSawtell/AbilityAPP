@@ -19,6 +19,12 @@ import { runTaskDraftConfirm, runTaskDraftCreate } from "@/lib/ai/tools/task-dra
 import { runTaskUpdateDraftConfirm, runTaskUpdateDraftCreate } from "@/lib/ai/tools/task-update";
 import { runClientDraftConfirm, runClientDraftCreate } from "@/lib/ai/tools/client-draft";
 import { runClientCreatePrepare } from "@/lib/ai/tools/client-create-prepare";
+import { runClientPatchPrepare } from "@/lib/ai/tools/client-patch-prepare";
+import { runClientActivityPrepare } from "@/lib/ai/tools/client-activity-prepare";
+import { runEnquiryCreatePrepare } from "@/lib/ai/tools/enquiry-create-prepare";
+import { runTaskCreatePrepare } from "@/lib/ai/tools/task-create-prepare";
+import { runIncidentCreatePrepare } from "@/lib/ai/tools/incident-create-prepare";
+import { buildPageContext } from "@/lib/ai/page-context";
 import {
   runClientActivityDraftConfirm,
   runClientActivityDraftCreate,
@@ -55,14 +61,54 @@ function openAiClient(): OpenAI {
   return new OpenAI({ apiKey });
 }
 
+const PREPARE_POLICY =
+  "You never save records to the database yourself. Use *_prepare tools to open review forms; the user must click Save. Legacy *_confirm tools are disabled.";
+
+function prepareToolResult(
+  out: {
+    message: string;
+    summary?: string;
+    href?: string;
+    draftId?: string;
+    threadState: ChatThreadState;
+  },
+  kind: AiWriteResult["kind"]
+) {
+  return {
+    result: {
+      summary: out.summary,
+      note: out.message,
+      reviewHref: out.href,
+      draftId: out.draftId,
+    },
+    threadState: out.threadState,
+    writeResult: out.href
+      ? {
+          kind,
+          label: out.summary ?? "Review",
+          href: out.href,
+        }
+      : undefined,
+  };
+}
+
+function disabledConfirmResult(threadState: ChatThreadState, prepareTool: string) {
+  return {
+    result: { note: `Saving from chat is disabled. Use ${prepareTool} and send the user to the review page to save.` },
+    threadState,
+  };
+}
+
 function toOpenAiMessages(
   agent: AiAgentRecord,
   session: AuthSession,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  pagePath?: string
 ): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
+  const pageLine = pagePath ? `\n\n${buildPageContext(pagePath)}` : "";
   const system: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
     role: "system",
-    content: `${agent.systemPrompt}\n\nSigned-in user: ${session.displayName} (${session.activeRoleName}). Answer in clear, helpful prose.\n\nYou never save records to the database yourself unless a legacy confirm tool explicitly requires it. For new clients always use client_create_prepare and send the user to review and save on the form.`,
+    content: `${agent.systemPrompt}\n\nSigned-in user: ${session.displayName} (${session.activeRoleName}). Answer in clear, helpful prose.\n\n${PREPARE_POLICY}${pageLine}`,
   };
 
   const mapped = messages
@@ -177,49 +223,15 @@ async function executeTool(
       };
     }
     case "task_draft_confirm": {
-      const out = runTaskDraftConfirm(session, threadState);
-      if (!out.task) {
-        return { result: { note: out.message }, threadState: out.threadState };
-      }
-      if (!supabase) {
-        return { result: { error: "Database not configured" }, threadState: out.threadState };
-      }
-      const saved = await persistAiTask(supabase, session, out.task);
-      if (!saved.ok) {
-        return { result: { error: saved.error }, threadState: out.threadState };
-      }
-      return {
-        result: {
-          note: "Task saved to database.",
-          task: { id: saved.record.id, documentNo: saved.record.documentNo, title: saved.record.title },
-        },
-        threadState: out.threadState,
-        createdTask: saved.record,
-        writeResult: {
-          kind: "task",
-          label: `${saved.record.documentNo} — ${saved.record.title}`,
-          href: saved.href ?? `/tasks/${saved.record.id}`,
-        },
-      };
+      return disabledConfirmResult(threadState, "task_create_prepare");
+    }
+    case "task_create_prepare": {
+      const out = await runTaskCreatePrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "task_prepare");
     }
     case "client_create_prepare": {
       const out = await runClientCreatePrepare(supabase, session, args, threadState);
-      return {
-        result: {
-          summary: out.summary,
-          note: out.message,
-          reviewHref: out.href,
-          draftId: out.draftId,
-        },
-        threadState: out.threadState,
-        writeResult: out.href
-          ? {
-              kind: "client_prepare",
-              label: out.summary ?? "New client",
-              href: out.href,
-            }
-          : undefined,
-      };
+      return prepareToolResult(out, "client_prepare");
     }
     case "client_draft_create": {
       const out = await runClientDraftCreate(session, args, threadState);
@@ -229,12 +241,15 @@ async function executeTool(
       };
     }
     case "client_draft_confirm": {
-      return {
-        result: {
-          note: "Saving from chat is disabled. Use client_create_prepare and send the user to the review page to save.",
-        },
-        threadState,
-      };
+      return disabledConfirmResult(threadState, "client_create_prepare");
+    }
+    case "client_patch_prepare": {
+      const out = await runClientPatchPrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "client_patch_prepare");
+    }
+    case "client_activity_prepare": {
+      const out = await runClientActivityPrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "client_activity_prepare");
     }
     case "client_activity_draft_create": {
       const out = await runClientActivityDraftCreate(supabase, session, args, threadState);
@@ -244,19 +259,7 @@ async function executeTool(
       };
     }
     case "client_activity_draft_confirm": {
-      const out = await runClientActivityDraftConfirm(supabase, session, threadState);
-      if (!out.activity) {
-        return { result: { note: out.message }, threadState: out.threadState };
-      }
-      return {
-        result: { note: out.message, activity: out.activity },
-        threadState: out.threadState,
-        writeResult: {
-          kind: "client_activity",
-          label: out.activity.subject,
-          href: out.href ?? "",
-        },
-      };
+      return disabledConfirmResult(threadState, "client_activity_prepare");
     }
     case "client_patch_draft_create": {
       const out = await runClientPatchDraftCreate(supabase, session, args, threadState);
@@ -266,20 +269,7 @@ async function executeTool(
       };
     }
     case "client_patch_draft_confirm": {
-      const out = await runClientPatchDraftConfirm(supabase, session, threadState);
-      if (!out.client) {
-        return { result: { note: out.message }, threadState: out.threadState };
-      }
-      return {
-        result: { note: out.message, client: { id: out.client.id, name: out.client.name } },
-        threadState: out.threadState,
-        createdClient: out.client,
-        writeResult: {
-          kind: "client_patch",
-          label: `Updated ${out.client.name}`,
-          href: out.href ?? `/clients/${out.client.searchKey}`,
-        },
-      };
+      return disabledConfirmResult(threadState, "client_patch_prepare");
     }
     case "task_update_draft_create": {
       const out = await runTaskUpdateDraftCreate(supabase, session, args, threadState);
@@ -334,20 +324,11 @@ async function executeTool(
       };
     }
     case "enquiry_draft_confirm": {
-      const out = await runEnquiryDraftConfirm(supabase, session, threadState);
-      if (!out.enquiry) {
-        return { result: { note: out.message }, threadState: out.threadState };
-      }
-      return {
-        result: { note: out.message, enquiry: { id: out.enquiry.id, documentNo: out.enquiry.documentNo } },
-        threadState: out.threadState,
-        createdEnquiry: out.enquiry,
-        writeResult: {
-          kind: "enquiry",
-          label: `Enquiry ${out.enquiry.documentNo}`,
-          href: out.href ?? `/enquiries/${out.enquiry.id}`,
-        },
-      };
+      return disabledConfirmResult(threadState, "enquiry_create_prepare");
+    }
+    case "enquiry_create_prepare": {
+      const out = await runEnquiryCreatePrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "enquiry_prepare");
     }
     case "enquiry_convert_draft_create": {
       const out = await runEnquiryConvertDraftCreate(supabase, session, args, threadState);
@@ -431,24 +412,11 @@ async function executeTool(
       };
     }
     case "incident_draft_confirm": {
-      const out = await runIncidentDraftConfirm(supabase, session, threadState, (draft) =>
-        persistAiIncident(supabase!, session, draft)
-      );
-      if (!out.incident) {
-        return { result: { note: out.message }, threadState: out.threadState };
-      }
-      return {
-        result: {
-          note: out.message,
-          incident: { id: out.incident.id, documentNo: out.incident.documentNo, title: out.incident.title },
-        },
-        threadState: out.threadState,
-        writeResult: {
-          kind: "incident",
-          label: `${out.incident.documentNo} — ${out.incident.title}`,
-          href: out.href ?? `/incidents/${out.incident.id}`,
-        },
-      };
+      return disabledConfirmResult(threadState, "incident_create_prepare");
+    }
+    case "incident_create_prepare": {
+      const out = await runIncidentCreatePrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "incident_prepare");
     }
     case "incident_update_draft_create": {
       const out = await runIncidentUpdateDraftCreate(supabase, session, args, threadState);
@@ -486,6 +454,7 @@ export async function runChatTurn(options: {
   messages: ChatMessage[];
   threadState: ChatThreadState;
   db: AiDatabase | null;
+  pagePath?: string;
 }): Promise<ChatResponseBody> {
   const openai = openAiClient();
   const tools = toolsForAgent(options.agent);
@@ -501,7 +470,8 @@ export async function runChatTurn(options: {
   const openAiHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = toOpenAiMessages(
     options.agent,
     options.session,
-    workingMessages
+    workingMessages,
+    options.pagePath
   );
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
