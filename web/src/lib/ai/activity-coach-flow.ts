@@ -38,6 +38,11 @@ async function resolveCoachClient(
   const routeId = clientIdFromPagePath(pagePath);
   const nameFromMessage = clientNameFromActivityMessage(userMessage);
 
+  if (nameFromMessage) {
+    const fromName = await resolveClient(supabase, { name: nameFromMessage, pagePath });
+    if (fromName) return fromName;
+  }
+
   if (routeId) {
     const fromRoute = await resolveClient(supabase, {
       clientId: routeId,
@@ -45,11 +50,6 @@ async function resolveCoachClient(
       pagePath,
     });
     if (fromRoute) return fromRoute;
-  }
-
-  if (nameFromMessage) {
-    const fromName = await resolveClient(supabase, { name: nameFromMessage, pagePath });
-    if (fromName) return fromName;
   }
 
   return null;
@@ -228,9 +228,10 @@ export async function tryActivityCoachFromClientGet(
   messages: ChatMessage[],
   threadState: ChatThreadState,
   pagePath: string | undefined,
-  clientGetResult: unknown
+  clientGetResult: unknown,
+  coachStartedThisTurn: boolean
 ): Promise<ActivityCoachAdvance | null> {
-  if (threadState.activityCoachClient) return null;
+  if (threadState.activityCoachClient && !coachStartedThisTurn) return null;
 
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   if (!lastUser || !isActivityCoachIntent(lastUser.content)) return null;

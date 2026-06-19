@@ -51,7 +51,7 @@ export function shouldAutoConfirmCoachOnPage(
   userMessage: string,
   client: ActivityCoachClient
 ): boolean {
-  if (!clientIdFromPagePath(pagePath)) return false;
+  if (!clientMatchesPageRoute(pagePath, client)) return false;
   const nameFromMessage = clientNameFromActivityMessage(userMessage);
   if (!nameFromMessage) return true;
   const query = nameFromMessage.toLowerCase().trim();
@@ -71,6 +71,16 @@ export function clientIdFromPagePath(pagePath?: string): string | null {
   const match = pagePath.match(/^\/clients\/([^/?#]+)/);
   if (!match || match[1] === "new") return null;
   return match[1];
+}
+
+export function clientMatchesPageRoute(
+  pagePath: string | undefined,
+  client: ActivityCoachClient
+): boolean {
+  const routeId = clientIdFromPagePath(pagePath);
+  if (!routeId) return false;
+  const route = routeId.toLowerCase();
+  return client.id.toLowerCase() === route || client.searchKey.toLowerCase() === route;
 }
 
 export function clientRecordCardAttachment(

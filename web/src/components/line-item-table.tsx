@@ -31,7 +31,7 @@ type GenericTableConfig<TRow extends RowBase> = {
 export type { GenericTableConfig, GenericColumn };
 
 /** Internal row keys — kept on data for ordering/persistence but not shown in volume tables. */
-const HIDDEN_LINE_TABLE_COLUMN_KEYS = new Set(["lineNo", "reference"]);
+const HIDDEN_LINE_TABLE_COLUMN_KEYS = new Set(["lineNo"]);
 
 function CellInput<TRow extends RowBase, TColumn extends { key: keyof TRow & string; type: string; optionsKey?: string }>({
   column,

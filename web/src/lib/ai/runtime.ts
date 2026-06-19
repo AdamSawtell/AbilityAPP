@@ -856,7 +856,8 @@ export async function runChatTurn(options: {
           options.messages,
           threadState,
           options.pagePath,
-          clientGet.result
+          clientGet.result,
+          !options.threadState.activityCoachClient
         );
         if (coach) {
           threadState = coach.threadState;
