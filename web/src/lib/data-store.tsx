@@ -350,8 +350,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setHydrated(true);
             return;
           }
-        } catch {
-          // fall back to local seed / localStorage
+        } catch (err) {
+          console.error(
+            "[DataStore] Supabase hydrate failed — using local seed. Check Amplify env vars (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY) and redeploy.",
+            err
+          );
         }
       }
 

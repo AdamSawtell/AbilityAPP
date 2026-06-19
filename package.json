@@ -11,6 +11,9 @@
     "supabase:seed-locations": "cd web && npx tsx ../scripts/generate-location-seed.mjs",
     "supabase:seed-bulk": "cd web && npx tsx ../scripts/generate-bulk-dummy-data.mjs",
     "supabase:seed-clients-bulk": "node scripts/generate-bulk-clients-seed.mjs",
+    "supabase:push-remote": "node scripts/apply-remote-db.mjs push",
+    "supabase:seed-demo-once": "node scripts/run-all-remote-seeds.mjs",
+    "supabase:setup-remote": "node scripts/apply-remote-db.mjs all",
     "supabase:seed-workforce": "cd web && npx tsx ../scripts/generate-access-seed.mjs && npx tsx ../scripts/generate-employee-seed.mjs && npx tsx ../scripts/generate-org-structure-seed.mjs && node ../scripts/generate-org-bulk-positions.mjs && node ../scripts/run-workforce-seeds.mjs --linked",
     "supabase:seed-workforce-local": "node scripts/run-workforce-seeds.mjs --local",
     "supabase:seed-session-audit-demo": "node scripts/seed-session-audit-demo.mjs",
@@ -23,6 +26,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "pg": "^8.16.0",
     "playwright": "^1.60.0"
   }
 }

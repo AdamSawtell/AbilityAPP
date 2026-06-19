@@ -1,0 +1,44 @@
+# One-off demo / dummy data load — manual only.
+# Data stays in Postgres until you delete it or re-run a seed file that targets those ids.
+#
+# Run from GitHub: Actions → Supabase seed demo data → Run workflow
+name: Supabase seed demo data
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed_file:
+        description: "Leave empty for full demo load, or e.g. supabase/seed-clients-bulk.sql"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply demo seeds (one-off)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: yonkaaylolrdsjfgpvyp
+        run: |
+          set -euo pipefail
+          if [ -z "$SUPABASE_DB_URL" ] && [ -z "$SUPABASE_DB_PASSWORD" ]; then
+            echo "SUPABASE_DB_URL or SUPABASE_DB_PASSWORD secret is required."
+            exit 1
+          fi
+          if [ -n "${{ inputs.seed_file }}" ]; then
+            node scripts/run-all-remote-seeds.mjs --file "${{ inputs.seed_file }}"
+          else
+            node scripts/run-all-remote-seeds.mjs
+          fi
