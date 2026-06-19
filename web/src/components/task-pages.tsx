@@ -16,6 +16,7 @@ import { auditMetaFromTask, taskUpdatesToAuditEvents } from "@/lib/audit";
 import { taskAssignedToRole, taskAssignedToUser, type TaskListView } from "@/lib/task-access";
 import { useTaskTypes } from "@/lib/task-type-store";
 import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
+import { draftHighlightKeys } from "@/lib/ai/draft-field-highlight";
 import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { trackProcessExecution } from "@/lib/process-audit/track.client";
 import { canSeeTaskType } from "@/lib/task-type-access";
@@ -113,6 +114,11 @@ function TaskCreateViewInner() {
     };
   }, [draftLoad.payload]);
 
+  const highlightFields = useMemo(
+    () => (draftLoad.payload ? draftHighlightKeys(draftLoad.payload, "task") : undefined),
+    [draftLoad.payload]
+  );
+
   if (!session) return null;
   const userSession = session;
 
@@ -154,10 +160,15 @@ function TaskCreateViewInner() {
       { assigneeDisplayName }
     );
     trackAiPrepareSaved({
+      userId: userSession.userId,
+      roleId: userSession.activeRoleId,
       draftId: aiDraftId ?? undefined,
       entityType: "task",
       entityId: task.id,
       entityLabel: `${task.documentNo} — ${task.title}`,
+      chatMessage: aiDraftId
+        ? `Created task ${task.documentNo}. You can continue in chat.`
+        : undefined,
     });
     router.push(`/tasks/${task.id}`);
   }
@@ -187,7 +198,12 @@ function TaskCreateViewInner() {
         </p>
       ) : null}
       {draftLoad.loading ? <p className="mb-4 text-sm text-slate-500">Loading draft…</p> : null}
-      <TaskForm initialValues={initialValues} onSubmit={handleCreate} onCancel={() => router.push("/tasks")} />
+      <TaskForm
+        initialValues={initialValues}
+        highlightFields={highlightFields}
+        onSubmit={handleCreate}
+        onCancel={() => router.push("/tasks")}
+      />
     </AppShell>
   );
 }

@@ -28,27 +28,32 @@ import { useReferenceData } from "@/lib/config-store";
 import { type ClientFieldDef, type ClientRecord } from "@/lib/client";
 import { clientDropdowns, clientTabGroups, coreOverviewFields, profileSections } from "@/lib/client";
 
+import { withDraftHighlight } from "@/lib/ai/draft-field-highlight";
+
 function Field({
   field,
   value,
   onChange,
+  highlightFields,
 }: {
   field: ClientFieldDef;
   value: string | boolean;
   onChange: (key: keyof ClientRecord, value: string | boolean) => void;
+  highlightFields?: Set<string>;
 }) {
   const { getOptions } = useReferenceData();
   const base =
     "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20 disabled:bg-slate-50 disabled:text-slate-500";
+  const fieldClass = withDraftHighlight(base, String(field.key), highlightFields);
 
   if (field.readOnly) {
-    return <input className={base} value={String(value || "—")} readOnly disabled />;
+    return <input className={fieldClass} value={String(value || "—")} readOnly disabled />;
   }
 
   if (field.type === "textarea") {
     return (
       <textarea
-        className={`${base} min-h-[80px] resize-y`}
+        className={`${fieldClass} min-h-[80px] resize-y`}
         value={String(value ?? "")}
         onChange={(e) => onChange(field.key, e.target.value)}
       />
@@ -64,7 +69,7 @@ function Field({
       [];
     return (
       <select
-        className={base}
+        className={fieldClass}
         value={String(value ?? "")}
         onChange={(e) => onChange(field.key, e.target.value)}
       >
@@ -80,7 +85,7 @@ function Field({
 
   return (
     <input
-      className={base}
+      className={fieldClass}
       type={field.type}
       value={String(value ?? "")}
       onChange={(e) => onChange(field.key, e.target.value)}
@@ -92,17 +97,19 @@ function FieldGrid({
   fields,
   client,
   onChange,
+  highlightFields,
 }: {
   fields: ClientFieldDef[];
   client: ClientRecord;
   onChange: (key: keyof ClientRecord, value: string | boolean) => void;
+  highlightFields?: Set<string>;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {fields.map((field) => (
         <label key={field.key} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
           <span className="mb-1.5 block text-xs font-medium text-slate-600">{field.label}</span>
-          <Field field={field} value={client[field.key] as string | boolean} onChange={onChange} />
+          <Field field={field} value={client[field.key] as string | boolean} onChange={onChange} highlightFields={highlightFields} />
         </label>
       ))}
     </div>
@@ -180,6 +187,7 @@ export function ClientTabbedView({
   progressReviewCount = 0,
   onChange,
   onLineItemsChange,
+  highlightFields,
 }: {
   client: ClientRecord;
   agreementCount: number;
@@ -188,6 +196,7 @@ export function ClientTabbedView({
   progressReviewCount?: number;
   onChange: (key: keyof ClientRecord, value: string | boolean) => void;
   onLineItemsChange: (key: ClientLineCollectionKey, rows: ClientRecord[ClientLineCollectionKey]) => void;
+  highlightFields?: Set<string>;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -289,7 +298,7 @@ export function ClientTabbedView({
             <p className="mb-4 text-sm text-slate-500">
               Key fields for day-to-day work. Open Full profile for everything else.
             </p>
-            <FieldGrid fields={coreOverviewFields} client={client} onChange={onChange} />
+            <FieldGrid fields={coreOverviewFields} client={client} onChange={onChange} highlightFields={highlightFields} />
           </div>
         ) : null}
 

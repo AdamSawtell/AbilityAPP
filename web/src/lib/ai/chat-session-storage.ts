@@ -1,5 +1,45 @@
 import type { ChatMessage, ChatThreadState } from "@/lib/ai/types";
 
+const NOTICE_PREFIX = "abilityapp-ai-chat-notice";
+
+export type PendingChatNotice = {
+  message: string;
+  at: string;
+};
+
+function noticeKey(userId: string, roleId: string) {
+  return `${NOTICE_PREFIX}:${userId}:${roleId}`;
+}
+
+export function queueChatNotice(userId: string, roleId: string, message: string) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(
+      noticeKey(userId, roleId),
+      JSON.stringify({ message, at: new Date().toISOString() } satisfies PendingChatNotice)
+    );
+    window.dispatchEvent(
+      new CustomEvent("abilityapp-chat-notice", { detail: { userId, roleId } })
+    );
+  } catch {
+    // ignore
+  }
+}
+
+export function consumeChatNotice(userId: string, roleId: string): PendingChatNotice | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(noticeKey(userId, roleId));
+    if (!raw) return null;
+    sessionStorage.removeItem(noticeKey(userId, roleId));
+    const parsed = JSON.parse(raw) as PendingChatNotice;
+    if (!parsed?.message) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 const STORAGE_PREFIX = "abilityapp-ai-chat";
 
 export type PersistedHomeChat = {

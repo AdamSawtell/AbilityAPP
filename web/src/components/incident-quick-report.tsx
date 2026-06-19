@@ -16,6 +16,7 @@ import type { TaskEntityOption } from "@/lib/task-entities";
 import { useTaskEntityIndex } from "@/lib/task-entities";
 import { useData } from "@/lib/data-store";
 import { serviceTypeForIncident } from "@/lib/incident-analytics";
+import { withDraftHighlight } from "@/lib/ai/draft-field-highlight";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -115,9 +116,13 @@ export function IncidentQuickReportWizard({
   initialEmployeeId = "",
   reporterName = "",
   initialRecord,
+  highlightFields,
   onSubmit,
   onCancel,
-}: IncidentQuickReportWizardProps & { initialRecord?: Partial<IncidentRecord> }) {
+}: IncidentQuickReportWizardProps & {
+  initialRecord?: Partial<IncidentRecord>;
+  highlightFields?: Set<string>;
+}) {
   const entityIndex = useTaskEntityIndex();
   const { clients, employees, locations, products } = useData();
   const [step, setStep] = useState<Step>("What happened");
@@ -284,7 +289,7 @@ export function IncidentQuickReportWizard({
         <div className="space-y-4">
           <Field label="Short title">
             <input
-              className={inputClass}
+              className={withDraftHighlight(inputClass, "title", highlightFields)}
               value={record.title}
               onChange={(e) => patch({ title: e.target.value })}
               placeholder="e.g. Participant slip in kitchen"
@@ -293,7 +298,7 @@ export function IncidentQuickReportWizard({
           </Field>
           <Field label="What happened?">
             <textarea
-              className={`${inputClass} min-h-[120px]`}
+              className={`${withDraftHighlight(inputClass, "description", highlightFields)} min-h-[120px]`}
               value={record.description}
               onChange={(e) => patch({ description: e.target.value })}
               placeholder="Describe the incident — what occurred, where, and any immediate concerns."
@@ -314,7 +319,7 @@ export function IncidentQuickReportWizard({
             </Field>
             <Field label="Category">
               <select
-                className={inputClass}
+                className={withDraftHighlight(inputClass, "category", highlightFields)}
                 value={record.category}
                 onChange={(e) => patch({ category: e.target.value })}
               >
@@ -327,7 +332,7 @@ export function IncidentQuickReportWizard({
             </Field>
             <Field label="Severity">
               <select
-                className={inputClass}
+                className={withDraftHighlight(inputClass, "severity", highlightFields)}
                 value={record.severity}
                 onChange={(e) => patch({ severity: e.target.value as IncidentRecord["severity"] })}
               >

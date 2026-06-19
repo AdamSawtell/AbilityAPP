@@ -9,6 +9,7 @@ import { useReferenceData } from "@/lib/config-store";
 import { creatableTaskTypes } from "@/lib/task-type-access";
 import { useTaskTypes } from "@/lib/task-type-store";
 import { type TaskEntityType, type TaskRecord } from "@/lib/task";
+import { withDraftHighlight } from "@/lib/ai/draft-field-highlight";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -32,6 +33,7 @@ type TaskFormProps = {
   showEntityPicker?: boolean;
   submitLabel?: string;
   initialValues?: Partial<TaskFormValues>;
+  highlightFields?: Set<string>;
   onSubmit: (values: TaskFormValues) => void;
   onCancel?: () => void;
 };
@@ -41,6 +43,7 @@ export function TaskForm({
   showEntityPicker = true,
   submitLabel = "Create task",
   initialValues,
+  highlightFields,
   onSubmit,
   onCancel,
 }: TaskFormProps) {
@@ -225,7 +228,7 @@ export function TaskForm({
         <label className="sm:col-span-2">
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Title</span>
           <input
-            className={inputClass}
+            className={withDraftHighlight(inputClass, "title", highlightFields)}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Review this agreement…"
@@ -234,7 +237,7 @@ export function TaskForm({
         <label className="sm:col-span-2">
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Task type</span>
           {availableTypes.length ? (
-            <select className={inputClass} value={effectiveTaskTypeId} onChange={(e) => setTaskTypeId(e.target.value)}>
+            <select className={withDraftHighlight(inputClass, "taskTypeId", highlightFields)} value={effectiveTaskTypeId} onChange={(e) => setTaskTypeId(e.target.value)}>
               {availableTypes.map((type) => (
                 <option key={type.id} value={type.id}>
                   {type.name}
@@ -250,7 +253,7 @@ export function TaskForm({
         <label className="sm:col-span-2">
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Description</span>
           <textarea
-            className={`${inputClass} min-h-[80px] resize-y`}
+            className={`${withDraftHighlight(inputClass, "description", highlightFields)} min-h-[80px] resize-y`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="What needs to happen?"
@@ -259,7 +262,7 @@ export function TaskForm({
         <label>
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Priority</span>
           <select
-            className={inputClass}
+            className={withDraftHighlight(inputClass, "priority", highlightFields)}
             value={priority}
             onChange={(e) => setPriority(e.target.value as TaskRecord["priority"])}
           >
@@ -272,7 +275,7 @@ export function TaskForm({
         </label>
         <label>
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Due date</span>
-          <input type="date" className={inputClass} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+          <input type="date" className={withDraftHighlight(inputClass, "dueDate", highlightFields)} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           <p className="mt-1 text-xs text-slate-500">Optional — you can set or change this anytime on the task.</p>
         </label>
         <div className="sm:col-span-2 rounded-xl border border-slate-200 bg-white p-3">

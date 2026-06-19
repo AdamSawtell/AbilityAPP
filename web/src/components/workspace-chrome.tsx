@@ -14,6 +14,47 @@ import type { Breadcrumb } from "@/components/app-shell";
 import Link from "next/link";
 import { organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
+import { useCallback, useRef } from "react";
+
+function ChatResizeHandle({ onResize }: { onResize: (deltaX: number) => void }) {
+  const dragging = useRef(false);
+  const lastX = useRef(0);
+
+  const onMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!dragging.current) return;
+      const delta = lastX.current - e.clientX;
+      lastX.current = e.clientX;
+      if (delta !== 0) onResize(delta);
+    },
+    [onResize]
+  );
+
+  const onMouseUp = useCallback(() => {
+    dragging.current = false;
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
+  }, [onMouseMove]);
+
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize AI chat panel"
+      className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-col-resize hover:bg-[#d4147a]/20 active:bg-[#d4147a]/30"
+      onMouseDown={(e) => {
+        dragging.current = true;
+        lastX.current = e.clientX;
+        document.body.style.cursor = "col-resize";
+        document.body.style.userSelect = "none";
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      }}
+    />
+  );
+}
 
 /** Workspace layout with persistent right AI chat (used by AppShell). */
 export function WorkspaceChrome({
@@ -35,8 +76,15 @@ export function WorkspaceChrome({
   const orgName = organizationDisplayName(organization);
   const pathname = usePathname();
   const { session } = useAuth();
-  const { collapsed, toggleCollapsed } = useAiChatShell();
+  const { collapsed, panelWidth, toggleCollapsed, setPanelWidth } = useAiChatShell();
   const showChat = Boolean(session) && pathname !== "/login";
+
+  const handleResize = useCallback(
+    (deltaX: number) => {
+      setPanelWidth(panelWidth + deltaX);
+    },
+    [panelWidth, setPanelWidth]
+  );
 
   return (
     <div className="flex min-h-screen bg-[#f4f6f8] text-slate-900">
@@ -108,14 +156,19 @@ export function WorkspaceChrome({
                   type="button"
                   onClick={toggleCollapsed}
                   className="rounded-md px-1 py-2 text-[10px] font-semibold uppercase tracking-wide text-[#b51266] hover:bg-[#fdf2f8]"
-                  title="Expand AI chat"
+                  title="Expand AI chat (Ctrl+\)"
                 >
                   AI
                 </button>
               </div>
             ) : (
-              <div className="flex w-80 shrink-0 flex-col border-l border-slate-200 bg-white">
-                <div className="flex shrink-0 items-center justify-start border-b border-slate-100 px-2 py-1">
+              <div
+                className="relative flex shrink-0 flex-col border-l border-slate-200 bg-white"
+                style={{ width: panelWidth }}
+              >
+                <ChatResizeHandle onResize={handleResize} />
+                <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-2 py-1">
+                  <span className="text-[10px] text-slate-400">Ctrl+\ to hide</span>
                   <button
                     type="button"
                     onClick={toggleCollapsed}

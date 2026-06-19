@@ -12,6 +12,26 @@ function resultList(result: unknown): Record<string, unknown>[] {
   return row.results.filter((r) => r && typeof r === "object") as Record<string, unknown>[];
 }
 
+function statusLabel(raw: unknown): string {
+  const s = String(raw ?? "");
+  return s.replace(/^\d+_/, "").replace(/_/g, " ") || "—";
+}
+
+function enquiryCardTitle(r: Record<string, unknown>): string {
+  const direct = String(r.name ?? "").trim();
+  if (direct) return direct;
+  const full = `${String(r.firstName ?? "").trim()} ${String(r.lastName ?? "").trim()}`.trim();
+  return full || "—";
+}
+
+function cardAttachment(title: string, results: Record<string, unknown>[], mapRow: (r: Record<string, unknown>) => ChatDisplayAttachment["cards"] extends (infer U)[] | undefined ? U : never): ChatDisplayAttachment {
+  return {
+    type: "cards",
+    title,
+    cards: results.slice(0, 6).map(mapRow),
+  };
+}
+
 export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAttachment[] {
   const attachments: ChatDisplayAttachment[] = [];
 
@@ -22,83 +42,78 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
     if (
       entry.name === "client_search" ||
       entry.name === "client_list_recent" ||
-      entry.name === "records_updated_since"
+      (entry.name === "records_updated_since" && results.some((r) => r.entityType === "client" || r.searchKey))
     ) {
-      attachments.push({
-        type: "table",
-        title: entry.name === "client_list_recent" ? "Recently updated clients" : "Results",
-        columns: ["Name", "Status", "Updated"],
-        rows: results.slice(0, 8).map((r) => ({
-          Name: String(r.name ?? r.label ?? "—"),
-          Status: String(r.status ?? r.entityType ?? "—"),
-          Updated: String(r.updatedAt ?? "—"),
-          href: String(r.href ?? ""),
-        })),
-      });
+      const clients = entry.name === "records_updated_since"
+        ? results.filter((r) => String(r.entityType ?? "") === "client" || r.searchKey)
+        : results;
+      if (clients.length) {
+        attachments.push(
+          cardAttachment(
+            entry.name === "client_list_recent" ? "Recently updated clients" : "Clients",
+            clients,
+            (r) => ({
+              title: String(r.name ?? r.label ?? "—"),
+              subtitle: String(r.searchKey ?? r.id ?? ""),
+              meta: String(r.email ?? r.phone ?? ""),
+              badge: statusLabel(r.status),
+              href: String(r.href ?? `/clients/${r.searchKey ?? r.id}`),
+            })
+          )
+        );
+      }
       continue;
     }
 
     if (entry.name === "task_search") {
-      attachments.push({
-        type: "table",
-        title: "Tasks",
-        columns: ["Document", "Title", "Status", "Assignee"],
-        rows: results.slice(0, 8).map((r) => ({
-          Document: String(r.documentNo ?? "—"),
-          Title: String(r.title ?? "—"),
-          Status: String(r.status ?? "—"),
-          Assignee: String(r.assignee ?? "—"),
-          href: String(r.href ?? ""),
-        })),
-      });
+      attachments.push(
+        cardAttachment("Tasks", results, (r) => ({
+          title: String(r.title ?? "—"),
+          subtitle: String(r.documentNo ?? ""),
+          meta: String(r.assignee ?? "—"),
+          badge: String(r.status ?? ""),
+          href: String(r.href ?? `/tasks/${r.id}`),
+        }))
+      );
       continue;
     }
 
     if (entry.name === "incident_search" || entry.name === "incident_list_recent" || entry.name === "incident_linked_search") {
-      attachments.push({
-        type: "table",
-        title: "Incidents",
-        columns: ["Document", "Title", "Status", "NDIS"],
-        rows: results.slice(0, 8).map((r) => ({
-          Document: String(r.documentNo ?? "—"),
-          Title: String(r.title ?? "—"),
-          Status: String(r.status ?? "—"),
-          NDIS: r.isReportable ? String(r.reportableType ?? "Reportable") : "No",
-          href: String(r.href ?? ""),
-        })),
-      });
+      attachments.push(
+        cardAttachment("Incidents", results, (r) => ({
+          title: String(r.title ?? "—"),
+          subtitle: String(r.documentNo ?? ""),
+          meta: r.isReportable ? "NDIS reportable" : "Not reportable",
+          badge: String(r.status ?? r.severity ?? ""),
+          href: String(r.href ?? `/incidents/${r.id}`),
+        }))
+      );
       continue;
     }
 
     if (entry.name === "enquiry_search") {
-      attachments.push({
-        type: "table",
-        title: "Enquiries",
-        columns: ["Document", "Name", "Status"],
-        rows: results.slice(0, 8).map((r) => ({
-          Document: String(r.documentNo ?? "—"),
-          Name: String(r.name ?? "—"),
-          Status: String(r.status ?? "—"),
-          href: String(r.href ?? ""),
-        })),
-      });
+      attachments.push(
+        cardAttachment("Enquiries", results, (r) => ({
+          title: enquiryCardTitle(r),
+          subtitle: String(r.documentNo ?? ""),
+          badge: statusLabel(r.status),
+          href: String(r.href ?? `/enquiries/${r.id}`),
+        }))
+      );
       continue;
     }
 
     if (entry.name === "activity_search") {
-      attachments.push({
-        type: "table",
-        title: "Activity",
-        columns: ["Record", "Subject", "Date"],
-        rows: results.slice(0, 8).map((r) => ({
-          Record: String(r.parentLabel ?? "—"),
-          Subject: String(r.subject ?? r.activityType ?? "—"),
-          Date: String(r.date ?? r.updatedAt ?? "—"),
+      attachments.push(
+        cardAttachment("Activity", results, (r) => ({
+          title: String(r.subject ?? r.activityType ?? "Activity"),
+          subtitle: String(r.parentLabel ?? "—"),
+          meta: String(r.date ?? r.updatedAt ?? ""),
           href: String(r.href ?? ""),
-        })),
-      });
+        }))
+      );
     }
   }
 
-  return attachments;
+  return attachments.filter((a) => a.cards?.length || a.rows?.length);
 }

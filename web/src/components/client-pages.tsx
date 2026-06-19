@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ClientCoreSummary } from "@/components/client-core-summary";
 import { ClientTabbedView } from "@/components/client-view";
@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
+import { draftHighlightKeys } from "@/lib/ai/draft-field-highlight";
 import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { ClientLineCollectionKey } from "@/lib/client-line-tables";
@@ -115,6 +116,11 @@ function ClientDetailViewInner({ id }: { id: string }) {
   const progressReviewCount = supportPlan?.progressReviews?.length ?? 0;
   const tabKey = workspaceKey("client", id);
 
+  const highlightFields = useMemo(() => {
+    if (!aiDraftId || !draftApplied || !draftLoad.payload) return undefined;
+    return draftHighlightKeys(draftLoad.payload, draftLoad.entityType ?? "client_patch");
+  }, [aiDraftId, draftApplied, draftLoad.payload, draftLoad.entityType]);
+
   useEffect(() => {
     if (!stored || !draftLoad.payload || draftApplied || draftLoad.loading) return;
     const p = draftLoad.payload;
@@ -200,12 +206,21 @@ function ClientDetailViewInner({ id }: { id: string }) {
     if (!client) return;
     const normalized = normalizeClient(client);
     upsertClient(normalized);
-    trackAiPrepareSaved({
-      draftId: aiDraftId ?? undefined,
-      entityType: draftLoad.entityType === "client_activity" ? "client_activity" : "client",
-      entityId: normalized.id,
-      entityLabel: normalized.name,
-    });
+    if (session) {
+      const savedLabel =
+        draftLoad.entityType === "client_activity"
+          ? `Logged activity on ${normalized.name}.`
+          : `Saved updates to ${normalized.name}.`;
+      trackAiPrepareSaved({
+        userId: session.userId,
+        roleId: session.activeRoleId,
+        draftId: aiDraftId ?? undefined,
+        entityType: draftLoad.entityType === "client_activity" ? "client_activity" : "client",
+        entityId: normalized.id,
+        entityLabel: normalized.name,
+        chatMessage: aiDraftId ? `${savedLabel} You can continue in chat.` : undefined,
+      });
+    }
     setDraft(null);
     setSaved(true);
   }
@@ -278,6 +293,7 @@ function ClientDetailViewInner({ id }: { id: string }) {
               progressReviewCount={progressReviewCount}
               onChange={onChange}
               onLineItemsChange={onLineItemsChange}
+              highlightFields={highlightFields}
             />
           </Suspense>
         </div>
@@ -296,6 +312,12 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
   const [draft, setDraft] = useState<ClientRecord | null>(null);
   const [loadError, setLoadError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [draftPayload, setDraftPayload] = useState<Record<string, unknown> | null>(null);
+
+  const highlightFields = useMemo(
+    () => (draftPayload ? draftHighlightKeys(draftPayload, "client") : undefined),
+    [draftPayload]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -313,6 +335,7 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
             return;
           }
           const p = data.payload ?? {};
+          setDraftPayload(p as Record<string, unknown>);
           const record = emptyClientRecord(
             {
               firstName: String(p.firstName ?? ""),
@@ -401,12 +424,25 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
     if (!current) return;
     const normalized = normalizeClient(current);
     upsertClient(normalized);
-    trackAiPrepareSaved({
-      draftId: aiDraftId ?? undefined,
-      entityType: "client",
-      entityId: normalized.id,
-      entityLabel: normalized.name,
-    });
+    if (session && aiDraftId) {
+      trackAiPrepareSaved({
+        userId: session.userId,
+        roleId: session.activeRoleId,
+        draftId: aiDraftId,
+        entityType: "client",
+        entityId: normalized.id,
+        entityLabel: normalized.name,
+        chatMessage: `Created client ${normalized.name}. You can continue in chat.`,
+      });
+    } else if (session) {
+      trackAiPrepareSaved({
+        userId: session.userId,
+        roleId: session.activeRoleId,
+        entityType: "client",
+        entityId: normalized.id,
+        entityLabel: normalized.name,
+      });
+    }
     setSaved(true);
     router.push(`/clients/${normalized.id}`);
   }
@@ -448,6 +484,7 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
               progressReviewCount={0}
               onChange={onChange}
               onLineItemsChange={onLineItemsChange}
+              highlightFields={highlightFields}
             />
           </Suspense>
         </div>

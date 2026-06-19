@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EnquiryForm } from "@/components/enquiry-form";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
+import { draftHighlightKeys } from "@/lib/ai/draft-field-highlight";
 import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { emptyEnquiry, formSections, type EnquiryRecord } from "@/lib/enquiry";
 
@@ -21,6 +22,11 @@ function NewEnquiryPageInner() {
   const [record, setRecord] = useState<EnquiryRecord>(emptyEnquiry());
   const [error, setError] = useState("");
   const [appliedDraft, setAppliedDraft] = useState(false);
+
+  const highlightFields = useMemo(
+    () => (draftLoad.payload ? draftHighlightKeys(draftLoad.payload, "enquiry") : undefined),
+    [draftLoad.payload]
+  );
 
   useEffect(() => {
     if (!draftLoad.payload || appliedDraft || draftLoad.loading) return;
@@ -58,10 +64,15 @@ function NewEnquiryPageInner() {
       updatedBy: session?.displayName ?? record.updatedBy,
     });
     trackAiPrepareSaved({
+      userId: session?.userId ?? "",
+      roleId: session?.activeRoleId ?? "",
       draftId: aiDraftId ?? undefined,
       entityType: "enquiry",
       entityId: created.id,
       entityLabel: `${created.documentNo} — ${created.firstName} ${created.lastName}`,
+      chatMessage: aiDraftId
+        ? `Created enquiry ${created.documentNo}. You can continue in chat.`
+        : undefined,
     });
     router.push(`/enquiries/${created.id}`);
   }
@@ -111,7 +122,7 @@ function NewEnquiryPageInner() {
         <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>
       ) : null}
       {draftLoad.loading ? <p className="text-sm text-slate-500">Loading draft…</p> : null}
-      <EnquiryForm record={record} sections={formSections} onChange={onChange} />
+      <EnquiryForm record={record} sections={formSections} onChange={onChange} highlightFields={highlightFields} />
     </AppShell>
   );
 }

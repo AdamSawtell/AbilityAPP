@@ -2,41 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
 import {
   clearHomeChatSession,
+  consumeChatNotice,
   loadHomeChatSession,
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
+import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
 
 type AgentSummary = {
   id: string;
   agentKey: string;
   name: string;
   description: string;
-};
-
-const DEFAULT_SUGGESTIONS = [
-  "Find Bernadette Rose",
-  "Show recent client activity",
-  "Prepare a new client",
-];
-
-const AGENT_SUGGESTIONS: Record<string, string[]> = {
-  "agent-support-worker": [
-    "Who did I support this week?",
-    "Look up Bernie's profile",
-    "Prepare a new client named Alex Smith",
-  ],
-  "agent-clients": [
-    "Who was updated most recently?",
-    "Prepare a new client",
-    "Show me Bernie's recent activity",
-  ],
 };
 
 type UiMessage = ChatMessage & { attachments?: ChatDisplayAttachment[] };
@@ -62,6 +45,7 @@ function MessageBubble({ message }: { message: UiMessage }) {
 
 export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const { session, canAgent } = useAuth();
+  const { clients, enquiries, tasks, incidents } = useData();
   const pathname = usePathname();
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
@@ -78,11 +62,30 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesRef = useRef<UiMessage[]>([]);
   const threadStateRef = useRef(threadState);
+  const lastPathRef = useRef("");
+
+  const pageCtx = useMemo(
+    () => resolvePageChatContext(pathname, { clients, enquiries, tasks, incidents }),
+    [pathname, clients, enquiries, tasks, incidents]
+  );
 
   useEffect(() => {
     threadStateRef.current = threadState;
     messagesRef.current = messages;
   }, [threadState, messages]);
+
+  const appendNoticeIfAny = useCallback(() => {
+    if (!session) return;
+    const notice = consumeChatNotice(session.userId, session.activeRoleId);
+    if (!notice) return;
+    const assistantMsg: UiMessage = { role: "assistant", content: notice.message };
+    setMessages((prev) => {
+      const next = [...prev, assistantMsg];
+      messagesRef.current = next;
+      return next;
+    });
+    setLastWrite(undefined);
+  }, [session]);
 
   useEffect(() => {
     if (!session) {
@@ -113,6 +116,23 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   }, [session, hydrated, agentId, messages, threadState]);
 
   useEffect(() => {
+    if (!hydrated) return;
+    appendNoticeIfAny();
+  }, [hydrated, pathname, appendNoticeIfAny]);
+
+  useEffect(() => {
+    if (!session) return;
+    const onNotice = (event: Event) => {
+      const detail = (event as CustomEvent<{ userId: string; roleId: string }>).detail;
+      if (detail?.userId === session.userId && detail?.roleId === session.activeRoleId) {
+        appendNoticeIfAny();
+      }
+    };
+    window.addEventListener("abilityapp-chat-notice", onNotice);
+    return () => window.removeEventListener("abilityapp-chat-notice", onNotice);
+  }, [session, appendNoticeIfAny]);
+
+  useEffect(() => {
     if (!session) return;
     let cancelled = false;
     startTransition(() => setAgentsLoading(true));
@@ -139,6 +159,16 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
     };
   }, [session]);
 
+  useEffect(() => {
+    if (!hydrated || !pageCtx.preferredAgentId) return;
+    const moduleChanged = lastPathRef.current.split("/")[1] !== pathname.split("/")[1];
+    lastPathRef.current = pathname;
+    if (messages.length > 0 && !moduleChanged) return;
+    if (canAgent(pageCtx.preferredAgentId)) {
+      setAgentId(pageCtx.preferredAgentId);
+    }
+  }, [pathname, hydrated, pageCtx.preferredAgentId, canAgent, messages.length]);
+
   const focusComposer = useCallback(() => {
     inputRef.current?.focus({ preventScroll: true });
   }, []);
@@ -153,7 +183,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   }, [hydrated, configured, agentsLoading, focusComposer]);
 
   const activeAgent = useMemo(() => agents.find((a) => a.id === agentId), [agents, agentId]);
-  const suggestions = useMemo(() => AGENT_SUGGESTIONS[agentId] ?? DEFAULT_SUGGESTIONS, [agentId]);
+  const suggestions = pageCtx.suggestions;
   const showAgentPicker = agents.filter((a) => canAgent(a.id)).length > 1;
 
   const sendMessage = useCallback(
@@ -268,6 +298,12 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         ) : null}
       </div>
 
+      <div className="shrink-0 border-b border-slate-100 bg-slate-50 px-3 py-2">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Viewing</p>
+        <p className="truncate text-xs font-medium text-slate-800">{pageCtx.viewingLabel}</p>
+        <p className="mt-1 text-[10px] text-slate-500">{pageCtx.capabilities.join(" · ")}</p>
+      </div>
+
       {!configured ? (
         <div className="border-b border-amber-100 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           Set <code className="rounded bg-amber-100 px-1">OPENAI_API_KEY</code> to enable chat.
@@ -275,10 +311,14 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
       ) : null}
 
       {prepareLink ? (
-        <div className="border-b border-sky-100 bg-sky-50 px-3 py-2 text-xs text-sky-900">
-          Ready to review:{" "}
-          <Link href={lastWrite!.href!} className="font-medium underline">
-            {lastWrite!.label}
+        <div className="border-b border-sky-100 bg-sky-50 px-3 py-2.5">
+          <p className="text-xs font-medium text-sky-950">Ready for you to review</p>
+          <p className="mt-0.5 truncate text-xs text-sky-800">{lastWrite!.label}</p>
+          <Link
+            href={lastWrite!.href!}
+            className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#b51266]"
+          >
+            Open form
           </Link>
         </div>
       ) : null}
@@ -293,7 +333,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
           <p className="py-6 text-center text-xs text-slate-500">Loading…</p>
         ) : !messages.length ? (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-slate-600">Try:</p>
+            <p className="text-xs font-medium text-slate-600">Try on this page:</p>
             {suggestions.map((suggestion) => (
               <button
                 key={suggestion}
@@ -320,6 +360,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
       {error ? <p className="shrink-0 border-t border-red-100 bg-red-50 px-3 py-1.5 text-xs text-red-700">{error}</p> : null}
 
       <div className="shrink-0 border-t border-slate-200 bg-white p-2">
+        <p className="mb-1.5 text-[10px] text-slate-400">Assistants prepare records — you save them.</p>
         <div className="flex items-end gap-2">
           <textarea
             ref={inputRef}

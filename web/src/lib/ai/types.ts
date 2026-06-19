@@ -159,10 +159,17 @@ export type AiWriteResult = {
 };
 
 export type ChatDisplayAttachment = {
-  type: "table";
+  type: "table" | "cards";
   title: string;
   columns?: string[];
   rows?: Record<string, string>[];
+  cards?: {
+    title: string;
+    subtitle?: string;
+    meta?: string;
+    badge?: string;
+    href: string;
+  }[];
 };
 
 export type ChatRequestBody = {

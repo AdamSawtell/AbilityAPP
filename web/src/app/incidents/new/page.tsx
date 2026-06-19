@@ -8,6 +8,7 @@ import { IncidentQuickReportWizard } from "@/components/incident-quick-report";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
+import { draftHighlightKeys } from "@/lib/ai/draft-field-highlight";
 import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { emptyIncident, type IncidentRecord } from "@/lib/incident";
 
@@ -42,13 +43,23 @@ function NewIncidentPageInner() {
     };
   }, [draftLoad.payload]);
 
+  const highlightFields = useMemo(
+    () => (draftLoad.payload ? draftHighlightKeys(draftLoad.payload, "incident") : undefined),
+    [draftLoad.payload]
+  );
+
   function onSubmit(record: IncidentRecord) {
     const created = addIncident(record);
     trackAiPrepareSaved({
+      userId: session?.userId ?? "",
+      roleId: session?.activeRoleId ?? "",
       draftId: aiDraftId ?? undefined,
       entityType: "incident",
       entityId: created.id,
       entityLabel: `${created.documentNo} — ${created.title}`,
+      chatMessage: aiDraftId
+        ? `Submitted incident ${created.documentNo}. You can continue in chat.`
+        : undefined,
     });
     router.push(`/incidents/${created.id}?submitted=1`);
   }
@@ -95,6 +106,7 @@ function NewIncidentPageInner() {
           initialEmployeeId={reporterEmployeeId}
           reporterName={session?.displayName ?? ""}
           initialRecord={initialRecord}
+          highlightFields={highlightFields}
           onSubmit={(record) => onSubmit(record)}
         />
       </div>
