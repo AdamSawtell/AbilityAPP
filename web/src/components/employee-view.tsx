@@ -18,6 +18,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useReferenceData } from "@/lib/config-store";
 import type { AppUserRecord } from "@/lib/access/types";
+import { RecordPhotoPanel } from "@/components/record-photo-panel";
 import {
   managerName,
   mergedEmployeeAlerts,
@@ -346,6 +347,11 @@ export function EmployeeTabbedView({
 
         {activeTab === "Contact" && canWindow("employee-contact") ? (
           <div className="space-y-4">
+            <RecordPhotoPanel
+              pictureUrl={employee.pictureUrl}
+              onChange={(url) => onChange("pictureUrl", url)}
+              description="Profile photo for rosters, org chart, and staff directories."
+            />
             <FieldSection
               getOptions={getOptions}
               title="Contact"

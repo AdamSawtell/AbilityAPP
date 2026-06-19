@@ -47,13 +47,12 @@ export type FormSection = {
   fields: FieldDef[];
 };
 
-export const enquiryTabs = ["Enquiry details", "Participant", "Support needs", "Activity"] as const;
+export const enquiryTabs = ["Enquiry details", "Activity", "Participant", "Support needs"] as const;
 
 export type EnquiryTab = (typeof enquiryTabs)[number];
 
 export const enquiryTabGroups: { label: string; tabs: EnquiryTab[] }[] = [
-  { label: "Record", tabs: ["Enquiry details", "Participant", "Support needs"] },
-  { label: "Work", tabs: ["Activity"] },
+  { label: "Record", tabs: ["Enquiry details", "Activity", "Participant", "Support needs"] },
 ];
 
 export const enquiryModel = model;

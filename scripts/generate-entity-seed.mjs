@@ -167,7 +167,7 @@ addInsert(
     "living_arrangement", "sales_representative", "services", "funding_body", "funding_body_number",
     "transitioned_to_pace", "date_support_commencement", "date_support_ceased",
     "aboriginal_torres_strait_islander", "cultural_affiliation", "disability",
-    "additional_disability_information", "created_by", "updated_by",
+    "additional_disability_information", "picture_url", "created_by", "updated_by",
   ],
   initialClients.map((c) => {
     const v = [
@@ -181,7 +181,7 @@ addInsert(
       sqlString(c.fundingBodyNumber), sqlDate(c.transitionedToPace), sqlDate(c.dateSupportCommencement),
       sqlDate(c.dateSupportCeased), sqlString(c.aboriginalTorresStraitIslander),
       sqlString(c.culturalAffiliation), sqlString(c.disability),
-      sqlString(c.additionalDisabilityInformation), sqlString(c.createdBy), sqlString(c.updatedBy),
+      sqlString(c.additionalDisabilityInformation), sqlString(c.pictureUrl ?? ""), sqlString(c.createdBy), sqlString(c.updatedBy),
     ];
     return `  (${v.join(", ")})`;
   }),

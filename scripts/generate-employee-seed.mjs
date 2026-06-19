@@ -39,7 +39,7 @@ const lines = [
   "  site_branch, cost_centre, gender, birthday, employee_number, reports_to_id,",
   "  driver_licence_class, driver_licence_expiry, visa_subclass, visa_expiry, work_rights_notes,",
   "  bank_name, bank_bsb, bank_account_number, pay_method, tfn, tax_declaration, super_fund, super_member_number,",
-  "  standard_hours_per_week, fte, leave_policy, medical_restrictions_notes, notes, created_by, updated_by",
+  "  standard_hours_per_week, fte, leave_policy, medical_restrictions_notes, notes, picture_url, created_by, updated_by",
   ")",
   "values",
 ];
@@ -48,14 +48,14 @@ lines.push(
   initialEmployees
     .map(
       (e) =>
-        `  (${sqlString(e.id)}, ${sqlString(e.searchKey)}, ${sqlString(e.businessPartnerGroup)}, ${sqlString(e.name)}, ${sqlString(e.firstName)}, ${sqlString(e.lastName)}, ${sqlString(e.preferredName)}, ${sqlString(e.middleName)}, ${sqlString(e.email)}, ${sqlString(e.phone)}, ${sqlString(e.mobile)}, ${sqlString(e.jobTitle)}, ${sqlString(e.department)}, ${sqlString(e.employmentStatus)}, ${sqlString(e.employmentType)}, ${sqlDate(e.startDate)}, ${sqlDate(e.endDate)}, ${sqlDate(e.probationEndDate)}, ${sqlDate(e.confirmationDate)}, ${sqlNum(e.noticeDays)}, ${sqlString(e.siteBranch)}, ${sqlString(e.costCentre)}, ${sqlString(e.gender)}, ${sqlDate(e.birthday)}, ${sqlString(e.employeeNumber)}, ${e.reportsToId ? sqlString(e.reportsToId) : "null"}, ${sqlString(e.driverLicenceClass)}, ${sqlDate(e.driverLicenceExpiry)}, ${sqlString(e.visaSubclass)}, ${sqlDate(e.visaExpiry)}, ${sqlString(e.workRightsNotes)}, ${sqlString(e.bankName)}, ${sqlString(e.bankBsb)}, ${sqlString(e.bankAccountNumber)}, ${sqlString(e.payMethod)}, ${sqlString(e.tfn)}, ${sqlString(e.taxDeclaration)}, ${sqlString(e.superFund)}, ${sqlString(e.superMemberNumber)}, ${sqlNum(e.standardHoursPerWeek)}, ${sqlNum(e.fte)}, ${sqlString(e.leavePolicy)}, ${sqlString(e.medicalRestrictionsNotes)}, ${sqlString(e.notes)}, ${sqlString(e.createdBy)}, ${sqlString(e.updatedBy)})`
+        `  (${sqlString(e.id)}, ${sqlString(e.searchKey)}, ${sqlString(e.businessPartnerGroup)}, ${sqlString(e.name)}, ${sqlString(e.firstName)}, ${sqlString(e.lastName)}, ${sqlString(e.preferredName)}, ${sqlString(e.middleName)}, ${sqlString(e.email)}, ${sqlString(e.phone)}, ${sqlString(e.mobile)}, ${sqlString(e.jobTitle)}, ${sqlString(e.department)}, ${sqlString(e.employmentStatus)}, ${sqlString(e.employmentType)}, ${sqlDate(e.startDate)}, ${sqlDate(e.endDate)}, ${sqlDate(e.probationEndDate)}, ${sqlDate(e.confirmationDate)}, ${sqlNum(e.noticeDays)}, ${sqlString(e.siteBranch)}, ${sqlString(e.costCentre)}, ${sqlString(e.gender)}, ${sqlDate(e.birthday)}, ${sqlString(e.employeeNumber)}, ${e.reportsToId ? sqlString(e.reportsToId) : "null"}, ${sqlString(e.driverLicenceClass)}, ${sqlDate(e.driverLicenceExpiry)}, ${sqlString(e.visaSubclass)}, ${sqlDate(e.visaExpiry)}, ${sqlString(e.workRightsNotes)}, ${sqlString(e.bankName)}, ${sqlString(e.bankBsb)}, ${sqlString(e.bankAccountNumber)}, ${sqlString(e.payMethod)}, ${sqlString(e.tfn)}, ${sqlString(e.taxDeclaration)}, ${sqlString(e.superFund)}, ${sqlString(e.superMemberNumber)}, ${sqlNum(e.standardHoursPerWeek)}, ${sqlNum(e.fte)}, ${sqlString(e.leavePolicy)}, ${sqlString(e.medicalRestrictionsNotes)}, ${sqlString(e.notes)}, ${sqlString(e.pictureUrl ?? "")}, ${sqlString(e.createdBy)}, ${sqlString(e.updatedBy)})`
     )
     .join(",\n")
 );
 
 lines.push("on conflict (id) do update set");
 lines.push(
-  "  search_key = excluded.search_key, name = excluded.name, employment_type = excluded.employment_type, reports_to_id = excluded.reports_to_id, employment_status = excluded.employment_status, updated_by = excluded.updated_by;"
+  "  search_key = excluded.search_key, name = excluded.name, employment_type = excluded.employment_type, reports_to_id = excluded.reports_to_id, employment_status = excluded.employment_status, picture_url = excluded.picture_url, updated_by = excluded.updated_by;"
 );
 lines.push("");
 

@@ -87,13 +87,13 @@ export type LocationRecord = {
 
 export const locationTabs = [
   "Overview",
+  "Activity",
   "Contact & address",
   "Alerts",
   "Clients",
   "Employees",
   "Incidents",
   "Products & services",
-  "Activity",
 ] as const;
 
 export type LocationTab = (typeof locationTabs)[number];
@@ -104,10 +104,9 @@ export type LocationTabGroup = {
 };
 
 export const locationTabGroups: LocationTabGroup[] = [
-  { label: "Location", tabs: ["Overview", "Contact & address"] },
-  { label: "Relationships", tabs: ["Alerts", "Clients", "Employees", "Incidents"] },
+  { label: "Core", tabs: ["Overview", "Activity", "Alerts", "Contact & address"] },
+  { label: "Relationships", tabs: ["Clients", "Employees", "Incidents"] },
   { label: "Services", tabs: ["Products & services"] },
-  { label: "History", tabs: ["Activity"] },
 ];
 
 export const locationTypeOptions = defaultReferenceData.locationType;

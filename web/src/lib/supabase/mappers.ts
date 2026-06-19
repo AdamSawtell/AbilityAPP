@@ -206,6 +206,7 @@ export type ClientRow = {
   cultural_affiliation: string;
   disability: string;
   additional_disability_information: string;
+  picture_url: string;
   created_by: string;
   updated_by: string;
 };
@@ -380,6 +381,7 @@ export function clientFromRow(
     culturalAffiliation: row.cultural_affiliation,
     disability: row.disability,
     additionalDisabilityInformation: row.additional_disability_information,
+    pictureUrl: row.picture_url ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     alerts: alerts.map((a) => ({
@@ -526,6 +528,7 @@ export function clientToRow(record: ClientRecord): ClientRow {
     cultural_affiliation: record.culturalAffiliation,
     disability: record.disability,
     additional_disability_information: record.additionalDisabilityInformation,
+    picture_url: record.pictureUrl ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };
@@ -1336,6 +1339,7 @@ export type EmployeeRow = {
   leave_policy: string;
   medical_restrictions_notes: string;
   notes: string;
+  picture_url: string;
   created_by: string;
   updated_by: string;
 };
@@ -1721,6 +1725,7 @@ export function employeeFromRow(row: EmployeeRow, children: EmployeeChildRows = 
     leavePolicy: row.leave_policy ?? "",
     medicalRestrictionsNotes: row.medical_restrictions_notes ?? "",
     notes: row.notes,
+    pictureUrl: row.picture_url ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     credentials: (children.credentials ?? []).map(employeeCredentialFromRow),
@@ -1784,6 +1789,7 @@ export function employeeToRow(record: EmployeeRecord): EmployeeRow {
     leave_policy: record.leavePolicy,
     medical_restrictions_notes: record.medicalRestrictionsNotes,
     notes: record.notes,
+    picture_url: record.pictureUrl ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

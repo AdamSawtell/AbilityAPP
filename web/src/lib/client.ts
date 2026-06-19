@@ -59,6 +59,7 @@ export type ClientRecord = {
   culturalAffiliation: string;
   disability: string;
   additionalDisabilityInformation: string;
+  pictureUrl?: string;
   createdBy: string;
   updatedBy: string;
   alerts: ClientAlert[];
@@ -461,6 +462,7 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
   const riskAlerts = buildRiskAlertsSummary(risks) || client.riskAlerts;
   return {
     ...client,
+    pictureUrl: client.pictureUrl ?? "",
     alerts,
     activity,
     locations,
@@ -542,6 +544,7 @@ export function emptyClientRecord(
     culturalAffiliation: "",
     disability: partial.disability?.trim() ?? "",
     additionalDisabilityInformation: "",
+    pictureUrl: "",
     createdBy,
     updatedBy: createdBy,
     alerts: [],

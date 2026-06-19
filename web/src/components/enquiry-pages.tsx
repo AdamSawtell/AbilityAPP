@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
+import { EnquiryCoreSummary } from "@/components/enquiry-core-summary";
 import { EnquiryTabbedView } from "@/components/enquiry-view";
 import { ClientRecordLink } from "@/components/record-link";
-import { StatusBadge } from "@/components/status-badge";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useConvertEnquiry, useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
@@ -146,34 +146,21 @@ export function EnquiryDetailView({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? record),
         }}
       >
-        <div className="mb-4 flex flex-wrap items-center gap-3">
-          <StatusBadge status={record.status} />
-          {saved && !hasUnsavedChanges ? <span className="text-sm text-emerald-700">Saved</span> : null}
-          {linkedClient ? (
-            <span className="text-sm text-slate-600">
-              Linked client:{" "}
-              <ClientRecordLink
-                id={linkedClient.id}
-                searchKey={linkedClient.searchKey}
-                name={linkedClient.name}
-                className="text-[#b51266] hover:underline"
-              >
-                {linkedClient.searchKey} — {linkedClient.name}
-              </ClientRecordLink>
-            </span>
-          ) : null}
-        </div>
+        <EnquiryCoreSummary
+          record={record}
+          participantName={participantName}
+          linkedClient={linkedClient}
+          saved={saved && !hasUnsavedChanges}
+        />
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <Suspense fallback={<EnquiryTabbedViewFallback />}>
-            <EnquiryTabbedView
-              record={record}
-              participantName={participantName}
-              onChange={onChange}
-              onActivityChange={onActivityChange}
-            />
-          </Suspense>
-        </div>
+        <Suspense fallback={<EnquiryTabbedViewFallback />}>
+          <EnquiryTabbedView
+            record={record}
+            participantName={participantName}
+            onChange={onChange}
+            onActivityChange={onActivityChange}
+          />
+        </Suspense>
       </AppShell>
 
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />

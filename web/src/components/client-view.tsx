@@ -27,6 +27,7 @@ import {
 } from "@/lib/client-line-tables";
 import { useReferenceData } from "@/lib/config-store";
 import { type ClientFieldDef, type ClientRecord } from "@/lib/client";
+import { RecordPhotoPanel } from "@/components/record-photo-panel";
 import { clientDropdowns, clientTabGroups, coreOverviewFields, profileSections } from "@/lib/client";
 
 import { withDraftHighlight } from "@/lib/ai/draft-field-highlight";
@@ -152,6 +153,11 @@ function ClientFullProfileForm({
 }) {
   return (
     <div className="space-y-6">
+      <RecordPhotoPanel
+        pictureUrl={client.pictureUrl}
+        onChange={(url) => onChange("pictureUrl", url)}
+        description="Profile photo for rosters, handover, and participant recognition."
+      />
       {profileSections.map((section) => (
         <section key={section.title} className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">{section.title}</h3>

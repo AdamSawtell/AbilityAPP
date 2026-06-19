@@ -9,7 +9,7 @@ import { allowedDetailTabsFromGroups } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
-import type { ClientRecord } from "@/lib/client";
+import { RecordPhotoPanel } from "@/components/record-photo-panel";
 import {
   locationActivityTableConfig,
   locationAlertTableConfig,
@@ -158,70 +158,6 @@ function FieldGrid({
   );
 }
 
-function LocationPhoto({ location, onChange }: { location: LocationRecord; onChange: (key: keyof LocationRecord, value: string) => void }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">Photo</h3>
-      <p className="mt-1 text-sm text-slate-500">Site image for rosters, bookings, and staff orientation.</p>
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
-        {location.pictureUrl?.trim() ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={location.pictureUrl}
-            alt=""
-            className="h-36 w-full max-w-xs rounded-xl object-cover ring-1 ring-slate-200"
-          />
-        ) : (
-          <div className="flex h-36 w-full max-w-xs items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-400">
-            No photo yet
-          </div>
-        )}
-        <label className="min-w-0 flex-1">
-          <span className="mb-1.5 block text-xs font-medium text-slate-600">Photo URL</span>
-          <input
-            className={inputClass}
-            value={location.pictureUrl}
-            placeholder="https://…"
-            onChange={(e) => onChange("pictureUrl", e.target.value)}
-          />
-        </label>
-      </div>
-    </div>
-  );
-}
-
-function LinkedClientsSummary({
-  location,
-  clients,
-}: {
-  location: LocationRecord;
-  clients: ClientRecord[];
-}) {
-  if (!location.clientLinks.length) return null;
-  return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Linked clients</p>
-      <ul className="mt-2 space-y-1 text-sm">
-        {location.clientLinks.map((link) => {
-          const client = clients.find((c) => c.id === link.clientId);
-          if (!client) return null;
-          return (
-            <li key={link.id}>
-              <ClientRecordLink
-                id={client.id}
-                searchKey={client.searchKey}
-                name={client.name}
-                className="text-[#b51266] hover:underline"
-              />
-              <span className="text-slate-500"> · {link.assignmentRole}</span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
 function tabCount(location: LocationRecord, tab: string): number | null {
   if (tab === "Alerts") return location.alerts.length;
   if (tab === "Clients") return location.clientLinks.length;
@@ -327,7 +263,7 @@ export function LocationTabbedView({
                       onClick={() => setActiveTab(tab)}
                       className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
                         active
-                          ? "bg-white font-medium text-teal-900 shadow-sm ring-1 ring-teal-200"
+                          ? "bg-white font-medium text-[#b51266] shadow-sm ring-1 ring-[#f9a8d4]/60"
                           : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                       }`}
                     >
@@ -354,7 +290,7 @@ export function LocationTabbedView({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
-                activeTab === tab ? "bg-teal-100 text-teal-900" : "bg-slate-100 text-slate-600"
+                activeTab === tab ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
               }`}
             >
               {tab}
@@ -363,25 +299,28 @@ export function LocationTabbedView({
         </div>
 
         {activeTab === "Overview" && canWindow("location-overview") ? (
-          <div className="space-y-4">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-semibold text-slate-900">Overview</h3>
-              <p className="mt-1 text-sm text-slate-500">Core site details for this support location.</p>
-              <div className="mt-4">
-                <FieldGrid keys={locationOverviewFields} location={location} onChange={onChange} getOptions={getOptions} />
-              </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-slate-900">Overview</h3>
+            <p className="mt-1 text-sm text-slate-500">Core site details for this support location.</p>
+            <div className="mt-4">
+              <FieldGrid keys={locationOverviewFields} location={location} onChange={onChange} getOptions={getOptions} />
             </div>
-            <LocationPhoto location={location} onChange={onChange} />
-            <LinkedClientsSummary location={location} clients={clients} />
           </div>
         ) : null}
 
         {activeTab === "Contact & address" && canWindow("location-contact-and-address") ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-900">Contact & address</h3>
-            <p className="mt-1 text-sm text-slate-500">Where the site is and how to reach on-site staff.</p>
-            <div className="mt-4">
-              <FieldGrid keys={locationContactFields} location={location} onChange={onChange} getOptions={getOptions} />
+          <div className="space-y-4">
+            <RecordPhotoPanel
+              pictureUrl={location.pictureUrl}
+              onChange={(url) => onChange("pictureUrl", url)}
+              description="Site image for rosters, bookings, and staff orientation."
+            />
+            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-900">Contact & address</h3>
+              <p className="mt-1 text-sm text-slate-500">Where the site is and how to reach on-site staff.</p>
+              <div className="mt-4">
+                <FieldGrid keys={locationContactFields} location={location} onChange={onChange} getOptions={getOptions} />
+              </div>
             </div>
           </div>
         ) : null}
@@ -542,12 +481,20 @@ export function LocationTabbedView({
         ) : null}
 
         {activeTab === "Activity" && canWindow("location-activity") ? (
-          <LineItemTable
-            config={locationActivityTableConfig}
-            rows={location.activities}
-            onChange={onActivitiesChange}
-            dropdowns={referenceDropdowns}
-          />
+          <div className="space-y-4">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+              <h3 className="text-sm font-semibold text-slate-900">Activity</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                Log visits, maintenance, and operational notes for this location.
+              </p>
+            </div>
+            <LineItemTable
+              config={locationActivityTableConfig}
+              rows={location.activities}
+              onChange={onActivitiesChange}
+              dropdowns={referenceDropdowns}
+            />
+          </div>
         ) : null}
 
         {allowedTabs.length === 0 ? (

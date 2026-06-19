@@ -193,6 +193,7 @@ export type EmployeeRecord = {
   leavePolicy: string;
   medicalRestrictionsNotes: string;
   notes: string;
+  pictureUrl?: string;
   createdBy: string;
   updatedBy: string;
   credentials: EmployeeCredentialRow[];
@@ -214,7 +215,18 @@ export type EmployeeTabGroup = {
 export const employeeTabGroups: EmployeeTabGroup[] = [
   {
     label: "Employee",
-    tabs: ["Overview", "Contact", "Address", "Emergency contacts", "Employment", "Work rights", "Payroll", "Leave", "Incidents"],
+    tabs: [
+      "Overview",
+      "Activity",
+      "Contact",
+      "Address",
+      "Emergency contacts",
+      "Employment",
+      "Work rights",
+      "Payroll",
+      "Leave",
+      "Incidents",
+    ],
   },
   {
     label: "Compliance",
@@ -222,7 +234,7 @@ export const employeeTabGroups: EmployeeTabGroup[] = [
   },
   {
     label: "HR file",
-    tabs: ["Documents", "Activity", "Skills & languages"],
+    tabs: ["Documents", "Skills & languages"],
   },
   {
     label: "Organisation",
@@ -352,6 +364,7 @@ export const initialEmployees: EmployeeRecord[] = [
     leavePolicy: "Standard award — 4 weeks annual",
     medicalRestrictionsNotes: "",
     notes: "",
+    pictureUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=320&h=320&fit=crop",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
     locations: [
@@ -935,6 +948,7 @@ export function normalizeEmployee(record: EmployeeRecord): EmployeeRecord {
   return {
     ...record,
     name,
+    pictureUrl: record.pictureUrl ?? "",
     businessPartnerGroup: record.businessPartnerGroup || "Employee",
     credentials: syncCredentialStatuses(renumber(record.credentials ?? [])),
     locations: renumber(record.locations ?? []),

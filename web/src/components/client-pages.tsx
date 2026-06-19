@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ClientCoreSummary } from "@/components/client-core-summary";
+import { ClientList } from "@/components/client-list";
 import { ClientTabbedView } from "@/components/client-view";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
@@ -22,68 +23,9 @@ function ClientTabbedViewFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
 }
 
-function ClientStatusBadge({ status }: { status: string }) {
-  const label = status.replace(/^\d+_/, "").replace(/_/g, " ");
-  return (
-    <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200 ring-inset">
-      {label}
-    </span>
-  );
-}
-
 export function ClientListView() {
   const { clients } = useData();
-
-  return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <p className="border-b border-slate-100 bg-slate-50 px-4 py-2.5 text-xs text-slate-500">
-        Click a client to open them in the workspace. You can keep several open at once.
-      </p>
-      <table className="min-w-full text-left text-sm">
-        <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-          <tr>
-            <th className="px-4 py-3">Search key</th>
-            <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Funding body</th>
-            <th className="px-4 py-3">Disability</th>
-            <th className="px-4 py-3">Enquiry</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {clients.map((c) => (
-            <tr key={c.id} className="hover:bg-[#fdf2f8]/40">
-              <td className="px-4 py-3 font-medium">
-                <ClientRecordLink
-                  id={c.id}
-                  searchKey={c.searchKey}
-                  name={c.name}
-                  className="text-[#b51266] hover:underline"
-                />
-              </td>
-              <td className="px-4 py-3">{c.name}</td>
-              <td className="px-4 py-3">
-                <ClientStatusBadge status={c.status} />
-              </td>
-              <td className="max-w-[200px] truncate px-4 py-3 text-slate-600">{c.fundingBody}</td>
-              <td className="max-w-[180px] truncate px-4 py-3 text-slate-600">{c.disability}</td>
-              <td className="px-4 py-3">
-                {c.enquiryId ? (
-                  <EnquiryRecordLink
-                    id={c.enquiryId}
-                    documentNo={c.enquiryId}
-                    className="text-slate-600 hover:underline"
-                  />
-                ) : (
-                  "—"
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  return <ClientList records={clients} />;
 }
 
 export function ClientDetailView({ id }: { id: string }) {

@@ -72,6 +72,7 @@ export default function NewEmployeePage() {
     leavePolicy: "",
     medicalRestrictionsNotes: "",
     notes: "",
+    pictureUrl: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
     ...emptyCollections,

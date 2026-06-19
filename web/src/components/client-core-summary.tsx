@@ -34,9 +34,18 @@ export function ClientCoreSummary({ client, saved }: { client: ClientRecord; sav
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-slate-50 shadow-sm">
         <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-lg font-bold text-white shadow-md">
-              {initials(client.name) || "?"}
-            </span>
+            {client.pictureUrl?.trim() ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={client.pictureUrl}
+                alt=""
+                className="h-14 w-14 shrink-0 rounded-2xl object-cover shadow-md ring-1 ring-slate-200"
+              />
+            ) : (
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-lg font-bold text-white shadow-md">
+                {initials(client.name) || "?"}
+              </span>
+            )}
             <div className="min-w-0">
               <h2 className="text-xl font-semibold tracking-tight text-slate-900">{client.name}</h2>
               <p className="mt-0.5 text-sm text-slate-500">

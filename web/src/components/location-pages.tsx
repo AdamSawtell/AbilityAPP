@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { LocationCoreSummary } from "@/components/location-core-summary";
 import { LocationList } from "@/components/location-list";
 import { LocationTabbedView } from "@/components/location-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
@@ -105,6 +106,8 @@ export function LocationDetailView({ id }: { id: string }) {
             : undefined
         }
       >
+        <LocationCoreSummary location={location} saved={saved && !hasUnsavedChanges} />
+
         <Suspense fallback={<LocationTabbedViewFallback />}>
           <LocationTabbedView
             location={location}
@@ -116,7 +119,6 @@ export function LocationDetailView({ id }: { id: string }) {
             onActivitiesChange={(activities) => patchDraft({ activities })}
           />
         </Suspense>
-        {saved ? <p className="mt-4 text-sm text-emerald-700">Changes saved.</p> : null}
       </AppShell>
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
     </>

@@ -2,6 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { EmployeeRecordLink } from "@/components/record-link";
+import {
+  RecordListDashboard,
+  RecordListPagination,
+  RecordListSection,
+  RecordListStatCard,
+  RecordListTableCard,
+  recordListSelectClass,
+} from "@/components/record-list-shell";
 import { complianceSummary } from "@/lib/employee-compliance";
 import {
   departmentOptions,
@@ -10,6 +18,8 @@ import {
 } from "@/lib/employee";
 
 const PAGE_SIZE = 50;
+
+type EmployeeListScope = "all" | "active" | "attention";
 
 function ComplianceBadge({ employee }: { employee: EmployeeRecord }) {
   const summary = complianceSummary(employee);
@@ -26,7 +36,10 @@ function ComplianceBadge({ employee }: { employee: EmployeeRecord }) {
       : "bg-amber-50 text-amber-800 ring-amber-200";
   const label = summary.level === "critical" ? "Action needed" : "Expiring";
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${styles}`} title={summary.messages.join("; ")}>
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${styles}`}
+      title={summary.messages.join("; ")}
+    >
       {label}
     </span>
   );
@@ -46,14 +59,31 @@ function EmployeeStatusBadge({ status }: { status: string }) {
   );
 }
 
+function needsComplianceAttention(employee: EmployeeRecord) {
+  return complianceSummary(employee).level !== "ok";
+}
+
 export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
+  const [scope, setScope] = useState<EmployeeListScope>("all");
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("All");
   const [status, setStatus] = useState("All");
   const [page, setPage] = useState(0);
 
+  const activeCount = useMemo(
+    () => records.filter((r) => r.employmentStatus === "Active").length,
+    [records]
+  );
+  const attentionCount = useMemo(() => records.filter(needsComplianceAttention).length, [records]);
+
   const filtered = useMemo(() => {
     let rows = [...records].sort((a, b) => a.name.localeCompare(b.name, "en-AU"));
+
+    if (scope === "active") {
+      rows = rows.filter((r) => r.employmentStatus === "Active");
+    } else if (scope === "attention") {
+      rows = rows.filter(needsComplianceAttention);
+    }
 
     if (department !== "All") {
       rows = rows.filter((r) => r.department === department);
@@ -77,11 +107,16 @@ export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
     }
 
     return rows;
-  }, [records, search, department, status]);
+  }, [records, scope, search, department, status]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
   const pageRows = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+
+  function onScopeChange(next: EmployeeListScope) {
+    setScope(next);
+    setPage(0);
+  }
 
   function onSearchChange(value: string) {
     setSearch(value);
@@ -98,124 +133,133 @@ export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
     setPage(0);
   }
 
-  return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <p className="text-xs text-slate-500 lg:order-last">
-          Search by name, key, email, or role. Use filters to narrow large lists.
-        </p>
-        <div className="flex flex-wrap items-center gap-3">
-          <input
-            className="w-full min-w-[220px] rounded-lg border border-slate-200 px-3 py-1.5 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20 sm:w-72"
-            placeholder="Search employees…"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-          <select
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm shadow-sm outline-none focus:border-[#d4147a]"
-            value={department}
-            onChange={(e) => onDepartmentChange(e.target.value)}
-          >
-            <option value="All">All departments</option>
-            {departmentOptions.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-          <select
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm shadow-sm outline-none focus:border-[#d4147a]"
-            value={status}
-            onChange={(e) => onStatusChange(e.target.value)}
-          >
-            <option value="All">All statuses</option>
-            {employmentStatusOptions.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-        <p className="text-sm text-slate-500">
-          {filtered.length} employee{filtered.length === 1 ? "" : "s"}
-          {filtered.length > PAGE_SIZE ? ` · page ${safePage + 1} of ${pageCount}` : ""}
-        </p>
-      </div>
+  const resultSummary =
+    filtered.length === 1
+      ? "1 employee"
+      : `${filtered.length} employees` +
+        (filtered.length > PAGE_SIZE ? ` · page ${safePage + 1} of ${pageCount}` : "");
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th className="px-4 py-3 font-medium">Search key</th>
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Job title</th>
-              <th className="px-4 py-3 font-medium">Department</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Compliance</th>
-              <th className="px-4 py-3 font-medium">Email</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {pageRows.length === 0 ? (
+  return (
+    <RecordListSection>
+      <RecordListDashboard>
+        <RecordListStatCard
+          label="All employees"
+          value={records.length}
+          hint="Staff and contractors"
+          active={scope === "all"}
+          onClick={() => onScopeChange("all")}
+        />
+        <RecordListStatCard
+          label="Active"
+          value={activeCount}
+          hint="Currently employed"
+          active={scope === "active"}
+          onClick={() => onScopeChange("active")}
+        />
+        <RecordListStatCard
+          label="Needs attention"
+          value={attentionCount}
+          hint="Expired or expiring credentials"
+          active={scope === "attention"}
+          onClick={() => onScopeChange("attention")}
+        />
+      </RecordListDashboard>
+
+      <RecordListTableCard
+        hint="Search by name, key, email, or role. Use filters to narrow large lists."
+        searchPlaceholder="Search employees…"
+        search={search}
+        onSearchChange={onSearchChange}
+        resultSummary={resultSummary}
+        filters={
+          <>
+            <select
+              className={recordListSelectClass}
+              value={department}
+              onChange={(e) => onDepartmentChange(e.target.value)}
+            >
+              <option value="All">All departments</option>
+              {departmentOptions.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <select
+              className={recordListSelectClass}
+              value={status}
+              onChange={(e) => onStatusChange(e.target.value)}
+            >
+              <option value="All">All statuses</option>
+              {employmentStatusOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </>
+        }
+        footer={
+          <RecordListPagination
+            page={safePage}
+            pageCount={pageCount}
+            total={filtered.length}
+            pageSize={PAGE_SIZE}
+            onPrevious={() => setPage((p) => Math.max(0, p - 1))}
+            onNext={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+          />
+        }
+      >
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
-                  No employees match your filters.
-                </td>
+                <th className="px-4 py-3 font-medium">Search key</th>
+                <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Job title</th>
+                <th className="px-4 py-3 font-medium">Department</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Compliance</th>
+                <th className="px-4 py-3 font-medium">Email</th>
               </tr>
-            ) : (
-              pageRows.map((record) => (
-                <tr key={record.id} className="group hover:bg-[#fdf2f8]/40">
-                  <td className="px-4 py-3 font-medium">
-                    <EmployeeRecordLink
-                      id={record.id}
-                      searchKey={record.searchKey}
-                      name={record.name}
-                      className="text-[#b51266] hover:underline"
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-slate-900">{record.name}</td>
-                  <td className="px-4 py-3 text-slate-600">{record.jobTitle || "—"}</td>
-                  <td className="px-4 py-3 text-slate-600">{record.department || "—"}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <EmployeeStatusBadge status={record.employmentStatus} />
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <ComplianceBadge employee={record} />
-                  </td>
-                  <td className="max-w-[220px] truncate px-4 py-3 text-slate-600" title={record.email}>
-                    {record.email || "—"}
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {pageRows.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                    No employees match your filters.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {filtered.length > PAGE_SIZE ? (
-        <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">
-          <button
-            type="button"
-            disabled={safePage === 0}
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 disabled:opacity-40 hover:bg-slate-50"
-          >
-            Previous
-          </button>
-          <span className="text-xs text-slate-500">
-            Showing {safePage * PAGE_SIZE + 1}–{Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} of{" "}
-            {filtered.length}
-          </span>
-          <button
-            type="button"
-            disabled={safePage >= pageCount - 1}
-            onClick={() => setPage((p) => p + 1)}
-            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 disabled:opacity-40 hover:bg-slate-50"
-          >
-            Next
-          </button>
+              ) : (
+                pageRows.map((record) => (
+                  <tr key={record.id} className="group hover:bg-[#fdf2f8]/40">
+                    <td className="px-4 py-3 font-medium">
+                      <EmployeeRecordLink
+                        id={record.id}
+                        searchKey={record.searchKey}
+                        name={record.name}
+                        className="text-[#b51266] hover:underline"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-slate-900">{record.name}</td>
+                    <td className="px-4 py-3 text-slate-600">{record.jobTitle || "—"}</td>
+                    <td className="px-4 py-3 text-slate-600">{record.department || "—"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <EmployeeStatusBadge status={record.employmentStatus} />
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <ComplianceBadge employee={record} />
+                    </td>
+                    <td className="max-w-[220px] truncate px-4 py-3 text-slate-600" title={record.email}>
+                      {record.email || "—"}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      ) : null}
-    </div>
+      </RecordListTableCard>
+    </RecordListSection>
   );
 }
