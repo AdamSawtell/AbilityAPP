@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import type { AuthSession } from "@/lib/access/types";
 import type { AiAgentRecord, AiWriteResult, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { attachmentsFromToolAudit } from "@/lib/ai/display";
+import { previewForWriteResult } from "@/lib/ai/prepare-preview";
 import { attachmentFromWriteResult, isPrepareWriteResult } from "@/lib/ai/prepare-display";
 import type { AiDatabase } from "@/lib/ai/db";
 import { logChatTurn } from "@/lib/ai/agents-api";
@@ -110,6 +111,7 @@ function prepareToolResult(
           kind,
           label: out.summary ?? "Review",
           href: out.href,
+          preview: previewForWriteResult(kind, out.threadState),
         }
       : undefined,
   };
@@ -177,8 +179,9 @@ async function tryAutoPrepareClientActivity(
       kind: "client_activity_prepare",
       label: out.summary ?? "Activity note",
       href: out.href,
+      preview: previewForWriteResult("client_activity_prepare", out.threadState),
     },
-    assistantText: `I've prepared the activity note for ${clientName}. Use the Open form and save button below — it opens the Activity tab with the note pre-filled. Click Save when you're happy with it.`,
+    assistantText: `I've prepared the activity note for ${clientName}. Review the draft below, then use Open form and save — it opens the Activity tab with the note pre-filled. Click Save when you're happy with it.`,
   };
 }
 

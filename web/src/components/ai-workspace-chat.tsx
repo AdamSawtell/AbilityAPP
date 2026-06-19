@@ -8,6 +8,7 @@ import { useData } from "@/lib/data-store";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
 import { PrepareSaveBar } from "@/components/prepare-save-bar";
+import { PrepareReviewModal } from "@/components/prepare-review-modal";
 import {
   clearHomeChatSession,
   consumeChatNotice,
@@ -58,6 +59,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [lastWrite, setLastWrite] = useState<ChatResponseBody["writeResult"]>();
+  const [prepareModalOpen, setPrepareModalOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -184,6 +186,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
     if (lastWrite?.href && lastWrite.kind.endsWith("_prepare")) {
       prepareBarRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
+    if (lastWrite?.preview) setPrepareModalOpen(true);
   }, [lastWrite]);
 
   useEffect(() => {
@@ -260,6 +263,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
     setError("");
     setInput("");
     setLastWrite(undefined);
+    setPrepareModalOpen(false);
     if (session) clearHomeChatSession(session.userId, session.activeRoleId);
     focusComposer();
   }, [session, focusComposer]);
@@ -270,6 +274,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const prepareLink = lastWrite?.href && lastWrite.kind.endsWith("_prepare");
 
   return (
+    <>
     <div className={`flex min-h-0 flex-col bg-slate-50/80 ${className}`}>
       <div className="shrink-0 border-b border-slate-100 bg-white px-3 py-2">
         <p className="text-sm font-semibold text-slate-900">{activeAgent?.name ?? "AI assistant"}</p>
@@ -319,9 +324,9 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
       ) : null}
 
       {prepareLink ? (
-        <div className="shrink-0 border-b border-sky-100 bg-sky-50 px-3 py-2">
-          <p className="text-xs font-medium text-sky-950">Prepared — scroll down to save</p>
-          <p className="mt-0.5 truncate text-xs text-sky-800">{lastWrite!.label}</p>
+        <div className="shrink-0 border-b border-[#f9a8d4]/50 bg-[#fdf2f8] px-3 py-2">
+          <p className="text-xs font-medium text-[#b51266]">Draft ready — review the activity below</p>
+          <p className="mt-0.5 truncate text-xs text-slate-700">{lastWrite!.label}</p>
         </div>
       ) : null}
 
@@ -397,5 +402,13 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         </div>
       </div>
     </div>
+    {lastWrite?.preview && prepareModalOpen ? (
+      <PrepareReviewModal
+        open={prepareModalOpen}
+        writeResult={lastWrite}
+        onClose={() => setPrepareModalOpen(false)}
+      />
+    ) : null}
+    </>
   );
 }

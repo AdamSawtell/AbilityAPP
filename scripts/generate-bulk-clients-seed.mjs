@@ -776,7 +776,7 @@ for (let i = 1; i <= COUNT; i++) {
     awareAt: `${incOccurred}T14:45:00+00`,
     reportedAt: incOccurred,
     primaryClientId: clientId,
-    primaryEmployeeId: `emp-sw-${pad((i % 32) + 1)}`,
+    primaryEmployeeId: `emp-sw-${String((i % 32) + 1).padStart(3, "0")}`,
     primaryLocationId: loc.id,
     description: `Incident involving ${name} at ${loc.city}. Documented per organisational policy; family notified where required.`,
     immediateActions: "Participant checked, area secured, shift leader and coordinator informed same day.",
@@ -802,7 +802,7 @@ for (let i = 1; i <= COUNT; i++) {
       incidentId: incId,
       lineNo: 2,
       partyType: "Employee",
-      entityId: `emp-sw-${pad((i % 32) + 1)}`,
+      entityId: `emp-sw-${String((i % 32) + 1).padStart(3, "0")}`,
       partyName: "Support worker on shift",
       roleInIncident: "Witness",
       notes: "Completed incident statement.",
@@ -1240,30 +1240,62 @@ const spCols = [
   "updated_by",
 ];
 
+function supportPlanValues(s) {
+  const byCol = {
+    id: sqlString(s.id),
+    client_id: sqlString(s.clientId),
+    document_no: sqlString(s.documentNo),
+    description: sqlString(s.description),
+    provided_to_receiver: sqlDate(s.providedToReceiver),
+    execution_date: sqlDate(s.executionDate),
+    active: sqlBool(s.active),
+    important_to_me: sqlString(s.importantToMe),
+    how_supported: sqlString(s.howSupported),
+    hobbies: sqlString(s.hobbies),
+    cultural_needs: sqlString(""),
+    likes: sqlString(s.likes),
+    dislikes: sqlString(s.dislikes),
+    about_other: sqlString(""),
+    primary_language: sqlString(s.primaryLanguage),
+    interpreter_required: sqlString(s.interpreterRequired),
+    communication_method: sqlString(""),
+    medication_required: sqlString("No"),
+    medication_details: sqlString(""),
+    known_allergies: sqlString(s.knownAllergies),
+    medical_history: sqlString(""),
+    behaviour_support_required: sqlString("No"),
+    behaviour_description: sqlString(""),
+    strategies: sqlString(""),
+    relaxation: sqlString(""),
+    stress_cause: sqlString(""),
+    morning: sqlString(s.morning),
+    daytime: sqlString(s.daytime),
+    afternoon: sqlString(s.afternoon),
+    evening_night: sqlString(s.eveningNight),
+    weekly: sqlString(s.weekly),
+    activity_attendance: sqlBool(s.activityAttendance),
+    activity_details: sqlString(s.activityDetails),
+    personal_care: sqlBool(s.personalCare),
+    dressing: sqlString(s.dressing),
+    mobility_support_required: sqlString(s.mobilitySupportRequired ? "Yes" : "No"),
+    mobility_detail: sqlString(s.mobilityDetail),
+    transport_arrangements: sqlString(s.transportArrangements),
+    financial_arrangement: sqlString(s.financialArrangement),
+    financial_arrangement_details: sqlString(s.financialArrangementDetails),
+    created_by: sqlString(s.createdBy),
+    updated_by: sqlString(s.updatedBy),
+    household_support_required: sqlBool(false),
+  };
+  const v = spCols.map((col) => byCol[col] ?? sqlString(""));
+  if (v.length !== spCols.length) throw new Error(`support_plan column mismatch: ${spCols.length} cols, ${v.length} vals`);
+  return `  (${v.join(", ")})`;
+}
+
 addInsert(
   lines,
   "support_plan",
   spCols,
-  supportPlans.map((s) => {
-    const v = [
-      sqlString(s.id), sqlString(s.clientId), sqlString(s.documentNo), sqlString(s.description),
-      sqlDate(s.providedToReceiver), sqlDate(s.executionDate), sqlBool(s.active),
-      sqlString(s.importantToMe), sqlString(s.howSupported), sqlString(s.hobbies), sqlString(""),
-      sqlString(s.likes), sqlString(s.dislikes), sqlString(""), sqlString(s.primaryLanguage),
-      sqlString(s.interpreterRequired), sqlString(""), sqlString("No"), sqlString(""),
-      sqlString(s.knownAllergies), sqlString(""), sqlString("No"), sqlString(""), sqlString(""),
-      sqlString(""), sqlString(""), sqlString(s.morning), sqlString(s.daytime), sqlString(s.afternoon),
-      sqlString(s.eveningNight), sqlString(s.weekly), sqlBool(s.activityAttendance),
-      sqlString(s.activityDetails), sqlBool(s.personalCare), sqlString(s.dressing), sqlString(""),
-      sqlString(""), sqlString(""), sqlString(""), sqlString(""), sqlString(""), sqlString(""),
-      sqlString(""), sqlString(""), sqlBool(false), sqlString(""), sqlString(""), sqlString(""),
-      sqlString(""), sqlString(""), sqlBool(s.mobilitySupportRequired), sqlString(s.mobilityDetail),
-      sqlString(""), sqlString(""), sqlString(""), sqlString(""), sqlString(""),
-      sqlString(s.transportArrangements), sqlString(s.financialArrangement),
-      sqlString(s.financialArrangementDetails), sqlString(s.createdBy), sqlString(s.updatedBy),
-    ];
-    return `  (${v.join(", ")})`;
-  })
+  supportPlans.map((s) => supportPlanValues(s))
 );
 
 addInsert(

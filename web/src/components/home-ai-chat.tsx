@@ -9,6 +9,7 @@ import { normalizeEnquiry } from "@/lib/enquiry";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
 import { PrepareSaveBar } from "@/components/prepare-save-bar";
+import { PrepareReviewModal } from "@/components/prepare-review-modal";
 import {
   clearHomeChatSession,
   loadHomeChatSession,
@@ -80,6 +81,7 @@ export function HomeAiChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [lastWrite, setLastWrite] = useState<ChatResponseBody["writeResult"]>();
+  const [prepareModalOpen, setPrepareModalOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -163,6 +165,7 @@ export function HomeAiChat() {
     if (lastWrite?.href && lastWrite.kind.endsWith("_prepare")) {
       prepareBarRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
+    if (lastWrite?.preview) setPrepareModalOpen(true);
   }, [lastWrite]);
 
   useEffect(() => {
@@ -272,6 +275,7 @@ export function HomeAiChat() {
     setError("");
     setInput("");
     setLastWrite(undefined);
+    setPrepareModalOpen(false);
     if (session) clearHomeChatSession(session.userId, session.activeRoleId);
     focusComposer();
   }, [session, focusComposer]);
@@ -281,6 +285,7 @@ export function HomeAiChat() {
   const canSend = configured && Boolean(agentId) && !loading && Boolean(input.trim());
 
   return (
+    <>
     <section className="mb-8 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-[#fdf2f8]/40 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div>
@@ -434,5 +439,13 @@ export function HomeAiChat() {
         <p className="mt-2 text-xs text-slate-400">Enter to send · Shift+Enter for a new line · Conversation stays on this device until you start a new chat</p>
       </div>
     </section>
+    {lastWrite?.preview && prepareModalOpen ? (
+      <PrepareReviewModal
+        open={prepareModalOpen}
+        writeResult={lastWrite}
+        onClose={() => setPrepareModalOpen(false)}
+      />
+    ) : null}
+    </>
   );
 }

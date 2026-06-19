@@ -116,6 +116,41 @@ npm run supabase:seed-demo-once -- --file supabase/seed-clients-bulk.sql
 
 Or from GitHub: **Actions → Supabase seed demo data → Run workflow**.
 
+### Audit demo data (separate one-off scripts)
+
+Session, process, and AI query audit pages need **volume demo rows** for testing dashboards. These are **not** in `scripts/seed-manifest.mjs` — run them separately after schema migrations:
+
+```powershell
+npm run supabase:seed-audit-demos
+# or individually:
+npm run supabase:seed-session-audit-demo
+npm run supabase:seed-process-audit-demo
+npm run supabase:seed-ai-query-audit-demo
+```
+
+Requires `SUPABASE_SERVICE_ROLE_KEY` in `web/.env.local`. Scripts are idempotent (skip if demo marker rows exist). Real logins append live rows to `user_session`.
+
+### TypeScript seeds vs SQL (local fallback)
+
+| Source | Purpose |
+|--------|---------|
+| `supabase/seed-*.sql` | **Remote Postgres** — canonical demo data (run once via `supabase:seed-demo-once`) |
+| `web/src/lib/*.ts` (`initialClients`, `initialEmployees`, `bulkEmployees`, etc.) | **Local-only fallback** when `NEXT_PUBLIC_SUPABASE_*` is missing or hydrate fails; also used to **generate** SQL via `scripts/generate-*-seed.mjs` |
+| `localStorage` (`abilityerp-clone-data`, audit log cache) | Browser persistence for offline/dev — cleared when Supabase is the active source |
+
+After editing TS seed sources, regenerate matching SQL before a one-off remote seed. The app should read from Supabase when env vars are set (check browser console for `[DataStore] Supabase hydrate failed`).
+
+### Migration history repair
+
+If `supabase db push` reports migrations “to be inserted before the last migration”, duplicate timestamps were likely applied outside the CLI. After renaming conflicting files to unique versions, run:
+
+```powershell
+node scripts/repair-migration-history.mjs
+npm run supabase:push-remote
+```
+
+Expected result: `Remote database is up to date.`
+
 ## Manual commands
 
 ```powershell

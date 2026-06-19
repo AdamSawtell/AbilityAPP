@@ -12,6 +12,7 @@ export function attachmentFromWriteResult(writeResult: AiWriteResult): ChatDispl
       label: writeResult.label,
       href: writeResult.href,
       hint: "Open the form, check the pre-filled fields, then click Save. The assistant cannot save for you.",
+      preview: writeResult.preview,
     },
   };
 }

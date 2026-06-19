@@ -91,7 +91,7 @@ Add to web/.env.local (never commit this file):
   SUPABASE_DB_URL=postgresql://postgres.yonkaaylolrdsjfgpvyp:YOUR_PASSWORD@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres
 
 Copy from Supabase → Database → Connect → Session pooler (port 5432).
-Also add the same value as GitHub secret SUPABASE_DB_URL so CI applies seeds on push.
+Also add the same value as GitHub secret SUPABASE_DB_URL for Actions → Supabase seed demo data.
 `);
     process.exit(1);
   }

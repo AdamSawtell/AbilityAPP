@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { AiWriteResult } from "@/lib/ai/types";
+import { PreparePreviewPanel } from "@/components/prepare-review-preview";
 
 export function PrepareSaveBar({ writeResult }: { writeResult: AiWriteResult }) {
   if (!writeResult.href || !writeResult.kind.endsWith("_prepare")) return null;
@@ -11,9 +12,15 @@ export function PrepareSaveBar({ writeResult }: { writeResult: AiWriteResult }) 
     >
       <p className="text-xs font-semibold text-slate-900">Ready for you to review</p>
       <p className="mt-0.5 text-xs text-slate-600">{writeResult.label}</p>
-      <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
-        Opens the form with fields pre-filled. Check the details, then click Save on the record.
-      </p>
+      {writeResult.preview ? (
+        <div className="mt-2">
+          <PreparePreviewPanel preview={writeResult.preview} compact />
+        </div>
+      ) : (
+        <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+          Opens the form with fields pre-filled. Check the details, then click Save on the record.
+        </p>
+      )}
       <Link
         href={writeResult.href}
         className="mt-2.5 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#b51266]"

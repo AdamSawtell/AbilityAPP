@@ -169,6 +169,15 @@ export type AiWriteResult = {
   kind: "client" | "client_prepare" | "client_patch_prepare" | "client_activity_prepare" | "client_task_prepare" | "task" | "task_prepare" | "task_update_prepare" | "client_activity" | "enquiry" | "enquiry_prepare" | "enquiry_task_prepare" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_prepare" | "incident_task_prepare" | "incident_update";
   label: string;
   href: string;
+  preview?: PreparePreview;
+};
+
+export type PreparePreviewField = { label: string; value: string };
+
+export type PreparePreview = {
+  recordType: string;
+  headline: string;
+  fields: PreparePreviewField[];
 };
 
 export type ChatDisplayAttachment = {
@@ -187,6 +196,7 @@ export type ChatDisplayAttachment = {
     label: string;
     href: string;
     hint: string;
+    preview?: PreparePreview;
   };
 };
 

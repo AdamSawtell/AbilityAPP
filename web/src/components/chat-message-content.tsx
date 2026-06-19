@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { ChatDisplayAttachment } from "@/lib/ai/types";
+import { PreparePreviewPanel } from "@/components/prepare-review-preview";
 
 const LINK_RE = /\[([^\]]+)\]\((\/[^)]+)\)/g;
 const PATH_RE = /(\/(?:clients|enquiries|employees|locations|tasks|incidents)[^\s),]*)/g;
@@ -44,12 +45,16 @@ function PrepareReviewCard({ attachment }: { attachment: ChatDisplayAttachment }
   const prepare = attachment.prepare;
   if (!prepare?.href) return null;
   return (
-    <div className="rounded-lg border-2 border-[#d4147a] bg-[#fdf2f8] p-3 shadow-sm">
-      <p className="text-sm font-semibold text-slate-900">{prepare.label}</p>
-      <p className="mt-1 text-xs leading-relaxed text-slate-600">{prepare.hint}</p>
+    <div className="space-y-3">
+      {prepare.preview ? (
+        <PreparePreviewPanel preview={prepare.preview} />
+      ) : (
+        <p className="text-sm font-semibold text-slate-900">{prepare.label}</p>
+      )}
+      <p className="text-xs leading-relaxed text-slate-600">{prepare.hint}</p>
       <Link
         href={prepare.href}
-        className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#b51266]"
+        className="inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#b51266]"
       >
         Open form and save
       </Link>
