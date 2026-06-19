@@ -291,30 +291,20 @@ function ClientDetailViewInner({ id }: { id: string }) {
           </p>
         ) : null}
         {draftLoad.error ? <p className="mb-4 text-sm text-red-700">{draftLoad.error}</p> : null}
-        <ClientCoreSummary client={client} />
+        <ClientCoreSummary client={client} saved={saved && !hasUnsavedChanges} />
 
-        <div className="mb-3 flex items-center gap-3">
-          <ClientStatusBadge status={client.status} />
-          {saved && !hasUnsavedChanges ? <span className="text-sm text-emerald-700">Saved</span> : null}
-          {hasUnsavedChanges ? (
-            <span className="text-sm text-amber-700">Unsaved changes</span>
-          ) : null}
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <Suspense fallback={<ClientTabbedViewFallback />}>
-            <ClientTabbedView
-              client={client}
-              agreementCount={agreementCount}
-              hasSupportPlan={hasSupportPlan}
-              goalCount={goalCount}
-              progressReviewCount={progressReviewCount}
-              onChange={onChange}
-              onLineItemsChange={onLineItemsChange}
-              highlightFields={highlightFields}
-            />
-          </Suspense>
-        </div>
+        <Suspense fallback={<ClientTabbedViewFallback />}>
+          <ClientTabbedView
+            client={client}
+            agreementCount={agreementCount}
+            hasSupportPlan={hasSupportPlan}
+            goalCount={goalCount}
+            progressReviewCount={progressReviewCount}
+            onChange={onChange}
+            onLineItemsChange={onLineItemsChange}
+            highlightFields={highlightFields}
+          />
+        </Suspense>
       </AppShell>
 
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
@@ -486,15 +476,11 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
 
         <ClientCoreSummary client={client} />
 
-        <div className="mb-3 flex items-center gap-3">
-          <ClientStatusBadge status={client.status} />
-          {saved ? <span className="text-sm text-emerald-700">Saved</span> : null}
-          {!saved ? <span className="text-sm text-amber-700">Not saved yet</span> : null}
-        </div>
+        {saved ? <p className="mb-4 text-sm text-emerald-700">Saved</p> : null}
+        {!saved ? <p className="mb-4 text-sm text-amber-700">Not saved yet</p> : null}
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <Suspense fallback={<ClientTabbedViewFallback />}>
-            <ClientTabbedView
+        <Suspense fallback={<ClientTabbedViewFallback />}>
+          <ClientTabbedView
               client={client}
               agreementCount={0}
               hasSupportPlan={false}
@@ -505,7 +491,6 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
               highlightFields={highlightFields}
             />
           </Suspense>
-        </div>
       </AppShell>
 
       <UnsavedChangesBar visible={!saved} onSave={onSave} onDiscard={onDiscard} />

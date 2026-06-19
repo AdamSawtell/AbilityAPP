@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { normalizeClient } from "@/lib/client";
 import { normalizeEnquiry } from "@/lib/enquiry";
-import { savedActivityCardAttachment } from "@/lib/ai/activity-coach-display";
+import { savedActivityCardAttachment, clientActivityCoachSaveHrefFromHref } from "@/lib/ai/activity-coach-display";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
 import { PrepareSaveBar } from "@/components/prepare-save-bar";
@@ -313,7 +313,7 @@ export function HomeAiChat() {
       });
 
       if (href) {
-        router.push(href);
+        router.push(clientActivityCoachSaveHrefFromHref(href));
       }
     },
     [refreshFromRemote, router]

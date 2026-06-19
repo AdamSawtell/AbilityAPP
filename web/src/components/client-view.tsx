@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClientGoalsPanel, ClientProgressReviewPanel } from "@/components/client-planning-panels";
 import { ClientLocationsPanel } from "@/components/client-locations-panel";
@@ -116,6 +117,32 @@ function FieldGrid({
   );
 }
 
+function ReadOnlyFieldGrid({
+  fields,
+  client,
+}: {
+  fields: ClientFieldDef[];
+  client: ClientRecord;
+}) {
+  return (
+    <dl className="grid gap-4 sm:grid-cols-2">
+      {fields.map((field) => (
+        <div key={field.key} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
+          <dt className="text-xs font-medium text-slate-500">{field.label}</dt>
+          <dd className="mt-1 whitespace-pre-wrap text-sm text-slate-900">
+            {(() => {
+              const raw = client[field.key] as string | boolean;
+              if (typeof raw === "boolean") return raw ? "Yes" : "No";
+              const text = String(raw ?? "").trim();
+              return text || "—";
+            })()}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 function ClientFullProfileForm({
   client,
   onChange,
@@ -207,9 +234,20 @@ export function ClientTabbedView({
   const allowedTabs = allowedDetailTabsFromGroups("clients", clientTabGroups, session?.windowKeys ?? []);
   const incidentCount = getIncidentsForClient(client.id).length;
   const defaultTab = allowedTabs[0] ?? "Overview";
-  const requestedTab = searchParams.get("tab") ?? defaultTab;
+  const coachSave = searchParams.get("coachSave") === "1";
+  const requestedTab =
+    searchParams.get("tab") ??
+    (coachSave && allowedTabs.includes("Activity") ? "Activity" : defaultTab);
   const activeTab = allowedTabs.includes(requestedTab) ? requestedTab : defaultTab;
   const tableTab = activeTab in clientTabTableConfigs ? (activeTab as ClientTabWithTable) : null;
+
+  useEffect(() => {
+    if (searchParams.get("coachSave") !== "1") return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("coachSave");
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   const visibleGroups = clientTabGroups
     .map((group) => ({
@@ -293,12 +331,25 @@ export function ClientTabbedView({
         </div>
 
         {activeTab === "Overview" && canClientTab("Overview") ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-5">
-            <h3 className="mb-4 text-sm font-semibold text-slate-900">Core details</h3>
-            <p className="mb-4 text-sm text-slate-500">
-              Key fields for day-to-day work. Open Full profile for everything else.
-            </p>
-            <FieldGrid fields={coreOverviewFields} client={client} onChange={onChange} highlightFields={highlightFields} />
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Core details</h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Read-only snapshot for day-to-day work. Use Full profile or your AI assistant to edit fields.
+                </p>
+              </div>
+              {canClientTab("Full profile") ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("Full profile")}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-[#b51266] shadow-sm hover:bg-[#fdf2f8]"
+                >
+                  Edit on Full profile
+                </button>
+              ) : null}
+            </div>
+            <ReadOnlyFieldGrid fields={coreOverviewFields} client={client} />
           </div>
         ) : null}
 

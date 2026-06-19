@@ -27,7 +27,7 @@ export type ActivityCoachAdvance = {
 };
 
 function coachClientHref(client: ActivityCoachClient) {
-  return `/clients/${client.id}?tab=Activity`;
+  return `/clients/${client.id}?tab=Activity&coachSave=1`;
 }
 
 async function resolveCoachClient(

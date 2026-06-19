@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { EmployeeCoreSummary } from "@/components/employee-core-summary";
 import { EmployeeList } from "@/components/employee-list";
 import { EmployeeTabbedView } from "@/components/employee-view";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
@@ -120,6 +121,8 @@ export function EmployeeDetailView({ id }: { id: string }) {
             : undefined
         }
       >
+        <EmployeeCoreSummary employee={employee} allEmployees={employees} saved={saved && !hasUnsavedChanges} />
+
         <Suspense fallback={<EmployeeTabbedViewFallback />}>
           <EmployeeTabbedView
             employee={employee}
@@ -145,8 +148,6 @@ export function EmployeeDetailView({ id }: { id: string }) {
             entityLabel={`${employee.searchKey} — ${employee.name}`}
           />
         </div>
-
-        {saved ? <p className="mt-4 text-sm text-emerald-700">Changes saved.</p> : null}
       </AppShell>
 
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />

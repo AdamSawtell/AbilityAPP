@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import type { ClientDraft, ClientPatchDraft, EnquiryDraft, TaskDraft, TaskUpdateDraft } from "@/lib/ai/types";
 import { aiCanAccessWindow, aiCanProcess } from "@/lib/ai/access";
+import { clientActivityCoachSaveHref } from "@/lib/ai/activity-coach-display";
 import { emptyClientRecord, normalizeClient, type ClientRecord } from "@/lib/client";
 import { convertEnquiryToClient } from "@/lib/convert";
 import { createEnquiry, emptyEnquiry, normalizeEnquiry, type EnquiryRecord } from "@/lib/enquiry";
@@ -173,7 +174,7 @@ export async function persistAiClientActivity(
     return {
       ok: true,
       record: { id, clientId: draft.clientId, subject: draft.subject },
-      href: `/clients/${client.id}?tab=Activity`,
+      href: clientActivityCoachSaveHref(client.id),
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not save activity";

@@ -19,7 +19,6 @@ import { useData } from "@/lib/data-store";
 import { useReferenceData } from "@/lib/config-store";
 import type { AppUserRecord } from "@/lib/access/types";
 import {
-  complianceSummary,
   managerName,
   mergedEmployeeAlerts,
   primaryEmergencyContact,
@@ -143,25 +142,6 @@ function FieldSection({
           <Field key={key} fieldKey={key} employee={employee} onChange={onChange} getOptions={getOptions} />
         ))}
       </div>
-    </div>
-  );
-}
-
-function ComplianceBanner({ employee }: { employee: EmployeeRecord }) {
-  const summary = complianceSummary(employee);
-  if (summary.level === "ok") return null;
-  const styles =
-    summary.level === "critical"
-      ? "border-red-200 bg-red-50 text-red-900"
-      : "border-amber-200 bg-amber-50 text-amber-900";
-  return (
-    <div className={`rounded-xl border px-4 py-3 text-sm ${styles}`}>
-      <p className="font-medium">{summary.level === "critical" ? "Compliance action required" : "Compliance warning"}</p>
-      <ul className="mt-1 list-inside list-disc">
-        {summary.messages.map((m) => (
-          <li key={m}>{m}</li>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -294,7 +274,7 @@ export function EmployeeTabbedView({
                       title={windowKey ? `Window: ${windowKey}` : undefined}
                       className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
                         active
-                          ? "bg-white font-medium text-indigo-900 shadow-sm ring-1 ring-indigo-200"
+                          ? "bg-white font-medium text-[#b51266] shadow-sm ring-1 ring-[#f9a8d4]/60"
                           : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                       }`}
                     >
@@ -314,8 +294,6 @@ export function EmployeeTabbedView({
       </nav>
 
       <div className="min-w-0 flex-1 space-y-4">
-        <ComplianceBanner employee={employee} />
-
         <div className="flex flex-wrap gap-2 lg:hidden">
           {allowedTabs.map((tab) => (
             <button
@@ -323,7 +301,7 @@ export function EmployeeTabbedView({
               type="button"
               onClick={() => setActiveTab(tab)}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
-                activeTab === tab ? "bg-indigo-100 text-indigo-900" : "bg-slate-100 text-slate-600"
+                activeTab === tab ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
               }`}
             >
               {tab}

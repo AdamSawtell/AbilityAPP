@@ -17,7 +17,7 @@ import {
 } from "@/lib/ai/chat-session-storage";
 import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
 import { prefetchCoachNotesFromClients } from "@/lib/ai/activity-coach-prefetch";
-import { savedActivityCardAttachment } from "@/lib/ai/activity-coach-display";
+import { savedActivityCardAttachment, clientActivityCoachSaveHrefFromHref } from "@/lib/ai/activity-coach-display";
 
 type AgentSummary = {
   id: string;
@@ -325,7 +325,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
       });
 
       if (href) {
-        router.push(href);
+        router.push(clientActivityCoachSaveHrefFromHref(href));
       }
     },
     [refreshFromRemote, router]

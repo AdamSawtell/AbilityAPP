@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useData } from "@/lib/data-store";
 import type { ClientRecord } from "@/lib/client";
 import { formatLocationAddress } from "@/lib/client-line-tables";
-import { formatContractDate } from "@/lib/contract";
 
 function initials(name: string) {
   return name
@@ -19,11 +18,11 @@ function statusLabel(status: string) {
   return status.replace(/^\d+_/, "").replace(/_/g, " ");
 }
 
-export function ClientCoreSummary({ client }: { client: ClientRecord }) {
+export function ClientCoreSummary({ client, saved }: { client: ClientRecord; saved?: boolean }) {
   const { getServiceAgreementsByClientId, getSupportPlanByClientId } = useData();
   const supportPlan = getSupportPlanByClientId(client.id);
   const agreements = getServiceAgreementsByClientId(client.id);
-  const primaryAgreement = agreements[0];
+  const supportPlanTabHref = `/clients/${client.id}?tab=${encodeURIComponent("Support Plan")}`;
   const activeAlerts = client.alerts.filter((a) => a.showAsAlert === "Yes").length;
   const activeConsents = (client.consents ?? []).filter((c) => c.showAsAlert === "Yes").length;
   const restrictiveCount = client.restrictivePractices?.length ?? 0;
@@ -32,31 +31,10 @@ export function ClientCoreSummary({ client }: { client: ClientRecord }) {
 
   return (
     <div className="mb-6 space-y-4">
-      {supportPlan ? (
-        <Link
-          href={`/clients/${client.id}?tab=Support%20Plan`}
-          className="block overflow-hidden rounded-2xl border border-[#f9a8d4]/70 bg-gradient-to-br from-[#fdf2f8] via-white to-violet-50/40 shadow-md ring-1 ring-[#f9a8d4]/40 transition hover:shadow-lg"
-        >
-          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#b51266]">Support plan</p>
-              <h3 className="mt-1 text-xl font-semibold text-slate-900">Document {supportPlan.documentNo}</h3>
-              <p className="mt-2 line-clamp-2 max-w-2xl text-sm text-slate-600">{supportPlan.description}</p>
-              <p className="mt-2 text-sm text-slate-500">
-                Provided {formatContractDate(supportPlan.providedToReceiver)} · {supportPlan.goals.length} goals
-              </p>
-            </div>
-            <span className="inline-flex shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200">
-              {supportPlan.active ? "Active plan" : "Inactive"}
-            </span>
-          </div>
-        </Link>
-      ) : null}
-
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-[#fdf2f8]/40 shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-slate-50 shadow-sm">
         <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d4147a] to-[#b51266] text-lg font-bold text-white shadow-md">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-lg font-bold text-white shadow-md">
               {initials(client.name) || "?"}
             </span>
             <div className="min-w-0">
@@ -68,6 +46,11 @@ export function ClientCoreSummary({ client }: { client: ClientRecord }) {
                   : ""}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
+                {saved ? (
+                  <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200 ring-inset">
+                    Saved
+                  </span>
+                ) : null}
                 <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200 ring-inset">
                   {statusLabel(client.status)}
                 </span>
@@ -98,10 +81,13 @@ export function ClientCoreSummary({ client }: { client: ClientRecord }) {
                     Risk noted
                   </span>
                 ) : null}
-                {!supportPlan ? (
-                  <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 ring-inset">
-                    No support plan
-                  </span>
+                {supportPlan ? (
+                  <Link
+                    href={supportPlanTabHref}
+                    className="inline-flex rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-900 ring-1 ring-sky-200 ring-inset hover:bg-sky-100"
+                  >
+                    Support plan · {supportPlan.goals.length} goal{supportPlan.goals.length === 1 ? "" : "s"}
+                  </Link>
                 ) : null}
                 {agreements.length > 0 ? (
                   <span className="inline-flex rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-900 ring-1 ring-violet-200 ring-inset">
@@ -158,23 +144,6 @@ export function ClientCoreSummary({ client }: { client: ClientRecord }) {
             </p>
           </div>
         </div>
-
-        {primaryAgreement ? (
-          <div className="border-t border-slate-100 bg-violet-50/40 px-5 py-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-violet-700">Service agreement</p>
-              <Link href={`/service-agreements/${primaryAgreement.id}`} className="text-xs font-medium text-[#b51266] hover:underline">
-                {primaryAgreement.searchKey} · View
-              </Link>
-            </div>
-            <p className="mt-1 text-sm font-medium text-slate-900">{primaryAgreement.name}</p>
-            <p className="mt-1 text-xs text-slate-600">
-              {formatContractDate(primaryAgreement.contractDate)} → {formatContractDate(primaryAgreement.finishDate)}
-              {" · "}
-              ${primaryAgreement.totalPlannedAmount} planned
-            </p>
-          </div>
-        ) : null}
       </div>
     </div>
   );

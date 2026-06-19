@@ -144,8 +144,25 @@ export function savedActivityCardAttachment(input: {
         subtitle: input.clientName,
         meta: "Activity tab",
         badge: "Saved",
-        href: input.href,
+        href: clientActivityCoachSaveHrefFromHref(input.href),
       },
     ],
   };
+}
+
+/** Normalise save/navigation links to land on Activity after coach save. */
+export function clientActivityCoachSaveHref(clientId: string) {
+  return `/clients/${clientId}?tab=Activity&coachSave=1`;
+}
+
+export function clientActivityCoachSaveHrefFromHref(href: string): string {
+  try {
+    const url = new URL(href, "http://local");
+    if (!url.pathname.startsWith("/clients/")) return href;
+    url.searchParams.set("tab", "Activity");
+    url.searchParams.set("coachSave", "1");
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return href.includes("?") ? `${href}&coachSave=1` : `${href}?coachSave=1`;
+  }
 }

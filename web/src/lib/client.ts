@@ -396,7 +396,7 @@ export const coreOverviewFields: ClientFieldDef[] = profileFields.filter((f) =>
 );
 
 export const clientTabGroups: ClientTabGroup[] = [
-  { label: "Core", tabs: ["Overview", "Support Plan", "Alerts", "Activity", "Service agreements", "Full profile"] },
+  { label: "Core", tabs: ["Overview", "Activity", "Support Plan", "Alerts", "Service agreements", "Full profile"] },
   {
     label: "Relationships",
     tabs: ["BP Associations", "Locations", "Incidents", "Contact Activity"],
