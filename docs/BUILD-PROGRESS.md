@@ -14,7 +14,7 @@
 | **Active slice** | WP-A.1 — Client lifecycle status ✅ shipped |
 | **Next slice** | WP-A.2 — Plan budget line table |
 | **Last verified** | 2026-06-18 — build + page-guides OK |
-| **Last push** | _pending this session_ |
+| **Last push** | 2026-06-18 — `6032a7f` |
 
 Progress is weighted by scope chunk size (rostering and downstream modules carry more weight once started).
 
