@@ -52,6 +52,8 @@ export function resolveAutomationAssignee(
       empMap
     );
     employeeId = manager?.employeeId ?? "";
+  } else if (rule.assigneeMode === "org_reports_to_manager" && ctx.employee) {
+    employeeId = ctx.employee.reportsToId?.trim() ?? "";
   } else if (rule.assigneeMode === "org_position" && rule.assigneePositionId) {
     const holder = resolvePositionHolder(
       rule.assigneePositionId,

@@ -13,7 +13,7 @@ AbilityERP does **not** send workforce or My Workplace notifications by email. A
 ### Review and approval flow
 
 1. Staff submit leave or credentials in My Workplace.
-2. A **task automation** should fire (future) on events such as `employee.credential_pending_review` and `employee.leave_requested`.
+2. Task automations fire on `employee.credential_pending_review` and `employee.leave_requested` (see `supabase/seed-task-automation.sql` and `web/src/lib/task-automation/run-server.ts`).
 3. The assignee completes the task (review / approve) and may also use the **Workforce review queue** as a convenience UI.
 4. The queue and banners are **not** a separate comms channel — they surface the same work that tasks represent.
 

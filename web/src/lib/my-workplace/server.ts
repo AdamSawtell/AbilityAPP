@@ -32,6 +32,11 @@ import { persistMyCredential, persistMyLeaveRequest, persistMyProfile } from "@/
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
+  myWorkplaceCredentialPendingEvent,
+  myWorkplaceLeaveRequestedEvent,
+} from "@/lib/task-automation/employee-triggers";
+import { runServerAutomationEvents } from "@/lib/task-automation/run-server";
+import {
   isStaffContractDocument,
   type MyCredentialSubmitPayload,
   type MyLeaveSubmitPayload,
@@ -224,7 +229,14 @@ export async function submitMyLeave(
   };
 
   if (isSupabaseConfigured()) {
-    await persistMyLeaveRequest(serviceClient(), ctx.employeeId, request, activity);
+    const supabase = serviceClient();
+    await persistMyLeaveRequest(supabase, ctx.employeeId, request, activity);
+    await runServerAutomationEvents(supabase, [
+      myWorkplaceLeaveRequestedEvent(
+        normalizeEmployee({ ...employee, leaveRequests: [...employee.leaveRequests, request] }),
+        request
+      ),
+    ]);
   }
 
   const next = normalizeEmployee({
@@ -383,7 +395,14 @@ export async function submitMyCredential(
   };
 
   if (isSupabaseConfigured()) {
-    await persistMyCredential(serviceClient(), ctx.employeeId, credential, activity);
+    const supabase = serviceClient();
+    await persistMyCredential(supabase, ctx.employeeId, credential, activity);
+    await runServerAutomationEvents(supabase, [
+      myWorkplaceCredentialPendingEvent(
+        normalizeEmployee({ ...employee, credentials: [...employee.credentials, credential] }),
+        credential
+      ),
+    ]);
   }
 
   const next = normalizeEmployee({

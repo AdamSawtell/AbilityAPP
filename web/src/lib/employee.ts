@@ -492,7 +492,7 @@ export const initialEmployees: EmployeeRecord[] = [
         lineNo: 1,
         leaveType: "Annual leave",
         entitlementDays: 20,
-        balanceDays: 14.5,
+        balanceDays: 11.5,
         accrualNotes: "Accrued per award",
       },
       {

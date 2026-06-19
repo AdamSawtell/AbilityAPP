@@ -1,4 +1,8 @@
-import type { EmployeeCredentialRow, EmployeeRecord } from "@/lib/employee";
+import type {
+  EmployeeCredentialRow,
+  EmployeeLeaveRequestRow,
+  EmployeeRecord,
+} from "@/lib/employee";
 
 export const CREDENTIAL_EXPIRY_WARNING_DAYS = 30;
 
@@ -8,7 +12,31 @@ export type EmployeeAutomationEvent =
       type: "employee.credential_expiring";
       employee: EmployeeRecord;
       credential: EmployeeCredentialRow;
+    }
+  | {
+      type: "employee.credential_pending_review";
+      employee: EmployeeRecord;
+      credential: EmployeeCredentialRow;
+    }
+  | {
+      type: "employee.leave_requested";
+      employee: EmployeeRecord;
+      leaveRequest: EmployeeLeaveRequestRow;
     };
+
+export function myWorkplaceCredentialPendingEvent(
+  employee: EmployeeRecord,
+  credential: EmployeeCredentialRow
+): EmployeeAutomationEvent {
+  return { type: "employee.credential_pending_review", employee, credential };
+}
+
+export function myWorkplaceLeaveRequestedEvent(
+  employee: EmployeeRecord,
+  leaveRequest: EmployeeLeaveRequestRow
+): EmployeeAutomationEvent {
+  return { type: "employee.leave_requested", employee, leaveRequest };
+}
 
 export function employeeEventsFromSave(
   employee: EmployeeRecord,
@@ -17,7 +45,15 @@ export function employeeEventsFromSave(
   if (!before) {
     return [{ type: "employee.created", employee }];
   }
-  return [];
+
+  const events: EmployeeAutomationEvent[] = [];
+  for (const credential of employee.credentials ?? []) {
+    if (credential.status !== "Pending review") continue;
+    const prior = before.credentials?.find((row) => row.id === credential.id);
+    if (prior?.status === "Pending review") continue;
+    events.push({ type: "employee.credential_pending_review", employee, credential });
+  }
+  return events;
 }
 
 function daysUntil(dateIso: string, now = new Date()): number | null {

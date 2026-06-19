@@ -312,7 +312,7 @@ insert into public.employee_leave_entitlement (
   id, employee_id, line_no, leave_type, entitlement_days, balance_days, accrual_notes
 )
 values
-  ('leave-isla-annual', 'emp-isla', 1, 'Annual leave', 20, 14.5, 'Accrued per award'),
+  ('leave-isla-annual', 'emp-isla', 1, 'Annual leave', 20, 11.5, 'Accrued per award'),
   ('leave-isla-personal', 'emp-isla', 2, 'Personal / carer''s leave', 10, 8, ''),
   ('leave-gab-annual', 'emp-gabriela', 1, 'Annual leave', 11.6, 6, 'Pro-rata part-time'),
   ('leave-ent-emp-sw-002-annual', 'emp-sw-002', 1, 'Annual leave', 20, 9, 'Accrued per award'),

@@ -182,6 +182,12 @@ values
   ('role-admin', 'workforce-organisation'),
   ('role-admin', 'workforce-org-edit'),
   ('role-admin', 'workforce-org-chart-tier'),
+  ('role-admin', 'my-workplace'),
+  ('role-admin', 'my-leave'),
+  ('role-admin', 'my-profile'),
+  ('role-admin', 'my-availability'),
+  ('role-admin', 'my-contracts'),
+  ('role-admin', 'my-credentials'),
   ('role-admin', 'products'),
   ('role-admin', 'product-overview'),
   ('role-admin', 'product-pricing'),
@@ -212,6 +218,12 @@ values
   ('role-ceo', 'tasks-for-my-role'),
   ('role-ceo', 'tasks-all'),
   ('role-ceo', 'tasks-past'),
+  ('role-ceo', 'my-workplace'),
+  ('role-ceo', 'my-leave'),
+  ('role-ceo', 'my-profile'),
+  ('role-ceo', 'my-availability'),
+  ('role-ceo', 'my-contracts'),
+  ('role-ceo', 'my-credentials'),
   ('role-ceo', 'workforce-planning'),
   ('role-ceo', 'workforce-organisation'),
   ('role-ceo', 'workforce-org-edit'),
@@ -282,6 +294,12 @@ values
   ('role-exec-operations', 'tasks-for-my-role'),
   ('role-exec-operations', 'tasks-all'),
   ('role-exec-operations', 'tasks-past'),
+  ('role-exec-operations', 'my-workplace'),
+  ('role-exec-operations', 'my-leave'),
+  ('role-exec-operations', 'my-profile'),
+  ('role-exec-operations', 'my-availability'),
+  ('role-exec-operations', 'my-contracts'),
+  ('role-exec-operations', 'my-credentials'),
   ('role-exec-operations', 'workforce-planning'),
   ('role-exec-operations', 'workforce-organisation'),
   ('role-exec-operations', 'workforce-org-edit'),
@@ -352,6 +370,12 @@ values
   ('role-exec-hr', 'tasks-for-my-role'),
   ('role-exec-hr', 'tasks-all'),
   ('role-exec-hr', 'tasks-past'),
+  ('role-exec-hr', 'my-workplace'),
+  ('role-exec-hr', 'my-leave'),
+  ('role-exec-hr', 'my-profile'),
+  ('role-exec-hr', 'my-availability'),
+  ('role-exec-hr', 'my-contracts'),
+  ('role-exec-hr', 'my-credentials'),
   ('role-exec-hr', 'workforce-planning'),
   ('role-exec-hr', 'workforce-organisation'),
   ('role-exec-hr', 'workforce-org-edit'),
@@ -422,6 +446,12 @@ values
   ('role-exec-finance', 'tasks-for-my-role'),
   ('role-exec-finance', 'tasks-all'),
   ('role-exec-finance', 'tasks-past'),
+  ('role-exec-finance', 'my-workplace'),
+  ('role-exec-finance', 'my-leave'),
+  ('role-exec-finance', 'my-profile'),
+  ('role-exec-finance', 'my-availability'),
+  ('role-exec-finance', 'my-contracts'),
+  ('role-exec-finance', 'my-credentials'),
   ('role-exec-finance', 'workforce-planning'),
   ('role-exec-finance', 'workforce-organisation'),
   ('role-exec-finance', 'workforce-org-edit'),
@@ -492,6 +522,12 @@ values
   ('role-exec-ict', 'tasks-for-my-role'),
   ('role-exec-ict', 'tasks-all'),
   ('role-exec-ict', 'tasks-past'),
+  ('role-exec-ict', 'my-workplace'),
+  ('role-exec-ict', 'my-leave'),
+  ('role-exec-ict', 'my-profile'),
+  ('role-exec-ict', 'my-availability'),
+  ('role-exec-ict', 'my-contracts'),
+  ('role-exec-ict', 'my-credentials'),
   ('role-exec-ict', 'workforce-planning'),
   ('role-exec-ict', 'workforce-organisation'),
   ('role-exec-ict', 'workforce-org-edit'),
@@ -562,6 +598,12 @@ values
   ('role-exec-quality', 'tasks-for-my-role'),
   ('role-exec-quality', 'tasks-all'),
   ('role-exec-quality', 'tasks-past'),
+  ('role-exec-quality', 'my-workplace'),
+  ('role-exec-quality', 'my-leave'),
+  ('role-exec-quality', 'my-profile'),
+  ('role-exec-quality', 'my-availability'),
+  ('role-exec-quality', 'my-contracts'),
+  ('role-exec-quality', 'my-credentials'),
   ('role-exec-quality', 'workforce-planning'),
   ('role-exec-quality', 'workforce-organisation'),
   ('role-exec-quality', 'workforce-org-edit'),
@@ -632,6 +674,12 @@ values
   ('role-hr-manager', 'tasks-for-my-role'),
   ('role-hr-manager', 'tasks-all'),
   ('role-hr-manager', 'tasks-past'),
+  ('role-hr-manager', 'my-workplace'),
+  ('role-hr-manager', 'my-leave'),
+  ('role-hr-manager', 'my-profile'),
+  ('role-hr-manager', 'my-availability'),
+  ('role-hr-manager', 'my-contracts'),
+  ('role-hr-manager', 'my-credentials'),
   ('role-hr-manager', 'workforce-planning'),
   ('role-hr-manager', 'workforce-organisation'),
   ('role-hr-manager', 'clients'),
@@ -696,9 +744,16 @@ values
   ('role-hr-officer', 'tasks-for-my-role'),
   ('role-hr-officer', 'tasks-all'),
   ('role-hr-officer', 'tasks-past'),
+  ('role-hr-officer', 'my-workplace'),
+  ('role-hr-officer', 'my-leave'),
+  ('role-hr-officer', 'my-profile'),
+  ('role-hr-officer', 'my-availability'),
+  ('role-hr-officer', 'my-contracts'),
+  ('role-hr-officer', 'my-credentials'),
   ('role-hr-officer', 'workforce-planning'),
   ('role-hr-officer', 'employees'),
   ('role-hr-officer', 'employee-overview'),
+  ('role-hr-officer', 'employee-credentials-assigned'),
   ('role-hr-officer', 'clients'),
   ('role-hr-officer', 'client-overview'),
   ('role-hr-officer', 'client-alerts'),
@@ -745,6 +800,12 @@ values
   ('role-ict-manager', 'tasks-for-my-role'),
   ('role-ict-manager', 'tasks-all'),
   ('role-ict-manager', 'tasks-past'),
+  ('role-ict-manager', 'my-workplace'),
+  ('role-ict-manager', 'my-leave'),
+  ('role-ict-manager', 'my-profile'),
+  ('role-ict-manager', 'my-availability'),
+  ('role-ict-manager', 'my-contracts'),
+  ('role-ict-manager', 'my-credentials'),
   ('role-ict-manager', 'workforce-planning'),
   ('role-ict-manager', 'clients'),
   ('role-ict-manager', 'client-overview'),
@@ -808,6 +869,12 @@ values
   ('role-ict-officer', 'tasks-for-my-role'),
   ('role-ict-officer', 'tasks-all'),
   ('role-ict-officer', 'tasks-past'),
+  ('role-ict-officer', 'my-workplace'),
+  ('role-ict-officer', 'my-leave'),
+  ('role-ict-officer', 'my-profile'),
+  ('role-ict-officer', 'my-availability'),
+  ('role-ict-officer', 'my-contracts'),
+  ('role-ict-officer', 'my-credentials'),
   ('role-ict-officer', 'workforce-planning'),
   ('role-ict-officer', 'clients'),
   ('role-ict-officer', 'client-overview'),
@@ -855,6 +922,12 @@ values
   ('role-finance-manager', 'tasks-for-my-role'),
   ('role-finance-manager', 'tasks-all'),
   ('role-finance-manager', 'tasks-past'),
+  ('role-finance-manager', 'my-workplace'),
+  ('role-finance-manager', 'my-leave'),
+  ('role-finance-manager', 'my-profile'),
+  ('role-finance-manager', 'my-availability'),
+  ('role-finance-manager', 'my-contracts'),
+  ('role-finance-manager', 'my-credentials'),
   ('role-finance-manager', 'workforce-planning'),
   ('role-finance-manager', 'clients'),
   ('role-finance-manager', 'client-overview'),
@@ -918,6 +991,12 @@ values
   ('role-finance-officer', 'tasks-for-my-role'),
   ('role-finance-officer', 'tasks-all'),
   ('role-finance-officer', 'tasks-past'),
+  ('role-finance-officer', 'my-workplace'),
+  ('role-finance-officer', 'my-leave'),
+  ('role-finance-officer', 'my-profile'),
+  ('role-finance-officer', 'my-availability'),
+  ('role-finance-officer', 'my-contracts'),
+  ('role-finance-officer', 'my-credentials'),
   ('role-finance-officer', 'workforce-planning'),
   ('role-finance-officer', 'clients'),
   ('role-finance-officer', 'client-overview'),
@@ -965,6 +1044,12 @@ values
   ('role-quality-manager', 'tasks-for-my-role'),
   ('role-quality-manager', 'tasks-all'),
   ('role-quality-manager', 'tasks-past'),
+  ('role-quality-manager', 'my-workplace'),
+  ('role-quality-manager', 'my-leave'),
+  ('role-quality-manager', 'my-profile'),
+  ('role-quality-manager', 'my-availability'),
+  ('role-quality-manager', 'my-contracts'),
+  ('role-quality-manager', 'my-credentials'),
   ('role-quality-manager', 'workforce-planning'),
   ('role-quality-manager', 'incidents-compliance'),
   ('role-quality-manager', 'incidents-dashboard'),
@@ -1030,6 +1115,12 @@ values
   ('role-quality-officer', 'tasks-for-my-role'),
   ('role-quality-officer', 'tasks-all'),
   ('role-quality-officer', 'tasks-past'),
+  ('role-quality-officer', 'my-workplace'),
+  ('role-quality-officer', 'my-leave'),
+  ('role-quality-officer', 'my-profile'),
+  ('role-quality-officer', 'my-availability'),
+  ('role-quality-officer', 'my-contracts'),
+  ('role-quality-officer', 'my-credentials'),
   ('role-quality-officer', 'workforce-planning'),
   ('role-quality-officer', 'incidents-compliance'),
   ('role-quality-officer', 'clients'),
@@ -1078,6 +1169,12 @@ values
   ('role-rostering-manager', 'tasks-for-my-role'),
   ('role-rostering-manager', 'tasks-all'),
   ('role-rostering-manager', 'tasks-past'),
+  ('role-rostering-manager', 'my-workplace'),
+  ('role-rostering-manager', 'my-leave'),
+  ('role-rostering-manager', 'my-profile'),
+  ('role-rostering-manager', 'my-availability'),
+  ('role-rostering-manager', 'my-contracts'),
+  ('role-rostering-manager', 'my-credentials'),
   ('role-rostering-manager', 'workforce-planning'),
   ('role-rostering-manager', 'workforce-organisation'),
   ('role-rostering-manager', 'clients'),
@@ -1142,6 +1239,12 @@ values
   ('role-rostering-officer', 'tasks-for-my-role'),
   ('role-rostering-officer', 'tasks-all'),
   ('role-rostering-officer', 'tasks-past'),
+  ('role-rostering-officer', 'my-workplace'),
+  ('role-rostering-officer', 'my-leave'),
+  ('role-rostering-officer', 'my-profile'),
+  ('role-rostering-officer', 'my-availability'),
+  ('role-rostering-officer', 'my-contracts'),
+  ('role-rostering-officer', 'my-credentials'),
   ('role-rostering-officer', 'workforce-planning'),
   ('role-rostering-officer', 'workforce-planning'),
   ('role-rostering-officer', 'clients'),
@@ -1190,6 +1293,12 @@ values
   ('role-intake', 'tasks-for-my-role'),
   ('role-intake', 'tasks-all'),
   ('role-intake', 'tasks-past'),
+  ('role-intake', 'my-workplace'),
+  ('role-intake', 'my-leave'),
+  ('role-intake', 'my-profile'),
+  ('role-intake', 'my-availability'),
+  ('role-intake', 'my-contracts'),
+  ('role-intake', 'my-credentials'),
   ('role-intake', 'enquiries'),
   ('role-intake', 'enquiry-enquiry-details'),
   ('role-intake', 'enquiry-participant'),
@@ -1241,6 +1350,12 @@ values
   ('role-coordinator', 'tasks-for-my-role'),
   ('role-coordinator', 'tasks-all'),
   ('role-coordinator', 'tasks-past'),
+  ('role-coordinator', 'my-workplace'),
+  ('role-coordinator', 'my-leave'),
+  ('role-coordinator', 'my-profile'),
+  ('role-coordinator', 'my-availability'),
+  ('role-coordinator', 'my-contracts'),
+  ('role-coordinator', 'my-credentials'),
   ('role-coordinator', 'workforce-planning'),
   ('role-coordinator', 'workforce-organisation'),
   ('role-coordinator', 'clients'),
@@ -1298,6 +1413,12 @@ values
   ('role-team-leader', 'tasks-for-my-role'),
   ('role-team-leader', 'tasks-all'),
   ('role-team-leader', 'tasks-past'),
+  ('role-team-leader', 'my-workplace'),
+  ('role-team-leader', 'my-leave'),
+  ('role-team-leader', 'my-profile'),
+  ('role-team-leader', 'my-availability'),
+  ('role-team-leader', 'my-contracts'),
+  ('role-team-leader', 'my-credentials'),
   ('role-team-leader', 'workforce-planning'),
   ('role-team-leader', 'workforce-organisation'),
   ('role-team-leader', 'workforce-org-edit'),
@@ -1361,6 +1482,12 @@ values
   ('role-support-worker', 'tasks-assigned-to-me'),
   ('role-support-worker', 'tasks-for-my-role'),
   ('role-support-worker', 'tasks-past'),
+  ('role-support-worker', 'my-workplace'),
+  ('role-support-worker', 'my-leave'),
+  ('role-support-worker', 'my-profile'),
+  ('role-support-worker', 'my-availability'),
+  ('role-support-worker', 'my-contracts'),
+  ('role-support-worker', 'my-credentials'),
   ('role-support-worker', 'workforce-planning'),
   ('role-support-worker', 'clients'),
   ('role-support-worker', 'client-overview'),
@@ -1415,6 +1542,11 @@ values
   ('role-admin', 'notify-ndis-reportable'),
   ('role-admin', 'assign-task'),
   ('role-admin', 'action-task'),
+  ('role-admin', 'submit-leave-request'),
+  ('role-admin', 'submit-employee-credential'),
+  ('role-admin', 'submit-leave-on-behalf'),
+  ('role-admin', 'review-employee-credential'),
+  ('role-admin', 'approve-leave-request'),
   ('role-ceo', 'assign-location-client'),
   ('role-ceo', 'assign-location-employee'),
   ('role-ceo', 'assign-location-product'),
@@ -1422,6 +1554,11 @@ values
   ('role-ceo', 'action-task'),
   ('role-ceo', 'report-incident'),
   ('role-ceo', 'notify-ndis-reportable'),
+  ('role-ceo', 'submit-leave-request'),
+  ('role-ceo', 'submit-employee-credential'),
+  ('role-ceo', 'submit-leave-on-behalf'),
+  ('role-ceo', 'review-employee-credential'),
+  ('role-ceo', 'approve-leave-request'),
   ('role-exec-operations', 'assign-location-client'),
   ('role-exec-operations', 'assign-location-employee'),
   ('role-exec-operations', 'assign-location-product'),
@@ -1429,6 +1566,9 @@ values
   ('role-exec-operations', 'action-task'),
   ('role-exec-operations', 'report-incident'),
   ('role-exec-operations', 'notify-ndis-reportable'),
+  ('role-exec-operations', 'submit-leave-request'),
+  ('role-exec-operations', 'submit-employee-credential'),
+  ('role-exec-operations', 'submit-leave-on-behalf'),
   ('role-exec-hr', 'assign-location-client'),
   ('role-exec-hr', 'assign-location-employee'),
   ('role-exec-hr', 'assign-location-product'),
@@ -1436,6 +1576,11 @@ values
   ('role-exec-hr', 'action-task'),
   ('role-exec-hr', 'report-incident'),
   ('role-exec-hr', 'notify-ndis-reportable'),
+  ('role-exec-hr', 'submit-leave-request'),
+  ('role-exec-hr', 'submit-employee-credential'),
+  ('role-exec-hr', 'submit-leave-on-behalf'),
+  ('role-exec-hr', 'review-employee-credential'),
+  ('role-exec-hr', 'approve-leave-request'),
   ('role-exec-finance', 'assign-location-client'),
   ('role-exec-finance', 'assign-location-employee'),
   ('role-exec-finance', 'assign-location-product'),
@@ -1443,6 +1588,9 @@ values
   ('role-exec-finance', 'action-task'),
   ('role-exec-finance', 'report-incident'),
   ('role-exec-finance', 'notify-ndis-reportable'),
+  ('role-exec-finance', 'submit-leave-request'),
+  ('role-exec-finance', 'submit-employee-credential'),
+  ('role-exec-finance', 'submit-leave-on-behalf'),
   ('role-exec-ict', 'assign-location-client'),
   ('role-exec-ict', 'assign-location-employee'),
   ('role-exec-ict', 'assign-location-product'),
@@ -1450,6 +1598,9 @@ values
   ('role-exec-ict', 'action-task'),
   ('role-exec-ict', 'report-incident'),
   ('role-exec-ict', 'notify-ndis-reportable'),
+  ('role-exec-ict', 'submit-leave-request'),
+  ('role-exec-ict', 'submit-employee-credential'),
+  ('role-exec-ict', 'submit-leave-on-behalf'),
   ('role-exec-quality', 'assign-location-client'),
   ('role-exec-quality', 'assign-location-employee'),
   ('role-exec-quality', 'assign-location-product'),
@@ -1457,6 +1608,9 @@ values
   ('role-exec-quality', 'action-task'),
   ('role-exec-quality', 'report-incident'),
   ('role-exec-quality', 'notify-ndis-reportable'),
+  ('role-exec-quality', 'submit-leave-request'),
+  ('role-exec-quality', 'submit-employee-credential'),
+  ('role-exec-quality', 'submit-leave-on-behalf'),
   ('role-hr-manager', 'assign-location-client'),
   ('role-hr-manager', 'assign-location-employee'),
   ('role-hr-manager', 'assign-location-product'),
@@ -1464,9 +1618,19 @@ values
   ('role-hr-manager', 'action-task'),
   ('role-hr-manager', 'report-incident'),
   ('role-hr-manager', 'notify-ndis-reportable'),
+  ('role-hr-manager', 'submit-leave-request'),
+  ('role-hr-manager', 'submit-employee-credential'),
+  ('role-hr-manager', 'submit-leave-on-behalf'),
+  ('role-hr-manager', 'review-employee-credential'),
+  ('role-hr-manager', 'approve-leave-request'),
   ('role-hr-officer', 'assign-task'),
   ('role-hr-officer', 'action-task'),
   ('role-hr-officer', 'report-incident'),
+  ('role-hr-officer', 'submit-leave-request'),
+  ('role-hr-officer', 'submit-employee-credential'),
+  ('role-hr-officer', 'submit-leave-on-behalf'),
+  ('role-hr-officer', 'review-employee-credential'),
+  ('role-hr-officer', 'approve-leave-request'),
   ('role-ict-manager', 'assign-location-client'),
   ('role-ict-manager', 'assign-location-employee'),
   ('role-ict-manager', 'assign-location-product'),
@@ -1474,9 +1638,15 @@ values
   ('role-ict-manager', 'action-task'),
   ('role-ict-manager', 'report-incident'),
   ('role-ict-manager', 'notify-ndis-reportable'),
+  ('role-ict-manager', 'submit-leave-request'),
+  ('role-ict-manager', 'submit-employee-credential'),
+  ('role-ict-manager', 'submit-leave-on-behalf'),
   ('role-ict-officer', 'assign-task'),
   ('role-ict-officer', 'action-task'),
   ('role-ict-officer', 'report-incident'),
+  ('role-ict-officer', 'submit-leave-request'),
+  ('role-ict-officer', 'submit-employee-credential'),
+  ('role-ict-officer', 'submit-leave-on-behalf'),
   ('role-finance-manager', 'assign-location-client'),
   ('role-finance-manager', 'assign-location-employee'),
   ('role-finance-manager', 'assign-location-product'),
@@ -1484,9 +1654,15 @@ values
   ('role-finance-manager', 'action-task'),
   ('role-finance-manager', 'report-incident'),
   ('role-finance-manager', 'notify-ndis-reportable'),
+  ('role-finance-manager', 'submit-leave-request'),
+  ('role-finance-manager', 'submit-employee-credential'),
+  ('role-finance-manager', 'submit-leave-on-behalf'),
   ('role-finance-officer', 'assign-task'),
   ('role-finance-officer', 'action-task'),
   ('role-finance-officer', 'report-incident'),
+  ('role-finance-officer', 'submit-leave-request'),
+  ('role-finance-officer', 'submit-employee-credential'),
+  ('role-finance-officer', 'submit-leave-on-behalf'),
   ('role-quality-manager', 'assign-location-client'),
   ('role-quality-manager', 'assign-location-employee'),
   ('role-quality-manager', 'assign-location-product'),
@@ -1494,9 +1670,15 @@ values
   ('role-quality-manager', 'action-task'),
   ('role-quality-manager', 'report-incident'),
   ('role-quality-manager', 'notify-ndis-reportable'),
+  ('role-quality-manager', 'submit-leave-request'),
+  ('role-quality-manager', 'submit-employee-credential'),
+  ('role-quality-manager', 'submit-leave-on-behalf'),
   ('role-quality-officer', 'assign-task'),
   ('role-quality-officer', 'action-task'),
   ('role-quality-officer', 'report-incident'),
+  ('role-quality-officer', 'submit-leave-request'),
+  ('role-quality-officer', 'submit-employee-credential'),
+  ('role-quality-officer', 'submit-leave-on-behalf'),
   ('role-rostering-manager', 'assign-location-client'),
   ('role-rostering-manager', 'assign-location-employee'),
   ('role-rostering-manager', 'assign-location-product'),
@@ -1504,9 +1686,16 @@ values
   ('role-rostering-manager', 'action-task'),
   ('role-rostering-manager', 'report-incident'),
   ('role-rostering-manager', 'notify-ndis-reportable'),
+  ('role-rostering-manager', 'submit-leave-request'),
+  ('role-rostering-manager', 'submit-employee-credential'),
+  ('role-rostering-manager', 'submit-leave-on-behalf'),
+  ('role-rostering-manager', 'approve-leave-request'),
   ('role-rostering-officer', 'assign-task'),
   ('role-rostering-officer', 'action-task'),
   ('role-rostering-officer', 'report-incident'),
+  ('role-rostering-officer', 'submit-leave-request'),
+  ('role-rostering-officer', 'submit-employee-credential'),
+  ('role-rostering-officer', 'submit-leave-on-behalf'),
   ('role-intake', 'enquiry-to-client'),
   ('role-intake', 'assign-location-client'),
   ('role-intake', 'assign-location-employee'),
@@ -1515,6 +1704,8 @@ values
   ('role-intake', 'action-task'),
   ('role-intake', 'report-incident'),
   ('role-intake', 'notify-ndis-reportable'),
+  ('role-intake', 'submit-leave-request'),
+  ('role-intake', 'submit-employee-credential'),
   ('role-coordinator', 'assign-location-client'),
   ('role-coordinator', 'assign-location-employee'),
   ('role-coordinator', 'assign-location-product'),
@@ -1522,6 +1713,9 @@ values
   ('role-coordinator', 'action-task'),
   ('role-coordinator', 'report-incident'),
   ('role-coordinator', 'notify-ndis-reportable'),
+  ('role-coordinator', 'submit-leave-request'),
+  ('role-coordinator', 'submit-employee-credential'),
+  ('role-coordinator', 'submit-leave-on-behalf'),
   ('role-team-leader', 'assign-location-client'),
   ('role-team-leader', 'assign-location-employee'),
   ('role-team-leader', 'assign-location-product'),
@@ -1529,10 +1723,16 @@ values
   ('role-team-leader', 'action-task'),
   ('role-team-leader', 'report-incident'),
   ('role-team-leader', 'notify-ndis-reportable'),
+  ('role-team-leader', 'submit-leave-request'),
+  ('role-team-leader', 'submit-employee-credential'),
+  ('role-team-leader', 'submit-leave-on-behalf'),
+  ('role-team-leader', 'approve-leave-request'),
   ('role-support-worker', 'assign-task'),
   ('role-support-worker', 'action-task'),
   ('role-support-worker', 'report-incident'),
-  ('role-support-worker', 'assign-location-employee')
+  ('role-support-worker', 'assign-location-employee'),
+  ('role-support-worker', 'submit-leave-request'),
+  ('role-support-worker', 'submit-employee-credential')
 on conflict do nothing;
 
 delete from public.app_role_report where role_id in ('role-admin', 'role-board', 'role-ceo', 'role-exec-operations', 'role-exec-hr', 'role-exec-finance', 'role-exec-ict', 'role-exec-quality', 'role-hr-manager', 'role-hr-officer', 'role-ict-manager', 'role-ict-officer', 'role-finance-manager', 'role-finance-officer', 'role-quality-manager', 'role-quality-officer', 'role-rostering-manager', 'role-rostering-officer', 'role-intake', 'role-coordinator', 'role-team-leader', 'role-support-worker');
@@ -1734,40 +1934,40 @@ on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;
 
 -- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)
-update public.app_user set password = '$2b$10$Mj4DNdnFjgDKZLwPeSTGCuCR7JwtEGG4u4RlekpssJZ4AnmIZGXBC' where username = 'SuperUser';
-update public.app_user set password = '$2b$10$3LulzfuE30pawp7Numi6Me.M0D9lwlbt3MYD5UqG4Ibw8qBVz94lK' where username = 'PatriciaChen';
-update public.app_user set password = '$2b$10$bzaPSOHJIXf1C7pJmxEeqeGfZbda9UnpsBEn79SoSVQ7tIaeTBiyW' where username = 'MichaelSmith';
-update public.app_user set password = '$2b$10$PFCQCJY2FBC6Z.FzX8cuzuGFB00oqfIjf87gte4s8J23ZfolhoHme' where username = 'PiperCollins';
-update public.app_user set password = '$2b$10$CGiYmAYsXK7n9d5MDa6coeLNDTaDKz00lhIwTkCscUUOhB0o9ptYS' where username = 'IslaRobinson';
-update public.app_user set password = '$2b$10$ibuDXhkt/e/o4mn9416M/uUVMbv6Sa4GyI7cVFf371FO5uQIJY62.' where username = 'GabrielaWilson';
-update public.app_user set password = '$2b$10$quinVRlIxX9jqA9yj4GRLe/B87I7F.rH11JX.jgxFB54eyw3PuVdy' where username = 'DianeFoster';
-update public.app_user set password = '$2b$10$H.8XLQShObz5UPOxXiZAsuxXOWAH.aRSYIP1mOj/gG.D38MP/9Wle' where username = 'JamesWhitford';
-update public.app_user set password = '$2b$10$sIjbhD4fZjOFM7u9KDzYBuXT23X.MWQXit/IMJQsEodJ0TKlYZG4m' where username = 'SamRivera';
-update public.app_user set password = '$2b$10$Gvg2eh1xZjWarWzi9FH1h.FwseV6.wKkr/JEHuow/ueaftlSKrA4.' where username = 'MargaretHolt';
-update public.app_user set password = '$2b$10$OSYCLehngw89ehZAie1aK.a99GBGw91Dur/J8rwqWD5vnUF/QfmL.' where username = 'RileyShaw';
-update public.app_user set password = '$2b$10$/vz1rsSYy7ZbiPyUVGwHcuyrFtdOl5BXbg4IGIlhlLVqP2/BKkM6O' where username = 'EleanorWright';
-update public.app_user set password = '$2b$10$pXh5VkNwm9XzlJacm6CsM.kiYDGBTz0/7FOYWW8THwmL5Ehg/nfvi' where username = 'MarcusOBrien';
-update public.app_user set password = '$2b$10$VQnPFlF3Fk3HZlwODtxDb.2sE.5E7qyjGutt6IFAbAPcGx7/2dCC6' where username = 'HelenTran';
-update public.app_user set password = '$2b$10$kHfgyRRi5NB0UITDgThEL.ehTDeG0IyLvOVbvaRb3HiacmFnb33Wi' where username = 'DavidOkonkwo';
-update public.app_user set password = '$2b$10$IhZgYm2lwEecx8OGZGJxcOSXsCR/rA52Iyq5zcSnu2t5em44xg15m' where username = 'SandraBlake';
-update public.app_user set password = '$2b$10$IKnm0HGwfq62itnemOpWGee/1XwjvHSmw9hVqGUtiT/Fp1B3VJaK6' where username = 'CalebMurphy';
-update public.app_user set password = '$2b$10$GwacISlcRmblEOfrn8nEx.Rj5fNFlwRysQj6sTNY38P3Wg/3sh.VC' where username = 'AlexKim';
-update public.app_user set password = '$2b$10$r3zsIxUfnIUjELbG0mUgg.fEJn7TJfj6ouzJ1CE7EO6DubnJjLnd6' where username = 'JordanLee';
-update public.app_user set password = '$2b$10$YNyz7U2C/hqwXeuha6Q2J.r8Y9BkkZ1jbLnDNT5UoZH5Ps3.wQBu.' where username = 'QuinnTaylor';
-update public.app_user set password = '$2b$10$hWoHoOpL/NzBn81LG4UtyOhGLjzsbmXDawAUDmK9yLUQPgQ3wzFJi' where username = 'AudreyPatel';
-update public.app_user set password = '$2b$10$xolt5Sp/Qe1008A0IOb3AOPtVwb78jz0iX3DzvNCLtXXrxqxQoEfa' where username = 'MorganBlake';
-update public.app_user set password = '$2b$10$uLFHQwWx1jyfVr.Bt5hOwOFSvlrhcG7COTLOk3TOSZNaaJHympe8a' where username = 'TessaNguyen';
-update public.app_user set password = '$2b$10$lcxw86pvZxC.KYYGfDtRgO5mETqX2oU6evxLSfNTYhI8eF3E5UIXy' where username = 'JessicaHancock';
-update public.app_user set password = '$2b$10$14IedDPPdkx6j8VOi4f9aOS9e4sx8XUtz18sLg44snXldIZYaf0be' where username = 'NaomiSingh';
-update public.app_user set password = '$2b$10$Ws09ogdFUyKNjjq6/QRVrO7ZnWPZ8pe.DNN1Vo8DsLeEVqYXRg6eG' where username = 'RoseDash';
-update public.app_user set password = '$2b$10$mzCL1AwhPBIU1pJcwDVVU.Pe27/MGlJiwN2jcdCPv6lPBViBRa74y' where username = 'OliverWilliams';
-update public.app_user set password = '$2b$10$1973iS.zRU1DmKIiaOkd5uHHRq7E.9JzmYjKUveROXz/zXPuXKqyG' where username = 'AvaThomas';
-update public.app_user set password = '$2b$10$c6jbMFifgOxvow6Mbq8HG.giA/3w2pKmBI0.vKUZRN8k4dOV.vXvm' where username = 'NoahJackson';
-update public.app_user set password = '$2b$10$BEBEPxUZz9AmdWJI430DLu/MsYLm7QqGS6UIQbr9dqwwTNvUgd/E6' where username = 'MiaWhite';
-update public.app_user set password = '$2b$10$h/NeDp0rF7YaxY406yX8xuQnKPRWeneSLZ.dgePXlJcjUUzdNDhpK' where username = 'LiamHarris';
-update public.app_user set password = '$2b$10$chZ7pdZZejthA2rP6zXb4.I7jTh7pAwDEd.r7I4PlDiOFCySQWaIC' where username = 'ZoeMartin';
-update public.app_user set password = '$2b$10$i9O8CjBSTQ576CXyMpixJe4nDmJf5lPl/zWbZWGYoQjeVxbL96PEC' where username = 'EthanThompson';
-update public.app_user set password = '$2b$10$W5vrnwCgtK6haliQxhmoweFVhfOnvbKr/BqtSUuQO9xvNMb3qRjSe' where username = 'ChloeGarcia';
-update public.app_user set password = '$2b$10$3QwWGxeb6.wV1xFwMq2hK.YoHpNIW98JtPRd/CNc58S7U5avsLhbq' where username = 'MasonRobinson';
-update public.app_user set password = '$2b$10$Gu8QFZ3kNqA1FPIfXaaRO.vRxQ74x9ZIiYJPbMrC5nnMxLJVLZ052' where username = 'RubyClark';
-update public.app_user set password = '$2b$10$ONazPaAdjYu.AhNuMxyhae4ZjxC1Q7eXPdFTAJKKMo56BymuB7EFq' where username = 'LucasLewis';
+update public.app_user set password = '$2b$10$rcEECREB5pRk8XpAcmyrje50PJ2nAsB86U3SSlMOCQb/1pGcUOEti' where username = 'SuperUser';
+update public.app_user set password = '$2b$10$.lbq01spf4ypR/j0bFUG.OGLSQI0Y31UgqO1TwRM2k0BqmcDiVnPW' where username = 'PatriciaChen';
+update public.app_user set password = '$2b$10$qhGeJph0pZeB4awKGuRCAePqr8Ud0TUham/KYrWjh1T5K8MVAb4iq' where username = 'MichaelSmith';
+update public.app_user set password = '$2b$10$O4tkBPXP221QNMtbEolUZOVOT8Gplb70m11mvoC1uxPEY8Ein8vAm' where username = 'PiperCollins';
+update public.app_user set password = '$2b$10$kop9EaTGf3tpzqkeDKRar.Omq8PriSLMTB6UaHYb3AAQEs4aXgDbO' where username = 'IslaRobinson';
+update public.app_user set password = '$2b$10$OJr4ZSnpOYefgCYsBqwuY.P5GFuw/PWP3/bYAegrrCTFRd1Zl8MM.' where username = 'GabrielaWilson';
+update public.app_user set password = '$2b$10$hgB/s5PdU4Fwnzkp8AV1fOkHevAwxDhmKcBe1jfEJWKMvZCkYuPqO' where username = 'DianeFoster';
+update public.app_user set password = '$2b$10$zizeA1El62oG7f0ygYb7jO3B2an5prrZ4U/k.BPO1pUWlT0mcaCTq' where username = 'JamesWhitford';
+update public.app_user set password = '$2b$10$TOd0iiA6kZkG/wHBcQ73Zur8TGMhtsxbpJp6Bj6zNPFDgvEv.8DZG' where username = 'SamRivera';
+update public.app_user set password = '$2b$10$eB2m83pEfq.HwR422OEiMu30EWsAJr0jMsPZW4jAC29mCKUDZsFDq' where username = 'MargaretHolt';
+update public.app_user set password = '$2b$10$T5K1wmnh.w.8fob1Zgzy4eNL1UFsE7mLORZYRo6bIDhySPMZC2dm6' where username = 'RileyShaw';
+update public.app_user set password = '$2b$10$1N.vuykNpAlKbPiHcC/HMOnzqfm.0y5sXh0ngLqk9LfihDODMV8qq' where username = 'EleanorWright';
+update public.app_user set password = '$2b$10$MS.oRWDiInwmCtgHwbEam.WTzmfylCJmjx1.TnjPq6gI0t1p6rbWy' where username = 'MarcusOBrien';
+update public.app_user set password = '$2b$10$AcsqILgJsR8vIx.3fCPrOOXnC1Ko7/EdsSf2c2tvJdRvVqujD32fO' where username = 'HelenTran';
+update public.app_user set password = '$2b$10$gOq0nUseAKARwdkzeBrt1OvysVS4snmZB8scxtLjFpW3BNXRPk6aW' where username = 'DavidOkonkwo';
+update public.app_user set password = '$2b$10$N7xh5i/8rsKAJDCb9hNUuukN5W13qd7sC3kPlQTeZekv1Tj7eFcd2' where username = 'SandraBlake';
+update public.app_user set password = '$2b$10$AQD44Z83QB/9UNZj7kOg7ema81Xr11rSmawX8fZ8bSwhqDjsGFBEC' where username = 'CalebMurphy';
+update public.app_user set password = '$2b$10$bo9IkiLBDB0sDkFHE19GIuVoh8BwNsBby.eil29J442Hps7kz6wee' where username = 'AlexKim';
+update public.app_user set password = '$2b$10$RBdeQaZDeY1OqULyHDXSx.NZhHkaYnzTWqDvHkvL3xi3e5teI835O' where username = 'JordanLee';
+update public.app_user set password = '$2b$10$eREBvK2BwLvDIgaspYuY2edl.Z8UaBrCotlkAZiqYvvzMmoLVIKIi' where username = 'QuinnTaylor';
+update public.app_user set password = '$2b$10$lwlJPecSem71SsRrrUFzUuXc8vE4rsG2w.T.stb6x6tGckRZFE4Ua' where username = 'AudreyPatel';
+update public.app_user set password = '$2b$10$e0KfWUFssCnrIkjuKFeG.eYkdy.H3MiioQF20ziPbNRo0PxBANBQq' where username = 'MorganBlake';
+update public.app_user set password = '$2b$10$XJJ.7GloaUVEUok5YCF5veUbcD7cZQtnRBfjoAwAEVPMQP7L381AC' where username = 'TessaNguyen';
+update public.app_user set password = '$2b$10$XOSCGaewY//dtFTwsj/sJOX6bdJ4702Rqf9LgscRrbaiPcp0HcOoi' where username = 'JessicaHancock';
+update public.app_user set password = '$2b$10$xocA2kbngc8m8IkdFO018.AYmw2xQGXj5/cvzR9QfXLbl5If9NULm' where username = 'NaomiSingh';
+update public.app_user set password = '$2b$10$bmUV4fdgSCAoNf.uAU/zqOzRtPMe.t.uKuDnik0bnuVI81J8b0vqy' where username = 'RoseDash';
+update public.app_user set password = '$2b$10$kjun/tIJiq3DaeDBldSRYex2EeDBag9VRzdxtOsg3pJMW3JxWn96q' where username = 'OliverWilliams';
+update public.app_user set password = '$2b$10$9sdxFj2wlTsi62sRkRpiGO5PDLo7o2sEYlKQuAcuZ5bRxDJwI6l0m' where username = 'AvaThomas';
+update public.app_user set password = '$2b$10$bD8VlVhMWyVUcu9zK27oxOhHbzR5mwKrTC2yQA/AHPH/grMSlqWHm' where username = 'NoahJackson';
+update public.app_user set password = '$2b$10$2UAlWQ0j40ACwbgeEd0ezeSwpYXZ6WULeT75ub.woA2M0M2B9rLXe' where username = 'MiaWhite';
+update public.app_user set password = '$2b$10$VgHQ7vmGoBmXAEiZbT6n2ujKHMcQMEhn7jlzcRIYvItZVOoAqdcra' where username = 'LiamHarris';
+update public.app_user set password = '$2b$10$0F84aP2R4yaprTd1NFxv2uxWUUXDE6ZJhzgSKaEX1ayRF7VCwuQJW' where username = 'ZoeMartin';
+update public.app_user set password = '$2b$10$R8Ce9ScMsmgqgwj4B5IaOue4hHbZJRGI9VR9OT5zRchcrlrXVdyaq' where username = 'EthanThompson';
+update public.app_user set password = '$2b$10$GXNKLmBDyFnNrG2RE.n/ROiexwKHoUhH8npvCBPUhRclbzYK3dpri' where username = 'ChloeGarcia';
+update public.app_user set password = '$2b$10$AfOp/eY5iOffi81GhyETKOMhAT0qWktxqse6a547ajReXrQtKsT6y' where username = 'MasonRobinson';
+update public.app_user set password = '$2b$10$RlK9fXu4oNKV7Av2GctjaOrjPwqHXavnNX5MV57DoDMmSEEHUcGty' where username = 'RubyClark';
+update public.app_user set password = '$2b$10$hFPR9ssrjc0aQADj4f87Y.b5ooPVgopAL/rRB./1OkCPWf8myQqoe' where username = 'LucasLewis';

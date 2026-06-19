@@ -24,11 +24,17 @@ export type TaskAutomationTriggerEvent =
   | "location.created"
   | "location.alert_added"
   | "employee.created"
-  | "employee.credential_expiring";
+  | "employee.credential_expiring"
+  | "employee.credential_pending_review"
+  | "employee.leave_requested";
 
 export type TaskAutomationDedupePolicy = "one_open_per_entity" | "once_ever" | "none";
 
-export type TaskAutomationAssigneeMode = "role" | "org_position" | "org_incident_manager";
+export type TaskAutomationAssigneeMode =
+  | "role"
+  | "org_position"
+  | "org_incident_manager"
+  | "org_reports_to_manager";
 
 export const TASK_AUTOMATION_ASSIGNEE_MODES: {
   value: TaskAutomationAssigneeMode;
@@ -45,6 +51,11 @@ export const TASK_AUTOMATION_ASSIGNEE_MODES: {
     value: "org_incident_manager",
     label: "Incident accountable manager",
     hint: "Manager one level up from the employee party on the incident",
+  },
+  {
+    value: "org_reports_to_manager",
+    label: "Employee reports-to manager",
+    hint: "Resolve the login user for the employee's reports-to manager; falls back to role if none",
   },
 ];
 
@@ -276,6 +287,48 @@ export const initialTaskAutomations: TaskAutomationRecord[] = [
     sortOrder: 50,
   },
   {
+    id: "tar-employee-credential-pending-review",
+    name: "Credential pending HR review",
+    active: true,
+    module: "employees",
+    triggerEvent: "employee.credential_pending_review",
+    conditions: {},
+    taskTypeId: "tt-review",
+    titleTemplate: "Review credential — {{employee.name}}",
+    descriptionTemplate:
+      "{{employee.name}} ({{employee.searchKey}}) submitted {{credential.type}} for HR sign-off. Review evidence and approve or reject in Workforce planning or the employee record.",
+    priority: "Normal",
+    dueOffsetHours: 24,
+    dueOffsetDays: null,
+    dueFromField: null,
+    assigneeMode: "role",
+    assigneePositionId: "",
+    assigneeRoleId: "role-hr-officer",
+    dedupePolicy: "one_open_per_entity",
+    sortOrder: 55,
+  },
+  {
+    id: "tar-employee-leave-requested",
+    name: "Leave request — manager approval",
+    active: true,
+    module: "employees",
+    triggerEvent: "employee.leave_requested",
+    conditions: {},
+    taskTypeId: "tt-approve",
+    titleTemplate: "Approve leave — {{employee.name}}",
+    descriptionTemplate:
+      "{{employee.name}} requested {{leave.type}} from {{leave.startDate}} to {{leave.endDate}} ({{leave.daysRequested}} day(s)). Approve or decline in Workforce planning.",
+    priority: "Normal",
+    dueOffsetHours: 48,
+    dueOffsetDays: null,
+    dueFromField: null,
+    assigneeMode: "org_reports_to_manager",
+    assigneePositionId: "",
+    assigneeRoleId: "role-hr-manager",
+    dedupePolicy: "one_open_per_entity",
+    sortOrder: 60,
+  },
+  {
     id: "tar-client-alert",
     name: "Client alert added",
     active: true,
@@ -394,6 +447,18 @@ export const TASK_AUTOMATION_TRIGGER_OPTIONS: {
     hint: "Scheduled — credential or document nearing expiry",
     module: "employees",
   },
+  {
+    value: "employee.credential_pending_review",
+    label: "Credential pending review",
+    hint: "When staff submit a credential for HR sign-off",
+    module: "employees",
+  },
+  {
+    value: "employee.leave_requested",
+    label: "Leave requested",
+    hint: "When staff submit a leave request for manager approval",
+    module: "employees",
+  },
   { value: "incident.created", label: "Incident created", hint: "When a new incident is saved", module: "incidents" },
   { value: "incident.updated", label: "Incident updated", hint: "Any incident save (use conditions to narrow)", module: "incidents" },
   { value: "incident.reportable_set", label: "Marked reportable", hint: "When isReportable becomes true", module: "incidents" },
@@ -436,6 +501,10 @@ export const TASK_AUTOMATION_TEMPLATE_PLACEHOLDERS = [
   "{{employee.jobTitle}}",
   "{{credential.type}}",
   "{{credential.expiryDate}}",
+  "{{leave.type}}",
+  "{{leave.startDate}}",
+  "{{leave.endDate}}",
+  "{{leave.daysRequested}}",
   "{{client.name}}",
   "{{client.searchKey}}",
   "{{location.name}}",

@@ -1,5 +1,5 @@
 import type { ClientRecord } from "@/lib/client";
-import type { EmployeeCredentialRow, EmployeeRecord } from "@/lib/employee";
+import type { EmployeeCredentialRow, EmployeeLeaveRequestRow, EmployeeRecord } from "@/lib/employee";
 import type { EnquiryRecord } from "@/lib/enquiry";
 import type { IncidentRecord } from "@/lib/incident";
 import { formatDisplayDateTime } from "@/lib/incident";
@@ -40,6 +40,7 @@ export type AutomationTemplateContext = {
   enquiry?: EnquiryRecord;
   employee?: EmployeeRecord;
   credential?: EmployeeCredentialRow;
+  leaveRequest?: EmployeeLeaveRequestRow;
   client?: ClientRecord;
   location?: LocationRecord;
   alertTitle?: string;
@@ -80,11 +81,17 @@ function buildTemplateContextFromEvent(
       return { enquiry: event.enquiry, org };
     case "employee.created":
     case "employee.credential_expiring":
+    case "employee.credential_pending_review":
       return {
         employee: event.employee,
-        credential: event.type === "employee.credential_expiring" ? event.credential : undefined,
+        credential:
+          event.type === "employee.credential_expiring" || event.type === "employee.credential_pending_review"
+            ? event.credential
+            : undefined,
         org,
       };
+    case "employee.leave_requested":
+      return { employee: event.employee, leaveRequest: event.leaveRequest, org };
     case "client.created":
     case "client.updated":
     case "client.alert_added":
@@ -121,6 +128,10 @@ const TEMPLATE_VARS: Record<string, (ctx: AutomationTemplateContext) => string> 
   "employee.jobTitle": (ctx) => ctx.employee?.jobTitle ?? "—",
   "credential.type": (ctx) => ctx.credential?.credentialType ?? "—",
   "credential.expiryDate": (ctx) => formatDateField(ctx.credential?.expiryDate ?? ""),
+  "leave.type": (ctx) => ctx.leaveRequest?.leaveType ?? "—",
+  "leave.startDate": (ctx) => formatDateField(ctx.leaveRequest?.startDate ?? ""),
+  "leave.endDate": (ctx) => formatDateField(ctx.leaveRequest?.endDate ?? ""),
+  "leave.daysRequested": (ctx) => String(ctx.leaveRequest?.daysRequested ?? "—"),
   "client.name": (ctx) => ctx.client?.name ?? "—",
   "client.searchKey": (ctx) => ctx.client?.searchKey ?? "—",
   "alert.title": (ctx) => ctx.alertTitle ?? "—",
@@ -236,6 +247,20 @@ function entityLinkFromEvent(event: AutomationEvent): EntityLink {
         entityId: event.employee.id,
         entityLabel: `${event.employee.searchKey} — ${event.credential.credentialType}`,
         dedupeEntityId: `${event.employee.id}:${event.credential.id}`,
+      };
+    case "employee.credential_pending_review":
+      return {
+        entityType: "employee",
+        entityId: event.employee.id,
+        entityLabel: `${event.employee.searchKey} — ${event.credential.credentialType}`,
+        dedupeEntityId: `${event.employee.id}:${event.credential.id}`,
+      };
+    case "employee.leave_requested":
+      return {
+        entityType: "employee",
+        entityId: event.employee.id,
+        entityLabel: `${event.employee.searchKey} — ${event.leaveRequest.leaveType}`,
+        dedupeEntityId: `${event.employee.id}:${event.leaveRequest.id}`,
       };
     case "client.created":
     case "client.updated":
@@ -445,6 +470,7 @@ export type AutomationPreviewSamples = {
   enquiry?: EnquiryRecord;
   employee?: EmployeeRecord;
   credential?: EmployeeCredentialRow;
+  leaveRequest?: EmployeeLeaveRequestRow;
   client?: ClientRecord;
   location?: LocationRecord;
   alertTitle?: string;
@@ -462,7 +488,7 @@ export function buildAutomationPreviewContext(
     case "enquiries":
       return { enquiry: samples.enquiry, org };
     case "employees":
-      return { employee: samples.employee, credential: samples.credential, org };
+      return { employee: samples.employee, credential: samples.credential, leaveRequest: samples.leaveRequest, org };
     case "clients":
       return { client: samples.client, alertTitle: samples.alertTitle, org };
     case "locations":
@@ -515,6 +541,14 @@ export function previewEventForTrigger(
     case "employee.credential_expiring":
       return samples.employee && samples.credential
         ? { type: trigger, employee: samples.employee, credential: samples.credential }
+        : null;
+    case "employee.credential_pending_review":
+      return samples.employee && samples.credential
+        ? { type: trigger, employee: samples.employee, credential: samples.credential }
+        : null;
+    case "employee.leave_requested":
+      return samples.employee && samples.leaveRequest
+        ? { type: trigger, employee: samples.employee, leaveRequest: samples.leaveRequest }
         : null;
     default:
       return null;
