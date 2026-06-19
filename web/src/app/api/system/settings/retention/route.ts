@@ -3,6 +3,7 @@ import {
   getRecentRetentionRuns,
   getRetentionPolicies,
   getSystemSettings,
+  runAllRetentionJobs,
   updateRetentionPolicy,
   updateSystemSetting,
 } from "@/lib/session-audit/server";
@@ -41,4 +42,23 @@ export async function PATCH(request: Request) {
   }
   const [policies, settings] = await Promise.all([getRetentionPolicies(), getSystemSettings()]);
   return NextResponse.json({ policies, settings });
+}
+
+export async function POST(request: Request) {
+  const { level } = await resolveSessionAuditAccess();
+  if (!canManageRetention(level)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  let body: { action?: string };
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  if (body.action === "run_retention") {
+    const runs = await runAllRetentionJobs();
+    const totalDeleted = runs.reduce((sum, r) => sum + r.recordsDeleted, 0);
+    return NextResponse.json({ runs, totalDeleted });
+  }
+  return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }

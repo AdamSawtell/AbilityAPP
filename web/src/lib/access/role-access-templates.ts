@@ -160,13 +160,20 @@ export function supportWorkerAccess(): Pick<AppRoleRecord, "windowKeys" | "proce
 
 export function securityAdminSessionAuditAccess(): Pick<AppRoleRecord, "processIds"> {
   return {
-    processIds: ["manage-session-audit-risk", "view-session-sensitive-session-data"],
+    processIds: [
+      "manage-session-audit-risk",
+      "view-session-sensitive-session-data",
+      "manage-process-audit-risk",
+      "view-process-audit-sensitive",
+      "manage-ai-query-audit-risk",
+      "view-ai-query-audit-sensitive",
+    ],
   };
 }
 
 export function auditViewerSessionAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds"> {
   return {
-    windowKeys: ["admin-user-session-audit"],
+    windowKeys: ["admin-user-session-audit", "admin-process-audit", "admin-ai-query-audit"],
     processIds: [],
   };
 }

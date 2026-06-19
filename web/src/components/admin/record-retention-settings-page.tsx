@@ -66,15 +66,15 @@ export function RecordRetentionSettingsView() {
 
   async function runRetentionNow() {
     setSaving(true);
-    const res = await fetch("/api/system/session-audit", {
+    const res = await fetch("/api/system/settings/retention", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ action: "run_retention" }),
     });
     if (res.ok) {
-      const data = (await res.json()) as { run: RetentionJobRun };
-      setMessage(`Retention complete — ${data.run.recordsDeleted} session record(s) removed.`);
+      const data = (await res.json()) as { runs: RetentionJobRun[]; totalDeleted: number };
+      setMessage(`Retention complete — ${data.totalDeleted} record(s) removed across all policies.`);
       await load();
     }
     setSaving(false);
@@ -89,6 +89,46 @@ export function RecordRetentionSettingsView() {
   }
 
   const sessionPolicy = policies.find((p) => p.recordType === "user_session");
+  const processPolicy = policies.find((p) => p.recordType === "process_audit");
+  const aiQueryPolicy = policies.find((p) => p.recordType === "ai_query_meta");
+
+  function policySection(
+    title: string,
+    description: string,
+    recordType: string,
+    policy: RetentionPolicyRecord | undefined,
+    defaultDays: number
+  ) {
+    return (
+      <section key={recordType} className="mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-1 text-sm font-semibold text-slate-900">{title}</h2>
+        <p className="mb-4 text-xs text-slate-500">{description}</p>
+        <label className="block max-w-xs text-xs font-medium text-slate-600">
+          Retention (days)
+          <input
+            type="number"
+            min={1}
+            className={`${inputClass} mt-1 w-full`}
+            value={policy?.retentionDays ?? defaultDays}
+            onChange={(e) => {
+              const days = Number(e.target.value);
+              setPolicies((prev) =>
+                prev.map((p) => (p.recordType === recordType ? { ...p, retentionDays: days } : p))
+              );
+            }}
+          />
+        </label>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => void savePolicy(recordType, policy?.retentionDays ?? defaultDays)}
+          className="mt-4 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-50"
+        >
+          Save retention
+        </button>
+      </section>
+    );
+  }
 
   return (
     <SystemShell
@@ -100,35 +140,27 @@ export function RecordRetentionSettingsView() {
         <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-900">{message}</p>
       ) : null}
 
-      <section className="mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-1 text-sm font-semibold text-slate-900">User session data</h2>
-        <p className="mb-4 text-xs text-slate-500">
-          User session records are removed after the retention period. The existing audit trail is never affected.
-        </p>
-        <label className="block max-w-xs text-xs font-medium text-slate-600">
-          Retention (days)
-          <input
-            type="number"
-            min={1}
-            className={`${inputClass} mt-1 w-full`}
-            value={sessionPolicy?.retentionDays ?? 90}
-            onChange={(e) => {
-              const days = Number(e.target.value);
-              setPolicies((prev) =>
-                prev.map((p) => (p.recordType === "user_session" ? { ...p, retentionDays: days } : p))
-              );
-            }}
-          />
-        </label>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={() => void savePolicy("user_session", sessionPolicy?.retentionDays ?? 90)}
-          className="mt-4 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-50"
-        >
-          Save retention
-        </button>
-      </section>
+      {policySection(
+        "User session data",
+        "User session records are removed after the retention period. The existing audit trail is never affected.",
+        "user_session",
+        sessionPolicy,
+        90
+      )}
+      {policySection(
+        "Process audit data",
+        "Process execution records and related risk metadata are removed after the retention period.",
+        "process_audit",
+        processPolicy,
+        90
+      )}
+      {policySection(
+        "AI query audit metadata",
+        "AI chat logs and query audit metadata are removed after the retention period.",
+        "ai_query_meta",
+        aiQueryPolicy,
+        90
+      )}
 
       <section className="mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">Session security settings</h2>
@@ -184,6 +216,7 @@ export function RecordRetentionSettingsView() {
           <table className="min-w-full text-sm">
             <thead className="text-left text-xs uppercase text-slate-500">
               <tr>
+                <th className="pb-2">Type</th>
                 <th className="pb-2">Started</th>
                 <th className="pb-2">Deleted</th>
                 <th className="pb-2">Duration</th>
@@ -193,6 +226,7 @@ export function RecordRetentionSettingsView() {
             <tbody className="divide-y divide-slate-100">
               {runs.map((r) => (
                 <tr key={r.id}>
+                  <td className="py-2 capitalize">{r.recordType.replace(/_/g, " ")}</td>
                   <td className="py-2">{formatAuditDateTime(r.startedAt)}</td>
                   <td className="py-2">{r.recordsDeleted}</td>
                   <td className="py-2">{r.durationMs != null ? `${r.durationMs}ms` : "—"}</td>

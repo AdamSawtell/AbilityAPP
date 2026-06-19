@@ -154,13 +154,13 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-coordinator", "Support_Coordinator", "Support Coordinator", "Client records and service catalog", COORDINATOR_ACCESS),
   defineRole("role-team-leader", "Team_Leader", "Team Leader", "Site or team leadership — org structure and frontline oversight", TEAM_LEADER_ACCESS),
   defineRole("role-support-worker", "Support_Worker", "Support Worker", "Frontline staff — assigned tasks, clients, incidents, and rostered locations", supportWorkerAccess()),
-  defineRole("role-security-admin", "Security_Administrator", "Security Administrator", "Session audit investigation and sensitive security data", {
+  defineRole("role-security-admin", "Security_Administrator", "Security Administrator", "Session, process, and AI query audit investigation with sensitive security data", {
     windowKeys: [],
     processIds: securityAdminSessionAuditAccess().processIds,
     reportIds: [],
     taskTypePermissions: permissionsForTypes([]),
   }),
-  defineRole("role-audit-viewer", "Audit_Viewer", "Audit Viewer", "Read-only access to user session audit (no sensitive fields)", {
+  defineRole("role-audit-viewer", "Audit_Viewer", "Audit Viewer", "Read-only access to session, process, and AI query audit (no sensitive fields)", {
     ...auditViewerSessionAccess(),
     reportIds: [],
     taskTypePermissions: permissionsForTypes([]),

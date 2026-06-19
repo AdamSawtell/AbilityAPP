@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
 import { loadMyEmployee, requireMyWorkplace, submitMyLeave } from "@/lib/my-workplace/server";
+import { recordProcessExecution } from "@/lib/process-audit/server";
 
 export async function GET() {
   const session = await getAuthSessionFromRequest();
@@ -39,8 +40,31 @@ export async function POST(request: Request) {
       endDate: body.endDate,
       notes: body.notes ?? "",
     });
+    if (session) {
+      await recordProcessExecution({
+        session,
+        processId: "submit-leave-request",
+        outcome: "success",
+        request,
+        entityType: "employee",
+        entityId: ctx.employeeId,
+        entityLabel: updated.name,
+        detail: `Leave request ${requestRow.id}`,
+      });
+    }
     return NextResponse.json({ request: requestRow, employee: updated });
   } catch (err) {
+    if (session) {
+      await recordProcessExecution({
+        session,
+        processId: "submit-leave-request",
+        outcome: "failed",
+        request,
+        entityType: "employee",
+        entityId: ctx.employeeId,
+        failureReason: err instanceof Error ? err.message : "Could not submit leave",
+      });
+    }
     const message = err instanceof Error ? err.message : "Could not submit leave";
     return NextResponse.json({ error: message }, { status: 500 });
   }

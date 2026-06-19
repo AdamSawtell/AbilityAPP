@@ -197,6 +197,16 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "User Session Audit",
         match: (p) => p.startsWith("/system/admin/user-session-audit"),
       },
+      {
+        href: "/system/admin/process-audit",
+        label: "Process Audit",
+        match: (p) => p.startsWith("/system/admin/process-audit"),
+      },
+      {
+        href: "/system/admin/ai-query-audit",
+        label: "AI Query Audit",
+        match: (p) => p.startsWith("/system/admin/ai-query-audit"),
+      },
     ]),
   },
   {
@@ -261,6 +271,18 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/admin/user-session-audit",
     title: "User Session Audit",
     description: "Login activity, risk detection, session investigation, and compliance export.",
+  },
+  {
+    sectionKey: "admin",
+    href: "/system/admin/process-audit",
+    title: "Process Audit",
+    description: "Process execution history, outcomes, risk flags, and compliance export.",
+  },
+  {
+    sectionKey: "admin",
+    href: "/system/admin/ai-query-audit",
+    title: "AI Query Audit",
+    description: "AI assistant usage, query risk detection, investigation, and compliance export.",
   },
   {
     sectionKey: "system-settings",

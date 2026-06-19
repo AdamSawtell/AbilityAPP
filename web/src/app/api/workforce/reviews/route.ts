@@ -8,6 +8,7 @@ import {
   loadWorkforceReviewQueue,
   type WorkforceReviewAction,
 } from "@/lib/workforce/review-server";
+import { recordProcessExecution } from "@/lib/process-audit/server";
 
 export async function GET() {
   const session = await getAuthSessionFromRequest();
@@ -58,8 +59,29 @@ export async function POST(request: Request) {
 
   try {
     const employee = await applyWorkforceReview(session, body);
+    const processId = body.type === "leave" ? "approve-leave-request" : "review-employee-credential";
+    await recordProcessExecution({
+      session,
+      processId,
+      outcome: "success",
+      request,
+      entityType: "employee",
+      entityId: body.employeeId,
+      entityLabel: employee.name,
+      detail: `${body.decision} ${body.type}`,
+    });
     return NextResponse.json({ employee });
   } catch (err) {
+    const processId = body.type === "leave" ? "approve-leave-request" : "review-employee-credential";
+    await recordProcessExecution({
+      session,
+      processId,
+      outcome: "failed",
+      request,
+      entityType: "employee",
+      entityId: body.employeeId,
+      failureReason: err instanceof Error ? err.message : "Review action failed",
+    });
     const message = err instanceof Error ? err.message : "Review action failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }

@@ -121,15 +121,23 @@ export async function logChatTurn(
     assistantMessage: string;
     toolCalls: unknown[];
   }
-) {
-  const { error } = await supabase.from("app_ai_chat_log").insert({
-    user_id: entry.userId,
-    role_id: entry.roleId,
-    agent_id: entry.agentId,
-    user_message: entry.userMessage,
-    assistant_message: entry.assistantMessage,
-    tool_calls: entry.toolCalls,
-  });
-  if (error?.code === "42P01") return;
-  if (error) console.error("AI chat log failed", error);
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("app_ai_chat_log")
+    .insert({
+      user_id: entry.userId,
+      role_id: entry.roleId,
+      agent_id: entry.agentId,
+      user_message: entry.userMessage,
+      assistant_message: entry.assistantMessage,
+      tool_calls: entry.toolCalls,
+    })
+    .select("id")
+    .single();
+  if (error?.code === "42P01") return null;
+  if (error) {
+    console.error("AI chat log failed", error);
+    return null;
+  }
+  return data?.id ? String(data.id) : null;
 }

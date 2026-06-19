@@ -4,6 +4,7 @@ import type { AiAgentRecord, AiWriteResult, ChatMessage, ChatResponseBody, ChatT
 import { attachmentsFromToolAudit } from "@/lib/ai/display";
 import type { AiDatabase } from "@/lib/ai/db";
 import { logChatTurn } from "@/lib/ai/agents-api";
+import { enrichAiQueryAudit } from "@/lib/ai-query-audit/server";
 import { persistAiTask } from "@/lib/ai/persist";
 import { isKnownTool, toolsForAgent } from "@/lib/ai/tools/registry";
 import { runHelpSearch } from "@/lib/ai/tools/help-search";
@@ -558,6 +559,16 @@ export async function runChatTurn(options: {
         userMessage: lastUser.content,
         assistantMessage: assistantText,
         toolCalls: auditTools,
+      }).then((chatLogId) => {
+        if (chatLogId) {
+          void enrichAiQueryAudit({
+            chatLogId,
+            session: options.session,
+            agentName: options.agent.name,
+            userMessage: lastUser.content,
+            toolCallCount: auditTools.length,
+          });
+        }
       });
     }
 

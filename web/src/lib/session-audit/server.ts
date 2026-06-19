@@ -672,6 +672,12 @@ export async function runSessionRetention(): Promise<RetentionJobRun> {
   }
 }
 
+export async function runAllRetentionJobs(): Promise<RetentionJobRun[]> {
+  const { runProcessRetentionJob } = await import("@/lib/process-audit/server");
+  const { runAiQueryMetaRetentionJob } = await import("@/lib/ai-query-audit/server");
+  return Promise.all([runSessionRetention(), runProcessRetentionJob(), runAiQueryMetaRetentionJob()]);
+}
+
 export async function getRecentRetentionRuns(limit = 10): Promise<RetentionJobRun[]> {
   if (!isSupabaseConfigured()) return [];
   const supabase = serviceClient();

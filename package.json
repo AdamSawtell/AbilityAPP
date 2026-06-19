@@ -12,7 +12,9 @@
     "supabase:seed-bulk": "cd web && npx tsx ../scripts/generate-bulk-dummy-data.mjs",
     "supabase:seed-workforce": "cd web && npx tsx ../scripts/generate-access-seed.mjs && npx tsx ../scripts/generate-employee-seed.mjs && npx tsx ../scripts/generate-org-structure-seed.mjs && node ../scripts/generate-org-bulk-positions.mjs && node ../scripts/run-workforce-seeds.mjs --linked",
     "supabase:seed-workforce-local": "node scripts/run-workforce-seeds.mjs --local",
-    "supabase:seed-session-audit-demo": "node scripts/seed-session-audit-demo.mjs"
+    "supabase:seed-session-audit-demo": "node scripts/seed-session-audit-demo.mjs",
+    "supabase:seed-process-audit-demo": "node scripts/seed-process-audit-demo.mjs",
+    "supabase:seed-ai-query-audit-demo": "node scripts/seed-ai-query-audit-demo.mjs"
   },
   "keywords": [],
   "author": "",
