@@ -8,6 +8,13 @@ import {
   sessionCookieOptions,
   SESSION_COOKIE,
 } from "@/lib/auth/session.server";
+import {
+  generateSessionId,
+  recordLogout,
+  recordRoleChange,
+  recordSuccessfulLogin,
+} from "@/lib/session-audit/server";
+import { clientIpFromRequest, parseUserAgent } from "@/lib/session-audit/parse-user-agent";
 
 function sessionErrorResponse(err: unknown, fallback: string) {
   console.error(fallback, err);
@@ -15,20 +22,26 @@ function sessionErrorResponse(err: unknown, fallback: string) {
   return NextResponse.json({ error: message }, { status: 500 });
 }
 
-async function attachSessionCookie(session: NonNullable<Awaited<ReturnType<typeof buildAuthSession>>>, userId: string, roleId: string) {
-  const token = createSessionToken(userId, roleId);
+async function attachSessionCookie(
+  session: NonNullable<Awaited<ReturnType<typeof buildAuthSession>>>,
+  userId: string,
+  roleId: string,
+  sessionId: string
+) {
+  const token = createSessionToken(userId, roleId, sessionId);
   const jar = await cookies();
   jar.set(sessionCookieOptions(token));
-  return NextResponse.json({ session });
+  return NextResponse.json({ session: { ...session, sessionId } });
 }
 
 export async function GET() {
   try {
+    const token = await readSessionTokenFromCookies();
     const session = await getAuthSessionFromRequest();
     if (!session) {
       return NextResponse.json({ session: null }, { status: 401 });
     }
-    return NextResponse.json({ session });
+    return NextResponse.json({ session: { ...session, sessionId: token?.sessionId ?? "" } });
   } catch (err) {
     return sessionErrorResponse(err, "session GET failed");
   }
@@ -53,7 +66,26 @@ export async function POST(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Invalid user or role" }, { status: 403 });
     }
-    return await attachSessionCookie(session, userId, roleId);
+    const sessionId = generateSessionId();
+    const ipAddress = clientIpFromRequest(request);
+    const userAgent = request.headers.get("user-agent") ?? "";
+    try {
+      await recordSuccessfulLogin({
+        sessionId,
+        userId,
+        userName: session.displayName,
+        roleId,
+        roleName: session.activeRoleName,
+        ipAddress,
+        userAgent,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not start session";
+      if (message.includes("Concurrent sessions")) {
+        return NextResponse.json({ error: message }, { status: 403 });
+      }
+    }
+    return await attachSessionCookie(session, userId, roleId, sessionId);
   } catch (err) {
     return sessionErrorResponse(err, "session POST failed");
   }
@@ -61,6 +93,10 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   try {
+    const token = await readSessionTokenFromCookies();
+    if (token?.sessionId) {
+      await recordLogout(token.sessionId, "logged_out");
+    }
     const res = NextResponse.json({ ok: true });
     res.cookies.set({
       name: SESSION_COOKIE,
@@ -101,7 +137,10 @@ export async function PATCH(request: Request) {
     if (!session) {
       return NextResponse.json({ error: "Invalid role for this user" }, { status: 403 });
     }
-    return await attachSessionCookie(session, current.userId, roleId);
+    if (current.sessionId) {
+      await recordRoleChange(current.sessionId, roleId, session.activeRoleName);
+    }
+    return await attachSessionCookie(session, current.userId, roleId, current.sessionId || generateSessionId());
   } catch (err) {
     return sessionErrorResponse(err, "session PATCH failed");
   }

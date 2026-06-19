@@ -34,6 +34,7 @@ export type AuditEvent = {
   action: AuditAction;
   summary: string;
   detail: string;
+  sessionId?: string;
 };
 
 export type AuditStampable = {

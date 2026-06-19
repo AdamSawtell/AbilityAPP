@@ -310,6 +310,24 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "admin-user-session-audit",
+    label: "User Session Audit",
+    group: "Admin",
+    surface: "system",
+    href: "/system/admin/user-session-audit",
+    abilityErpName: "User Session Audit",
+    showInSidebar: true,
+  },
+  {
+    key: "admin-record-retention",
+    label: "Record retention settings",
+    group: "Admin",
+    surface: "system",
+    href: "/system/settings/record-retention",
+    abilityErpName: "Record retention settings",
+    showInSidebar: false,
+  },
+  {
     key: "admin-ai-agents",
     label: "AI assistants",
     group: "Admin",
@@ -431,6 +449,24 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     label: "Approve leave request",
     description: "Managers and HR approve or decline pending leave requests",
     parentWindowKey: "workforce-planning",
+  },
+  {
+    id: "manage-session-audit-risk",
+    label: "Investigate session risk",
+    description: "Review flagged sessions, update risk status, and add investigation notes",
+    parentWindowKey: "admin-user-session-audit",
+  },
+  {
+    id: "view-session-sensitive-session-data",
+    label: "View sensitive session data",
+    description: "View IP address, device information, and user agent in session audit",
+    parentWindowKey: "admin-user-session-audit",
+  },
+  {
+    id: "manage-retention-settings",
+    label: "Manage retention settings",
+    description: "Configure record retention policies and session security settings",
+    parentWindowKey: "admin-record-retention",
   },
 ];
 

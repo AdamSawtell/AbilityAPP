@@ -6,6 +6,8 @@ import { SEED_USERS } from "@/lib/access/seed";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { recordFailedLogin } from "@/lib/session-audit/server";
+import { clientIpFromRequest } from "@/lib/session-audit/parse-user-agent";
 
 const USER_COLUMNS =
   "id, username, email, first_name, last_name, phone, active, employee_bp_id, notes, password";
@@ -78,6 +80,13 @@ export async function POST(request: Request) {
 
       if (error) throw error;
       if (!data || !verifyPassword(password, (data as UserRow).password)) {
+        await recordFailedLogin({
+          userId: data ? (data as UserRow).id : undefined,
+          userName: username,
+          ipAddress: clientIpFromRequest(request),
+          userAgent: request.headers.get("user-agent") ?? "",
+          failureReason: "Invalid username or password",
+        });
         return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
       }
 
@@ -93,6 +102,13 @@ export async function POST(request: Request) {
     const seedUser = SEED_USERS.find((u) => u.username === username && u.active);
     const seedPassword = SEED_LOGIN_PASSWORDS[username];
     if (!seedUser || seedPassword !== password) {
+      await recordFailedLogin({
+        userId: seedUser?.id,
+        userName: username,
+        ipAddress: clientIpFromRequest(request),
+        userAgent: request.headers.get("user-agent") ?? "",
+        failureReason: "Invalid username or password",
+      });
       return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
     }
 

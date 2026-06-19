@@ -158,6 +158,19 @@ export function supportWorkerAccess(): Pick<AppRoleRecord, "windowKeys" | "proce
   };
 }
 
+export function securityAdminSessionAuditAccess(): Pick<AppRoleRecord, "processIds"> {
+  return {
+    processIds: ["manage-session-audit-risk", "view-session-sensitive-session-data"],
+  };
+}
+
+export function auditViewerSessionAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds"> {
+  return {
+    windowKeys: ["admin-user-session-audit"],
+    processIds: [],
+  };
+}
+
 export function adminRole(allTaskTypeIds: string[]): AppRoleRecord {
   return {
     id: "role-admin",

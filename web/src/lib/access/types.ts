@@ -38,6 +38,7 @@ export type AuthSession = {
   employeeBpId: string;
   activeRoleId: string;
   activeRoleName: string;
+  sessionId: string;
   windowKeys: string[];
   processIds: string[];
   reportIds: string[];

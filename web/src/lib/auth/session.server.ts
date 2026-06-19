@@ -20,6 +20,7 @@ const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
 export type SessionTokenPayload = {
   userId: string;
   roleId: string;
+  sessionId: string;
   exp: number;
 };
 
@@ -57,16 +58,17 @@ function verifyToken(token: string): SessionTokenPayload | null {
     if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) return null;
     const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as SessionTokenPayload;
     if (!payload.userId || !payload.roleId || payload.exp < Date.now()) return null;
-    return payload;
+    return { ...payload, sessionId: payload.sessionId ?? "" };
   } catch {
     return null;
   }
 }
 
-export function createSessionToken(userId: string, roleId: string): string {
+export function createSessionToken(userId: string, roleId: string, sessionId: string): string {
   const payload: SessionTokenPayload = {
     userId,
     roleId,
+    sessionId,
     exp: Date.now() + SESSION_MAX_AGE_SEC * 1000,
   };
   return signPayload(payload);
@@ -119,6 +121,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
         employeeBpId: user.employeeBpId ?? "",
         activeRoleId: merged.id,
         activeRoleName: merged.name,
+        sessionId: "",
         windowKeys: sanitizeAppWindowKeys(merged.windowKeys),
         processIds: merged.processIds,
         reportIds: merged.reportIds ?? [],
@@ -142,6 +145,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
     employeeBpId: user.employeeBpId ?? "",
     activeRoleId: merged.id,
     activeRoleName: merged.name,
+    sessionId: "",
     windowKeys: sanitizeAppWindowKeys(merged.windowKeys),
     processIds: merged.processIds,
     reportIds: merged.reportIds ?? [],

@@ -191,7 +191,25 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "admin",
     label: "Admin",
     icon: "admin",
-    links: withModuleNav("admin", []),
+    links: withModuleNav("admin", [
+      {
+        href: "/system/admin/user-session-audit",
+        label: "User Session Audit",
+        match: (p) => p.startsWith("/system/admin/user-session-audit"),
+      },
+    ]),
+  },
+  {
+    key: "system-settings",
+    label: "System Settings",
+    icon: "admin",
+    links: [
+      {
+        href: "/system/settings/record-retention",
+        label: "Record retention settings",
+        match: (p) => p.startsWith("/system/settings/record-retention"),
+      },
+    ],
   },
 ];
 
@@ -237,6 +255,18 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/ai/assistants",
     title: "AI assistants",
     description: "Configure bots, prompts, tools, and which roles can use them on Home.",
+  },
+  {
+    sectionKey: "admin",
+    href: "/system/admin/user-session-audit",
+    title: "User Session Audit",
+    description: "Login activity, risk detection, session investigation, and compliance export.",
+  },
+  {
+    sectionKey: "system-settings",
+    href: "/system/settings/record-retention",
+    title: "Record retention settings",
+    description: "Retention for user session data, concurrent session policy, and timeout rules.",
   },
   {
     sectionKey: "guides",

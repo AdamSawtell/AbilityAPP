@@ -42,6 +42,7 @@ function normalizeSession(raw: AuthSession): AuthSession {
   return {
     ...raw,
     employeeBpId: raw.employeeBpId ?? "",
+    sessionId: raw.sessionId ?? "",
     taskTypePermissions: raw.taskTypePermissions ?? [],
     reportIds: raw.reportIds ?? [],
     agentIds: raw.agentIds ?? [],
