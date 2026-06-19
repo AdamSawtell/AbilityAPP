@@ -322,7 +322,18 @@ export function HomeAiChat() {
         </div>
       ) : null}
 
-      {lastWrite ? (
+      {lastWrite?.href && lastWrite.kind.endsWith("_prepare") ? (
+        <div className="border-b border-sky-100 bg-sky-50 px-5 py-2.5 text-sm text-sky-900">
+          <p className="font-medium">Ready for you to review</p>
+          <p className="mt-0.5 truncate text-xs text-sky-800">{lastWrite.label}</p>
+          <Link
+            href={lastWrite.href}
+            className="mt-2 inline-flex rounded-lg bg-[#d4147a] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#b51266]"
+          >
+            Open form and save
+          </Link>
+        </div>
+      ) : lastWrite ? (
         <div className="border-b border-emerald-100 bg-emerald-50 px-5 py-2.5 text-sm text-emerald-900">
           Saved to database:{" "}
           {lastWrite.href ? (

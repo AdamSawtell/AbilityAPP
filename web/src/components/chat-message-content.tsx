@@ -40,6 +40,23 @@ function renderInlineLinks(text: string) {
   return parts;
 }
 
+function PrepareReviewCard({ attachment }: { attachment: ChatDisplayAttachment }) {
+  const prepare = attachment.prepare;
+  if (!prepare?.href) return null;
+  return (
+    <div className="rounded-lg border-2 border-[#f9a8d4] bg-[#fdf2f8] p-3">
+      <p className="text-sm font-semibold text-slate-900">{prepare.label}</p>
+      <p className="mt-1 text-xs leading-relaxed text-slate-600">{prepare.hint}</p>
+      <Link
+        href={prepare.href}
+        className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b51266]"
+      >
+        Open form and save
+      </Link>
+    </div>
+  );
+}
+
 function RecordCards({ attachment }: { attachment: ChatDisplayAttachment }) {
   if (!attachment.cards?.length) return null;
   return (
@@ -85,7 +102,9 @@ export function ChatMessageContent({
             {attachment.title}
           </div>
           <div className="p-2">
-            {attachment.type === "cards" ? (
+            {attachment.type === "prepare" ? (
+              <PrepareReviewCard attachment={attachment} />
+            ) : attachment.type === "cards" ? (
               <RecordCards attachment={attachment} />
             ) : attachment.type === "table" && attachment.columns && attachment.rows ? (
               <div className="overflow-x-auto">

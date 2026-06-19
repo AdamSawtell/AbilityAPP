@@ -386,17 +386,22 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     function: {
       name: "client_activity_prepare",
       description:
-        "Prepare a client activity note for human review. Needs client plus subject or notes; never save yourself.",
+        "Prepare a client activity note for human review. Call as soon as the user confirms subject and details — do not invent links or dates. Pass activityDate as YYYY-MM-DD (use today when they say today). Never save yourself.",
       parameters: {
         type: "object",
         properties: {
           clientId: { type: "string" },
           searchKey: { type: "string" },
           clientName: { type: "string" },
+          name: { type: "string" },
           subject: { type: "string" },
+          title: { type: "string" },
           notes: { type: "string" },
           description: { type: "string" },
+          body: { type: "string" },
           activityType: { type: "string" },
+          activityDate: { type: "string", description: "YYYY-MM-DD, default today" },
+          date: { type: "string", description: "Alias for activityDate" },
         },
       },
     },

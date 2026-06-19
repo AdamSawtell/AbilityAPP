@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ClientCoreSummary } from "@/components/client-core-summary";
@@ -96,6 +96,8 @@ export function ClientDetailView({ id }: { id: string }) {
 
 function ClientDetailViewInner({ id }: { id: string }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const aiDraftId = searchParams.get("aiDraft");
   const draftLoad = useAiDraftLoader(aiDraftId);
   const { session } = useAuth();
@@ -137,10 +139,11 @@ function ClientDetailViewInner({ id }: { id: string }) {
       return;
     }
     if (draftLoad.entityType === "client_activity") {
+      const rawDate = String(p.activityDate ?? p.date ?? "").trim();
       const row = {
         id: `act-ai-${Date.now()}`,
         lineNo: stored.activity.length + 1,
-        date: new Date().toISOString().slice(0, 10),
+        date: /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : new Date().toISOString().slice(0, 10),
         activityType: String(p.activityType ?? "Note"),
         subject: String(p.subject ?? ""),
         description: String(p.description ?? p.notes ?? ""),
@@ -154,8 +157,23 @@ function ClientDetailViewInner({ id }: { id: string }) {
         })
       );
       setDraftApplied(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", "Activity");
+      if (aiDraftId) params.set("aiDraft", aiDraftId);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
-  }, [stored, draftLoad.payload, draftLoad.entityType, draftLoad.loading, draftApplied, session?.displayName]);
+  }, [
+    stored,
+    draftLoad.payload,
+    draftLoad.entityType,
+    draftLoad.loading,
+    draftApplied,
+    session?.displayName,
+    aiDraftId,
+    pathname,
+    router,
+    searchParams,
+  ]);
 
   useEffect(() => {
     if (!stored) return;

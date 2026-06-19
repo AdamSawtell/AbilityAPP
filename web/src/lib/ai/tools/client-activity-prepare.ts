@@ -34,6 +34,11 @@ export async function runClientActivityPrepare(
     return { threadState, message: "What should the activity note say? Provide a subject or notes." };
   }
 
+  const rawDate = String(args.activityDate ?? args.date ?? "").trim();
+  const activityDate = /^\d{4}-\d{2}-\d{2}$/.test(rawDate)
+    ? rawDate
+    : new Date().toISOString().slice(0, 10);
+
   const draft: ClientActivityDraft = {
     clientId: client.id,
     clientName: client.name,
@@ -41,7 +46,7 @@ export async function runClientActivityPrepare(
     subject: subject || notes.slice(0, 80),
     description: notes || subject,
     activityType: String(args.activityType ?? "Note").trim() || "Note",
-    activityDate: new Date().toISOString().slice(0, 10),
+    activityDate,
   };
 
   const { id, href } = await createAiDraft(supabase, session, {
@@ -53,7 +58,8 @@ export async function runClientActivityPrepare(
 
   return {
     threadState: { ...threadState, pendingClientActivityDraft: null },
-    message: "Activity note prepared for review. Send the user the link — they must open Activity and save.",
+    message:
+      "Activity note prepared. Tell the user to click Open form and save in chat — you have not saved it.",
     summary: draft.subject,
     href,
     draftId: id,

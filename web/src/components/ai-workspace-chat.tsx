@@ -318,7 +318,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
             href={lastWrite!.href!}
             className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#b51266]"
           >
-            Open form
+            Open form and save
           </Link>
         </div>
       ) : null}

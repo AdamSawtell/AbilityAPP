@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import type { AuthSession } from "@/lib/access/types";
 import type { AiAgentRecord, AiWriteResult, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { attachmentsFromToolAudit } from "@/lib/ai/display";
+import { attachmentFromWriteResult, isPrepareWriteResult } from "@/lib/ai/prepare-display";
 import type { AiDatabase } from "@/lib/ai/db";
 import { logChatTurn } from "@/lib/ai/agents-api";
 import { enrichAiQueryAudit } from "@/lib/ai-query-audit/server";
@@ -93,7 +94,10 @@ function prepareToolResult(
       summary: out.summary,
       note: out.message,
       reviewHref: out.href,
+      reviewUrl: out.href,
       draftId: out.draftId,
+      instruction:
+        "Tell the user to click the Open form and save button in chat. Do not invent markdown links. You have not saved anything.",
     },
     threadState: out.threadState,
     writeResult: out.href
@@ -672,7 +676,12 @@ export async function runChatTurn(options: {
       createdClient,
       createdEnquiry,
       writeResult,
-      attachments: attachmentsFromToolAudit(auditTools),
+      attachments: [
+        ...attachmentsFromToolAudit(auditTools),
+        ...(writeResult && isPrepareWriteResult(writeResult.kind)
+          ? [attachmentFromWriteResult(writeResult)]
+          : []),
+      ],
     };
   }
 

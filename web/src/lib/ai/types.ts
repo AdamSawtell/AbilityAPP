@@ -170,7 +170,7 @@ export type AiWriteResult = {
 };
 
 export type ChatDisplayAttachment = {
-  type: "table" | "cards";
+  type: "table" | "cards" | "prepare";
   title: string;
   columns?: string[];
   rows?: Record<string, string>[];
@@ -181,6 +181,11 @@ export type ChatDisplayAttachment = {
     badge?: string;
     href: string;
   }[];
+  prepare?: {
+    label: string;
+    href: string;
+    hint: string;
+  };
 };
 
 export type ChatRequestBody = {
