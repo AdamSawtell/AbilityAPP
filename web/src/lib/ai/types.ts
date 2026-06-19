@@ -167,6 +167,11 @@ export type ChatThreadState = {
   activityCoachClientConfirmed?: boolean;
   /** Step 2 complete — last 5 notes shown. */
   activityCoachNotesReviewed?: boolean;
+  /** Client-side prefetch while viewing a client record (skips DB on first coach turn). */
+  activityCoachPrefetchedNotes?: {
+    clientId: string;
+    activities: { date: string; type: string; subject: string; description: string; createdBy?: string }[];
+  } | null;
 };
 
 export type AiWriteResult = {
@@ -186,8 +191,11 @@ export type PreparePreview = {
 };
 
 export type ChatDisplayAttachment = {
-  type: "table" | "cards" | "prepare";
+  type: "table" | "cards" | "prepare" | "prompt";
   title: string;
+  prompt?: {
+    body: string;
+  };
   columns?: string[];
   rows?: Record<string, string>[];
   cards?: {

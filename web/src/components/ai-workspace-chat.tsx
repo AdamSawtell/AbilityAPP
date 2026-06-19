@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -16,6 +16,7 @@ import {
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
 import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
+import { prefetchCoachNotesFromClients } from "@/lib/ai/activity-coach-prefetch";
 import { savedActivityCardAttachment } from "@/lib/ai/activity-coach-display";
 
 type AgentSummary = {
@@ -50,6 +51,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const { session, canAgent } = useAuth();
   const { clients, enquiries, tasks, incidents, refreshFromRemote } = useData();
   const pathname = usePathname();
+  const router = useRouter();
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
   const [configured, setConfigured] = useState(true);
@@ -78,6 +80,29 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
     threadStateRef.current = threadState;
     messagesRef.current = messages;
   }, [threadState, messages]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const prefetched = prefetchCoachNotesFromClients(clients, pathname);
+    setThreadState((prev) => {
+      const nextPrefetch = prefetched ?? null;
+      const clientChanged =
+        prev.activityCoachClient?.id &&
+        nextPrefetch?.clientId &&
+        prev.activityCoachClient.id !== nextPrefetch.clientId;
+      return {
+        ...prev,
+        activityCoachPrefetchedNotes: nextPrefetch,
+        ...(clientChanged
+          ? {
+              activityCoachClient: undefined,
+              activityCoachClientConfirmed: false,
+              activityCoachNotesReviewed: false,
+            }
+          : {}),
+      };
+    });
+  }, [hydrated, pathname, clients]);
 
   const appendNoticeIfAny = useCallback(() => {
     if (!session) return;
@@ -298,8 +323,12 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         messagesRef.current = next;
         return next;
       });
+
+      if (href) {
+        router.push(href);
+      }
     },
-    [refreshFromRemote]
+    [refreshFromRemote, router]
   );
 
   return (

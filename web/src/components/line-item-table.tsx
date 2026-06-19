@@ -30,6 +30,9 @@ type GenericTableConfig<TRow extends RowBase> = {
 
 export type { GenericTableConfig, GenericColumn };
 
+/** Internal row keys — kept on data for ordering/persistence but not shown in volume tables. */
+const HIDDEN_LINE_TABLE_COLUMN_KEYS = new Set(["lineNo", "reference"]);
+
 function CellInput<TRow extends RowBase, TColumn extends { key: keyof TRow & string; type: string; optionsKey?: string }>({
   column,
   row,
@@ -142,6 +145,11 @@ export function LineItemTable<TRow extends RowBase>({
   }, [catalog, dropdowns]);
   const [search, setSearch] = useState("");
 
+  const visibleColumns = useMemo(
+    () => config.columns.filter((col) => !HIDDEN_LINE_TABLE_COLUMN_KEYS.has(col.key)),
+    [config.columns]
+  );
+
   const filtered = useMemo(() => {
     if (!search.trim()) return rows;
     const q = search.toLowerCase();
@@ -197,7 +205,7 @@ export function LineItemTable<TRow extends RowBase>({
         <table className="min-w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              {config.columns.map((col) => (
+              {visibleColumns.map((col) => (
                 <th key={col.key} className={`px-3 py-2.5 font-medium ${col.className ?? ""}`}>
                   {col.label}
                   {col.required ? <span className="text-[#d4147a]"> *</span> : null}
@@ -210,7 +218,7 @@ export function LineItemTable<TRow extends RowBase>({
             {filtered.length ? (
               filtered.map((row) => (
                 <tr key={row.id} className="align-top hover:bg-slate-50/80">
-                  {config.columns.map((col) => (
+                  {visibleColumns.map((col) => (
                     <td key={col.key} className={`px-3 py-2 ${col.className ?? ""}`}>
                       <CellInput
                         column={col}
@@ -246,7 +254,7 @@ export function LineItemTable<TRow extends RowBase>({
             ) : (
               <tr>
                 <td
-                  colSpan={config.columns.length + 1}
+                  colSpan={visibleColumns.length + 1}
                   className="px-3 py-10 text-center text-sm text-slate-500"
                 >
                   {search.trim() ? "No rows match your search." : config.emptyMessage ?? "No rows yet."}

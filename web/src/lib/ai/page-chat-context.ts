@@ -81,7 +81,11 @@ export function resolvePageChatContext(pathname: string, lookup: RecordLookup): 
       systemLine: `The user is viewing client ${label}.`,
       viewingLabel: label,
       moduleLabel: "Clients",
-      capabilities: ["Look up details", "Summarise recent activity", "Guided prepare (questions then review)", "Coach activity notes"],
+      capabilities: [
+        "Look up details",
+        "Summarise recent activity",
+        "Coach activity notes (confirm client → last 5 notes → questions → save)",
+      ],
       suggestions: [
         "Help me write today's activity update",
         "Summarise the last 5 activity notes",

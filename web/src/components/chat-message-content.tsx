@@ -111,6 +111,10 @@ export function ChatMessageContent({
               <PrepareReviewCard attachment={attachment} />
             ) : attachment.type === "cards" ? (
               <RecordCards attachment={attachment} />
+            ) : attachment.type === "prompt" && attachment.prompt ? (
+              <p className="rounded-lg border border-[#f9a8d4] bg-[#fdf2f8] px-3 py-2.5 text-sm leading-relaxed text-slate-800">
+                {attachment.prompt.body}
+              </p>
             ) : attachment.type === "table" && attachment.columns && attachment.rows ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-xs">

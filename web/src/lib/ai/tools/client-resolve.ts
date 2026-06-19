@@ -77,12 +77,19 @@ export async function resolveClient(
   const pageClientId = clientIdFromPagePath(args.pagePath);
 
   if (clientId) {
-    const { data } = await supabase
+    const { data: byId } = await supabase
       .from("client")
       .select("id, name, search_key")
       .eq("id", clientId)
       .maybeSingle();
-    if (data) return { id: data.id, name: data.name, searchKey: data.search_key };
+    if (byId) return { id: byId.id, name: byId.name, searchKey: byId.search_key };
+
+    const { data: bySearchKey } = await supabase
+      .from("client")
+      .select("id, name, search_key")
+      .eq("search_key", clientId)
+      .maybeSingle();
+    if (bySearchKey) return { id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key };
   }
 
   if (searchKey) {
@@ -95,12 +102,19 @@ export async function resolveClient(
   }
 
   if (pageClientId && !name) {
-    const { data } = await supabase
+    const { data: byId } = await supabase
       .from("client")
       .select("id, name, search_key")
       .eq("id", pageClientId)
       .maybeSingle();
-    if (data) return { id: data.id, name: data.name, searchKey: data.search_key };
+    if (byId) return { id: byId.id, name: byId.name, searchKey: byId.search_key };
+
+    const { data: bySearchKey } = await supabase
+      .from("client")
+      .select("id, name, search_key")
+      .eq("search_key", pageClientId)
+      .maybeSingle();
+    if (bySearchKey) return { id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key };
   }
 
   if (!name) return null;
@@ -136,12 +150,19 @@ export async function resolveClient(
   if (match) return { id: match.id, name: match.name, searchKey: match.search_key };
 
   if (pageClientId) {
-    const { data } = await supabase
+    const { data: byId } = await supabase
       .from("client")
       .select("id, name, search_key")
       .eq("id", pageClientId)
       .maybeSingle();
-    if (data) return { id: data.id, name: data.name, searchKey: data.search_key };
+    if (byId) return { id: byId.id, name: byId.name, searchKey: byId.search_key };
+
+    const { data: bySearchKey } = await supabase
+      .from("client")
+      .select("id, name, search_key")
+      .eq("search_key", pageClientId)
+      .maybeSingle();
+    if (bySearchKey) return { id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key };
   }
 
   return null;

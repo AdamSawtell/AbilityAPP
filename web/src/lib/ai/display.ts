@@ -42,13 +42,16 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
       const client = row?.client && typeof row.client === "object" ? (row.client as Record<string, unknown>) : null;
       if (row?.found && client) {
         attachments.push(
-          clientRecordCardAttachment({
-            id: String(client.id ?? ""),
-            name: String(client.name ?? "—"),
-            searchKey: String(client.searchKey ?? ""),
-            href: String(client.href ?? `/clients/${client.id ?? ""}`),
-            status: "Confirm this client",
-          })
+          clientRecordCardAttachment(
+            {
+              id: String(client.id ?? ""),
+              name: String(client.name ?? "—"),
+              searchKey: String(client.searchKey ?? ""),
+              href: String(client.href ?? `/clients/${client.id ?? ""}`),
+              status: "Confirm this client",
+            },
+            { title: "Client record" }
+          )
         );
       }
       continue;

@@ -67,6 +67,9 @@ export function buildActivityPrepareFromCoachDetail(
   const assistantMsgs = messages.filter((m) => m.role === "assistant");
   const lastAssistant = assistantMsgs[assistantMsgs.length - 1];
   const coachPrompt =
+    lastAssistant?.content.includes("Step 3") ||
+    lastAssistant?.content.includes("Your turn") ||
+    lastAssistant?.content.includes("You're on") ||
     lastAssistant?.content.includes("activity") ||
     lastAssistant?.content.includes("Subject") ||
     lastAssistant?.content.includes("description") ||

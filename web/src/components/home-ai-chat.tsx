@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -71,6 +72,7 @@ function MessageBubble({ message }: { message: UiMessage }) {
 
 export function HomeAiChat() {
   const { session, canAgent } = useAuth();
+  const router = useRouter();
   const { upsertClient, upsertTask, clients, addEnquiry, refreshFromRemote } = useData();
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
@@ -309,8 +311,12 @@ export function HomeAiChat() {
         messagesRef.current = next;
         return next;
       });
+
+      if (href) {
+        router.push(href);
+      }
     },
-    [refreshFromRemote]
+    [refreshFromRemote, router]
   );
 
   return (

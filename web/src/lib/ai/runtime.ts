@@ -42,9 +42,11 @@ import { runIncidentCreatePrepare } from "@/lib/ai/tools/incident-create-prepare
 import { buildPageContext } from "@/lib/ai/page-context";
 import {
   coachClientReadyForPrepare,
+  tryActivityCoachFromClientGet,
   tryConfirmActivityCoachClient,
   tryProposeActivityCoachClient,
 } from "@/lib/ai/activity-coach-flow";
+import { isActivityCoachIntent, stripInventedRecordLinks } from "@/lib/ai/activity-coach-display";
 import {
   runClientActivityDraftConfirm,
   runClientActivityDraftCreate,
@@ -703,6 +705,7 @@ export async function runChatTurn(options: {
   if (supabase && session) {
     const propose = await tryProposeActivityCoachClient(
       supabase,
+      session,
       options.messages,
       threadState,
       options.pagePath
@@ -827,11 +830,45 @@ export async function runChatTurn(options: {
       continue;
     }
 
-    const assistantText = choice.content?.trim() || "I could not generate a response.";
+    const assistantTextRaw = choice.content?.trim() || "I could not generate a response.";
+    const lastUser = [...options.messages].reverse().find((m) => m.role === "user");
+
+    let assistantText = stripInventedRecordLinks(assistantTextRaw);
+    let turnAttachments = [
+      ...attachmentsFromToolAudit(auditTools),
+      ...(writeResult && isPrepareWriteResult(writeResult.kind)
+        ? [attachmentFromWriteResult(writeResult)]
+        : []),
+    ];
+
+    if (
+      supabase &&
+      session &&
+      lastUser &&
+      isActivityCoachIntent(lastUser.content) &&
+      !options.threadState.activityCoachClient
+    ) {
+      const clientGet = auditTools.find((t) => t.name === "client_get");
+      if (clientGet) {
+        const coach = await tryActivityCoachFromClientGet(
+          supabase,
+          session,
+          options.messages,
+          threadState,
+          options.pagePath,
+          clientGet.result
+        );
+        if (coach) {
+          threadState = coach.threadState;
+          assistantText = coach.assistantText;
+          turnAttachments = coach.attachments;
+        }
+      }
+    }
+
     const assistantMessage: ChatMessage = { role: "assistant", content: assistantText };
     workingMessages = [...workingMessages, assistantMessage];
 
-    const lastUser = [...options.messages].reverse().find((m) => m.role === "user");
     if (options.db?.client && lastUser) {
       void logChatTurn(options.db.client, {
         userId: options.session.userId,
@@ -864,12 +901,7 @@ export async function runChatTurn(options: {
       createdClient,
       createdEnquiry,
       writeResult,
-      attachments: [
-        ...attachmentsFromToolAudit(auditTools),
-        ...(writeResult && isPrepareWriteResult(writeResult.kind)
-          ? [attachmentFromWriteResult(writeResult)]
-          : []),
-      ],
+      attachments: turnAttachments,
     };
   }
 
