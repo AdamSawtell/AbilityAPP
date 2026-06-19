@@ -201,10 +201,12 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                                 ? "border-[#d4147a] bg-[#fdf2f8] text-[#b51266]"
                                 : "border-slate-200 text-slate-600"
                             }`}
+                            onMouseDown={(e) => e.preventDefault()}
                           >
                             <input
                               type="checkbox"
                               className="sr-only"
+                              tabIndex={-1}
                               checked={record.windowKeys.includes(w.key)}
                               onChange={() => toggleWindow(w.key)}
                             />
@@ -223,10 +225,12 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                                       ? "border-indigo-300 bg-indigo-50 text-indigo-900"
                                       : "border-slate-200 text-slate-500"
                                   } ${!record.windowKeys.includes(w.key) ? "opacity-50" : ""}`}
+                                  onMouseDown={(e) => e.preventDefault()}
                                 >
                                   <input
                                     type="checkbox"
                                     className="sr-only"
+                                    tabIndex={-1}
                                     disabled={!record.windowKeys.includes(w.key)}
                                     checked={record.windowKeys.includes(child.key)}
                                     onChange={() => toggleWindow(child.key)}

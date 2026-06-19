@@ -25,7 +25,7 @@ export function SystemShell({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-[#f4f6f8] text-slate-900">
+    <div className="flex h-screen overflow-hidden bg-[#f4f6f8] text-slate-900">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
         <div className="flex h-16 shrink-0 items-center border-b border-slate-100 px-5">
           <SystemHeaderBrand />
@@ -35,8 +35,8 @@ export function SystemShell({
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col pl-64">
-        <main className="flex-1 px-6 py-8 pb-24 lg:px-10">
+      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden pl-64">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 py-8 pb-24 lg:px-10">
           {breadcrumbs?.length ? (
             <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
               {breadcrumbs.map((crumb, index) => (

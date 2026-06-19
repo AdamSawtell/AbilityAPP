@@ -97,7 +97,7 @@ export function WorkspaceChrome({
   );
 
   return (
-    <div className="flex min-h-screen bg-[#f4f6f8] text-slate-900">
+    <div className="flex h-screen overflow-hidden bg-[#f4f6f8] text-slate-900">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
         <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-100 px-5">
           <Link href="/" className="flex min-w-0 items-center gap-2.5" title={orgName}>
@@ -124,11 +124,11 @@ export function WorkspaceChrome({
         <SessionFooter />
       </aside>
 
-      <div className="flex min-h-screen flex-1 pl-64">
-        <div className="flex h-screen w-full overflow-hidden">
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex h-full min-h-0 flex-1 overflow-hidden pl-64">
+        <div className="flex h-full min-h-0 w-full overflow-hidden">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <WorkspaceTabs />
-            <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
               <main className="px-6 py-8 pb-24 lg:px-10">
               {breadcrumbs?.length ? (
                 <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
