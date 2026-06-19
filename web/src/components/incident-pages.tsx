@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { IncidentTabbedView } from "@/components/incident-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
@@ -40,6 +41,7 @@ export function IncidentDetailView({ id }: { id: string }) {
   const justSubmitted = searchParams.get("submitted") === "1";
   const { incidents, updateIncident } = useData();
   const { session } = useAuth();
+  const canSaveIncident = useModuleSaveAccess("incidents", "incident");
   const stored = incidents.find((r) => r.id === id);
   const [draft, setDraft] = useState<IncidentRecord | null>(null);
   const [saved, setSaved] = useState(false);
@@ -183,7 +185,7 @@ export function IncidentDetailView({ id }: { id: string }) {
         </div>
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveIncident} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
 }

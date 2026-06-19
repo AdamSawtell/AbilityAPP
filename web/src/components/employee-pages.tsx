@@ -8,6 +8,7 @@ import { EmployeeList } from "@/components/employee-list";
 import { EmployeeTabbedView } from "@/components/employee-view";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
@@ -26,6 +27,7 @@ export function EmployeeListView() {
 export function EmployeeDetailView({ id }: { id: string }) {
   const { employees, upsertEmployee } = useData();
   const { users } = useAuth();
+  const canSaveEmployee = useModuleSaveAccess("employees", "employee");
   const { openEmployee, setTabDirty, touchTab } = useWorkspace();
   const stored = employees.find((e) => e.id === id);
   const [draft, setDraft] = useState<EmployeeRecord | null>(null);
@@ -150,7 +152,7 @@ export function EmployeeDetailView({ id }: { id: string }) {
         </div>
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveEmployee} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
 }

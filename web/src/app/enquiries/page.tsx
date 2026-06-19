@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EnquiryList } from "@/components/enquiry-list";
+import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 
 function EnquiryListFallback() {
@@ -12,6 +13,8 @@ function EnquiryListFallback() {
 
 export default function EnquiriesPage() {
   const { enquiries } = useData();
+  const { canWriteWindow } = useAuth();
+  const canCreateEnquiry = canWriteWindow("enquiries");
 
   return (
     <AppShell
@@ -20,12 +23,14 @@ export default function EnquiriesPage() {
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Enquiries" }]}
       audit={{ moduleLabel: "Enquiries" }}
       actions={
-        <Link
-          href="/enquiries/new"
-          className="inline-flex items-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#b51266]"
-        >
-          New enquiry
-        </Link>
+        canCreateEnquiry ? (
+          <Link
+            href="/enquiries/new"
+            className="inline-flex items-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#b51266]"
+          >
+            New enquiry
+          </Link>
+        ) : null
       }
     >
       <Suspense fallback={<EnquiryListFallback />}>

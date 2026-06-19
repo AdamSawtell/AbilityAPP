@@ -62,13 +62,23 @@ lines.push(userRoles.map((r) => `  (${sqlString(r.user_id)}, ${sqlString(r.role_
 lines.push("on conflict do nothing;");
 lines.push("");
 
-const roleWindows = SEED_ROLES.flatMap((r) => r.windowKeys.map((window_key) => ({ role_id: r.id, window_key })));
+const roleWindows = SEED_ROLES.flatMap((r) =>
+  Object.entries(r.windowAccess).map(([window_key, access_level]) => ({
+    role_id: r.id,
+    window_key,
+    access_level,
+  }))
+);
 lines.push("delete from public.app_role_window where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
 if (roleWindows.length) {
-  lines.push("insert into public.app_role_window (role_id, window_key)");
+  lines.push("insert into public.app_role_window (role_id, window_key, access_level)");
   lines.push("values");
-  lines.push(roleWindows.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.window_key)})`).join(",\n"));
-  lines.push("on conflict do nothing;");
+  lines.push(
+    roleWindows
+      .map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.window_key)}, ${sqlString(r.access_level)})`)
+      .join(",\n")
+  );
+  lines.push("on conflict (role_id, window_key) do update set access_level = excluded.access_level;");
 }
 lines.push("");
 

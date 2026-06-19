@@ -7,6 +7,7 @@ import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink, ProductRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { useData } from "@/lib/data-store";
 import {
@@ -54,6 +55,8 @@ const statusTone: Record<string, string> = {
 
 export function ServiceBookingListView() {
   const { serviceBookings, clients } = useData();
+  const { canWriteWindow } = useAuth();
+  const canCreateBooking = canWriteWindow("service-bookings");
   const [statusFilter, setStatusFilter] = useState("");
 
   const rows = useMemo(() => {
@@ -80,12 +83,14 @@ export function ServiceBookingListView() {
             ))}
           </select>
         </label>
-        <Link
-          href="/service-bookings/new"
-          className="ml-auto inline-flex rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-        >
-          New service booking
-        </Link>
+        {canCreateBooking ? (
+          <Link
+            href="/service-bookings/new"
+            className="ml-auto inline-flex rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+          >
+            New service booking
+          </Link>
+        ) : null}
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -156,6 +161,8 @@ export function ServiceBookingListView() {
 
 export function ServiceBookingDetailView({ id }: { id: string }) {
   const { serviceBookings, clients, products, serviceAgreements, upsertServiceBooking } = useData();
+  const { canWriteWindow } = useAuth();
+  const canSaveBooking = canWriteWindow("service-bookings");
   const stored = serviceBookings.find((r) => r.id === id);
   const [draft, setDraft] = useState<ServiceBookingRecord | null>(null);
   const [tab, setTab] = useState<(typeof serviceBookingTabs)[number]>("Overview");
@@ -248,7 +255,7 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
         </div>
 
         {tab === "Overview" ? (
-          <div className="space-y-6">
+          <fieldset disabled={!canSaveBooking} className="space-y-6 disabled:opacity-100">
             <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-3">
               <label>
                 <span className="mb-1.5 block text-xs font-medium text-slate-600">Document no.</span>
@@ -436,7 +443,7 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
                 ) : null}
               </div>
             </div>
-          </div>
+          </fieldset>
         ) : (
           <LineItemTable
             config={lineConfig}
@@ -444,11 +451,12 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
             onChange={(lines) => onChange("lines", lines)}
             dropdowns={lineDropdowns}
             optionLabels={productLabels}
+            readOnly={!canSaveBooking}
           />
         )}
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={save} onDiscard={() => setDraft(null)} />
+      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveBooking} onSave={save} onDiscard={() => setDraft(null)} />
     </>
   );
 }
@@ -456,6 +464,8 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
 export function ServiceBookingNewView() {
   const router = useRouter();
   const { clients, serviceAgreements, addServiceBooking } = useData();
+  const { canWriteWindow } = useAuth();
+  const canCreateBooking = canWriteWindow("service-bookings");
   const [clientId, setClientId] = useState("bp-bern");
   const [description, setDescription] = useState("Part 1");
   const [dateOrdered, setDateOrdered] = useState("2025-10-01");
@@ -505,13 +515,14 @@ export function ServiceBookingNewView() {
         <button
           type="button"
           onClick={create}
-          className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+          disabled={!canCreateBooking}
+          className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Create booking
         </button>
       }
     >
-      <div className="grid max-w-3xl gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2">
+      <fieldset disabled={!canCreateBooking} className="grid max-w-3xl gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 disabled:opacity-100">
         <label className="sm:col-span-2">
           <span className="mb-1.5 block text-xs font-medium text-slate-600">Description</span>
           <input className={inputClass} value={description} onChange={(e) => setDescription(e.target.value)} />
@@ -542,7 +553,7 @@ export function ServiceBookingNewView() {
           <span className="mb-1.5 block text-xs font-medium text-slate-600">End date</span>
           <input className={inputClass} type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
         </label>
-      </div>
+      </fieldset>
       <p className="mt-4 text-sm text-slate-500">
         After creating the booking, open the <strong>Service booking line</strong> tab to add products, periods, and amounts.
       </p>

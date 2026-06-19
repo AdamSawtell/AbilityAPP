@@ -7,6 +7,7 @@ import { LineItemTable, type GenericTableConfig } from "@/components/line-item-t
 import { ClientRecordLink } from "@/components/record-link";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useAuth } from "@/lib/auth-store";
 import { formatContractDate } from "@/lib/contract";
 import { newLineId } from "@/lib/client-line-tables";
 import { useReferenceData } from "@/lib/config-store";
@@ -140,6 +141,8 @@ export function ClientServiceAgreementsPanel({
 export function ServiceAgreementDetailView({ id }: { id: string }) {
   const { serviceAgreements, clients, products, priceLists, upsertServiceAgreement } = useData();
   const { getOptions } = useReferenceData();
+  const { canWriteWindow } = useAuth();
+  const canSaveAgreement = canWriteWindow("service-agreements");
   const stored = serviceAgreements.find((r) => r.id === id);
   const [draft, setDraft] = useState<ServiceAgreementRecord | null>(null);
   const [saved, setSaved] = useState(false);
@@ -197,7 +200,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? record),
         }}
       >
-        <div className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <fieldset disabled={!canSaveAgreement} className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4 disabled:opacity-100">
           <label>
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Name</span>
             <input className={inputClass} value={record.name} onChange={(e) => onChange("name", e.target.value)} />
@@ -243,7 +246,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Total planned amount</span>
             <input className={inputClass} value={record.totalPlannedAmount} onChange={(e) => onChange("totalPlannedAmount", e.target.value)} />
           </label>
-        </div>
+        </fieldset>
 
         {client ? (
           <p className="mb-4 text-sm text-slate-600">
@@ -259,6 +262,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           dropdowns={productDropdown}
           optionLabels={productLabels}
           onChange={(rows) => onChange("lines", rows)}
+          readOnly={!canSaveAgreement}
         />
         {saved && !hasUnsavedChanges ? <p className="mt-4 text-sm text-emerald-700">Saved</p> : null}
 
@@ -271,7 +275,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
         </div>
       </AppShell>
       <UnsavedChangesBar
-        visible={hasUnsavedChanges}
+        visible={hasUnsavedChanges && canSaveAgreement}
         onSave={() => {
           upsertServiceAgreement(record);
           setDraft(null);

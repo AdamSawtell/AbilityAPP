@@ -8,7 +8,7 @@ import { IncidentEvidenceUpload } from "@/components/incident-evidence-upload";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { ClientRecordLink, EmployeeRecordLink, LocationRecordLink } from "@/components/record-link";
 import { TaskEntitySearchPicker } from "@/components/task-entity-search";
-import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
+import { detailTabsForRole, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { accountableManagerForIncident } from "@/lib/org-structure-resolver";
@@ -179,7 +179,7 @@ export function IncidentTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { session, canWindow, users } = useAuth();
+  const { session, canWindow, canWriteWindow, users } = useAuth();
   const { clients, employees, locations, getTasksByEntity } = useData();
   const { positions, assignments } = useOrgStructure();
   const entityIndex = useTaskEntityIndex();
@@ -236,8 +236,13 @@ export function IncidentTabbedView({
   }
 
   function canIncidentTab(tab: string) {
-    const key = windowKeyForDetailTab("incidents", tab);
+    const key = resolveDetailWindowKey("incidents", tab);
     return key ? canWindow(key) : false;
+  }
+
+  function canWriteIncidentTab(tab: string) {
+    const key = resolveDetailWindowKey("incidents", tab);
+    return key ? canWriteWindow(key) : false;
   }
 
   function clientPickerValue(): TaskEntityOption | null {
@@ -337,7 +342,7 @@ export function IncidentTabbedView({
         </div>
 
         {activeTab === "Overview" && canIncidentTab("Overview") ? (
-          <div className="space-y-6">
+          <fieldset disabled={!canWriteIncidentTab("Overview")} className="space-y-6 disabled:opacity-100">
             <NdisComplianceBanner record={record} />
 
             {onWorkflowAdvance && record.status !== "Closed" && record.status !== "Draft" ? (
@@ -606,11 +611,11 @@ export function IncidentTabbedView({
                 rows={3}
               />
             </Field>
-          </div>
+          </fieldset>
         ) : null}
 
         {activeTab === "Parties & links" && canIncidentTab("Parties & links") ? (
-          <div className="space-y-6">
+          <fieldset disabled={!canWriteIncidentTab("Parties & links")} className="space-y-6 disabled:opacity-100">
             <div className="grid gap-4 sm:grid-cols-2">
               <TaskEntitySearchPicker
                 index={entityIndex}
@@ -678,12 +683,13 @@ export function IncidentTabbedView({
               rows={record.parties}
               onChange={onPartiesChange}
               dropdowns={incidentDropdowns}
+              readOnly={!canWriteIncidentTab("Parties & links")}
             />
-          </div>
+          </fieldset>
         ) : null}
 
         {activeTab === "Investigation" && canIncidentTab("Investigation") ? (
-          <div className="space-y-6">
+          <fieldset disabled={!canWriteIncidentTab("Investigation")} className="space-y-6 disabled:opacity-100">
             <Field label="Investigation summary">
               <textarea
                 className={`${inputClass} min-h-[100px]`}
@@ -714,34 +720,38 @@ export function IncidentTabbedView({
               rows={record.actions}
               onChange={onActionsChange}
               dropdowns={incidentDropdowns}
+              readOnly={!canWriteIncidentTab("Investigation")}
             />
 
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-900">Evidence attachments</h3>
-              <IncidentEvidenceUpload
-                incidentId={record.id}
-                uploadedBy={session?.displayName ?? record.updatedBy}
-                onUploaded={(row) =>
-                  onEvidenceChange([
-                    ...record.evidence,
-                    { ...row, lineNo: record.evidence.length + 1 },
-                  ])
-                }
-              />
+              {canWriteIncidentTab("Investigation") ? (
+                <IncidentEvidenceUpload
+                  incidentId={record.id}
+                  uploadedBy={session?.displayName ?? record.updatedBy}
+                  onUploaded={(row) =>
+                    onEvidenceChange([
+                      ...record.evidence,
+                      { ...row, lineNo: record.evidence.length + 1 },
+                    ])
+                  }
+                />
+              ) : null}
               <LineItemTable
                 config={incidentEvidenceTableConfig}
                 rows={record.evidence}
                 onChange={onEvidenceChange}
                 dropdowns={incidentDropdowns}
+                readOnly={!canWriteIncidentTab("Investigation")}
               />
             </div>
 
             <RecordTasksPanel entityType="incident" entityId={record.id} entityLabel={record.documentNo} />
-          </div>
+          </fieldset>
         ) : null}
 
         {activeTab === "Notifications" && canIncidentTab("Notifications") ? (
-          <div className="space-y-6">
+          <fieldset disabled={!canWriteIncidentTab("Notifications")} className="space-y-6 disabled:opacity-100">
             <IncidentNdisChecklist incident={record} />
             <div>
               <p className="mb-3 text-sm text-slate-600">
@@ -752,9 +762,10 @@ export function IncidentTabbedView({
                 rows={record.notifications}
                 onChange={onNotificationsChange}
                 dropdowns={incidentDropdowns}
+                readOnly={!canWriteIncidentTab("Notifications")}
               />
             </div>
-          </div>
+          </fieldset>
         ) : null}
       </div>
     </div>

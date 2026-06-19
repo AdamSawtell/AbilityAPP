@@ -9,6 +9,7 @@ import { EnquiryCoreSummary } from "@/components/enquiry-core-summary";
 import { EnquiryTabbedView } from "@/components/enquiry-view";
 import { ClientRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useConvertEnquiry, useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
@@ -24,6 +25,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
   const { enquiries, updateEnquiry, getClientByEnquiryId } = useData();
   const convert = useConvertEnquiry();
   const { canProcess } = useAuth();
+  const canSaveEnquiry = useModuleSaveAccess("enquiries", "enquiry");
   const { openEnquiry, setTabDirty } = useWorkspace();
   const stored = enquiries.find((r) => r.id === id);
   const linkedClient = getClientByEnquiryId(id);
@@ -163,7 +165,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
         </Suspense>
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveEnquiry} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
 }

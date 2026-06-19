@@ -66,17 +66,32 @@ function Field({
   employee,
   onChange,
   getOptions,
+  readOnly = false,
 }: {
   fieldKey: keyof EmployeeRecord;
   employee: EmployeeRecord;
   onChange: (key: keyof EmployeeRecord, value: string) => void;
   getOptions: (key: string) => string[];
+  readOnly?: boolean;
 }) {
   const field = fieldMeta.get(fieldKey);
-  if (!field) {
-    const label = fieldKey
+  const label =
+    field?.label ??
+    fieldKey
       .replace(/([A-Z])/g, " $1")
       .replace(/^./, (s) => s.toUpperCase());
+  const value = String(employee[fieldKey] ?? "").trim() || "—";
+
+  if (readOnly) {
+    return (
+      <div className="block">
+        <span className="mb-1.5 block text-xs font-medium text-slate-600">{label}</span>
+        <p className="text-sm text-slate-900">{value}</p>
+      </div>
+    );
+  }
+
+  if (!field) {
     return (
       <label className="block">
         <span className="mb-1.5 block text-xs font-medium text-slate-600">{label}</span>
@@ -126,6 +141,7 @@ function FieldSection({
   employee,
   onChange,
   getOptions,
+  readOnly = false,
 }: {
   title: string;
   description?: string;
@@ -133,6 +149,7 @@ function FieldSection({
   employee: EmployeeRecord;
   onChange: (key: keyof EmployeeRecord, value: string) => void;
   getOptions: (key: string) => string[];
+  readOnly?: boolean;
 }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -140,7 +157,14 @@ function FieldSection({
       {description ? <p className="mt-1 text-sm text-slate-500">{description}</p> : null}
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {keys.map((key) => (
-          <Field key={key} fieldKey={key} employee={employee} onChange={onChange} getOptions={getOptions} />
+          <Field
+            key={key}
+            fieldKey={key}
+            employee={employee}
+            onChange={onChange}
+            getOptions={getOptions}
+            readOnly={readOnly}
+          />
         ))}
       </div>
     </div>
@@ -202,7 +226,7 @@ export function EmployeeTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { session, canWindow, canProcess } = useAuth();
+  const { session, canWindow, canWriteWindow, canProcess } = useAuth();
   const { getIncidentsForEmployee } = useData();
   const { getOptions } = useReferenceData();
 
@@ -223,6 +247,11 @@ export function EmployeeTabbedView({
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  function canWriteEmployeeTab(tab: string) {
+    const key = resolveDetailWindowKey("employees", tab);
+    return key ? canWriteWindow(key) : false;
   }
 
   const canEditCredentials = canWindow("employee-credentials-assigned");
@@ -319,39 +348,60 @@ export function EmployeeTabbedView({
               keys={employeeOverviewFields}
               employee={employee}
               onChange={onChange}
+              readOnly={!canWriteEmployeeTab("Overview")}
             />
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <EmployeePicker
-                employees={managerEmployees}
-                value={employee.reportsToId}
-                onChange={(id) => onChange("reportsToId", id)}
-                label="Reports to"
-                allowClear
-              />
+              {canWriteEmployeeTab("Overview") ? (
+                <EmployeePicker
+                  employees={managerEmployees}
+                  value={employee.reportsToId}
+                  onChange={(id) => onChange("reportsToId", id)}
+                  label="Reports to"
+                  allowClear
+                />
+              ) : (
+                <div>
+                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Reports to</span>
+                  <p className="text-sm text-slate-900">{managerName(employee, allEmployees) || "—"}</p>
+                </div>
+              )}
               {employee.reportsToId ? (
                 <p className="mt-2 text-xs text-slate-500">Manager: {managerName(employee, allEmployees)}</p>
               ) : null}
             </div>
             <PrimaryAddressSummary primary={primary} addressTabHref={addressTabHref} />
             <PrimaryEmergencyContactSummary contact={emergency} tabHref={emergencyTabHref} />
-            <label className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes</span>
-              <textarea
-                className={`${inputClass} min-h-[100px] resize-y`}
-                value={employee.notes}
-                onChange={(e) => onChange("notes", e.target.value)}
-              />
-            </label>
+            {canWriteEmployeeTab("Overview") ? (
+              <label className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes</span>
+                <textarea
+                  className={`${inputClass} min-h-[100px] resize-y`}
+                  value={employee.notes}
+                  onChange={(e) => onChange("notes", e.target.value)}
+                />
+              </label>
+            ) : (
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes</span>
+                <p className="whitespace-pre-wrap text-sm text-slate-900">{employee.notes.trim() || "—"}</p>
+              </div>
+            )}
           </div>
         ) : null}
 
         {activeTab === "Contact" && canWindow("employee-contact") ? (
           <div className="space-y-4">
-            <RecordPhotoPanel
-              pictureUrl={employee.pictureUrl}
-              onChange={(url) => onChange("pictureUrl", url)}
-              description="Profile photo for rosters, org chart, and staff directories."
-            />
+            {canWriteEmployeeTab("Contact") ? (
+              <RecordPhotoPanel
+                pictureUrl={employee.pictureUrl}
+                onChange={(url) => onChange("pictureUrl", url)}
+                description="Profile photo for rosters, org chart, and staff directories."
+              />
+            ) : employee.pictureUrl ? (
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <img src={employee.pictureUrl} alt="" className="max-h-40 rounded-lg object-cover" />
+              </div>
+            ) : null}
             <FieldSection
               getOptions={getOptions}
               title="Contact"
@@ -359,6 +409,7 @@ export function EmployeeTabbedView({
               keys={employeeContactFields}
               employee={employee}
               onChange={onChange}
+              readOnly={!canWriteEmployeeTab("Contact")}
             />
             <PrimaryAddressSummary primary={primary} addressTabHref={addressTabHref} />
             <PrimaryEmergencyContactSummary contact={emergency} tabHref={emergencyTabHref} />
@@ -368,7 +419,7 @@ export function EmployeeTabbedView({
         {activeTab === "Emergency contacts" && canWindow("employee-emergency-contacts") ? (
           <EmployeeEmergencyContactsPanel
             contacts={employee.emergencyContacts}
-            onChange={onEmergencyContactsChange}
+            onChange={canWriteEmployeeTab("Emergency contacts") ? onEmergencyContactsChange : () => {}}
           />
         ) : null}
 
@@ -380,6 +431,7 @@ export function EmployeeTabbedView({
             keys={employeeEmploymentFields}
             employee={employee}
             onChange={onChange}
+            readOnly={!canWriteEmployeeTab("Employment")}
           />
         ) : null}
 
@@ -392,6 +444,7 @@ export function EmployeeTabbedView({
               keys={employeeWorkRightsFields}
               employee={employee}
               onChange={onChange}
+              readOnly={!canWriteEmployeeTab("Work rights")}
             />
           </div>
         ) : null}
@@ -404,6 +457,7 @@ export function EmployeeTabbedView({
             keys={employeePayrollFields}
             employee={employee}
             onChange={onChange}
+            readOnly={!canWriteEmployeeTab("Payroll")}
           />
         ) : null}
 
@@ -416,18 +470,21 @@ export function EmployeeTabbedView({
               keys={employeeLeaveFields}
               employee={employee}
               onChange={onChange}
+              readOnly={!canWriteEmployeeTab("Leave")}
             />
             <LineItemTable
               config={employeeLeaveTableConfig}
               rows={employee.leaveEntitlements}
               onChange={onLeaveEntitlementsChange}
               dropdowns={employeeDropdowns}
+              readOnly={!canWriteEmployeeTab("Leave")}
             />
             <LineItemTable
               config={employeeLeaveRequestTableConfig}
               rows={employee.leaveRequests}
               onChange={onLeaveRequestsChange}
               dropdowns={employeeDropdowns}
+              readOnly={!canWriteEmployeeTab("Leave")}
             />
           </div>
         ) : null}
@@ -441,7 +498,7 @@ export function EmployeeTabbedView({
                   Checks, licences, and qualifications. Status updates from expiry dates on save.
                 </p>
               </div>
-              {!canAssignCredential ? (
+              {!canAssignCredential || !canWriteEmployeeTab("Credentials Assigned") ? (
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
                   View only — assign process not granted
                 </span>
@@ -450,8 +507,9 @@ export function EmployeeTabbedView({
             <LineItemTable
               config={credentialTableConfig}
               rows={employee.credentials}
-              onChange={canAssignCredential ? onCredentialsChange : () => {}}
+              onChange={canAssignCredential && canWriteEmployeeTab("Credentials Assigned") ? onCredentialsChange : () => {}}
               dropdowns={employeeDropdowns}
+              readOnly={!canWriteEmployeeTab("Credentials Assigned")}
             />
           </div>
         ) : null}
@@ -482,6 +540,7 @@ export function EmployeeTabbedView({
               rows={manualAlerts}
               onChange={onAlertsChange}
               dropdowns={employeeDropdowns}
+              readOnly={!canWriteEmployeeTab("Alerts")}
             />
           </div>
         ) : null}
@@ -492,6 +551,7 @@ export function EmployeeTabbedView({
             rows={employee.skills}
             onChange={onSkillsChange}
             dropdowns={employeeDropdowns}
+            readOnly={!canWriteEmployeeTab("Skills & languages")}
           />
         ) : null}
 
@@ -501,6 +561,7 @@ export function EmployeeTabbedView({
             rows={employee.documents}
             onChange={onDocumentsChange}
             dropdowns={employeeDropdowns}
+            readOnly={!canWriteEmployeeTab("Documents")}
           />
         ) : null}
 
@@ -510,6 +571,7 @@ export function EmployeeTabbedView({
             rows={employee.activities}
             onChange={onActivitiesChange}
             dropdowns={employeeDropdowns}
+            readOnly={!canWriteEmployeeTab("Activity")}
           />
         ) : null}
 
@@ -521,7 +583,10 @@ export function EmployeeTabbedView({
         ) : null}
 
         {activeTab === "Address" && canWindow("employee-locations") ? (
-          <EmployeeAddressesPanel locations={employee.locations} onChange={onLocationsChange} />
+          <EmployeeAddressesPanel
+            locations={employee.locations}
+            onChange={canWriteEmployeeTab("Address") ? onLocationsChange : () => {}}
+          />
         ) : null}
 
         {activeTab === "System access" && canWindow("employee-system-access") ? (

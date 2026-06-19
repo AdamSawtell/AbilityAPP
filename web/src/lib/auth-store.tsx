@@ -6,6 +6,7 @@ import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/typ
 import { userInitials } from "@/lib/access/types";
 import { canAccessWindow, processById } from "@/lib/access/catalog";
 import { canHomePanel } from "@/lib/access/home-panels";
+import { canSaveModuleRecord, canWriteWindowSession } from "@/lib/access/window-access";
 import { canAccessReport } from "@/lib/reports/catalog";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -28,6 +29,8 @@ type AuthStore = {
   logout: () => Promise<void>;
   switchRole: (roleId: string) => Promise<void>;
   canWindow: (key: string) => boolean;
+  canWriteWindow: (key: string) => boolean;
+  canSaveModule: (moduleKey: string, childKeyPrefix: string) => boolean;
   canHomePanel: (panelKey: string) => boolean;
   canProcess: (processId: string) => boolean;
   canReport: (reportId: string) => boolean;
@@ -41,10 +44,16 @@ type AuthStore = {
 const AuthContext = createContext<AuthStore | null>(null);
 
 function normalizeSession(raw: AuthSession): AuthSession {
+  const windowAccess = raw.windowAccess ?? {};
+  const windowKeys = raw.windowKeys?.length
+    ? raw.windowKeys
+    : Object.keys(windowAccess);
   return {
     ...raw,
     employeeBpId: raw.employeeBpId ?? "",
     sessionId: raw.sessionId ?? "",
+    windowKeys,
+    windowAccess: Object.keys(windowAccess).length ? windowAccess : Object.fromEntries(windowKeys.map((k) => [k, "write" as const])),
     taskTypePermissions: raw.taskTypePermissions ?? [],
     reportIds: raw.reportIds ?? [],
     agentIds: raw.agentIds ?? [],
@@ -188,6 +197,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [session]
   );
 
+  const canWriteWindowFn = useCallback(
+    (key: string) => (session ? canWriteWindowSession(session, key) : false),
+    [session]
+  );
+
+  const canSaveModule = useCallback(
+    (moduleKey: string, childKeyPrefix: string) =>
+      session ? canSaveModuleRecord(session, moduleKey, childKeyPrefix) : false,
+    [session]
+  );
+
   const canHomePanelFn = useCallback(
     (panelKey: string) => (session ? canHomePanel(session.windowKeys, panelKey) : false),
     [session]
@@ -197,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!session?.processIds.includes(processId)) return false;
       const proc = processById(processId);
       if (proc?.parentWindowKey && !canAccessWindow(session.windowKeys, proc.parentWindowKey)) return false;
+      if (proc?.parentWindowKey && !canWriteWindowSession(session, proc.parentWindowKey)) return false;
       return true;
     },
     [session]
@@ -284,6 +305,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       switchRole,
       canWindow,
+      canWriteWindow: canWriteWindowFn,
+      canSaveModule,
       canHomePanel: canHomePanelFn,
       canProcess,
       canReport,
@@ -304,6 +327,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       switchRole,
       canWindow,
+      canWriteWindowFn,
+      canSaveModule,
       canHomePanelFn,
       canProcess,
       canReport,

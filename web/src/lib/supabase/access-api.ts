@@ -1,5 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppRoleRecord, AppUserRecord, TaskTypePermission } from "@/lib/access/types";
+import {
+  normalizeRoleWindowAccess,
+  windowAccessFromKeys,
+  windowKeysFromAccess,
+  type WindowAccessMap,
+} from "@/lib/access/window-access";
 
 type UserRow = {
   id: string;
@@ -38,22 +44,23 @@ function userFromRow(row: UserRow, roleIds: string[]): AppUserRecord {
 
 function roleFromRow(
   row: RoleRow,
-  windowKeys: string[],
+  windowAccess: WindowAccessMap,
   processIds: string[],
   reportIds: string[],
   taskTypePermissions: TaskTypePermission[]
 ): AppRoleRecord {
-  return {
+  return normalizeRoleWindowAccess({
     id: row.id,
     roleKey: row.role_key,
     name: row.name,
     description: row.description,
     active: row.active,
-    windowKeys,
+    windowKeys: windowKeysFromAccess(windowAccess),
+    windowAccess,
     processIds,
     reportIds,
     taskTypePermissions,
-  };
+  });
 }
 
 const USER_COLUMNS =
@@ -82,7 +89,7 @@ export async function fetchUsers(supabase: SupabaseClient): Promise<AppUserRecor
 export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecord[]> {
   const [rolesRes, windowsRes, processesRes, reportsRes, taskTypesRes] = await Promise.all([
     supabase.from("app_role").select("*").order("name"),
-    supabase.from("app_role_window").select("role_id, window_key"),
+    supabase.from("app_role_window").select("role_id, window_key, access_level"),
     supabase.from("app_role_process").select("role_id, process_id"),
     supabase.from("app_role_report").select("role_id, report_id"),
     supabase.from("app_role_task_type").select("role_id, task_type_id, can_see, can_select, can_create"),
@@ -93,11 +100,12 @@ export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecor
   if (reportsRes.error && reportsRes.error.code !== "42P01") throw reportsRes.error;
   if (taskTypesRes.error && taskTypesRes.error.code !== "42P01") throw taskTypesRes.error;
 
-  const windowsByRole = new Map<string, string[]>();
+  const windowsByRole = new Map<string, WindowAccessMap>();
   for (const row of windowsRes.data ?? []) {
-    const list = windowsByRole.get(row.role_id) ?? [];
-    list.push(row.window_key);
-    windowsByRole.set(row.role_id, list);
+    const map = windowsByRole.get(row.role_id) ?? {};
+    const level = row.access_level === "read" ? "read" : "write";
+    map[row.window_key] = level;
+    windowsByRole.set(row.role_id, map);
   }
 
   const processesByRole = new Map<string, string[]>();
@@ -129,7 +137,7 @@ export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecor
   return ((rolesRes.data ?? []) as RoleRow[]).map((row) =>
     roleFromRow(
       row,
-      windowsByRole.get(row.id) ?? [],
+      windowsByRole.get(row.id) ?? {},
       processesByRole.get(row.id) ?? [],
       reportsByRole.get(row.id) ?? [],
       taskTypesByRole.get(row.id) ?? []
@@ -166,44 +174,50 @@ export async function saveUser(supabase: SupabaseClient, user: AppUserRecord, pa
 }
 
 export async function saveRole(supabase: SupabaseClient, role: AppRoleRecord) {
+  const normalized = normalizeRoleWindowAccess(role);
   const { error } = await supabase.from("app_role").upsert({
-    id: role.id,
-    role_key: role.roleKey,
-    name: role.name,
-    description: role.description,
-    active: role.active,
+    id: normalized.id,
+    role_key: normalized.roleKey,
+    name: normalized.name,
+    description: normalized.description,
+    active: normalized.active,
   });
   if (error) throw error;
 
-  await supabase.from("app_role_window").delete().eq("role_id", role.id);
-  if (role.windowKeys.length) {
+  await supabase.from("app_role_window").delete().eq("role_id", normalized.id);
+  const entries = Object.entries(normalized.windowAccess);
+  if (entries.length) {
     const { error: wErr } = await supabase.from("app_role_window").insert(
-      role.windowKeys.map((window_key) => ({ role_id: role.id, window_key }))
+      entries.map(([window_key, access_level]) => ({
+        role_id: normalized.id,
+        window_key,
+        access_level,
+      }))
     );
     if (wErr) throw wErr;
   }
 
-  await supabase.from("app_role_process").delete().eq("role_id", role.id);
-  if (role.processIds.length) {
+  await supabase.from("app_role_process").delete().eq("role_id", normalized.id);
+  if (normalized.processIds.length) {
     const { error: pErr } = await supabase.from("app_role_process").insert(
-      role.processIds.map((process_id) => ({ role_id: role.id, process_id }))
+      normalized.processIds.map((process_id) => ({ role_id: normalized.id, process_id }))
     );
     if (pErr) throw pErr;
   }
 
-  await supabase.from("app_role_report").delete().eq("role_id", role.id);
-  if (role.reportIds.length) {
+  await supabase.from("app_role_report").delete().eq("role_id", normalized.id);
+  if (normalized.reportIds.length) {
     const { error: rErr } = await supabase.from("app_role_report").insert(
-      role.reportIds.map((report_id) => ({ role_id: role.id, report_id }))
+      normalized.reportIds.map((report_id) => ({ role_id: normalized.id, report_id }))
     );
     if (rErr && rErr.code !== "42P01") throw rErr;
   }
 
-  await supabase.from("app_role_task_type").delete().eq("role_id", role.id);
-  if (role.taskTypePermissions.length) {
+  await supabase.from("app_role_task_type").delete().eq("role_id", normalized.id);
+  if (normalized.taskTypePermissions.length) {
     const { error: ttErr } = await supabase.from("app_role_task_type").insert(
-      role.taskTypePermissions.map((p) => ({
-        role_id: role.id,
+      normalized.taskTypePermissions.map((p) => ({
+        role_id: normalized.id,
         task_type_id: p.taskTypeId,
         can_see: p.canSee,
         can_select: p.canSelect,
@@ -217,9 +231,15 @@ export async function saveRole(supabase: SupabaseClient, role: AppRoleRecord) {
 export async function resolveRoleAccess(
   supabase: SupabaseClient,
   roleId: string
-): Promise<{ windowKeys: string[]; processIds: string[]; reportIds: string[]; taskTypePermissions: TaskTypePermission[] }> {
+): Promise<{
+  windowKeys: string[];
+  windowAccess: WindowAccessMap;
+  processIds: string[];
+  reportIds: string[];
+  taskTypePermissions: TaskTypePermission[];
+}> {
   const [windowsRes, processesRes, reportsRes, taskTypesRes] = await Promise.all([
-    supabase.from("app_role_window").select("window_key").eq("role_id", roleId),
+    supabase.from("app_role_window").select("window_key, access_level").eq("role_id", roleId),
     supabase.from("app_role_process").select("process_id").eq("role_id", roleId),
     supabase.from("app_role_report").select("report_id").eq("role_id", roleId),
     supabase.from("app_role_task_type").select("task_type_id, can_see, can_select, can_create").eq("role_id", roleId),
@@ -228,8 +248,25 @@ export async function resolveRoleAccess(
   if (processesRes.error) throw processesRes.error;
   if (reportsRes.error && reportsRes.error.code !== "42P01") throw reportsRes.error;
   if (taskTypesRes.error && taskTypesRes.error.code !== "42P01") throw taskTypesRes.error;
+  const windowAccess: WindowAccessMap = {};
+  for (const row of windowsRes.data ?? []) {
+    windowAccess[row.window_key] = row.access_level === "read" ? "read" : "write";
+  }
+  const normalized = normalizeRoleWindowAccess({
+    id: roleId,
+    roleKey: "",
+    name: "",
+    description: "",
+    active: true,
+    windowKeys: windowKeysFromAccess(windowAccess),
+    windowAccess,
+    processIds: [],
+    reportIds: [],
+    taskTypePermissions: [],
+  });
   return {
-    windowKeys: (windowsRes.data ?? []).map((r) => r.window_key),
+    windowKeys: normalized.windowKeys,
+    windowAccess: normalized.windowAccess,
     processIds: (processesRes.data ?? []).map((r) => r.process_id),
     reportIds: (reportsRes.data ?? []).map((r) => r.report_id),
     taskTypePermissions: (taskTypesRes.data ?? []).map((r) => ({

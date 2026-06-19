@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { IncidentList } from "@/components/incident-list";
+import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 
 function IncidentListFallback() {
@@ -14,6 +15,8 @@ function IncidentListFallback() {
 
 export default function IncidentsPage() {
   const { incidents } = useData();
+  const { canWriteWindow } = useAuth();
+  const canCreateIncident = canWriteWindow("incidents");
 
   return (
     <AppShell
@@ -29,12 +32,14 @@ export default function IncidentsPage() {
           >
             NDIS compliance
           </Link>
-          <Link
-            href="/incidents/new"
-            className="inline-flex items-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#b51266]"
-          >
-            Report incident
-          </Link>
+          {canCreateIncident ? (
+            <Link
+              href="/incidents/new"
+              className="inline-flex items-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#b51266]"
+            >
+              Report incident
+            </Link>
+          ) : null}
         </>
       }
     >

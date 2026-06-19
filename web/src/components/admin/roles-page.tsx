@@ -3,14 +3,59 @@
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
-import { ACCESS_PROCESSES, ACCESS_WINDOWS, appChildWindows, appRoleWindows, sanitizeAppWindowKeys } from "@/lib/access/catalog";
+import { ACCESS_PROCESSES, appChildWindows, appRoleWindows } from "@/lib/access/catalog";
 import { HOME_PANEL_KEYS, homePanelsForRoleEditor } from "@/lib/access/home-panels";
 import type { AppRoleRecord } from "@/lib/access/types";
+import type { WindowAccessLevel } from "@/lib/access/window-access";
+import {
+  normalizeRoleWindowAccess,
+  setWindowAccessLevel,
+  windowAccessLevel,
+  windowKeysFromAccess,
+} from "@/lib/access/window-access";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { useAuth } from "@/lib/auth-store";
 
 function newRoleId() {
   return `role-${Date.now()}`;
+}
+
+function WindowAccessSelect({
+  label,
+  level,
+  disabled,
+  compact,
+  onChange,
+}: {
+  label: string;
+  level: WindowAccessLevel | null;
+  disabled?: boolean;
+  compact?: boolean;
+  onChange: (level: WindowAccessLevel | null) => void;
+}) {
+  const value = level ?? "none";
+  return (
+    <div className={`inline-flex items-center gap-2 ${compact ? "" : "flex-wrap"}`}>
+      {!compact ? <span className="min-w-[8rem] text-sm text-slate-700">{label}</span> : null}
+      <select
+        aria-label={compact ? `${label} access` : undefined}
+        disabled={disabled}
+        value={value}
+        onChange={(e) => {
+          const next = e.target.value;
+          onChange(next === "none" ? null : (next as WindowAccessLevel));
+        }}
+        className={`rounded-lg border border-slate-200 bg-white text-slate-700 outline-none focus:border-[#d4147a] ${
+          compact ? "px-2 py-1 text-xs" : "px-2.5 py-1.5 text-sm"
+        } ${disabled ? "opacity-50" : ""}`}
+      >
+        <option value="none">Off</option>
+        <option value="read">Read</option>
+        <option value="write">Write</option>
+      </select>
+      {compact ? <span className="text-xs text-slate-600">{label}</span> : null}
+    </div>
+  );
 }
 
 export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
@@ -29,17 +74,24 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
     return map;
   }, []);
 
+  function applyWindowAccess(access: AppRoleRecord["windowAccess"]) {
+    if (!record) return;
+    const normalized = normalizeRoleWindowAccess({ ...record, windowAccess: access, windowKeys: windowKeysFromAccess(access) });
+    setDraft(normalized);
+  }
+
   function openRole(id: string) {
     const role = roles.find((r) => r.id === id);
     if (!role) return;
     setActiveId(id);
-    setDraft({
-      ...role,
-      windowKeys: sanitizeAppWindowKeys([...role.windowKeys]),
-      processIds: [...role.processIds],
-      reportIds: [...(role.reportIds ?? [])],
-      taskTypePermissions: [...(role.taskTypePermissions ?? [])],
-    });
+    setDraft(
+      normalizeRoleWindowAccess({
+        ...role,
+        processIds: [...role.processIds],
+        reportIds: [...(role.reportIds ?? [])],
+        taskTypePermissions: [...(role.taskTypePermissions ?? [])],
+      })
+    );
   }
 
   function addRole() {
@@ -50,6 +102,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
       description: "",
       active: true,
       windowKeys: [],
+      windowAccess: {},
       processIds: [],
       reportIds: [],
       taskTypePermissions: [],
@@ -58,24 +111,9 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
     setDraft(role);
   }
 
-  function toggleWindow(key: string) {
+  function setWindowLevel(key: string, level: WindowAccessLevel | null) {
     if (!record) return;
-    const has = record.windowKeys.includes(key);
-    const win = ACCESS_WINDOWS.find((w) => w.key === key);
-    let nextKeys = has
-      ? record.windowKeys.filter((k) => k !== key)
-      : [...record.windowKeys, key];
-
-    if (!has && key === "home") {
-      nextKeys = [...nextKeys, "home-prompt", "home-needs-attention", "home-today"];
-    }
-
-    if (has && win && !win.parentWindowKey) {
-      const dependents = appChildWindows(key).map((c) => c.key);
-      nextKeys = nextKeys.filter((k) => !dependents.includes(k));
-    }
-
-    setDraft({ ...record, windowKeys: nextKeys });
+    applyWindowAccess(setWindowAccessLevel(record.windowAccess, key, level));
   }
 
   function toggleProcess(id: string) {
@@ -99,10 +137,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
 
   async function save() {
     if (!record?.roleKey.trim() || !record.name.trim()) return;
-    await upsertRole({
-      ...record,
-      windowKeys: sanitizeAppWindowKeys(record.windowKeys),
-    });
+    await upsertRole(normalizeRoleWindowAccess(record));
     setDraft(null);
   }
 
@@ -111,7 +146,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
   return (
     <Shell
       title="Roles"
-      subtitle="Roles control which windows and processes a user can see when signed in with that role."
+      subtitle="Roles control which windows and processes a user can see when signed in with that role. Set Read or Write per window or tab."
       breadcrumbs={
         variant === "system"
           ? [{ label: "System", href: "/system" }, { label: "Admin", href: "/system/admin/roles" }, { label: "Roles" }]
@@ -182,99 +217,71 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                 <h2 className="mb-3 text-sm font-semibold text-slate-900">Windows / functions</h2>
                 <p className="mb-4 text-xs text-slate-500">
                   Top-level windows appear in the workspace sidebar. Dependent windows (indented) are tabs or
-                  sub-functions inside a parent — e.g. Overview under Clients, or Credentials Assigned under
-                  Employees.                   System-only windows (task management, Reports Advance,
-                  and similar) are available to every signed-in System operator and are not listed here.
+                  sub-functions inside a parent. Use Read for view-only access; Write allows save and edits.
+                  System-only windows are not listed here.
                 </p>
                 {[...windowsByGroup.entries()].map(([group, items]) => {
                   const topLevel = items.filter((w) => !w.parentWindowKey);
                   return (
-                  <div key={group} className="mb-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{group}</p>
-                    <div className="space-y-2">
-                      {topLevel.map((w) => (
-                        <div key={w.key}>
-                          <label
-                            title={w.abilityErpName}
-                            className={`inline-flex cursor-pointer rounded-lg border px-3 py-2 text-sm ${
-                              record.windowKeys.includes(w.key)
-                                ? "border-[#d4147a] bg-[#fdf2f8] text-[#b51266]"
-                                : "border-slate-200 text-slate-600"
-                            }`}
-                            onMouseDown={(e) => e.preventDefault()}
-                          >
-                            <input
-                              type="checkbox"
-                              className="sr-only"
-                              tabIndex={-1}
-                              checked={record.windowKeys.includes(w.key)}
-                              onChange={() => toggleWindow(w.key)}
+                    <div key={group} className="mb-4">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{group}</p>
+                      <div className="space-y-3">
+                        {topLevel.map((w) => (
+                          <div key={w.key}>
+                            <WindowAccessSelect
+                              label={w.label}
+                              level={windowAccessLevel(record.windowAccess, w.key)}
+                              onChange={(level) => setWindowLevel(w.key, level)}
                             />
-                            {w.label}
-                          </label>
-                          {appChildWindows(w.key).filter((child) => !HOME_PANEL_KEYS.includes(child.key)).length > 0 ? (
-                            <div className="ml-4 mt-2 flex flex-wrap gap-2 border-l border-slate-200 pl-3">
-                              {appChildWindows(w.key)
-                                .filter((child) => !HOME_PANEL_KEYS.includes(child.key))
-                                .map((child) => (
-                                <label
-                                  key={child.key}
-                                  title={child.abilityErpName}
-                                  className={`inline-flex cursor-pointer rounded-lg border px-2.5 py-1.5 text-xs ${
-                                    record.windowKeys.includes(child.key)
-                                      ? "border-indigo-300 bg-indigo-50 text-indigo-900"
-                                      : "border-slate-200 text-slate-500"
-                                  } ${!record.windowKeys.includes(w.key) ? "opacity-50" : ""}`}
-                                  onMouseDown={(e) => e.preventDefault()}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    className="sr-only"
-                                    tabIndex={-1}
-                                    disabled={!record.windowKeys.includes(w.key)}
-                                    checked={record.windowKeys.includes(child.key)}
-                                    onChange={() => toggleWindow(child.key)}
-                                  />
-                                  {child.label}
-                                </label>
-                              ))}
-                            </div>
-                          ) : null}
-                        </div>
-                      ))}
+                            {appChildWindows(w.key).filter((child) => !HOME_PANEL_KEYS.includes(child.key)).length > 0 ? (
+                              <div className="ml-4 mt-2 space-y-2 border-l border-slate-200 pl-3">
+                                {appChildWindows(w.key)
+                                  .filter((child) => !HOME_PANEL_KEYS.includes(child.key))
+                                  .map((child) => (
+                                    <WindowAccessSelect
+                                      key={child.key}
+                                      compact
+                                      label={child.label}
+                                      disabled={!record.windowAccess[w.key]}
+                                      level={windowAccessLevel(record.windowAccess, child.key)}
+                                      onChange={(level) => setWindowLevel(child.key, level)}
+                                    />
+                                  ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                );
+                  );
                 })}
               </section>
 
-              {record.windowKeys.includes("home") ? (
+              {record.windowAccess.home ? (
                 <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                   <h2 className="mb-3 text-sm font-semibold text-slate-900">Home dashboard panels</h2>
                   <p className="mb-4 text-xs text-slate-500">
-                    Control what appears on the Home landing page for this role. Module-linked panels require the
-                    matching module window (e.g. Enquiries count needs Enquiries).
+                    Home panels are read-only. Turn a panel off to hide it from Home for this role.
                   </p>
                   <div className="space-y-2">
                     {homePanelsForRoleEditor(record.windowKeys).map((panel) => {
                       const moduleMissing = Boolean(
-                        panel.requiresWindowKey && !record.windowKeys.includes(panel.requiresWindowKey)
+                        panel.requiresWindowKey && !record.windowAccess[panel.requiresWindowKey]
                       );
+                      const enabled = Boolean(record.windowAccess[panel.key]);
                       return (
                         <label
                           key={panel.key}
                           className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 ${
-                            record.windowKeys.includes(panel.key)
-                              ? "border-[#d4147a] bg-[#fdf2f8]"
-                              : "border-slate-200"
+                            enabled ? "border-[#d4147a] bg-[#fdf2f8]" : "border-slate-200"
                           } ${moduleMissing ? "opacity-50" : ""}`}
                         >
                           <input
                             type="checkbox"
                             className="mt-0.5"
                             disabled={moduleMissing}
-                            checked={record.windowKeys.includes(panel.key)}
-                            onChange={() => toggleWindow(panel.key)}
+                            checked={enabled}
+                            onChange={() => setWindowLevel(panel.key, enabled ? null : "read")}
                           />
                           <span>
                             <span className="block text-sm font-medium text-slate-900">{panel.label}</span>
@@ -295,7 +302,8 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 className="mb-3 text-sm font-semibold text-slate-900">Processes</h2>
                 <p className="mb-4 text-xs text-slate-500">
-                  Assigned processes are available as actions (e.g. Convert to client) for this role only.
+                  Assigned processes are available as actions (e.g. Convert to client) for this role only. Requires
+                  write access on the related module.
                 </p>
                 <div className="space-y-2">
                   {ACCESS_PROCESSES.map((p) => (

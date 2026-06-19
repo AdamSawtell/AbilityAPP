@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EnquiryForm } from "@/components/enquiry-form";
 import { RecordActivitiesPanel } from "@/components/record-activities-panel";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
-import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
+import { detailTabsForRole, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
@@ -33,7 +33,7 @@ export function EnquiryTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { session, canWindow } = useAuth();
+  const { session, canWindow, canWriteWindow } = useAuth();
   const { getTasksByEntity } = useData();
 
   const taskCount = getTasksByEntity("enquiry", record.id).length;
@@ -50,8 +50,13 @@ export function EnquiryTabbedView({
     .filter((group) => group.tabs.length > 0);
 
   function canEnquiryTab(tab: string) {
-    const key = windowKeyForDetailTab("enquiries", tab);
+    const key = resolveDetailWindowKey("enquiries", tab);
     return key ? canWindow(key) : false;
+  }
+
+  function canWriteEnquiryTab(tab: string) {
+    const key = resolveDetailWindowKey("enquiries", tab);
+    return key ? canWriteWindow(key) : false;
   }
 
   function setActiveTab(tab: string) {
@@ -117,7 +122,11 @@ export function EnquiryTabbedView({
 
         {activeTab === "Activity" && canEnquiryTab("Activity") ? (
           <div className="space-y-8">
-            <RecordActivitiesPanel rows={record.activity} onChange={onActivityChange} />
+            <RecordActivitiesPanel
+              rows={record.activity}
+              onChange={onActivityChange}
+              readOnly={!canWriteEnquiryTab("Activity")}
+            />
             <div className="border-t border-slate-200 pt-8">
               <RecordTasksPanel
                 entityType="enquiry"
@@ -132,6 +141,7 @@ export function EnquiryTabbedView({
             sections={formSections}
             onChange={onChange}
             activeSection={activeTab}
+            readOnly={!canWriteEnquiryTab(activeTab)}
           />
         ) : null}
       </div>

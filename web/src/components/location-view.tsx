@@ -5,7 +5,7 @@ import { useReferenceData } from "@/lib/config-store";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LineItemTable } from "@/components/line-item-table";
 import { ClientRecordLink, EmployeeRecordLink, ProductRecordLink } from "@/components/record-link";
-import { allowedDetailTabsFromGroups } from "@/lib/access/catalog";
+import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
@@ -56,15 +56,26 @@ function Field({
   location,
   onChange,
   getOptions,
+  readOnly = false,
 }: {
   label: string;
   fieldKey: keyof LocationRecord;
   location: LocationRecord;
   onChange: (key: keyof LocationRecord, value: string) => void;
   getOptions: (key: string) => string[];
+  readOnly?: boolean;
 }) {
   const value = String(location[fieldKey] ?? "");
   const isTextarea = fieldKey === "description" || fieldKey === "accessNotes";
+
+  if (readOnly) {
+    return (
+      <div className={`block ${isTextarea ? "sm:col-span-2" : ""}`}>
+        <span className="mb-1.5 block text-xs font-medium text-slate-600">{label}</span>
+        <p className="whitespace-pre-wrap text-sm text-slate-900">{value.trim() || "—"}</p>
+      </div>
+    );
+  }
 
   if (fieldKey === "locationType") {
     return (
@@ -136,11 +147,13 @@ function FieldGrid({
   location,
   onChange,
   getOptions,
+  readOnly = false,
 }: {
   keys: (keyof LocationRecord)[];
   location: LocationRecord;
   onChange: (key: keyof LocationRecord, value: string) => void;
   getOptions: (key: string) => string[];
+  readOnly?: boolean;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -152,6 +165,7 @@ function FieldGrid({
           location={location}
           onChange={onChange}
           getOptions={getOptions}
+          readOnly={readOnly}
         />
       ))}
     </div>
@@ -188,7 +202,7 @@ export function LocationTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { session, canWindow, canProcess } = useAuth();
+  const { session, canWindow, canWriteWindow, canProcess } = useAuth();
   const { clients, employees, products } = useData();
   const { getOptions } = useReferenceData();
 
@@ -241,6 +255,11 @@ export function LocationTabbedView({
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  function canWriteLocationTab(tab: string) {
+    const key = resolveDetailWindowKey("locations", tab);
+    return key ? canWriteWindow(key) : false;
   }
 
   return (
@@ -303,23 +322,41 @@ export function LocationTabbedView({
             <h3 className="text-sm font-semibold text-slate-900">Overview</h3>
             <p className="mt-1 text-sm text-slate-500">Core site details for this support location.</p>
             <div className="mt-4">
-              <FieldGrid keys={locationOverviewFields} location={location} onChange={onChange} getOptions={getOptions} />
+              <FieldGrid
+                keys={locationOverviewFields}
+                location={location}
+                onChange={onChange}
+                getOptions={getOptions}
+                readOnly={!canWriteLocationTab("Overview")}
+              />
             </div>
           </div>
         ) : null}
 
         {activeTab === "Contact & address" && canWindow("location-contact-and-address") ? (
           <div className="space-y-4">
-            <RecordPhotoPanel
-              pictureUrl={location.pictureUrl}
-              onChange={(url) => onChange("pictureUrl", url)}
-              description="Site image for rosters, bookings, and staff orientation."
-            />
+            {canWriteLocationTab("Contact & address") ? (
+              <RecordPhotoPanel
+                pictureUrl={location.pictureUrl}
+                onChange={(url) => onChange("pictureUrl", url)}
+                description="Site image for rosters, bookings, and staff orientation."
+              />
+            ) : location.pictureUrl ? (
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <img src={location.pictureUrl} alt="" className="max-h-40 rounded-lg object-cover" />
+              </div>
+            ) : null}
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <h3 className="text-sm font-semibold text-slate-900">Contact & address</h3>
               <p className="mt-1 text-sm text-slate-500">Where the site is and how to reach on-site staff.</p>
               <div className="mt-4">
-                <FieldGrid keys={locationContactFields} location={location} onChange={onChange} getOptions={getOptions} />
+                <FieldGrid
+                  keys={locationContactFields}
+                  location={location}
+                  onChange={onChange}
+                  getOptions={getOptions}
+                  readOnly={!canWriteLocationTab("Contact & address")}
+                />
               </div>
             </div>
           </div>
@@ -338,6 +375,7 @@ export function LocationTabbedView({
               rows={location.alerts}
               onChange={onAlertsChange}
               dropdowns={referenceDropdowns}
+              readOnly={!canWriteLocationTab("Alerts")}
             />
           </div>
         ) : null}
@@ -349,16 +387,17 @@ export function LocationTabbedView({
                 <h3 className="text-sm font-semibold text-slate-900">Clients</h3>
                 <p className="text-sm text-slate-500">Support receivers linked to this location (one location, many clients).</p>
               </div>
-              {!canAssignClient ? (
+              {!canAssignClient || !canWriteLocationTab("Clients") ? (
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">View only</span>
               ) : null}
             </div>
             <LineItemTable
               config={locationClientLinkTableConfig}
               rows={location.clientLinks}
-              onChange={canAssignClient ? onClientLinksChange : () => {}}
+              onChange={canAssignClient && canWriteLocationTab("Clients") ? onClientLinksChange : () => {}}
               dropdowns={clientDropdowns}
               optionLabels={optionLabels}
+              readOnly={!canWriteLocationTab("Clients")}
             />
             {location.clientLinks.length > 0 ? (
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-sm">
@@ -390,16 +429,17 @@ export function LocationTabbedView({
                 <h3 className="text-sm font-semibold text-slate-900">Employees</h3>
                 <p className="text-sm text-slate-500">Staff assigned to work at this location (one location, many employees).</p>
               </div>
-              {!canAssignEmployee ? (
+              {!canAssignEmployee || !canWriteLocationTab("Employees") ? (
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">View only</span>
               ) : null}
             </div>
             <LineItemTable
               config={locationEmployeeLinkTableConfig}
               rows={location.employeeLinks}
-              onChange={canAssignEmployee ? onEmployeeLinksChange : () => {}}
+              onChange={canAssignEmployee && canWriteLocationTab("Employees") ? onEmployeeLinksChange : () => {}}
               dropdowns={clientDropdowns}
               optionLabels={optionLabels}
+              readOnly={!canWriteLocationTab("Employees")}
             />
             {location.employeeLinks.length > 0 ? (
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-sm">
@@ -446,16 +486,17 @@ export function LocationTabbedView({
                   NDIS products and services delivered at this location. Pulled from the product catalog.
                 </p>
               </div>
-              {!canAssignProduct ? (
+              {!canAssignProduct || !canWriteLocationTab("Products & services") ? (
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">View only</span>
               ) : null}
             </div>
             <LineItemTable
               config={locationProductLinkTableConfig}
               rows={location.productLinks}
-              onChange={canAssignProduct ? onProductLinksChange : () => {}}
+              onChange={canAssignProduct && canWriteLocationTab("Products & services") ? onProductLinksChange : () => {}}
               dropdowns={clientDropdowns}
               optionLabels={optionLabels}
+              readOnly={!canWriteLocationTab("Products & services")}
             />
             {location.productLinks.length > 0 ? (
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-sm">
@@ -493,6 +534,7 @@ export function LocationTabbedView({
               rows={location.activities}
               onChange={onActivitiesChange}
               dropdowns={referenceDropdowns}
+              readOnly={!canWriteLocationTab("Activity")}
             />
           </div>
         ) : null}

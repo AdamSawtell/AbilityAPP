@@ -9,6 +9,8 @@ import { ContractTabbedView } from "@/components/contract-view";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { ClientRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
+import { useAuth } from "@/lib/auth-store";
 import { formatContractDate, type ContractRecord } from "@/lib/contract";
 import type { ContractLineCollectionKey } from "@/lib/contract-line-tables";
 import { useData } from "@/lib/data-store";
@@ -78,6 +80,8 @@ export function ClientContractsPanel({
   searchKey: string;
 }) {
   const { getContractsByClientId } = useData();
+  const { canWriteWindow } = useAuth();
+  const canCreateContract = canWriteWindow("contracts");
   const contracts = getContractsByClientId(clientId);
 
   return (
@@ -86,12 +90,14 @@ export function ClientContractsPanel({
         <p className="text-sm text-slate-600">
           Service agreements and linked contracts for this client. Dates drive review and renewal.
         </p>
-        <Link
-          href={`/contracts/new?clientId=${clientId}`}
-          className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-        >
-          New contract
-        </Link>
+        {canCreateContract ? (
+          <Link
+            href={`/contracts/new?clientId=${clientId}`}
+            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+          >
+            New contract
+          </Link>
+        ) : null}
       </div>
 
       {contracts.length ? (
@@ -130,12 +136,14 @@ export function ClientContractsPanel({
       ) : (
         <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
           <p className="text-sm text-slate-600">No contracts linked to {searchKey} yet.</p>
-          <Link
-            href={`/contracts/new?clientId=${clientId}`}
-            className="mt-3 inline-block text-sm font-medium text-[#b51266] hover:underline"
-          >
-            Create contract for {clientName}
-          </Link>
+          {canCreateContract ? (
+            <Link
+              href={`/contracts/new?clientId=${clientId}`}
+              className="mt-3 inline-block text-sm font-medium text-[#b51266] hover:underline"
+            >
+              Create contract for {clientName}
+            </Link>
+          ) : null}
         </div>
       )}
     </div>
@@ -144,6 +152,7 @@ export function ClientContractsPanel({
 
 export function ContractDetailView({ id }: { id: string }) {
   const { contracts, clients, upsertContract } = useData();
+  const canSaveContract = useModuleSaveAccess("contracts", "contract");
   const stored = contracts.find((c) => c.id === id);
   const [draft, setDraft] = useState<ContractRecord | null>(null);
   const [saved, setSaved] = useState(false);
@@ -244,7 +253,7 @@ export function ContractDetailView({ id }: { id: string }) {
           />
         </div>
       </AppShell>
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveContract} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
 }
@@ -252,6 +261,8 @@ export function ContractDetailView({ id }: { id: string }) {
 export function NewContractView({ clientId }: { clientId?: string }) {
   const router = useRouter();
   const { clients, addContract } = useData();
+  const { canWriteWindow } = useAuth();
+  const canCreateContract = canWriteWindow("contracts");
   const client = clientId ? clients.find((c) => c.id === clientId) : undefined;
   const seed = useMemo((): ContractRecord | null => {
     if (!client) return null;
@@ -319,7 +330,8 @@ export function NewContractView({ clientId }: { clientId?: string }) {
           <button
             type="button"
             onClick={onCreate}
-            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+            disabled={!canCreateContract}
+            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Create contract
           </button>
@@ -333,8 +345,14 @@ export function NewContractView({ clientId }: { clientId?: string }) {
         <Suspense fallback={<ContractFormFallback />}>
           <ContractTabbedView
             contract={record}
-            onChange={(key, value) => setRecord((prev) => (prev ? { ...prev, [key]: value } : prev))}
-            onLineItemsChange={(key, rows) => setRecord((prev) => (prev ? { ...prev, [key]: rows } : prev))}
+            onChange={(key, value) => {
+              if (!canCreateContract) return;
+              setRecord((prev) => (prev ? { ...prev, [key]: value } : prev));
+            }}
+            onLineItemsChange={(key, rows) => {
+              if (!canCreateContract) return;
+              setRecord((prev) => (prev ? { ...prev, [key]: rows } : prev));
+            }}
           />
         </Suspense>
       ) : (

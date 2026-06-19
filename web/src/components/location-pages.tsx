@@ -7,6 +7,7 @@ import { LocationCoreSummary } from "@/components/location-core-summary";
 import { LocationList } from "@/components/location-list";
 import { LocationTabbedView } from "@/components/location-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useData } from "@/lib/data-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { LocationRecord } from "@/lib/location";
@@ -23,6 +24,7 @@ export function LocationListView() {
 
 export function LocationDetailView({ id }: { id: string }) {
   const { locations, upsertLocation } = useData();
+  const canSaveLocation = useModuleSaveAccess("locations", "location");
   const { openLocation, setTabDirty, touchTab } = useWorkspace();
   const stored = locations.find((l) => l.id === id);
   const [draft, setDraft] = useState<LocationRecord | null>(null);
@@ -120,7 +122,7 @@ export function LocationDetailView({ id }: { id: string }) {
           />
         </Suspense>
       </AppShell>
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveLocation} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
 }

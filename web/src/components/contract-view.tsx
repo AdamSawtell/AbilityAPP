@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LineItemTable } from "@/components/line-item-table";
-import { detailTabsForRole, windowKeyForDetailTab } from "@/lib/access/catalog";
+import { detailTabsForRole, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useReferenceData } from "@/lib/config-store";
 import type { ContractRecord } from "@/lib/contract";
@@ -23,16 +23,18 @@ function Field({
   field,
   value,
   onChange,
+  readOnly = false,
 }: {
   field: ContractFieldDef;
   value: string;
   onChange: (key: keyof ContractRecord, value: string) => void;
+  readOnly?: boolean;
 }) {
   const { getOptions } = useReferenceData();
   const base =
     "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20 disabled:bg-slate-50 disabled:text-slate-500";
 
-  if (field.readOnly) {
+  if (field.readOnly || readOnly) {
     return <input className={base} value={value || "—"} readOnly disabled />;
   }
 
@@ -82,7 +84,7 @@ export function ContractTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { session, canWindow } = useAuth();
+  const { session, canWindow, canWriteWindow } = useAuth();
 
   const allowedTabs = detailTabsForRole("contracts", session?.windowKeys ?? []);
   const defaultTab = allowedTabs[0] ?? "Overview";
@@ -91,8 +93,13 @@ export function ContractTabbedView({
   const tableTab = activeTab in contractTabTableConfigs ? (activeTab as ContractTabWithTable) : null;
 
   function canContractTab(tab: string) {
-    const key = windowKeyForDetailTab("contracts", tab);
+    const key = resolveDetailWindowKey("contracts", tab);
     return key ? canWindow(key) : false;
+  }
+
+  function canWriteContractTab(tab: string) {
+    const key = resolveDetailWindowKey("contracts", tab);
+    return key ? canWriteWindow(key) : false;
   }
 
   function setActiveTab(tab: string) {
@@ -146,7 +153,7 @@ export function ContractTabbedView({
         </div>
 
         {activeTab === "Overview" && canContractTab("Overview") ? (
-          <>
+          <fieldset disabled={!canWriteContractTab("Overview")} className="space-y-6 disabled:opacity-100">
             <section className="rounded-xl border-2 border-[#f9a8d4]/40 bg-[#fdf2f8]/30 p-5">
               <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[#b51266]">Key dates</h3>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -156,7 +163,12 @@ export function ContractTabbedView({
                       {field.label}
                       {field.required ? <span className="text-[#d4147a]"> *</span> : null}
                     </span>
-                    <Field field={field} value={contract[field.key] as string} onChange={onChange} />
+                    <Field
+                      field={field}
+                      value={contract[field.key] as string}
+                      onChange={onChange}
+                      readOnly={!canWriteContractTab("Overview")}
+                    />
                   </label>
                 ))}
               </div>
@@ -168,12 +180,17 @@ export function ContractTabbedView({
                 {contractHeaderFields.map((field) => (
                   <label key={field.key} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
                     <span className="mb-1.5 block text-xs font-medium text-slate-600">{field.label}</span>
-                    <Field field={field} value={contract[field.key] as string} onChange={onChange} />
+                    <Field
+                      field={field}
+                      value={contract[field.key] as string}
+                      onChange={onChange}
+                      readOnly={!canWriteContractTab("Overview")}
+                    />
                   </label>
                 ))}
               </div>
             </section>
-          </>
+          </fieldset>
         ) : null}
 
         {tableTab === "Audit" && canContractTab("Audit") ? (
@@ -181,6 +198,7 @@ export function ContractTabbedView({
             config={auditTableConfig}
             rows={contract.audit}
             onChange={(rows) => onLineItemsChange("audit", rows)}
+            readOnly={!canWriteContractTab("Audit")}
           />
         ) : null}
       </div>

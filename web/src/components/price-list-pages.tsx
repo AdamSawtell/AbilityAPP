@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useAuth } from "@/lib/auth-store";
 import { newLineId } from "@/lib/client-line-tables";
 import { formatContractDate } from "@/lib/contract";
 import type { PriceListLine, PriceListRecord } from "@/lib/product";
@@ -72,6 +73,8 @@ export function PriceListListView() {
 
 export function PriceListDetailView({ id }: { id: string }) {
   const { priceLists, products, upsertPriceList } = useData();
+  const { canWriteWindow } = useAuth();
+  const canSavePriceList = canWriteWindow("price-lists");
   const stored = priceLists.find((p) => p.id === id);
   const [draft, setDraft] = useState<PriceListRecord | null>(null);
   const [saved, setSaved] = useState(false);
@@ -125,7 +128,7 @@ export function PriceListDetailView({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? list),
         }}
       >
-        <div className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <fieldset disabled={!canSavePriceList} className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4 disabled:opacity-100">
           <label>
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Name</span>
             <input className={inputClass} value={list.name} onChange={(e) => onChange("name", e.target.value)} />
@@ -142,7 +145,7 @@ export function PriceListDetailView({ id }: { id: string }) {
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Currency</span>
             <input className={inputClass} value={list.currency} onChange={(e) => onChange("currency", e.target.value)} />
           </label>
-        </div>
+        </fieldset>
 
         <LineItemTable
           config={priceLineConfig}
@@ -150,6 +153,7 @@ export function PriceListDetailView({ id }: { id: string }) {
           dropdowns={productDropdown}
           optionLabels={productLabels}
           onChange={(rows) => onChange("lines", rows)}
+          readOnly={!canSavePriceList}
         />
         {saved && !hasUnsavedChanges ? <p className="mt-4 text-sm text-emerald-700">Saved</p> : null}
 
@@ -158,7 +162,7 @@ export function PriceListDetailView({ id }: { id: string }) {
         </div>
       </AppShell>
       <UnsavedChangesBar
-        visible={hasUnsavedChanges}
+        visible={hasUnsavedChanges && canSavePriceList}
         onSave={() => {
           upsertPriceList(list);
           setDraft(null);

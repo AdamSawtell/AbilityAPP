@@ -39,21 +39,34 @@ function CellInput<TRow extends RowBase, TColumn extends { key: keyof TRow & str
   onChange,
   dropdowns,
   optionLabels,
+  readOnly,
 }: {
   column: TColumn;
   row: TRow;
   onChange: (value: string | number | boolean) => void;
   dropdowns: DropdownMap;
   optionLabels?: Record<string, string>;
+  readOnly?: boolean;
 }) {
   const base =
     "w-full min-w-0 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-[#d4147a] focus:ring-1 focus:ring-[#d4147a]/30";
   const value = row[column.key as keyof TRow];
+  const disabledClass = readOnly ? " bg-slate-50 text-slate-600" : "";
+
+  if (readOnly) {
+    const display =
+      column.type === "checkbox"
+        ? Boolean(value)
+          ? "Yes"
+          : "No"
+        : String(value ?? "").trim() || "—";
+    return <span className="block px-1 py-1.5 text-sm text-slate-700">{display}</span>;
+  }
 
   if (column.type === "number") {
     return (
       <input
-        className={`${base} w-12 text-center`}
+        className={`${base} w-12 text-center${disabledClass}`}
         type="number"
         min={1}
         value={Number(value) || ""}
@@ -129,12 +142,14 @@ export function LineItemTable<TRow extends RowBase>({
   onChange,
   dropdowns = clientDropdowns as DropdownMap,
   optionLabels,
+  readOnly = false,
 }: {
   config: GenericTableConfig<TRow> | ClientTabTableConfig<TRow>;
   rows: TRow[];
   onChange: (rows: TRow[]) => void;
   dropdowns?: DropdownMap;
   optionLabels?: Record<string, string>;
+  readOnly?: boolean;
 }) {
   const { catalog } = useReferenceData();
   const resolvedDropdowns = useMemo(() => {
@@ -195,7 +210,8 @@ export function LineItemTable<TRow extends RowBase>({
         <button
           type="button"
           onClick={addRow}
-          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+          disabled={readOnly}
+          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {config.addLabel ?? "Add row"}
         </button>
@@ -211,7 +227,7 @@ export function LineItemTable<TRow extends RowBase>({
                   {col.required ? <span className="text-[#d4147a]"> *</span> : null}
                 </th>
               ))}
-              <th className="px-3 py-2.5 font-medium">Actions</th>
+              {readOnly ? null : <th className="px-3 py-2.5 font-medium">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
@@ -225,10 +241,12 @@ export function LineItemTable<TRow extends RowBase>({
                         row={row}
                         dropdowns={resolvedDropdowns}
                         optionLabels={optionLabels}
+                        readOnly={readOnly}
                         onChange={(value) => updateRow(row.id, col.key as keyof TRow, value)}
                       />
                     </td>
                   ))}
+                  {readOnly ? null : (
                   <td className="px-3 py-2">
                     <div className="flex gap-1">
                       <button
@@ -249,12 +267,13 @@ export function LineItemTable<TRow extends RowBase>({
                       </button>
                     </div>
                   </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={visibleColumns.length + 1}
+                  colSpan={visibleColumns.length + (readOnly ? 0 : 1)}
                   className="px-3 py-10 text-center text-sm text-slate-500"
                 >
                   {search.trim() ? "No rows match your search." : config.emptyMessage ?? "No rows yet."}
@@ -268,8 +287,7 @@ export function LineItemTable<TRow extends RowBase>({
       <p className="text-xs text-slate-500">
         {rows.length} row{rows.length === 1 ? "" : "s"}
         {search.trim() && filtered.length !== rows.length ? ` · ${filtered.length} shown` : ""}
-        {" · "}
-        Changes save with the parent record.
+        {readOnly ? " · Read-only" : " · Changes save with the parent record."}
       </p>
     </div>
   );

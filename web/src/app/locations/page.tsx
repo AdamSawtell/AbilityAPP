@@ -1,8 +1,14 @@
+"use client";
+
+import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { LocationListView } from "@/components/location-pages";
-import Link from "next/link";
+import { useAuth } from "@/lib/auth-store";
 
 export default function LocationsPage() {
+  const { canWriteWindow } = useAuth();
+  const canCreateLocation = canWriteWindow("locations");
+
   return (
     <AppShell
       title="Locations"
@@ -10,12 +16,14 @@ export default function LocationsPage() {
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Locations" }]}
       audit={{ moduleLabel: "Locations" }}
       actions={
-        <Link
-          href="/locations/new"
-          className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
-        >
-          Add location
-        </Link>
+        canCreateLocation ? (
+          <Link
+            href="/locations/new"
+            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
+          >
+            Add location
+          </Link>
+        ) : null
       }
     >
       <LocationListView />

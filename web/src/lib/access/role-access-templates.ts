@@ -4,6 +4,7 @@ import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
 import { fullTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
+import { normalizeRoleWindowAccess, windowAccessFromKeys } from "@/lib/access/window-access";
 
 const TASK_ACCESS = [...TASK_WINDOW_KEYS];
 const SUPPORT_WORKER_TASK_ACCESS = ["tasks-assigned-to-me", "tasks-for-my-role", "tasks-past"] as const;
@@ -185,17 +186,19 @@ export function auditViewerSessionAccess(): Pick<AppRoleRecord, "windowKeys" | "
 }
 
 export function adminRole(allTaskTypeIds: string[]): AppRoleRecord {
-  return {
+  const windowKeys = [...APP_WINDOW_KEYS];
+  return normalizeRoleWindowAccess({
     id: "role-admin",
     roleKey: "AbilityAPP_Admin",
     name: "AbilityAPP Admin",
     description: "Full system access — all windows and processes",
     active: true,
-    windowKeys: [...APP_WINDOW_KEYS],
+    windowKeys,
+    windowAccess: windowAccessFromKeys(windowKeys, "write"),
     processIds: [...ALL_PROCESS_IDS],
     reportIds: [...ALL_REPORT_IDS],
     taskTypePermissions: fullTaskTypePermissions(allTaskTypeIds),
-  };
+  });
 }
 
 export function defineRole(
@@ -203,15 +206,21 @@ export function defineRole(
   roleKey: string,
   name: string,
   description: string,
-  access: Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions">
+  access: Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> & {
+    windowAccess?: AppRoleRecord["windowAccess"];
+  }
 ): AppRoleRecord {
-  return {
+  const windowKeys = withHomePanels(access.windowKeys);
+  return normalizeRoleWindowAccess({
     id,
     roleKey,
     name,
     description,
     active: true,
-    ...access,
-    windowKeys: withHomePanels(access.windowKeys),
-  };
+    windowKeys,
+    windowAccess: access.windowAccess ?? {},
+    processIds: access.processIds,
+    reportIds: access.reportIds,
+    taskTypePermissions: access.taskTypePermissions,
+  });
 }

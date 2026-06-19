@@ -1,5 +1,5 @@
-import { sanitizeAppWindowKeys } from "@/lib/access/catalog";
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
+import { normalizeRoleWindowAccess, windowAccessFromKeys } from "@/lib/access/window-access";
 import { INITIAL_TASK_TYPES, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
 import { bulkStaffUserLinks } from "@/lib/employee-bulk-seed";
 import { leadershipUsersFromLinks } from "@/lib/access/leadership-login-seed";
@@ -161,6 +161,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-support-worker", "Support_Worker", "Support Worker", "Frontline staff — assigned tasks, clients, incidents, and rostered locations", supportWorkerAccess()),
   defineRole("role-security-admin", "Security_Administrator", "Security Administrator", "Session, process, and AI query audit investigation with sensitive security data", {
     windowKeys: [],
+    windowAccess: {},
     processIds: securityAdminSessionAuditAccess().processIds,
     reportIds: [],
     taskTypePermissions: permissionsForTypes([]),
@@ -327,38 +328,52 @@ export function shouldMergeSeedAccess(): boolean {
 
 /** Ensure seed roles keep catalog windows when the DB or cached session predates a catalog update. */
 export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
+  const base = normalizeRoleWindowAccess(role);
   const seed = SEED_ROLES.find((r) => r.id === role.id);
   if (!seed) {
     return {
-      ...role,
-      reportIds: role.reportIds ?? [],
-      taskTypePermissions: mergeTaskTypePermissions(role.taskTypePermissions, ALL_TASK_TYPE_IDS),
+      ...base,
+      reportIds: base.reportIds ?? [],
+      taskTypePermissions: mergeTaskTypePermissions(base.taskTypePermissions, ALL_TASK_TYPE_IDS),
     };
   }
 
   if (!shouldMergeSeedAccess()) {
     return {
-      ...role,
-      reportIds: role.reportIds ?? [],
-      taskTypePermissions: mergeTaskTypePermissions(role.taskTypePermissions, ALL_TASK_TYPE_IDS),
+      ...base,
+      reportIds: base.reportIds ?? [],
+      taskTypePermissions: mergeTaskTypePermissions(base.taskTypePermissions, ALL_TASK_TYPE_IDS),
     };
   }
 
-  const windowKeys = sanitizeAppWindowKeys([...new Set([...role.windowKeys, ...seed.windowKeys])]);
-  const processIds = [...new Set([...role.processIds, ...seed.processIds])];
-  const reportIds = [...new Set([...(role.reportIds ?? []), ...(seed.reportIds ?? [])])];
-  const taskTypePermissions = mergeTaskTypePermissions(
-    role.taskTypePermissions?.length ? role.taskTypePermissions : seed.taskTypePermissions,
-    ALL_TASK_TYPE_IDS
-  );
+  const mergedAccess = {
+    ...windowAccessFromKeys(seed.windowKeys, "write"),
+    ...base.windowAccess,
+    ...Object.fromEntries(
+      [...new Set([...seed.windowKeys, ...base.windowKeys])].map((key) => [
+        key,
+        base.windowAccess[key] ?? seed.windowAccess[key] ?? "write",
+      ])
+    ),
+  };
+  const mergedRole = normalizeRoleWindowAccess({
+    ...base,
+    windowAccess: mergedAccess,
+    processIds: [...new Set([...base.processIds, ...seed.processIds])],
+    reportIds: [...new Set([...(base.reportIds ?? []), ...(seed.reportIds ?? [])])],
+    taskTypePermissions: mergeTaskTypePermissions(
+      base.taskTypePermissions?.length ? base.taskTypePermissions : seed.taskTypePermissions,
+      ALL_TASK_TYPE_IDS
+    ),
+  });
 
   if (
-    windowKeys.length === role.windowKeys.length &&
-    processIds.length === role.processIds.length &&
-    reportIds.length === (role.reportIds?.length ?? 0) &&
-    role.windowKeys.every((k) => windowKeys.includes(k))
+    mergedRole.windowKeys.length === base.windowKeys.length &&
+    mergedRole.processIds.length === base.processIds.length &&
+    mergedRole.reportIds.length === (base.reportIds?.length ?? 0) &&
+    base.windowKeys.every((k) => mergedRole.windowKeys.includes(k))
   ) {
-    return { ...role, taskTypePermissions, reportIds: role.reportIds ?? reportIds };
+    return { ...mergedRole, taskTypePermissions: base.taskTypePermissions, reportIds: base.reportIds ?? mergedRole.reportIds };
   }
-  return { ...role, windowKeys, processIds, reportIds, taskTypePermissions };
+  return mergedRole;
 }

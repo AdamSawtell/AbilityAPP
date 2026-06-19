@@ -11,6 +11,8 @@ export type AppUserRecord = {
   roleIds: string[];
 };
 
+import type { WindowAccessMap } from "@/lib/access/window-access";
+
 export type TaskTypePermission = {
   taskTypeId: string;
   canSee: boolean;
@@ -25,6 +27,7 @@ export type AppRoleRecord = {
   description: string;
   active: boolean;
   windowKeys: string[];
+  windowAccess: WindowAccessMap;
   processIds: string[];
   reportIds: string[];
   taskTypePermissions: TaskTypePermission[];
@@ -40,6 +43,7 @@ export type AuthSession = {
   activeRoleName: string;
   sessionId: string;
   windowKeys: string[];
+  windowAccess: WindowAccessMap;
   processIds: string[];
   reportIds: string[];
   taskTypePermissions: TaskTypePermission[];

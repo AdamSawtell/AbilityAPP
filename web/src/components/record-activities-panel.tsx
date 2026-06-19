@@ -7,9 +7,11 @@ import { activityTableConfig, type ClientActivityRow } from "@/lib/client-line-t
 export function RecordActivitiesPanel({
   rows,
   onChange,
+  readOnly = false,
 }: {
   rows: ClientActivityRow[];
   onChange: (rows: ClientActivityRow[]) => void;
+  readOnly?: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -22,6 +24,7 @@ export function RecordActivitiesPanel({
         rows={rows}
         dropdowns={{ activityType: clientDropdowns.activityType }}
         onChange={onChange}
+        readOnly={readOnly}
       />
     </div>
   );

@@ -9,6 +9,7 @@ import { ClientList } from "@/components/client-list";
 import { ClientTabbedView } from "@/components/client-view";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
@@ -42,7 +43,8 @@ function ClientDetailViewInner({ id }: { id: string }) {
   const pathname = usePathname();
   const aiDraftId = searchParams.get("aiDraft");
   const draftLoad = useAiDraftLoader(aiDraftId);
-  const { session } = useAuth();
+  const { session, canWriteWindow } = useAuth();
+  const canSaveClient = useModuleSaveAccess("clients", "client");
   const { clients, upsertClient, getServiceAgreementsByClientId, getSupportPlanByClientId } = useData();
   const { openClient, setTabDirty, touchTab } = useWorkspace();
   const stored = findClientByRouteId(clients, id);
@@ -249,14 +251,14 @@ function ClientDetailViewInner({ id }: { id: string }) {
         </Suspense>
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveClient} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
 }
 
 function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
   const { clients, upsertClient } = useData();
-  const { session } = useAuth();
+  const { session, canWriteWindow } = useAuth();
   const router = useRouter();
   const [base, setBase] = useState<ClientRecord | null>(null);
   const [draft, setDraft] = useState<ClientRecord | null>(null);
@@ -435,7 +437,7 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
           </Suspense>
       </AppShell>
 
-      <UnsavedChangesBar visible={!saved} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar visible={!saved && canWriteWindow("clients")} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
 }

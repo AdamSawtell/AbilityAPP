@@ -147,10 +147,25 @@ function ReadOnlyFieldGrid({
 function ClientFullProfileForm({
   client,
   onChange,
+  readOnly = false,
 }: {
   client: ClientRecord;
   onChange: (key: keyof ClientRecord, value: string | boolean) => void;
+  readOnly?: boolean;
 }) {
+  if (readOnly) {
+    return (
+      <div className="space-y-6">
+        {profileSections.map((section) => (
+          <section key={section.title} className="rounded-xl border border-slate-200 bg-slate-50/50 p-5">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">{section.title}</h3>
+            <ReadOnlyFieldGrid fields={section.fields} client={client} />
+          </section>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <RecordPhotoPanel
@@ -234,7 +249,7 @@ export function ClientTabbedView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { session, canWindow } = useAuth();
+  const { session, canWindow, canWriteWindow } = useAuth();
   const { getIncidentsForClient } = useData();
 
   const allowedTabs = allowedDetailTabsFromGroups("clients", clientTabGroups, session?.windowKeys ?? []);
@@ -265,6 +280,11 @@ export function ClientTabbedView({
   function canClientTab(tab: string) {
     const key = resolveDetailWindowKey("clients", tab);
     return key ? canWindow(key) : false;
+  }
+
+  function canWriteClientTab(tab: string) {
+    const key = resolveDetailWindowKey("clients", tab);
+    return key ? canWriteWindow(key) : false;
   }
 
   function setActiveTab(tab: string) {
@@ -360,7 +380,7 @@ export function ClientTabbedView({
         ) : null}
 
         {activeTab === "Full profile" && canClientTab("Full profile") ? (
-          <ClientFullProfileForm client={client} onChange={onChange} />
+          <ClientFullProfileForm client={client} onChange={onChange} readOnly={!canWriteClientTab("Full profile")} />
         ) : null}
 
         {tableTab === "Alerts" && canClientTab("Alerts") ? (
@@ -372,6 +392,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={alertTableConfig}
               rows={client.alerts}
+              readOnly={!canWriteClientTab("Alerts")}
               onChange={(rows) => onLineItemsChange("alerts", rows)}
             />
           </>
@@ -386,6 +407,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={activityTableConfig}
               rows={client.activity}
+              readOnly={!canWriteClientTab("Activity")}
               onChange={(rows) => onLineItemsChange("activity", rows)}
             />
           </>
@@ -400,6 +422,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={restrictivePracticeTableConfig}
               rows={client.restrictivePractices ?? []}
+              readOnly={!canWriteClientTab("Restrictive Practices")}
               onChange={(rows) => onLineItemsChange("restrictivePractices", rows)}
             />
           </>
@@ -421,6 +444,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={consentTableConfig}
               rows={client.consents ?? []}
+              readOnly={!canWriteClientTab("Consents and Legal Orders")}
               onChange={(rows) => onLineItemsChange("consents", rows)}
             />
           </>
@@ -442,6 +466,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={riskTableConfig}
               rows={client.risks ?? []}
+              readOnly={!canWriteClientTab("Risks")}
               onChange={(rows) => onLineItemsChange("risks", rows)}
             />
           </>
@@ -456,6 +481,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={bpAssociationTableConfig}
               rows={client.bpAssociations ?? []}
+              readOnly={!canWriteClientTab("BP Associations")}
               onChange={(rows) => onLineItemsChange("bpAssociations", rows)}
             />
           </>
@@ -470,6 +496,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={contactActivityTableConfig}
               rows={client.contactActivity ?? []}
+              readOnly={!canWriteClientTab("Contact Activity")}
               onChange={(rows) => onLineItemsChange("contactActivity", rows)}
             />
           </>
@@ -484,6 +511,7 @@ export function ClientTabbedView({
             <LineItemTable
               config={needRuleTableConfig}
               rows={client.needsAndRules ?? []}
+              readOnly={!canWriteClientTab("Support Receiver Needs and Rules")}
               onChange={(rows) => onLineItemsChange("needsAndRules", rows)}
             />
           </>

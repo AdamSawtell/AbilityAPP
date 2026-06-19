@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useAuth } from "@/lib/auth-store";
 import { useReferenceData } from "@/lib/config-store";
 import type { ProductRecord } from "@/lib/product";
 import { useData } from "@/lib/data-store";
@@ -82,6 +83,8 @@ export function ProductListView() {
 export function ProductDetailView({ id }: { id: string }) {
   const { products, priceLists, upsertProduct } = useData();
   const { getOptions } = useReferenceData();
+  const { canWriteWindow } = useAuth();
+  const canSaveProduct = canWriteWindow("products");
   const stored = products.find((p) => p.id === id);
   const [draft, setDraft] = useState<ProductRecord | null>(null);
   const [saved, setSaved] = useState(false);
@@ -141,7 +144,7 @@ export function ProductDetailView({ id }: { id: string }) {
           </div>
         ) : null}
 
-        <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2">
+        <fieldset disabled={!canSaveProduct} className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 disabled:opacity-100">
           <Field label="Search key">
             <input className={inputClass} value={product.searchKey} onChange={(e) => onChange("searchKey", e.target.value)} />
           </Field>
@@ -204,7 +207,7 @@ export function ProductDetailView({ id }: { id: string }) {
               onChange={(e) => onChange("description", e.target.value)}
             />
           </label>
-        </div>
+        </fieldset>
 
         <div className="mt-8 border-t border-slate-200 pt-8">
           <RecordTasksPanel
@@ -217,7 +220,7 @@ export function ProductDetailView({ id }: { id: string }) {
         {saved && !hasUnsavedChanges ? <p className="mt-4 text-sm text-emerald-700">Saved</p> : null}
       </AppShell>
       <UnsavedChangesBar
-        visible={hasUnsavedChanges}
+        visible={hasUnsavedChanges && canSaveProduct}
         onSave={() => {
           upsertProduct(product);
           setDraft(null);

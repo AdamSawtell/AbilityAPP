@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import type { ClientDraft, ClientPatchDraft, EnquiryDraft, TaskDraft, TaskUpdateDraft } from "@/lib/ai/types";
-import { aiCanAccessWindow, aiCanProcess } from "@/lib/ai/access";
+import { aiCanAccessWindow, aiCanProcess, aiCanWriteWindow } from "@/lib/ai/access";
 import { clientActivityCoachSaveHref } from "@/lib/ai/activity-coach-display";
 import { emptyClientRecord, normalizeClient, type ClientRecord } from "@/lib/client";
 import { convertEnquiryToClient } from "@/lib/convert";
@@ -38,7 +38,7 @@ export async function persistAiClient(
   session: AuthSession,
   draft: ClientDraft
 ): Promise<AiPersistResult<ClientRecord>> {
-  if (!aiCanAccessWindow(session, "clients")) {
+  if (!aiCanWriteWindow(session, "clients")) {
     return { ok: false, error: "Your role cannot create clients." };
   }
 
@@ -69,7 +69,7 @@ export async function persistAiTask(
   session: AuthSession,
   draft: TaskDraft
 ): Promise<AiPersistResult<TaskRecord>> {
-  if (!aiCanAccessWindow(session, "tasks")) {
+  if (!aiCanWriteWindow(session, "tasks")) {
     return { ok: false, error: "Your role cannot create tasks." };
   }
   if (!canCreateTaskType(session, draft.taskTypeId)) {
@@ -140,7 +140,7 @@ export async function persistAiClientActivity(
   session: AuthSession,
   draft: ClientActivityDraft
 ): Promise<AiPersistResult<{ id: string; clientId: string; subject: string }>> {
-  if (!canReadClientActivity(session)) {
+  if (!aiCanWriteWindow(session, "client-activity")) {
     return { ok: false, error: "Your role cannot add client activity." };
   }
 
@@ -187,7 +187,7 @@ export async function persistAiClientPatch(
   session: AuthSession,
   draft: ClientPatchDraft
 ): Promise<AiPersistResult<ClientRecord>> {
-  if (!aiCanAccessWindow(session, "clients")) {
+  if (!aiCanWriteWindow(session, "clients") && !aiCanWriteWindow(session, "client-activity")) {
     return { ok: false, error: "Your role cannot update clients." };
   }
 
@@ -263,7 +263,7 @@ export async function persistAiEnquiry(
   session: AuthSession,
   draft: EnquiryDraft
 ): Promise<AiPersistResult<EnquiryRecord>> {
-  if (!aiCanAccessWindow(session, "enquiries")) {
+  if (!aiCanWriteWindow(session, "enquiries")) {
     return { ok: false, error: "Your role cannot create enquiries." };
   }
 
@@ -303,7 +303,7 @@ export async function persistAiEnquiryConvert(
   session: AuthSession,
   enquiryId: string
 ): Promise<AiPersistResult<ClientRecord>> {
-  if (!aiCanAccessWindow(session, "enquiries") || !aiCanAccessWindow(session, "clients")) {
+  if (!aiCanWriteWindow(session, "enquiries") || !aiCanWriteWindow(session, "clients")) {
     return { ok: false, error: "Your role cannot convert enquiries." };
   }
   if (!aiCanProcess(session, "enquiry-to-client")) {
@@ -355,7 +355,7 @@ export async function persistAiTaskUpdate(
   session: AuthSession,
   draft: TaskUpdateDraft
 ): Promise<AiPersistResult<TaskRecord>> {
-  if (!aiCanAccessWindow(session, "tasks")) {
+  if (!aiCanWriteWindow(session, "tasks")) {
     return { ok: false, error: "Your role cannot update tasks." };
   }
 
@@ -434,7 +434,7 @@ export async function persistAiIncident(
   session: AuthSession,
   draft: IncidentDraft
 ): Promise<AiPersistResult<IncidentRecord>> {
-  if (!aiCanAccessWindow(session, "incidents")) {
+  if (!aiCanWriteWindow(session, "incidents")) {
     return { ok: false, error: "Your role cannot report incidents." };
   }
 
@@ -459,7 +459,7 @@ export async function persistAiIncidentUpdate(
   session: AuthSession,
   draft: IncidentUpdateDraft
 ): Promise<AiPersistResult<IncidentRecord>> {
-  if (!aiCanAccessWindow(session, "incidents")) {
+  if (!aiCanWriteWindow(session, "incidents")) {
     return { ok: false, error: "Your role cannot update incidents." };
   }
 

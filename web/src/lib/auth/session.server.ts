@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { AuthSession } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
 import { canAccessWindow, sanitizeAppWindowKeys } from "@/lib/access/catalog";
+import { normalizeRoleWindowAccess, canWriteWindowSession } from "@/lib/access/window-access";
 import { agentIdsForRole } from "@/lib/ai/seed";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
@@ -112,6 +113,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
       const access = await resolveRoleAccess(supabase, roleId);
       const agentIds = await resolveRoleAgentIds(supabase, roleId);
       const merged = withSeedTaskAccess({ ...mergedRole, ...access });
+      const normalized = normalizeRoleWindowAccess(merged);
       const resolvedAgentIds = agentIds.length ? agentIds : agentIdsForRole(roleId);
       return {
         userId: user.id,
@@ -119,13 +121,14 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
         displayName: displayName(user),
         email: user.email,
         employeeBpId: user.employeeBpId ?? "",
-        activeRoleId: merged.id,
-        activeRoleName: merged.name,
+        activeRoleId: normalized.id,
+        activeRoleName: normalized.name,
         sessionId: "",
-        windowKeys: sanitizeAppWindowKeys(merged.windowKeys),
-        processIds: merged.processIds,
-        reportIds: merged.reportIds ?? [],
-        taskTypePermissions: merged.taskTypePermissions,
+        windowKeys: sanitizeAppWindowKeys(normalized.windowKeys),
+        windowAccess: normalized.windowAccess,
+        processIds: normalized.processIds,
+        reportIds: normalized.reportIds ?? [],
+        taskTypePermissions: normalized.taskTypePermissions,
         agentIds: resolvedAgentIds,
       };
     } catch {
@@ -136,7 +139,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
   const user = SEED_USERS.find((u) => u.id === userId);
   const role = SEED_ROLES.find((r) => r.id === roleId);
   if (!user?.active || !role?.active || !user.roleIds.includes(roleId)) return null;
-  const merged = withSeedTaskAccess(role);
+  const merged = normalizeRoleWindowAccess(withSeedTaskAccess(role));
   return {
     userId: user.id,
     username: user.username,
@@ -147,6 +150,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
     activeRoleName: merged.name,
     sessionId: "",
     windowKeys: sanitizeAppWindowKeys(merged.windowKeys),
+    windowAccess: merged.windowAccess,
     processIds: merged.processIds,
     reportIds: merged.reportIds ?? [],
     taskTypePermissions: merged.taskTypePermissions,
@@ -162,4 +166,8 @@ export async function getAuthSessionFromRequest(): Promise<AuthSession | null> {
 
 export function sessionHasWindow(session: AuthSession, windowKey: string): boolean {
   return canAccessWindow(session.windowKeys, windowKey);
+}
+
+export function sessionCanWriteWindow(session: AuthSession, windowKey: string): boolean {
+  return canWriteWindowSession(session, windowKey);
 }
