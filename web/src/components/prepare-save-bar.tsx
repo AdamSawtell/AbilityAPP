@@ -9,7 +9,7 @@ export function PrepareSaveBar({
   onSaved,
 }: {
   writeResult: AiWriteResult;
-  onSaved?: (result: { clientName?: string; href?: string }) => void;
+  onSaved?: (result: { clientName?: string; subject?: string; href?: string }) => void;
 }) {
   if (!writeResult.href || !writeResult.kind.endsWith("_prepare")) return null;
 

@@ -1,4 +1,5 @@
 import type { ChatDisplayAttachment } from "@/lib/ai/types";
+import { activityNotesTableAttachment, clientRecordCardAttachment } from "@/lib/ai/activity-coach-display";
 
 type ToolAudit = { name: string; args: Record<string, unknown>; result: unknown };
 
@@ -36,6 +37,36 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
   const attachments: ChatDisplayAttachment[] = [];
 
   for (const entry of auditTools) {
+    if (entry.name === "client_get") {
+      const row = asRecord(entry.result);
+      const client = row?.client && typeof row.client === "object" ? (row.client as Record<string, unknown>) : null;
+      if (row?.found && client) {
+        attachments.push(
+          clientRecordCardAttachment({
+            id: String(client.id ?? ""),
+            name: String(client.name ?? "—"),
+            searchKey: String(client.searchKey ?? ""),
+            href: String(client.href ?? `/clients/${client.id ?? ""}`),
+            status: "Confirm this client",
+          })
+        );
+      }
+      continue;
+    }
+
+    if (entry.name === "client_activity_recent") {
+      const row = asRecord(entry.result);
+      if (!row || row.found === false) continue;
+      const client = asRecord(row.client);
+      const activities = Array.isArray(row.activities)
+        ? (row.activities as Record<string, unknown>[])
+        : [];
+      if (!activities.length) continue;
+      const clientLabel = String(client?.name ?? "Client");
+      attachments.push(activityNotesTableAttachment(clientLabel, activities));
+      continue;
+    }
+
     const results = resultList(entry.result);
     if (!results.length) continue;
 
@@ -113,34 +144,6 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
         }))
       );
       continue;
-    }
-
-    if (entry.name === "client_activity_recent") {
-      const row = asRecord(entry.result);
-      if (!row || row.found === false) continue;
-      const client = asRecord(row.client);
-      const activities = Array.isArray(row.activities)
-        ? (row.activities as Record<string, unknown>[])
-        : [];
-      if (!activities.length) continue;
-      const clientLabel = String(client?.name ?? "Client");
-      attachments.push({
-        type: "table",
-        title:
-          row.purpose === "coach"
-            ? `Last ${activities.length} activity notes — ${clientLabel}`
-            : `Activity notes — ${clientLabel}`,
-        columns: ["Date", "Type", "Subject", "Notes"],
-        rows: activities.map((a) => ({
-          Date: String(a.date ?? "—"),
-          Type: String(a.type ?? "—"),
-          Subject: String(a.subject ?? "—"),
-          Notes:
-            String(a.description ?? "").length > 160
-              ? `${String(a.description ?? "").slice(0, 157)}…`
-              : String(a.description ?? "—"),
-        })),
-      });
     }
   }
 

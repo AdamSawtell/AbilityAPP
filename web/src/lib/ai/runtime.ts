@@ -41,6 +41,11 @@ import { runTaskCreatePrepare } from "@/lib/ai/tools/task-create-prepare";
 import { runIncidentCreatePrepare } from "@/lib/ai/tools/incident-create-prepare";
 import { buildPageContext } from "@/lib/ai/page-context";
 import {
+  coachClientReadyForPrepare,
+  tryConfirmActivityCoachClient,
+  tryProposeActivityCoachClient,
+} from "@/lib/ai/activity-coach-flow";
+import {
   runClientActivityDraftConfirm,
   runClientActivityDraftCreate,
 } from "@/lib/ai/tools/client-activity";
@@ -138,6 +143,7 @@ async function tryAutoPrepareClientActivity(
   const supabase = db?.client ?? null;
   const session = db?.session;
   if (!supabase || !session) return null;
+  if (!coachClientReadyForPrepare(threadState)) return null;
   if (!threadState.activityCoachClient && !threadState.pendingClientActivityDraft) return null;
 
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
@@ -183,7 +189,7 @@ async function tryAutoPrepareClientActivity(
       draftId: out.draftId,
       preview: previewForWriteResult("client_activity_prepare", out.threadState),
     },
-    assistantText: `I've prepared the activity note for ${clientName}. Review the draft in the popup — click **Save activity** when it looks right, or edit on the form if you need to change anything.`,
+    assistantText: `**Step 4 — Review and save:** I've prepared the activity note for ${clientName}. Check the draft in the popup or below in chat, then click **Save activity** when it looks right.`,
   };
 }
 
@@ -265,17 +271,43 @@ async function executeTool(
     }
     case "client_get": {
       if (!supabase) return { result: { error: "Database not configured" }, threadState };
-      return {
-        result: await runClientGet(supabase, session, {
-          clientId: args.clientId as string | undefined,
-          searchKey: args.searchKey as string | undefined,
-          name: args.name as string | undefined,
-        }),
-        threadState,
-      };
+      const forActivity =
+        args.forActivity === true ||
+        args.purpose === "activity_coach" ||
+        String(args.purpose ?? "") === "activity_coach";
+      const result = await runClientGet(supabase, session, {
+        clientId: args.clientId as string | undefined,
+        searchKey: args.searchKey as string | undefined,
+        name: args.name as string | undefined,
+      });
+      let nextState = threadState;
+      if (forActivity && result.found && result.client) {
+        const c = result.client as { id: string; name: string; searchKey: string };
+        nextState = {
+          ...threadState,
+          activityCoachClient: { id: c.id, name: c.name, searchKey: c.searchKey },
+          activityCoachClientConfirmed: false,
+          activityCoachNotesReviewed: false,
+        };
+      }
+      return { result, threadState: nextState };
     }
     case "client_activity_recent": {
       if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      const purpose = String(toolArgs.purpose ?? "summary");
+      if (
+        purpose === "coach" &&
+        threadState.activityCoachClient &&
+        !threadState.activityCoachClientConfirmed
+      ) {
+        return {
+          result: {
+            error:
+              "Confirm the client with the user first (Step 1). Show the client record link and wait for yes before loading recent notes.",
+          },
+          threadState,
+        };
+      }
       const raw = await runClientActivityRecent(
         supabase,
         session,
@@ -290,7 +322,12 @@ async function executeTool(
         },
         threadState
       );
-      const nextState = raw.threadState ?? threadState;
+      const nextState = {
+        ...(raw.threadState ?? threadState),
+        ...(purpose === "coach"
+          ? { activityCoachNotesReviewed: true, activityCoachClientConfirmed: true }
+          : {}),
+      };
       const { threadState: _ts, ...result } = raw;
       return { result, threadState: nextState };
     }
@@ -659,6 +696,50 @@ export async function runChatTurn(options: {
   let createdClient: ChatResponseBody["createdClient"];
   let createdEnquiry: ChatResponseBody["createdEnquiry"];
   let writeResult: AiWriteResult | undefined;
+
+  const supabase = options.db?.client ?? null;
+  const session = options.db?.session;
+
+  if (supabase && session) {
+    const propose = await tryProposeActivityCoachClient(
+      supabase,
+      options.messages,
+      threadState,
+      options.pagePath
+    );
+    if (propose) {
+      threadState = propose.threadState;
+      const assistantMessage: ChatMessage = { role: "assistant", content: propose.assistantText };
+      return {
+        message: assistantMessage,
+        messages: [...options.messages, assistantMessage],
+        threadState,
+        agentId: options.agent.id,
+        agentName: options.agent.name,
+        attachments: propose.attachments,
+      };
+    }
+
+    const confirmClient = await tryConfirmActivityCoachClient(
+      supabase,
+      session,
+      options.messages,
+      threadState,
+      options.pagePath
+    );
+    if (confirmClient) {
+      threadState = confirmClient.threadState;
+      const assistantMessage: ChatMessage = { role: "assistant", content: confirmClient.assistantText };
+      return {
+        message: assistantMessage,
+        messages: [...options.messages, assistantMessage],
+        threadState,
+        agentId: options.agent.id,
+        agentName: options.agent.name,
+        attachments: confirmClient.attachments,
+      };
+    }
+  }
 
   const autoPrepare = await tryAutoPrepareClientActivity(
     options.db,

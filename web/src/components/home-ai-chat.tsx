@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { normalizeClient } from "@/lib/client";
 import { normalizeEnquiry } from "@/lib/enquiry";
+import { savedActivityCardAttachment } from "@/lib/ai/activity-coach-display";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
 import { PrepareSaveBar } from "@/components/prepare-save-bar";
@@ -13,7 +14,6 @@ import { PrepareReviewModal } from "@/components/prepare-review-modal";
 import {
   clearHomeChatSession,
   loadHomeChatSession,
-  queueChatNotice,
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
 
@@ -286,19 +286,31 @@ export function HomeAiChat() {
   const canSend = configured && Boolean(agentId) && !loading && Boolean(input.trim());
 
   const handleActivitySaved = useCallback(
-    (result: { clientName?: string }) => {
+    (result: { clientName?: string; subject?: string; href?: string }) => {
       setPrepareModalOpen(false);
       setLastWrite(undefined);
+      setThreadState({});
       void refreshFromRemote();
-      if (session) {
-        queueChatNotice(
-          session.userId,
-          session.activeRoleId,
-          `Logged activity on ${result.clientName ?? "the client"}. You can continue in chat.`
-        );
-      }
+
+      const href = result.href ?? "";
+      const clientName = result.clientName ?? "the client";
+      const subject = result.subject ?? "Activity note";
+      const attachments: ChatDisplayAttachment[] = href
+        ? [savedActivityCardAttachment({ clientName, subject, href })]
+        : [];
+
+      const assistantMsg: UiMessage = {
+        role: "assistant",
+        content: `**Step 5 — Saved.** The activity note for ${clientName} is on their Activity tab.`,
+        attachments: attachments.length ? attachments : undefined,
+      };
+      setMessages((prev) => {
+        const next = [...prev, assistantMsg];
+        messagesRef.current = next;
+        return next;
+      });
     },
-    [refreshFromRemote, session]
+    [refreshFromRemote]
   );
 
   return (

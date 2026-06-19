@@ -9,7 +9,7 @@ type PrepareReviewModalProps = {
   open: boolean;
   writeResult: AiWriteResult;
   onClose: () => void;
-  onSaved?: (result: { clientName?: string; href?: string }) => void;
+  onSaved?: (result: { clientName?: string; subject?: string; href?: string }) => void;
 };
 
 export function PrepareReviewModal({ open, writeResult, onClose, onSaved }: PrepareReviewModalProps) {

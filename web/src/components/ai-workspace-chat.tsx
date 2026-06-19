@@ -16,7 +16,7 @@ import {
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
 import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
-import { queueChatNotice } from "@/lib/ai/chat-session-storage";
+import { savedActivityCardAttachment } from "@/lib/ai/activity-coach-display";
 
 type AgentSummary = {
   id: string;
@@ -275,19 +275,31 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const prepareLink = lastWrite?.href && lastWrite.kind.endsWith("_prepare");
 
   const handleActivitySaved = useCallback(
-    (result: { clientName?: string }) => {
+    (result: { clientName?: string; subject?: string; href?: string }) => {
       setPrepareModalOpen(false);
       setLastWrite(undefined);
+      setThreadState({});
       void refreshFromRemote();
-      if (session) {
-        queueChatNotice(
-          session.userId,
-          session.activeRoleId,
-          `Logged activity on ${result.clientName ?? "the client"}. You can continue in chat.`
-        );
-      }
+
+      const href = result.href ?? "";
+      const clientName = result.clientName ?? "the client";
+      const subject = result.subject ?? "Activity note";
+      const attachments: ChatDisplayAttachment[] = href
+        ? [savedActivityCardAttachment({ clientName, subject, href })]
+        : [];
+
+      const assistantMsg: UiMessage = {
+        role: "assistant",
+        content: `**Step 5 — Saved.** The activity note for ${clientName} is on their Activity tab. Open the link below to review it on the record.`,
+        attachments: attachments.length ? attachments : undefined,
+      };
+      setMessages((prev) => {
+        const next = [...prev, assistantMsg];
+        messagesRef.current = next;
+        return next;
+      });
     },
-    [refreshFromRemote, session]
+    [refreshFromRemote]
   );
 
   return (

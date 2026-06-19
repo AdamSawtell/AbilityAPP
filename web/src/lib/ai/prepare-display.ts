@@ -9,7 +9,7 @@ export function attachmentFromWriteResult(writeResult: AiWriteResult): ChatDispl
     writeResult.kind === "client_activity_prepare" && Boolean(writeResult.draftId);
   return {
     type: "prepare",
-    title: "Review and save",
+    title: "Step 4 — Review and save",
     prepare: {
       label: writeResult.label,
       href: writeResult.href,

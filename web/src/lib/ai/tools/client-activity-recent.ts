@@ -10,7 +10,7 @@ const GUIDANCE: Record<ClientActivityRecentPurpose, string> = {
   summary:
     "Summarise these notes in plain language for handover. Use bullets: themes, risks, follow-ups, and gaps. Only use what is in the notes — do not invent details.",
   coach:
-    "Guided activity flow: the UI shows the last notes in a table. Give a short numbered overview (date, type, subject) in your reply so the user sees context, then ask one question at a time about what is new since the latest note. After 2–3 answers, call client_activity_prepare — never save yourself. The user saves from the review popup.",
+    "Step 2 only — call after the user confirmed the client (Step 1). The UI shows notes in a table; also give a short numbered overview in your reply, then ask one question at a time about what is new. After 2–3 answers, call client_activity_prepare. User saves from the review popup.",
 };
 
 function daysSince(isoDate: string): number | null {
@@ -92,10 +92,11 @@ export async function runClientActivityRecent(
         ? "No activity notes on file yet. Ask the user what happened today, then use client_activity_prepare when ready."
         : undefined,
     threadState:
-      purpose === "coach"
+      purpose === "coach" && threadState.activityCoachClient
         ? {
             ...threadState,
-            activityCoachClient: { id: client.id, name: client.name, searchKey: client.searchKey },
+            activityCoachNotesReviewed: true,
+            activityCoachClientConfirmed: true,
           }
         : threadState,
   };

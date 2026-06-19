@@ -9,7 +9,7 @@ type PrepareSaveActionsProps = {
   href: string;
   kind: string;
   layout?: "modal" | "inline" | "bar";
-  onSaved?: (result: { clientName?: string; href?: string }) => void;
+  onSaved?: (result: { clientName?: string; subject?: string; href?: string }) => void;
   onClose?: () => void;
 };
 
@@ -31,7 +31,11 @@ export function PrepareSaveActions({
     setError("");
     try {
       const result = await savePreparedActivityDraft(draftId);
-      onSaved?.({ clientName: result.clientName, href: result.href });
+      onSaved?.({
+        clientName: result.clientName,
+        subject: result.subject,
+        href: result.href,
+      });
       onClose?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save activity.");

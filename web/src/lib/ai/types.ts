@@ -163,6 +163,10 @@ export type ChatThreadState = {
   pendingIncidentUpdate?: IncidentUpdateDraft | null;
   /** Set after client_activity_recent (coach) so confirm/detail can auto-prepare. */
   activityCoachClient?: { id: string; name: string; searchKey: string } | null;
+  /** Step 1 complete — user confirmed the correct client record. */
+  activityCoachClientConfirmed?: boolean;
+  /** Step 2 complete — last 5 notes shown. */
+  activityCoachNotesReviewed?: boolean;
 };
 
 export type AiWriteResult = {

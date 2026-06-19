@@ -56,13 +56,23 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     type: "function",
     function: {
       name: "client_get",
-      description: "Get one client's details and recent activity notes. Use clientId, searchKey, or name.",
+      description:
+        "Get one client record. For activity coach Step 1, pass forActivity: true — show the client link and wait for user confirmation before loading recent notes.",
       parameters: {
         type: "object",
         properties: {
           clientId: { type: "string", description: "Client record id" },
           searchKey: { type: "string", description: "Client search key (e.g. Bern)" },
           name: { type: "string", description: "Client name or partial match" },
+          forActivity: {
+            type: "boolean",
+            description: "true when starting activity coach — Step 1 confirm client before recent notes",
+          },
+          purpose: {
+            type: "string",
+            enum: ["activity_coach"],
+            description: "Use activity_coach same as forActivity: true",
+          },
         },
       },
     },
@@ -72,7 +82,7 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     function: {
       name: "client_activity_recent",
       description:
-        "Get a client's last N activity notes (default 5) with full text. Use purpose=summary for handover summaries; purpose=coach before helping write a new note. Always call this before summarising or coaching on recent notes.",
+        "Step 2 of activity coach — load last N notes AFTER user confirmed the client. Use purpose=coach and limit=5. Do not call before Step 1 confirmation.",
       parameters: {
         type: "object",
         properties: {
