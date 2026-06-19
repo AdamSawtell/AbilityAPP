@@ -1,14 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { SidebarNav } from "@/components/sidebar-nav";
-import { HowToGuideFooter } from "@/components/how-to-guide-footer";
-import { SessionFooter } from "@/components/session-footer";
-import { RecordAuditFooter } from "@/components/record-audit-footer";
+import { WorkspaceChrome } from "@/components/workspace-chrome";
 import type { AppShellAuditProps } from "@/lib/audit";
-import { organizationDisplayName } from "@/lib/organization";
-import { useOrganization } from "@/lib/organization-store";
-import { WorkspaceTabs } from "@/components/workspace-tabs";
 
 export type Breadcrumb = {
   label: string;
@@ -30,71 +23,15 @@ export function AppShell({
   audit?: AppShellAuditProps;
   children: React.ReactNode;
 }) {
-  const { organization } = useOrganization();
-  const orgName = organizationDisplayName(organization);
-
   return (
-    <div className="flex min-h-screen bg-[#f4f6f8] text-slate-900">
-      <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
-        <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-100 px-5">
-          <Link href="/" className="flex min-w-0 items-center gap-2.5" title={orgName}>
-            {organization.logoUrl?.trim() ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={organization.logoUrl}
-                alt=""
-                className="h-9 w-9 shrink-0 rounded-xl object-contain ring-1 ring-slate-200"
-              />
-            ) : (
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4147a] to-[#b51266] text-sm font-bold text-white shadow-sm">
-                a
-              </span>
-            )}
-            <span className="truncate text-lg font-semibold tracking-tight">
-              Ability<span className="text-[#d4147a]">APP</span>
-            </span>
-          </Link>
-        </div>
-
-        <div className="flex min-h-0 flex-1 flex-col py-4">
-          <SidebarNav />
-        </div>
-
-        <SessionFooter />
-      </aside>
-
-      <div className="flex min-h-screen flex-1 flex-col pl-64">
-        <WorkspaceTabs />
-        <main className="flex-1 px-6 py-8 pb-24 lg:px-10">
-          {breadcrumbs?.length ? (
-            <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
-              {breadcrumbs.map((crumb, index) => (
-                <span key={`${crumb.label}-${index}`} className="inline-flex items-center gap-1.5">
-                  {index > 0 ? <span className="text-slate-300">/</span> : null}
-                  {crumb.href ? (
-                    <Link href={crumb.href} className="hover:text-[#b51266]">
-                      {crumb.label}
-                    </Link>
-                  ) : (
-                    <span className="text-slate-700">{crumb.label}</span>
-                  )}
-                </span>
-              ))}
-            </nav>
-          ) : null}
-
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
-              {subtitle ? <p className="mt-1.5 text-sm text-slate-500">{subtitle}</p> : null}
-            </div>
-            {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
-          </div>
-          {children}
-          <HowToGuideFooter />
-          {audit ? <RecordAuditFooter {...audit} /> : null}
-        </main>
-      </div>
-    </div>
+    <WorkspaceChrome
+      title={title}
+      subtitle={subtitle}
+      breadcrumbs={breadcrumbs}
+      actions={actions}
+      audit={audit}
+    >
+      {children}
+    </WorkspaceChrome>
   );
 }

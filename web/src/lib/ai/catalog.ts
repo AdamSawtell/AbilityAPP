@@ -53,6 +53,11 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     description: "Confirm a pending task draft after explicit user approval.",
   },
   {
+    key: "client_create_prepare",
+    label: "Prepare new client (review & save)",
+    description: "Fill a new client form for the user to review and save — does not write to the database.",
+  },
+  {
     key: "client_draft_create",
     label: "Create client draft",
     description: "Prepare a client for user confirmation (does not create until confirmed).",

@@ -35,7 +35,7 @@ values
     'clients',
     'Client assistant',
     'Create, update, and search clients; log activity.',
-    'You are the AbilityAPP client assistant. Use tools before answering. Create with client_draft_*; update fields with client_patch_*; log notes with client_activity_*; search with client_get, client_search, client_list_recent.',
+    'You are the AbilityAPP client assistant. Use tools before answering. Create with client_create_prepare (never save yourself); update fields with client_patch_*; log notes with client_activity_*; search with client_get, client_search, client_list_recent.',
     'gpt-4o-mini',
     true
   ),
@@ -56,6 +56,15 @@ values
     'You are the AbilityAPP incident and NDIS Quality & Safeguards assistant. Use incident_list_recent, incident_search, incident_get, incident_linked_search, and incident_compliance_summary before guessing. Report with incident_draft_create/confirm; update with incident_update_draft_create/confirm after user confirmation. Reference INC document numbers and NDIS deadlines. Use client_get, activity_search, and task tools for linked context and follow-up.',
     'gpt-4o-mini',
     true
+  ),
+  (
+    'agent-support-worker',
+    'support-worker',
+    'Support worker assistant',
+    'Find client information and prepare new client records for review.',
+    'You are the AbilityAPP assistant for support workers. Help staff find client information and prepare new client records. You never save, update, or delete records yourself. For new clients, use client_create_prepare when you have first and last name, then give the user the review link — they must open the form and click Save. Use client_search, client_get, client_list_recent, and activity_search before answering factual questions. Be concise and practical.',
+    'gpt-4o-mini',
+    true
   )
 on conflict (id) do update set
   agent_key = excluded.agent_key,
@@ -66,7 +75,7 @@ on conflict (id) do update set
   active = excluded.active;
 
 delete from public.app_ai_agent_capability
-where agent_id in ('agent-training', 'agent-workspace', 'agent-tasks', 'agent-clients', 'agent-enquiries', 'agent-incidents');
+where agent_id in ('agent-training', 'agent-workspace', 'agent-tasks', 'agent-clients', 'agent-enquiries', 'agent-incidents', 'agent-support-worker');
 
 insert into public.app_ai_agent_capability (agent_id, capability_type, capability_key)
 values
@@ -88,8 +97,7 @@ values
   ('agent-clients', 'tool', 'client_list_recent'),
   ('agent-clients', 'tool', 'activity_search'),
   ('agent-clients', 'tool', 'records_updated_since'),
-  ('agent-clients', 'tool', 'client_draft_create'),
-  ('agent-clients', 'tool', 'client_draft_confirm'),
+  ('agent-clients', 'tool', 'client_create_prepare'),
   ('agent-clients', 'tool', 'client_patch_draft_create'),
   ('agent-clients', 'tool', 'client_patch_draft_confirm'),
   ('agent-clients', 'tool', 'client_activity_draft_create'),
@@ -117,10 +125,16 @@ values
   ('agent-incidents', 'tool', 'activity_search'),
   ('agent-incidents', 'tool', 'task_search'),
   ('agent-incidents', 'tool', 'task_draft_create'),
-  ('agent-incidents', 'tool', 'task_draft_confirm')
+  ('agent-incidents', 'tool', 'task_draft_confirm'),
+  ('agent-support-worker', 'tool', 'help_search'),
+  ('agent-support-worker', 'tool', 'client_search'),
+  ('agent-support-worker', 'tool', 'client_get'),
+  ('agent-support-worker', 'tool', 'client_list_recent'),
+  ('agent-support-worker', 'tool', 'activity_search'),
+  ('agent-support-worker', 'tool', 'client_create_prepare')
 on conflict do nothing;
 
-delete from public.app_role_agent where role_id in ('role-admin', 'role-intake', 'role-coordinator');
+delete from public.app_role_agent where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker');
 insert into public.app_role_agent (role_id, agent_id)
 values
   ('role-admin', 'agent-training'),
@@ -137,5 +151,6 @@ values
   ('role-coordinator', 'agent-training'),
   ('role-coordinator', 'agent-workspace'),
   ('role-coordinator', 'agent-clients'),
-  ('role-coordinator', 'agent-incidents')
+  ('role-coordinator', 'agent-incidents'),
+  ('role-support-worker', 'agent-support-worker')
 on conflict do nothing;

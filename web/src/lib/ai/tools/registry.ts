@@ -146,16 +146,39 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     function: {
       name: "client_draft_create",
       description:
-        "Prepare a client draft once you have at least first and last name. Use defaults for optional fields unless the user specified them.",
+        "Legacy — prefer client_create_prepare. Prepares an in-chat draft only; does not open the save form.",
+      parameters: {
+        type: "object",
+        properties: {
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          preferredName: { type: "string" },
+          email: { type: "string" },
+          phone: { type: "string" },
+          status: { type: "string" },
+          fundingBody: { type: "string" },
+          disability: { type: "string" },
+          services: { type: "string" },
+        },
+        required: ["firstName", "lastName"],
+      },
+    },
+  },
+  client_create_prepare: {
+    type: "function",
+    function: {
+      name: "client_create_prepare",
+      description:
+        "Prepare a new client record for the user to review and save. Collect first and last name (and optional contact/funding fields), then call this tool. Never save yourself — the user must open the review link and click Save on the form.",
       parameters: {
         type: "object",
         properties: {
           firstName: { type: "string", description: "Legal first name" },
           lastName: { type: "string", description: "Legal last name" },
-          preferredName: { type: "string", description: "Preferred name if different" },
+          preferredName: { type: "string" },
           email: { type: "string" },
           phone: { type: "string" },
-          status: { type: "string", description: "Default 1_Prospect" },
+          status: { type: "string", description: "Client status code, default 1_Prospect" },
           fundingBody: { type: "string" },
           disability: { type: "string" },
           services: { type: "string" },

@@ -53,7 +53,7 @@ export const SEED_AGENTS: AiAgentRecord[] = [
     name: "Client assistant",
     description: "Create clients, log activity, update fields, and answer questions across all clients.",
     systemPrompt:
-      "You are the AbilityAPP client assistant. Help users create clients, update client fields, log activity notes, look up client details, and answer questions across all clients.\n\nUse tools before answering factual questions.\n\nCreating clients: client_draft_create → confirm with client_draft_confirm.\nUpdating clients: client_patch_draft_create for status, phone, email, funding — then client_patch_draft_confirm.\nLogging activity: client_activity_draft_create → client_activity_draft_confirm.\nSearching: client_list_recent, client_search, client_get, activity_search.\n\nSummarise with names, search keys, dates, and href links.",
+      "You are the AbilityAPP client assistant. Help users create clients, update client fields, log activity notes, look up client details, and answer questions across all clients.\n\nUse tools before answering factual questions.\n\nCreating clients: use client_create_prepare once you have first and last name — never save yourself. Send the user the review link to open the form and click Save.\n\nDo not use client_draft_confirm or client_draft_create for new clients.\n\nUpdating clients: client_patch_draft_create for status, phone, email, funding — then client_patch_draft_confirm.\nLogging activity: client_activity_draft_create → client_activity_draft_confirm.\nSearching: client_list_recent, client_search, client_get, activity_search.\n\nSummarise with names, search keys, dates, and href links.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
@@ -63,8 +63,7 @@ export const SEED_AGENTS: AiAgentRecord[] = [
       { type: "tool", key: "client_list_recent" },
       { type: "tool", key: "activity_search" },
       { type: "tool", key: "records_updated_since" },
-      { type: "tool", key: "client_draft_create" },
-      { type: "tool", key: "client_draft_confirm" },
+      { type: "tool", key: "client_create_prepare" },
       { type: "tool", key: "client_patch_draft_create" },
       { type: "tool", key: "client_patch_draft_confirm" },
       { type: "tool", key: "client_activity_draft_create" },
@@ -154,12 +153,31 @@ Then incident_update_draft_confirm after clear yes.
       { type: "tool", key: "task_draft_confirm" },
     ],
   },
+  {
+    id: "agent-support-worker",
+    agentKey: "support-worker",
+    name: "Support worker assistant",
+    description: "Look up clients and prepare new client records for you to save.",
+    systemPrompt:
+      "You are the AbilityAPP assistant for support workers. Help staff find client information and prepare new client records.\n\nYou never save, update, or delete records yourself. For new clients, use client_create_prepare when you have first and last name, then give the user the review link — they must open the form and click Save.\n\nUse client_search, client_get, client_list_recent, and activity_search before answering factual questions. Be concise and practical.",
+    model: "gpt-4o-mini",
+    active: true,
+    capabilities: [
+      { type: "tool", key: "help_search" },
+      { type: "tool", key: "client_search" },
+      { type: "tool", key: "client_get" },
+      { type: "tool", key: "client_list_recent" },
+      { type: "tool", key: "activity_search" },
+      { type: "tool", key: "client_create_prepare" },
+    ],
+  },
 ];
 
 export const SEED_ROLE_AGENTS: Record<string, string[]> = {
   "role-admin": ["agent-training", "agent-workspace", "agent-tasks", "agent-clients", "agent-enquiries", "agent-incidents"],
   "role-intake": ["agent-training", "agent-workspace", "agent-clients", "agent-enquiries", "agent-incidents"],
   "role-coordinator": ["agent-training", "agent-workspace", "agent-clients", "agent-incidents"],
+  "role-support-worker": ["agent-support-worker"],
 };
 
 export function agentIdsForRole(roleId: string): string[] {

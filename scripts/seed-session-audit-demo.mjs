@@ -1,10 +1,10 @@
 /**
  * Seed 5000 dummy user session records for User Session Audit testing.
- * Sessions are spread across the last 90 days (weighted toward recent weeks).
+ * Idempotent: skips if demo rows already exist. Real logins add rows via session audit.
  *
  * Usage:
  *   npm run supabase:seed-session-audit-demo
- *   npm run supabase:seed-session-audit-demo -- --clear   # remove demo rows first
+ *   npm run supabase:seed-session-audit-demo -- --clear   # remove demo rows, then seed again
  *
  * Requires web/.env.local with NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
  */
@@ -20,6 +20,7 @@ const { createClient } = require("@supabase/supabase-js");
 const COUNT = 5000;
 const BATCH = 250;
 const DEMO_PREFIX = "us-demo-";
+const DEMO_MARKER_ID = `${DEMO_PREFIX}00000`;
 
 const STATUSES = ["logged_out", "timed_out", "expired", "active", "failed_login", "system_terminated"];
 const STATUS_WEIGHTS = [0.55, 0.12, 0.05, 0.03, 0.2, 0.05];
@@ -307,37 +308,22 @@ async function clearDemo(supabase) {
   console.log(`  Removed ${sessionIds.length} demo sessions.`);
 }
 
-async function mergeDailyStats(supabase, statsRows) {
+async function hasDemoData(supabase) {
+  const { data, error } = await supabase.from("user_session").select("id").eq("id", DEMO_MARKER_ID).maybeSingle();
+  if (error) throw error;
+  return Boolean(data);
+}
+
+async function insertDailyStatsIfMissing(supabase, statsRows) {
   for (const row of statsRows) {
     const { data: existing } = await supabase
       .from("user_session_daily_stats")
-      .select("*")
+      .select("stat_date")
       .eq("stat_date", row.stat_date)
       .maybeSingle();
     if (!existing) {
       await supabase.from("user_session_daily_stats").insert(row);
-      continue;
     }
-    await supabase
-      .from("user_session_daily_stats")
-      .update({
-        total_logins: Number(existing.total_logins) + row.total_logins,
-        failed_logins: Number(existing.failed_logins) + row.failed_logins,
-        unique_users: Math.max(Number(existing.unique_users), row.unique_users),
-        total_duration_seconds: Number(existing.total_duration_seconds) + row.total_duration_seconds,
-        session_count_for_avg: Number(existing.session_count_for_avg) + row.session_count_for_avg,
-        longest_session_seconds: Math.max(Number(existing.longest_session_seconds), row.longest_session_seconds),
-        risk_events: Number(existing.risk_events) + row.risk_events,
-        high_risk_events: Number(existing.high_risk_events) + row.high_risk_events,
-        most_active_user_id: row.most_active_user_count > Number(existing.most_active_user_count) ? row.most_active_user_id : existing.most_active_user_id,
-        most_active_user_name: row.most_active_user_count > Number(existing.most_active_user_count) ? row.most_active_user_name : existing.most_active_user_name,
-        most_active_user_count: Math.max(Number(existing.most_active_user_count), row.most_active_user_count),
-        most_active_role_id: row.most_active_role_count > Number(existing.most_active_role_count) ? row.most_active_role_id : existing.most_active_role_id,
-        most_active_role_name: row.most_active_role_count > Number(existing.most_active_role_count) ? row.most_active_role_name : existing.most_active_role_name,
-        most_active_role_count: Math.max(Number(existing.most_active_role_count), row.most_active_role_count),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("stat_date", row.stat_date);
   }
 }
 
@@ -354,6 +340,12 @@ async function main() {
 
   if (clear) await clearDemo(supabase);
 
+  if (!clear && (await hasDemoData(supabase))) {
+    console.log(`Demo session audit already seeded (${DEMO_MARKER_ID}). Skipping.`);
+    console.log("  Live logins will continue to append rows. Use --clear to replace demo data.");
+    return;
+  }
+
   const now = new Date();
   console.log(`Generating ${COUNT} demo sessions (last 90 days, weighted recent)…`);
   const { sessions, events, risks } = buildSessions(users, now);
@@ -367,8 +359,8 @@ async function main() {
     console.log("Inserting risk indicators…");
     await insertBatched(supabase, "user_session_risk", risks);
   }
-  console.log("Merging daily stats…");
-  await mergeDailyStats(supabase, statsRows);
+  console.log("Inserting daily stats (missing dates only)…");
+  await insertDailyStatsIfMissing(supabase, statsRows);
 
   const oldest = sessions.reduce((a, s) => (s.login_at < a ? s.login_at : a), sessions[0].login_at);
   const newest = sessions.reduce((a, s) => (s.login_at > a ? s.login_at : a), sessions[0].login_at);

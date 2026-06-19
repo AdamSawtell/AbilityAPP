@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import { AppShell } from "@/components/app-shell";
 import { HomeCalendar } from "@/components/home-calendar";
-import { HomeAiChat } from "@/components/home-ai-chat";
 import { IncidentQuickReportDialog } from "@/components/incident-quick-report";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
@@ -312,10 +311,6 @@ export function HomeDashboard() {
             </div>
           </Link>
         </div>
-      ) : null}
-
-      {session ? (
-        <HomeAiChat />
       ) : null}
 
       {session ? (

@@ -14,7 +14,8 @@
     "supabase:seed-workforce-local": "node scripts/run-workforce-seeds.mjs --local",
     "supabase:seed-session-audit-demo": "node scripts/seed-session-audit-demo.mjs",
     "supabase:seed-process-audit-demo": "node scripts/seed-process-audit-demo.mjs",
-    "supabase:seed-ai-query-audit-demo": "node scripts/seed-ai-query-audit-demo.mjs"
+    "supabase:seed-ai-query-audit-demo": "node scripts/seed-ai-query-audit-demo.mjs",
+    "supabase:seed-audit-demos": "node scripts/seed-session-audit-demo.mjs && node scripts/seed-process-audit-demo.mjs && node scripts/seed-ai-query-audit-demo.mjs"
   },
   "keywords": [],
   "author": "",

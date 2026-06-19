@@ -1,9 +1,10 @@
 /**
  * Seed 5000 dummy process audit records for Process Audit testing.
+ * Idempotent: skips if demo rows already exist. Live actions add rows via recordProcessExecution.
  *
  * Usage:
  *   npm run supabase:seed-process-audit-demo
- *   npm run supabase:seed-process-audit-demo -- --clear
+ *   npm run supabase:seed-process-audit-demo -- --clear   # remove demo rows, then seed again
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -18,6 +19,7 @@ const { createClient } = require("@supabase/supabase-js");
 const COUNT = 5000;
 const BATCH = 250;
 const DEMO_PREFIX = "pa-demo-";
+const DEMO_MARKER_ID = `${DEMO_PREFIX}00000`;
 
 const PROCESS_IDS = [
   ["submit-leave-request", "Submit leave request"],
@@ -265,30 +267,23 @@ async function clearDemo(supabase) {
   console.log(`  Removed ${auditIds.length} demo process audits.`);
 }
 
-async function mergeDailyStats(supabase, statsRows) {
+async function hasDemoData(supabase) {
+  const { data, error } = await supabase.from("process_audit").select("id").eq("id", DEMO_MARKER_ID).maybeSingle();
+  if (error) throw error;
+  return Boolean(data);
+}
+
+/** Insert demo daily stats only when that date has no row yet (avoids double-count on re-seed). */
+async function insertDailyStatsIfMissing(supabase, statsRows) {
   for (const row of statsRows) {
     const { data: existing } = await supabase
       .from("process_audit_daily_stats")
-      .select("*")
+      .select("stat_date")
       .eq("stat_date", row.stat_date)
       .maybeSingle();
     if (!existing) {
       await supabase.from("process_audit_daily_stats").insert(row);
-      continue;
     }
-    await supabase
-      .from("process_audit_daily_stats")
-      .update({
-        total_executions: Number(existing.total_executions) + row.total_executions,
-        successful_executions: Number(existing.successful_executions) + row.successful_executions,
-        failed_executions: Number(existing.failed_executions) + row.failed_executions,
-        denied_executions: Number(existing.denied_executions) + row.denied_executions,
-        unique_users: Math.max(Number(existing.unique_users), row.unique_users),
-        risk_events: Number(existing.risk_events) + row.risk_events,
-        high_risk_events: Number(existing.high_risk_events) + row.high_risk_events,
-        updated_at: row.updated_at,
-      })
-      .eq("stat_date", row.stat_date);
   }
 }
 
@@ -304,6 +299,12 @@ async function main() {
 
   if (clear) await clearDemo(supabase);
 
+  if (!clear && (await hasDemoData(supabase))) {
+    console.log(`Demo process audit already seeded (${DEMO_MARKER_ID}). Skipping.`);
+    console.log("  Live process actions will continue to append rows. Use --clear to replace demo data.");
+    return;
+  }
+
   console.log("Loading users…");
   const users = await fetchUsersWithRoles(supabase);
   if (!users.length) throw new Error("No active users found");
@@ -316,8 +317,8 @@ async function main() {
   await insertBatched(supabase, "process_audit", audits);
   await insertBatched(supabase, "process_audit_event", events);
   if (risks.length) await insertBatched(supabase, "process_audit_risk", risks);
-  console.log("Merging daily stats…");
-  await mergeDailyStats(supabase, statsRows);
+  console.log("Inserting daily stats (missing dates only)…");
+  await insertDailyStatsIfMissing(supabase, statsRows);
 
   console.log(`Done — ${COUNT} process audit records seeded.`);
 }

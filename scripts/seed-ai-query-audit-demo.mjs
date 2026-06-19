@@ -1,14 +1,15 @@
 /**
  * Seed 5000 dummy AI query records for AI Query Audit testing.
+ * Idempotent: skips if demo rows already exist. Live AI chat adds rows via the app.
  *
  * Usage:
  *   npm run supabase:seed-ai-query-audit-demo
- *   npm run supabase:seed-ai-query-audit-demo -- --clear
+ *   npm run supabase:seed-ai-query-audit-demo -- --clear   # remove demo rows, then seed again
  */
 
 import { readFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { randomUUID } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,6 +20,18 @@ const { createClient } = require("@supabase/supabase-js");
 const COUNT = 5000;
 const BATCH = 250;
 const DEMO_AGENT_PREFIX = "agent-demo-";
+
+/** Stable UUID per demo index (app_ai_chat_log.id is uuid, not text). */
+function demoChatLogId(index) {
+  const h = createHash("sha256").update(`abilityapp-ai-query-demo-${index}`).digest();
+  const b = Buffer.from(h.subarray(0, 16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const hex = b.toString("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
+
+const DEMO_MARKER_ID = demoChatLogId(0);
 
 const USER_MESSAGES = [
   "How many clients are active this month?",
@@ -123,7 +136,7 @@ function buildRecords(users, now) {
     const outcome = OUTCOMES[randomInt(0, OUTCOMES.length - 1)];
     const toolCount = randomInt(0, 3);
     const createdAt = randomCreatedAt(now);
-    const id = randomUUID();
+    const id = demoChatLogId(i);
     const riskLevel = outcome === "error" ? "low" : RISK_LEVELS[randomInt(0, RISK_LEVELS.length - 1)];
     const riskStatus = riskLevel === "none" ? "new" : RISK_STATUSES[randomInt(0, RISK_STATUSES.length - 1)];
     const [browser, deviceInfo] = BROWSERS[randomInt(0, BROWSERS.length - 1)];
@@ -267,49 +280,59 @@ async function insertBatched(supabase, table, rows) {
 
 async function clearDemo(supabase) {
   console.log("Clearing existing demo AI query rows…");
-  const { data: chatRows } = await supabase
+  const ids = new Set();
+  for (let i = 0; i < COUNT; i++) {
+    ids.add(demoChatLogId(i));
+  }
+  const { data: byMessage } = await supabase
     .from("app_ai_chat_log")
     .select("id")
     .like("user_message", "[DemoSeed]%");
-  const ids = (chatRows ?? []).slice(0, COUNT + 500).map((r) => r.id);
-  if (!ids.length) {
+  for (const row of byMessage ?? []) {
+    ids.add(row.id);
+  }
+  const idList = [...ids];
+  if (!idList.length) {
     console.log("  No demo rows found (skipping clear).");
     return;
   }
-  for (let i = 0; i < ids.length; i += BATCH) {
-    const chunk = ids.slice(i, i + BATCH);
+  for (let i = 0; i < idList.length; i += BATCH) {
+    const chunk = idList.slice(i, i + BATCH);
     await supabase.from("ai_query_risk").delete().in("chat_log_id", chunk);
     await supabase.from("ai_query_audit_meta").delete().in("chat_log_id", chunk);
     await supabase.from("app_ai_chat_log").delete().in("id", chunk);
   }
-  console.log(`  Removed up to ${ids.length} demo chat logs.`);
+  console.log(`  Removed up to ${idList.length} demo chat logs.`);
 }
 
-async function mergeDailyStats(supabase, statsRows) {
+async function hasDemoData(supabase) {
+  const { data: marker, error: markerErr } = await supabase
+    .from("app_ai_chat_log")
+    .select("id")
+    .eq("id", DEMO_MARKER_ID)
+    .maybeSingle();
+  if (markerErr) throw markerErr;
+  if (marker) return true;
+  const { data: legacy, error: legacyErr } = await supabase
+    .from("app_ai_chat_log")
+    .select("id")
+    .like("user_message", "[DemoSeed]%")
+    .limit(1)
+    .maybeSingle();
+  if (legacyErr) throw legacyErr;
+  return Boolean(legacy);
+}
+
+async function insertDailyStatsIfMissing(supabase, statsRows) {
   for (const row of statsRows) {
     const { data: existing } = await supabase
       .from("ai_query_daily_stats")
-      .select("*")
+      .select("stat_date")
       .eq("stat_date", row.stat_date)
       .maybeSingle();
     if (!existing) {
       await supabase.from("ai_query_daily_stats").insert(row);
-      continue;
     }
-    await supabase
-      .from("ai_query_daily_stats")
-      .update({
-        total_queries: Number(existing.total_queries) + row.total_queries,
-        successful_queries: Number(existing.successful_queries) + row.successful_queries,
-        error_queries: Number(existing.error_queries) + row.error_queries,
-        blocked_queries: Number(existing.blocked_queries) + row.blocked_queries,
-        unique_users: Math.max(Number(existing.unique_users), row.unique_users),
-        tool_calls: Number(existing.tool_calls) + row.tool_calls,
-        risk_events: Number(existing.risk_events) + row.risk_events,
-        high_risk_events: Number(existing.high_risk_events) + row.high_risk_events,
-        updated_at: row.updated_at,
-      })
-      .eq("stat_date", row.stat_date);
   }
 }
 
@@ -325,6 +348,12 @@ async function main() {
 
   if (clear) await clearDemo(supabase);
 
+  if (!clear && (await hasDemoData(supabase))) {
+    console.log(`Demo AI query audit already seeded (${DEMO_MARKER_ID}). Skipping.`);
+    console.log("  Live AI queries will continue to append rows. Use --clear to replace demo data.");
+    return;
+  }
+
   console.log("Loading users…");
   const users = await fetchUsersWithRoles(supabase);
   if (!users.length) throw new Error("No active users found");
@@ -337,8 +366,8 @@ async function main() {
   await insertBatched(supabase, "app_ai_chat_log", chatLogs);
   await insertBatched(supabase, "ai_query_audit_meta", metaRows);
   if (risks.length) await insertBatched(supabase, "ai_query_risk", risks);
-  console.log("Merging daily stats…");
-  await mergeDailyStats(supabase, statsRows);
+  console.log("Inserting daily stats (missing dates only)…");
+  await insertDailyStatsIfMissing(supabase, statsRows);
 
   console.log(`Done — ${COUNT} AI query records seeded.`);
 }

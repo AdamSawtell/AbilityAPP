@@ -18,6 +18,7 @@ import { runTaskSearch } from "@/lib/ai/tools/task-search";
 import { runTaskDraftConfirm, runTaskDraftCreate } from "@/lib/ai/tools/task-draft";
 import { runTaskUpdateDraftConfirm, runTaskUpdateDraftCreate } from "@/lib/ai/tools/task-update";
 import { runClientDraftConfirm, runClientDraftCreate } from "@/lib/ai/tools/client-draft";
+import { runClientCreatePrepare } from "@/lib/ai/tools/client-create-prepare";
 import {
   runClientActivityDraftConfirm,
   runClientActivityDraftCreate,
@@ -61,7 +62,7 @@ function toOpenAiMessages(
 ): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
   const system: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
     role: "system",
-    content: `${agent.systemPrompt}\n\nSigned-in user: ${session.displayName} (${session.activeRoleName}). Answer in clear, helpful prose.`,
+    content: `${agent.systemPrompt}\n\nSigned-in user: ${session.displayName} (${session.activeRoleName}). Answer in clear, helpful prose.\n\nYou never save records to the database yourself unless a legacy confirm tool explicitly requires it. For new clients always use client_create_prepare and send the user to review and save on the form.`,
   };
 
   const mapped = messages
@@ -201,6 +202,25 @@ async function executeTool(
         },
       };
     }
+    case "client_create_prepare": {
+      const out = await runClientCreatePrepare(supabase, session, args, threadState);
+      return {
+        result: {
+          summary: out.summary,
+          note: out.message,
+          reviewHref: out.href,
+          draftId: out.draftId,
+        },
+        threadState: out.threadState,
+        writeResult: out.href
+          ? {
+              kind: "client_prepare",
+              label: out.summary ?? "New client",
+              href: out.href,
+            }
+          : undefined,
+      };
+    }
     case "client_draft_create": {
       const out = await runClientDraftCreate(session, args, threadState);
       return {
@@ -209,22 +229,11 @@ async function executeTool(
       };
     }
     case "client_draft_confirm": {
-      const out = await runClientDraftConfirm(supabase, session, threadState);
-      if (!out.client) {
-        return { result: { note: out.message }, threadState: out.threadState };
-      }
       return {
         result: {
-          note: out.message,
-          client: { id: out.client.id, name: out.client.name, searchKey: out.client.searchKey },
+          note: "Saving from chat is disabled. Use client_create_prepare and send the user to the review page to save.",
         },
-        threadState: out.threadState,
-        createdClient: out.client,
-        writeResult: {
-          kind: "client",
-          label: out.client.name,
-          href: out.href ?? `/clients/${out.client.searchKey}`,
-        },
+        threadState,
       };
     }
     case "client_activity_draft_create": {

@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ClientCoreSummary } from "@/components/client-core-summary";
 import { ClientTabbedView } from "@/components/client-view";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { ClientLineCollectionKey } from "@/lib/client-line-tables";
-import { normalizeClient, type ClientRecord } from "@/lib/client";
+import { emptyClientRecord, normalizeClient, type ClientRecord } from "@/lib/client";
 
 function ClientTabbedViewFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
@@ -220,4 +222,182 @@ export function ClientDetailView({ id }: { id: string }) {
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
     </>
   );
+}
+
+function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
+  const { clients, upsertClient } = useData();
+  const { session } = useAuth();
+  const router = useRouter();
+  const [base, setBase] = useState<ClientRecord | null>(null);
+  const [draft, setDraft] = useState<ClientRecord | null>(null);
+  const [loadError, setLoadError] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoadError("");
+      if (aiDraftId) {
+        try {
+          const res = await fetch(`/api/ai/drafts/${aiDraftId}`, { credentials: "include" });
+          const data = (await res.json()) as {
+            error?: string;
+            payload?: Record<string, unknown>;
+          };
+          if (!res.ok) {
+            if (!cancelled) setLoadError(data.error ?? "Could not load AI draft");
+            return;
+          }
+          const p = data.payload ?? {};
+          const record = emptyClientRecord(
+            {
+              firstName: String(p.firstName ?? ""),
+              lastName: String(p.lastName ?? ""),
+              preferredName: String(p.preferredName ?? ""),
+              email: String(p.email ?? ""),
+              phone: String(p.phone ?? ""),
+              status: String(p.status ?? ""),
+              fundingBody: String(p.fundingBody ?? ""),
+              disability: String(p.disability ?? ""),
+              services: String(p.services ?? ""),
+            },
+            session?.displayName ?? "User",
+            clients
+          );
+          if (!cancelled) {
+            setBase(record);
+            setDraft(record);
+          }
+        } catch {
+          if (!cancelled) setLoadError("Could not load AI draft");
+        }
+        return;
+      }
+      const record = emptyClientRecord(
+        { firstName: "", lastName: "" },
+        session?.displayName ?? "User",
+        clients
+      );
+      if (!cancelled) {
+        setBase(record);
+        setDraft(record);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [aiDraftId, clients, session?.displayName]);
+
+  const client = draft ?? base;
+
+  if (loadError) {
+    return (
+      <AppShell
+        title="New client"
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Clients", href: "/clients" }, { label: "New" }]}
+        audit={{ moduleLabel: "Clients" }}
+      >
+        <p className="text-sm text-red-700">{loadError}</p>
+        <Link href="/clients" className="mt-4 inline-block text-[#b51266] hover:underline">
+          Back to clients
+        </Link>
+      </AppShell>
+    );
+  }
+
+  if (!client) {
+    return (
+      <AppShell
+        title="New client"
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Clients", href: "/clients" }, { label: "New" }]}
+        audit={{ moduleLabel: "Clients" }}
+      >
+        <p className="text-sm text-slate-500">Loading…</p>
+      </AppShell>
+    );
+  }
+
+  function onChange(key: keyof ClientRecord, value: string | boolean) {
+    const current = draft ?? base;
+    if (!current) return;
+    setDraft({ ...current, [key]: value, updatedBy: session?.displayName ?? "User" });
+    setSaved(false);
+  }
+
+  function onLineItemsChange(key: ClientLineCollectionKey, rows: ClientRecord[ClientLineCollectionKey]) {
+    const current = draft ?? base;
+    if (!current) return;
+    setDraft(normalizeClient({ ...current, [key]: rows, updatedBy: session?.displayName ?? "User" }));
+    setSaved(false);
+  }
+
+  function onSave() {
+    const current = draft ?? base;
+    if (!current) return;
+    const normalized = normalizeClient(current);
+    upsertClient(normalized);
+    setSaved(true);
+    router.push(`/clients/${normalized.id}`);
+  }
+
+  function onDiscard() {
+    setDraft(base);
+    setSaved(false);
+  }
+
+  return (
+    <>
+      <AppShell
+        title="New client"
+        subtitle={aiDraftId ? "Review the details your assistant prepared, then save." : "Enter client details and save."}
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Clients", href: "/clients" }, { label: "New" }]}
+        audit={{ moduleLabel: "Clients" }}
+      >
+        {aiDraftId ? (
+          <p className="mb-4 rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+            Prepared by your AI assistant. Check every field, then click Save to create this client.
+          </p>
+        ) : null}
+
+        <ClientCoreSummary client={client} />
+
+        <div className="mb-3 flex items-center gap-3">
+          <ClientStatusBadge status={client.status} />
+          {saved ? <span className="text-sm text-emerald-700">Saved</span> : null}
+          {!saved ? <span className="text-sm text-amber-700">Not saved yet</span> : null}
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <Suspense fallback={<ClientTabbedViewFallback />}>
+            <ClientTabbedView
+              client={client}
+              agreementCount={0}
+              hasSupportPlan={false}
+              goalCount={0}
+              progressReviewCount={0}
+              onChange={onChange}
+              onLineItemsChange={onLineItemsChange}
+            />
+          </Suspense>
+        </div>
+      </AppShell>
+
+      <UnsavedChangesBar visible={!saved} onSave={onSave} onDiscard={onDiscard} />
+    </>
+  );
+}
+
+export function ClientNewView() {
+  return (
+    <Suspense fallback={<ClientTabbedViewFallback />}>
+      <ClientNewViewWithParams />
+    </Suspense>
+  );
+}
+
+function ClientNewViewWithParams() {
+  const searchParams = useSearchParams();
+  const aiDraftId = searchParams.get("aiDraft");
+  return <ClientNewViewInner aiDraftId={aiDraftId} />;
 }

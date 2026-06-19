@@ -10,6 +10,7 @@ import { OrgStructureProvider } from "@/lib/org-structure-store";
 import { OrgAutomationContextBridge } from "@/components/org-automation-context-bridge";
 import { TaskAutomationRunner } from "@/components/task-automation-runner";
 import { WorkspaceProvider } from "@/lib/workspace-store";
+import { AiChatShellProvider } from "@/lib/ai/chat-shell-store";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -45,7 +46,9 @@ export default function RootLayout({
                       <OrgStructureProvider>
                       <OrgAutomationContextBridge />
                       <TaskAutomationRunner />
-                      <WorkspaceProvider>{children}</WorkspaceProvider>
+                      <WorkspaceProvider>
+                        <AiChatShellProvider>{children}</AiChatShellProvider>
+                      </WorkspaceProvider>
                       </OrgStructureProvider>
                     </OrgChartTierConfigProvider>
                   </OrganizationProvider>

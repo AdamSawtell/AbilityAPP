@@ -20,6 +20,7 @@ export type AiToolName =
   | "task_update_draft_confirm"
   | "client_draft_create"
   | "client_draft_confirm"
+  | "client_create_prepare"
   | "client_patch_draft_create"
   | "client_patch_draft_confirm"
   | "client_activity_draft_create"
@@ -147,7 +148,7 @@ export type ChatThreadState = {
 };
 
 export type AiWriteResult = {
-  kind: "client" | "task" | "client_activity" | "enquiry" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_update";
+  kind: "client" | "client_prepare" | "task" | "client_activity" | "enquiry" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_update";
   label: string;
   href: string;
 };
