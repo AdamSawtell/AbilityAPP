@@ -105,6 +105,7 @@ export type SessionAuditFilters = {
   maxDurationSeconds?: number;
   minTransactionCount?: number;
   search?: string;
+  cursor?: string;
   offset?: number;
   limit?: number;
 };

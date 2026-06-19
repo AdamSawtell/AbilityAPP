@@ -3,6 +3,8 @@ import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
 import { sessionHasWindow } from "@/lib/auth/session.server";
 import { submitLeaveOnBehalf } from "@/lib/my-workplace/server";
 
+import { recordProcessExecution } from "@/lib/process-audit/server";
+
 export async function POST(request: Request) {
   const session = await getAuthSessionFromRequest();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -31,8 +33,27 @@ export async function POST(request: Request) {
       endDate: body.endDate,
       notes: body.notes ?? "",
     });
+    await recordProcessExecution({
+      session,
+      processId: "submit-leave-on-behalf",
+      outcome: "success",
+      request,
+      entityType: "employee",
+      entityId: body.employeeId,
+      entityLabel: updated.name,
+      detail: `Leave request ${requestRow.id}`,
+    });
     return NextResponse.json({ request: requestRow, employee: updated });
   } catch (err) {
+    await recordProcessExecution({
+      session,
+      processId: "submit-leave-on-behalf",
+      outcome: "failed",
+      request,
+      entityType: "employee",
+      entityId: body.employeeId,
+      failureReason: err instanceof Error ? err.message : "Could not submit leave",
+    });
     const message = err instanceof Error ? err.message : "Could not submit leave";
     return NextResponse.json({ error: message }, { status: 500 });
   }

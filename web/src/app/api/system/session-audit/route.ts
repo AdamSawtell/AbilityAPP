@@ -23,6 +23,7 @@ import {
   canViewSensitiveSessionFields,
 } from "@/lib/session-audit/access";
 import { clientIpFromRequest } from "@/lib/session-audit/parse-user-agent";
+import { parseAuditListParams } from "@/lib/audit-monitoring/list-params";
 import type { SessionAuditFilters, SessionStatus, RiskStatus } from "@/lib/session-audit/types";
 
 function maskSession<T extends { ipAddress?: string; userAgent?: string; deviceInfo?: string }>(
@@ -73,22 +74,23 @@ export async function GET(request: Request) {
     return NextResponse.json({ metrics, dateFrom, dateTo: customTo ?? dateTo });
   }
 
+  const listParams = parseAuditListParams(url);
   const filters: SessionAuditFilters = {
     userId: url.searchParams.get("userId") ?? undefined,
     roleId: url.searchParams.get("roleId") ?? undefined,
-    dateFrom: url.searchParams.get("dateFrom") ?? undefined,
-    dateTo: url.searchParams.get("dateTo") ?? undefined,
+    dateFrom: listParams.dateFrom,
+    dateTo: listParams.dateTo,
     ipAddress: url.searchParams.get("ipAddress") ?? undefined,
     status: (url.searchParams.get("status") as SessionStatus) ?? undefined,
     loginResult: (url.searchParams.get("loginResult") as "success" | "failed") ?? undefined,
     riskLevel: url.searchParams.get("riskLevel") ?? undefined,
     authMethod: url.searchParams.get("authMethod") ?? undefined,
     search: url.searchParams.get("search") ?? undefined,
-    offset: Number(url.searchParams.get("offset") ?? 0),
-    limit: Number(url.searchParams.get("limit") ?? 50),
+    cursor: listParams.cursor,
+    limit: listParams.limit,
   };
 
-  const { sessions, total } = await listSessions(filters);
+  const { sessions, total, nextCursor } = await listSessions(filters);
   const showSensitive = canViewSensitiveSessionFields(level);
   await logSessionAuditAccess({
     actorUserId,
@@ -100,6 +102,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     sessions: sessions.map((s) => maskSession(s, showSensitive)),
     total,
+    nextCursor,
     showSensitive,
   });
 }

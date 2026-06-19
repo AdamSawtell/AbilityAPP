@@ -15,6 +15,7 @@ import { useData } from "@/lib/data-store";
 import { auditMetaFromTask, taskUpdatesToAuditEvents } from "@/lib/audit";
 import { taskAssignedToRole, taskAssignedToUser, type TaskListView } from "@/lib/task-access";
 import { useTaskTypes } from "@/lib/task-type-store";
+import { trackProcessExecution } from "@/lib/process-audit/track.client";
 import { canSeeTaskType } from "@/lib/task-type-access";
 import {
   isActiveTask,
@@ -188,6 +189,13 @@ export function TaskDetailView({ id }: { id: string }) {
         }
       )
     );
+    trackProcessExecution({
+      processId: "action-task",
+      entityType: "task",
+      entityId: currentTask.id,
+      entityLabel: currentTask.documentNo,
+      detail: `Status → ${status}`,
+    });
   }
 
   function saveDueDate(nextDueDate: string) {

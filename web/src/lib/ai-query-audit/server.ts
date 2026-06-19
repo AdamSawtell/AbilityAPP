@@ -1,7 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
-import { auditContextFromSession, auditNewId, maxSeverity, truncateText } from "@/lib/audit-monitoring/shared";
-import { SENSITIVE_QUERY_PATTERNS } from "@/lib/ai-query-audit/constants";
+import { auditContextFromSession, auditNewId } from "@/lib/audit-monitoring/shared";
+import { decodeAuditCursor, encodeAuditCursor } from "@/lib/audit-monitoring/pagination";
+import { archiveAndDeleteBeforeCutoff } from "@/lib/audit-monitoring/retention-batch";
+import { enqueueRiskAssessment, type AiQueryRiskPayload } from "@/lib/audit-monitoring/risk-queue";
 import type {
   AiQueryAuditFilters,
   AiQueryAuditRecord,
@@ -44,30 +46,6 @@ function mapRecord(
   };
 }
 
-async function appendRisk(
-  supabase: SupabaseClient,
-  chatLogId: string,
-  code: string,
-  label: string,
-  severity: RiskSeverity,
-  detail: string
-) {
-  await supabase.from("ai_query_risk").insert({
-    id: auditNewId("aqr"),
-    chat_log_id: chatLogId,
-    indicator_code: code,
-    indicator_label: label,
-    severity,
-    detail,
-  });
-  const { data } = await supabase.from("ai_query_audit_meta").select("risk_level").eq("chat_log_id", chatLogId).maybeSingle();
-  const current = (data?.risk_level as RiskSeverity | "none") ?? "none";
-  const next = maxSeverity(current, severity);
-  if (next !== current) {
-    await supabase.from("ai_query_audit_meta").update({ risk_level: next, updated_at: new Date().toISOString() }).eq("chat_log_id", chatLogId);
-  }
-}
-
 async function bumpDailyStats(supabase: SupabaseClient, createdAt: string, patch: Record<string, number>) {
   const statDate = createdAt.slice(0, 10);
   const { data: existing } = await supabase.from("ai_query_daily_stats").select("*").eq("stat_date", statDate).maybeSingle();
@@ -82,29 +60,8 @@ async function bumpDailyStats(supabase: SupabaseClient, createdAt: string, patch
   await supabase.from("ai_query_daily_stats").update(next).eq("stat_date", statDate);
 }
 
-async function assessQueryRisk(
-  supabase: SupabaseClient,
-  chatLogId: string,
-  userMessage: string,
-  userId: string,
-  createdAt: string
-) {
-  if (SENSITIVE_QUERY_PATTERNS.some((p) => p.test(userMessage))) {
-    await appendRisk(supabase, chatLogId, "sensitive_content", "Sensitive content in query", "high", truncateText(userMessage, 120));
-  }
-  const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-  const { count } = await supabase
-    .from("app_ai_chat_log")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("created_at", since);
-  if ((count ?? 0) >= 20) {
-    await appendRisk(supabase, chatLogId, "high_volume", "High AI query volume", "medium", `${count} queries in 10 minutes`);
-  }
-  const hour = new Date(createdAt).getUTCHours();
-  if (hour < 7 || hour >= 19) {
-    await appendRisk(supabase, chatLogId, "after_hours", "AI query outside business hours", "low", createdAt);
-  }
+function queueAiQueryRisk(chatLogId: string, payload: AiQueryRiskPayload) {
+  void enqueueRiskAssessment("ai_query", chatLogId, payload);
 }
 
 export async function enrichAiQueryAudit(input: {
@@ -145,13 +102,18 @@ export async function enrichAiQueryAudit(input: {
     tool_calls: input.toolCallCount ?? 0,
   };
   await bumpDailyStats(supabase, now, statsPatch);
-  await assessQueryRisk(supabase, input.chatLogId, input.userMessage, ctx.userId, now);
+  queueAiQueryRisk(input.chatLogId, {
+    chatLogId: input.chatLogId,
+    userId: ctx.userId,
+    userMessage: input.userMessage,
+    createdAt: now,
+  });
 }
 
 export async function listAiQueryAudits(filters: AiQueryAuditFilters) {
-  if (!isSupabaseConfigured()) return { records: [], total: 0 };
+  if (!isSupabaseConfigured()) return { records: [], total: 0, nextCursor: null };
   const supabase = serviceClient();
-  let query = supabase.from("app_ai_chat_log").select("*", { count: "exact" }).order("created_at", { ascending: false });
+  let query = supabase.from("app_ai_chat_log").select("*", { count: "exact" }).order("created_at", { ascending: false }).order("id", { ascending: false });
 
   if (filters.userId) query = query.eq("user_id", filters.userId);
   if (filters.roleId) query = query.eq("role_id", filters.roleId);
@@ -159,12 +121,15 @@ export async function listAiQueryAudits(filters: AiQueryAuditFilters) {
   if (filters.dateFrom) query = query.gte("created_at", filters.dateFrom);
   if (filters.dateTo) query = query.lte("created_at", filters.dateTo);
   if (filters.search?.trim()) {
-    query = query.or(`user_message.ilike.%${filters.search.trim()}%,assistant_message.ilike.%${filters.search.trim()}%`);
+    query = query.textSearch("user_message", filters.search.trim(), { type: "websearch", config: "english" });
   }
 
-  const offset = filters.offset ?? 0;
+  const cursor = decodeAuditCursor(filters.cursor);
+  if (cursor) {
+    query = query.or(`created_at.lt.${cursor.startedAt},and(created_at.eq.${cursor.startedAt},id.lt.${cursor.id})`);
+  }
   const limit = filters.limit ?? 50;
-  query = query.range(offset, offset + limit - 1);
+  query = query.limit(limit);
   const { data, count, error } = await query;
   if (error) throw error;
 
@@ -185,7 +150,9 @@ export async function listAiQueryAudits(filters: AiQueryAuditFilters) {
     records = records.filter((r) => r.riskLevel === filters.riskLevel);
   }
 
-  return { records, total: count ?? 0 };
+  const last = records[records.length - 1];
+  const nextCursor = last && records.length >= limit ? encodeAuditCursor(last.createdAt, last.id) : null;
+  return { records, total: count ?? 0, nextCursor };
 }
 
 export async function getAiQueryAuditDetail(chatLogId: string): Promise<AiQueryInvestigationDetail | null> {
@@ -377,19 +344,23 @@ export async function runAiQueryMetaRetentionJob(): Promise<RetentionJobRun> {
       .maybeSingle();
     const days = Number(policy?.retention_days ?? 90);
     const cutoff = new Date(Date.now() - days * 86400000).toISOString();
-    const { data: oldChat } = await supabase.from("app_ai_chat_log").select("id").lt("created_at", cutoff);
-    const ids = (oldChat ?? []).map((r) => r.id);
-    if (ids.length) {
-      await supabase.from("ai_query_audit_meta").delete().in("chat_log_id", ids);
-      await supabase.from("app_ai_chat_log").delete().in("id", ids);
-    }
+    const recordsDeleted = await archiveAndDeleteBeforeCutoff({
+      supabase,
+      table: "app_ai_chat_log",
+      recordType: "ai_query_meta",
+      dateColumn: "created_at",
+      cutoff,
+      extraDelete: async (ids) => {
+        await supabase.from("ai_query_audit_meta").delete().in("chat_log_id", ids);
+      },
+    });
     const completedAt = new Date().toISOString();
     const durationMs = Date.parse(completedAt) - Date.parse(startedAt);
     await supabase
       .from("retention_job_run")
       .update({
         completed_at: completedAt,
-        records_deleted: ids.length,
+        records_deleted: recordsDeleted,
         duration_ms: durationMs,
         status: "completed",
       })
@@ -399,7 +370,7 @@ export async function runAiQueryMetaRetentionJob(): Promise<RetentionJobRun> {
       recordType: "ai_query_meta",
       startedAt,
       completedAt,
-      recordsDeleted: ids.length,
+      recordsDeleted,
       durationMs,
       errors: "",
       status: "completed",

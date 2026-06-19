@@ -43,6 +43,7 @@ export type ProcessAuditFilters = {
   riskLevel?: string;
   entityType?: string;
   search?: string;
+  cursor?: string;
   offset?: number;
   limit?: number;
 };

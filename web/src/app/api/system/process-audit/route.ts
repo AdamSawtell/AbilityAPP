@@ -13,6 +13,7 @@ import {
   runProcessRetention,
 } from "@/lib/process-audit/server";
 import type { ProcessAuditFilters, ProcessOutcome, ProcessStatus } from "@/lib/process-audit/types";
+import { parseAuditListParams } from "@/lib/audit-monitoring/list-params";
 import { maskSensitive } from "@/components/admin/audit-monitoring-shared";
 
 export async function GET(request: Request) {
@@ -41,22 +42,23 @@ export async function GET(request: Request) {
     return NextResponse.json({ metrics, dateFrom, dateTo });
   }
 
+  const listParams = parseAuditListParams(url);
   const filters: ProcessAuditFilters = {
     userId: url.searchParams.get("userId") ?? undefined,
     roleId: url.searchParams.get("roleId") ?? undefined,
     processId: url.searchParams.get("processId") ?? undefined,
-    dateFrom: url.searchParams.get("dateFrom") ?? undefined,
-    dateTo: url.searchParams.get("dateTo") ?? undefined,
+    dateFrom: listParams.dateFrom,
+    dateTo: listParams.dateTo,
     outcome: (url.searchParams.get("outcome") as ProcessOutcome) ?? undefined,
     status: (url.searchParams.get("status") as ProcessStatus) ?? undefined,
     riskLevel: url.searchParams.get("riskLevel") ?? undefined,
     entityType: url.searchParams.get("entityType") ?? undefined,
     search: url.searchParams.get("search") ?? undefined,
-    offset: Number(url.searchParams.get("offset") ?? 0),
-    limit: Number(url.searchParams.get("limit") ?? 50),
+    cursor: listParams.cursor,
+    limit: listParams.limit,
   };
 
-  const { records, total } = await listProcessAudits(filters);
+  const { records, total, nextCursor } = await listProcessAudits(filters);
   const showSensitive = canViewSensitiveMonitoring(level);
   await logProcessAuditAccess({
     actorUserId,
@@ -68,6 +70,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     records: records.map((r) => maskSensitive(r, showSensitive)),
     total,
+    nextCursor,
     showSensitive,
   });
 }

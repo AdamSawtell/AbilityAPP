@@ -119,6 +119,7 @@ export function ProcessAuditView() {
   const [metrics, setMetrics] = useState<ProcessDashboardMetrics | null>(null);
   const [records, setRecords] = useState<ProcessAuditRecord[]>([]);
   const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filters, setFilters] = useState({ userId: "", processId: "", outcome: "", riskLevel: "", search: "" });
 
@@ -127,26 +128,28 @@ export function ProcessAuditView() {
     if (res.ok) setMetrics(((await res.json()) as { metrics: ProcessDashboardMetrics }).metrics);
   }, [range]);
 
-  const loadRecords = useCallback(async () => {
+  const loadRecords = useCallback(async (append = false) => {
     const params = new URLSearchParams();
     if (filters.userId) params.set("userId", filters.userId);
     if (filters.processId) params.set("processId", filters.processId);
     if (filters.outcome) params.set("outcome", filters.outcome);
     if (filters.riskLevel) params.set("riskLevel", filters.riskLevel);
     if (filters.search) params.set("search", filters.search);
+    if (append && nextCursor) params.set("cursor", nextCursor);
     const res = await fetch(`/api/system/process-audit?${params}`, { credentials: "include" });
     if (res.ok) {
-      const data = (await res.json()) as { records: ProcessAuditRecord[]; total: number };
-      setRecords(data.records);
+      const data = (await res.json()) as { records: ProcessAuditRecord[]; total: number; nextCursor: string | null };
+      setRecords((prev) => (append ? [...prev, ...data.records] : data.records));
       setTotal(data.total);
+      setNextCursor(data.nextCursor);
     }
-  }, [filters]);
+  }, [filters, nextCursor]);
 
   useEffect(() => {
     if (!hasPageAccess) return;
     void loadDashboard();
-    void loadRecords();
-  }, [hasPageAccess, loadDashboard, loadRecords]);
+    void loadRecords(false);
+  }, [hasPageAccess, loadDashboard, filters]);
 
   if (!hasPageAccess) {
     return (
@@ -226,7 +229,14 @@ export function ProcessAuditView() {
             ))}
           </tbody>
         </table>
-        <p className="border-t px-4 py-2 text-xs text-slate-500">{total} execution(s)</p>
+        <p className="border-t px-4 py-2 text-xs text-slate-500">{total} execution(s) · last 7 days by default</p>
+        {nextCursor ? (
+          <div className="border-t px-4 py-3 text-center">
+            <button type="button" className="text-sm font-medium text-[#b51266] hover:underline" onClick={() => void loadRecords(true)}>
+              Load more
+            </button>
+          </div>
+        ) : null}
       </div>
       <p className="mt-4 text-xs text-slate-500">Process records are system-generated and read-only. Record changes remain in the existing audit trail.</p>
       {selectedId ? <InvestigationPanel id={selectedId} onClose={() => setSelectedId(null)} canInvestigate={canInvestigate} /> : null}

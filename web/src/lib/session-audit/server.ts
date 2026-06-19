@@ -1,4 +1,7 @@
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
+import { decodeAuditCursor, encodeAuditCursor } from "@/lib/audit-monitoring/pagination";
+import { archiveAndDeleteBeforeCutoff } from "@/lib/audit-monitoring/retention-batch";
+import { enqueueRiskAssessment, type SessionRiskPayload } from "@/lib/audit-monitoring/risk-queue";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { HIGH_PRIVILEGE_ROLE_IDS, DEFAULT_TIMEZONE } from "@/lib/session-audit/constants";
 import { parseUserAgent } from "@/lib/session-audit/parse-user-agent";
@@ -182,6 +185,9 @@ export async function recordFailedLogin(input: {
   });
   await appendEvent(supabase, id, "failed_login", input.failureReason);
   await bumpDailyStats(supabase, now, { failed_logins: 1 });
+  if (input.userId) {
+    runRiskAssessmentQueued(id, input.userId, "", input.ipAddress, now, "failed");
+  }
   return id;
 }
 
@@ -244,57 +250,26 @@ export async function recordSuccessfulLogin(input: {
     await appendEvent(supabase, input.sessionId, "concurrent_session_detected", "Another session was already active");
   }
 
-  await runRiskAssessment(supabase, input.sessionId, input.userId, input.roleId, input.ipAddress, now);
+  await runRiskAssessmentQueued(input.sessionId, input.userId, input.roleId, input.ipAddress, now, "success");
   return input.sessionId;
 }
 
-async function runRiskAssessment(
-  supabase: SupabaseClient,
+function runRiskAssessmentQueued(
   sessionId: string,
   userId: string,
   roleId: string,
   ipAddress: string,
-  loginAt: string
+  loginAt: string,
+  loginResult: string
 ) {
-  const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-  const { count: failCount } = await supabase
-    .from("user_session")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("login_result", "failed")
-    .gte("login_at", since);
-
-  if ((failCount ?? 0) >= 3) {
-    await appendRisk(supabase, sessionId, "multiple_failed_logins", "Multiple failed login attempts", "high", `${failCount} failures in 15 minutes`);
-  }
-
-  const { data: priorIps } = await supabase
-    .from("user_session")
-    .select("ip_address")
-    .eq("user_id", userId)
-    .eq("login_result", "success")
-    .neq("id", sessionId)
-    .limit(50);
-  const knownIps = new Set((priorIps ?? []).map((r) => r.ip_address).filter(Boolean));
-  if (knownIps.size > 0 && ipAddress && !knownIps.has(ipAddress)) {
-    await appendRisk(supabase, sessionId, "unusual_ip", "Login from new IP address", "medium", ipAddress);
-  }
-
-  const tz = await getSetting(supabase, "timezone", DEFAULT_TIMEZONE);
-  const hour = Number(
-    new Intl.DateTimeFormat("en-AU", { timeZone: tz, hour: "numeric", hour12: false }).format(new Date(loginAt))
-  );
-  const start = (await getSetting(supabase, "business_hours_start", "07:00")).slice(0, 2);
-  const end = (await getSetting(supabase, "business_hours_end", "19:00")).slice(0, 2);
-  const startH = Number(start);
-  const endH = Number(end);
-  if (hour < startH || hour >= endH) {
-    await appendRisk(supabase, sessionId, "after_hours", "Login outside business hours", "low", `Login at ${hour}:00 ${tz}`);
-  }
-
-  if (HIGH_PRIVILEGE_ROLE_IDS.has(roleId)) {
-    await appendRisk(supabase, sessionId, "high_privilege", "High privilege account login", "medium", roleId);
-  }
+  void enqueueRiskAssessment("session", sessionId, {
+    sessionId,
+    userId,
+    roleId,
+    ipAddress,
+    loginResult,
+    loginAt,
+  } satisfies SessionRiskPayload);
 }
 
 export async function recordLogout(sessionId: string, status: SessionStatus = "logged_out") {
@@ -360,10 +335,10 @@ export async function closeTimedOutSessions() {
   return { closed: stale?.length ?? 0 };
 }
 
-export async function listSessions(filters: SessionAuditFilters): Promise<{ sessions: UserSessionRecord[]; total: number }> {
-  if (!isSupabaseConfigured()) return { sessions: [], total: 0 };
+export async function listSessions(filters: SessionAuditFilters): Promise<{ sessions: UserSessionRecord[]; total: number; nextCursor: string | null }> {
+  if (!isSupabaseConfigured()) return { sessions: [], total: 0, nextCursor: null };
   const supabase = serviceClient();
-  let query = supabase.from("user_session").select("*", { count: "exact" }).order("login_at", { ascending: false });
+  let query = supabase.from("user_session").select("*", { count: "exact" }).order("login_at", { ascending: false }).order("id", { ascending: false });
 
   if (filters.userId) query = query.eq("user_id", filters.userId);
   if (filters.roleId) query = query.eq("role_id", filters.roleId);
@@ -382,13 +357,19 @@ export async function listSessions(filters: SessionAuditFilters): Promise<{ sess
     query = query.or(`user_name.ilike.${s},role_name.ilike.${s},ip_address.ilike.${s}`);
   }
 
-  const offset = filters.offset ?? 0;
+  const cursor = decodeAuditCursor(filters.cursor);
+  if (cursor) {
+    query = query.or(`login_at.lt.${cursor.startedAt},and(login_at.eq.${cursor.startedAt},id.lt.${cursor.id})`);
+  }
   const limit = filters.limit ?? 50;
-  query = query.range(offset, offset + limit - 1);
+  query = query.limit(limit);
 
   const { data, count, error } = await query;
   if (error) throw error;
-  return { sessions: (data ?? []).map(mapSession), total: count ?? 0 };
+  const sessions = (data ?? []).map(mapSession);
+  const last = sessions[sessions.length - 1];
+  const nextCursor = last && sessions.length >= limit ? encodeAuditCursor(last.loginAt, last.id) : null;
+  return { sessions, total: count ?? 0, nextCursor };
 }
 
 export async function getSessionDetail(sessionId: string): Promise<SessionInvestigationDetail | null> {
@@ -636,18 +617,20 @@ export async function runSessionRetention(): Promise<RetentionJobRun> {
     const policy = policies.find((p) => p.recordType === "user_session" && p.active);
     const days = policy?.retentionDays ?? 90;
     const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-    const { data: oldSessions } = await supabase.from("user_session").select("id").lt("login_at", cutoff);
-    const ids = (oldSessions ?? []).map((r) => r.id);
-    if (ids.length) {
-      await supabase.from("user_session").delete().in("id", ids);
-    }
+    const recordsDeleted = await archiveAndDeleteBeforeCutoff({
+      supabase,
+      table: "user_session",
+      recordType: "user_session",
+      dateColumn: "login_at",
+      cutoff,
+    });
     const completedAt = new Date().toISOString();
     const durationMs = Date.parse(completedAt) - Date.parse(startedAt);
     await supabase
       .from("retention_job_run")
       .update({
         completed_at: completedAt,
-        records_deleted: ids.length,
+        records_deleted: recordsDeleted,
         duration_ms: durationMs,
         status: "completed",
       })
@@ -657,7 +640,7 @@ export async function runSessionRetention(): Promise<RetentionJobRun> {
       recordType: "user_session",
       startedAt,
       completedAt,
-      recordsDeleted: ids.length,
+      recordsDeleted,
       durationMs,
       errors: "",
       status: "completed",
@@ -675,6 +658,8 @@ export async function runSessionRetention(): Promise<RetentionJobRun> {
 export async function runAllRetentionJobs(): Promise<RetentionJobRun[]> {
   const { runProcessRetentionJob } = await import("@/lib/process-audit/server");
   const { runAiQueryMetaRetentionJob } = await import("@/lib/ai-query-audit/server");
+  const { processRiskQueueBatch } = await import("@/lib/audit-monitoring/risk-queue");
+  void processRiskQueueBatch(500);
   return Promise.all([runSessionRetention(), runProcessRetentionJob(), runAiQueryMetaRetentionJob()]);
 }
 

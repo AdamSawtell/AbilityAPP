@@ -37,6 +37,7 @@ export type AiQueryAuditFilters = {
   queryType?: AiQueryType;
   riskLevel?: string;
   search?: string;
+  cursor?: string;
   offset?: number;
   limit?: number;
 };

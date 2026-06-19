@@ -21,6 +21,8 @@ export async function GET() {
   });
 }
 
+import { recordProcessExecution } from "@/lib/process-audit/server";
+
 export async function POST(request: Request) {
   const session = await getAuthSessionFromRequest();
   const ctx = await requireMyWorkplace(session, "my-credentials");
@@ -35,11 +37,34 @@ export async function POST(request: Request) {
 
   try {
     const result = await submitMyCredential(ctx, body);
+    if (session) {
+      await recordProcessExecution({
+        session,
+        processId: "submit-employee-credential",
+        outcome: "success",
+        request,
+        entityType: "employee",
+        entityId: ctx.employeeId,
+        entityLabel: result.employee.name,
+        detail: result.credential.credentialType,
+      });
+    }
     return NextResponse.json({
       credential: result.credential,
       employee: result.employee,
     });
   } catch (err) {
+    if (session) {
+      await recordProcessExecution({
+        session,
+        processId: "submit-employee-credential",
+        outcome: "failed",
+        request,
+        entityType: "employee",
+        entityId: ctx.employeeId,
+        failureReason: err instanceof Error ? err.message : "Could not submit credential",
+      });
+    }
     const message = err instanceof Error ? err.message : "Could not submit credential";
     return NextResponse.json({ error: message }, { status: 400 });
   }

@@ -13,6 +13,7 @@ import {
   runAiQueryMetaRetention,
 } from "@/lib/ai-query-audit/server";
 import type { AiQueryAuditFilters, AiQueryOutcome, AiQueryType } from "@/lib/ai-query-audit/types";
+import { parseAuditListParams } from "@/lib/audit-monitoring/list-params";
 import { maskSensitive } from "@/components/admin/audit-monitoring-shared";
 
 export async function GET(request: Request) {
@@ -41,21 +42,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ metrics, dateFrom, dateTo });
   }
 
+  const listParams = parseAuditListParams(url);
   const filters: AiQueryAuditFilters = {
     userId: url.searchParams.get("userId") ?? undefined,
     roleId: url.searchParams.get("roleId") ?? undefined,
     agentId: url.searchParams.get("agentId") ?? undefined,
-    dateFrom: url.searchParams.get("dateFrom") ?? undefined,
-    dateTo: url.searchParams.get("dateTo") ?? undefined,
+    dateFrom: listParams.dateFrom,
+    dateTo: listParams.dateTo,
     outcome: (url.searchParams.get("outcome") as AiQueryOutcome) ?? undefined,
     queryType: (url.searchParams.get("queryType") as AiQueryType) ?? undefined,
     riskLevel: url.searchParams.get("riskLevel") ?? undefined,
     search: url.searchParams.get("search") ?? undefined,
-    offset: Number(url.searchParams.get("offset") ?? 0),
-    limit: Number(url.searchParams.get("limit") ?? 50),
+    cursor: listParams.cursor,
+    limit: listParams.limit,
   };
 
-  const { records, total } = await listAiQueryAudits(filters);
+  const { records, total, nextCursor } = await listAiQueryAudits(filters);
   const showSensitive = canViewSensitiveMonitoring(level);
   await logAiQueryAuditAccess({
     actorUserId,
@@ -67,6 +69,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     records: records.map((r) => maskSensitive(r, showSensitive)),
     total,
+    nextCursor,
     showSensitive,
   });
 }

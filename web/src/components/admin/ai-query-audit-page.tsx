@@ -86,6 +86,7 @@ export function AiQueryAuditView() {
   const [metrics, setMetrics] = useState<AiQueryDashboardMetrics | null>(null);
   const [records, setRecords] = useState<AiQueryAuditRecord[]>([]);
   const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filters, setFilters] = useState({ userId: "", outcome: "", riskLevel: "", search: "" });
 
@@ -101,8 +102,31 @@ export function AiQueryAuditView() {
     if (filters.search) params.set("search", filters.search);
     void fetch(`/api/system/ai-query-audit?${params}`, { credentials: "include" })
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d) { setRecords(d.records); setTotal(d.total); } });
+      .then((d) => {
+        if (d) {
+          setRecords(d.records);
+          setTotal(d.total);
+          setNextCursor(d.nextCursor ?? null);
+        }
+      });
   }, [hasPageAccess, range, filters]);
+
+  async function loadMoreQueries() {
+    if (!nextCursor) return;
+    const params = new URLSearchParams();
+    if (filters.userId) params.set("userId", filters.userId);
+    if (filters.outcome) params.set("outcome", filters.outcome);
+    if (filters.riskLevel) params.set("riskLevel", filters.riskLevel);
+    if (filters.search) params.set("search", filters.search);
+    params.set("cursor", nextCursor);
+    const res = await fetch(`/api/system/ai-query-audit?${params}`, { credentials: "include" });
+    if (res.ok) {
+      const d = (await res.json()) as { records: AiQueryAuditRecord[]; total: number; nextCursor: string | null };
+      setRecords((prev) => [...prev, ...d.records]);
+      setTotal(d.total);
+      setNextCursor(d.nextCursor);
+    }
+  }
 
   if (!hasPageAccess) {
     return (
@@ -165,7 +189,14 @@ export function AiQueryAuditView() {
             ))}
           </tbody>
         </table>
-        <p className="border-t px-4 py-2 text-xs text-slate-500">{total} quer(ies)</p>
+        <p className="border-t px-4 py-2 text-xs text-slate-500">{total} quer(ies) · last 7 days by default</p>
+        {nextCursor ? (
+          <div className="border-t px-4 py-3 text-center">
+            <button type="button" className="text-sm font-medium text-[#b51266] hover:underline" onClick={() => void loadMoreQueries()}>
+              Load more
+            </button>
+          </div>
+        ) : null}
       </div>
       <p className="mt-4 text-xs text-slate-500">Query text lives in the existing AI chat log. DB tool access comes from the AI access log — not duplicated here.</p>
       {selectedId ? <InvestigationPanel id={selectedId} onClose={() => setSelectedId(null)} canInvestigate={canInvestigate} /> : null}

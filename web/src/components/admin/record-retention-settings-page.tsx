@@ -210,6 +210,12 @@ export function RecordRetentionSettingsView() {
             Run retention now
           </button>
         </div>
+        <p className="mb-4 text-xs text-slate-500">
+          For production, schedule nightly POST to <code className="text-slate-700">/api/system/audit-maintenance</code> with header{" "}
+          <code className="text-slate-700">x-audit-cron-secret</code> and body{" "}
+          <code className="text-slate-700">{`{"action":"run_retention"}`}</code>. Set{" "}
+          <code className="text-slate-700">AUDIT_CRON_SECRET</code> in the environment.
+        </p>
         {runs.length === 0 ? (
           <p className="text-sm text-slate-500">No retention runs recorded yet.</p>
         ) : (

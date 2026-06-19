@@ -71,6 +71,12 @@ import {
 } from "@/lib/incident";
 import { persistRecordAudit, type AuditLogOptions } from "@/lib/audit-mutation";
 import { logRecordAudit } from "@/lib/audit-log";
+import {
+  trackEmployeeCredentialChanges,
+  trackIncidentProcessChanges,
+  trackLocationProcessChanges,
+} from "@/lib/process-audit/track-changes";
+import { trackProcessExecution } from "@/lib/process-audit/track.client";
 import { stampRecordAudit } from "@/lib/audit";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
@@ -563,6 +569,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       });
 
       void persistRemote((supabase) => saveIncident(supabase, created));
+      trackIncidentProcessChanges(undefined, created, true);
       processIncidentAutomations(created);
       return created;
     },
@@ -578,6 +585,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       persistIncidentRelatedRecords(stamped, before);
 
       void persistRemote((supabase) => saveIncident(supabase, stamped));
+      trackIncidentProcessChanges(before, stamped, false);
       processIncidentAutomations(stamped, before);
     },
     [persistRemote, incidentsRef, persistIncidentRelatedRecords, processIncidentAutomations]
@@ -696,6 +704,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         exists ? current.map((e) => (e.id === stamped.id ? stamped : e)) : [...current, stamped]
       );
       void persistRemote((supabase) => saveEmployee(supabase, stamped));
+      trackEmployeeCredentialChanges(before, stamped);
       runAutomationEvents(employeeEventsFromSave(stamped, before));
     },
     [persistRemote, employeesRef, runAutomationEvents]
@@ -725,6 +734,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         exists ? current.map((l) => (l.id === stamped.id ? stamped : l)) : [...current, stamped]
       );
       void persistRemote((supabase) => saveLocation(supabase, stamped));
+      trackLocationProcessChanges(before, stamped);
       runAutomationEvents(locationEventsFromSave(stamped, before));
     },
     [persistRemote, locationsRef, runAutomationEvents]
@@ -806,6 +816,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return [...prev, stampRecordAudit(created, true)];
       });
       void persistRemote((supabase) => saveTask(supabase, created));
+      trackProcessExecution({
+        processId: "assign-task",
+        entityType: partial.entityType ?? "task",
+        entityId: created.id,
+        entityLabel: created.documentNo,
+        detail: created.description || created.documentNo,
+      });
       return created;
     },
     [persistRemote]
@@ -1030,6 +1047,13 @@ export function useConvertEnquiry() {
       { byUserId: "", byName: updatedEnquiry.updatedBy },
       `Status: ${enquiry.status} → 4_Converted\nClient: ${client.searchKey} — ${client.name}`
     );
+    trackProcessExecution({
+      processId: "enquiry-to-client",
+      entityType: "enquiry",
+      entityId: enquiryId,
+      entityLabel: enquiry.documentNo,
+      detail: `Client ${client.searchKey}`,
+    });
     return client;
   };
 }

@@ -1,8 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import { processById } from "@/lib/access/catalog";
-import { auditContextFromSession, auditNewId, maxSeverity } from "@/lib/audit-monitoring/shared";
-import { HIGH_PRIVILEGE_PROCESS_IDS } from "@/lib/process-audit/constants";
+import { auditContextFromSession, auditNewId } from "@/lib/audit-monitoring/shared";
+import { decodeAuditCursor, encodeAuditCursor } from "@/lib/audit-monitoring/pagination";
+import { archiveAndDeleteBeforeCutoff } from "@/lib/audit-monitoring/retention-batch";
+import { enqueueRiskAssessment, type ProcessRiskPayload } from "@/lib/audit-monitoring/risk-queue";
 import type {
   ProcessAuditFilters,
   ProcessAuditRecord,
@@ -46,31 +48,7 @@ function mapRow(row: Record<string, unknown>): ProcessAuditRecord {
   };
 }
 
-async function appendRisk(
-  supabase: SupabaseClient,
-  auditId: string,
-  code: string,
-  label: string,
-  severity: RiskSeverity,
-  detail: string
-) {
-  await supabase.from("process_audit_risk").insert({
-    id: auditNewId("par"),
-    process_audit_id: auditId,
-    indicator_code: code,
-    indicator_label: label,
-    severity,
-    detail,
-  });
-  const { data } = await supabase.from("process_audit").select("risk_level").eq("id", auditId).maybeSingle();
-  const current = (data?.risk_level as RiskSeverity | "none") ?? "none";
-  const next = maxSeverity(current, severity);
-  if (next !== current) {
-    await supabase.from("process_audit").update({ risk_level: next, updated_at: new Date().toISOString() }).eq("id", auditId);
-  }
-}
-
-async function bumpDailyStats(supabase: SupabaseClient, startedAt: string, patch: Record<string, number>) {
+async function bumpDailyStats(supabase: SupabaseClient, startedAt: string, patch: Record<string, number>, userId?: string) {
   const statDate = startedAt.slice(0, 10);
   const { data: existing } = await supabase.from("process_audit_daily_stats").select("*").eq("stat_date", statDate).maybeSingle();
   if (!existing) {
@@ -82,37 +60,11 @@ async function bumpDailyStats(supabase: SupabaseClient, startedAt: string, patch
     next[k] = Number(existing[k as keyof typeof existing] ?? 0) + v;
   }
   await supabase.from("process_audit_daily_stats").update(next).eq("stat_date", statDate);
+  void userId;
 }
 
-async function assessRisk(
-  supabase: SupabaseClient,
-  auditId: string,
-  processId: string,
-  outcome: ProcessOutcome,
-  userId: string,
-  startedAt: string
-) {
-  if (outcome === "denied") {
-    await appendRisk(supabase, auditId, "denied_execution", "Process denied", "medium", processId);
-  }
-  if (HIGH_PRIVILEGE_PROCESS_IDS.has(processId)) {
-    await appendRisk(supabase, auditId, "high_privilege_process", "High privilege process", "medium", processId);
-  }
-  const hour = new Date(startedAt).getUTCHours();
-  if (hour < 7 || hour >= 19) {
-    await appendRisk(supabase, auditId, "after_hours", "Process outside business hours", "low", startedAt);
-  }
-  const since = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-  const { count } = await supabase
-    .from("process_audit")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("process_id", processId)
-    .gte("started_at", since)
-    .neq("id", auditId);
-  if ((count ?? 0) >= 10) {
-    await appendRisk(supabase, auditId, "high_volume", "High process volume", "high", `${(count ?? 0) + 1} in 5 minutes`);
-  }
+function queueProcessRisk(auditId: string, payload: ProcessRiskPayload) {
+  void enqueueRiskAssessment("process", auditId, payload);
 }
 
 export async function recordProcessExecution(input: {
@@ -176,15 +128,20 @@ export async function recordProcessExecution(input: {
   if (input.outcome === "success") statsPatch.successful_executions = 1;
   else if (input.outcome === "denied") statsPatch.denied_executions = 1;
   else statsPatch.failed_executions = 1;
-  await bumpDailyStats(supabase, startedAt, statsPatch);
-  await assessRisk(supabase, id, input.processId, input.outcome, ctx.userId, startedAt);
+  await bumpDailyStats(supabase, startedAt, statsPatch, ctx.userId);
+  queueProcessRisk(id, {
+    processId: input.processId,
+    outcome: input.outcome,
+    userId: ctx.userId,
+    startedAt,
+  });
   return id;
 }
 
 export async function listProcessAudits(filters: ProcessAuditFilters) {
-  if (!isSupabaseConfigured()) return { records: [], total: 0 };
+  if (!isSupabaseConfigured()) return { records: [], total: 0, nextCursor: null };
   const supabase = serviceClient();
-  let query = supabase.from("process_audit").select("*", { count: "exact" }).order("started_at", { ascending: false });
+  let query = supabase.from("process_audit").select("*", { count: "exact" }).order("started_at", { ascending: false }).order("id", { ascending: false });
   if (filters.userId) query = query.eq("user_id", filters.userId);
   if (filters.roleId) query = query.eq("role_id", filters.roleId);
   if (filters.processId) query = query.eq("process_id", filters.processId);
@@ -198,12 +155,18 @@ export async function listProcessAudits(filters: ProcessAuditFilters) {
     const s = `%${filters.search.trim()}%`;
     query = query.or(`user_name.ilike.${s},process_label.ilike.${s},entity_label.ilike.${s},detail.ilike.${s}`);
   }
-  const offset = filters.offset ?? 0;
+  const cursor = decodeAuditCursor(filters.cursor);
+  if (cursor) {
+    query = query.or(`started_at.lt.${cursor.startedAt},and(started_at.eq.${cursor.startedAt},id.lt.${cursor.id})`);
+  }
   const limit = filters.limit ?? 50;
-  query = query.range(offset, offset + limit - 1);
+  query = query.limit(limit);
   const { data, count, error } = await query;
   if (error) throw error;
-  return { records: (data ?? []).map(mapRow), total: count ?? 0 };
+  const records = (data ?? []).map(mapRow);
+  const last = records[records.length - 1];
+  const nextCursor = last && records.length >= limit ? encodeAuditCursor(last.startedAt, last.id) : null;
+  return { records, total: count ?? 0, nextCursor };
 }
 
 export async function getProcessAuditDetail(id: string): Promise<ProcessInvestigationDetail | null> {
@@ -316,7 +279,8 @@ export async function getProcessDashboardMetrics(dateFrom: string, dateTo: strin
     .from("process_audit")
     .select("user_id")
     .gte("started_at", dateFrom)
-    .lte("started_at", dateTo);
+    .lte("started_at", dateTo)
+    .limit(10000);
   const uniqueUsers = new Set((uniqueUsersData ?? []).map((r) => r.user_id)).size;
 
   return {
@@ -383,16 +347,20 @@ export async function runProcessRetentionJob(): Promise<RetentionJobRun> {
       .maybeSingle();
     const days = Number(policy?.retention_days ?? 90);
     const cutoff = new Date(Date.now() - days * 86400000).toISOString();
-    const { data: old } = await supabase.from("process_audit").select("id").lt("started_at", cutoff);
-    const ids = (old ?? []).map((r) => r.id);
-    if (ids.length) await supabase.from("process_audit").delete().in("id", ids);
+    const recordsDeleted = await archiveAndDeleteBeforeCutoff({
+      supabase,
+      table: "process_audit",
+      recordType: "process_audit",
+      dateColumn: "started_at",
+      cutoff,
+    });
     const completedAt = new Date().toISOString();
     const durationMs = Date.parse(completedAt) - Date.parse(startedAt);
     await supabase
       .from("retention_job_run")
       .update({
         completed_at: completedAt,
-        records_deleted: ids.length,
+        records_deleted: recordsDeleted,
         duration_ms: durationMs,
         status: "completed",
       })
@@ -402,7 +370,7 @@ export async function runProcessRetentionJob(): Promise<RetentionJobRun> {
       recordType: "process_audit",
       startedAt,
       completedAt,
-      recordsDeleted: ids.length,
+      recordsDeleted,
       durationMs,
       errors: "",
       status: "completed",

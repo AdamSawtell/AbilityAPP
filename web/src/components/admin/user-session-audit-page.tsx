@@ -230,6 +230,7 @@ export function UserSessionAuditView() {
   const [metrics, setMetrics] = useState<SessionDashboardMetrics | null>(null);
   const [sessions, setSessions] = useState<UserSessionRecord[]>([]);
   const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
@@ -248,28 +249,30 @@ export function UserSessionAuditView() {
     }
   }, [range]);
 
-  const loadSessions = useCallback(async () => {
-    setLoading(true);
+  const loadSessions = useCallback(async (append = false) => {
+    setLoading(!append);
     const params = new URLSearchParams();
     if (filters.userId) params.set("userId", filters.userId);
     if (filters.roleId) params.set("roleId", filters.roleId);
     if (filters.status) params.set("status", filters.status);
     if (filters.riskLevel) params.set("riskLevel", filters.riskLevel);
     if (filters.search) params.set("search", filters.search);
+    if (append && nextCursor) params.set("cursor", nextCursor);
     const res = await fetch(`/api/system/session-audit?${params}`, { credentials: "include" });
     if (res.ok) {
-      const data = (await res.json()) as { sessions: UserSessionRecord[]; total: number };
-      setSessions(data.sessions);
+      const data = (await res.json()) as { sessions: UserSessionRecord[]; total: number; nextCursor: string | null };
+      setSessions((prev) => (append ? [...prev, ...data.sessions] : data.sessions));
       setTotal(data.total);
+      setNextCursor(data.nextCursor);
     }
     setLoading(false);
-  }, [filters]);
+  }, [filters, nextCursor]);
 
   useEffect(() => {
     if (!hasPageAccess) return;
     void loadDashboard();
-    void loadSessions();
-  }, [hasPageAccess, loadDashboard, loadSessions]);
+    void loadSessions(false);
+  }, [hasPageAccess, loadDashboard, filters]);
 
   const exportUrl = useMemo(() => "/api/system/session-audit/export", []);
 
@@ -418,7 +421,14 @@ export function UserSessionAuditView() {
             )}
           </tbody>
         </table>
-        <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">{total} session(s)</p>
+        <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">{total} session(s) · last 7 days by default</p>
+        {nextCursor ? (
+          <div className="border-t px-4 py-3 text-center">
+            <button type="button" className="text-sm font-medium text-[#b51266] hover:underline" onClick={() => void loadSessions(true)}>
+              Load more
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <p className="mt-4 text-xs text-slate-500">
