@@ -95,7 +95,7 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 
 | Date | Commit | What shipped |
 |------|--------|--------------|
-| 2026-06-18 | _pending_ | WP-A.1: `lifecycle_status`, plan review due, exit reason; list filters; audit |
+| 2026-06-18 | 6032a7f | WP-A.1: `lifecycle_status`, plan review due, exit reason; list filters; audit + governance docs |
 | 2026-06-18 | _prior_ | Governance docs (BUILD-EXPECTATIONS, SCOPE-ROADMAP, AGENT-PLAYBOOK) |
 | 2026-06 | 5126a5d | Roles window access tile UI |
 | 2026-06 | e35e09f | Per-window read/write access |
