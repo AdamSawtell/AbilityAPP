@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
+import type { ChatThreadState } from "@/lib/ai/types";
 import { canAccessWindow } from "@/lib/access/catalog";
 import { resolveClient } from "@/lib/ai/tools/client-resolve";
 
@@ -28,7 +29,9 @@ export async function runClientActivityRecent(
     clientName?: string;
     limit?: number;
     purpose?: string;
-  }
+    pagePath?: string;
+  },
+  threadState: ChatThreadState = {}
 ) {
   const canAccess =
     canAccessWindow(session.windowKeys, "clients") || canAccessWindow(session.windowKeys, "client-activity");
@@ -36,7 +39,12 @@ export async function runClientActivityRecent(
     return { found: false, note: "You do not have access to client activity." };
   }
 
-  const client = await resolveClient(supabase, args);
+  const client = await resolveClient(supabase, {
+    clientId: args.clientId,
+    searchKey: args.searchKey,
+    name: args.clientName ?? args.name,
+    pagePath: args.pagePath,
+  });
   if (!client) {
     return { found: false, error: "Provide clientId, searchKey, or client name." };
   }
@@ -83,5 +91,12 @@ export async function runClientActivityRecent(
       activities.length === 0
         ? "No activity notes on file yet. Ask the user what happened today, then use client_activity_prepare when ready."
         : undefined,
+    threadState:
+      purpose === "coach"
+        ? {
+            ...threadState,
+            activityCoachClient: { id: client.id, name: client.name, searchKey: client.searchKey },
+          }
+        : threadState,
   };
 }

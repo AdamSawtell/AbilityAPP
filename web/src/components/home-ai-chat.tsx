@@ -8,6 +8,7 @@ import { normalizeClient } from "@/lib/client";
 import { normalizeEnquiry } from "@/lib/enquiry";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
+import { PrepareSaveBar } from "@/components/prepare-save-bar";
 import {
   clearHomeChatSession,
   loadHomeChatSession,
@@ -82,6 +83,7 @@ export function HomeAiChat() {
   const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const prepareBarRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<UiMessage[]>([]);
   const threadStateRef = useRef(threadState);
 
@@ -156,6 +158,12 @@ export function HomeAiChat() {
     if (!el) return;
     el.scrollTop = el.scrollHeight;
   }, [messages, loading]);
+
+  useEffect(() => {
+    if (lastWrite?.href && lastWrite.kind.endsWith("_prepare")) {
+      prepareBarRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [lastWrite]);
 
   useEffect(() => {
     if (hydrated && configured && !agentsLoading) {
@@ -323,15 +331,9 @@ export function HomeAiChat() {
       ) : null}
 
       {lastWrite?.href && lastWrite.kind.endsWith("_prepare") ? (
-        <div className="border-b border-sky-100 bg-sky-50 px-5 py-2.5 text-sm text-sky-900">
-          <p className="font-medium">Ready for you to review</p>
+        <div className="border-b border-sky-100 bg-sky-50 px-5 py-2 text-sm text-sky-900">
+          <p className="font-medium">Prepared — scroll down to save</p>
           <p className="mt-0.5 truncate text-xs text-sky-800">{lastWrite.label}</p>
-          <Link
-            href={lastWrite.href}
-            className="mt-2 inline-flex rounded-lg bg-[#d4147a] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#b51266]"
-          >
-            Open form and save
-          </Link>
         </div>
       ) : lastWrite ? (
         <div className="border-b border-emerald-100 bg-emerald-50 px-5 py-2.5 text-sm text-emerald-900">
@@ -389,6 +391,12 @@ export function HomeAiChat() {
       </div>
 
       {error ? <p className="border-t border-red-100 bg-red-50 px-5 py-2 text-sm text-red-700">{error}</p> : null}
+
+      {lastWrite?.href && lastWrite.kind.endsWith("_prepare") ? (
+        <div ref={prepareBarRef}>
+          <PrepareSaveBar writeResult={lastWrite} />
+        </div>
+      ) : null}
 
       <div className="border-t border-slate-100 bg-white px-4 py-3">
         <div className="flex items-end gap-2">

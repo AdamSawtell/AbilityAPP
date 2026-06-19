@@ -161,6 +161,8 @@ export type ChatThreadState = {
   pendingEnquiryConvertId?: string | null;
   pendingIncidentDraft?: IncidentDraft | null;
   pendingIncidentUpdate?: IncidentUpdateDraft | null;
+  /** Set after client_activity_recent (coach) so confirm/detail can auto-prepare. */
+  activityCoachClient?: { id: string; name: string; searchKey: string } | null;
 };
 
 export type AiWriteResult = {

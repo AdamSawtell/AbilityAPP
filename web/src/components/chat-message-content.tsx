@@ -44,12 +44,12 @@ function PrepareReviewCard({ attachment }: { attachment: ChatDisplayAttachment }
   const prepare = attachment.prepare;
   if (!prepare?.href) return null;
   return (
-    <div className="rounded-lg border-2 border-[#f9a8d4] bg-[#fdf2f8] p-3">
+    <div className="rounded-lg border-2 border-[#d4147a] bg-[#fdf2f8] p-3 shadow-sm">
       <p className="text-sm font-semibold text-slate-900">{prepare.label}</p>
       <p className="mt-1 text-xs leading-relaxed text-slate-600">{prepare.hint}</p>
       <Link
         href={prepare.href}
-        className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b51266]"
+        className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#b51266]"
       >
         Open form and save
       </Link>

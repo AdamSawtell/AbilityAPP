@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
+import { PrepareSaveBar } from "@/components/prepare-save-bar";
 import {
   clearHomeChatSession,
   consumeChatNotice,
@@ -60,6 +61,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const prepareBarRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<UiMessage[]>([]);
   const threadStateRef = useRef(threadState);
   const lastPathRef = useRef("");
@@ -177,6 +179,12 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, loading]);
+
+  useEffect(() => {
+    if (lastWrite?.href && lastWrite.kind.endsWith("_prepare")) {
+      prepareBarRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [lastWrite]);
 
   useEffect(() => {
     if (hydrated && configured && !agentsLoading) focusComposer();
@@ -311,15 +319,9 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
       ) : null}
 
       {prepareLink ? (
-        <div className="border-b border-sky-100 bg-sky-50 px-3 py-2.5">
-          <p className="text-xs font-medium text-sky-950">Ready for you to review</p>
+        <div className="shrink-0 border-b border-sky-100 bg-sky-50 px-3 py-2">
+          <p className="text-xs font-medium text-sky-950">Prepared — scroll down to save</p>
           <p className="mt-0.5 truncate text-xs text-sky-800">{lastWrite!.label}</p>
-          <Link
-            href={lastWrite!.href!}
-            className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#b51266]"
-          >
-            Open form and save
-          </Link>
         </div>
       ) : null}
 
@@ -358,6 +360,12 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
       </div>
 
       {error ? <p className="shrink-0 border-t border-red-100 bg-red-50 px-3 py-1.5 text-xs text-red-700">{error}</p> : null}
+
+      {prepareLink && lastWrite ? (
+        <div ref={prepareBarRef}>
+          <PrepareSaveBar writeResult={lastWrite} />
+        </div>
+      ) : null}
 
       <div className="shrink-0 border-t border-slate-200 bg-white p-2">
         <p className="mb-1.5 text-[10px] text-slate-400">Assistants prepare records — you save them.</p>

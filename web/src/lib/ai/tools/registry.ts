@@ -386,7 +386,7 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
     function: {
       name: "client_activity_prepare",
       description:
-        "Prepare a client activity note for human review. Call as soon as the user confirms subject and details — do not invent links or dates. Pass activityDate as YYYY-MM-DD (use today when they say today). Never save yourself.",
+        "Prepare a client activity note for human review. Call as soon as you have client and visit details — same turn as the user's description. Do not ask 'would you like to proceed' first. Pass activityDate as YYYY-MM-DD (use today when they say today). Never save yourself.",
       parameters: {
         type: "object",
         properties: {

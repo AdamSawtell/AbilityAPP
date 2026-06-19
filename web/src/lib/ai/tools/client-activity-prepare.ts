@@ -23,6 +23,7 @@ export async function runClientActivityPrepare(
     clientId: String(args.clientId ?? ""),
     searchKey: String(args.searchKey ?? ""),
     name: String(args.clientName ?? args.name ?? ""),
+    pagePath: String(args.pagePath ?? ""),
   });
   if (!client) {
     return { threadState, message: "Which client is this activity for? Provide name or search key." };
@@ -57,7 +58,11 @@ export async function runClientActivityPrepare(
   });
 
   return {
-    threadState: { ...threadState, pendingClientActivityDraft: null },
+    threadState: {
+      ...threadState,
+      pendingClientActivityDraft: draft,
+      activityCoachClient: { id: client.id, name: client.name, searchKey: client.searchKey },
+    },
     message:
       "Activity note prepared. Tell the user to click Open form and save in chat — you have not saved it.",
     summary: draft.subject,

@@ -60,6 +60,11 @@ import { runIncidentUpdateDraftConfirm, runIncidentUpdateDraftCreate } from "@/l
 import { persistAiIncident } from "@/lib/ai/persist";
 
 import { GUIDED_PREPARE_POLICY } from "@/lib/ai/guided-prepare-policy";
+import {
+  buildActivityPrepareFromCoachConfirm,
+  buildActivityPrepareFromCoachDetail,
+  isPrepareConfirmMessage,
+} from "@/lib/ai/activity-prepare-confirm";
 
 function readOpenAiKey(): string | undefined {
   return process.env.OPENAI_API_KEY?.trim() || undefined;
@@ -117,6 +122,66 @@ function disabledConfirmResult(threadState: ChatThreadState, prepareTool: string
   };
 }
 
+async function tryAutoPrepareClientActivity(
+  db: AiDatabase | null,
+  messages: ChatMessage[],
+  threadState: ChatThreadState,
+  pagePath?: string
+): Promise<{
+  threadState: ChatThreadState;
+  writeResult: AiWriteResult;
+  assistantText: string;
+} | null> {
+  const supabase = db?.client ?? null;
+  const session = db?.session;
+  if (!supabase || !session) return null;
+  if (!threadState.activityCoachClient && !threadState.pendingClientActivityDraft) return null;
+
+  const lastUser = [...messages].reverse().find((m) => m.role === "user");
+  if (!lastUser) return null;
+
+  let prepareArgs: Record<string, unknown> | null = null;
+
+  if (isPrepareConfirmMessage(lastUser.content)) {
+    if (threadState.pendingClientActivityDraft) {
+      const d = threadState.pendingClientActivityDraft;
+      prepareArgs = {
+        clientId: d.clientId,
+        subject: d.subject,
+        description: d.description,
+        activityType: d.activityType,
+        activityDate: d.activityDate || new Date().toISOString().slice(0, 10),
+      };
+    } else {
+      prepareArgs = buildActivityPrepareFromCoachConfirm(messages, threadState);
+    }
+  } else {
+    prepareArgs = buildActivityPrepareFromCoachDetail(messages, threadState);
+  }
+
+  if (!prepareArgs) return null;
+
+  prepareArgs.pagePath = pagePath ?? "";
+
+  const out = await runClientActivityPrepare(supabase, session, prepareArgs, threadState);
+  if (!out.href) return null;
+
+  const clientName =
+    threadState.activityCoachClient?.name ??
+    threadState.pendingClientActivityDraft?.clientName ??
+    "the client";
+
+  return {
+    threadState: out.threadState,
+    writeResult: {
+      kind: "client_activity_prepare",
+      label: out.summary ?? "Activity note",
+      href: out.href,
+    },
+    assistantText: `I've prepared the activity note for ${clientName}. Use the Open form and save button below — it opens the Activity tab with the note pre-filled. Click Save when you're happy with it.`,
+  };
+}
+
 function toOpenAiMessages(
   agent: AiAgentRecord,
   session: AuthSession,
@@ -143,7 +208,8 @@ async function executeTool(
   db: AiDatabase | null,
   name: string,
   args: Record<string, unknown>,
-  threadState: ChatThreadState
+  threadState: ChatThreadState,
+  pagePath?: string
 ): Promise<{
   result: unknown;
   threadState: ChatThreadState;
@@ -164,6 +230,8 @@ async function executeTool(
   }
 
   void db?.logAccess({ tool: name, action: "call", target: JSON.stringify(args).slice(0, 200) });
+
+  const toolArgs = pagePath ? { ...args, pagePath } : args;
 
   switch (name) {
     case "help_search":
@@ -203,17 +271,23 @@ async function executeTool(
     }
     case "client_activity_recent": {
       if (!supabase) return { result: { error: "Database not configured" }, threadState };
-      return {
-        result: await runClientActivityRecent(supabase, session, {
-          clientId: args.clientId as string | undefined,
-          searchKey: args.searchKey as string | undefined,
-          name: args.name as string | undefined,
-          clientName: args.clientName as string | undefined,
-          limit: Number(args.limit) || 5,
-          purpose: String(args.purpose ?? "summary"),
-        }),
-        threadState,
-      };
+      const raw = await runClientActivityRecent(
+        supabase,
+        session,
+        {
+          clientId: toolArgs.clientId as string | undefined,
+          searchKey: toolArgs.searchKey as string | undefined,
+          name: toolArgs.name as string | undefined,
+          clientName: toolArgs.clientName as string | undefined,
+          limit: Number(toolArgs.limit) || 5,
+          purpose: String(toolArgs.purpose ?? "summary"),
+          pagePath: toolArgs.pagePath as string | undefined,
+        },
+        threadState
+      );
+      const nextState = raw.threadState ?? threadState;
+      const { threadState: _ts, ...result } = raw;
+      return { result, threadState: nextState };
     }
     case "client_safety_profile": {
       if (!supabase) return { result: { error: "Database not configured" }, threadState };
@@ -581,6 +655,28 @@ export async function runChatTurn(options: {
   let createdEnquiry: ChatResponseBody["createdEnquiry"];
   let writeResult: AiWriteResult | undefined;
 
+  const autoPrepare = await tryAutoPrepareClientActivity(
+    options.db,
+    options.messages,
+    threadState,
+    options.pagePath
+  );
+  if (autoPrepare) {
+    threadState = autoPrepare.threadState;
+    writeResult = autoPrepare.writeResult;
+    const assistantMessage: ChatMessage = { role: "assistant", content: autoPrepare.assistantText };
+    const workingMessages = [...options.messages, assistantMessage];
+    return {
+      message: assistantMessage,
+      messages: workingMessages,
+      threadState,
+      agentId: options.agent.id,
+      agentName: options.agent.name,
+      writeResult,
+      attachments: [attachmentFromWriteResult(writeResult)],
+    };
+  }
+
   const openAiHistory: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = toOpenAiMessages(
     options.agent,
     options.session,
@@ -614,7 +710,13 @@ export async function runChatTurn(options: {
           parsed = {};
         }
 
-        const executed = await executeTool(options.db, call.function.name, parsed, threadState);
+        const executed = await executeTool(
+          options.db,
+          call.function.name,
+          parsed,
+          threadState,
+          options.pagePath
+        );
         threadState = executed.threadState;
         if (executed.createdTask) createdTask = executed.createdTask;
         if (executed.updatedTask) updatedTask = executed.updatedTask;
