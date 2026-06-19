@@ -89,6 +89,23 @@ export function WorkforcePlanningPage() {
     }
   }
 
+  const pipeline = useMemo(() => {
+    const todayIso = isoFromDate(today);
+    let pendingLeave = 0;
+    let approvedUpcoming = 0;
+    let pendingCredentials = 0;
+    for (const employee of employees) {
+      for (const request of employee.leaveRequests) {
+        if (request.status === "Requested") pendingLeave += 1;
+        if (request.status === "Approved" && request.endDate >= todayIso) approvedUpcoming += 1;
+      }
+      for (const credential of employee.credentials) {
+        if (credential.status === "Pending review") pendingCredentials += 1;
+      }
+    }
+    return { pendingLeave, approvedUpcoming, pendingCredentials };
+  }, [employees, today]);
+
   const leaveEvents = useMemo<LeaveCalendarEvent[]>(() => {
     const events: LeaveCalendarEvent[] = [];
     for (const employee of employees) {
@@ -153,6 +170,26 @@ export function WorkforcePlanningPage() {
       audit={{ moduleLabel: "Workforce planning" }}
     >
       <WorkforcePlanningSubnav />
+      <section className="mb-6 grid gap-4 sm:grid-cols-3">
+        <Link
+          href="#reviews"
+          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#d4147a]/30"
+        >
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Leave awaiting approval</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{pipeline.pendingLeave}</p>
+        </Link>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Approved leave upcoming</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{pipeline.approvedUpcoming}</p>
+        </div>
+        <Link
+          href="#reviews"
+          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#d4147a]/30"
+        >
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Credentials pending review</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{pipeline.pendingCredentials}</p>
+        </Link>
+      </section>
       <WorkforceReviewQueuePanel />
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
@@ -270,7 +307,7 @@ export function WorkforcePlanningPage() {
       </section>
 
       {canSubmitOnBehalf ? (
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section id="submit-leave" className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Submit leave on behalf</h2>
           <p className="mt-1 text-sm text-slate-600">
             Enter leave for an employee who cannot use My workplace themselves. The request appears on their employee record for approval.

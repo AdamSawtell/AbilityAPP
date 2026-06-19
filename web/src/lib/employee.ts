@@ -638,7 +638,21 @@ export const initialEmployees: EmployeeRecord[] = [
       { id: "skill-gab-en", lineNo: 1, skillType: "Language", name: "English", proficiency: "Native", notes: "" },
       { id: "skill-gab-es", lineNo: 2, skillType: "Language", name: "Spanish", proficiency: "Fluent", notes: "" },
     ],
-    documents: [],
+    documents: [
+      {
+        id: "doc-gab-contract",
+        lineNo: 1,
+        documentType: "Employment contract",
+        name: "Part-time employment agreement",
+        documentRef: "https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.pdf",
+        issueDate: "2020-06-15",
+        expiryDate: "",
+        status: "Current",
+        notes: "",
+        staffVisible: true,
+        requiresAcknowledgement: true,
+      },
+    ],
     activities: [],
     leaveEntitlements: [
       {

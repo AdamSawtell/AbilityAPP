@@ -17,10 +17,9 @@ import { taskAssignedToRole, taskAssignedToUser, type TaskListView } from "@/lib
 import { useTaskTypes } from "@/lib/task-type-store";
 import { canSeeTaskType } from "@/lib/task-type-access";
 import {
-  entityHref,
   isActiveTask,
   logTaskUpdate,
-  taskEntityTypeLabels,
+  taskRelatedLinks,
   type TaskRecord,
   type TaskStatus,
 } from "@/lib/task";
@@ -435,20 +434,24 @@ export function TaskDetailView({ id }: { id: string }) {
             </dl>
           </section>
 
-          {liveTask.entityId && liveTask.entityType ? (
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-3 text-sm font-semibold text-slate-900">Related record</h2>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                {taskEntityTypeLabels[liveTask.entityType]}
-              </p>
-              <Link
-                href={entityHref(liveTask.entityType, liveTask.entityId)}
-                className="mt-1 block text-sm font-medium text-[#b51266] hover:underline"
-              >
-                {liveTask.entityLabel || liveTask.entityId}
-              </Link>
-            </section>
-          ) : null}
+          {(() => {
+            const links = taskRelatedLinks(liveTask);
+            if (!links.length) return null;
+            return (
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 className="mb-3 text-sm font-semibold text-slate-900">Related record</h2>
+                <ul className="space-y-2">
+                  {links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className="text-sm font-medium text-[#b51266] hover:underline">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })()}
         </aside>
       </div>
 

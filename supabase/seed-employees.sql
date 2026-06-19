@@ -293,6 +293,34 @@ values
     '',
     true,
     true
+  ),
+  (
+    'doc-gab-contract',
+    'emp-gabriela',
+    1,
+    'Employment contract',
+    'Part-time employment agreement',
+    'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.pdf',
+    '2020-06-15',
+    null,
+    'Current',
+    '',
+    true,
+    true
+  ),
+  (
+    'emp-doc-sw-001-contract',
+    'emp-sw-001',
+    1,
+    'Employment contract',
+    'Casual employment agreement',
+    'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.pdf',
+    '2024-03-01',
+    null,
+    'Current',
+    'Review terms and acknowledge in My workplace.',
+    true,
+    true
   )
 on conflict (id) do update set
   name = excluded.name,

@@ -117,6 +117,47 @@ export function entityHref(entityType: TaskEntityType, entityId: string): string
   }
 }
 
+export const WORKFORCE_LEAVE_AUTOMATION_RULE = "tar-employee-leave-requested";
+export const WORKFORCE_CREDENTIAL_AUTOMATION_RULE = "tar-employee-credential-pending-review";
+
+export type TaskRelatedLink = { href: string; label: string };
+
+/** Primary action links for automation-created workforce tasks. */
+export function taskRelatedLinks(task: TaskRecord): TaskRelatedLink[] {
+  const links: TaskRelatedLink[] = [];
+
+  if (
+    task.automationRuleId === WORKFORCE_LEAVE_AUTOMATION_RULE ||
+    task.automationRuleId === WORKFORCE_CREDENTIAL_AUTOMATION_RULE
+  ) {
+    links.push({ href: "/workforce-planning#reviews", label: "Workforce review queue" });
+  }
+
+  if (task.entityType === "employee" && task.entityId) {
+    let tab: string | undefined;
+    if (task.automationRuleId === WORKFORCE_LEAVE_AUTOMATION_RULE) tab = "Leave";
+    if (task.automationRuleId === WORKFORCE_CREDENTIAL_AUTOMATION_RULE) tab = "Credentials";
+
+    const href = tab
+      ? `/employees/${task.entityId}?tab=${encodeURIComponent(tab)}`
+      : entityHref("employee", task.entityId);
+
+    links.push({
+      href,
+      label: task.entityLabel?.trim() || "Employee record",
+    });
+  }
+
+  if (!links.length && task.entityType && task.entityId) {
+    links.push({
+      href: entityHref(task.entityType, task.entityId),
+      label: task.entityLabel?.trim() || taskEntityTypeLabels[task.entityType],
+    });
+  }
+
+  return links;
+}
+
 export function isActiveTask(task: TaskRecord) {
   return task.status === "Open" || task.status === "In progress";
 }

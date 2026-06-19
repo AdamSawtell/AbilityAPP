@@ -135,7 +135,7 @@ export const bulkEmployees: EmployeeRecord[] = [
         lineNo: 1,
         documentType: "Employment contract",
         name: "Casual employment agreement",
-        documentRef: "HR-CON-2024-001",
+        documentRef: "https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.pdf",
         issueDate: "2024-03-01",
         expiryDate: "",
         status: "Current",

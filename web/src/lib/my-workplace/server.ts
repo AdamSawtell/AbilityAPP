@@ -35,7 +35,7 @@ import {
   myWorkplaceCredentialPendingEvent,
   myWorkplaceLeaveRequestedEvent,
 } from "@/lib/task-automation/employee-triggers";
-import { runServerAutomationEvents } from "@/lib/task-automation/run-server";
+import { closeWorkforceAutomationTasks, runServerAutomationEvents } from "@/lib/task-automation/run-server";
 import {
   isStaffContractDocument,
   type MyCredentialSubmitPayload,
@@ -454,7 +454,15 @@ export async function submitLeaveOnBehalf(
   };
 
   if (isSupabaseConfigured()) {
-    await persistMyLeaveRequest(serviceClient(), employeeId, request, activity);
+    const supabase = serviceClient();
+    await persistMyLeaveRequest(supabase, employeeId, request, activity);
+    const updatedEmployee = normalizeEmployee({
+      ...employee,
+      leaveRequests: [...employee.leaveRequests, request],
+    });
+    await runServerAutomationEvents(supabase, [
+      myWorkplaceLeaveRequestedEvent(updatedEmployee, request),
+    ]);
   }
 
   const next = normalizeEmployee({

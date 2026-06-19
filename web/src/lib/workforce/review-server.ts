@@ -5,6 +5,7 @@ import type { EmployeeCredentialRow, EmployeeLeaveRequestRow, EmployeeRecord } f
 import { initialEmployees } from "@/lib/employee";
 import { loadMyEmployee } from "@/lib/my-workplace/server";
 import { persistCredentialReview, persistLeaveEntitlementBalance, persistLeaveReview } from "@/lib/my-workplace/persist";
+import { closeWorkforceAutomationTasks } from "@/lib/task-automation/run-server";
 import { fetchUsers } from "@/lib/supabase/access-api";
 import {
   employeeCredentialFromRow,
@@ -199,6 +200,13 @@ export async function applyWorkforceReview(
         reviewedBy: session.displayName,
         reviewedAt: now,
       }, activity);
+      await closeWorkforceAutomationTasks(serviceClient(), {
+        type: "credential",
+        employeeId: action.employeeId,
+        credentialId: action.credentialId,
+        reviewerName: session.displayName,
+        summary: `${credential.credentialType} — ${status}`,
+      });
     }
 
     const reloaded = await loadMyEmployee(action.employeeId);
@@ -251,6 +259,14 @@ export async function applyWorkforceReview(
         );
       }
     }
+
+    await closeWorkforceAutomationTasks(serviceClient(), {
+      type: "leave",
+      employeeId: action.employeeId,
+      requestId: action.requestId,
+      reviewerName: session.displayName,
+      summary: `${request.leaveType}: ${request.startDate} to ${request.endDate} — ${status}`,
+    });
   }
 
   const reloaded = await loadMyEmployee(action.employeeId);

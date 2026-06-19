@@ -1,14 +1,23 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchUsers } from "@/lib/supabase/access-api";
+import { fetchAllData, fetchIncidents, fetchTaskAutomations, fetchTasks, saveTask } from "@/lib/supabase/data-api";
 import { fetchOrganization } from "@/lib/supabase/organization-api";
 import { fetchOrgStructure } from "@/lib/supabase/org-structure-api";
-import { fetchTaskAutomations, fetchTasks, saveTask } from "@/lib/supabase/data-api";
 import { investigationSlaDays } from "@/lib/incident-analytics";
 import type { EmployeeRecord } from "@/lib/employee";
 import type { OrgAutomationContext } from "@/lib/org-automation-context";
+import { automationDedupeKey } from "@/lib/task-automation";
 import type { AutomationEvent } from "@/lib/task-automation/events";
-import { evaluateAutomationEvents } from "@/lib/task-automation/engine";
-import { createTask, describeAssignee, logTaskUpdate } from "@/lib/task";
+import { evaluateAutomationEvents, evaluateScheduledAutomations } from "@/lib/task-automation/engine";
+import {
+  createTask,
+  describeAssignee,
+  isActiveTask,
+  logTaskUpdate,
+  WORKFORCE_CREDENTIAL_AUTOMATION_RULE,
+  WORKFORCE_LEAVE_AUTOMATION_RULE,
+} from "@/lib/task";
+import type { AutomationTaskDraft } from "@/lib/task-automation/engine";
 
 async function loadOrgAutomationContext(supabase: SupabaseClient): Promise<OrgAutomationContext> {
   const [structure, users, empRes] = await Promise.all([
@@ -47,6 +56,30 @@ async function readInvestigationSlaDays(supabase: SupabaseClient): Promise<numbe
   }
 }
 
+async function persistAutomationDrafts(
+  supabase: SupabaseClient,
+  drafts: AutomationTaskDraft[],
+  tasks: Awaited<ReturnType<typeof fetchTasks>>
+): Promise<number> {
+  if (!drafts.length) return 0;
+
+  let working = [...tasks];
+  for (const draft of drafts) {
+    const base = createTask({ ...draft, updates: [] }, working);
+    const created = logTaskUpdate(base, {
+      byUserId: "",
+      byName: draft.createdBy,
+      action: "created",
+      summary: `Created automatically and assigned to ${describeAssignee(base)}`,
+      detail: draft.entityLabel ? `Linked to ${draft.entityLabel}.` : draft.description || "",
+    });
+    await saveTask(supabase, created);
+    working = [...working, created];
+  }
+
+  return drafts.length;
+}
+
 /** Evaluate automation rules server-side and persist created tasks (My Workplace API paths). */
 export async function runServerAutomationEvents(
   supabase: SupabaseClient,
@@ -71,21 +104,75 @@ export async function runServerAutomationEvents(
     org,
   });
 
-  if (!drafts.length) return 0;
+  return persistAutomationDrafts(supabase, drafts, tasks);
+}
 
-  let working = [...tasks];
-  for (const draft of drafts) {
-    const base = createTask({ ...draft, updates: [] }, working);
-    const created = logTaskUpdate(base, {
-      byUserId: "",
-      byName: draft.createdBy,
-      action: "created",
-      summary: `Created automatically and assigned to ${describeAssignee(base)}`,
-      detail: draft.entityLabel ? `Linked to ${draft.entityLabel}.` : draft.description || "",
-    });
-    await saveTask(supabase, created);
-    working = [...working, created];
+/** Scheduled credential expiry and incident SLA automations — for cron or admin trigger. */
+export async function runServerScheduledAutomations(supabase: SupabaseClient): Promise<number> {
+  const [rules, tasks, org, slaDays, incidents, data] = await Promise.all([
+    fetchTaskAutomations(supabase),
+    fetchTasks(supabase),
+    loadOrgAutomationContext(supabase),
+    readInvestigationSlaDays(supabase),
+    fetchIncidents(supabase),
+    fetchAllData(supabase),
+  ]);
+
+  if (!rules.some((rule) => rule.active)) return 0;
+
+  const { drafts } = evaluateScheduledAutomations({
+    incidents,
+    employees: data.employees,
+    rules,
+    tasks,
+    investigationSlaDays: slaDays,
+    org,
+  });
+
+  return persistAutomationDrafts(supabase, drafts, tasks);
+}
+
+export type WorkforceAutomationCloseInput =
+  | { type: "leave"; employeeId: string; requestId: string; summary: string; reviewerName: string }
+  | { type: "credential"; employeeId: string; credentialId: string; summary: string; reviewerName: string };
+
+/** Close open automation tasks when a workforce review action completes the loop. */
+export async function closeWorkforceAutomationTasks(
+  supabase: SupabaseClient,
+  input: WorkforceAutomationCloseInput
+): Promise<number> {
+  const ruleId =
+    input.type === "leave" ? WORKFORCE_LEAVE_AUTOMATION_RULE : WORKFORCE_CREDENTIAL_AUTOMATION_RULE;
+  const lineId = input.type === "leave" ? input.requestId : input.credentialId;
+  const dedupeKey = automationDedupeKey(ruleId, "employee", `${input.employeeId}:${lineId}`);
+
+  const tasks = await fetchTasks(supabase);
+  let closed = 0;
+  const now = new Date().toISOString();
+
+  for (const task of tasks) {
+    if (!isActiveTask(task)) continue;
+    if (task.automationDedupeKey !== dedupeKey) continue;
+
+    const completed = logTaskUpdate(
+      {
+        ...task,
+        status: "Completed",
+        completedBy: input.reviewerName,
+        completedAt: now,
+        resolutionNotes: input.summary,
+      },
+      {
+        byUserId: "",
+        byName: input.reviewerName,
+        action: "closed",
+        summary: "Closed — workforce review completed",
+        detail: input.summary,
+      }
+    );
+    await saveTask(supabase, completed);
+    closed += 1;
   }
 
-  return drafts.length;
+  return closed;
 }

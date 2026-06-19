@@ -32,6 +32,15 @@ Support coordinators and general operations executives do **not** receive review
 
 When leave is **approved**, `days_requested` is deducted from the matching `employee_leave_entitlement.balance_days` row (same leave type). Submit already validates against the current balance.
 
+### Task loop
+
+- Submitting leave (self-service or on behalf) creates a `tt-approve` task for the reports-to manager.
+- Submitting a credential creates a `tt-review` task for HR officer role.
+- Completing the action in **Workforce review queue** auto-closes the matching automation task.
+- Task detail shows links to the review queue and the employee Leave/Credentials tab.
+
+Scheduled credential expiry tasks: `POST /api/workforce/automation/scheduled` (workforce-planning access) or the client `TaskAutomationRunner` on login.
+
 ### Contract documents
 
-Staff-visible contracts store a **viewable URL** in `employee_document.document_ref` (HTTPS PDF). The My Contracts viewer embeds URLs; plain text refs are shown as reference-only fallbacks.
+Staff-visible contracts store a **viewable URL** in `employee_document.document_ref` (HTTPS PDF). Demo rows: Isla, Gabriela, Ava Thomas (`emp-sw-001`). The My Contracts viewer embeds URLs; plain text refs are reference-only fallbacks.
