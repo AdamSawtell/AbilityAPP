@@ -1,4 +1,5 @@
 import { ALL_PROCESS_IDS, APP_WINDOW_KEYS, MY_WORKPLACE_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
+import { withHomePanels } from "@/lib/access/home-panels";
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
@@ -204,5 +205,13 @@ export function defineRole(
   description: string,
   access: Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions">
 ): AppRoleRecord {
-  return { id, roleKey, name, description, active: true, ...access };
+  return {
+    id,
+    roleKey,
+    name,
+    description,
+    active: true,
+    ...access,
+    windowKeys: withHomePanels(access.windowKeys),
+  };
 }

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
 import { ACCESS_PROCESSES, ACCESS_WINDOWS, appChildWindows, appRoleWindows, sanitizeAppWindowKeys } from "@/lib/access/catalog";
+import { HOME_PANEL_KEYS, homePanelsForRoleEditor } from "@/lib/access/home-panels";
 import type { AppRoleRecord } from "@/lib/access/types";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { useAuth } from "@/lib/auth-store";
@@ -64,6 +65,10 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
     let nextKeys = has
       ? record.windowKeys.filter((k) => k !== key)
       : [...record.windowKeys, key];
+
+    if (!has && key === "home") {
+      nextKeys = [...nextKeys, "home-prompt", "home-needs-attention", "home-today"];
+    }
 
     if (has && win && !win.parentWindowKey) {
       const dependents = appChildWindows(key).map((c) => c.key);
@@ -205,9 +210,11 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                             />
                             {w.label}
                           </label>
-                          {appChildWindows(w.key).length > 0 ? (
+                          {appChildWindows(w.key).filter((child) => !HOME_PANEL_KEYS.includes(child.key)).length > 0 ? (
                             <div className="ml-4 mt-2 flex flex-wrap gap-2 border-l border-slate-200 pl-3">
-                              {appChildWindows(w.key).map((child) => (
+                              {appChildWindows(w.key)
+                                .filter((child) => !HOME_PANEL_KEYS.includes(child.key))
+                                .map((child) => (
                                 <label
                                   key={child.key}
                                   title={child.abilityErpName}
@@ -236,6 +243,50 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                 );
                 })}
               </section>
+
+              {record.windowKeys.includes("home") ? (
+                <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <h2 className="mb-3 text-sm font-semibold text-slate-900">Home dashboard panels</h2>
+                  <p className="mb-4 text-xs text-slate-500">
+                    Control what appears on the Home landing page for this role. Module-linked panels require the
+                    matching module window (e.g. Enquiries count needs Enquiries).
+                  </p>
+                  <div className="space-y-2">
+                    {homePanelsForRoleEditor(record.windowKeys).map((panel) => {
+                      const moduleMissing = Boolean(
+                        panel.requiresWindowKey && !record.windowKeys.includes(panel.requiresWindowKey)
+                      );
+                      return (
+                        <label
+                          key={panel.key}
+                          className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 ${
+                            record.windowKeys.includes(panel.key)
+                              ? "border-[#d4147a] bg-[#fdf2f8]"
+                              : "border-slate-200"
+                          } ${moduleMissing ? "opacity-50" : ""}`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-0.5"
+                            disabled={moduleMissing}
+                            checked={record.windowKeys.includes(panel.key)}
+                            onChange={() => toggleWindow(panel.key)}
+                          />
+                          <span>
+                            <span className="block text-sm font-medium text-slate-900">{panel.label}</span>
+                            <span className="text-xs text-slate-500">{panel.description}</span>
+                            {moduleMissing ? (
+                              <span className="mt-1 block text-xs text-amber-700">
+                                Requires {panel.requiresWindowKey} module access
+                              </span>
+                            ) : null}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null}
 
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 className="mb-3 text-sm font-semibold text-slate-900">Processes</h2>

@@ -1,9 +1,16 @@
 import type { ChatMessage, ChatThreadState } from "@/lib/ai/types";
 
 const NOTICE_PREFIX = "abilityapp-ai-chat-notice";
+const PROMPT_PREFIX = "abilityapp-ai-chat-prompt";
 
 export type PendingChatNotice = {
   message: string;
+  at: string;
+};
+
+export type PendingChatPrompt = {
+  text: string;
+  autoSend: boolean;
   at: string;
 };
 
@@ -23,6 +30,45 @@ export function queueChatNotice(userId: string, roleId: string, message: string)
     );
   } catch {
     // ignore
+  }
+}
+
+function promptKey(userId: string, roleId: string) {
+  return `${PROMPT_PREFIX}:${userId}:${roleId}`;
+}
+
+/** Queue a prompt for the sidebar assistant (prefill or auto-send). */
+export function queueChatPrompt(
+  userId: string,
+  roleId: string,
+  text: string,
+  autoSend = true
+) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(
+      promptKey(userId, roleId),
+      JSON.stringify({ text, autoSend, at: new Date().toISOString() } satisfies PendingChatPrompt)
+    );
+    window.dispatchEvent(
+      new CustomEvent("abilityapp-chat-prompt", { detail: { userId, roleId } })
+    );
+  } catch {
+    // ignore
+  }
+}
+
+export function consumeChatPrompt(userId: string, roleId: string): PendingChatPrompt | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(promptKey(userId, roleId));
+    if (!raw) return null;
+    sessionStorage.removeItem(promptKey(userId, roleId));
+    const parsed = JSON.parse(raw) as PendingChatPrompt;
+    if (!parsed?.text?.trim()) return null;
+    return parsed;
+  } catch {
+    return null;
   }
 }
 

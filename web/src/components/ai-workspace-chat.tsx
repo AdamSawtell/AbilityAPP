@@ -12,6 +12,7 @@ import { PrepareReviewModal } from "@/components/prepare-review-modal";
 import {
   clearHomeChatSession,
   consumeChatNotice,
+  consumeChatPrompt,
   loadHomeChatSession,
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
@@ -282,6 +283,35 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
     },
     [agentId, input, loading, pathname]
   );
+
+  const applyPromptIfAny = useCallback(() => {
+    if (!session) return;
+    const prompt = consumeChatPrompt(session.userId, session.activeRoleId);
+    if (!prompt) return;
+    if (prompt.autoSend) {
+      void sendMessage(prompt.text);
+    } else {
+      setInput(prompt.text);
+      focusComposer();
+    }
+  }, [session, focusComposer, sendMessage]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    applyPromptIfAny();
+  }, [hydrated, applyPromptIfAny]);
+
+  useEffect(() => {
+    if (!session) return;
+    const onPrompt = (event: Event) => {
+      const detail = (event as CustomEvent<{ userId: string; roleId: string }>).detail;
+      if (detail?.userId === session.userId && detail?.roleId === session.activeRoleId) {
+        applyPromptIfAny();
+      }
+    };
+    window.addEventListener("abilityapp-chat-prompt", onPrompt);
+    return () => window.removeEventListener("abilityapp-chat-prompt", onPrompt);
+  }, [session, applyPromptIfAny]);
 
   const resetChat = useCallback(() => {
     setMessages([]);

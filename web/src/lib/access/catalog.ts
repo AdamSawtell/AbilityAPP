@@ -25,6 +25,7 @@ import {
   SERVICE_BOOKING_DEPENDENT_WINDOWS,
   tabToWindowSlug,
 } from "@/lib/access/detail-windows";
+import { homePanelAccessWindows } from "@/lib/access/home-panels";
 import type { AccessProcess, AccessWindow } from "@/lib/access/catalog-types";
 
 export type { AccessProcess, AccessWindow, AccessWindowGroup, AccessWindowSurface } from "@/lib/access/catalog-types";
@@ -393,6 +394,7 @@ const ADMIN_WINDOWS: AccessWindow[] = [
 
 export const ACCESS_WINDOWS: AccessWindow[] = [
   ...PARENT_WINDOWS,
+  ...homePanelAccessWindows(),
   ...TASK_WINDOWS,
   MODULE_WINDOWS[0],
   ...ENQUIRY_DEPENDENT_WINDOWS,

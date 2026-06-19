@@ -2,6 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
+export const HOME_AI_PANEL_WIDTH = 440;
+
 const COLLAPSED_KEY = "abilityapp-ai-chat-collapsed";
 const WIDTH_KEY = "abilityapp-ai-chat-width";
 const MIN_WIDTH = 280;

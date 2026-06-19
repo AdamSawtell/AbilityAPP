@@ -14,7 +14,8 @@ import type { Breadcrumb } from "@/components/app-shell";
 import Link from "next/link";
 import { organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { HOME_AI_PANEL_WIDTH } from "@/lib/ai/chat-shell-store";
 
 function ChatResizeHandle({ onResize }: { onResize: (deltaX: number) => void }) {
   const dragging = useRef(false);
@@ -76,8 +77,17 @@ export function WorkspaceChrome({
   const orgName = organizationDisplayName(organization);
   const pathname = usePathname();
   const { session } = useAuth();
-  const { collapsed, panelWidth, toggleCollapsed, setPanelWidth } = useAiChatShell();
+  const { collapsed, panelWidth, toggleCollapsed, setPanelWidth, setCollapsed } = useAiChatShell();
   const showChat = Boolean(session) && pathname !== "/login";
+  const prevPathRef = useRef(pathname);
+
+  useEffect(() => {
+    const enteredHome = pathname === "/" && prevPathRef.current !== "/";
+    prevPathRef.current = pathname;
+    if (!enteredHome || !showChat) return;
+    setCollapsed(false);
+    setPanelWidth((width) => Math.max(width, HOME_AI_PANEL_WIDTH));
+  }, [pathname, showChat, setCollapsed, setPanelWidth]);
 
   const handleResize = useCallback(
     (deltaX: number) => {

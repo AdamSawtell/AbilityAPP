@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/types";
 import { userInitials } from "@/lib/access/types";
 import { canAccessWindow, processById } from "@/lib/access/catalog";
+import { canHomePanel } from "@/lib/access/home-panels";
 import { canAccessReport } from "@/lib/reports/catalog";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -27,6 +28,7 @@ type AuthStore = {
   logout: () => Promise<void>;
   switchRole: (roleId: string) => Promise<void>;
   canWindow: (key: string) => boolean;
+  canHomePanel: (panelKey: string) => boolean;
   canProcess: (processId: string) => boolean;
   canReport: (reportId: string) => boolean;
   canAgent: (agentId: string) => boolean;
@@ -185,6 +187,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (key: string) => (session ? canAccessWindow(session.windowKeys, key) : false),
     [session]
   );
+
+  const canHomePanelFn = useCallback(
+    (panelKey: string) => (session ? canHomePanel(session.windowKeys, panelKey) : false),
+    [session]
+  );
   const canProcess = useCallback(
     (processId: string) => {
       if (!session?.processIds.includes(processId)) return false;
@@ -277,6 +284,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       switchRole,
       canWindow,
+      canHomePanel: canHomePanelFn,
       canProcess,
       canReport,
       canAgent,
@@ -296,6 +304,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       switchRole,
       canWindow,
+      canHomePanelFn,
       canProcess,
       canReport,
       canAgent,
