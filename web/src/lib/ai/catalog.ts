@@ -1,4 +1,8 @@
 import type { AiToolName } from "@/lib/ai/types";
+import {
+  GUIDED_ACTIVITY_SKILL_HINT,
+  GUIDED_PREPARE_SKILL_HINT,
+} from "@/lib/ai/guided-prepare-policy";
 
 /** Menu area — aligned with workspace sidebar modules. */
 export type AiToolModule =
@@ -21,6 +25,8 @@ export type AiToolDefinition = {
   description: string;
   module: AiToolModule;
   kind: AiToolKind;
+  /** Optional hint for the system prompt — shown in admin when assigning skills. */
+  skillHint?: string;
   /** Legacy confirm/save tools superseded by *_prepare. Hidden in admin unless toggled. */
   deprecated?: boolean;
 };
@@ -95,6 +101,30 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     kind: "read",
   },
   {
+    key: "client_activity_recent",
+    label: "Last 5 activity notes (fetch)",
+    description: "Load the client's most recent activity notes with full text.",
+    skillHint:
+      "Use purpose=summary for handover recaps; purpose=coach before helping write a new note.",
+    module: "clients",
+    kind: "read",
+  },
+  {
+    key: "client_safety_profile",
+    label: "Client safety profile",
+    description: "Alerts, consents, risks, and service locations for a client.",
+    skillHint: "Use before visits, rostering, or handover when safety context matters.",
+    module: "clients",
+    kind: "read",
+  },
+  {
+    key: "client_tasks_open",
+    label: "Client open tasks",
+    description: "Open and in-progress tasks linked to a client.",
+    module: "clients",
+    kind: "read",
+  },
+  {
     key: "client_list_recent",
     label: "Recently updated clients",
     description: "List clients updated within the last N hours.",
@@ -105,6 +135,7 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     key: "client_create_prepare",
     label: "Prepare new client (review & save)",
     description: "Fill a new client form for the user to review and save — does not write to the database.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
     module: "clients",
     kind: "prepare",
   },
@@ -112,6 +143,7 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     key: "client_patch_prepare",
     label: "Prepare client field update",
     description: "Open an existing client with suggested field changes for human review and save.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
     module: "clients",
     kind: "prepare",
   },
@@ -119,6 +151,15 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     key: "client_activity_prepare",
     label: "Prepare client activity note",
     description: "Open a client Activity tab with a prepared note for human review and save.",
+    skillHint: GUIDED_ACTIVITY_SKILL_HINT,
+    module: "clients",
+    kind: "prepare",
+  },
+  {
+    key: "client_task_prepare",
+    label: "Prepare client follow-up task",
+    description: "Open a new task form linked to a client for human review and save.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
     module: "clients",
     kind: "prepare",
   },
@@ -185,9 +226,25 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     kind: "read",
   },
   {
+    key: "enquiry_list_recent",
+    label: "Recently updated enquiries",
+    description: "List enquiries updated within the last N hours.",
+    module: "enquiries",
+    kind: "read",
+  },
+  {
     key: "enquiry_create_prepare",
     label: "Prepare new enquiry (review & save)",
     description: "Fill a new enquiry form for the user to review and create.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
+    module: "enquiries",
+    kind: "prepare",
+  },
+  {
+    key: "enquiry_task_prepare",
+    label: "Prepare enquiry follow-up task",
+    description: "Open a new task form linked to an enquiry for human review and save.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
     module: "enquiries",
     kind: "prepare",
   },
@@ -231,9 +288,33 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     kind: "read",
   },
   {
+    key: "task_list_mine",
+    label: "My active tasks",
+    description: "Tasks assigned to the signed-in user or their current role.",
+    skillHint: "Use scope=role for tasks assigned to the user's role.",
+    module: "tasks",
+    kind: "read",
+  },
+  {
+    key: "task_list_overdue",
+    label: "Overdue tasks",
+    description: "Active tasks past due date that the user can see.",
+    module: "tasks",
+    kind: "read",
+  },
+  {
     key: "task_create_prepare",
     label: "Prepare new task (review & save)",
     description: "Fill a new task form for the user to review and create — does not write to the database.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
+    module: "tasks",
+    kind: "prepare",
+  },
+  {
+    key: "task_update_prepare",
+    label: "Prepare task update",
+    description: "Open a task with a suggested note, completion, reassignment, or status change for human review.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
     module: "tasks",
     kind: "prepare",
   },
@@ -308,6 +389,15 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     key: "incident_create_prepare",
     label: "Prepare incident report (review & submit)",
     description: "Pre-fill the incident wizard for human review and submit.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
+    module: "incidents",
+    kind: "prepare",
+  },
+  {
+    key: "incident_task_prepare",
+    label: "Prepare incident follow-up task",
+    description: "Open a new task form linked to an incident for human review and save.",
+    skillHint: GUIDED_PREPARE_SKILL_HINT,
     module: "incidents",
     kind: "prepare",
   },
@@ -343,6 +433,13 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
     kind: "write",
     deprecated: true,
   },
+  {
+    key: "employee_search",
+    label: "Employee search",
+    description: "Find staff by name, search key, email, or job title.",
+    module: "people",
+    kind: "read",
+  },
 ];
 
 export const AI_MODEL_OPTIONS = [
@@ -368,4 +465,24 @@ export function toolsGroupedByModule(
     label: AI_TOOL_MODULE_LABELS[module],
     tools: tools.filter((t) => t.module === module),
   })).filter((group) => group.tools.length > 0);
+}
+
+const KIND_ORDER: AiToolKind[] = ["read", "prepare", "workflow", "write"];
+
+export function toolsGroupedByModuleAndKind(
+  tools: AiToolDefinition[] = AI_TOOL_CATALOG
+): {
+  module: AiToolModule;
+  label: string;
+  kinds: { kind: AiToolKind; label: string; tools: AiToolDefinition[] }[];
+}[] {
+  return toolsGroupedByModule(tools).map((group) => ({
+    module: group.module,
+    label: group.label,
+    kinds: KIND_ORDER.map((kind) => ({
+      kind,
+      label: AI_TOOL_KIND_LABELS[kind],
+      tools: group.tools.filter((t) => t.kind === kind),
+    })).filter((k) => k.tools.length > 0),
+  }));
 }

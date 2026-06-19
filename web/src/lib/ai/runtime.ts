@@ -21,6 +21,19 @@ import { runClientDraftConfirm, runClientDraftCreate } from "@/lib/ai/tools/clie
 import { runClientCreatePrepare } from "@/lib/ai/tools/client-create-prepare";
 import { runClientPatchPrepare } from "@/lib/ai/tools/client-patch-prepare";
 import { runClientActivityPrepare } from "@/lib/ai/tools/client-activity-prepare";
+import { runClientActivityRecent } from "@/lib/ai/tools/client-activity-recent";
+import { runClientSafetyProfile } from "@/lib/ai/tools/client-safety-profile";
+import { runClientTasksOpen } from "@/lib/ai/tools/client-tasks-open";
+import { runEnquiryListRecent } from "@/lib/ai/tools/enquiry-list-recent";
+import { runTaskListMine } from "@/lib/ai/tools/task-list-mine";
+import { runTaskListOverdue } from "@/lib/ai/tools/task-list-overdue";
+import { runEmployeeSearch } from "@/lib/ai/tools/employee-search";
+import {
+  runClientTaskPrepare,
+  runEnquiryTaskPrepare,
+  runIncidentTaskPrepare,
+  runTaskUpdatePrepare,
+} from "@/lib/ai/tools/linked-task-prepare";
 import { runEnquiryCreatePrepare } from "@/lib/ai/tools/enquiry-create-prepare";
 import { runTaskCreatePrepare } from "@/lib/ai/tools/task-create-prepare";
 import { runIncidentCreatePrepare } from "@/lib/ai/tools/incident-create-prepare";
@@ -45,7 +58,7 @@ import { runIncidentDraftConfirm, runIncidentDraftCreate } from "@/lib/ai/tools/
 import { runIncidentUpdateDraftConfirm, runIncidentUpdateDraftCreate } from "@/lib/ai/tools/incident-update";
 import { persistAiIncident } from "@/lib/ai/persist";
 
-const MAX_TOOL_ROUNDS = 6;
+import { GUIDED_PREPARE_POLICY } from "@/lib/ai/guided-prepare-policy";
 
 function readOpenAiKey(): string | undefined {
   return process.env.OPENAI_API_KEY?.trim() || undefined;
@@ -61,8 +74,9 @@ function openAiClient(): OpenAI {
   return new OpenAI({ apiKey });
 }
 
-const PREPARE_POLICY =
-  "You never save records to the database yourself. Use *_prepare tools to open review forms; the user must click Save. Legacy *_confirm tools are disabled.";
+const MAX_TOOL_ROUNDS = 6;
+
+const PREPARE_POLICY = GUIDED_PREPARE_POLICY;
 
 function prepareToolResult(
   out: {
@@ -183,6 +197,45 @@ async function executeTool(
         threadState,
       };
     }
+    case "client_activity_recent": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runClientActivityRecent(supabase, session, {
+          clientId: args.clientId as string | undefined,
+          searchKey: args.searchKey as string | undefined,
+          name: args.name as string | undefined,
+          clientName: args.clientName as string | undefined,
+          limit: Number(args.limit) || 5,
+          purpose: String(args.purpose ?? "summary"),
+        }),
+        threadState,
+      };
+    }
+    case "client_safety_profile": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runClientSafetyProfile(supabase, session, {
+          clientId: args.clientId as string | undefined,
+          searchKey: args.searchKey as string | undefined,
+          name: args.name as string | undefined,
+          clientName: args.clientName as string | undefined,
+        }),
+        threadState,
+      };
+    }
+    case "client_tasks_open": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runClientTasksOpen(supabase, session, {
+          clientId: args.clientId as string | undefined,
+          searchKey: args.searchKey as string | undefined,
+          name: args.name as string | undefined,
+          clientName: args.clientName as string | undefined,
+          limit: Number(args.limit) || 15,
+        }),
+        threadState,
+      };
+    }
     case "client_list_recent": {
       if (!supabase) return { result: { error: "Database not configured" }, threadState };
       return {
@@ -215,6 +268,25 @@ async function executeTool(
         threadState,
       };
     }
+    case "task_list_mine": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runTaskListMine(supabase, session, {
+          scope: String(args.scope ?? "user"),
+          limit: Number(args.limit) || 20,
+        }),
+        threadState,
+      };
+    }
+    case "task_list_overdue": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runTaskListOverdue(supabase, session, {
+          limit: Number(args.limit) || 20,
+        }),
+        threadState,
+      };
+    }
     case "task_draft_create": {
       const out = await runTaskDraftCreate(supabase, session, args, threadState);
       return {
@@ -228,6 +300,10 @@ async function executeTool(
     case "task_create_prepare": {
       const out = await runTaskCreatePrepare(supabase, session, args, threadState);
       return prepareToolResult(out, "task_prepare");
+    }
+    case "task_update_prepare": {
+      const out = await runTaskUpdatePrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "task_update_prepare");
     }
     case "client_create_prepare": {
       const out = await runClientCreatePrepare(supabase, session, args, threadState);
@@ -250,6 +326,10 @@ async function executeTool(
     case "client_activity_prepare": {
       const out = await runClientActivityPrepare(supabase, session, args, threadState);
       return prepareToolResult(out, "client_activity_prepare");
+    }
+    case "client_task_prepare": {
+      const out = await runClientTaskPrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "client_task_prepare");
     }
     case "client_activity_draft_create": {
       const out = await runClientActivityDraftCreate(supabase, session, args, threadState);
@@ -329,6 +409,21 @@ async function executeTool(
     case "enquiry_create_prepare": {
       const out = await runEnquiryCreatePrepare(supabase, session, args, threadState);
       return prepareToolResult(out, "enquiry_prepare");
+    }
+    case "enquiry_list_recent": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runEnquiryListRecent(supabase, session, {
+          hours: Number(args.hours) || 168,
+          limit: Number(args.limit) || 20,
+          status: String(args.status ?? ""),
+        }),
+        threadState,
+      };
+    }
+    case "enquiry_task_prepare": {
+      const out = await runEnquiryTaskPrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "enquiry_task_prepare");
     }
     case "enquiry_convert_draft_create": {
       const out = await runEnquiryConvertDraftCreate(supabase, session, args, threadState);
@@ -418,6 +513,10 @@ async function executeTool(
       const out = await runIncidentCreatePrepare(supabase, session, args, threadState);
       return prepareToolResult(out, "incident_prepare");
     }
+    case "incident_task_prepare": {
+      const out = await runIncidentTaskPrepare(supabase, session, args, threadState);
+      return prepareToolResult(out, "incident_task_prepare");
+    }
     case "incident_update_draft_create": {
       const out = await runIncidentUpdateDraftCreate(supabase, session, args, threadState);
       return {
@@ -441,6 +540,17 @@ async function executeTool(
           label: `${out.incident.documentNo} — ${out.incident.status}`,
           href: out.href ?? `/incidents/${out.incident.id}`,
         },
+      };
+    }
+    case "employee_search": {
+      if (!supabase) return { result: { error: "Database not configured" }, threadState };
+      return {
+        result: await runEmployeeSearch(supabase, session, {
+          query: String(args.query ?? ""),
+          limit: Number(args.limit) || 15,
+          activeOnly: args.activeOnly !== false,
+        }),
+        threadState,
       };
     }
     default:

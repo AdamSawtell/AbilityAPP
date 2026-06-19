@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { TaskActivityTimeline } from "@/components/task-activity-timeline";
@@ -209,6 +209,17 @@ function TaskCreateViewInner() {
 }
 
 export function TaskDetailView({ id }: { id: string }) {
+  return (
+    <Suspense fallback={<p className="p-8 text-sm text-slate-500">Loading…</p>}>
+      <TaskDetailViewInner id={id} />
+    </Suspense>
+  );
+}
+
+function TaskDetailViewInner({ id }: { id: string }) {
+  const searchParams = useSearchParams();
+  const aiDraftId = searchParams.get("aiDraft");
+  const draftLoad = useAiDraftLoader(aiDraftId);
   const { getTaskById, mutateTask } = useData();
   const { session, canProcess, users, roles } = useAuth();
   const { getTaskTypeName } = useTaskTypes();
@@ -218,6 +229,18 @@ export function TaskDetailView({ id }: { id: string }) {
   const [completeOpen, setCompleteOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [resolutionNotes, setResolutionNotes] = useState("");
+  const [draftApplied, setDraftApplied] = useState(false);
+
+  useEffect(() => {
+    const p = draftLoad.payload;
+    if (!p || draftApplied || p.prepareKind !== "update") return;
+    const action = String(p.action ?? "");
+    const note = String(p.note ?? p.resolutionNotes ?? "").trim();
+    if (note) setResolutionNotes(note);
+    if (action === "complete") setCompleteOpen(true);
+    else if (action === "add_note" || action === "reassign" || action === "change_status") setUpdateOpen(true);
+    setDraftApplied(true);
+  }, [draftLoad.payload, draftApplied]);
 
   if (!task || !session || !canSeeTaskType(session, task.taskTypeId)) {
     return (
@@ -364,6 +387,11 @@ export function TaskDetailView({ id }: { id: string }) {
         extraEvents: taskUpdatesToAuditEvents(liveTask.updates),
       }}
     >
+      {aiDraftId && draftLoad.payload ? (
+        <div className="mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          Your assistant prepared a task update. Review the suggested change below, then save on this record.
+        </div>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -419,7 +447,21 @@ export function TaskDetailView({ id }: { id: string }) {
                   roles={roles}
                   canReassign={canReassign}
                   assigneeLabel={assigneeLabel}
-                  onSubmit={submitUpdate}
+                  initialNote={resolutionNotes}
+                  onSubmit={(payload) => {
+                    submitUpdate(payload);
+                    if (aiDraftId && session) {
+                      void trackAiPrepareSaved({
+                        userId: session.userId,
+                        roleId: session.activeRoleId,
+                        draftId: aiDraftId,
+                        entityType: "task",
+                        entityId: liveTask.id,
+                        entityLabel: liveTask.documentNo,
+                        chatMessage: "Task update saved. You can continue in chat.",
+                      });
+                    }
+                  }}
                   onCancel={() => setUpdateOpen(false)}
                 />
               )}

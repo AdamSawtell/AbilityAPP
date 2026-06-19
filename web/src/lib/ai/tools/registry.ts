@@ -67,6 +67,87 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
       },
     },
   },
+  client_activity_recent: {
+    type: "function",
+    function: {
+      name: "client_activity_recent",
+      description:
+        "Get a client's last N activity notes (default 5) with full text. Use purpose=summary for handover summaries; purpose=coach before helping write a new note. Always call this before summarising or coaching on recent notes.",
+      parameters: {
+        type: "object",
+        properties: {
+          clientId: { type: "string" },
+          searchKey: { type: "string" },
+          clientName: { type: "string" },
+          name: { type: "string" },
+          limit: { type: "number", description: "How many notes (default 5, max 10)" },
+          purpose: {
+            type: "string",
+            enum: ["summary", "coach"],
+            description: "summary = summarise for handover; coach = review then ask questions before preparing a new note",
+          },
+        },
+      },
+    },
+  },
+  client_safety_profile: {
+    type: "function",
+    function: {
+      name: "client_safety_profile",
+      description:
+        "Get a client's alerts, consents, risks, and service locations — use before visits or handover when safety context matters.",
+      parameters: {
+        type: "object",
+        properties: {
+          clientId: { type: "string" },
+          searchKey: { type: "string" },
+          clientName: { type: "string" },
+          name: { type: "string" },
+        },
+      },
+    },
+  },
+  client_tasks_open: {
+    type: "function",
+    function: {
+      name: "client_tasks_open",
+      description: "List open or in-progress tasks linked to a client record.",
+      parameters: {
+        type: "object",
+        properties: {
+          clientId: { type: "string" },
+          searchKey: { type: "string" },
+          clientName: { type: "string" },
+          name: { type: "string" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  client_task_prepare: {
+    type: "function",
+    function: {
+      name: "client_task_prepare",
+      description:
+        "Prepare a follow-up task linked to a client for human review and save. Never save yourself.",
+      parameters: {
+        type: "object",
+        properties: {
+          clientId: { type: "string" },
+          searchKey: { type: "string" },
+          clientName: { type: "string" },
+          name: { type: "string" },
+          title: { type: "string", description: "Task title" },
+          description: { type: "string" },
+          dueDate: { type: "string" },
+          priority: { type: "string" },
+          assigneeUserName: { type: "string" },
+          assigneeRoleName: { type: "string" },
+        },
+        required: ["title"],
+      },
+    },
+  },
   client_list_recent: {
     type: "function",
     function: {
@@ -78,6 +159,61 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
           hours: { type: "number", description: "Look back this many hours (default 168)" },
           limit: { type: "number", description: "Max results (default 20)" },
         },
+      },
+    },
+  },
+  task_list_mine: {
+    type: "function",
+    function: {
+      name: "task_list_mine",
+      description:
+        "List active tasks assigned to the signed-in user or their current role, sorted by due date.",
+      parameters: {
+        type: "object",
+        properties: {
+          scope: { type: "string", enum: ["user", "role"], description: "Default user" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  task_list_overdue: {
+    type: "function",
+    function: {
+      name: "task_list_overdue",
+      description: "List overdue active tasks visible to the signed-in user.",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  task_update_prepare: {
+    type: "function",
+    function: {
+      name: "task_update_prepare",
+      description:
+        "Prepare a task update (note, complete, reassign, or status change) for human review on the task record. Never save yourself.",
+      parameters: {
+        type: "object",
+        properties: {
+          taskId: { type: "string" },
+          documentNo: { type: "string" },
+          title: { type: "string" },
+          action: {
+            type: "string",
+            enum: ["complete", "reassign", "add_note", "change_status"],
+          },
+          note: { type: "string" },
+          resolutionNotes: { type: "string" },
+          status: { type: "string" },
+          assignmentType: { type: "string", enum: ["user", "role"] },
+          assigneeUserName: { type: "string" },
+          assigneeRoleName: { type: "string" },
+        },
+        required: ["action"],
       },
     },
   },
@@ -440,6 +576,43 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
       },
     },
   },
+  enquiry_list_recent: {
+    type: "function",
+    function: {
+      name: "enquiry_list_recent",
+      description: "List enquiries updated within the last N hours (default one week).",
+      parameters: {
+        type: "object",
+        properties: {
+          hours: { type: "number" },
+          limit: { type: "number" },
+          status: { type: "string" },
+        },
+      },
+    },
+  },
+  enquiry_task_prepare: {
+    type: "function",
+    function: {
+      name: "enquiry_task_prepare",
+      description: "Prepare a follow-up task linked to an enquiry for human review and save.",
+      parameters: {
+        type: "object",
+        properties: {
+          enquiryId: { type: "string" },
+          documentNo: { type: "string" },
+          enquiryName: { type: "string" },
+          name: { type: "string" },
+          title: { type: "string" },
+          description: { type: "string" },
+          dueDate: { type: "string" },
+          assigneeUserName: { type: "string" },
+          assigneeRoleName: { type: "string" },
+        },
+        required: ["title"],
+      },
+    },
+  },
   enquiry_convert_draft_create: {
     type: "function",
     function: {
@@ -598,6 +771,27 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
       },
     },
   },
+  incident_task_prepare: {
+    type: "function",
+    function: {
+      name: "incident_task_prepare",
+      description: "Prepare a follow-up task linked to an incident for human review and save.",
+      parameters: {
+        type: "object",
+        properties: {
+          incidentId: { type: "string" },
+          documentNo: { type: "string", description: "Incident document number e.g. INC-001" },
+          incidentTitle: { type: "string" },
+          taskTitle: { type: "string", description: "Title for the new task" },
+          description: { type: "string" },
+          dueDate: { type: "string" },
+          assigneeUserName: { type: "string" },
+          assigneeRoleName: { type: "string" },
+        },
+        required: ["taskTitle"],
+      },
+    },
+  },
   incident_update_draft_create: {
     type: "function",
     function: {
@@ -629,6 +823,21 @@ const TOOL_DEFS: Record<AiToolName, ChatCompletionTool> = {
       name: "incident_update_draft_confirm",
       description: "Confirm and save the pending incident update to the database.",
       parameters: { type: "object", properties: {} },
+    },
+  },
+  employee_search: {
+    type: "function",
+    function: {
+      name: "employee_search",
+      description: "Find employees by name, search key, email, or job title.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string" },
+          limit: { type: "number" },
+          activeOnly: { type: "boolean", description: "Default true" },
+        },
+      },
     },
   },
 };

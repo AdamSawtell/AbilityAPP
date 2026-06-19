@@ -23,6 +23,7 @@ type TaskUpdatePanelProps = {
   roles: AppRoleRecord[];
   canReassign: boolean;
   assigneeLabel: string;
+  initialNote?: string;
   onSubmit: (payload: TaskUpdatePayload) => void;
   onCancel: () => void;
 };
@@ -33,10 +34,11 @@ export function TaskUpdatePanel({
   roles,
   canReassign,
   assigneeLabel,
+  initialNote = "",
   onSubmit,
   onCancel,
 }: TaskUpdatePanelProps) {
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(initialNote);
   const [reassignOpen, setReassignOpen] = useState(false);
   const [assignmentType, setAssignmentType] = useState<"user" | "role">(task.assignmentType);
   const [assigneeUserId, setAssigneeUserId] = useState(task.assigneeUserId);

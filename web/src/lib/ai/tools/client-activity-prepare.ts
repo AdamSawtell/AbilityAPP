@@ -4,25 +4,7 @@ import type { ChatThreadState } from "@/lib/ai/types";
 import type { ClientActivityDraft } from "@/lib/ai/persist";
 import { canAccessWindow } from "@/lib/access/catalog";
 import { createAiDraft } from "@/lib/ai/draft-server";
-
-async function resolveClient(
-  supabase: SupabaseClient,
-  args: Record<string, unknown>
-): Promise<{ id: string; name: string; searchKey: string } | null> {
-  const clientId = String(args.clientId ?? "").trim();
-  const searchKey = String(args.searchKey ?? "").trim();
-  const name = String(args.clientName ?? args.name ?? "").trim();
-
-  let query = supabase.from("client").select("id, name, search_key");
-  if (clientId) query = query.eq("id", clientId);
-  else if (searchKey) query = query.eq("search_key", searchKey);
-  else if (name) query = query.ilike("name", `%${name}%`);
-  else return null;
-
-  const { data } = await query.limit(1).maybeSingle();
-  if (!data) return null;
-  return { id: data.id, name: data.name, searchKey: data.search_key };
-}
+import { resolveClient } from "@/lib/ai/tools/client-resolve";
 
 export async function runClientActivityPrepare(
   supabase: SupabaseClient | null,
@@ -37,7 +19,11 @@ export async function runClientActivityPrepare(
   }
   if (!supabase) return { threadState, message: "Database not configured." };
 
-  const client = await resolveClient(supabase, args);
+  const client = await resolveClient(supabase, {
+    clientId: String(args.clientId ?? ""),
+    searchKey: String(args.searchKey ?? ""),
+    name: String(args.clientName ?? args.name ?? ""),
+  });
   if (!client) {
     return { threadState, message: "Which client is this activity for? Provide name or search key." };
   }
@@ -60,7 +46,7 @@ export async function runClientActivityPrepare(
 
   const { id, href } = await createAiDraft(supabase, session, {
     entityType: "client_activity",
-    targetRoute: `/clients/${client.searchKey}?tab=Activity`,
+    targetRoute: `/clients/${client.id}?tab=Activity`,
     payload: { ...draft, prepareKind: "activity" },
     summary: `${client.name}: ${draft.subject}`,
   });

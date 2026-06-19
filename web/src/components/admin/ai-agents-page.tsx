@@ -1,22 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, startTransition } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
 import type { AiAgentRecord, AiToolName } from "@/lib/ai/types";
 import type { AiToolDefinition, AiToolModule } from "@/lib/ai/catalog";
 import {
   AI_TOOL_KIND_LABELS,
-  toolsGroupedByModule,
+  toolsGroupedByModuleAndKind,
 } from "@/lib/ai/catalog";
-import type { AiSkillPack } from "@/lib/ai/skill-packs";
-import {
-  AI_SKILL_PACK_FUNCTION_LABELS,
-  skillPackSelection,
-  skillPacksGroupedByModule,
-  skillPackToolLabels,
-  toggleSkillPackCapabilities,
-} from "@/lib/ai/skill-packs";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -28,16 +20,6 @@ function newAgentId() {
   return `agent-${Date.now()}`;
 }
 
-function packFunctionBadgeClass(fn: AiSkillPack["function"]) {
-  if (fn === "create") return "bg-sky-100 text-sky-800";
-  if (fn === "update") return "bg-indigo-100 text-indigo-800";
-  if (fn === "activity") return "bg-teal-100 text-teal-800";
-  if (fn === "workflow") return "bg-violet-100 text-violet-800";
-  if (fn === "hub") return "bg-[#fdf2f8] text-[#b51266]";
-  if (fn === "legacy") return "bg-amber-100 text-amber-900";
-  return "bg-slate-100 text-slate-600";
-}
-
 function kindBadgeClass(kind: AiToolDefinition["kind"]) {
   if (kind === "prepare") return "bg-sky-100 text-sky-800";
   if (kind === "write") return "bg-amber-100 text-amber-900";
@@ -45,140 +27,7 @@ function kindBadgeClass(kind: AiToolDefinition["kind"]) {
   return "bg-slate-100 text-slate-600";
 }
 
-function PackCheckbox({
-  selection,
-  onChange,
-}: {
-  selection: "none" | "partial" | "full";
-  onChange: () => void;
-}) {
-  const ref = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (ref.current) ref.current.indeterminate = selection === "partial";
-  }, [selection]);
-  return (
-    <input
-      ref={ref}
-      type="checkbox"
-      checked={selection === "full"}
-      onChange={onChange}
-      className="mt-0.5"
-    />
-  );
-}
-
-function AiSkillPackPicker({
-  packs,
-  record,
-  onTogglePack,
-}: {
-  packs: AiSkillPack[];
-  record: AiAgentRecord;
-  onTogglePack: (pack: AiSkillPack, enable: boolean) => void;
-}) {
-  const [showLegacy, setShowLegacy] = useState(false);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-
-  const visiblePacks = useMemo(
-    () => (showLegacy ? packs : packs.filter((p) => !p.deprecated)),
-    [packs, showLegacy]
-  );
-  const groups = useMemo(() => skillPacksGroupedByModule(visiblePacks), [visiblePacks]);
-  const legacyCount = packs.filter((p) => p.deprecated).length;
-
-  return (
-    <div className="mt-6 border-t border-slate-100 pt-4">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Skill packs</h3>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Start with a pack, then fine-tune individual capabilities below. Packs add a set of tools at once.
-          </p>
-        </div>
-        {legacyCount > 0 ? (
-          <label className="flex items-center gap-2 text-xs text-slate-600">
-            <input type="checkbox" checked={showLegacy} onChange={(e) => setShowLegacy(e.target.checked)} />
-            Show legacy packs ({legacyCount})
-          </label>
-        ) : null}
-      </div>
-
-      <div className="space-y-3">
-        {groups.map((group) => {
-          const isCollapsed = collapsed[group.module] ?? false;
-          const enabledCount = group.packs.filter((p) => skillPackSelection(record.capabilities, p) === "full").length;
-          return (
-            <section key={group.module} className="overflow-hidden rounded-lg border border-[#f9a8d4]/30 bg-[#fdf2f8]/20">
-              <button
-                type="button"
-                onClick={() => setCollapsed((prev) => ({ ...prev, [group.module]: !prev[group.module] }))}
-                className="flex w-full items-center gap-2 border-b border-[#f9a8d4]/20 bg-white px-3 py-2 text-left text-sm font-medium text-slate-800"
-              >
-                <span className="text-slate-400">{isCollapsed ? "▸" : "▾"}</span>
-                <span>{group.label}</span>
-                <span className="text-xs font-normal text-slate-500">
-                  {enabledCount}/{group.packs.length} packs fully enabled
-                </span>
-              </button>
-              {!isCollapsed ? (
-                <div className="grid gap-2 p-3 lg:grid-cols-2">
-                  {group.packs.map((pack) => {
-                    const selection = skillPackSelection(record.capabilities, pack);
-                    const labels = skillPackToolLabels(pack);
-                    return (
-                      <label
-                        key={pack.id}
-                        className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-2.5 ${
-                          selection !== "none"
-                            ? "border-[#d4147a]/40 bg-white shadow-sm"
-                            : "border-slate-200 bg-white"
-                        } ${pack.deprecated ? "opacity-80" : ""}`}
-                      >
-                        <PackCheckbox
-                          selection={selection}
-                          onChange={() => onTogglePack(pack, selection !== "full")}
-                        />
-                        <span className="min-w-0">
-                          <span className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-sm font-medium text-slate-800">{pack.name}</span>
-                            <span
-                              className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${packFunctionBadgeClass(pack.function)}`}
-                            >
-                              {AI_SKILL_PACK_FUNCTION_LABELS[pack.function]}
-                            </span>
-                            <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
-                              {pack.tools.length} tools
-                            </span>
-                            {pack.deprecated ? (
-                              <span className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
-                                Legacy
-                              </span>
-                            ) : null}
-                            {selection === "partial" ? (
-                              <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
-                                Partial
-                              </span>
-                            ) : null}
-                          </span>
-                          <span className="mt-0.5 block text-xs text-slate-500">{pack.description}</span>
-                          <span className="mt-1 block text-[10px] leading-relaxed text-slate-400">
-                            {labels.join(" · ")}
-                          </span>
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </section>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function AiToolCapabilityPicker({
+function AiSkillPicker({
   tools,
   record,
   onToggle,
@@ -196,7 +45,7 @@ function AiToolCapabilityPicker({
     () => (showLegacy ? tools : tools.filter((t) => !t.deprecated)),
     [tools, showLegacy]
   );
-  const groups = useMemo(() => toolsGroupedByModule(visibleTools), [visibleTools]);
+  const groups = useMemo(() => toolsGroupedByModuleAndKind(visibleTools), [visibleTools]);
   const legacyCount = tools.filter((t) => t.deprecated).length;
 
   function isChecked(key: AiToolName) {
@@ -215,15 +64,16 @@ function AiToolCapabilityPicker({
     <div className="mt-6 border-t border-slate-100 pt-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Individual capabilities</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Skills</h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            Fine-tune after choosing packs. Prepare tools open review forms — assistants never save records themselves.
+            Pick individual skills for this assistant. Prepare skills use a guided flow — the assistant asks questions
+            until it has enough detail, opens a review form, and the user clicks Save. Skills are role-agnostic.
           </p>
         </div>
         {legacyCount > 0 ? (
           <label className="flex items-center gap-2 text-xs text-slate-600">
             <input type="checkbox" checked={showLegacy} onChange={(e) => setShowLegacy(e.target.checked)} />
-            Show legacy write tools ({legacyCount})
+            Show legacy write skills ({legacyCount})
           </label>
         ) : null}
       </div>
@@ -231,8 +81,9 @@ function AiToolCapabilityPicker({
       <div className="space-y-3">
         {groups.map((group) => {
           const isCollapsed = collapsed[group.module] ?? false;
-          const checked = moduleCheckedCount(group.tools);
-          const allChecked = checked === group.tools.length && group.tools.length > 0;
+          const moduleTools = group.kinds.flatMap((k) => k.tools);
+          const checked = moduleCheckedCount(moduleTools);
+          const allChecked = checked === moduleTools.length && moduleTools.length > 0;
           return (
             <section key={group.module} className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50/50">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 py-2">
@@ -244,7 +95,7 @@ function AiToolCapabilityPicker({
                   <span className="text-slate-400">{isCollapsed ? "▸" : "▾"}</span>
                   <span>{group.label}</span>
                   <span className="text-xs font-normal text-slate-500">
-                    {checked}/{group.tools.length} enabled
+                    {checked}/{moduleTools.length} enabled
                   </span>
                 </button>
                 <div className="flex gap-2">
@@ -258,41 +109,55 @@ function AiToolCapabilityPicker({
                 </div>
               </div>
               {!isCollapsed ? (
-                <div className="grid gap-2 p-3 sm:grid-cols-2">
-                  {group.tools.map((tool) => {
-                    const checkedTool = isChecked(tool.key);
-                    return (
-                      <label
-                        key={tool.key}
-                        className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-2.5 ${
-                          checkedTool ? "border-[#f9a8d4] bg-[#fdf2f8]" : "border-slate-200 bg-white"
-                        } ${tool.deprecated ? "opacity-80" : ""}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checkedTool}
-                          onChange={() => onToggle(tool.key)}
-                          className="mt-0.5"
-                        />
-                        <span className="min-w-0">
-                          <span className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-sm font-medium text-slate-800">{tool.label}</span>
-                            <span
-                              className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${kindBadgeClass(tool.kind)}`}
+                <div className="space-y-3 p-3">
+                  {group.kinds.map((kindGroup) => (
+                    <div key={kindGroup.kind}>
+                      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                        {kindGroup.label}
+                      </p>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {kindGroup.tools.map((tool) => {
+                          const checkedTool = isChecked(tool.key);
+                          return (
+                            <label
+                              key={tool.key}
+                              className={`flex cursor-pointer gap-3 rounded-lg border px-3 py-2.5 ${
+                                checkedTool ? "border-[#f9a8d4] bg-[#fdf2f8]" : "border-slate-200 bg-white"
+                              } ${tool.deprecated ? "opacity-80" : ""}`}
                             >
-                              {AI_TOOL_KIND_LABELS[tool.kind]}
-                            </span>
-                            {tool.deprecated ? (
-                              <span className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
-                                Legacy
+                              <input
+                                type="checkbox"
+                                checked={checkedTool}
+                                onChange={() => onToggle(tool.key)}
+                                className="mt-0.5"
+                              />
+                              <span className="min-w-0">
+                                <span className="flex flex-wrap items-center gap-1.5">
+                                  <span className="text-sm font-medium text-slate-800">{tool.label}</span>
+                                  <span
+                                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${kindBadgeClass(tool.kind)}`}
+                                  >
+                                    {AI_TOOL_KIND_LABELS[tool.kind]}
+                                  </span>
+                                  {tool.deprecated ? (
+                                    <span className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+                                      Legacy
+                                    </span>
+                                  ) : null}
+                                </span>
+                                <span className="mt-0.5 block text-xs text-slate-500">{tool.description}</span>
+                                {tool.skillHint ? (
+                                  <span className="mt-1 block text-[10px] italic leading-relaxed text-slate-500">
+                                    {tool.skillHint}
+                                  </span>
+                                ) : null}
                               </span>
-                            ) : null}
-                          </span>
-                          <span className="mt-0.5 block text-xs text-slate-500">{tool.description}</span>
-                        </span>
-                      </label>
-                    );
-                  })}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : null}
             </section>
@@ -308,7 +173,6 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
   const [roleAgents, setRoleAgents] = useState<Record<string, string[]>>({});
   const [roles, setRoles] = useState<RoleSummary[]>([]);
   const [tools, setTools] = useState<AiToolDefinition[]>([]);
-  const [skillPacks, setSkillPacks] = useState<AiSkillPack[]>([]);
   const [models, setModels] = useState<ModelOption[]>([]);
   const [openAiConfigured, setOpenAiConfigured] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -330,7 +194,6 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
         roleAgents: Record<string, string[]>;
         roles: RoleSummary[];
         tools: AiToolDefinition[];
-        skillPacks: AiSkillPack[];
         models: ModelOption[];
         openAiConfigured: boolean;
         error?: string;
@@ -340,7 +203,6 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
       setRoleAgents(data.roleAgents);
       setRoles(data.roles.filter((r) => r.active));
       setTools(data.tools);
-      setSkillPacks(data.skillPacks ?? []);
       setModels(data.models);
       setOpenAiConfigured(data.openAiConfigured);
       setActiveId((prev) => prev ?? data.agents[0]?.id ?? null);
@@ -382,12 +244,6 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
     setTab("agent");
     setActiveId(agent.id);
     setDraft(agent);
-  }
-
-  function toggleSkillPack(pack: AiSkillPack, enable: boolean) {
-    if (!record) return;
-    const capabilities = toggleSkillPackCapabilities(record.capabilities, pack, enable);
-    setDraft({ ...record, capabilities });
   }
 
   function toggleTool(key: AiToolName) {
@@ -497,7 +353,7 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
   return (
     <Shell
       title="AI assistants"
-      subtitle="Define assistants, capabilities, prompts, and which roles can use them in the workspace."
+      subtitle="Define assistants, skills, prompts, and which roles can use them in the workspace."
       breadcrumbs={
         variant === "system"
           ? [
@@ -540,7 +396,7 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
         </div>
       ) : (
         <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-          OpenAI is configured. Edit prompts and capabilities here, save, then test in the workspace chat — use{" "}
+          OpenAI is configured. Edit prompts and skills here, save, then test in the workspace chat — use{" "}
           <strong>New chat</strong> to pick up changes.
         </div>
       )}
@@ -699,9 +555,7 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
                   </label>
                 </div>
 
-                <AiSkillPackPicker packs={skillPacks} record={record} onTogglePack={toggleSkillPack} />
-
-                <AiToolCapabilityPicker
+                <AiSkillPicker
                   tools={tools}
                   record={record}
                   onToggle={toggleTool}

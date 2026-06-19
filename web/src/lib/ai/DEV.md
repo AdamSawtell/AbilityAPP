@@ -22,23 +22,26 @@ Go to **Admin → AI assistants** (`/admin/ai-agents`):
 
 | Tab | What you can change |
 |-----|---------------------|
-| **Assistants** | Name, key, model, system prompt, **skill packs** (recommended), and individual capabilities (fine-tune) |
+| **Assistants** | Name, key, model, system prompt, and **skills** (grouped by menu area) |
 
-Skill packs live in `web/src/lib/ai/skill-packs.ts`. Each pack maps to one **page function** (lookup, create, update, activity, workflow, hub, legacy) under a **menu module** (Clients, Tasks, etc.).
+Skills are defined in `web/src/lib/ai/catalog.ts` — one row per tool. Each skill has a menu **module** (Clients, Tasks, etc.) and a **kind** (Read, Prepare, Workflow). Assign skills to an assistant; assign assistants to roles on **Role access**.
 
-| Function | When to add a pack | Tool naming |
-|----------|-------------------|-------------|
-| lookup | List/search/detail on a page | `{entity}_search`, `{entity}_get`, `{entity}_list_recent` |
-| create | `/new` prepare flow | `{entity}_create_prepare` |
-| update | Edit existing record | `{entity}_patch_prepare`, etc. |
-| activity | Notes tab | `{entity}_activity_prepare`, `activity_search` |
-| hub | Role coordinator bundle | Combine lookup + create + update for that menu |
-| legacy | Retired chat-confirm | `*_draft_*` — mark `deprecated: true` |
+When you add a new menu page, add catalog entries first (`{entity}_search`, `{entity}_create_prepare`, etc.), register the tool, then enable skills on the relevant assistants.
 
-When you add a new menu page, add catalog tools first, then packs: `pack-{module}-lookup`, `pack-{module}-create`, and so on. Menus without tools yet (People, Locations, Delivery, Reports) follow the same pattern when tools ship.
 | **Role access** | Which app roles see which assistants on Home |
 
 Click **Save assistant** after edits. Use **Restore defaults** to reload built-in assistants.
+
+## Guided prepare (all assistants)
+
+Every chat request injects `GUIDED_PREPARE_POLICY` from `web/src/lib/ai/guided-prepare-policy.ts` at runtime — **all assistants** follow it when a skill ends with the user clicking Save.
+
+1. Read tools for context  
+2. One question at a time until required fields are clear  
+3. `*_prepare` → review link  
+4. User clicks Save — assistant must not claim the record is saved until then  
+
+Activity notes use the coach flow: `client_activity_recent` (purpose=coach) → questions → `client_activity_prepare`.
 
 ## Test on Home
 
@@ -125,6 +128,6 @@ Server-side persistence runs in `runtime.ts` on confirm. The UI also syncs local
 1. Implement the tool under `web/src/lib/ai/tools/`.
 2. For writes, add persistence in `web/src/lib/ai/persist.ts` using existing `data-api` functions.
 3. Register in `web/src/lib/ai/tools/registry.ts`.
-4. Add a row to `web/src/lib/ai/catalog.ts` (shows in admin UI).
+4. Add a row to `web/src/lib/ai/catalog.ts` (shows in admin Skills UI).
 5. Wire the tool in `web/src/lib/ai/runtime.ts`.
 6. Enable on the relevant assistant in **AI assistants** admin or `seed-ai.sql`.

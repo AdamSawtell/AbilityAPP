@@ -11,7 +11,6 @@ import {
   saveRoleAgents,
 } from "@/lib/ai/agents-api";
 import { AI_MODEL_OPTIONS, AI_TOOL_CATALOG } from "@/lib/ai/catalog";
-import { AI_SKILL_PACKS } from "@/lib/ai/skill-packs";
 import { SEED_AGENTS, SEED_ROLE_AGENTS } from "@/lib/ai/seed";
 import type { AiAgentRecord } from "@/lib/ai/types";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
@@ -65,7 +64,6 @@ export async function GET() {
     roleAgents,
     roles: roles.map((r) => ({ id: r.id, name: r.name, active: r.active })),
     tools: AI_TOOL_CATALOG,
-    skillPacks: AI_SKILL_PACKS,
     models: AI_MODEL_OPTIONS,
     openAiConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
   });

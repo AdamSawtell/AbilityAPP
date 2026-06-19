@@ -11,12 +11,18 @@ export type AiToolName =
   | "activity_search"
   | "client_search"
   | "client_get"
+  | "client_activity_recent"
+  | "client_safety_profile"
+  | "client_tasks_open"
   | "client_list_recent"
   | "records_updated_since"
   | "task_search"
   | "task_draft_create"
   | "task_draft_confirm"
   | "task_create_prepare"
+  | "task_list_mine"
+  | "task_list_overdue"
+  | "task_update_prepare"
   | "task_update_draft_create"
   | "task_update_draft_confirm"
   | "client_draft_create"
@@ -24,6 +30,7 @@ export type AiToolName =
   | "client_create_prepare"
   | "client_patch_prepare"
   | "client_activity_prepare"
+  | "client_task_prepare"
   | "client_patch_draft_create"
   | "client_patch_draft_confirm"
   | "client_activity_draft_create"
@@ -33,6 +40,8 @@ export type AiToolName =
   | "enquiry_draft_create"
   | "enquiry_draft_confirm"
   | "enquiry_create_prepare"
+  | "enquiry_list_recent"
+  | "enquiry_task_prepare"
   | "enquiry_convert_draft_create"
   | "enquiry_convert_draft_confirm"
   | "incident_search"
@@ -43,8 +52,10 @@ export type AiToolName =
   | "incident_draft_create"
   | "incident_draft_confirm"
   | "incident_create_prepare"
+  | "incident_task_prepare"
   | "incident_update_draft_create"
-  | "incident_update_draft_confirm";
+  | "incident_update_draft_confirm"
+  | "employee_search";
 
 export type AiAgentCapability = {
   type: string;
@@ -153,7 +164,7 @@ export type ChatThreadState = {
 };
 
 export type AiWriteResult = {
-  kind: "client" | "client_prepare" | "client_patch_prepare" | "client_activity_prepare" | "task" | "task_prepare" | "client_activity" | "enquiry" | "enquiry_prepare" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_prepare" | "incident_update";
+  kind: "client" | "client_prepare" | "client_patch_prepare" | "client_activity_prepare" | "client_task_prepare" | "task" | "task_prepare" | "task_update_prepare" | "client_activity" | "enquiry" | "enquiry_prepare" | "enquiry_task_prepare" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_prepare" | "incident_task_prepare" | "incident_update";
   label: string;
   href: string;
 };

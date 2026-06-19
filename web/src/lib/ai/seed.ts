@@ -27,6 +27,9 @@ export const SEED_AGENTS: AiAgentRecord[] = [
       { type: "tool", key: "client_search" },
       { type: "tool", key: "records_updated_since" },
       { type: "tool", key: "task_search" },
+      { type: "tool", key: "task_list_mine" },
+      { type: "tool", key: "task_list_overdue" },
+      { type: "tool", key: "employee_search" },
     ],
   },
   {
@@ -35,13 +38,16 @@ export const SEED_AGENTS: AiAgentRecord[] = [
     name: "Task assistant",
     description: "Draft tasks through conversation (confirmation required before creating).",
     systemPrompt:
-      "You are the AbilityAPP task assistant. Create tasks with the fewest questions possible.\n\nAsk ONE question at a time.\n\nWhen you have title and assignment, use task_create_prepare — never save yourself. Send the user the review link to open the form and create the task.\n\nUse task_search before guessing. Task updates still use task_update_draft_* with user confirmation on the form where available.",
+      "You are the AbilityAPP task assistant. Help users find, understand, and prepare tasks and task updates.\n\nUse task_search, task_list_mine, and task_list_overdue before guessing.\n\nFollow the guided prepare workflow for every create or update — ask one question at a time until you have title, assignee, and any update detail, then use task_create_prepare or task_update_prepare. Send the review link; the user saves on the form.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
       { type: "tool", key: "help_search" },
       { type: "tool", key: "task_create_prepare" },
       { type: "tool", key: "task_search" },
+      { type: "tool", key: "task_list_mine" },
+      { type: "tool", key: "task_list_overdue" },
+      { type: "tool", key: "task_update_prepare" },
       { type: "tool", key: "task_update_draft_create" },
       { type: "tool", key: "task_update_draft_confirm" },
     ],
@@ -52,7 +58,7 @@ export const SEED_AGENTS: AiAgentRecord[] = [
     name: "Client assistant",
     description: "Create clients, log activity, update fields, and answer questions across all clients.",
     systemPrompt:
-      "You are the AbilityAPP client assistant. Help users create clients, update client fields, log activity notes, look up client details, and answer questions across all clients.\n\nUse tools before answering factual questions.\n\nCreating clients: client_create_prepare — never save yourself.\nUpdating clients: client_patch_prepare — never save yourself.\nLogging activity: client_activity_prepare — never save yourself.\nSearching: client_list_recent, client_search, client_get, activity_search.\n\nSummarise with names, search keys, dates, and review links.",
+      "You are the AbilityAPP client assistant. Help users look up clients, summarise activity, and prepare new clients, field updates, activity notes, and follow-up tasks.\n\nUse read tools before answering factual questions.\n\nFor handover summaries only: client_activity_recent with purpose=summary — no prepare needed.\n\nFor anything the user will save on a form, follow the guided prepare workflow (questions first, then *_prepare, user clicks Save).",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
@@ -60,11 +66,15 @@ export const SEED_AGENTS: AiAgentRecord[] = [
       { type: "tool", key: "client_search" },
       { type: "tool", key: "client_get" },
       { type: "tool", key: "client_list_recent" },
+      { type: "tool", key: "client_activity_recent" },
+      { type: "tool", key: "client_safety_profile" },
+      { type: "tool", key: "client_tasks_open" },
       { type: "tool", key: "activity_search" },
       { type: "tool", key: "records_updated_since" },
       { type: "tool", key: "client_create_prepare" },
       { type: "tool", key: "client_patch_prepare" },
       { type: "tool", key: "client_activity_prepare" },
+      { type: "tool", key: "client_task_prepare" },
     ],
   },
   {
@@ -73,14 +83,16 @@ export const SEED_AGENTS: AiAgentRecord[] = [
     name: "Enquiry assistant",
     description: "Create enquiries, search intake records, and convert enquiries to clients.",
     systemPrompt:
-      "You are the AbilityAPP enquiry assistant. Help users create enquiries, search intake records, view enquiry details, and convert enquiries to clients.\n\nUse tools before answering factual questions.\n\nCreating enquiries: enquiry_create_prepare — never save yourself.\nConverting to client: enquiry_convert_draft_create → enquiry_convert_draft_confirm (user confirms in chat for conversion only).\nSearching: enquiry_search, enquiry_get.",
+      "You are the AbilityAPP enquiry assistant. Help users search intake, view enquiry details, and prepare new enquiries and follow-up tasks.\n\nUse enquiry_search, enquiry_get, and enquiry_list_recent before guessing.\n\nFollow the guided prepare workflow for creates and tasks. Conversion to client still uses enquiry_convert_* with explicit user confirmation in chat.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
       { type: "tool", key: "help_search" },
       { type: "tool", key: "enquiry_search" },
       { type: "tool", key: "enquiry_get" },
+      { type: "tool", key: "enquiry_list_recent" },
       { type: "tool", key: "enquiry_create_prepare" },
+      { type: "tool", key: "enquiry_task_prepare" },
       { type: "tool", key: "enquiry_convert_draft_create" },
       { type: "tool", key: "enquiry_convert_draft_confirm" },
       { type: "tool", key: "activity_search" },
@@ -105,18 +117,11 @@ export const SEED_AGENTS: AiAgentRecord[] = [
 - Related activity notes: activity_search
 - Follow-up tasks: task_search, task_draft_create → task_draft_confirm
 
-## Reporting new incidents
-Use incident_create_prepare when you have enough detail — never save yourself. Send the user the review link.
+## Reporting and follow-up
+Follow the guided prepare workflow for new incidents and follow-up tasks — ask what happened, who was involved, severity/reportability, then incident_create_prepare or incident_task_prepare. User submits or saves on the form.
 
-## Updating existing incidents (confirmation required)
-incident_update_draft_create actions:
-- manager_review — mark manager reviewed in workflow
-- commission_notified — mark NDIS Commission notified (optional reference)
-- add_investigation_note — append investigation notes
-- change_status — move to a specific status
-- close — close when complete
-
-Then incident_update_draft_confirm after clear yes.
+## Updating existing incidents
+Use incident_update_draft_create only after guided questions and explicit user confirmation in chat (legacy path). Prefer clarifying status, notes, and references before preparing.
 
 ## NDIS guidance you should apply
 - Reportable incidents have Commission deadlines from awareness time (usually 24 hours; unauthorised restrictive practice without harm may be 5 business days).
@@ -125,9 +130,7 @@ Then incident_update_draft_confirm after clear yes.
 
 ## Conversation style
 - Be concise and practical. Use tables and bullet lists for multiple incidents.
-- Ask ONE clarifying question at a time when information is missing.
-- Never invent incident data. If tools return empty, say so.
-- For write actions, always show a one-line summary and ask for confirmation.`,
+- Never invent incident data. If tools return empty, say so.`,
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
@@ -138,6 +141,7 @@ Then incident_update_draft_confirm after clear yes.
       { type: "tool", key: "incident_compliance_summary" },
       { type: "tool", key: "incident_linked_search" },
       { type: "tool", key: "incident_create_prepare" },
+      { type: "tool", key: "incident_task_prepare" },
       { type: "tool", key: "incident_update_draft_create" },
       { type: "tool", key: "incident_update_draft_confirm" },
       { type: "tool", key: "client_search" },
@@ -153,7 +157,7 @@ Then incident_update_draft_confirm after clear yes.
     name: "Support worker assistant",
     description: "Look up clients and prepare new client records for you to save.",
     systemPrompt:
-      "You are the AbilityAPP assistant for support workers. Help staff find client information and prepare new client records.\n\nYou never save, update, or delete records yourself. For new clients, use client_create_prepare when you have first and last name, then give the user the review link — they must open the form and click Save.\n\nUse client_search, client_get, client_list_recent, and activity_search before answering factual questions. Be concise and practical.",
+      "You are the AbilityAPP assistant for support workers. Help staff find client information, summarise recent activity, and prepare visit notes, clients, and follow-up tasks.\n\nFor handover summaries: client_activity_recent purpose=summary only.\n\nFor anything saved on a form, follow the guided prepare workflow — especially activity notes (coach flow with questions before prepare).\n\nBe concise and practical.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
@@ -161,7 +165,13 @@ Then incident_update_draft_confirm after clear yes.
       { type: "tool", key: "client_search" },
       { type: "tool", key: "client_get" },
       { type: "tool", key: "client_list_recent" },
+      { type: "tool", key: "client_activity_recent" },
+      { type: "tool", key: "client_safety_profile" },
+      { type: "tool", key: "client_tasks_open" },
       { type: "tool", key: "activity_search" },
+      { type: "tool", key: "task_list_mine" },
+      { type: "tool", key: "client_activity_prepare" },
+      { type: "tool", key: "client_task_prepare" },
       { type: "tool", key: "client_create_prepare" },
     ],
   },
