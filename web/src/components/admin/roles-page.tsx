@@ -20,41 +20,174 @@ function newRoleId() {
   return `role-${Date.now()}`;
 }
 
-function WindowAccessSelect({
+function AccessLevelTiles({
+  level,
+  disabled,
+  size = "md",
+  ariaLabel,
+  onChange,
+}: {
+  level: WindowAccessLevel | null;
+  disabled?: boolean;
+  size?: "sm" | "md";
+  ariaLabel?: string;
+  onChange: (level: WindowAccessLevel | null) => void;
+}) {
+  const value = level ?? "none";
+  const btn =
+    size === "sm"
+      ? "px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+      : "px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide";
+
+  function tile(active: boolean, tone: "off" | "read" | "write") {
+    const tones = {
+      off: active ? "bg-white text-slate-800 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-700",
+      read: active ? "bg-indigo-600 text-white shadow-sm" : "text-indigo-600 hover:bg-indigo-50",
+      write: active ? "bg-[#d4147a] text-white shadow-sm" : "text-[#b51266] hover:bg-[#fdf2f8]",
+    };
+    return `${btn} rounded-md transition ${tones[tone]} ${disabled ? "pointer-events-none opacity-40" : ""}`;
+  }
+
+  return (
+    <div
+      role="group"
+      aria-label={ariaLabel}
+      className={`inline-flex shrink-0 rounded-lg border border-slate-200 bg-slate-100/80 p-0.5 ${disabled ? "opacity-60" : ""}`}
+    >
+      <button type="button" disabled={disabled} className={tile(value === "none", "off")} onClick={() => onChange(null)}>
+        Off
+      </button>
+      <button
+        type="button"
+        disabled={disabled}
+        className={tile(value === "read", "read")}
+        onClick={() => onChange("read")}
+      >
+        Read
+      </button>
+      <button
+        type="button"
+        disabled={disabled}
+        className={tile(value === "write", "write")}
+        onClick={() => onChange("write")}
+      >
+        Write
+      </button>
+    </div>
+  );
+}
+
+function moduleCardTone(level: WindowAccessLevel | null) {
+  if (level === "write") return "border-[#f9a8d4] bg-gradient-to-br from-[#fdf2f8] to-white shadow-sm";
+  if (level === "read") return "border-indigo-200 bg-gradient-to-br from-indigo-50/80 to-white shadow-sm";
+  return "border-slate-200 bg-white";
+}
+
+function ModuleAccessCard({
   label,
   level,
   disabled,
-  compact,
+  children,
   onChange,
 }: {
   label: string;
   level: WindowAccessLevel | null;
   disabled?: boolean;
-  compact?: boolean;
+  children?: React.ReactNode;
   onChange: (level: WindowAccessLevel | null) => void;
 }) {
-  const value = level ?? "none";
+  const active = Boolean(level);
   return (
-    <div className={`inline-flex items-center gap-2 ${compact ? "" : "flex-wrap"}`}>
-      {!compact ? <span className="min-w-[8rem] text-sm text-slate-700">{label}</span> : null}
-      <select
-        aria-label={compact ? `${label} access` : undefined}
+    <article
+      className={`overflow-hidden rounded-xl border transition ${moduleCardTone(level)} ${disabled ? "opacity-50" : ""}`}
+    >
+      <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h3 className="truncate text-sm font-semibold text-slate-900">{label}</h3>
+          <p className="mt-0.5 text-[11px] text-slate-500">
+            {level === "write" ? "Can view and edit" : level === "read" ? "View only" : "Hidden for this role"}
+          </p>
+        </div>
+        <AccessLevelTiles ariaLabel={`${label} access`} level={level} disabled={disabled} onChange={onChange} />
+      </div>
+      {active && children ? (
+        <div className="border-t border-slate-200/80 bg-white/60 px-3 py-2.5">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tabs & sub-functions</p>
+          <div className="flex flex-wrap gap-2">{children}</div>
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function TabAccessChip({
+  label,
+  level,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  level: WindowAccessLevel | null;
+  disabled?: boolean;
+  onChange: (level: WindowAccessLevel | null) => void;
+}) {
+  return (
+    <div
+      className={`min-w-[7.5rem] rounded-lg border px-2 py-1.5 ${
+        level === "write"
+          ? "border-[#f9a8d4] bg-[#fdf2f8]"
+          : level === "read"
+            ? "border-indigo-200 bg-indigo-50/60"
+            : "border-slate-200 bg-slate-50"
+      } ${disabled ? "opacity-40" : ""}`}
+    >
+      <p className="mb-1 truncate text-xs font-medium text-slate-800">{label}</p>
+      <AccessLevelTiles
+        size="sm"
+        ariaLabel={`${label} tab access`}
+        level={level}
         disabled={disabled}
-        value={value}
-        onChange={(e) => {
-          const next = e.target.value;
-          onChange(next === "none" ? null : (next as WindowAccessLevel));
-        }}
-        className={`rounded-lg border border-slate-200 bg-white text-slate-700 outline-none focus:border-[#d4147a] ${
-          compact ? "px-2 py-1 text-xs" : "px-2.5 py-1.5 text-sm"
-        } ${disabled ? "opacity-50" : ""}`}
-      >
-        <option value="none">Off</option>
-        <option value="read">Read</option>
-        <option value="write">Write</option>
-      </select>
-      {compact ? <span className="text-xs text-slate-600">{label}</span> : null}
+        onChange={onChange}
+      />
     </div>
+  );
+}
+
+function HomePanelTile({
+  label,
+  description,
+  enabled,
+  disabled,
+  moduleMissing,
+  requiresWindowKey,
+  onToggle,
+}: {
+  label: string;
+  description: string;
+  enabled: boolean;
+  disabled?: boolean;
+  moduleMissing?: boolean;
+  requiresWindowKey?: string;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onToggle}
+      className={`flex flex-col rounded-xl border px-3 py-2.5 text-left transition ${
+        enabled ? "border-[#f9a8d4] bg-[#fdf2f8] shadow-sm" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+      } ${moduleMissing ? "opacity-50" : ""}`}
+    >
+      <span className="text-sm font-medium text-slate-900">{label}</span>
+      <span className="mt-1 line-clamp-2 text-xs text-slate-500">{description}</span>
+      <span className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        {enabled ? "Shown on Home" : "Hidden"}
+      </span>
+      {moduleMissing && requiresWindowKey ? (
+        <span className="mt-1 text-[11px] text-amber-700">Needs {requiresWindowKey}</span>
+      ) : null}
+    </button>
   );
 }
 
@@ -214,43 +347,52 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
               </div>
 
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h2 className="mb-3 text-sm font-semibold text-slate-900">Windows / functions</h2>
+                <h2 className="mb-1 text-sm font-semibold text-slate-900">Windows / functions</h2>
                 <p className="mb-4 text-xs text-slate-500">
-                  Top-level windows appear in the workspace sidebar. Dependent windows (indented) are tabs or
-                  sub-functions inside a parent. Use Read for view-only access; Write allows save and edits.
-                  System-only windows are not listed here.
+                  Pick access per module tile. Tabs appear inside the card when the module is on. Read is view-only;
+                  Write allows saves and edits.
                 </p>
+                <div className="mb-4 flex flex-wrap gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-600">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-slate-300" /> Off — hidden
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-indigo-500" /> Read — view only
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-[#d4147a]" /> Write — can edit
+                  </span>
+                </div>
                 {[...windowsByGroup.entries()].map(([group, items]) => {
                   const topLevel = items.filter((w) => !w.parentWindowKey);
                   return (
-                    <div key={group} className="mb-4">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{group}</p>
-                      <div className="space-y-3">
-                        {topLevel.map((w) => (
-                          <div key={w.key}>
-                            <WindowAccessSelect
+                    <div key={group} className="mb-6 last:mb-0">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{group}</p>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {topLevel.map((w) => {
+                          const childWindows = appChildWindows(w.key).filter(
+                            (child) => !HOME_PANEL_KEYS.includes(child.key)
+                          );
+                          const parentLevel = windowAccessLevel(record.windowAccess, w.key);
+                          return (
+                            <ModuleAccessCard
+                              key={w.key}
                               label={w.label}
-                              level={windowAccessLevel(record.windowAccess, w.key)}
+                              level={parentLevel}
                               onChange={(level) => setWindowLevel(w.key, level)}
-                            />
-                            {appChildWindows(w.key).filter((child) => !HOME_PANEL_KEYS.includes(child.key)).length > 0 ? (
-                              <div className="ml-4 mt-2 space-y-2 border-l border-slate-200 pl-3">
-                                {appChildWindows(w.key)
-                                  .filter((child) => !HOME_PANEL_KEYS.includes(child.key))
-                                  .map((child) => (
-                                    <WindowAccessSelect
-                                      key={child.key}
-                                      compact
-                                      label={child.label}
-                                      disabled={!record.windowAccess[w.key]}
-                                      level={windowAccessLevel(record.windowAccess, child.key)}
-                                      onChange={(level) => setWindowLevel(child.key, level)}
-                                    />
-                                  ))}
-                              </div>
-                            ) : null}
-                          </div>
-                        ))}
+                            >
+                              {childWindows.map((child) => (
+                                <TabAccessChip
+                                  key={child.key}
+                                  label={child.label}
+                                  disabled={!record.windowAccess[w.key]}
+                                  level={windowAccessLevel(record.windowAccess, child.key)}
+                                  onChange={(level) => setWindowLevel(child.key, level)}
+                                />
+                              ))}
+                            </ModuleAccessCard>
+                          );
+                        })}
                       </div>
                     </div>
                   );
@@ -263,36 +405,23 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                   <p className="mb-4 text-xs text-slate-500">
                     Home panels are read-only. Turn a panel off to hide it from Home for this role.
                   </p>
-                  <div className="space-y-2">
+                  <div className="grid gap-2 sm:grid-cols-2">
                     {homePanelsForRoleEditor(record.windowKeys).map((panel) => {
                       const moduleMissing = Boolean(
                         panel.requiresWindowKey && !record.windowAccess[panel.requiresWindowKey]
                       );
                       const enabled = Boolean(record.windowAccess[panel.key]);
                       return (
-                        <label
+                        <HomePanelTile
                           key={panel.key}
-                          className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 ${
-                            enabled ? "border-[#d4147a] bg-[#fdf2f8]" : "border-slate-200"
-                          } ${moduleMissing ? "opacity-50" : ""}`}
-                        >
-                          <input
-                            type="checkbox"
-                            className="mt-0.5"
-                            disabled={moduleMissing}
-                            checked={enabled}
-                            onChange={() => setWindowLevel(panel.key, enabled ? null : "read")}
-                          />
-                          <span>
-                            <span className="block text-sm font-medium text-slate-900">{panel.label}</span>
-                            <span className="text-xs text-slate-500">{panel.description}</span>
-                            {moduleMissing ? (
-                              <span className="mt-1 block text-xs text-amber-700">
-                                Requires {panel.requiresWindowKey} module access
-                              </span>
-                            ) : null}
-                          </span>
-                        </label>
+                          label={panel.label}
+                          description={panel.description}
+                          enabled={enabled}
+                          disabled={moduleMissing}
+                          moduleMissing={moduleMissing}
+                          requiresWindowKey={panel.requiresWindowKey}
+                          onToggle={() => setWindowLevel(panel.key, enabled ? null : "read")}
+                        />
                       );
                     })}
                   </div>
