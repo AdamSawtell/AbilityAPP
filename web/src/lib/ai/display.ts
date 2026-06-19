@@ -112,6 +112,35 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
           href: String(r.href ?? ""),
         }))
       );
+      continue;
+    }
+
+    if (entry.name === "client_activity_recent") {
+      const row = asRecord(entry.result);
+      if (!row || row.found === false) continue;
+      const client = asRecord(row.client);
+      const activities = Array.isArray(row.activities)
+        ? (row.activities as Record<string, unknown>[])
+        : [];
+      if (!activities.length) continue;
+      const clientLabel = String(client?.name ?? "Client");
+      attachments.push({
+        type: "table",
+        title:
+          row.purpose === "coach"
+            ? `Last ${activities.length} activity notes — ${clientLabel}`
+            : `Activity notes — ${clientLabel}`,
+        columns: ["Date", "Type", "Subject", "Notes"],
+        rows: activities.map((a) => ({
+          Date: String(a.date ?? "—"),
+          Type: String(a.type ?? "—"),
+          Subject: String(a.subject ?? "—"),
+          Notes:
+            String(a.description ?? "").length > 160
+              ? `${String(a.description ?? "").slice(0, 157)}…`
+              : String(a.description ?? "—"),
+        })),
+      });
     }
   }
 

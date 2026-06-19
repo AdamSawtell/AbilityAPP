@@ -103,7 +103,7 @@ function prepareToolResult(
       reviewUrl: out.href,
       draftId: out.draftId,
       instruction:
-        "Tell the user to click the Open form and save button in chat. Do not invent markdown links. You have not saved anything.",
+        "Tell the user to review the popup and click Save activity. Do not invent markdown links. You have not saved anything.",
     },
     threadState: out.threadState,
     writeResult: out.href
@@ -111,6 +111,7 @@ function prepareToolResult(
           kind,
           label: out.summary ?? "Review",
           href: out.href,
+          draftId: out.draftId,
           preview: previewForWriteResult(kind, out.threadState),
         }
       : undefined,
@@ -179,9 +180,10 @@ async function tryAutoPrepareClientActivity(
       kind: "client_activity_prepare",
       label: out.summary ?? "Activity note",
       href: out.href,
+      draftId: out.draftId,
       preview: previewForWriteResult("client_activity_prepare", out.threadState),
     },
-    assistantText: `I've prepared the activity note for ${clientName}. Review the draft below, then use Open form and save — it opens the Activity tab with the note pre-filled. Click Save when you're happy with it.`,
+    assistantText: `I've prepared the activity note for ${clientName}. Review the draft in the popup — click **Save activity** when it looks right, or edit on the form if you need to change anything.`,
   };
 }
 

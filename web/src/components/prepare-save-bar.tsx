@@ -1,9 +1,20 @@
-import Link from "next/link";
+"use client";
+
 import type { AiWriteResult } from "@/lib/ai/types";
 import { PreparePreviewPanel } from "@/components/prepare-review-preview";
+import { PrepareSaveActions } from "@/components/prepare-save-actions";
 
-export function PrepareSaveBar({ writeResult }: { writeResult: AiWriteResult }) {
+export function PrepareSaveBar({
+  writeResult,
+  onSaved,
+}: {
+  writeResult: AiWriteResult;
+  onSaved?: (result: { clientName?: string; href?: string }) => void;
+}) {
   if (!writeResult.href || !writeResult.kind.endsWith("_prepare")) return null;
+
+  const canSaveHere =
+    writeResult.kind === "client_activity_prepare" && Boolean(writeResult.draftId);
 
   return (
     <div
@@ -21,12 +32,16 @@ export function PrepareSaveBar({ writeResult }: { writeResult: AiWriteResult }) 
           Opens the form with fields pre-filled. Check the details, then click Save on the record.
         </p>
       )}
-      <Link
+      <PrepareSaveActions
+        draftId={writeResult.draftId}
         href={writeResult.href}
-        className="mt-2.5 inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#b51266]"
-      >
-        Open form and save
-      </Link>
+        kind={writeResult.kind}
+        layout="bar"
+        onSaved={onSaved}
+      />
+      {canSaveHere ? (
+        <p className="mt-2 text-[10px] text-slate-500">Save here logs the note immediately — no need to find Save on the client page.</p>
+      ) : null}
     </div>
   );
 }

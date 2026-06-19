@@ -10,7 +10,7 @@ const GUIDANCE: Record<ClientActivityRecentPurpose, string> = {
   summary:
     "Summarise these notes in plain language for handover. Use bullets: themes, risks, follow-ups, and gaps. Only use what is in the notes — do not invent details.",
   coach:
-    "Guided activity flow: ask one question at a time about what is new since the latest note. After 2–3 answers, call client_activity_prepare — never save yourself. Remind the user to open the link and click Save.",
+    "Guided activity flow: the UI shows the last notes in a table. Give a short numbered overview (date, type, subject) in your reply so the user sees context, then ask one question at a time about what is new since the latest note. After 2–3 answers, call client_activity_prepare — never save yourself. The user saves from the review popup.",
 };
 
 function daysSince(isoDate: string): number | null {

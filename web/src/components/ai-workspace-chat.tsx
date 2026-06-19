@@ -16,6 +16,7 @@ import {
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
 import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
+import { queueChatNotice } from "@/lib/ai/chat-session-storage";
 
 type AgentSummary = {
   id: string;
@@ -47,7 +48,7 @@ function MessageBubble({ message }: { message: UiMessage }) {
 
 export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const { session, canAgent } = useAuth();
-  const { clients, enquiries, tasks, incidents } = useData();
+  const { clients, enquiries, tasks, incidents, refreshFromRemote } = useData();
   const pathname = usePathname();
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
@@ -273,6 +274,22 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const canSend = configured && Boolean(agentId) && !loading && Boolean(input.trim());
   const prepareLink = lastWrite?.href && lastWrite.kind.endsWith("_prepare");
 
+  const handleActivitySaved = useCallback(
+    (result: { clientName?: string }) => {
+      setPrepareModalOpen(false);
+      setLastWrite(undefined);
+      void refreshFromRemote();
+      if (session) {
+        queueChatNotice(
+          session.userId,
+          session.activeRoleId,
+          `Logged activity on ${result.clientName ?? "the client"}. You can continue in chat.`
+        );
+      }
+    },
+    [refreshFromRemote, session]
+  );
+
   return (
     <>
     <div className={`flex min-h-0 flex-col bg-slate-50/80 ${className}`}>
@@ -368,7 +385,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
 
       {prepareLink && lastWrite ? (
         <div ref={prepareBarRef}>
-          <PrepareSaveBar writeResult={lastWrite} />
+          <PrepareSaveBar writeResult={lastWrite} onSaved={handleActivitySaved} />
         </div>
       ) : null}
 
@@ -407,6 +424,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         open={prepareModalOpen}
         writeResult={lastWrite}
         onClose={() => setPrepareModalOpen(false)}
+        onSaved={handleActivitySaved}
       />
     ) : null}
     </>

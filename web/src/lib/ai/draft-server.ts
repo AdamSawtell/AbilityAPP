@@ -69,3 +69,12 @@ export async function fetchAiDraftForSession(
   if (new Date(data.expires_at).getTime() < Date.now()) return null;
   return data as AiDraftRow;
 }
+
+export async function deleteAiDraft(
+  supabase: SupabaseClient,
+  session: AuthSession,
+  draftId: string
+): Promise<void> {
+  const { error } = await supabase.from("ai_draft").delete().eq("id", draftId).eq("user_id", session.userId);
+  if (error) throw new Error(error.message);
+}

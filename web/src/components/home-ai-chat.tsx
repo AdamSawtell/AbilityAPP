@@ -13,6 +13,7 @@ import { PrepareReviewModal } from "@/components/prepare-review-modal";
 import {
   clearHomeChatSession,
   loadHomeChatSession,
+  queueChatNotice,
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
 
@@ -70,7 +71,7 @@ function MessageBubble({ message }: { message: UiMessage }) {
 
 export function HomeAiChat() {
   const { session, canAgent } = useAuth();
-  const { upsertClient, upsertTask, clients, addEnquiry } = useData();
+  const { upsertClient, upsertTask, clients, addEnquiry, refreshFromRemote } = useData();
   const [agents, setAgents] = useState<AgentSummary[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
   const [configured, setConfigured] = useState(true);
@@ -284,6 +285,22 @@ export function HomeAiChat() {
 
   const canSend = configured && Boolean(agentId) && !loading && Boolean(input.trim());
 
+  const handleActivitySaved = useCallback(
+    (result: { clientName?: string }) => {
+      setPrepareModalOpen(false);
+      setLastWrite(undefined);
+      void refreshFromRemote();
+      if (session) {
+        queueChatNotice(
+          session.userId,
+          session.activeRoleId,
+          `Logged activity on ${result.clientName ?? "the client"}. You can continue in chat.`
+        );
+      }
+    },
+    [refreshFromRemote, session]
+  );
+
   return (
     <>
     <section className="mb-8 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-[#fdf2f8]/40 shadow-sm">
@@ -399,7 +416,7 @@ export function HomeAiChat() {
 
       {lastWrite?.href && lastWrite.kind.endsWith("_prepare") ? (
         <div ref={prepareBarRef}>
-          <PrepareSaveBar writeResult={lastWrite} />
+          <PrepareSaveBar writeResult={lastWrite} onSaved={handleActivitySaved} />
         </div>
       ) : null}
 
@@ -444,6 +461,7 @@ export function HomeAiChat() {
         open={prepareModalOpen}
         writeResult={lastWrite}
         onClose={() => setPrepareModalOpen(false)}
+        onSaved={handleActivitySaved}
       />
     ) : null}
     </>

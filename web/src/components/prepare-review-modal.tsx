@@ -1,17 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useId } from "react";
 import type { AiWriteResult } from "@/lib/ai/types";
 import { PreparePreviewPanel } from "@/components/prepare-review-preview";
+import { PrepareSaveActions } from "@/components/prepare-save-actions";
 
 type PrepareReviewModalProps = {
   open: boolean;
   writeResult: AiWriteResult;
   onClose: () => void;
+  onSaved?: (result: { clientName?: string; href?: string }) => void;
 };
 
-export function PrepareReviewModal({ open, writeResult, onClose }: PrepareReviewModalProps) {
+export function PrepareReviewModal({ open, writeResult, onClose, onSaved }: PrepareReviewModalProps) {
   const titleId = useId();
 
   useEffect(() => {
@@ -24,6 +25,9 @@ export function PrepareReviewModal({ open, writeResult, onClose }: PrepareReview
   }, [open, onClose]);
 
   if (!open || !writeResult.preview) return null;
+
+  const canSaveHere =
+    writeResult.kind === "client_activity_prepare" && Boolean(writeResult.draftId);
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -46,7 +50,9 @@ export function PrepareReviewModal({ open, writeResult, onClose }: PrepareReview
             Review activity before saving
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Check the note below. When it looks right, open the form and click Save on the client record.
+            {canSaveHere
+              ? "Check the note below. When it looks right, click Save activity — you do not need to scroll to the bottom of the client record."
+              : "Check the note below, then open the form and click Save on the client record."}
           </p>
         </div>
 
@@ -54,21 +60,15 @@ export function PrepareReviewModal({ open, writeResult, onClose }: PrepareReview
           <PreparePreviewPanel preview={writeResult.preview} />
         </div>
 
-        <div className="shrink-0 space-y-2 border-t border-[#f9a8d4]/60 bg-white px-5 py-4">
-          <Link
+        <div className="shrink-0 border-t border-[#f9a8d4]/60 bg-white px-5 py-4">
+          <PrepareSaveActions
+            draftId={writeResult.draftId}
             href={writeResult.href}
-            onClick={onClose}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#b51266]"
-          >
-            Open form and save
-          </Link>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            Review in chat
-          </button>
+            kind={writeResult.kind}
+            layout="modal"
+            onClose={onClose}
+            onSaved={onSaved}
+          />
         </div>
       </div>
     </div>

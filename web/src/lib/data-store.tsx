@@ -122,6 +122,7 @@ type DataStore = {
   taskAutomations: TaskAutomationRecord[];
   hydrated: boolean;
   source: "supabase" | "local";
+  refreshFromRemote: () => Promise<void>;
   addEnquiry: (record: EnquiryRecord) => EnquiryRecord;
   updateEnquiry: (record: EnquiryRecord, audit?: AuditLogOptions) => void;
   addIncident: (record: IncidentRecord) => IncidentRecord;
@@ -308,6 +309,45 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const locationsRef = useSyncRef(locations);
   const tasksRef = useSyncRef(tasks);
   const automationsRef = useSyncRef(taskAutomations);
+
+  const refreshFromRemote = useCallback(async () => {
+    if (!isSupabaseConfigured()) return;
+    try {
+      const supabase = createClient();
+      const data = await fetchAllData(supabase);
+      let loadedTasks = tasksRef.current;
+      let loadedAutomations = automationsRef.current;
+      try {
+        const dbTasks = await fetchTasks(supabase);
+        if (dbTasks.length) loadedTasks = dbTasks.map(normalizeTask);
+      } catch {
+        // keep current tasks
+      }
+      try {
+        const dbAutomations = await fetchTaskAutomations(supabase);
+        if (dbAutomations.length) loadedAutomations = dbAutomations;
+      } catch {
+        // keep current automations
+      }
+      setEnquiries(data.enquiries);
+      setIncidents(data.incidents);
+      setClients(data.clients);
+      setContracts(data.contracts);
+      setProducts(data.products);
+      setPriceLists(data.priceLists);
+      setServiceAgreements(data.serviceAgreements);
+      setServiceBookings(data.serviceBookings);
+      setSupportPlans(data.supportPlans);
+      setPlanDocuments(data.planDocuments);
+      setEmployees(data.employees);
+      setLocations(data.locations ?? seedLocations.map(normalizeLocation));
+      setTasks(loadedTasks);
+      setTaskAutomations(loadedAutomations);
+      setSource("supabase");
+    } catch (err) {
+      console.error("[DataStore] refreshFromRemote failed", err);
+    }
+  }, [automationsRef, tasksRef]);
 
   useEffect(() => {
     let cancelled = false;
@@ -961,6 +1001,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       taskAutomations,
       hydrated,
       source,
+      refreshFromRemote,
       addEnquiry,
       updateEnquiry,
       addIncident,
@@ -1015,6 +1056,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       taskAutomations,
       hydrated,
       source,
+      refreshFromRemote,
       addEnquiry,
       updateEnquiry,
       addIncident,

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { ChatDisplayAttachment } from "@/lib/ai/types";
 import { PreparePreviewPanel } from "@/components/prepare-review-preview";
+import { PrepareSaveActions } from "@/components/prepare-save-actions";
 
 const LINK_RE = /\[([^\]]+)\]\((\/[^)]+)\)/g;
 const PATH_RE = /(\/(?:clients|enquiries|employees|locations|tasks|incidents)[^\s),]*)/g;
@@ -52,12 +53,11 @@ function PrepareReviewCard({ attachment }: { attachment: ChatDisplayAttachment }
         <p className="text-sm font-semibold text-slate-900">{prepare.label}</p>
       )}
       <p className="text-xs leading-relaxed text-slate-600">{prepare.hint}</p>
-      <Link
+      <PrepareSaveActions
+        draftId={prepare.draftId}
         href={prepare.href}
-        className="inline-flex w-full items-center justify-center rounded-lg bg-[#d4147a] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#b51266]"
-      >
-        Open form and save
-      </Link>
+        kind={prepare.kind ?? "client_activity_prepare"}
+      />
     </div>
   );
 }

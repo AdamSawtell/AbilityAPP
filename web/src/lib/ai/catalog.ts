@@ -103,7 +103,7 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
   {
     key: "client_activity_recent",
     label: "Last 5 activity notes (fetch)",
-    description: "Load the client's most recent activity notes with full text.",
+    description: "Load the client's 5 most recent activity notes with full text. Use purpose=coach before creating a note — show overview before questions.",
     skillHint:
       "Use purpose=summary for handover recaps; purpose=coach before helping write a new note.",
     module: "clients",
@@ -150,7 +150,7 @@ export const AI_TOOL_CATALOG: AiToolDefinition[] = [
   {
     key: "client_activity_prepare",
     label: "Prepare client activity note",
-    description: "Open a client Activity tab with a prepared note for human review and save.",
+    description: "Prepare a client activity note for review. User saves from the popup or Activity tab.",
     skillHint: GUIDED_ACTIVITY_SKILL_HINT,
     module: "clients",
     kind: "prepare",

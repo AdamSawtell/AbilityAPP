@@ -64,7 +64,7 @@ export async function runClientActivityPrepare(
       activityCoachClient: { id: client.id, name: client.name, searchKey: client.searchKey },
     },
     message:
-      "Activity note prepared. Tell the user to click Open form and save in chat — you have not saved it.",
+      "Activity note prepared. Tell the user to review the popup and click Save activity — you have not saved it.",
     summary: draft.subject,
     href,
     draftId: id,
