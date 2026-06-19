@@ -16,7 +16,7 @@ import { draftHighlightKeys } from "@/lib/ai/draft-field-highlight";
 import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { ClientLineCollectionKey } from "@/lib/client-line-tables";
-import { emptyClientRecord, normalizeClient, type ClientRecord } from "@/lib/client";
+import { emptyClientRecord, findClientByRouteId, normalizeClient, type ClientRecord } from "@/lib/client";
 
 function ClientTabbedViewFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
@@ -101,7 +101,7 @@ function ClientDetailViewInner({ id }: { id: string }) {
   const { session } = useAuth();
   const { clients, upsertClient, getServiceAgreementsByClientId, getSupportPlanByClientId } = useData();
   const { openClient, setTabDirty, touchTab } = useWorkspace();
-  const stored = clients.find((c) => c.id === id);
+  const stored = findClientByRouteId(clients, id);
   const [draft, setDraft] = useState<ClientRecord | null>(null);
   const [saved, setSaved] = useState(false);
   const [draftApplied, setDraftApplied] = useState(false);
@@ -114,7 +114,7 @@ function ClientDetailViewInner({ id }: { id: string }) {
   const hasSupportPlan = Boolean(supportPlan);
   const goalCount = supportPlan?.goals.length ?? 0;
   const progressReviewCount = supportPlan?.progressReviews?.length ?? 0;
-  const tabKey = workspaceKey("client", id);
+  const tabKey = workspaceKey("client", stored?.id ?? id);
 
   const highlightFields = useMemo(() => {
     if (!aiDraftId || !draftApplied || !draftLoad.payload) return undefined;

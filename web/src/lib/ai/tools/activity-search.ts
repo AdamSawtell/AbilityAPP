@@ -35,7 +35,7 @@ const ACTIVITY_TABLES: ActivityTableConfig[] = [
     parentLabelColumn: "name",
     parentSearchKeyColumn: "search_key",
     windowKey: "client-activity",
-    href: (id, key) => `/clients/${key ?? id}?tab=Activity`,
+    href: (id) => `/clients/${id}?tab=Activity`,
   },
   {
     source: "client_contact_activity",
@@ -45,7 +45,7 @@ const ACTIVITY_TABLES: ActivityTableConfig[] = [
     parentLabelColumn: "name",
     parentSearchKeyColumn: "search_key",
     windowKey: "client-contact-activity",
-    href: (id, key) => `/clients/${key ?? id}?tab=Contact+activity`,
+    href: (id) => `/clients/${id}?tab=Contact+activity`,
   },
   {
     source: "enquiry_activity",

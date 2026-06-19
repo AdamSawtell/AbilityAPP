@@ -35,7 +35,7 @@ export async function runClientListRecent(
       email: row.email,
       phone: row.phone,
       updatedAt: row.updated_at,
-      href: `/clients/${row.search_key ?? row.id}`,
+      href: `/clients/${row.id}`,
     })),
   };
 }

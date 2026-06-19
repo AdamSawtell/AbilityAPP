@@ -57,7 +57,7 @@ export function attachmentsFromToolAudit(auditTools: ToolAudit[]): ChatDisplayAt
               subtitle: String(r.searchKey ?? r.id ?? ""),
               meta: String(r.email ?? r.phone ?? ""),
               badge: statusLabel(r.status),
-              href: String(r.href ?? `/clients/${r.searchKey ?? r.id}`),
+              href: String(r.href ?? `/clients/${r.id ?? r.searchKey}`),
             })
           )
         );

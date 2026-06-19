@@ -5,15 +5,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 const COLLAPSED_KEY = "abilityapp-ai-chat-collapsed";
 const WIDTH_KEY = "abilityapp-ai-chat-width";
 const MIN_WIDTH = 280;
-const MAX_WIDTH = 480;
-const DEFAULT_WIDTH = 320;
+const MAX_WIDTH = 720;
+const DEFAULT_WIDTH = 360;
 
 type AiChatShellContextValue = {
   collapsed: boolean;
   panelWidth: number;
   toggleCollapsed: () => void;
   setCollapsed: (value: boolean) => void;
-  setPanelWidth: (value: number) => void;
+  setPanelWidth: (value: number | ((prev: number) => number)) => void;
 };
 
 const AiChatShellContext = createContext<AiChatShellContextValue | null>(null);
@@ -60,14 +60,17 @@ export function AiChatShellProvider({ children }: { children: React.ReactNode })
     });
   }, []);
 
-  const setPanelWidth = useCallback((value: number) => {
-    const next = clampWidth(value);
-    setPanelWidthState(next);
-    try {
-      localStorage.setItem(WIDTH_KEY, String(next));
-    } catch {
-      // ignore
-    }
+  const setPanelWidth = useCallback((value: number | ((prev: number) => number)) => {
+    setPanelWidthState((prev) => {
+      const raw = typeof value === "function" ? value(prev) : value;
+      const next = clampWidth(raw);
+      try {
+        localStorage.setItem(WIDTH_KEY, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
   }, []);
 
   useEffect(() => {

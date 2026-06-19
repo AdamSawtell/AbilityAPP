@@ -16,7 +16,7 @@ const ENTITIES: EntityConfig[] = [
     table: "client",
     windowKey: "clients",
     nameColumns: ["name", "search_key"],
-    href: (row) => `/clients/${row.search_key ?? row.id}`,
+    href: (row) => `/clients/${row.id}`,
   },
   {
     label: "Enquiry",

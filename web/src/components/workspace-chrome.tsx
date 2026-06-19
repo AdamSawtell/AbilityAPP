@@ -81,9 +81,9 @@ export function WorkspaceChrome({
 
   const handleResize = useCallback(
     (deltaX: number) => {
-      setPanelWidth(panelWidth + deltaX);
+      setPanelWidth((width) => width + deltaX);
     },
-    [panelWidth, setPanelWidth]
+    [setPanelWidth]
   );
 
   return (
@@ -115,10 +115,11 @@ export function WorkspaceChrome({
       </aside>
 
       <div className="flex min-h-screen flex-1 pl-64">
-        <div className="flex min-h-0 w-full flex-1">
-          <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex h-screen w-full overflow-hidden">
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
             <WorkspaceTabs />
-            <main className="flex-1 px-6 py-8 pb-24 lg:px-10">
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <main className="px-6 py-8 pb-24 lg:px-10">
               {breadcrumbs?.length ? (
                 <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
                   {breadcrumbs.map((crumb, index) => (
@@ -146,12 +147,13 @@ export function WorkspaceChrome({
               {children}
               <HowToGuideFooter />
               {audit ? <RecordAuditFooter {...audit} /> : null}
-            </main>
+              </main>
+            </div>
           </div>
 
           {showChat ? (
             collapsed ? (
-              <div className="flex w-10 shrink-0 flex-col items-center border-l border-slate-200 bg-white pt-3">
+              <div className="flex h-full w-10 shrink-0 flex-col items-center border-l border-slate-200 bg-white pt-3">
                 <button
                   type="button"
                   onClick={toggleCollapsed}
@@ -163,12 +165,12 @@ export function WorkspaceChrome({
               </div>
             ) : (
               <div
-                className="relative flex shrink-0 flex-col border-l border-slate-200 bg-white"
+                className="relative flex h-full shrink-0 flex-col overflow-hidden border-l border-slate-200 bg-white"
                 style={{ width: panelWidth }}
               >
                 <ChatResizeHandle onResize={handleResize} />
                 <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-2 py-1">
-                  <span className="text-[10px] text-slate-400">Ctrl+\ to hide</span>
+                  <span className="text-[10px] text-slate-400">Drag edge to resize · Ctrl+\ to hide</span>
                   <button
                     type="button"
                     onClick={toggleCollapsed}
@@ -178,7 +180,7 @@ export function WorkspaceChrome({
                     Hide
                   </button>
                 </div>
-                <AiWorkspaceChat className="min-h-0 flex-1" />
+                <AiWorkspaceChat className="h-full min-h-0 flex-1" />
               </div>
             )
           ) : null}

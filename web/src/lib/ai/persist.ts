@@ -55,7 +55,7 @@ export async function persistAiClient(
     return {
       ok: true,
       record: normalizeClient(client),
-      href: `/clients/${client.searchKey}`,
+      href: `/clients/${client.id}`,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not save client";
@@ -173,7 +173,7 @@ export async function persistAiClientActivity(
     return {
       ok: true,
       record: { id, clientId: draft.clientId, subject: draft.subject },
-      href: `/clients/${client.search_key ?? client.id}?tab=Activity`,
+      href: `/clients/${client.id}?tab=Activity`,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not save activity";
@@ -198,7 +198,7 @@ export async function persistAiClientPatch(
     return {
       ok: true,
       record,
-      href: `/clients/${draft.clientSearchKey ?? draft.clientId}`,
+      href: `/clients/${draft.clientId}`,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not update client";
@@ -326,7 +326,7 @@ export async function persistAiEnquiryConvert(
 
     const existing = existingClients.find((c) => c.enquiryId === enquiryId);
     if (existing) {
-      return { ok: true, record: existing, href: `/clients/${existing.searchKey}` };
+      return { ok: true, record: existing, href: `/clients/${existing.id}` };
     }
 
     const client = convertEnquiryToClient(enquiry, existingClients);

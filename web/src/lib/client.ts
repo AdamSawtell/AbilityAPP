@@ -416,6 +416,13 @@ export const clientTabGroups: ClientTabGroup[] = [
   },
 ];
 
+/** Match a /clients/[id] route param (UUID or search key). */
+export function findClientByRouteId(clients: ClientRecord[], routeId: string): ClientRecord | undefined {
+  const key = decodeURIComponent(routeId.trim());
+  if (!key) return undefined;
+  return clients.find((c) => c.id === key || c.searchKey === key);
+}
+
 export function normalizeClient(client: ClientRecord): ClientRecord {
   const alerts = (client.alerts ?? []).map((row, index) => ({
     ...row,

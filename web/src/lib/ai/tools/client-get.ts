@@ -99,7 +99,7 @@ export async function runClientGet(
       updatedAt: client.updated_at,
       riskAlerts: client.risk_alerts,
       consentAlertList: client.consent_alert_list,
-      href: `/clients/${client.search_key ?? client.id}`,
+      href: `/clients/${client.id}`,
     },
     summary: {
       activityCount: activities?.length ?? 0,

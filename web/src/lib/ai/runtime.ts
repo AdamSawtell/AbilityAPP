@@ -349,7 +349,7 @@ async function executeTool(
         writeResult: {
           kind: "enquiry_convert",
           label: out.client.name,
-          href: out.href ?? `/clients/${out.client.searchKey}`,
+          href: out.href ?? `/clients/${out.client.id}`,
         },
       };
     }
