@@ -52,6 +52,36 @@ const serviceLinks = [
   { href: "/contracts", label: "Contracts", windowKey: "contracts", match: (path: string) => path.startsWith("/contracts") },
 ];
 
+const deliveryLinks = [
+  {
+    href: "/service-bookings",
+    label: "Service bookings",
+    windowKey: "service-bookings",
+    match: (path: string) => path.startsWith("/service-bookings"),
+  },
+  {
+    href: "/rostering",
+    label: "Rostering",
+    windowKey: "rostering",
+    match: (path: string) => path.startsWith("/rostering"),
+    comingSoon: true,
+  },
+  {
+    href: "/timesheets",
+    label: "Timesheets",
+    windowKey: "timesheets",
+    match: (path: string) => path.startsWith("/timesheets"),
+    comingSoon: true,
+  },
+  {
+    href: "/generate-timesheets",
+    label: "Generate timesheets",
+    windowKey: "generate-timesheets",
+    match: (path: string) => path.startsWith("/generate-timesheets"),
+    comingSoon: true,
+  },
+];
+
 const adminLinks = ACCESS_WINDOWS.filter(
   (w) => w.group === "Admin" && w.surface !== "system" && w.showInSidebar !== false && w.href
 ).map((w) => ({
@@ -317,6 +347,7 @@ export function SidebarNav() {
   const visibleMyWorkplaceLinks = myWorkplaceLinks.filter((l) => l.canShow(canWindow));
   const visibleWorkforceLinks = workforceLinks.filter((l) => l.canShow(canWindow));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
+  const visibleDeliveryLinks = deliveryLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
   const visibleReports = useMemo(() => {
     if (!session) return [];
@@ -343,6 +374,7 @@ export function SidebarNav() {
     visibleMyWorkplaceLinks.length > 0 ||
     visibleWorkforceLinks.length > 0 ||
     visibleServiceLinks.length > 0 ||
+    visibleDeliveryLinks.length > 0 ||
     showReports ||
     visibleAdminLinks.length > 0;
 
@@ -365,6 +397,7 @@ export function SidebarNav() {
     if (key === "workforce" && pathname.startsWith("/workforce-planning")) return true;
     if (key === "incidents" && pathname.startsWith("/incidents")) return true;
     if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
+    if (key === "delivery" && (pathname.startsWith("/service-bookings") || pathname.startsWith("/rostering") || pathname.startsWith("/timesheets") || pathname.startsWith("/generate-timesheets"))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
   }
@@ -749,6 +782,60 @@ export function SidebarNav() {
         </div>
       ) : null}
 
+      {visibleDeliveryLinks.length > 0 ? (
+        <div
+          className={sectionDividerClass(
+            hasCoreNav ||
+              showEnquiries ||
+              showClients ||
+              showLocations ||
+              visiblePeopleLinks.length > 0 ||
+              showIncidents ||
+              visibleServiceLinks.length > 0
+          )}
+        >
+          <SectionHeader
+            label="Delivery"
+            icon={
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                />
+              </svg>
+            }
+            sectionKey="delivery"
+            open={isOpen("delivery")}
+            onToggle={toggleSection}
+            href="/service-bookings"
+            active={pathname.startsWith("/service-bookings")}
+          />
+          {isOpen("delivery") ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              {visibleDeliveryLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs font-medium ${
+                    link.match(pathname)
+                      ? "bg-[#fdf2f8] text-[#b51266]"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  {"comingSoon" in link && link.comingSoon ? (
+                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-slate-400">
+                      Soon
+                    </span>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {showReports ? (
         <div
           className={sectionDividerClass(
@@ -758,6 +845,7 @@ export function SidebarNav() {
               showLocations ||
               visiblePeopleLinks.length > 0 ||
               visibleServiceLinks.length > 0 ||
+              visibleDeliveryLinks.length > 0 ||
               showIncidents
           )}
         >

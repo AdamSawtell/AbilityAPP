@@ -10,6 +10,12 @@ import {
   type ServiceAgreementRecord,
 } from "@/lib/service-agreement";
 import {
+  createServiceBooking,
+  initialServiceBookings as seedServiceBookings,
+  normalizeServiceBooking,
+  type ServiceBookingRecord,
+} from "@/lib/service-booking";
+import {
   initialPriceLists as seedPriceLists,
   initialProducts as seedProducts,
   normalizePriceList,
@@ -92,6 +98,7 @@ import {
   savePriceList,
   saveProduct,
   saveServiceAgreement,
+  saveServiceBooking,
   saveSupportPlan,
   saveTask,
   saveTaskAutomation,
@@ -106,6 +113,7 @@ type DataStore = {
   products: ProductRecord[];
   priceLists: PriceListRecord[];
   serviceAgreements: ServiceAgreementRecord[];
+  serviceBookings: ServiceBookingRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -124,6 +132,9 @@ type DataStore = {
   upsertProduct: (product: ProductRecord) => void;
   upsertPriceList: (list: PriceListRecord) => void;
   upsertServiceAgreement: (record: ServiceAgreementRecord) => void;
+  addServiceBooking: (partial: ServiceBookingRecord) => ServiceBookingRecord;
+  upsertServiceBooking: (record: ServiceBookingRecord) => void;
+  getServiceBookingsByClientId: (clientId: string) => ServiceBookingRecord[];
   upsertSupportPlan: (record: SupportPlanRecord) => void;
   upsertEmployee: (record: EmployeeRecord) => void;
   addEmployee: (partial: EmployeeRecord) => EmployeeRecord;
@@ -192,6 +203,7 @@ type Persisted = {
   products?: ProductRecord[];
   priceLists?: PriceListRecord[];
   serviceAgreements?: ServiceAgreementRecord[];
+  serviceBookings?: ServiceBookingRecord[];
   supportPlans?: SupportPlanRecord[];
   planDocuments?: PlanAssessmentDocument[];
   employees?: EmployeeRecord[];
@@ -208,6 +220,7 @@ function seedData(): Required<Persisted> {
     products: seedProducts,
     priceLists: seedPriceLists.map(normalizePriceList),
     serviceAgreements: seedServiceAgreements.map(normalizeServiceAgreement),
+    serviceBookings: seedServiceBookings.map(normalizeServiceBooking),
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
     employees: seedEmployees.map(normalizeEmployee),
@@ -241,6 +254,7 @@ function loadLocal(): Required<Persisted> {
       products: parsed.products ?? seedProducts,
       priceLists: (parsed.priceLists ?? seedPriceLists).map(normalizePriceList),
       serviceAgreements: (parsed.serviceAgreements ?? seedServiceAgreements).map(normalizeServiceAgreement),
+      serviceBookings: (parsed.serviceBookings ?? seedServiceBookings).map(normalizeServiceBooking),
       supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
       employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
@@ -271,6 +285,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<ProductRecord[]>(defaults.products);
   const [priceLists, setPriceLists] = useState<PriceListRecord[]>(defaults.priceLists);
   const [serviceAgreements, setServiceAgreements] = useState<ServiceAgreementRecord[]>(defaults.serviceAgreements);
+  const [serviceBookings, setServiceBookings] = useState<ServiceBookingRecord[]>(defaults.serviceBookings);
   const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(defaults.supportPlans);
   const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
   const [employees, setEmployees] = useState<EmployeeRecord[]>(defaults.employees);
@@ -287,6 +302,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const productsRef = useSyncRef(products);
   const priceListsRef = useSyncRef(priceLists);
   const serviceAgreementsRef = useSyncRef(serviceAgreements);
+  const serviceBookingsRef = useSyncRef(serviceBookings);
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
   const locationsRef = useSyncRef(locations);
@@ -323,6 +339,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setProducts(data.products);
             setPriceLists(data.priceLists);
             setServiceAgreements(data.serviceAgreements);
+            setServiceBookings(data.serviceBookings);
             setSupportPlans(data.supportPlans);
             setPlanDocuments(data.planDocuments);
             setEmployees(data.employees);
@@ -347,6 +364,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setProducts(data.products);
         setPriceLists(data.priceLists);
         setServiceAgreements(data.serviceAgreements);
+        setServiceBookings(data.serviceBookings);
         setSupportPlans(data.supportPlans);
         setPlanDocuments(data.planDocuments);
         setEmployees(data.employees);
@@ -377,6 +395,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       products,
       priceLists,
       serviceAgreements,
+      serviceBookings,
       supportPlans,
       planDocuments,
       employees,
@@ -678,6 +697,33 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, serviceAgreementsRef]
   );
 
+  const addServiceBooking = useCallback(
+    (partial: ServiceBookingRecord) => {
+      const prev = serviceBookingsRef.current;
+      const next = createServiceBooking(partial, prev);
+      const created = persistRecordAudit("service-booking", next, true);
+      setServiceBookings((current) => [...current, created]);
+      void persistRemote((supabase) => saveServiceBooking(supabase, created));
+      return created;
+    },
+    [persistRemote, serviceBookingsRef]
+  );
+
+  const upsertServiceBooking = useCallback(
+    (record: ServiceBookingRecord) => {
+      const prev = serviceBookingsRef.current;
+      const normalized = normalizeServiceBooking(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("service-booking", normalized, !exists, before);
+      setServiceBookings((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveServiceBooking(supabase, stamped));
+    },
+    [persistRemote, serviceBookingsRef]
+  );
+
   const upsertSupportPlan = useCallback(
     (record: SupportPlanRecord) => {
       const prev = supportPlansRef.current;
@@ -771,6 +817,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const getServiceAgreementsByClientId = useCallback(
     (clientId: string) => serviceAgreements.filter((r) => r.clientId === clientId),
     [serviceAgreements]
+  );
+
+  const getServiceBookingsByClientId = useCallback(
+    (clientId: string) => serviceBookings.filter((r) => r.clientId === clientId),
+    [serviceBookings]
   );
 
   const getSupportPlanByClientId = useCallback(
@@ -898,6 +949,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       products,
       priceLists,
       serviceAgreements,
+      serviceBookings,
       supportPlans,
       planDocuments,
       employees,
@@ -916,6 +968,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertProduct,
       upsertPriceList,
       upsertServiceAgreement,
+      addServiceBooking,
+      upsertServiceBooking,
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,
@@ -925,6 +979,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getClientByEnquiryId,
       getContractsByClientId,
       getServiceAgreementsByClientId,
+      getServiceBookingsByClientId,
       getSupportPlanByClientId,
       getPlanDocumentsByClientId,
       upsertTask,
@@ -948,6 +1003,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       products,
       priceLists,
       serviceAgreements,
+      serviceBookings,
       supportPlans,
       planDocuments,
       employees,
@@ -966,6 +1022,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertProduct,
       upsertPriceList,
       upsertServiceAgreement,
+      addServiceBooking,
+      upsertServiceBooking,
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,
@@ -975,6 +1033,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getClientByEnquiryId,
       getContractsByClientId,
       getServiceAgreementsByClientId,
+      getServiceBookingsByClientId,
       getSupportPlanByClientId,
       getPlanDocumentsByClientId,
       upsertTask,

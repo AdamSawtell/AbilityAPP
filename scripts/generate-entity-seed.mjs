@@ -18,6 +18,9 @@ const { initialProducts, initialPriceLists } = await import(
 const { initialServiceAgreements } = await import(
   pathToFileURL(join(root, "web", "src", "lib", "service-agreement.ts")).href
 );
+const { initialServiceBookings } = await import(
+  pathToFileURL(join(root, "web", "src", "lib", "service-booking.ts")).href
+);
 const { initialContracts } = await import(pathToFileURL(join(root, "web", "src", "lib", "contract.ts")).href);
 const { initialSupportPlans, initialPlanDocuments } = await import(
   pathToFileURL(join(root, "web", "src", "lib", "support-plan.ts")).href
@@ -281,6 +284,53 @@ addInsert(
     "registration_group", "funding_type", "funding_body", "funding_management_type", "budget_rules",
   ],
   salRows,
+  "(id)"
+);
+
+// Service bookings
+addInsert(
+  "service_booking",
+  [
+    "id", "document_no", "organization", "description", "target_document_type", "is_template",
+    "ready_to_claim_rule", "program_of_supports", "date_ordered", "date_promised", "start_date",
+    "end_date", "client_id", "invoice_partner", "service_agreement_id", "booking_generator_ref",
+    "total_lines", "grand_total", "document_status", "created_by", "updated_by",
+  ],
+  initialServiceBookings.map((b) => {
+    const v = [
+      sqlString(b.id), sqlString(b.documentNo), sqlString(b.organization), sqlString(b.description),
+      sqlString(b.targetDocumentType), sqlBool(b.isTemplate), sqlString(b.readyToClaimRule),
+      sqlBool(b.programOfSupports), sqlDate(b.dateOrdered), sqlDate(b.datePromised), sqlDate(b.startDate),
+      sqlDate(b.endDate), sqlString(b.clientId), sqlString(b.invoicePartner),
+      sqlString(b.serviceAgreementId), sqlString(b.bookingGeneratorRef),
+      sqlNum(b.totalLines), sqlNum(b.grandTotal), sqlString(b.documentStatus),
+      sqlString(b.createdBy), sqlString(b.updatedBy),
+    ];
+    return `  (${v.join(", ")})`;
+  }),
+  "(id)"
+);
+
+const sblRows = initialServiceBookings.flatMap((b) =>
+  b.lines.map((line) => {
+    const v = [
+      sqlString(line.id), sqlString(b.id), String(line.lineNo), sqlBool(line.manualHold),
+      sqlBool(line.readyToClaim), sqlNum(line.orderedQuantity), sqlNum(line.quantityInvoiced),
+      sqlDate(line.datePromised), sqlString(line.productId), sqlString(line.claimType),
+      sqlBool(line.useTimeBasedQuantity), sqlDate(line.startDate), sqlDate(line.endDate),
+      sqlString(line.uom), sqlNum(line.price), sqlNum(line.lineAmount),
+    ];
+    return `  (${v.join(", ")})`;
+  })
+);
+addInsert(
+  "service_booking_line",
+  [
+    "id", "service_booking_id", "line_no", "manual_hold", "ready_to_claim", "ordered_quantity",
+    "quantity_invoiced", "date_promised", "product_id", "claim_type", "use_time_based_quantity",
+    "start_date", "end_date", "uom", "price", "line_amount",
+  ],
+  sblRows,
   "(id)"
 );
 

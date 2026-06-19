@@ -14,6 +14,8 @@ import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { normalizePriceList } from "@/lib/product";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import { normalizeServiceAgreement } from "@/lib/service-agreement";
+import type { ServiceBookingRecord } from "@/lib/service-booking";
+import { normalizeServiceBooking } from "@/lib/service-booking";
 import type { PlanAssessmentDocument, SupportPlanRecord } from "@/lib/support-plan";
 import { normalizeSupportPlan } from "@/lib/support-plan";
 import type { TaskRecord, TaskUpdate } from "@/lib/task";
@@ -47,6 +49,9 @@ import {
   serviceAgreementFromRow,
   serviceAgreementLineToRow,
   serviceAgreementToRow,
+  serviceBookingFromRow,
+  serviceBookingLineToRow,
+  serviceBookingToRow,
   supportPlanFromRow,
   supportPlanToRow,
   type ClientActivityRowDb,
@@ -84,6 +89,8 @@ import {
   type ProductRow,
   type ServiceAgreementLineRow,
   type ServiceAgreementRow,
+  type ServiceBookingRow,
+  type ServiceBookingLineRowDb,
   type SupportPlanGoalRow,
   type SupportPlanProgressReviewRowDb,
   type SupportPlanRow,
@@ -107,6 +114,7 @@ export type AppData = {
   products: ProductRecord[];
   priceLists: PriceListRecord[];
   serviceAgreements: ServiceAgreementRecord[];
+  serviceBookings: ServiceBookingRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -147,6 +155,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     priceLinesRes,
     agreementsRes,
     agreementLinesRes,
+    bookingsRes,
+    bookingLinesRes,
     contractsRes,
     auditRes,
     supportPlansRes,
@@ -192,6 +202,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("price_list_line").select("*").order("line_no"),
     supabase.from("service_agreement").select("*").order("search_key"),
     supabase.from("service_agreement_line").select("*").order("line_no"),
+    supabase.from("service_booking").select("*").order("date_promised", { ascending: false }),
+    supabase.from("service_booking_line").select("*").order("line_no"),
     supabase.from("contract").select("*").order("document_no"),
     supabase.from("contract_audit").select("*").order("line_no"),
     supabase.from("support_plan").select("*").order("document_no"),
@@ -286,6 +298,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const needsAndRulesByClient = groupBy(needsAndRulesRes.data as ClientNeedRuleRowDb[], "client_id");
   const linesByPriceList = groupBy(priceLinesRes.data as PriceListLineRow[], "price_list_id");
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
+  const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
   const goalsByPlan = groupBy(goalsRes.data as SupportPlanGoalRow[], "support_plan_id");
   const progressReviewsByGoal = groupBy(
@@ -342,6 +355,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     serviceAgreements: ((agreementsRes.data ?? []) as ServiceAgreementRow[]).map((row) =>
       normalizeServiceAgreement(serviceAgreementFromRow(row, linesByAgreement.get(row.id) ?? []))
+    ),
+    serviceBookings: ((bookingsRes.data ?? []) as ServiceBookingRow[]).map((row) =>
+      normalizeServiceBooking(serviceBookingFromRow(row, linesByBooking.get(row.id) ?? []))
     ),
     contracts: ((contractsRes.data ?? []) as ContractRow[]).map((row) =>
       normalizeContract(contractFromRow(row, auditByContract.get(row.id) ?? []))
@@ -740,6 +756,20 @@ export async function saveServiceAgreement(supabase: SupabaseClient, record: Ser
     const { error: lineError } = await supabase
       .from("service_agreement_line")
       .insert(agreement.lines.map((line) => serviceAgreementLineToRow(agreement.id, line)));
+    if (lineError) throw lineError;
+  }
+}
+
+export async function saveServiceBooking(supabase: SupabaseClient, record: ServiceBookingRecord) {
+  const booking = normalizeServiceBooking(record);
+  const { error } = await supabase.from("service_booking").upsert(serviceBookingToRow(booking));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "service_booking_line", "service_booking_id", booking.id);
+  if (booking.lines.length) {
+    const { error: lineError } = await supabase
+      .from("service_booking_line")
+      .insert(booking.lines.map((line) => serviceBookingLineToRow(booking.id, line)));
     if (lineError) throw lineError;
   }
 }

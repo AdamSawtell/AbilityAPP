@@ -32,6 +32,7 @@ import type {
   ProductRecord,
 } from "@/lib/product";
 import type { ServiceAgreementLine, ServiceAgreementRecord } from "@/lib/service-agreement";
+import type { ServiceBookingLine, ServiceBookingRecord } from "@/lib/service-booking";
 import type {
   PlanAssessmentDocument,
   SupportPlanGoalLine,
@@ -763,6 +764,149 @@ export function serviceAgreementLineToRow(
     funding_body: line.fundingBody,
     funding_management_type: line.fundingManagementType,
     budget_rules: line.budgetRules,
+  };
+}
+
+// --- Service booking ---
+
+export type ServiceBookingRow = {
+  id: string;
+  document_no: string;
+  organization: string;
+  description: string;
+  target_document_type: string;
+  is_template: boolean;
+  ready_to_claim_rule: string;
+  program_of_supports: boolean;
+  date_ordered: string | null;
+  date_promised: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  client_id: string | null;
+  invoice_partner: string;
+  service_agreement_id: string | null;
+  booking_generator_ref: string;
+  total_lines: number | null;
+  grand_total: number | null;
+  document_status: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type ServiceBookingLineRowDb = {
+  id: string;
+  service_booking_id: string;
+  line_no: number;
+  manual_hold: boolean;
+  ready_to_claim: boolean;
+  ordered_quantity: number;
+  quantity_invoiced: number;
+  date_promised: string | null;
+  product_id: string | null;
+  claim_type: string;
+  use_time_based_quantity: boolean;
+  start_date: string | null;
+  end_date: string | null;
+  uom: string;
+  price: number | null;
+  line_amount: number | null;
+};
+
+export function serviceBookingFromRow(
+  row: ServiceBookingRow,
+  lines: ServiceBookingLineRowDb[]
+): ServiceBookingRecord {
+  return {
+    id: row.id,
+    documentNo: row.document_no,
+    organization: row.organization,
+    description: row.description,
+    targetDocumentType: row.target_document_type,
+    isTemplate: row.is_template,
+    readyToClaimRule: row.ready_to_claim_rule,
+    programOfSupports: row.program_of_supports,
+    dateOrdered: strDate(row.date_ordered),
+    datePromised: strDate(row.date_promised),
+    startDate: strDate(row.start_date),
+    endDate: strDate(row.end_date),
+    clientId: row.client_id ?? "",
+    invoicePartner: row.invoice_partner,
+    serviceAgreementId: row.service_agreement_id ?? "",
+    bookingGeneratorRef: row.booking_generator_ref,
+    totalLines: strMoney(row.total_lines),
+    grandTotal: strMoney(row.grand_total),
+    documentStatus: row.document_status,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+    lines: lines.map(
+      (line): ServiceBookingLine => ({
+        id: line.id,
+        lineNo: line.line_no,
+        manualHold: line.manual_hold,
+        readyToClaim: line.ready_to_claim,
+        orderedQuantity: String(line.ordered_quantity),
+        quantityInvoiced: String(line.quantity_invoiced),
+        datePromised: strDate(line.date_promised),
+        productId: line.product_id ?? "",
+        claimType: line.claim_type,
+        useTimeBasedQuantity: line.use_time_based_quantity,
+        startDate: strDate(line.start_date),
+        endDate: strDate(line.end_date),
+        uom: line.uom,
+        price: strMoney(line.price),
+        lineAmount: strMoney(line.line_amount),
+      })
+    ),
+  };
+}
+
+export function serviceBookingToRow(record: ServiceBookingRecord): ServiceBookingRow {
+  return {
+    id: record.id,
+    document_no: record.documentNo,
+    organization: record.organization,
+    description: record.description,
+    target_document_type: record.targetDocumentType,
+    is_template: record.isTemplate,
+    ready_to_claim_rule: record.readyToClaimRule,
+    program_of_supports: record.programOfSupports,
+    date_ordered: toDate(record.dateOrdered),
+    date_promised: toDate(record.datePromised),
+    start_date: toDate(record.startDate),
+    end_date: toDate(record.endDate),
+    client_id: record.clientId?.trim() ? record.clientId : null,
+    invoice_partner: record.invoicePartner,
+    service_agreement_id: record.serviceAgreementId?.trim() ? record.serviceAgreementId : null,
+    booking_generator_ref: record.bookingGeneratorRef,
+    total_lines: toMoney(record.totalLines),
+    grand_total: toMoney(record.grandTotal),
+    document_status: record.documentStatus,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function serviceBookingLineToRow(
+  bookingId: string,
+  line: ServiceBookingLine
+): ServiceBookingLineRowDb {
+  return {
+    id: line.id,
+    service_booking_id: bookingId,
+    line_no: line.lineNo,
+    manual_hold: line.manualHold,
+    ready_to_claim: line.readyToClaim,
+    ordered_quantity: Number(line.orderedQuantity) || 0,
+    quantity_invoiced: Number(line.quantityInvoiced) || 0,
+    date_promised: toDate(line.datePromised),
+    product_id: line.productId?.trim() ? line.productId : null,
+    claim_type: line.claimType,
+    use_time_based_quantity: line.useTimeBasedQuantity,
+    start_date: toDate(line.startDate),
+    end_date: toDate(line.endDate),
+    uom: line.uom,
+    price: toMoney(line.price),
+    line_amount: toMoney(line.lineAmount),
   };
 }
 

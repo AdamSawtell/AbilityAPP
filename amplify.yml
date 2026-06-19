@@ -18,6 +18,7 @@ applications:
               NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
               NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
               SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+              AUDIT_CRON_SECRET=${AUDIT_CRON_SECRET}
               OPENAI_API_KEY=${OPENAI_API_KEY}
               EOF
               echo "Wrote .env.production for Next.js (AUTH_SESSION_SECRET length: ${#AUTH_SESSION_SECRET})"

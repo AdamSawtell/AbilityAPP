@@ -1,4 +1,4 @@
-export type AccessWindowGroup = "Core" | "Locations" | "People" | "Workforce planning" | "My workplace" | "Services" | "Admin";
+export type AccessWindowGroup = "Core" | "Locations" | "People" | "Workforce planning" | "My workplace" | "Services" | "Delivery" | "Admin";
 
 /** Where the window is exposed — never both app and system. */
 export type AccessWindowSurface = "app" | "system";

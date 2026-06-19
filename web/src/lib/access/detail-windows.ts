@@ -12,6 +12,7 @@ export const INCIDENT_DETAIL_TABS = incidentTabs;
 export const PRODUCT_DETAIL_TABS = ["Overview", "Pricing"] as const;
 export const PRICE_LIST_DETAIL_TABS = ["Overview", "Lines"] as const;
 export const SERVICE_AGREEMENT_DETAIL_TABS = ["Overview", "Lines"] as const;
+export const SERVICE_BOOKING_DETAIL_TABS = ["Overview", "Lines"] as const;
 
 export function tabToWindowSlug(tab: string): string {
   return tab
@@ -131,6 +132,14 @@ export const SERVICE_AGREEMENT_DEPENDENT_WINDOWS = buildDetailWindows(
   SERVICE_AGREEMENT_DETAIL_TABS,
   "Services",
   "Service agreement"
+);
+
+export const SERVICE_BOOKING_DEPENDENT_WINDOWS = buildDetailWindows(
+  "service-bookings",
+  "service-booking",
+  SERVICE_BOOKING_DETAIL_TABS,
+  "Delivery",
+  "Service Booking"
 );
 
 export const EMPLOYEE_DEPENDENT_WINDOWS = buildDetailWindows(

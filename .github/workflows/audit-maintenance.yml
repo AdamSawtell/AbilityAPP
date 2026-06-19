@@ -1,0 +1,50 @@
+# Nightly audit maintenance: risk queue processing + retention purge.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   APP_BASE_URL       — Amplify app URL, e.g. https://main.xxxxx.amplifyapp.com
+#   AUDIT_CRON_SECRET  — same value as Amplify env var AUDIT_CRON_SECRET
+name: Audit maintenance
+
+on:
+  schedule:
+    # 03:00 UTC daily (matches Supabase pg_cron risk-queue cleanup window)
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Maintenance action"
+        required: false
+        default: run_retention
+        type: choice
+        options:
+          - run_retention
+          - risk_only
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run audit maintenance
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          AUDIT_CRON_SECRET: ${{ secrets.AUDIT_CRON_SECRET }}
+          ACTION: ${{ github.event.inputs.action || 'run_retention' }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APP_BASE_URL:-}" ] || [ -z "${AUDIT_CRON_SECRET:-}" ]; then
+            echo "::warning title=Audit cron not configured::"
+            echo "Set APP_BASE_URL and AUDIT_CRON_SECRET in GitHub Actions secrets."
+            echo "Also add AUDIT_CRON_SECRET to Amplify environment variables."
+            exit 0
+          fi
+          base="${APP_BASE_URL%/}"
+          if [ "$ACTION" = "risk_only" ]; then
+            body="{}"
+          else
+            body='{"action":"run_retention"}'
+          fi
+          echo "POST ${base}/api/system/audit-maintenance"
+          curl -fsS -X POST "${base}/api/system/audit-maintenance" \
+            -H "Content-Type: application/json" \
+            -H "x-audit-cron-secret: ${AUDIT_CRON_SECRET}" \
+            -d "$body"

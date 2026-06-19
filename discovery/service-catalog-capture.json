@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-06-15T11:00:55.988Z",
+  "capturedAt": "2026-06-19T08:07:58.089Z",
   "windows": {
     "Product": {
       "windowName": "Product",
@@ -26850,7 +26850,7 @@
               "))))))"
             ]
           ],
-          "body": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Menu Favourites Timesheet Business Partner Plan & Assessment AbilityERP Development Management AbilityERP Function Service Booking Generate Timesheets Sales Order Business Partner Product System Configurator Support Receiver (BP) Cache Reset Support Location Incident Report Animal Glossary Recent Items Purchase Order: 800020 Booking Generator: BERN_SIL Service Booking: 50143 Pack In: sb Service Booking: 50137 Service Booking: 50129 Service Booking: 50133 Booking Generator: 1000002 Service Booking: 20063 Service Booking: 20062 Home Product Price List: AbERP Price List Price List>Version 1/1 Client* Organization* Price List* Name* Description Active Price List Schema* Base Price List Valid from* Create Price List Product Price Product Price Break 1 Records Organization Price List Version Product Active List Price Standard Price Limit Price * AbERP from 01-07-2024 BandL_Board and Lodging 735.00 735.00 735.00",
+          "body": "SuperUser@AbilityERP.*/AbilityERP Admin Feedback Preference Change Role Log Out Menu Favourites Timesheet Business Partner Plan & Assessment AbilityERP Development Management AbilityERP Function Service Booking Generate Timesheets Sales Order Business Partner Product System Configurator Support Receiver (BP) Cache Reset Support Location Incident Report Animal Glossary Recent Items Purchase Order: 800020 Booking Generator: BERN_SIL Service Booking: 50143 Pack In: sb Service Booking: 50137 Service Booking: 50129 Service Booking: 50133 Booking Generator: 1000002 Service Booking: 20063 Service Booking: 20062 Home Product Price List: AbERP Price List Price List>Version 1/1 Data requeried Client* Organization* Price List* Name* Description Active Price List Schema* Base Price List Valid from* Create Price List Product Price Product Price Break 1 Records Organization Price List Version Product Active List Price Standard Price Limit Price * AbERP from 01-07-2024 BandL_Board and Lodging 735.00 735.00 735.00",
           "dropdowns": [
             {
               "field": "Price List Schema",

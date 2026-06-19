@@ -143,75 +143,6 @@ on conflict (id) do update set
   valid_from = excluded.valid_from,
   valid_to = excluded.valid_to;
 
-insert into public.client_consent (id, client_id, line_no, consent_type, show_as_alert, name, description, valid_from, valid_to)
-values
-  ('consent-photo', 'bp-bern', 1, 'Photo / video', 'Yes', 'No photo consent provided', 'Participant has not provided consent for photos or video to be taken or shared.', '2021-01-05', null)
-on conflict (id) do update set
-  client_id = excluded.client_id,
-  line_no = excluded.line_no,
-  consent_type = excluded.consent_type,
-  show_as_alert = excluded.show_as_alert,
-  name = excluded.name,
-  description = excluded.description,
-  valid_from = excluded.valid_from,
-  valid_to = excluded.valid_to;
-
-insert into public.client_risk (id, client_id, line_no, risk_type, show_as_alert, name, description, valid_from, valid_to)
-values
-  ('risk-peanut', 'bp-bern', 1, 'Allergy', 'Yes', 'Allergy to peanuts', 'Anaphylaxis risk. EpiPen in kitchen drawer. Avoid all nut products.', '2021-01-05', null)
-on conflict (id) do update set
-  client_id = excluded.client_id,
-  line_no = excluded.line_no,
-  risk_type = excluded.risk_type,
-  show_as_alert = excluded.show_as_alert,
-  name = excluded.name,
-  description = excluded.description,
-  valid_from = excluded.valid_from,
-  valid_to = excluded.valid_to;
-
-insert into public.client_bp_association (id, client_id, line_no, associated_bp_name, association_type, relationship, phone, mobile, email, primary_contact, valid_from, valid_to, notes)
-values
-  ('bpa-harry', 'bp-bern', 1, 'Harry', 'Family / friend', 'Friend', '', '0411 222 333', '', 'Yes', '2021-01-05', null, 'Best friend. Sunday lunch contact.')
-on conflict (id) do update set
-  client_id = excluded.client_id,
-  line_no = excluded.line_no,
-  associated_bp_name = excluded.associated_bp_name,
-  association_type = excluded.association_type,
-  relationship = excluded.relationship,
-  phone = excluded.phone,
-  mobile = excluded.mobile,
-  email = excluded.email,
-  primary_contact = excluded.primary_contact,
-  valid_from = excluded.valid_from,
-  valid_to = excluded.valid_to,
-  notes = excluded.notes;
-
-insert into public.client_contact_activity (id, client_id, line_no, activity_date, activity_type, contact_name, subject, description, created_by)
-values
-  ('cact-harry', 'bp-bern', 1, '2024-02-14', 'Phone call', 'Harry', 'PACE transition update', 'Confirmed Bernie was happy with plan changes discussed at lunch.', 'Isla Robinson')
-on conflict (id) do update set
-  client_id = excluded.client_id,
-  line_no = excluded.line_no,
-  activity_date = excluded.activity_date,
-  activity_type = excluded.activity_type,
-  contact_name = excluded.contact_name,
-  subject = excluded.subject,
-  description = excluded.description,
-  created_by = excluded.created_by;
-
-insert into public.client_support_receiver_need_rule (id, client_id, line_no, category, name, rule_text, show_as_alert, valid_from, valid_to)
-values
-  ('need-transfer', 'bp-bern', 1, 'Personal care', 'Shower transfer', 'Assist transfer to shower chair. Bernie washes independently then needs assistance back to wheelchair.', 'Yes', '2022-05-01', null)
-on conflict (id) do update set
-  client_id = excluded.client_id,
-  line_no = excluded.line_no,
-  category = excluded.category,
-  name = excluded.name,
-  rule_text = excluded.rule_text,
-  show_as_alert = excluded.show_as_alert,
-  valid_from = excluded.valid_from,
-  valid_to = excluded.valid_to;
-
 insert into public.client_activity (id, client_id, line_no, activity_date, activity_type, subject, description, created_by)
 values
   ('act1', 'bp-bern', 1, '2024-02-14', 'Phone call', 'PACE transition check-in', 'Confirmed NDIS plan details and updated funding body number.', 'Isla Robinson')
@@ -288,6 +219,56 @@ on conflict (id) do update set
   funding_body = excluded.funding_body,
   funding_management_type = excluded.funding_management_type,
   budget_rules = excluded.budget_rules;
+
+insert into public.service_booking (id, document_no, organization, description, target_document_type, is_template, ready_to_claim_rule, program_of_supports, date_ordered, date_promised, start_date, end_date, client_id, invoice_partner, service_agreement_id, booking_generator_ref, total_lines, grand_total, document_status, created_by, updated_by)
+values
+  ('sb-50145', '50145', 'AbilityERP', 'Part 1', 'Service Booking - Standard', false, 'Manual Tick', false, '2025-10-01', '2025-10-12', '2025-09-29', '2025-10-12', 'bp-bern', 'NDIS - National Disability Insurance Scheme', 'sa-rose-ni', 'BERN_SIL', 10907.8, 10907.8, 'Drafted', 'Isla Robinson', 'Isla Robinson'),
+  ('sb-50143', '50143', 'AbilityERP', 'SIL weekly block', 'Service Booking - Standard', false, 'Manual Tick', false, '2025-06-10', '2025-06-16', '2025-06-16', '2025-06-16', 'bp-bern', 'NDIS - National Disability Insurance Scheme', 'sa-rose-ni', 'BERN_SIL', 591, 591, 'Completed', 'Isla Robinson', 'Isla Robinson'),
+  ('sb-50137', '50137', 'AbilityERP', 'Community participation outing', 'Service Booking - Standard', false, 'Manual Tick', false, '2025-06-17', '2025-06-18', '2025-06-18', '2025-06-18', 'bp-bern', 'NDIS - National Disability Insurance Scheme', 'sa-rose-ni', '', 261.88, 261.88, 'Completed', 'Isla Robinson', 'Isla Robinson')
+on conflict (id) do update set
+  document_no = excluded.document_no,
+  organization = excluded.organization,
+  description = excluded.description,
+  target_document_type = excluded.target_document_type,
+  is_template = excluded.is_template,
+  ready_to_claim_rule = excluded.ready_to_claim_rule,
+  program_of_supports = excluded.program_of_supports,
+  date_ordered = excluded.date_ordered,
+  date_promised = excluded.date_promised,
+  start_date = excluded.start_date,
+  end_date = excluded.end_date,
+  client_id = excluded.client_id,
+  invoice_partner = excluded.invoice_partner,
+  service_agreement_id = excluded.service_agreement_id,
+  booking_generator_ref = excluded.booking_generator_ref,
+  total_lines = excluded.total_lines,
+  grand_total = excluded.grand_total,
+  document_status = excluded.document_status,
+  created_by = excluded.created_by,
+  updated_by = excluded.updated_by;
+
+insert into public.service_booking_line (id, service_booking_id, line_no, manual_hold, ready_to_claim, ordered_quantity, quantity_invoiced, date_promised, product_id, claim_type, use_time_based_quantity, start_date, end_date, uom, price, line_amount)
+values
+  ('sbl-50145-10', 'sb-50145', 10, false, false, 1, 0, '2025-10-12', 'prod-sil-wd', '', false, '2025-10-06', '2025-10-12', 'Week', 5453.9, 5453.9),
+  ('sbl-50145-20', 'sb-50145', 20, false, false, 1, 0, '2025-10-05', 'prod-sil-wd', '', false, '2025-09-29', '2025-10-05', 'Week', 5453.9, 5453.9),
+  ('sbl-50143-10', 'sb-50143', 10, false, true, 6, 6, '2025-06-16', 'prod-sil-wd', '', true, '2025-06-16', '2025-06-16', 'Hour', 98.5, 591),
+  ('sbl-50137-10', 'sb-50137', 10, false, true, 4, 4, '2025-06-18', 'prod-cp', '', true, '2025-06-18', '2025-06-18', 'Hour', 65.47, 261.88)
+on conflict (id) do update set
+  service_booking_id = excluded.service_booking_id,
+  line_no = excluded.line_no,
+  manual_hold = excluded.manual_hold,
+  ready_to_claim = excluded.ready_to_claim,
+  ordered_quantity = excluded.ordered_quantity,
+  quantity_invoiced = excluded.quantity_invoiced,
+  date_promised = excluded.date_promised,
+  product_id = excluded.product_id,
+  claim_type = excluded.claim_type,
+  use_time_based_quantity = excluded.use_time_based_quantity,
+  start_date = excluded.start_date,
+  end_date = excluded.end_date,
+  uom = excluded.uom,
+  price = excluded.price,
+  line_amount = excluded.line_amount;
 
 insert into public.contract (id, document_no, client_id, business_partner_name, contract_type, name, description, contract_term, execution_date, start_date, end_date, review_date, reference, project, created_by, updated_by)
 values
@@ -407,21 +388,6 @@ on conflict (id) do update set
   support_required = excluded.support_required,
   start_date = excluded.start_date,
   end_date = excluded.end_date;
-
-insert into public.support_plan_goal_progress_review (id, goal_id, line_no, progress_review_type, review_date, goal_progress, progress_taken, receiver_feeling, next_steps, created_by, updated_by)
-values
-  ('pr-goal-1', 'goal-1', 1, 'Progress Review', '2023-04-01', 'Some Progress', 'Bernie is building upper arm strength with OT sessions fortnightly.', 'Feels encouraged and wants to keep working on transfers.', 'Continue OT and review manual handling plan in June.', 'Isla Robinson', 'Isla Robinson')
-on conflict (id) do update set
-  goal_id = excluded.goal_id,
-  line_no = excluded.line_no,
-  progress_review_type = excluded.progress_review_type,
-  review_date = excluded.review_date,
-  goal_progress = excluded.goal_progress,
-  progress_taken = excluded.progress_taken,
-  receiver_feeling = excluded.receiver_feeling,
-  next_steps = excluded.next_steps,
-  created_by = excluded.created_by,
-  updated_by = excluded.updated_by;
 
 insert into public.plan_assessment_document (id, client_id, document_no, document_type, plan_type, assessment_type, review_date, date_received, document_status, document_developer, support_plan_id)
 values

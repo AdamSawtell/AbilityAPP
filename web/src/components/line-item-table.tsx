@@ -39,7 +39,7 @@ function CellInput<TRow extends RowBase, TColumn extends { key: keyof TRow & str
 }: {
   column: TColumn;
   row: TRow;
-  onChange: (value: string | number) => void;
+  onChange: (value: string | number | boolean) => void;
   dropdowns: DropdownMap;
   optionLabels?: Record<string, string>;
 }) {
@@ -85,6 +85,17 @@ function CellInput<TRow extends RowBase, TColumn extends { key: keyof TRow & str
           </option>
         ))}
       </select>
+    );
+  }
+
+  if (column.type === "checkbox") {
+    return (
+      <input
+        className="h-4 w-4 rounded border-slate-300"
+        type="checkbox"
+        checked={Boolean(value)}
+        onChange={(e) => onChange(e.target.checked)}
+      />
     );
   }
 
@@ -144,7 +155,7 @@ export function LineItemTable<TRow extends RowBase>({
     );
   }, [rows, search, config.columns]);
 
-  function updateRow(id: string, key: keyof TRow, value: string | number) {
+  function updateRow(id: string, key: keyof TRow, value: string | number | boolean) {
     onChange(rows.map((row) => (row.id === id ? { ...row, [key]: value } : row)));
   }
 

@@ -1,3 +1,4 @@
+import { deliveryArticle } from "@/lib/help/articles/delivery";
 import { SYSTEM_SETUP_ARTICLES } from "@/lib/help/articles/system-setup";
 import { quickTaskArticles } from "@/lib/help/articles/quick-tasks";
 import { taskAutomationsArticle } from "@/lib/help/articles/task-automations";
@@ -28,6 +29,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   workforceLeaveCalendarArticle,
   workforceOrganisationArticle,
   servicesArticle,
+  deliveryArticle,
   reportsArticle,
   adminArticle,
   taskAutomationsArticle,

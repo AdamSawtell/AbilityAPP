@@ -22,6 +22,7 @@ import {
   PRICE_LIST_DEPENDENT_WINDOWS,
   PRODUCT_DEPENDENT_WINDOWS,
   SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
+  SERVICE_BOOKING_DEPENDENT_WINDOWS,
   tabToWindowSlug,
 } from "@/lib/access/detail-windows";
 import type { AccessProcess, AccessWindow } from "@/lib/access/catalog-types";
@@ -157,6 +158,41 @@ const MODULE_WINDOWS: AccessWindow[] = [
     group: "Core",
     href: "/reports",
     abilityErpName: "Reports",
+    showInSidebar: true,
+  },
+];
+
+const DELIVERY_WINDOWS: AccessWindow[] = [
+  {
+    key: "service-bookings",
+    label: "Service bookings",
+    group: "Delivery",
+    href: "/service-bookings",
+    abilityErpName: "Service Booking",
+    showInSidebar: true,
+  },
+  {
+    key: "rostering",
+    label: "Rostering",
+    group: "Delivery",
+    href: "/rostering",
+    abilityErpName: "Booking Generator",
+    showInSidebar: true,
+  },
+  {
+    key: "timesheets",
+    label: "Timesheets",
+    group: "Delivery",
+    href: "/timesheets",
+    abilityErpName: "Timesheet",
+    showInSidebar: true,
+  },
+  {
+    key: "generate-timesheets",
+    label: "Generate timesheets",
+    group: "Delivery",
+    href: "/generate-timesheets",
+    abilityErpName: "Generate Timesheets",
     showInSidebar: true,
   },
 ];
@@ -379,6 +415,8 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
   ...SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[8],
   ...CONTRACT_DEPENDENT_WINDOWS,
+  ...DELIVERY_WINDOWS,
+  ...SERVICE_BOOKING_DEPENDENT_WINDOWS,
   MODULE_WINDOWS[9],
   ...REPORT_WINDOWS,
   ...ADMIN_WINDOWS,

@@ -34,6 +34,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `client_alert` / `client_activity` / `client_location` | Client line tables |
 | `product` / `price_list` / `price_list_line` | Catalog & pricing |
 | `service_agreement` / `service_agreement_line` | Service agreements |
+| `service_booking` / `service_booking_line` | Service bookings (document + lines) |
 | `contract` / `contract_audit` | Legacy contracts module |
 | `support_plan` / `support_plan_goal` | Support plans |
 | `plan_assessment_document` | Plan & assessment documents |
@@ -57,8 +58,8 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 
 ## Not built yet (needs migration when added)
 
-- `service_booking` / `service_booking_line`
 - Auth, org tenancy, tightened RLS
+- Rostering / booking generator, timesheets, generate-timesheets records
 - Goals / progress review as standalone entities (if split from support plan)
 
 ## Local commands
