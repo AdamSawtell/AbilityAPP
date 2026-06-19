@@ -6,6 +6,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # AbilityAPP — agent notes
 
+## Start here (required)
+
+1. [../dev-core/AGENT-PLAYBOOK.md](../dev-core/AGENT-PLAYBOOK.md) — entry point for all tasks
+2. [../docs/BUILD-EXPECTATIONS.md](../docs/BUILD-EXPECTATIONS.md) — build standards
+3. [../docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) — phased backlog (scope Chunks 0–8)
+
 ## Database (required)
 
 **Every feature from here needs a DB update.** Read [../docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) before adding fields, entities, or tabs.

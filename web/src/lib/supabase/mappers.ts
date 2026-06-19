@@ -189,6 +189,9 @@ export type ClientRow = {
   email: string;
   phone: string;
   status: string;
+  lifecycle_status: string;
+  plan_review_due_date: string | null;
+  lifecycle_exit_reason: string;
   birthday: string | null;
   is_estimated_age: boolean;
   gender: string;
@@ -364,6 +367,9 @@ export function clientFromRow(
     email: row.email,
     phone: row.phone,
     status: row.status,
+    lifecycleStatus: row.lifecycle_status || "intake",
+    planReviewDueDate: strDate(row.plan_review_due_date),
+    lifecycleExitReason: row.lifecycle_exit_reason,
     birthday: strDate(row.birthday),
     isEstimatedAge: row.is_estimated_age,
     gender: row.gender,
@@ -511,6 +517,9 @@ export function clientToRow(record: ClientRecord): ClientRow {
     email: record.email,
     phone: record.phone,
     status: record.status,
+    lifecycle_status: record.lifecycleStatus,
+    plan_review_due_date: toDate(record.planReviewDueDate),
+    lifecycle_exit_reason: record.lifecycleExitReason,
     birthday: toDate(record.birthday),
     is_estimated_age: record.isEstimatedAge,
     gender: record.gender,

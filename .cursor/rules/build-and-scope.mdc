@@ -1,0 +1,19 @@
+---
+description: Read build expectations and scope roadmap before any feature work
+alwaysApply: true
+---
+
+# Build governance (required)
+
+Before starting **any** new feature, page, migration, or integration:
+
+1. Read [dev-core/AGENT-PLAYBOOK.md](../../dev-core/AGENT-PLAYBOOK.md)
+2. Read [docs/BUILD-EXPECTATIONS.md](../../docs/BUILD-EXPECTATIONS.md)
+3. Read [docs/SCOPE-ROADMAP.md](../../docs/SCOPE-ROADMAP.md) — confirm chunk, slice, and dependencies
+4. Read [docs/BUILD-PROGRESS.md](../../docs/BUILD-PROGRESS.md) — overall % and next slice on critical path
+
+Do not implement work from a later chunk unless the roadmap marks it parallel-safe or the user explicitly overrides.
+
+After shipping work, update chunk status in `docs/SCOPE-ROADMAP.md` and `docs/BUILD-PROGRESS.md`.
+
+Also follow [audit-and-records.mdc](./audit-and-records.mdc) for every page and record.

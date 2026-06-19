@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ClientLifecycleBadge } from "@/components/client-lifecycle-badge";
 import { useData } from "@/lib/data-store";
 import type { ClientRecord } from "@/lib/client";
 import { formatLocationAddress } from "@/lib/client-line-tables";
@@ -60,7 +61,8 @@ export function ClientCoreSummary({ client, saved }: { client: ClientRecord; sav
                     Saved
                   </span>
                 ) : null}
-                <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200 ring-inset">
+                <ClientLifecycleBadge lifecycleStatus={client.lifecycleStatus} />
+                <span className="inline-flex rounded-full bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200 ring-inset">
                   {statusLabel(client.status)}
                 </span>
                 {client.alerts.length > 0 ? (

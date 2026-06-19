@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ClientLifecycleBadge } from "@/components/client-lifecycle-badge";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
 import {
   RecordListDashboard,
@@ -11,6 +12,7 @@ import {
   recordListSelectClass,
 } from "@/components/record-list-shell";
 import { clientDropdowns, type ClientRecord } from "@/lib/client";
+import { CLIENT_LIFECYCLE_STATUSES, CLIENT_LIFECYCLE_LABELS, isActiveLifecycle } from "@/lib/client-lifecycle";
 
 const PAGE_SIZE = 50;
 
@@ -19,14 +21,14 @@ type ClientListScope = "all" | "active" | "alerts";
 function ClientStatusBadge({ status }: { status: string }) {
   const label = status.replace(/^\d+_/, "").replace(/_/g, " ");
   return (
-    <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200 ring-inset">
+    <span className="inline-flex rounded-full bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200 ring-inset">
       {label}
     </span>
   );
 }
 
 function isActiveClient(client: ClientRecord) {
-  return client.status.includes("Active");
+  return isActiveLifecycle(client.lifecycleStatus) || client.status.includes("Active");
 }
 
 function hasActiveAlert(client: ClientRecord) {
@@ -37,6 +39,7 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
   const [scope, setScope] = useState<ClientListScope>("all");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [lifecycleFilter, setLifecycleFilter] = useState("All");
   const [page, setPage] = useState(0);
 
   const activeCount = useMemo(() => records.filter(isActiveClient).length, [records]);
@@ -55,6 +58,10 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
       rows = rows.filter((r) => r.status === statusFilter);
     }
 
+    if (lifecycleFilter !== "All") {
+      rows = rows.filter((r) => r.lifecycleStatus === lifecycleFilter);
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase();
       rows = rows.filter(
@@ -69,7 +76,7 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
     }
 
     return rows;
-  }, [records, scope, search, statusFilter]);
+  }, [records, scope, search, statusFilter, lifecycleFilter]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -87,6 +94,11 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
 
   function onStatusChange(value: string) {
     setStatusFilter(value);
+    setPage(0);
+  }
+
+  function onLifecycleChange(value: string) {
+    setLifecycleFilter(value);
     setPage(0);
   }
 
@@ -129,18 +141,34 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
         onSearchChange={onSearchChange}
         resultSummary={resultSummary}
         filters={
-          <select
-            className={recordListSelectClass}
-            value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value)}
-          >
-            <option value="All">All statuses</option>
-            {clientDropdowns.status.map((s) => (
-              <option key={s} value={s}>
-                {s.replace(/^\d+_/, "").replace(/_/g, " ")}
-              </option>
-            ))}
-          </select>
+          <>
+            <select
+              className={recordListSelectClass}
+              value={lifecycleFilter}
+              onChange={(e) => onLifecycleChange(e.target.value)}
+              aria-label="Filter by lifecycle"
+            >
+              <option value="All">All lifecycles</option>
+              {CLIENT_LIFECYCLE_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {CLIENT_LIFECYCLE_LABELS[s]}
+                </option>
+              ))}
+            </select>
+            <select
+              className={recordListSelectClass}
+              value={statusFilter}
+              onChange={(e) => onStatusChange(e.target.value)}
+              aria-label="Filter by status"
+            >
+              <option value="All">All statuses</option>
+              {clientDropdowns.status.map((s) => (
+                <option key={s} value={s}>
+                  {s.replace(/^\d+_/, "").replace(/_/g, " ")}
+                </option>
+              ))}
+            </select>
+          </>
         }
         footer={
           <RecordListPagination
@@ -159,6 +187,7 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
               <tr>
                 <th className="px-4 py-3 font-medium">Search key</th>
                 <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Lifecycle</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Funding body</th>
                 <th className="px-4 py-3 font-medium">Disability</th>
@@ -168,7 +197,7 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
             <tbody className="divide-y divide-slate-100">
               {pageRows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                     No clients match your search or filters.
                   </td>
                 </tr>
@@ -184,6 +213,9 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
                       />
                     </td>
                     <td className="px-4 py-3 text-slate-900">{client.name}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <ClientLifecycleBadge lifecycleStatus={client.lifecycleStatus} />
+                    </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <ClientStatusBadge status={client.status} />
                     </td>

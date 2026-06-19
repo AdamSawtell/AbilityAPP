@@ -11,6 +11,7 @@ import type {
   ClientRiskRow,
 } from "@/lib/client-line-tables";
 import { buildConsentAlertList, buildRiskAlertsSummary, transferActivitiesToClient } from "@/lib/client-line-tables";
+import { inferLifecycleFromLegacyStatus, normalizeLifecycleStatus } from "@/lib/client-lifecycle";
 import { clientDropdowns } from "@/lib/reference-data";
 
 export { clientDropdowns };
@@ -42,6 +43,9 @@ export type ClientRecord = {
   email: string;
   phone: string;
   status: string;
+  lifecycleStatus: string;
+  planReviewDueDate: string;
+  lifecycleExitReason: string;
   birthday: string;
   isEstimatedAge: boolean;
   gender: string;
@@ -110,6 +114,9 @@ export const initialClients: ClientRecord[] = [
     email: "Bernie@email",
     phone: "",
     status: "2_Active receiving support",
+    lifecycleStatus: "active",
+    planReviewDueDate: "",
+    lifecycleExitReason: "",
     birthday: "1995-06-26",
     isEstimatedAge: false,
     gender: "Female",
@@ -295,6 +302,9 @@ export const profileFields: ClientFieldDef[] = [
   { key: "email", label: "Email address", type: "email" },
   { key: "phone", label: "Phone", type: "tel" },
   { key: "status", label: "Status", type: "select", optionsKey: "clientStatus" },
+  { key: "lifecycleStatus", label: "Lifecycle", type: "select", optionsKey: "clientLifecycleStatus" },
+  { key: "planReviewDueDate", label: "Plan review due", type: "date" },
+  { key: "lifecycleExitReason", label: "Exit reason", type: "select", optionsKey: "lifecycleExitReason" },
   { key: "birthday", label: "Birthday", type: "date" },
   { key: "gender", label: "Gender", type: "select", optionsKey: "gender" },
   { key: "decisionMaking", label: "Decision making", type: "select", optionsKey: "decisionMaking" },
@@ -329,9 +339,20 @@ export const profileSections: ClientFieldSection[] = [
   {
     title: "Identity",
     fields: profileFields.filter((f) =>
-      ["searchKey", "name", "firstName", "preferredName", "lastName", "middleName", "email", "phone", "status"].includes(
-        f.key
-      )
+      [
+        "searchKey",
+        "name",
+        "firstName",
+        "preferredName",
+        "lastName",
+        "middleName",
+        "email",
+        "phone",
+        "status",
+        "lifecycleStatus",
+        "planReviewDueDate",
+        "lifecycleExitReason",
+      ].includes(f.key)
     ),
   },
   {
@@ -386,6 +407,7 @@ export const coreOverviewFields: ClientFieldDef[] = profileFields.filter((f) =>
     "searchKey",
     "name",
     "status",
+    "lifecycleStatus",
     "email",
     "phone",
     "fundingBody",
@@ -460,9 +482,15 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
   }));
   const consentAlertList = buildConsentAlertList(consents) || client.consentAlertList;
   const riskAlerts = buildRiskAlertsSummary(risks) || client.riskAlerts;
+  const lifecycleStatus = client.lifecycleStatus?.trim()
+    ? normalizeLifecycleStatus(client.lifecycleStatus)
+    : inferLifecycleFromLegacyStatus(client.status);
   return {
     ...client,
     pictureUrl: client.pictureUrl ?? "",
+    lifecycleStatus,
+    planReviewDueDate: client.planReviewDueDate ?? "",
+    lifecycleExitReason: client.lifecycleExitReason ?? "",
     alerts,
     activity,
     locations,
@@ -527,6 +555,9 @@ export function emptyClientRecord(
     email: partial.email?.trim() ?? "",
     phone: partial.phone?.trim() ?? "",
     status: partial.status?.trim() || "1_Prospect",
+    lifecycleStatus: "intake",
+    planReviewDueDate: "",
+    lifecycleExitReason: "",
     birthday: "",
     isEstimatedAge: false,
     gender: "",
@@ -575,6 +606,9 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
     email: enquiry.email,
     phone: enquiry.phone,
     status: "1_Prospect",
+    lifecycleStatus: "intake",
+    planReviewDueDate: "",
+    lifecycleExitReason: "",
     birthday: enquiry.birthday,
     isEstimatedAge: false,
     gender: enquiry.gender,

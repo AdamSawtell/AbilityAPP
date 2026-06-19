@@ -43,6 +43,8 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   contactRelationship: { label: "Contact relationship", group: "Shared", description: "Client contacts and employee emergency contacts" },
   // Client
   clientStatus: { label: "Client status", group: "Client" },
+  clientLifecycleStatus: { label: "Client lifecycle", group: "Client" },
+  lifecycleExitReason: { label: "Lifecycle exit reason", group: "Client" },
   decisionMaking: { label: "Decision making", group: "Client" },
   livingArrangement: { label: "Living arrangement", group: "Client" },
   salesRepresentative: { label: "Sales representative", group: "Client" },
@@ -182,6 +184,15 @@ export const defaultReferenceData: ReferenceDataCatalog = {
     "4_Actively exiting",
     "5_Inactive",
     "6_Deceased",
+  ],
+  clientLifecycleStatus: ["intake", "onboarding", "active", "plan_review", "exit"],
+  lifecycleExitReason: [
+    "Plan review — transitioned to new provider",
+    "Voluntary withdrawal",
+    "Relocated out of service area",
+    "Plan ended — age out",
+    "Deceased",
+    "Other",
   ],
   gender: ["Female", "Male", "Non-binary", "Prefer not to say", "Other"],
   decisionMaking: [
@@ -506,6 +517,8 @@ export const defaultReferenceData: ReferenceDataCatalog = {
 /** @deprecated Use useReferenceData().getOptions instead */
 export const clientDropdowns = {
   clientStatus: defaultReferenceData.clientStatus,
+  clientLifecycleStatus: defaultReferenceData.clientLifecycleStatus,
+  lifecycleExitReason: defaultReferenceData.lifecycleExitReason,
   status: defaultReferenceData.clientStatus,
   gender: defaultReferenceData.gender,
   decisionMaking: defaultReferenceData.decisionMaking,

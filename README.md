@@ -1,6 +1,14 @@
 # AbilityERP Clone
 
-A modern Next.js prototype of key AbilityERP workflows: enquiries, clients (support received), support plans, products, price lists, and service agreements. Data is stored in the browser for now; Supabase and Amplify hosting are planned next.
+A modern Next.js NDIS provider platform: enquiries, clients, service agreements, bookings, workforce, and operational workflows. Data persists in Supabase; hosted on AWS Amplify.
+
+## Development governance
+
+**Before starting work**, read:
+
+- [dev-core/AGENT-PLAYBOOK.md](./dev-core/AGENT-PLAYBOOK.md)
+- [docs/BUILD-EXPECTATIONS.md](./docs/BUILD-EXPECTATIONS.md)
+- [docs/SCOPE-ROADMAP.md](./docs/SCOPE-ROADMAP.md) — full backlog from scope doc (Chunks 0–8)
 
 ## Structure
 
