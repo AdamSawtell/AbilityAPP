@@ -18,7 +18,7 @@ export const gettingStartedArticle: HelpArticle = {
       body: "AbilityAPP is the workspace for NDIS providers. You manage enquiries, clients, locations, employees, services, tasks, and reports in one place. The layout follows AbilityERP windows and tabs so teams can move between systems with familiar names.",
       bullets: [
         "Core: Home, Tasks, Enquiries, Clients, Locations, Reports",
-        "People: Employees",
+        "People: Employees, My workplace, Workforce planning",
         "Services: Products, price lists, contracts, service agreements",
         "Admin: System setup (organisation, reference data, roles, tasks) — link on the sign-in page",
       ],
@@ -48,6 +48,8 @@ export const gettingStartedArticle: HelpArticle = {
       bullets: [
         "[Navigation and workspace](/help/navigation-and-workspace)",
         "[Home dashboard](/help/home-dashboard)",
+        "[My workplace self-service](/help/my-workplace)",
+        "[Workforce planning](/help/workforce-leave-calendar)",
         "[Tasks](/help/tasks)",
       ],
     },
@@ -132,13 +134,27 @@ export const homeArticle: HelpArticle = {
   keywords: ["home", "dashboard", "calendar", "welcome", "summary"],
   relatedRoutes: ["/"],
   windowKeys: ["home"],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-19",
   sections: [
     {
       id: "overview",
       title: "What Home shows",
-      body: "Home gives you counts and shortcuts for the modules your role can access. Cards link straight to Enquiries, Clients, Employees, or Tasks.",
+      body: "Home gives you counts and shortcuts for the modules your role can access. Cards link straight to Enquiries, Clients, Employees, Tasks, My workplace, or Workforce planning.",
       relatedRoutes: ["/"],
+    },
+    {
+      id: "workforce-banner",
+      title: "Workforce review banner",
+      body: "If you can approve leave or review credentials, Home shows a banner when items need your decision. Click Open review queue to go to Workforce planning.",
+      relatedRoutes: ["/workforce-planning#reviews"],
+      windowKeys: ["workforce-planning"],
+    },
+    {
+      id: "my-workplace-banner",
+      title: "My workplace summary",
+      body: "When your login is linked to an employee record, Home may show My workplace action items — expiring credentials, documents to acknowledge, or profile gaps.",
+      relatedRoutes: ["/my"],
+      windowKeys: ["my-workplace"],
     },
     {
       id: "recent-lists",

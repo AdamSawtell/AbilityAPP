@@ -10,14 +10,8 @@
       "summary": "Converts an enquiry into a new support receiver client, links them, sets enquiry status to Converted, and opens the client record.",
       "doc": "docs/processes/01-enquiry-to-client.md",
       "trigger": "User clicks Convert to client on an enquiry detail page",
-      "entryPoints": [
-        "web/src/components/enquiry-pages.tsx",
-        "web/src/lib/data-store.tsx"
-      ],
-      "logic": [
-        "web/src/lib/convert.ts",
-        "web/src/lib/client.ts"
-      ],
+      "entryPoints": ["web/src/components/enquiry-pages.tsx", "web/src/lib/data-store.tsx"],
+      "logic": ["web/src/lib/convert.ts", "web/src/lib/client.ts"],
       "tables": ["enquiry", "client", "client_alert"]
     },
     {
@@ -28,13 +22,8 @@
       "summary": "Add or update credential rows on an employee Business Partner record.",
       "doc": "docs/processes/02-assign-employee-credential.md",
       "trigger": "User edits Credentials Assigned lines on an employee record",
-      "entryPoints": [
-        "web/src/components/employee-view.tsx"
-      ],
-      "logic": [
-        "web/src/lib/employee.ts",
-        "web/src/lib/supabase/data-api.ts"
-      ],
+      "entryPoints": ["web/src/components/employee-view.tsx"],
+      "logic": ["web/src/lib/employee.ts", "web/src/lib/supabase/data-api.ts"],
       "tables": ["employee", "employee_credential"]
     },
     {
@@ -45,14 +34,8 @@
       "summary": "Link support receivers to a support location with assignment role and dates.",
       "doc": "docs/processes/03-assign-location-client.md",
       "trigger": "User adds or edits client lines on a location Clients tab",
-      "entryPoints": [
-        "web/src/components/location-view.tsx",
-        "web/src/components/location-pages.tsx"
-      ],
-      "logic": [
-        "web/src/lib/location.ts",
-        "web/src/lib/supabase/data-api.ts"
-      ],
+      "entryPoints": ["web/src/components/location-view.tsx", "web/src/components/location-pages.tsx"],
+      "logic": ["web/src/lib/location.ts", "web/src/lib/supabase/data-api.ts"],
       "tables": ["support_location", "support_location_client"]
     },
     {
@@ -63,14 +46,8 @@
       "summary": "Link staff to a support location with assignment role and dates.",
       "doc": "docs/processes/04-assign-location-employee.md",
       "trigger": "User adds or edits employee lines on a location Employees tab",
-      "entryPoints": [
-        "web/src/components/location-view.tsx",
-        "web/src/components/location-pages.tsx"
-      ],
-      "logic": [
-        "web/src/lib/location.ts",
-        "web/src/lib/supabase/data-api.ts"
-      ],
+      "entryPoints": ["web/src/components/location-view.tsx", "web/src/components/location-pages.tsx"],
+      "logic": ["web/src/lib/location.ts", "web/src/lib/supabase/data-api.ts"],
       "tables": ["support_location", "support_location_employee"]
     },
     {
@@ -81,14 +58,8 @@
       "summary": "Link products and services from the catalog to a support location.",
       "doc": "docs/processes/05-assign-location-product.md",
       "trigger": "User adds or edits product lines on a location Products and services tab",
-      "entryPoints": [
-        "web/src/components/location-view.tsx",
-        "web/src/components/location-pages.tsx"
-      ],
-      "logic": [
-        "web/src/lib/location.ts",
-        "web/src/lib/supabase/data-api.ts"
-      ],
+      "entryPoints": ["web/src/components/location-view.tsx", "web/src/components/location-pages.tsx"],
+      "logic": ["web/src/lib/location.ts", "web/src/lib/supabase/data-api.ts"],
       "tables": ["support_location", "support_location_product", "product"]
     },
     {
@@ -99,16 +70,9 @@
       "summary": "Create and assign a task to a user or role from a record or the task hub.",
       "doc": "docs/processes/06-assign-task.md",
       "trigger": "User clicks Assign task on a record tasks panel or task hub",
-      "entryPoints": [
-        "web/src/components/record-tasks-panel.tsx",
-        "web/src/components/task-hub-view.tsx",
-        "web/src/components/task-pages.tsx"
-      ],
-      "logic": [
-        "web/src/lib/task.ts",
-        "web/src/lib/data-store.tsx"
-      ],
-      "tables": ["task", "task_activity"]
+      "entryPoints": ["web/src/components/record-tasks-panel.tsx", "web/src/components/task-hub-view.tsx", "web/src/components/task-pages.tsx"],
+      "logic": ["web/src/lib/task.ts", "web/src/lib/data-store.tsx"],
+      "tables": ["app_task"]
     },
     {
       "number": 7,
@@ -118,32 +82,69 @@
       "summary": "Start, complete, or cancel tasks assigned to the signed-in user or their role.",
       "doc": "docs/processes/07-action-task.md",
       "trigger": "User updates task status on a task detail page or hub",
-      "entryPoints": [
-        "web/src/components/task-pages.tsx",
-        "web/src/lib/task-access.ts"
-      ],
-      "logic": [
-        "web/src/lib/task.ts",
-        "web/src/lib/data-store.tsx"
-      ],
-      "tables": ["task", "task_activity"]
+      "entryPoints": ["web/src/components/task-pages.tsx", "web/src/lib/task-access.ts"],
+      "logic": ["web/src/lib/task.ts", "web/src/lib/data-store.tsx"],
+      "tables": ["app_task"]
     },
     {
       "number": 8,
       "id": "submit-leave-request",
       "name": "Submit leave request",
       "status": "live",
-      "summary": "Staff submit leave from My workplace; managers approve on the employee Leave tab.",
+      "summary": "Staff submit leave from My workplace; task and review queue route approval to manager or HR.",
       "doc": "docs/processes/08-submit-leave-request.md",
       "trigger": "Staff submits leave on /my/leave",
-      "entryPoints": [
-        "web/src/components/my-workplace/my-leave-page.tsx",
-        "web/src/app/api/my/leave/route.ts"
-      ],
-      "logic": [
-        "web/src/lib/my-workplace/api.ts"
-      ],
-      "tables": ["employee_leave_request", "employee_activity", "employee_availability", "employee_document_acknowledgement"]
+      "entryPoints": ["web/src/components/my-workplace/my-leave-page.tsx", "web/src/app/api/my/leave/route.ts"],
+      "logic": ["web/src/lib/my-workplace/server.ts", "web/src/lib/task-automation/run-server.ts"],
+      "tables": ["employee_leave_request", "employee_leave_entitlement", "employee_activity", "app_task"]
+    },
+    {
+      "number": 9,
+      "id": "submit-employee-credential",
+      "name": "Submit employee credential",
+      "status": "live",
+      "summary": "Staff submit credentials from My workplace; HR reviews via task and review queue.",
+      "doc": "docs/processes/09-submit-employee-credential.md",
+      "trigger": "Staff submits credential on /my/credentials",
+      "entryPoints": ["web/src/components/my-workplace/my-credentials-page.tsx", "web/src/app/api/my/credentials/route.ts"],
+      "logic": ["web/src/lib/my-workplace/server.ts", "web/src/lib/task-automation/run-server.ts"],
+      "tables": ["employee_credential", "employee_activity", "app_task"]
+    },
+    {
+      "number": 10,
+      "id": "submit-leave-on-behalf",
+      "name": "Submit leave on behalf",
+      "status": "live",
+      "summary": "Managers submit leave for another employee from Workforce planning.",
+      "doc": "docs/processes/10-submit-leave-on-behalf.md",
+      "trigger": "Manager submits leave on Workforce planning submit form",
+      "entryPoints": ["web/src/components/workforce-planning-page.tsx", "web/src/app/api/workforce/leave/route.ts"],
+      "logic": ["web/src/lib/my-workplace/server.ts", "web/src/lib/task-automation/run-server.ts"],
+      "tables": ["employee_leave_request", "employee_activity", "app_task"]
+    },
+    {
+      "number": 11,
+      "id": "review-employee-credential",
+      "name": "Review employee credential",
+      "status": "live",
+      "summary": "HR approves or rejects pending credentials; closes automation task.",
+      "doc": "docs/processes/11-review-employee-credential.md",
+      "trigger": "HR acts in workforce review queue or employee credentials tab",
+      "entryPoints": ["web/src/components/workforce/workforce-review-queue.tsx", "web/src/app/api/workforce/reviews/route.ts"],
+      "logic": ["web/src/lib/workforce/review-server.ts", "web/src/lib/task-automation/run-server.ts"],
+      "tables": ["employee_credential", "employee_activity", "app_task"]
+    },
+    {
+      "number": 12,
+      "id": "approve-leave-request",
+      "name": "Approve leave request",
+      "status": "live",
+      "summary": "HR or line manager approves or declines leave; deducts balance and closes automation task.",
+      "doc": "docs/processes/12-approve-leave-request.md",
+      "trigger": "Manager or HR acts in workforce review queue",
+      "entryPoints": ["web/src/components/workforce/workforce-review-queue.tsx", "web/src/app/api/workforce/reviews/route.ts"],
+      "logic": ["web/src/lib/workforce/review-server.ts", "web/src/lib/task-automation/run-server.ts"],
+      "tables": ["employee_leave_request", "employee_leave_entitlement", "employee_activity", "app_task"]
     }
   ]
 }

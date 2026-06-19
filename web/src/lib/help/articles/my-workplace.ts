@@ -5,7 +5,7 @@ export const myWorkplaceArticle: HelpArticle = {
   slug: "my-workplace",
   title: "My workplace self-service",
   summary:
-    "Submit leave, update your profile, add credentials with evidence, set availability, and acknowledge contracts from your own login.",
+    "Submit leave, update your profile, upload credentials, set availability, and view or acknowledge employment contracts — with tasks (not email) when HR or your manager needs to act.",
   category: "People",
   keywords: [
     "my workplace",
@@ -20,21 +20,23 @@ export const myWorkplaceArticle: HelpArticle = {
     "kiosk",
     "mobility",
     "staff portal",
+    "task",
+    "how to",
   ],
   relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/contracts", "/my/credentials"],
   windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-18",
+  lastUpdated: "2026-06-19",
   sections: [
     {
       id: "overview",
       title: "What My workplace is",
-      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, and items awaiting HR review. Coordinators and HR still use Employees and Workforce planning for organisation-wide views.",
+      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, contracts needing acknowledgement, and items awaiting HR review.\n\nAbilityAPP does not send workforce notifications by email. When you submit leave or a credential, the system creates a task for your manager or HR. You can track status on My workplace and in your Tasks list.",
       relatedRoutes: ["/my"],
     },
     {
       id: "access",
       title: "Who can use it",
-      body: "You need the My workplace windows on your role and a user account linked to your employee record (Employee → System access). Support workers, team leaders, and most staff with logins have access by default.",
+      body: "You need the My workplace windows on your role and a user account linked to your employee record (Employee → System access). Support workers, coordinators, and most staff with logins have access by default.",
       windowKeys: ["my-workplace"],
     },
     {
@@ -42,11 +44,20 @@ export const myWorkplaceArticle: HelpArticle = {
       title: "Submit and track leave",
       steps: [
         "Open My workplace → Leave.",
-        "Choose leave type, dates, and optional notes.",
-        "Submit — status shows as Requested until a manager approves or declines in the HR employee record.",
+        "Choose leave type, start and end dates, and optional notes.",
+        "The system checks your leave balance before submit.",
+        "Submit — status shows as Requested until a manager or HR approves or declines.",
+        "A task is assigned to your reports-to manager (or HR manager as fallback).",
+        "When approved, your leave balance is reduced by the days requested.",
       ],
       relatedRoutes: ["/my/leave"],
       windowKeys: ["my-leave"],
+    },
+    {
+      id: "leave-calendar",
+      title: "Your leave calendar",
+      body: "My workplace → Leave includes a personal calendar of your requests. Approved and pending leave appear by date so you can plan around time off.",
+      relatedRoutes: ["/my/leave"],
     },
     {
       id: "profile",
@@ -60,8 +71,9 @@ export const myWorkplaceArticle: HelpArticle = {
       title: "Credentials and evidence",
       steps: [
         "Open My workplace → Credentials.",
-        "Add a credential with type, dates, and an evidence reference.",
+        "Add a credential with type, dates, number, and evidence (link or uploaded file reference).",
         "Submit — status shows as Pending review until HR verifies and signs off as Current.",
+        "A Review task is assigned to the HR officer role.",
         "Expired or expiring credentials appear on your dashboard so you can renew in time.",
       ],
       relatedRoutes: ["/my/credentials"],
@@ -77,9 +89,25 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "contracts",
       title: "Contracts and policies",
-      body: "View employment contracts and policy documents. Items marked as requiring acknowledgement must be confirmed before they are complete.",
+      body: "Only documents marked staff-visible by HR appear here. Employment contracts can use a viewable PDF URL stored on the employee record.",
+      steps: [
+        "Open My workplace → Contracts & policies.",
+        "Click View document — PDF links open in the viewer; other refs show as reference-only.",
+        "When an item requires acknowledgement, click I have read and agree.",
+      ],
       relatedRoutes: ["/my/contracts"],
       windowKeys: ["my-contracts"],
+    },
+    {
+      id: "tasks-not-email",
+      title: "Tasks, not email",
+      body: "Workforce comms use task automations (Review and Approve task types), not email. Managers and HR also use the Workforce planning review queue as a convenience UI. Completing a review in that queue closes the matching automation task.",
+      bullets: [
+        "Leave submitted → Approve task for reports-to manager",
+        "Credential submitted → Review task for HR officer role",
+        "Open Tasks → Assigned to me or My role to action your work",
+      ],
+      relatedRoutes: ["/tasks", "/workforce-planning#reviews", "/help/workforce-leave-calendar"],
     },
     {
       id: "future",

@@ -4,7 +4,7 @@ export const employeesArticle: HelpArticle = {
   id: "article-employees",
   slug: "employees",
   title: "Employees",
-  summary: "HR records, credentials, documents, and compliance for staff.",
+  summary: "HR records, credentials, leave, documents, compliance, and workforce review for staff.",
   category: "People",
   keywords: [
     "employee",
@@ -14,10 +14,13 @@ export const employeesArticle: HelpArticle = {
     "compliance",
     "work rights",
     "payroll",
+    "leave approval",
+    "credential review",
+    "how to",
   ],
-  relatedRoutes: ["/employees", "/employees/new"],
+  relatedRoutes: ["/employees", "/employees/new", "/workforce-planning#reviews"],
   windowKeys: ["employees"],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-19",
   sections: [
     {
       id: "employee-list",
@@ -48,16 +51,33 @@ export const employeesArticle: HelpArticle = {
       ],
     },
     {
+      id: "leave",
+      title: "Leave tab (HR view)",
+      body: "Shows leave entitlements, balances, and requests. Staff submit from My workplace; managers and HR approve in Workforce planning → Review queue or on this tab. Approved leave reduces the matching entitlement balance.",
+      windowKeys: ["employee-leave"],
+      relatedRoutes: ["/workforce-planning#reviews", "/help/workforce-leave-calendar"],
+    },
+    {
       id: "credentials",
       title: "Credentials Assigned",
-      body: "Track certifications, checks, and licences with issue and expiry dates. Expiry dates appear on your Home calendar when the employee record is linked to your user account.",
+      body: "Track certifications, checks, and licences with issue and expiry dates. Staff can submit from My workplace with status Pending review until HR sets Current or Rejected. Expiry dates appear on Home calendar when the record is linked to your user account.",
       windowKeys: ["employee-credentials-assigned"],
     },
     {
       id: "documents",
       title: "Documents",
-      body: "Store HR documents with type, reference, and expiry. Document expiry also feeds the Home personal calendar for your own employee record.",
+      body: "Store HR documents with type, reference or PDF URL, and expiry. Set Staff visible and Requires acknowledgement for items that should appear in My workplace → Contracts. Document expiry feeds the Home personal calendar for your own employee record.",
       windowKeys: ["employee-documents"],
+    },
+    {
+      id: "review-access",
+      title: "Who approves leave and credentials",
+      bullets: [
+        "Credential review: CEO, HR executive, HR manager, HR officer",
+        "Leave approval: HR roles above, plus rostering manager and team leader for direct reports",
+        "Workforce planning review queue is the fastest path; tasks are also created for assignees",
+      ],
+      relatedRoutes: ["/workforce-planning#reviews"],
     },
     {
       id: "system-access",
