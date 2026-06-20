@@ -3,8 +3,33 @@ import { withHomePanels } from "@/lib/access/home-panels";
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
-import { fullTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
+import { fullTaskTypePermissions, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
 import { normalizeRoleWindowAccess, windowAccessFromKeys } from "@/lib/access/window-access";
+
+export const ADMIN_ROLE_ID = "role-admin";
+export const ADMIN_ROLE_KEY = "AbilityAPP_Admin";
+
+export function isAdminRole(role: Pick<AppRoleRecord, "id" | "roleKey"> | string): boolean {
+  if (typeof role === "string") {
+    return role === ADMIN_ROLE_ID || role === ADMIN_ROLE_KEY;
+  }
+  return role.id === ADMIN_ROLE_ID || role.roleKey === ADMIN_ROLE_KEY;
+}
+
+/** Admin always receives the full app catalog — not a stale DB snapshot. */
+export function ensureAdminRoleAccess(role: AppRoleRecord, allTaskTypeIds: string[]): AppRoleRecord {
+  if (!isAdminRole(role)) return normalizeRoleWindowAccess(role);
+
+  const template = adminRole(allTaskTypeIds.length ? allTaskTypeIds : ["tt-review"]);
+  return normalizeRoleWindowAccess({
+    ...role,
+    windowAccess: template.windowAccess,
+    windowKeys: template.windowKeys,
+    processIds: template.processIds,
+    reportIds: template.reportIds,
+    taskTypePermissions: mergeTaskTypePermissions(template.taskTypePermissions, allTaskTypeIds),
+  });
+}
 
 const TASK_ACCESS = [...TASK_WINDOW_KEYS];
 const SUPPORT_WORKER_TASK_ACCESS = ["tasks-assigned-to-me", "tasks-for-my-role", "tasks-past"] as const;

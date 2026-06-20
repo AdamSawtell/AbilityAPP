@@ -8,7 +8,8 @@ import { canAccessWindow, processById } from "@/lib/access/catalog";
 import { canHomePanel } from "@/lib/access/home-panels";
 import { canSaveModuleRecord, canWriteWindowSession } from "@/lib/access/window-access";
 import { canAccessReport } from "@/lib/reports/catalog";
-import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
+import { SEED_ROLES, SEED_USERS, withSeedTaskAccess, ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
+import { ensureAdminRoleAccess } from "@/lib/access/role-access-templates";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   fetchRoles,
@@ -259,12 +260,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const upsertRole = useCallback(
     async (role: AppRoleRecord) => {
+      const toSave = ensureAdminRoleAccess(withSeedTaskAccess(role), ALL_TASK_TYPE_IDS);
       setRoles((prev) => {
-        const exists = prev.some((r) => r.id === role.id);
-        return exists ? prev.map((r) => (r.id === role.id ? role : r)) : [...prev, role];
+        const exists = prev.some((r) => r.id === toSave.id);
+        return exists ? prev.map((r) => (r.id === toSave.id ? toSave : r)) : [...prev, toSave];
       });
       if (source === "supabase" && isSupabaseConfigured()) {
-        await saveRole(createClient(), role);
+        await saveRole(createClient(), toSave);
       }
       if (session?.activeRoleId === role.id) {
         try {

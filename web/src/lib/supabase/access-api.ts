@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppRoleRecord, AppUserRecord, TaskTypePermission } from "@/lib/access/types";
+import { ensureAdminRoleAccess, isAdminRole } from "@/lib/access/role-access-templates";
+import { INITIAL_TASK_TYPES } from "@/lib/task-type";
 import {
   normalizeRoleWindowAccess,
   windowAccessFromKeys,
@@ -174,7 +176,13 @@ export async function saveUser(supabase: SupabaseClient, user: AppUserRecord, pa
 }
 
 export async function saveRole(supabase: SupabaseClient, role: AppRoleRecord) {
-  const normalized = normalizeRoleWindowAccess(role);
+  let normalized = normalizeRoleWindowAccess(role);
+  if (isAdminRole(normalized)) {
+    normalized = ensureAdminRoleAccess(
+      normalized,
+      INITIAL_TASK_TYPES.map((t) => t.id)
+    );
+  }
   const { error } = await supabase.from("app_role").upsert({
     id: normalized.id,
     role_key: normalized.roleKey,

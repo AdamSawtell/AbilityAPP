@@ -5,7 +5,8 @@ import { displayName } from "@/lib/access/types";
 import { canAccessWindow, sanitizeAppWindowKeys } from "@/lib/access/catalog";
 import { normalizeRoleWindowAccess, canWriteWindowSession } from "@/lib/access/window-access";
 import { agentIdsForRole } from "@/lib/ai/seed";
-import { SEED_ROLES, SEED_USERS, withSeedTaskAccess } from "@/lib/access/seed";
+import { SEED_ROLES, SEED_USERS, withSeedTaskAccess, ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
+import { ensureAdminRoleAccess, isAdminRole } from "@/lib/access/role-access-templates";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import {
@@ -109,9 +110,34 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
       const user = users.find((u) => u.id === userId);
       const role = roles.find((r) => r.id === roleId);
       if (!user?.active || !role?.active || !user.roleIds.includes(roleId)) return null;
+
+      const agentIds = await resolveRoleAgentIds(supabase, roleId);
+
+      if (isAdminRole(role)) {
+        const normalized = normalizeRoleWindowAccess(
+          ensureAdminRoleAccess(withSeedTaskAccess(role), ALL_TASK_TYPE_IDS)
+        );
+        const resolvedAgentIds = agentIds.length ? agentIds : agentIdsForRole(roleId);
+        return {
+          userId: user.id,
+          username: user.username,
+          displayName: displayName(user),
+          email: user.email,
+          employeeBpId: user.employeeBpId ?? "",
+          activeRoleId: normalized.id,
+          activeRoleName: normalized.name,
+          sessionId: "",
+          windowKeys: sanitizeAppWindowKeys(normalized.windowKeys),
+          windowAccess: normalized.windowAccess,
+          processIds: normalized.processIds,
+          reportIds: normalized.reportIds ?? [],
+          taskTypePermissions: normalized.taskTypePermissions,
+          agentIds: resolvedAgentIds,
+        };
+      }
+
       const mergedRole = withSeedTaskAccess(role);
       const access = await resolveRoleAccess(supabase, roleId);
-      const agentIds = await resolveRoleAgentIds(supabase, roleId);
       const merged = withSeedTaskAccess({ ...mergedRole, ...access });
       const normalized = normalizeRoleWindowAccess(merged);
       const resolvedAgentIds = agentIds.length ? agentIds : agentIdsForRole(roleId);

@@ -5,6 +5,8 @@ import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
 import { ACCESS_PROCESSES, appChildWindows, appRoleWindows } from "@/lib/access/catalog";
 import { HOME_PANEL_KEYS, homePanelsForRoleEditor } from "@/lib/access/home-panels";
+import { ensureAdminRoleAccess, isAdminRole } from "@/lib/access/role-access-templates";
+import { ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
 import type { AppRoleRecord } from "@/lib/access/types";
 import type { WindowAccessLevel } from "@/lib/access/window-access";
 import {
@@ -218,12 +220,15 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
     if (!role) return;
     setActiveId(id);
     setDraft(
-      normalizeRoleWindowAccess({
-        ...role,
-        processIds: [...role.processIds],
-        reportIds: [...(role.reportIds ?? [])],
-        taskTypePermissions: [...(role.taskTypePermissions ?? [])],
-      })
+      ensureAdminRoleAccess(
+        normalizeRoleWindowAccess({
+          ...role,
+          processIds: [...role.processIds],
+          reportIds: [...(role.reportIds ?? [])],
+          taskTypePermissions: [...(role.taskTypePermissions ?? [])],
+        }),
+        ALL_TASK_TYPE_IDS
+      )
     );
   }
 
@@ -345,6 +350,13 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                   Active
                 </label>
               </div>
+
+              {record && isAdminRole(record) ? (
+                <p className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-950">
+                  AbilityAPP Admin always receives Write on every window, process, and report in the catalog — including
+                  modules added in app updates. Saving this role refreshes the full access list.
+                </p>
+              ) : null}
 
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 className="mb-1 text-sm font-semibold text-slate-900">Windows / functions</h2>

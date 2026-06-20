@@ -7,9 +7,11 @@ import {
   adminRole,
   boardAccess,
   defineRole,
+  ensureAdminRoleAccess,
   executiveAccess,
   EXEC_PROCESSES,
   HR_CREDENTIAL_REVIEW_PROCESSES,
+  isAdminRole,
   MANAGER_LEAVE_APPROVAL_PROCESSES,
   managerAccess,
   MY_WORKPLACE_STAFF_PROCESSES,
@@ -24,7 +26,7 @@ import {
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 
 const TASK_ACCESS = ["tasks", "tasks-assigned-to-me", "tasks-for-my-role", "tasks-all", "tasks-past"] as const;
-const ALL_TASK_TYPE_IDS = INITIAL_TASK_TYPES.map((t) => t.id);
+export const ALL_TASK_TYPE_IDS = INITIAL_TASK_TYPES.map((t) => t.id);
 const EMPLOYEE_INCIDENT_LINK_WINDOWS = ["employees", "employee-overview", "employee-incidents"] as const;
 
 const INTAKE_ACCESS = {
@@ -335,6 +337,10 @@ export function shouldMergeSeedAccess(): boolean {
 
 /** Ensure seed roles keep catalog windows when the DB or cached session predates a catalog update. */
 export function withSeedTaskAccess(role: AppRoleRecord): AppRoleRecord {
+  if (isAdminRole(role)) {
+    return ensureAdminRoleAccess(role, ALL_TASK_TYPE_IDS);
+  }
+
   const base = normalizeRoleWindowAccess(role);
   const seed = SEED_ROLES.find((r) => r.id === role.id);
   if (!seed) {
