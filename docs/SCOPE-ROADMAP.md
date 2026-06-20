@@ -228,7 +228,8 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 | Deliverable | Status | Agent-buildable? |
 |-------------|--------|------------------|
 | Claim generation from verified shifts | 🟡 | WP-I.1 scaffold |
-| PAPL validation engine | 🟡 | WP-I.1 basic checks |
+| PAPL validation engine | ✅ | WP-I.1/I.2 — save + gateway strict modes |
+| Bulk PRODA claims | 🟡 | Gateway dry-run stub (WP-I.2) |
 | Bulk PRODA claims | ⬜ | PRODA approval |
 | Remittance import + match | ⬜ | Yes |
 | Invoicing (plan/self-managed) | ⬜ | Yes |

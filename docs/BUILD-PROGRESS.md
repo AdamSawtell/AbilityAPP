@@ -81,7 +81,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 4 | Rostering | 22% | **95%** | 🟡 Partial | Participant portal (Chunk 0) |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
-| 7 | Billing & claiming | 10% | **15%** | 🟡 Partial | PRODA/gateway |
+| 7 | Billing & claiming | 10% | **30%** | 🟡 Partial | PRODA/gateway |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
@@ -464,6 +464,15 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Open claim detail | PAPL validation panel + claim lines table |
 | 5 | Save status change | Audit footer logs change |
 
+### WP-I.2 — PAPL hard blocks + gateway stub (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Draft claim with PAPL errors → Save | Blocked with error message |
+| 2 | Valid draft → **Submit to gateway** | Gateway ref set; status Submitted |
+| 3 | Submitted claim → edit lines | Locked — only notes editable |
+| 4 | Local mode (no Supabase) | Dry-run fallback submits without API |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -724,6 +733,16 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Claims** Read/Write; **Generate claims** Write |
 | **Admin verify** | Draft claim lines link to timesheet lines; validation blocks submit on errors |
 
+### WP-I.2 — PAPL hard blocks + gateway stub
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **NDIS claims** (gateway submit steps) |
+| **User steps** | 1. Fix PAPL errors on draft claim. 2. Submit to gateway. 3. Review gateway ref on detail. |
+| **System setup** | `NDIS_GATEWAY_DRY_RUN=true` on Amplify for testing |
+| **Role access** | **Claims** Write |
+| **Admin verify** | Save blocked on errors; gateway submit sets ref + Submitted |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
@@ -810,7 +829,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 8921a9d | Admin role always grants full catalog Write access |
 | 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
 | 2026-06-20 | c3473f7 | WP-G/H master roster on records + workforce fill board |
-| 2026-06-20 | pending | WP-I.1 claim generation scaffold + PAPL validation |
+| 2026-06-20 | e996324 | WP-I.1 claim generation scaffold + PAPL validation |
+| 2026-06-20 | pending | WP-I.2 PAPL hard blocks + NDIS gateway dry-run stub |
 
 ---
 

@@ -11,10 +11,12 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import {
-  applyLineValidation,
-  claimHasBlockingErrors,
-  validateClaimLine,
+  claimRecordIsLocked,
+  claimSaveBlocked,
+  revalidateClaimRecord,
+  type ClaimValidationContext,
 } from "@/lib/claim-papl-validation";
+import { ClaimGatewayPanel } from "@/components/claim-gateway-panel";
 import { claimLineTableConfig } from "@/lib/claim-line-tables";
 import {
   generateClaimsFromTimesheets,
@@ -59,26 +61,17 @@ function buildClaimContext(data: ReturnType<typeof useData>): ClaimGenerationCon
   };
 }
 
+function validationContext(data: ReturnType<typeof useData>): ClaimValidationContext {
+  return {
+    clients: data.clients,
+    serviceBookings: data.serviceBookings,
+    products: data.products,
+    priceLists: data.priceLists,
+  };
+}
+
 function revalidateClaimLines(record: ClaimRecord, data: ReturnType<typeof useData>): ClaimRecord {
-  const lines = record.lines.map((line) => {
-    const client = data.clients.find((c) => c.id === line.clientId);
-    const product = data.products.find((p) => p.id === line.productId);
-    const booking = data.serviceBookings.find((b) => b.id === line.serviceBookingId);
-    const priceList = data.priceLists.find((pl) => pl.id === product?.priceListId) ?? data.priceLists[0];
-    const validation = validateClaimLine({
-      line,
-      client,
-      product,
-      priceList,
-      booking,
-    });
-    return applyLineValidation(line, validation);
-  });
-  return normalizeClaim({
-    ...record,
-    lines,
-    totalAmount: sumClaimLineAmount(lines),
-  });
+  return revalidateClaimRecord(record, validationContext(data), "save");
 }
 
 export function ClaimListView() {
@@ -346,8 +339,9 @@ export function ClaimDetailView({ id }: { id: string }) {
     if (!record || !canEdit) return;
     const actor = session?.displayName || "SuperUser";
     const validated = revalidateClaimLines(record, data);
-    if (validated.status === "Submitted" && claimHasBlockingErrors(validated.lines)) {
-      setSaveError("Fix PAPL validation errors before submitting this claim.");
+    const block = claimSaveBlocked(stored, validated, validationContext(data));
+    if (block) {
+      setSaveError(block);
       return;
     }
     data.upsertClaim({ ...validated, updatedBy: actor });
@@ -360,6 +354,9 @@ export function ClaimDetailView({ id }: { id: string }) {
     setDraft(null);
     setDirty(false);
   };
+
+  const locked = claimRecordIsLocked(stored ?? record);
+  const ctx = validationContext(data);
 
   return (
     <>
@@ -399,22 +396,27 @@ export function ClaimDetailView({ id }: { id: string }) {
               <span className="mb-1 block font-medium text-slate-700">Status</span>
               <select
                 value={record.status}
-                disabled={!canEdit}
+                disabled={!canEdit || locked}
                 onChange={(e) => update({ status: e.target.value })}
                 className={inputClass}
               >
-                {claimDropdowns.status.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
+                {claimDropdowns.status
+                  .filter((s) => s !== "Submitted" || locked)
+                  .map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
               </select>
+              {!locked ? (
+                <p className="mt-1 text-xs text-slate-500">Use Submit to gateway to move a Draft claim to Submitted.</p>
+              ) : null}
             </label>
             <label className="block text-sm">
               <span className="mb-1 block font-medium text-slate-700">Plan management</span>
               <select
                 value={record.planManagementType}
-                disabled={!canEdit}
+                disabled={!canEdit || locked}
                 onChange={(e) => update({ planManagementType: e.target.value })}
                 className={inputClass}
               >
@@ -427,24 +429,16 @@ export function ClaimDetailView({ id }: { id: string }) {
             </label>
             <label className="block text-sm">
               <span className="mb-1 block font-medium text-slate-700">Gateway status</span>
-              <select
-                value={record.gatewayStatus}
-                disabled={!canEdit}
-                onChange={(e) => update({ gatewayStatus: e.target.value })}
-                className={inputClass}
-              >
-                {claimDropdowns.gatewayStatus.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+              <span className="block text-sm text-slate-900">{record.gatewayStatus || "Not submitted"}</span>
+              {record.gatewayRef ? (
+                <span className="mt-0.5 block text-xs text-slate-500">Ref: {record.gatewayRef}</span>
+              ) : null}
             </label>
             <label className="block text-sm lg:col-span-3">
               <span className="mb-1 block font-medium text-slate-700">Notes</span>
               <textarea
                 value={record.notes}
-                disabled={!canEdit}
+                disabled={!canEdit || locked}
                 onChange={(e) => update({ notes: e.target.value })}
                 rows={2}
                 className={inputClass}
@@ -452,7 +446,22 @@ export function ClaimDetailView({ id }: { id: string }) {
             </label>
           </div>
 
-          <ClaimValidationPanel lines={record.lines} />
+          <ClaimValidationPanel lines={record.lines} claimStatus={record.status} />
+
+          <ClaimGatewayPanel
+            claim={record}
+            client={client}
+            products={data.products}
+            validationCtx={ctx}
+            canSubmit={canEdit}
+            actorName={session?.displayName || "SuperUser"}
+            onSubmitted={(next) => {
+              data.upsertClaim(next);
+              setDraft(null);
+              setDirty(false);
+              setSaveError("");
+            }}
+          />
 
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <h2 className="text-sm font-semibold text-slate-900">Claim lines</h2>

@@ -148,7 +148,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Mark pay periods closed on Timesheets after reconciliation — closed periods block new draft timesheet generation for the same dates.",
       "Grant Claims and Generate claims windows at Write for billing coordinators.",
       "Generate claims only after timesheets are Approved and shift verification passes.",
-      "Review PAPL validation on each claim batch before marking Submitted — gateway export is a future integration.",
+      "Review PAPL validation on each claim batch before gateway submit.",
+      "Set NDIS_GATEWAY_DRY_RUN=true on Amplify for dry-run gateway testing.",
     ]
   ),
   moduleSetupArticle(

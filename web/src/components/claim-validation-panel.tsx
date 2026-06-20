@@ -9,8 +9,15 @@ const tone: Record<string, string> = {
   error: "bg-rose-100 text-rose-950",
 };
 
-export function ClaimValidationPanel({ lines }: { lines: ClaimLine[] }) {
+export function ClaimValidationPanel({
+  lines,
+  claimStatus,
+}: {
+  lines: ClaimLine[];
+  claimStatus?: string;
+}) {
   const summary = claimValidationSummary(lines);
+  const isDraft = !claimStatus || claimStatus === "Draft";
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -38,17 +45,17 @@ export function ClaimValidationPanel({ lines }: { lines: ClaimLine[] }) {
       </div>
       {!summary.canSubmit ? (
         <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">
-          Fix blocking errors before submitting this claim batch.
+          Fix blocking errors before saving this claim batch.
         </p>
-      ) : summary.warningCount > 0 ? (
+      ) : isDraft && !summary.canGatewaySubmit ? (
         <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
-          {summary.warningCount} line{summary.warningCount === 1 ? "" : "s"} have warnings — review before gateway submit.
+          Resolve warnings before gateway submit.
         </p>
-      ) : (
+      ) : isDraft && summary.canGatewaySubmit ? (
         <p className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">
-          All lines pass PAPL checks — ready for gateway submission (stub).
+          Ready for gateway submission.
         </p>
-      )}
+      ) : null}
       {lines.some((l) => l.validationMessage) ? (
         <ul className="mt-4 space-y-2">
           {lines
