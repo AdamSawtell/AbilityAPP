@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.9 — Timesheet check-in verification ✅ shipped |
 | **Next slice** | WP-D.10 — TBD (GPS check-in or RoC import — needs template) |
-| **Last push** | 2026-06-20 — pending |
+| **Last push** | 2026-06-20 — `957ed03` |
 
 ---
 
@@ -460,7 +460,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 4580bb4 | WP-D.6 open shift marketplace |
 | 2026-06-20 | c7a6012 | WP-D.7 timesheet generation from roster shifts |
 | 2026-06-20 | 7a518b5 | WP-D.8 worker shift check-in MVP |
-| 2026-06-20 | pending | WP-D.9 timesheet verification vs check-in |
+| 2026-06-20 | 957ed03 | WP-D.9 timesheet verification vs check-in |
 
 ---
 
