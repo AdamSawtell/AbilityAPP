@@ -17,6 +17,12 @@ import {
 } from "@/lib/service-booking";
 import { isVacantShift } from "@/lib/roster-gap-analysis";
 import { buildClaimedShift } from "@/lib/roster-open-shifts";
+import {
+  rosterShiftSaveBlocked,
+  rosterValidationMode,
+  validateRosterShift,
+  validateRosterShiftBatch,
+} from "@/lib/roster-shift-compliance";
 import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
 import type { GeoCoordinates } from "@/lib/geolocation";
 import {
@@ -165,7 +171,7 @@ type DataStore = {
   upsertServiceAgreement: (record: ServiceAgreementRecord) => void;
   addServiceBooking: (partial: ServiceBookingRecord) => ServiceBookingRecord;
   upsertServiceBooking: (record: ServiceBookingRecord) => void;
-  upsertRosterShift: (record: RosterShiftRecord) => void;
+  upsertRosterShift: (record: RosterShiftRecord) => string | null;
   claimOpenRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
   checkInRosterShift: (
     shiftId: string,
@@ -180,7 +186,7 @@ type DataStore = {
     notes: string,
     geo?: GeoCoordinates | null
   ) => Promise<string | null>;
-  addRecurringRosterShifts: (records: RosterShiftRecord[]) => void;
+  addRecurringRosterShifts: (records: RosterShiftRecord[]) => string | null;
   upsertRosterOfCare: (record: RosterOfCareRecord, audit?: AuditLogOptions) => void;
   bulkUpsertRosterOfCares: (records: RosterOfCareRecord[]) => void;
   upsertTimesheet: (record: TimesheetRecord, audit?: AuditLogOptions) => void;
@@ -849,7 +855,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const upsertRosterShift = useCallback(
-    (record: RosterShiftRecord) => {
+    (record: RosterShiftRecord): string | null => {
       const prev = rosterShiftsRef.current;
       let normalized = normalizeRosterShift(record);
       const before = prev.find((r) => r.id === normalized.id);
@@ -870,11 +876,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             : before.checkOutLongitude,
         });
       }
+
+      const mode = rosterValidationMode(normalized);
+      const saveIssues = validateRosterShift(normalized, { existing: prev }, mode).filter(
+        (issue) => issue.code !== "TIME_RANGE_INVALID"
+      );
+      if (rosterShiftSaveBlocked(saveIssues)) {
+        return saveIssues.find((i) => i.severity === "error")?.message ?? "Cannot save this shift.";
+      }
+
       const stamped = persistRecordAudit("roster-shift", normalized, !exists, before);
       setRosterShifts((current) =>
         exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
       );
       void persistRemote((supabase) => saveRosterShift(supabase, stamped));
+      return null;
     },
     [persistRemote, rosterShiftsRef]
   );
@@ -1015,9 +1031,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const addRecurringRosterShifts = useCallback(
-    (records: RosterShiftRecord[]) => {
-      if (!records.length) return;
+    (records: RosterShiftRecord[]): string | null => {
+      if (!records.length) return null;
       const prev = rosterShiftsRef.current;
+      const batch = validateRosterShiftBatch(records, prev);
+      if (batch.blocked) return batch.errors[0] ?? "Cannot save shifts — resolve conflicts first.";
+
       const stamped = records.map((record) => {
         const normalized = normalizeRosterShift(record);
         const exists = prev.some((r) => r.id === normalized.id);
@@ -1030,6 +1049,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return [...byId.values()];
       });
       void persistRemote((supabase) => saveRosterShifts(supabase, stamped));
+      return null;
     },
     [persistRemote, rosterShiftsRef]
   );

@@ -260,7 +260,11 @@ function RocCard({
       setPublishError(validation.errors.join(" "));
       return;
     }
-    addRecurringRosterShifts(preview.shifts);
+    const saveError = addRecurringRosterShifts(preview.shifts);
+    if (saveError) {
+      setPublishError(saveError);
+      return;
+    }
     const note =
       validation.warnings.length || preview.warnings.length
         ? ` Warnings: ${[...validation.warnings, ...preview.warnings].slice(0, 3).join(" ")}`

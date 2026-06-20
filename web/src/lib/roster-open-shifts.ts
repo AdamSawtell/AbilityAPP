@@ -37,9 +37,14 @@ export function buildClaimedShift(
     updatedBy,
   });
 
-  const conflicts = detectRosterShiftConflicts(claimed, { existing: allShifts });
+  const conflicts = detectRosterShiftConflicts(claimed, { existing: allShifts }).map((issue) =>
+    issue.severity === "warning" ? { ...issue, severity: "error" as const } : issue
+  );
   if (conflicts.some((c) => c.severity === "error")) {
-    return { ok: false, message: conflicts.find((c) => c.severity === "error")?.message ?? "Shift conflicts with your roster." };
+    return {
+      ok: false,
+      message: conflicts.find((c) => c.severity === "error")?.message ?? "Shift conflicts with your roster.",
+    };
   }
 
   return { ok: true, shift: claimed };

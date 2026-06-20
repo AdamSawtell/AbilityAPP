@@ -1,0 +1,62 @@
+import {
+  rosterShiftSaveBlocked,
+  validateRosterShift,
+} from "@/lib/roster-shift-compliance";
+import { normalizeRosterShift, shiftsForWeek, type RosterShiftRecord } from "@/lib/roster-shift";
+
+export type PublishWeekBlockedShift = {
+  id: string;
+  shiftRef: string;
+  message: string;
+};
+
+export type PublishWeekPreview = {
+  ready: RosterShiftRecord[];
+  blocked: PublishWeekBlockedShift[];
+  skippedVacant: number;
+  skippedNotDraft: number;
+};
+
+export function previewPublishWeek(
+  weekStart: string,
+  allShifts: RosterShiftRecord[],
+  actor: string
+): PublishWeekPreview {
+  const normalized = allShifts.map(normalizeRosterShift);
+  const week = shiftsForWeek(normalized, weekStart);
+  const ready: RosterShiftRecord[] = [];
+  const blocked: PublishWeekBlockedShift[] = [];
+  let skippedVacant = 0;
+  let skippedNotDraft = 0;
+
+  for (const shift of week) {
+    if (shift.status !== "Draft") {
+      skippedNotDraft += 1;
+      continue;
+    }
+    if (!shift.employeeId?.trim()) {
+      skippedVacant += 1;
+      continue;
+    }
+
+    const published = normalizeRosterShift({
+      ...shift,
+      status: "Published",
+      updatedBy: actor,
+    });
+    const issues = validateRosterShift(published, { existing: normalized }, "publish").filter(
+      (issue) => issue.code !== "TIME_RANGE_INVALID"
+    );
+    if (rosterShiftSaveBlocked(issues)) {
+      blocked.push({
+        id: shift.id,
+        shiftRef: shift.shiftRef || shift.id,
+        message: issues.find((i) => i.severity === "error")?.message ?? "Cannot publish this shift.",
+      });
+    } else {
+      ready.push(published);
+    }
+  }
+
+  return { ready, blocked, skippedVacant, skippedNotDraft };
+}

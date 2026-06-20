@@ -11,6 +11,7 @@ import {
 import { detectRecurringRosterConflicts } from "@/lib/roster-shift-conflicts";
 import {
   rosterShiftSaveBlocked,
+  rosterValidationMode,
   validateRosterShift,
 } from "@/lib/roster-shift-compliance";
 import {
@@ -68,17 +69,25 @@ export function RosterShiftEditor({
   const [weekdayOffsets, setWeekdayOffsets] = useState<number[]>(() => [
     weekdayOffsetFromDate(draft.shiftDate),
   ]);
+  const [saveError, setSaveError] = useState("");
+
+  const validationMode = rosterValidationMode(draft);
 
   const issues = useMemo(() => {
     if (isNew && repeatWeekly && weekdayOffsets.length) {
       const rows = expandWeeklyRecurrence(draft, weekdayOffsets, weekCount);
       const conflictMap = detectRecurringRosterConflicts(rows, rosterShifts);
-      const firstConflict = rows.flatMap((row) => conflictMap.get(row.id) ?? []);
-      const fieldIssues = validateRosterShift(draft);
+      const firstConflict = rows.flatMap((row) => {
+        const mode = rosterValidationMode(row);
+        return (conflictMap.get(row.id) ?? []).map((issue) =>
+          mode === "publish" && issue.severity === "warning" ? { ...issue, severity: "error" as const } : issue
+        );
+      });
+      const fieldIssues = validateRosterShift(draft, undefined, validationMode);
       return [...fieldIssues, ...firstConflict];
     }
-    return validateRosterShift(draft, { existing: rosterShifts });
-  }, [draft, isNew, repeatWeekly, weekdayOffsets, weekCount, rosterShifts]);
+    return validateRosterShift(draft, { existing: rosterShifts }, validationMode);
+  }, [draft, isNew, repeatWeekly, weekdayOffsets, weekCount, rosterShifts, validationMode]);
   const saveBlocked = rosterShiftSaveBlocked(issues);
 
   const bookingOptions = useMemo(
@@ -98,20 +107,35 @@ export function RosterShiftEditor({
   }
 
   function save() {
+    setSaveError("");
     if (!canSave || saveBlocked) return;
     if (isNew && repeatWeekly && weekdayOffsets.length) {
       const rows = expandWeeklyRecurrence(draft, weekdayOffsets, weekCount);
       const conflictMap = detectRecurringRosterConflicts(rows, rosterShifts);
-      const blocked = rows.some((row) =>
-        (conflictMap.get(row.id) ?? []).some((i) => i.severity === "error")
-      );
+      const blocked = rows.some((row) => {
+        const mode = rosterValidationMode(row);
+        const conflicts = (conflictMap.get(row.id) ?? []).map((issue) =>
+          mode === "publish" && issue.severity === "warning" ? { ...issue, severity: "error" as const } : issue
+        );
+        const fieldIssues = validateRosterShift(row, { existing: rosterShifts, batchIds: new Set(rows.map((r) => r.id)) }, mode);
+        return rosterShiftSaveBlocked([...fieldIssues, ...conflicts]);
+      });
       if (blocked) return;
-      addRecurringRosterShifts(rows);
+      const err = addRecurringRosterShifts(rows);
+      if (err) {
+        setSaveError(err);
+        return;
+      }
     } else {
       const record = isNew ? createRosterShift(draft, rosterShifts) : draft;
-      const saveIssues = validateRosterShift(record, { existing: rosterShifts });
+      const mode = rosterValidationMode(record);
+      const saveIssues = validateRosterShift(record, { existing: rosterShifts }, mode);
       if (rosterShiftSaveBlocked(saveIssues)) return;
-      upsertRosterShift(record);
+      const err = upsertRosterShift(record);
+      if (err) {
+        setSaveError(err);
+        return;
+      }
     }
     onSaved?.();
     onClose();
@@ -321,6 +345,9 @@ export function RosterShiftEditor({
         ) : null}
 
         <div className="mt-4 space-y-2">
+          {saveError ? (
+            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{saveError}</p>
+          ) : null}
           {issues.map((issue) => (
             <p
               key={`${issue.code}-${issue.message}`}

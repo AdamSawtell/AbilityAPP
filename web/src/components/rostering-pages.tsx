@@ -7,6 +7,7 @@ import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace
 import { RosterCapacityPanel } from "@/components/roster-capacity-panel";
 import { RosterForwardPanel } from "@/components/roster-forward-panel";
 import { RosterGapsPanel } from "@/components/roster-gaps-panel";
+import { RosterPublishWeekPanel } from "@/components/roster-publish-week-panel";
 import { RosterRocPanel } from "@/components/roster-roc-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
@@ -21,6 +22,7 @@ import {
   weekStartFromDate,
 } from "@/lib/roster-shift";
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
+import { rosterValidationMode } from "@/lib/roster-shift-compliance";
 import { gapsForWeek, isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
 import { listOpenMarketplaceShifts } from "@/lib/roster-open-shifts";
 import { shiftCheckInStatus, shiftCheckInStatusLabel } from "@/lib/roster-shift-checkin";
@@ -59,9 +61,13 @@ export function RosteringWeekView() {
   }, [days, shifts]);
 
   const conflictByShiftId = useMemo(() => {
+    const all = rosterShifts.map(normalizeRosterShift);
     const map = new Map<string, ReturnType<typeof detectRosterShiftConflicts>>();
-    for (const shift of rosterShifts.map(normalizeRosterShift)) {
-      const issues = detectRosterShiftConflicts(shift, { existing: rosterShifts.map(normalizeRosterShift) });
+    for (const shift of all) {
+      const mode = rosterValidationMode(shift);
+      const issues = detectRosterShiftConflicts(shift, { existing: all }).map((issue) =>
+        mode === "publish" && issue.severity === "warning" ? { ...issue, severity: "error" as const } : issue
+      );
       if (issues.length) map.set(shift.id, issues);
     }
     return map;
@@ -277,6 +283,8 @@ export function RosteringWeekView() {
             </p>
           </div>
         ) : null}
+
+        <RosterPublishWeekPanel weekStart={weekStart} />
 
         <div className="grid gap-3 lg:grid-cols-7">
           {days.map((day) => {
