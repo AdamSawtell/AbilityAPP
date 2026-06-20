@@ -22,6 +22,7 @@ import {
 } from "@/lib/roster-shift";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
 import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
+import { StaffClientMatchHintsPanel } from "@/components/staff-client-match-hints-panel";
 import { formatCheckInTimestamp } from "@/lib/roster-shift-checkin";
 import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
 
@@ -94,6 +95,15 @@ export function RosterShiftEditor({
     () =>
       serviceBookings.filter((b) => !draft.clientId || b.clientId === draft.clientId),
     [serviceBookings, draft.clientId]
+  );
+
+  const selectedClient = useMemo(
+    () => clients.find((c) => c.id === draft.clientId),
+    [clients, draft.clientId]
+  );
+  const selectedEmployee = useMemo(
+    () => employees.find((e) => e.id === draft.employeeId),
+    [employees, draft.employeeId]
   );
 
   function onChange<K extends keyof RosterShiftRecord>(key: K, value: RosterShiftRecord[K]) {
@@ -276,6 +286,15 @@ export function RosterShiftEditor({
             />
           </label>
         </fieldset>
+
+        <StaffClientMatchHintsPanel
+          client={selectedClient}
+          employee={selectedEmployee}
+          employees={employees}
+          rosterShifts={rosterShifts}
+          excludeShiftId={draft.id}
+          onSelectWorker={(employeeId) => onChange("employeeId", employeeId)}
+        />
 
         {isNew ? (
           <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">

@@ -86,6 +86,7 @@ export const deliveryArticle: HelpArticle = {
         "Open Rostering and navigate weeks with Previous / Next week.",
         "Click New shift or Add on a day column.",
         "Select client, worker, location, and service booking.",
+        "Review Staff–client matching hints — prior roster history, credentials, client risks, and suggested workers (advisory only).",
         "Optional: tick Repeat weekly, choose weekdays, and set number of weeks.",
         "Save — shifts appear on the calendar and persist after refresh.",
         "Click an existing shift card to edit.",

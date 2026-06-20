@@ -162,7 +162,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 | Current roster calendar | ⬜ | Yes |
 | Drag-and-drop day/week views | ⬜ | Yes |
 | Recurring + ad-hoc shifts | ⬜ | Yes |
-| Staff–client matching rules | ⬜ | Yes |
+| Staff–client matching rules | 🟡 | Yes |
 | Conflict detection (hard blocks) | 🟡 | Yes |
 | Open shift marketplace | ⬜ | Yes |
 | Mobile worker app | ⬜ | Phase 2 (PWA or native) |
