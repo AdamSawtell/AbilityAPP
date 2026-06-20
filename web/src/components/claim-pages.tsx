@@ -17,6 +17,7 @@ import {
   type ClaimValidationContext,
 } from "@/lib/claim-papl-validation";
 import { ClaimGatewayPanel } from "@/components/claim-gateway-panel";
+import { ClaimRemittancePanel } from "@/components/claim-remittance-panel";
 import { claimLineTableConfig } from "@/lib/claim-line-tables";
 import {
   generateClaimsFromTimesheets,
@@ -30,6 +31,7 @@ import {
   sumClaimLineAmount,
   type ClaimRecord,
 } from "@/lib/claim";
+import { remittanceStatusClass } from "@/lib/claim-remittance";
 import { useData } from "@/lib/data-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
 
@@ -86,6 +88,7 @@ export function ClaimListView() {
 
   return (
     <div className="space-y-4">
+      <ClaimRemittancePanel />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
           NDIS claim batches generated from approved, verified timesheet lines. Submit via PRODA or gateway when ready.
@@ -123,6 +126,7 @@ export function ClaimListView() {
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Gateway</th>
+              <th className="px-4 py-3">Remittance</th>
             </tr>
           </thead>
           <tbody>
@@ -149,11 +153,21 @@ export function ClaimListView() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-slate-600">{row.gatewayStatus}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${remittanceStatusClass(row.remittanceStatus || "Not imported")}`}
+                  >
+                    {row.remittanceStatus || "Not imported"}
+                  </span>
+                  {row.remittancePaidAmount > 0 ? (
+                    <span className="mt-0.5 block text-xs text-slate-500">${row.remittancePaidAmount.toFixed(2)} paid</span>
+                  ) : null}
+                </td>
               </tr>
             ))}
             {!rows.length ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
                   No claims yet — generate from approved timesheets.
                 </td>
               </tr>
@@ -432,6 +446,20 @@ export function ClaimDetailView({ id }: { id: string }) {
               <span className="block text-sm text-slate-900">{record.gatewayStatus || "Not submitted"}</span>
               {record.gatewayRef ? (
                 <span className="mt-0.5 block text-xs text-slate-500">Ref: {record.gatewayRef}</span>
+              ) : null}
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">Remittance</span>
+              <span
+                className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${remittanceStatusClass(record.remittanceStatus || "Not imported")}`}
+              >
+                {record.remittanceStatus || "Not imported"}
+              </span>
+              {record.remittancePaidAmount > 0 ? (
+                <span className="mt-1 block text-sm text-slate-900">${record.remittancePaidAmount.toFixed(2)} paid</span>
+              ) : null}
+              {record.remittancePaymentRef ? (
+                <span className="mt-0.5 block text-xs text-slate-500">Payment ref: {record.remittancePaymentRef}</span>
               ) : null}
             </label>
             <label className="block text-sm lg:col-span-3">

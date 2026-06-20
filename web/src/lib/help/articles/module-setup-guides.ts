@@ -150,6 +150,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Generate claims only after timesheets are Approved and shift verification passes.",
       "Review PAPL validation on each claim batch before gateway submit.",
       "Set NDIS_GATEWAY_DRY_RUN=true on Amplify for dry-run gateway testing.",
+      "Import NDIA remittance CSV on Claims after payment advice — preview matches before applying.",
     ]
   ),
   moduleSetupArticle(

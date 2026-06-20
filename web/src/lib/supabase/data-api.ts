@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ClaimRecord } from "@/lib/claim";
 import { normalizeClaim } from "@/lib/claim";
+import type { ClaimRemittanceRecord } from "@/lib/claim-remittance";
+import { normalizeRemittance } from "@/lib/claim-remittance";
 import type { ClientRecord } from "@/lib/client";
 import { normalizeClient } from "@/lib/client";
 import type { ContractRecord } from "@/lib/contract";
@@ -70,7 +72,12 @@ import {
   claimFromRow,
   claimLineToRow,
   claimToRow,
+  claimRemittanceFromRow,
+  claimRemittanceLineToRow,
+  claimRemittanceToRow,
   type ClaimLineRowDb,
+  type ClaimRemittanceLineRowDb,
+  type ClaimRemittanceRow,
   type ClaimRow,
   supportPlanFromRow,
   supportPlanToRow,
@@ -166,6 +173,7 @@ export type AppData = {
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
   claims: ClaimRecord[];
+  claimRemittances: ClaimRemittanceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
@@ -215,6 +223,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     timesheetLinesRes,
     claimsRes,
     claimLinesRes,
+    claimRemittancesRes,
+    claimRemittanceLinesRes,
     contractsRes,
     auditRes,
     supportPlansRes,
@@ -273,6 +283,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("timesheet_line").select("*").order("line_no"),
     supabase.from("claim").select("*").order("period_start", { ascending: false }),
     supabase.from("claim_line").select("*").order("line_no"),
+    supabase.from("claim_remittance").select("*").order("document_no", { ascending: false }),
+    supabase.from("claim_remittance_line").select("*").order("line_no"),
     supabase.from("contract").select("*").order("document_no"),
     supabase.from("contract_audit").select("*").order("line_no"),
     supabase.from("support_plan").select("*").order("document_no"),
@@ -333,6 +345,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     timesheetLinesRes.error ??
     claimsRes.error ??
     claimLinesRes.error ??
+    claimRemittancesRes.error ??
+    claimRemittanceLinesRes.error ??
     contractsRes.error ??
     auditRes.error ??
     supportPlansRes.error ??
@@ -389,6 +403,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
   const linesByTimesheet = groupBy(timesheetLinesRes.data as TimesheetLineRowDb[], "timesheet_id");
   const linesByClaim = groupBy(claimLinesRes.data as ClaimLineRowDb[], "claim_id");
+  const linesByRemittance = groupBy(claimRemittanceLinesRes.data as ClaimRemittanceLineRowDb[], "remittance_id");
   const linesByRosterOfCare = groupBy(rosterOfCareLinesRes.data as RosterOfCareLineRowDb[], "roster_of_care_id");
   const linesByMonthlyServicePlan = groupBy(
     monthlyServicePlanLinesRes.data as MonthlyServicePlanLineRowDb[],
@@ -471,6 +486,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     claims: ((claimsRes.data ?? []) as ClaimRow[]).map((row) =>
       normalizeClaim(claimFromRow(row, linesByClaim.get(row.id) ?? []))
+    ),
+    claimRemittances: ((claimRemittancesRes.data ?? []) as ClaimRemittanceRow[]).map((row) =>
+      normalizeRemittance(claimRemittanceFromRow(row, linesByRemittance.get(row.id) ?? []))
     ),
     payrollClosedPeriods: ((payrollClosedPeriodsRes.data ?? []) as PayrollClosedPeriodRow[]).map(
       payrollClosedPeriodFromRow
@@ -1024,6 +1042,20 @@ export async function saveClaim(supabase: SupabaseClient, record: ClaimRecord) {
 export async function saveClaims(supabase: SupabaseClient, records: ClaimRecord[]) {
   for (const record of records) {
     await saveClaim(supabase, record);
+  }
+}
+
+export async function saveClaimRemittance(supabase: SupabaseClient, record: ClaimRemittanceRecord) {
+  const remittance = normalizeRemittance(record);
+  const { error } = await supabase.from("claim_remittance").upsert(claimRemittanceToRow(remittance));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "claim_remittance_line", "remittance_id", remittance.id);
+  if (remittance.lines.length) {
+    const { error: lineError } = await supabase
+      .from("claim_remittance_line")
+      .insert(remittance.lines.map((line) => claimRemittanceLineToRow(remittance.id, line)));
+    if (lineError) throw lineError;
   }
 }
 

@@ -31,6 +31,10 @@ export type ClaimRecord = {
   totalAmount: number;
   gatewayStatus: string;
   gatewayRef: string;
+  remittanceStatus: string;
+  remittancePaidAmount: number;
+  remittancePaymentRef: string;
+  remittanceImportedAt: string;
   notes: string;
   lines: ClaimLine[];
   createdBy: string;
@@ -41,6 +45,7 @@ export const claimDropdowns = {
   status: ["Draft", "Submitted", "Accepted", "Rejected"],
   planManagementType: ["Agency managed", "Plan managed", "Self managed"],
   gatewayStatus: ["Not submitted", "Pending gateway", "Submitted", "Paid", "Rejected"],
+  remittanceStatus: ["Not imported", "Pending", "Matched", "Variance", "Partial"],
   validationStatus: ["pass", "warning", "error"],
 };
 
@@ -107,6 +112,10 @@ export function normalizeClaim(record: ClaimRecord): ClaimRecord {
     totalAmount,
     gatewayStatus: record.gatewayStatus || "Not submitted",
     gatewayRef: record.gatewayRef ?? "",
+    remittanceStatus: record.remittanceStatus || "Not imported",
+    remittancePaidAmount: Number.isFinite(record.remittancePaidAmount) ? record.remittancePaidAmount : 0,
+    remittancePaymentRef: record.remittancePaymentRef ?? "",
+    remittanceImportedAt: record.remittanceImportedAt ?? "",
     notes: record.notes ?? "",
     lines,
     createdBy: record.createdBy ?? "",
@@ -132,6 +141,10 @@ export function createClaim(partial: Partial<ClaimRecord>, existing: ClaimRecord
     totalAmount: 0,
     gatewayStatus: "Not submitted",
     gatewayRef: "",
+    remittanceStatus: "Not imported",
+    remittancePaidAmount: 0,
+    remittancePaymentRef: "",
+    remittanceImportedAt: "",
     notes: "",
     lines: [],
     createdBy: "SuperUser",

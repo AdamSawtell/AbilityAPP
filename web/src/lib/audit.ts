@@ -15,6 +15,7 @@ export type AuditEntityType =
   | "monthly-service-plan"
   | "timesheet"
   | "claim"
+  | "claim-remittance"
   | "support-plan"
   | "plan-document"
   | "task"
@@ -78,6 +79,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   "monthly-service-plan": "Monthly service plan",
   timesheet: "Timesheet",
   claim: "Claim",
+  "claim-remittance": "Claim remittance",
   "support-plan": "Support plan",
   "plan-document": "Plan document",
   task: "Task",

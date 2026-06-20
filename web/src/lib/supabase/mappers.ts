@@ -1,6 +1,7 @@
 /** Map between Postgres snake_case rows and app camelCase records. */
 
 import type { ClaimLine, ClaimRecord } from "@/lib/claim";
+import type { ClaimRemittanceLine, ClaimRemittanceRecord } from "@/lib/claim-remittance";
 import type { ClientRecord } from "@/lib/client";
 import type { ClientPlanBudgetRow } from "@/lib/client-line-tables";
 import type { ContractRecord } from "@/lib/contract";
@@ -2304,6 +2305,10 @@ export type ClaimRow = {
   total_amount: number;
   gateway_status: string;
   gateway_ref: string;
+  remittance_status: string;
+  remittance_paid_amount: number;
+  remittance_payment_ref: string;
+  remittance_imported_at: string | null;
   notes: string;
   created_by: string;
   updated_by: string;
@@ -2343,6 +2348,10 @@ export function claimFromRow(row: ClaimRow, lines: ClaimLineRowDb[]): ClaimRecor
     totalAmount: Number(row.total_amount) || 0,
     gatewayStatus: row.gateway_status || "Not submitted",
     gatewayRef: row.gateway_ref ?? "",
+    remittanceStatus: row.remittance_status || "Not imported",
+    remittancePaidAmount: Number(row.remittance_paid_amount) || 0,
+    remittancePaymentRef: row.remittance_payment_ref ?? "",
+    remittanceImportedAt: row.remittance_imported_at ?? "",
     notes: row.notes,
     lines: lines.map(claimLineFromRow),
     createdBy: row.created_by,
@@ -2385,6 +2394,10 @@ export function claimToRow(record: ClaimRecord): ClaimRow {
     total_amount: record.totalAmount,
     gateway_status: record.gatewayStatus || "Not submitted",
     gateway_ref: record.gatewayRef ?? "",
+    remittance_status: record.remittanceStatus || "Not imported",
+    remittance_paid_amount: record.remittancePaidAmount,
+    remittance_payment_ref: record.remittancePaymentRef ?? "",
+    remittance_imported_at: record.remittanceImportedAt?.trim() ? record.remittanceImportedAt : null,
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
@@ -2412,5 +2425,111 @@ export function claimLineToRow(claimId: string, line: ClaimLine): ClaimLineRowDb
     claim_type: line.claimType || "Standard",
     validation_status: line.validationStatus || "pass",
     validation_message: line.validationMessage ?? "",
+  };
+}
+
+// --- Claim remittance ---
+
+export type ClaimRemittanceRow = {
+  id: string;
+  document_no: string;
+  source_filename: string;
+  payment_reference: string;
+  remittance_date: string | null;
+  total_paid: number;
+  matched_count: number;
+  unmatched_count: number;
+  variance_count: number;
+  created_by: string;
+  updated_by: string;
+};
+
+export type ClaimRemittanceLineRowDb = {
+  id: string;
+  remittance_id: string;
+  line_no: number;
+  participant_ndis_number: string;
+  support_item_number: string;
+  service_date: string | null;
+  claimed_amount: number;
+  paid_amount: number;
+  gateway_claim_ref: string;
+  match_status: string;
+  match_message: string;
+  claim_id: string | null;
+  claim_line_id: string | null;
+};
+
+export function claimRemittanceFromRow(
+  row: ClaimRemittanceRow,
+  lines: ClaimRemittanceLineRowDb[]
+): ClaimRemittanceRecord {
+  return {
+    id: row.id,
+    documentNo: row.document_no,
+    sourceFilename: row.source_filename ?? "",
+    paymentReference: row.payment_reference ?? "",
+    remittanceDate: row.remittance_date ? strDate(row.remittance_date) : "",
+    totalPaid: Number(row.total_paid) || 0,
+    matchedCount: row.matched_count ?? 0,
+    unmatchedCount: row.unmatched_count ?? 0,
+    varianceCount: row.variance_count ?? 0,
+    lines: lines.map(claimRemittanceLineFromRow),
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+function claimRemittanceLineFromRow(row: ClaimRemittanceLineRowDb): ClaimRemittanceLine {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    participantNdisNumber: row.participant_ndis_number ?? "",
+    supportItemNumber: row.support_item_number ?? "",
+    serviceDate: row.service_date ? strDate(row.service_date) : "",
+    claimedAmount: Number(row.claimed_amount) || 0,
+    paidAmount: Number(row.paid_amount) || 0,
+    gatewayClaimRef: row.gateway_claim_ref ?? "",
+    matchStatus: (row.match_status || "Pending") as ClaimRemittanceLine["matchStatus"],
+    matchMessage: row.match_message ?? "",
+    claimId: row.claim_id ?? "",
+    claimLineId: row.claim_line_id ?? "",
+  };
+}
+
+export function claimRemittanceToRow(record: ClaimRemittanceRecord): ClaimRemittanceRow {
+  return {
+    id: record.id,
+    document_no: record.documentNo,
+    source_filename: record.sourceFilename ?? "",
+    payment_reference: record.paymentReference ?? "",
+    remittance_date: record.remittanceDate ? toDate(record.remittanceDate) : null,
+    total_paid: record.totalPaid,
+    matched_count: record.matchedCount,
+    unmatched_count: record.unmatchedCount,
+    variance_count: record.varianceCount,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function claimRemittanceLineToRow(
+  remittanceId: string,
+  line: ClaimRemittanceLine
+): ClaimRemittanceLineRowDb {
+  return {
+    id: line.id,
+    remittance_id: remittanceId,
+    line_no: line.lineNo,
+    participant_ndis_number: line.participantNdisNumber ?? "",
+    support_item_number: line.supportItemNumber ?? "",
+    service_date: line.serviceDate ? toDate(line.serviceDate) : null,
+    claimed_amount: line.claimedAmount,
+    paid_amount: line.paidAmount,
+    gateway_claim_ref: line.gatewayClaimRef ?? "",
+    match_status: line.matchStatus || "Pending",
+    match_message: line.matchMessage ?? "",
+    claim_id: line.claimId?.trim() ? line.claimId : null,
+    claim_line_id: line.claimLineId?.trim() ? line.claimLineId : null,
   };
 }
