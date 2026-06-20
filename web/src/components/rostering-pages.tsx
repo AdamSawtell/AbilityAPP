@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
 import { RosterCapacityPanel } from "@/components/roster-capacity-panel";
@@ -30,19 +30,26 @@ import { hasShiftGeo } from "@/lib/geolocation";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
 import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
 import { shiftGeofenceAlerts, shiftHasGeofenceAlert } from "@/lib/shift-geofence";
+import { canRescheduleShiftByDrag, rescheduledShiftOnDate } from "@/lib/roster-shift-reschedule";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function RosteringWeekView() {
-  const { clients, employees, locations, serviceBookings, rosterShifts } = useData();
+  const { clients, employees, locations, serviceBookings, rosterShifts, upsertRosterShift } = useData();
   const { canWriteWindow } = useAuth();
   const canEditRoster = canWriteWindow("rostering");
+  const dragStartedRef = useRef(false);
   const [view, setView] = useState<"week" | "forward" | "gaps" | "open" | "roc" | "capacity">("week");
   const [forwardWeeks, setForwardWeeks] = useState(8);
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate("2025-10-06"));
   const [editorShift, setEditorShift] = useState<ReturnType<typeof normalizeRosterShift> | null | "new">(null);
   const [newShiftDate, setNewShiftDate] = useState("");
   const [editorPrefill, setEditorPrefill] = useState<{ clientId?: string; serviceBookingId?: string } | null>(null);
+  const [dragShiftId, setDragShiftId] = useState<string | null>(null);
+  const [dropTargetDay, setDropTargetDay] = useState<string | null>(null);
+  const [rescheduleNotice, setRescheduleNotice] = useState<{ tone: "error" | "success"; message: string } | null>(
+    null
+  );
 
   const shifts = useMemo(
     () => shiftsForWeek(rosterShifts.map(normalizeRosterShift), weekStart),
@@ -109,13 +116,68 @@ export function RosteringWeekView() {
     setEditorShift("new");
   }
 
+  function handleShiftDragStart(shift: ReturnType<typeof normalizeRosterShift>, event: React.DragEvent) {
+    const gate = canRescheduleShiftByDrag(shift);
+    if (!gate.allowed) {
+      event.preventDefault();
+      setRescheduleNotice({ tone: "error", message: gate.reason ?? "This shift cannot be dragged." });
+      return;
+    }
+    dragStartedRef.current = true;
+    setDragShiftId(shift.id);
+    setRescheduleNotice(null);
+    event.dataTransfer.setData("text/plain", shift.id);
+    event.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleShiftDragEnd() {
+    setDragShiftId(null);
+    setDropTargetDay(null);
+    window.setTimeout(() => {
+      dragStartedRef.current = false;
+    }, 0);
+  }
+
+  function handleDayDrop(targetDay: string) {
+    setDropTargetDay(null);
+    if (!dragShiftId) return;
+    const shift = rosterShifts.find((s) => s.id === dragShiftId);
+    setDragShiftId(null);
+    if (!shift) return;
+    if (shift.shiftDate === targetDay) return;
+
+    const normalized = normalizeRosterShift(shift);
+    const gate = canRescheduleShiftByDrag(normalized);
+    if (!gate.allowed) {
+      setRescheduleNotice({ tone: "error", message: gate.reason ?? "This shift cannot be rescheduled." });
+      return;
+    }
+
+    const next = rescheduledShiftOnDate(normalized, targetDay, "SuperUser");
+    const err = upsertRosterShift(next);
+    if (err) {
+      setRescheduleNotice({ tone: "error", message: err });
+      return;
+    }
+    setRescheduleNotice({
+      tone: "success",
+      message: `Shift moved to ${formatDayHeading(targetDay)}.`,
+    });
+  }
+
+  function openShiftEditor(shift: ReturnType<typeof normalizeRosterShift>) {
+    if (dragStartedRef.current) return;
+    setEditorPrefill(null);
+    setEditorShift(shift);
+  }
+
   return (
     <>
       <AppShell
         title="Rostering"
         subtitle={
           view === "week"
-            ? "Week calendar — create and edit shifts linked to client, worker, location, and service booking."
+            ? "Week calendar — drag shifts between days to reschedule, or click to edit."
             : view === "forward"
               ? "Forward plan — roster hours and conflicts across the next 4–12 weeks."
               : view === "gaps"
@@ -286,11 +348,50 @@ export function RosteringWeekView() {
 
         <RosterPublishWeekPanel weekStart={weekStart} />
 
+        {rescheduleNotice ? (
+          <div
+            className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
+              rescheduleNotice.tone === "error"
+                ? "border-rose-200 bg-rose-50 text-rose-950"
+                : "border-emerald-200 bg-emerald-50 text-emerald-950"
+            }`}
+          >
+            <p>{rescheduleNotice.message}</p>
+          </div>
+        ) : null}
+
+        {canEditRoster ? (
+          <p className="mb-3 text-xs text-slate-500">
+            Drag a shift card to another day to reschedule. Published shifts still enforce conflict rules on drop.
+          </p>
+        ) : null}
+
         <div className="grid gap-3 lg:grid-cols-7">
           {days.map((day) => {
             const dayShifts = shiftsByDay.get(day) ?? [];
+            const isDropTarget = dropTargetDay === day && dragShiftId !== null;
             return (
-              <div key={day} className="min-h-48 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+              <div
+                key={day}
+                className={`min-h-48 rounded-xl border bg-white p-3 shadow-sm transition ${
+                  isDropTarget ? "border-[#d4147a] bg-[#fdf2f8]/40 ring-2 ring-[#d4147a]/30" : "border-slate-200"
+                }`}
+                onDragOver={(e) => {
+                  if (!canEditRoster || !dragShiftId) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  setDropTargetDay(day);
+                }}
+                onDragLeave={(e) => {
+                  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                  setDropTargetDay((current) => (current === day ? null : current));
+                }}
+                onDrop={(e) => {
+                  if (!canEditRoster) return;
+                  e.preventDefault();
+                  handleDayDrop(day);
+                }}
+              >
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{formatDayHeading(day)}</p>
                   {canEditRoster ? (
@@ -316,18 +417,25 @@ export function RosteringWeekView() {
                       const conflicts = conflictByShiftId.get(shift.id) ?? [];
                       const hasError = conflicts.some((c) => c.severity === "error");
                       const vacant = isVacantShift(shift);
+                      const draggable = canEditRoster && canRescheduleShiftByDrag(shift).allowed;
+                      const isDragging = dragShiftId === shift.id;
                       return (
                         <button
                           key={shift.id}
                           type="button"
-                          onClick={() => canEditRoster && setEditorShift(shift)}
+                          draggable={draggable}
+                          onDragStart={(e) => handleShiftDragStart(shift, e)}
+                          onDragEnd={handleShiftDragEnd}
+                          onClick={() => canEditRoster && openShiftEditor(shift)}
                           className={`w-full rounded-lg border p-2 text-left text-xs ${
                             hasError
                               ? "border-rose-300 bg-rose-50/80"
                               : vacant
                                 ? "border-amber-300 bg-amber-50/80"
                                 : "border-[#f9a8d4]/40 bg-[#fdf2f8]/60"
-                          } ${canEditRoster ? "cursor-pointer hover:border-[#d4147a]/50 hover:shadow-sm" : "cursor-default"}`}
+                          } ${canEditRoster ? "cursor-pointer hover:border-[#d4147a]/50 hover:shadow-sm" : "cursor-default"} ${
+                            draggable ? "cursor-grab active:cursor-grabbing" : ""
+                          } ${isDragging ? "opacity-40" : ""}`}
                         >
                           <p className="font-semibold text-slate-900">{formatShiftTimeRange(shift.startTime, shift.endTime)}</p>
                           {client ? (

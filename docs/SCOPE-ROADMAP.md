@@ -160,7 +160,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 |-------------|--------|------------------|
 | Master roster (4–12 week view) | ⬜ | Yes |
 | Current roster calendar | ⬜ | Yes |
-| Drag-and-drop day/week views | ⬜ | Yes |
+| Drag-and-drop day/week views | 🟡 | Yes |
 | Recurring + ad-hoc shifts | ⬜ | Yes |
 | Staff–client matching rules | 🟡 | Yes |
 | Conflict detection (hard blocks) | 🟡 | Yes |

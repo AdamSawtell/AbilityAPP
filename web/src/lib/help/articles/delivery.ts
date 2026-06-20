@@ -90,6 +90,7 @@ export const deliveryArticle: HelpArticle = {
         "Optional: tick Repeat weekly, choose weekdays, and set number of weeks.",
         "Save — shifts appear on the calendar and persist after refresh.",
         "Click an existing shift card to edit.",
+        "Drag a shift card to another day column to reschedule — conflict rules still apply for Published shifts.",
         "If a worker is double-booked, save is blocked and the shift card shows a Conflict badge.",
         "Publishing a shift (status Published, Publish week, RoC publish, or open-shift claim) hard-blocks worker double-booking and client time overlap — resolve conflicts before publish.",
         "On the Week tab, use Publish week to publish all staffed draft shifts at once — blocked shifts are listed with reasons.",
