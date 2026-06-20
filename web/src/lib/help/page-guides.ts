@@ -85,6 +85,11 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/my/leave", slug: "my-workplace", surface: "app" },
   { prefix: "/my", slug: "my-workplace", surface: "app" },
 
+  // App — participant portal
+  { prefix: "/portal/services", slug: "participant-portal", surface: "app" },
+  { prefix: "/portal/budget", slug: "participant-portal", surface: "app" },
+  { prefix: "/portal", slug: "participant-portal", surface: "app" },
+
   // App — workforce & admin
   { prefix: "/workforce-planning/organisation", slug: "workforce-organisation", surface: "app" },
   { prefix: "/workforce-planning", slug: "workforce-leave-calendar", surface: "app" },

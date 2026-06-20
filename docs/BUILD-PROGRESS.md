@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **95%** |
+| **Overall completion** | **96%** |
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
-| **Active slice** | WP-0.2 complete — NDIS qualification scoring |
-| **Next slice** | WP-0.3 — Portal MVP (read-only services + budget) |
-| **Last push** | 2026-06-20 — `f2e8826` |
+| **Active slice** | WP-0.3 complete — Portal MVP (read-only services + budget) |
+| **Next slice** | WP-0.4 — Service request workflow stub |
+| **Last push** | 2026-06-20 — pending WP-0.3 commit |
 
 ---
 
@@ -74,7 +74,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
-| 0 | Enquiry & CRM + portal | 10% | **25%** | 🟡 Partial | Portal auth (default: magic link) |
+| 0 | Enquiry & CRM + portal | 10% | **37%** | 🟡 Partial | Service request workflow (WP-0.4) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
@@ -562,6 +562,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Filter **Hot** | Samuel Ryan appears when score ≥ 70 |
 | 6 | **Full audit trail** after save | Qualification score/tier logged |
 
+### WP-0.3 — Portal MVP (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/portal/login` | Sign-in form loads without staff login |
+| 2 | Enter **Bernie@email**, request link | Demo sign-in link shown (non-production) |
+| 3 | Open demo link | Redirects to `/portal` hub signed in as Bernie |
+| 4 | **My services** | Upcoming Bern shifts (Jun 2026) listed |
+| 5 | **My funding** | Plan budget summary + category lines |
+| 6 | **Sign out** | Returns to login; protected routes redirect |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -914,11 +925,22 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Enquiries Write + **Qualification** tab |
 | **Admin verify** | Samuel Ryan seed scores Warm/Hot; save persists tier on list |
 
+### WP-0.3 — Portal MVP (read-only services + budget)
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Core modules** → **Participant portal** |
+| **User steps** | 1. Open `/portal/login`. 2. Request magic link with participant email. 3. View **My services** and **My funding**. 4. Sign out when done. |
+| **System setup** | `/system/setup/clients` — participant email + plan budget + roster shifts for portal demo |
+| **Reference data** | — |
+| **Role access** | Portal is separate from staff roles; staff configure client email + plan budget |
+| **Admin verify** | Bernie@email signs in; services + budget render read-only |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
 |---|--------|
-| **Status** | ⬜ Chunk 0 — not in this slice |
+| **Status** | 🟡 Partial — read-only services list shipped in WP-0.3; week calendar view still planned |
 | **Planned** | Read-only week view of participant services (Scope Stage 0 portal) |
 
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
@@ -1009,6 +1031,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | f56f6a5 | WP-J.4 NDIS audit pack export + summary report |
 | 2026-06-20 | b210c1a | WP-0.1 enquiry pipeline stages + loss reasons |
 | 2026-06-20 | f2e8826 | WP-0.2 NDIS qualification scoring |
+| 2026-06-20 | pending | WP-0.3 participant portal MVP |
 
 ---
 
@@ -1055,6 +1078,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 92 routes (WP-0.1) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-0.2) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 92 routes (WP-0.2) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-0.3) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 95 routes (WP-0.3) |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625330000` portal demo shifts |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625320000` enquiry qualification |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625310000` enquiry pipeline + loss_reason |
 
@@ -1095,6 +1121,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-J.4 | `/ndis-audit-pack`, `/reports/ndis-audit-pack-summary` | **Pass** | build verified; 92 routes |
 | 2026-06-20 | WP-0.1 | `/enquiries`, `/enquiries/1000025` | **Pass** | build verified; pipeline panel + stage filters |
 | 2026-06-20 | WP-0.2 | `/enquiries/1000025?tab=Qualification`, `/enquiries` | **Pass** | build verified; score panel + tier filters |
+| 2026-06-20 | WP-0.3 | `/portal/login`, `/portal`, `/portal/services`, `/portal/budget` | **Pass** | build verified; magic-link auth + read-only APIs |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1131,6 +1158,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-J.4 | 1 High + 2 Medium — fixed | **Pass** | Hooks order, active employees only, period participants |
 | 2026-06-20 | WP-0.1 | 3 High — all fixed | **Pass** | Convert-only won status, local overdue date, pipeline validation on create/AI save |
 | 2026-06-20 | WP-0.2 | 1 High — fixed | **Pass** | Stored org profile used for persisted qualification score |
+| 2026-06-20 | WP-0.3 | 4 High + 3 Medium — all fixed | **Pass** | Email revalidation, draft shift filter, portal DataStore skip, duplicate email guard |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1180,6 +1208,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-J.4 | `delivery` — NDIS audit pack export | `services-setup` — NDIS audit pack grant | exit 0 — 92 routes |
 | 2026-06-20 | WP-0.1 | `core` — enquiry pipeline + follow-ups | `enquiries-setup` — pipeline statuses + loss reasons | exit 0 — 92 routes |
 | 2026-06-20 | WP-0.2 | `core` — NDIS qualification scoring | `enquiries-setup` — plan status + urgency lists | exit 0 — 92 routes |
+| 2026-06-20 | WP-0.3 | `participant-portal` — magic link, services, funding | `clients-setup` — participant email + portal demo | exit 0 — 95 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

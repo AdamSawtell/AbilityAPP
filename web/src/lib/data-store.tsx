@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { createEnquiry, initialRecords as seedEnquiries, normalizeEnquiry, type EnquiryRecord } from "@/lib/enquiry";
 import { enquiryPipelineBlocked, validateEnquiryPipeline } from "@/lib/enquiry-pipeline";
 import { initialClients as seedClients, normalizeClient, type ClientRecord } from "@/lib/client";
@@ -348,6 +349,32 @@ function seedData(): Required<Persisted> {
   };
 }
 
+function portalEmptyData(): Required<Persisted> {
+  return {
+    enquiries: [],
+    incidents: [],
+    clients: [],
+    contracts: [],
+    products: [],
+    priceLists: [],
+    serviceAgreements: [],
+    serviceBookings: [],
+    rosterShifts: [],
+    rosterOfCares: [],
+    monthlyServicePlans: [],
+    timesheets: [],
+    claims: [],
+    claimRemittances: [],
+    invoices: [],
+    payrollClosedPeriods: [],
+    supportPlans: [],
+    planDocuments: [],
+    employees: [],
+    locations: [],
+    tasks: [],
+  };
+}
+
 function isPersisted(value: unknown): value is Persisted {
   if (!value || typeof value !== "object") return false;
   const v = value as Persisted;
@@ -404,7 +431,9 @@ function persistLocal(data: Required<Persisted>) {
 }
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const defaults = seedData();
+  const pathname = usePathname();
+  const portalOnly = pathname.startsWith("/portal");
+  const defaults = portalOnly ? portalEmptyData() : seedData();
   const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(defaults.enquiries);
   const [incidents, setIncidents] = useState<IncidentRecord[]>(defaults.incidents);
   const [clients, setClients] = useState<ClientRecord[]>(defaults.clients);
@@ -509,6 +538,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function hydrate() {
+      if (portalOnly) {
+        if (!cancelled) {
+          setSource("local");
+          setHydrated(true);
+        }
+        return;
+      }
+
       if (isSupabaseConfigured()) {
         try {
           const supabase = createClient();
@@ -600,7 +637,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [portalOnly]);
 
   useEffect(() => {
     if (!hydrated || source === "supabase") return;

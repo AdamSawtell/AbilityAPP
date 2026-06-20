@@ -66,6 +66,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Review support plan lists (goals, documents, assessments).",
       "Under Admin → Roles, grant Clients module, Plan budget tab (client-plan-budget), Service agreements (client-service-agreements), and Service bookings (client-service-bookings) at Read or Write for each role that needs them.",
       "Create a test client: set lifecycle, add plan budget lines, record core consents, then save and verify Overview summaries.",
+      "Set a participant email on the client record — it must match the address they use at /portal/login.",
+      "Roster future shifts to the client and confirm they appear on /portal/services after magic-link sign-in.",
     ]
   ),
   moduleSetupArticle(
