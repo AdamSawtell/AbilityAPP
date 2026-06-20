@@ -57,9 +57,35 @@ Workflows (convert, approve, assign, etc.):
 
 New workspace sidebar section → matching section in `web/src/lib/system/nav.ts` with `withReferenceData()`.
 
-## 8. In-app help
+## 8. In-app help (every slice)
 
-New routes need help articles, `page-guides.ts` mapping, and footer link. Run `npm run page-guides:check` after route changes.
+Every slice that adds or changes user-facing behaviour must ship **both** a user how-to guide and system setup guidance before push.
+
+### User how-to guide
+
+| Requirement | Location |
+|-------------|----------|
+| Article section with title, body, and **steps** or **bullets** | `web/src/lib/help/articles/*.ts` |
+| Route still resolves (usually via existing prefix rule) | `web/src/lib/help/page-guides.ts` |
+| Footer **How to use this page** link works on affected routes | Run `npm run page-guides:check` |
+
+Add or update sections for new tabs, fields, panels, filters, save rules, and workflows. Use plain language and numbered steps where the user performs an action sequence.
+
+### System setup guide
+
+| Requirement | Location |
+|-------------|----------|
+| Checklist items for reference data and role grants | `web/src/lib/help/articles/module-setup-guides.ts` |
+| Reference list values (if new dropdown) | `web/src/lib/reference-data.ts` + `/system/reference-data/<section>` |
+| Setup hub page | `/system/setup/<section>` (via `web/src/lib/system/nav.ts`) |
+
+Checklist must name: reference data lists to review, role windows to grant, and a **test record** step coordinators can repeat after go-live.
+
+### Documentation in BUILD-PROGRESS
+
+For each shipped slice, add rows to **User guides & system setup** in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md) and log delivery in **Guide delivery log**.
+
+Run `npm run page-guides:check` after help changes (Tier 1).
 
 ## 9. Payroll & NDIS boundaries (from scope)
 

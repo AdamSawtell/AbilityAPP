@@ -17,7 +17,7 @@ export const clientsArticle: HelpArticle = {
   ],
   relatedRoutes: ["/clients", "/service-agreements"],
   windowKeys: ["clients"],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-18",
   sections: [
     {
       id: "client-list",
@@ -26,22 +26,59 @@ export const clientsArticle: HelpArticle = {
       relatedRoutes: ["/clients"],
     },
     {
+      id: "client-lifecycle",
+      title: "Client lifecycle",
+      body: "Lifecycle tracks where the participant is in your intake-to-exit workflow. Set it on Full profile and filter the Clients list by lifecycle.",
+      steps: [
+        "Open the client → Full profile.",
+        "Set Lifecycle (intake, onboarding, active, plan review, or exit).",
+        "When lifecycle is plan review, enter Plan review due.",
+        "When lifecycle is exit, choose an Exit reason.",
+        "Save the record. The list shows a lifecycle badge; use All lifecycles to filter.",
+      ],
+      windowKeys: ["client-full-profile", "clients"],
+    },
+    {
       id: "client-tab-groups",
       title: "Client tab groups",
       body: "Client records use grouped tabs on the left. Your role controls which tabs you see.",
       bullets: [
-        "Core: Overview, Support Plan, Alerts, Activity, Service agreements, Full profile",
+        "Core: Overview, Alerts, Activity, Full profile, Service agreements",
         "Relationships: BP Associations, Locations, Contact Activity",
-        "Care and compliance: Requests, Restrictive Practices, Consents and Legal Orders, Risks",
-        "Planning: Plan and Assessment, Goals, Progress Review, Support Receiver Needs and Rules",
+        "Care and compliance: Requests, Restrictive Practices, Consents and Legal Orders, Risks, Incidents",
+        "Planning: Plan budget, Plan and Assessment, Support Plan, Goals, Progress Review, Support Receiver Needs and Rules",
       ],
     },
     {
       id: "overview",
       title: "Overview tab",
-      body: "Overview shows the client summary card: status, funding, risk alerts, consent alert list, and key demographics. Use it for quick checks before drilling into line tabs.",
+      body: "Overview shows the client summary card: lifecycle, status, funding, risk alerts, consent alert list, core consents, and plan utilisation. Use it for quick checks before drilling into line tabs.",
       relatedRoutes: ["/clients"],
       windowKeys: ["client-overview"],
+    },
+    {
+      id: "plan-utilisation",
+      title: "Plan utilisation on Overview",
+      body: "When plan budget lines exist, Overview rolls up allocated, claimed, and remaining amounts across Core, Capacity building, and Capital. Click Open Plan budget to edit lines.",
+      steps: [
+        "Open the client → Overview.",
+        "Review Plan utilisation totals and per-budget breakdown.",
+        "Click Open Plan budget to add or edit budget lines.",
+      ],
+      windowKeys: ["client-overview", "client-plan-budget"],
+    },
+    {
+      id: "plan-budget",
+      title: "Plan budget tab",
+      body: "Enter NDIS plan budget lines by support budget (Core, Capacity building, Capital), category, allocated amount, and claimed amount. Summary cards show totals and remainder.",
+      steps: [
+        "Open the client → Plan budget (your role needs Plan budget access).",
+        "Review summary cards: total allocated, claimed, and remaining.",
+        "Add rows manually or use Core supports starter / Full plan scaffold to append template lines.",
+        "Enter Support budget, Support category, description, allocated ($), and claimed ($) per line.",
+        "Save the record. Changes appear in Overview plan utilisation and in service booking compliance checks.",
+      ],
+      windowKeys: ["client-plan-budget"],
     },
     {
       id: "alerts-activity",
@@ -52,8 +89,20 @@ export const clientsArticle: HelpArticle = {
     {
       id: "consents",
       title: "Consents and Legal Orders",
-      body: "Track consent types, legal orders, expiry, and notes per line. Valid consents and gaps feed the consent alert list on Overview when configured.",
+      body: "Track consent types, legal orders, expiry, and notes per line. Three core consent types — Service delivery, Information collection and sharing, and Photography and video — appear as summary tiles at the top of the tab.",
+      steps: [
+        "Open the client → Consents and Legal Orders.",
+        "Review the three core consent tiles (Service, Information, Photo). Status comes from the most recent valid line for each type.",
+        "Add or edit lines: pick Consent type, Status (Pending, Granted, Refused, Not required, Expired), valid-from and valid-to dates, and notes.",
+        "Save the record. Refused or missing core consents roll up to the consent alert list on Overview.",
+      ],
       windowKeys: ["client-consents-and-legal-orders"],
+    },
+    {
+      id: "core-consents",
+      title: "Core consents summary",
+      body: "Overview includes a Core consents panel showing the current status of the three mandatory consent types. Keep this aligned with lines on Consents and Legal Orders.",
+      windowKeys: ["client-overview", "client-consents-and-legal-orders"],
     },
     {
       id: "restrictive-practices",

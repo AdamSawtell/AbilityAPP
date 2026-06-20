@@ -27,7 +27,17 @@
 | **3 — Bugbot review** | Agent | Before every `git push` to `main` | ✅ Yes — fix Critical/High before push |
 | **4 — Your spot-check** | Adam | After push (Amplify live) | Recommended — same steps as Tier 2 |
 
-### Honest status (WP-A / WP-B.1)
+### Documentation pipeline (every slice)
+
+| Deliverable | Who | When | Required? |
+|-------------|-----|------|-----------|
+| **User how-to** | Agent | Same slice as the feature | ✅ Yes — article section with steps in `web/src/lib/help/articles/` |
+| **System setup** | Agent | Same slice as the feature | ✅ Yes — checklist in `module-setup-guides.ts`; reference data + role grants named |
+| **Progress log** | Agent | Before push | ✅ Yes — row in **User guides & system setup** below + **Guide delivery log** |
+
+See [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §8 for file paths and checklist format.
+
+---
 
 Slices through **WP-B.1** were verified with **Tier 1 only** (build + migrations). **Tier 2 browser** and **Tier 3 Bugbot** were not run on those pushes — backlog below. **All future slices use all tiers.**
 
@@ -141,6 +151,92 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 
 ---
 
+## User guides & system setup (per slice)
+
+Each row is what end users and system administrators need. In-app: workspace footer **How to use this page** → Help article; System → **Setup guides** or `/system/setup/<module>`.
+
+### WP-A.1 — Client lifecycle
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → section **Client lifecycle** (`clients-locations.ts` § `client-lifecycle`) |
+| **User steps** | 1. Open client → **Full profile**. 2. Set **Lifecycle**, **Plan review due** (when plan review), **Exit reason** (when exit). 3. Save. 4. Filter **Clients** list by lifecycle badge. |
+| **System setup** | `/system/setup/clients` → guide **Clients setup** |
+| **Reference data** | `/system/reference-data/clients` → **Client lifecycle status**, **Lifecycle exit reason** |
+| **Role access** | Admin → Roles → **Clients** module + **Full profile** tab (`client-full-profile`) at Write |
+| **Admin verify** | Edit lifecycle on a test client; confirm badge on list and audit trail entry |
+
+### WP-A.2 — Plan budget line table
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → section **Plan budget** (`client-plan-budget`) |
+| **User steps** | 1. Open client → **Plan budget** tab. 2. Review summary cards. 3. Add/edit lines (support budget, category, allocated, claimed). 4. Save; refresh to confirm persistence. |
+| **System setup** | `/system/setup/clients` — checklist items for NDIS lists and **Plan budget** role grant |
+| **Reference data** | **NDIS support budget**, **NDIS support category** |
+| **Role access** | **Plan budget** tab window `client-plan-budget` at Read or Write |
+| **Admin verify** | Role without Plan budget cannot see tab; role with Write can edit and save lines |
+
+### WP-A.3 — Core consents
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → **Consents and Legal Orders** + **Core consents summary** |
+| **User steps** | 1. Open **Consents and Legal Orders**. 2. Review three core tiles (Service, Information, Photo). 3. Add lines with type, status, dates. 4. Check **Overview** consent alert list and **Core consents** panel. |
+| **System setup** | `/system/setup/clients` — **Consent status** list |
+| **Reference data** | **Consent status**; consent type list if customised |
+| **Role access** | **Consents and Legal Orders** tab (`client-consents-and-legal-orders`) |
+| **Admin verify** | Refused photo consent appears on Overview alerts |
+
+### WP-A.4 — Plan budget wizard
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → **Plan budget** (wizard buttons described in steps) |
+| **User steps** | 1. **Plan budget** tab → **Core supports starter** or **Full plan scaffold**. 2. Enter allocated amounts from NDIS plan. 3. Save. |
+| **System setup** | Same as WP-A.2 (no extra reference data) |
+| **Reference data** | — |
+| **Role access** | `client-plan-budget` Write |
+| **Admin verify** | Scaffold adds expected row count; lines persist after refresh |
+
+### WP-A.5 — Overview utilisation
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → **Plan utilisation on Overview** |
+| **User steps** | 1. Open **Overview**. 2. Review **Plan utilisation** totals. 3. Click **Open Plan budget** to edit lines. |
+| **System setup** | Same as WP-A.2 |
+| **Reference data** | — |
+| **Role access** | **Overview** + **Plan budget** as needed |
+| **Admin verify** | Totals match Plan budget tab after line edit |
+
+### WP-B.1 — Booking compliance
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → section **Booking compliance checks** (`delivery.ts` § `booking-compliance`) |
+| **User steps** | 1. Open **Service bookings** → select booking. 2. Read compliance panel (pass / warning / error). 3. Fix errors (dates, budget, client). 4. Save when no blocking errors. |
+| **System setup** | `/system/setup/services` → guide **Services setup** |
+| **Reference data** | Products/UoM under `/system/reference-data/services` (existing) |
+| **Role access** | **Service bookings** window Write; clients need **Plan budget** for budget checks |
+| **Admin verify** | Invalid dates block save; budget exceeded blocks save when client has plan lines |
+
+### WP-B.2 — Cancellation policy (not shipped)
+
+| | Detail |
+|---|--------|
+| **User how-to** | *Add Delivery article section when slice ships* |
+| **System setup** | *Add Services setup checklist items when slice ships* |
+
+### WP-C — Service agreements (not started)
+
+| | Detail |
+|---|--------|
+| **User how-to** | *Extend Clients / Services articles when slice ships* |
+| **System setup** | *Extend services-setup checklist when slice ships* |
+
+---
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -220,9 +316,19 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 
 ---
 
+## Guide delivery log
+
+| Date | Slice | User article | System setup | page-guides:check |
+|------|-------|--------------|--------------|-------------------|
+| 2026-06-18 | WP-A.1–A.5 | `clients` — lifecycle, plan budget, consents, utilisation | `clients-setup` updated | exit 0 |
+| 2026-06-18 | WP-B.1 | `delivery` — booking compliance | `services-setup` updated | exit 0 |
+
+---
+
 ## How to update this file
 
 1. After each slice: update chunk %, WP slice status, overall %, shipped log.
 2. Add **What you can test** rows for the new slice (table format above).
-3. Log Tier 1 / 2 / 3 results in the verification tables.
-4. Set **Next slice** to the first incomplete item on the critical path.
+3. Add **User guides & system setup** row with user steps, reference data, role access, and admin verify.
+4. Log Tier 1 / 2 / 3 results in the verification tables; log guides in **Guide delivery log**.
+5. Set **Next slice** to the first incomplete item on the critical path.

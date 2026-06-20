@@ -22,6 +22,26 @@ export const deliveryArticle: HelpArticle = {
       windowKeys: ["service-bookings"],
     },
     {
+      id: "booking-compliance",
+      title: "Booking compliance checks",
+      body: "When you open or edit a service booking, the compliance panel lists pass, warning, and error checks. Errors block Save until resolved.",
+      steps: [
+        "Open Service bookings and select a booking, or create a new one.",
+        "Select a business partner (client). The panel checks client lifecycle, dates, lines, and plan budget.",
+        "Fix any red errors — for example start date after end date, booking after support ceased, or total exceeding remaining plan budget.",
+        "Review yellow warnings (empty lines, intake/exit lifecycle, budget near limit) before confirming.",
+        "Save when the panel shows no blocking errors.",
+      ],
+      relatedRoutes: ["/service-bookings", "/service-bookings/new"],
+      windowKeys: ["service-bookings"],
+      bullets: [
+        "Client required — select a business partner.",
+        "Dates — start on or before end; booking must not extend past support ceased date.",
+        "Plan budget — booking total compared to client remaining plan budget (requires Plan budget lines on the client).",
+        "Lines — at least one line recommended; line dates must be valid.",
+      ],
+    },
+    {
       id: "rostering",
       title: "Rostering (coming soon)",
       body: "Rostering and booking generator will build recurring patterns and bulk-create service bookings for a location or client.",

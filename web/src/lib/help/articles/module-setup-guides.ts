@@ -54,13 +54,17 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
   moduleSetupArticle(
     "clients-setup",
     "Clients setup",
-    "Client statuses, alert types, and support plan reference lists.",
+    "Client lifecycle, plan budget reference lists, consents, and role access before coordinators use client records.",
     "/system/setup/clients",
     "clients",
     [
-      "Align client status with your onboarding workflow.",
-      "Configure alert, consent, risk, and activity types.",
+      "Align Client status with your onboarding workflow.",
+      "Review Client lifecycle status (intake → exit) and Lifecycle exit reason lists.",
+      "Configure NDIS support budget and NDIS support category for Plan budget lines.",
+      "Set Consent status options and consent, alert, risk, and activity types.",
       "Review support plan lists (goals, documents, assessments).",
+      "Under Admin → Roles, grant Clients module and Plan budget tab (client-plan-budget) at Read or Write for each role that edits budgets.",
+      "Create a test client: set lifecycle, add plan budget lines, record core consents, then save and verify Overview summaries.",
     ]
   ),
   moduleSetupArticle(
@@ -112,13 +116,15 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
   moduleSetupArticle(
     "services-setup",
     "Services setup",
-    "Products, agreements, contracts, and funding lists.",
+    "Products, agreements, contracts, and service booking access before delivery staff create bookings.",
     "/system/setup/services",
     "services",
     [
       "Configure product categories and units of measure.",
       "Set service agreement and contract status options.",
-      "Grant Services windows per role before go-live.",
+      "Grant Service bookings window at Write for roles that create or edit bookings.",
+      "Ensure client Plan budget lines exist for participants — booking compliance compares totals to remaining budget.",
+      "Create a test booking linked to a client with plan budget; confirm the compliance panel passes before go-live.",
     ]
   ),
   moduleSetupArticle(
