@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) |
 | **Active slice** | WP-D.8 — Worker shift check-in MVP ✅ shipped |
 | **Next slice** | WP-D.9 — TBD (GPS mobile check-in or RoC import) |
-| **Last push** | 2026-06-20 — pending |
+| **Last push** | 2026-06-20 — `7a518b5` |
 
 ---
 
