@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
 | **Active slice** | WP-0.3 complete — Portal MVP (read-only services + budget) |
 | **Next slice** | WP-0.4 — Service request workflow stub |
-| **Last push** | 2026-06-20 — pending WP-0.3 commit |
+| **Last push** | 2026-06-20 — `98dcf9f` |
 
 ---
 
@@ -1031,7 +1031,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | f56f6a5 | WP-J.4 NDIS audit pack export + summary report |
 | 2026-06-20 | b210c1a | WP-0.1 enquiry pipeline stages + loss reasons |
 | 2026-06-20 | f2e8826 | WP-0.2 NDIS qualification scoring |
-| 2026-06-20 | pending | WP-0.3 participant portal MVP |
+| 2026-06-20 | 98dcf9f | WP-0.3 participant portal MVP |
 
 ---
 
