@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **67%** |
+| **Overall completion** | **68%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.17 — Mobile My shifts polish ✅ shipped |
-| **Next slice** | WP-D.18 — Payroll reconciliation stub or roster hard enforcement |
-| **Last push** | 2026-06-18 — `fd6df49` |
+| **Active slice** | WP-D.18 — Payroll reconciliation stub ✅ shipped |
+| **Next slice** | WP-D.19 — Roster hard enforcement (conflict blocks publish) |
+| **Last push** | 2026-06-18 — pending |
 
 ---
 
@@ -77,11 +77,11 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **75%** | 🔵 In progress | WP-D.17 mobile My shifts |
+| 4 | Rostering | 22% | **75%** | 🔵 In progress | WP-D.19 roster hard enforcement |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
-| 6 | Timesheets & payroll export | 10% | **45%** | 🟡 Partial | WP-D.16 Keypay API hook |
+| 6 | Timesheets & payroll export | 10% | **50%** | 🟡 Partial | WP-D.18 payroll reconciliation |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
-| 8 | Reconciliation | 6% | 3% | ⬜ Not started | Chunks 5 + 7 |
+| 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
 
@@ -354,6 +354,18 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Upcoming tab | Future shifts grouped by day (Tomorrow, etc.) |
 | 6 | Geofence/GPS | Badges still show on shift cards |
 
+### WP-D.18 — Payroll reconciliation stub (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Timesheets** list | Payroll reconciliation panel below payroll export |
+| 2 | Export an approved timesheet (CSV or Keypay) | Record appears in reconciliation candidate table |
+| 3 | Enter paid hours + pay run reference, save | Status Matched or Variance; payroll status Processed |
+| 4 | List table | Reconcile column shows Pending / Matched / Variance |
+| 5 | Open timesheet detail (exported) | Payroll reconciliation section with status + form |
+| 6 | Edit timesheet fields without saving | Reconciliation save disabled until save or discard |
+| 7 | **Full audit trail** after reconcile | payroll paid hours, reconcile status logged |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -555,7 +567,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 00c69f7 | WP-D.14 publish roster shifts from RoC |
 | 2026-06-18 | 63423e2 | WP-D.15 roster capacity planning |
 | 2026-06-18 | b41d598 | WP-D.16 Keypay API export hook |
-| 2026-06-18 | pending | WP-D.17 mobile My shifts polish |
+| 2026-06-18 | fd6df49 | WP-D.17 mobile My shifts polish |
+| 2026-06-18 | 062fe13 | WP-D.18 payroll reconciliation stub |
 
 ---
 
@@ -588,6 +601,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.12) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.12) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625230000` timesheet payroll export columns |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260625250000` timesheet payroll reconciliation columns |
 
 ---
 
@@ -609,6 +623,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.15 | `/rostering` Capacity tab | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.16 | `/timesheets` | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.17 | `/my/shifts` | **Pass** | HTTP 200 |
+| 2026-06-18 | WP-D.18 | `/timesheets` | **Pass** | HTTP 200 |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -628,6 +643,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.15 | 2 Medium | **Pass** | Fixed: detail week sync on navigate; rostered non-active workers visible |
 | 2026-06-18 | WP-D.16 | 5 High + 2 Medium | **Pass** | Fixed: server validation/persist, Basic auth, dry-run priority, double-click, fetch catch |
 | 2026-06-18 | WP-D.17 | 1 High + 1 Medium | **Pass** | Fixed: yesterday action shifts on Today tab; check-out before check-in in banner |
+| 2026-06-18 | WP-D.18 | 1 High + 1 Medium | **Pass** | Fixed: disable reconcile when draft dirty; reset form on timesheet navigation |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -660,7 +676,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.15 | `delivery` — capacity planning tab | `services-setup` — review capacity before go-live | exit 0 |
 | 2026-06-18 | WP-D.16 | `delivery` — Keypay API payroll export | `services-setup` — Keypay env vars on Amplify | exit 0 |
 | 2026-06-18 | WP-D.17 | `my-workplace` — mobile My shifts tabs | — | exit 0 |
-| 2026-06-18 | `npm run build` | exit 0 (WP-D.17) |
+| 2026-06-18 | WP-D.18 | `delivery` — payroll reconciliation after export | `services-setup` — reconcile after pay run | exit 0 |
+| 2026-06-18 | `npm run build` | exit 0 (WP-D.18) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.18) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.17) |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.16) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.16) |
