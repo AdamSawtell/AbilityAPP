@@ -1,5 +1,6 @@
 /** Map between Postgres snake_case rows and app camelCase records. */
 
+import type { ClaimLine, ClaimRecord } from "@/lib/claim";
 import type { ClientRecord } from "@/lib/client";
 import type { ClientPlanBudgetRow } from "@/lib/client-line-tables";
 import type { ContractRecord } from "@/lib/contract";
@@ -2287,5 +2288,129 @@ export function timesheetLineToRow(timesheetId: string, line: TimesheetLine): Ti
     shift_type: line.shiftType,
     hours: line.hours,
     notes: line.notes,
+  };
+}
+
+// --- Claim ---
+
+export type ClaimRow = {
+  id: string;
+  document_no: string;
+  client_id: string | null;
+  period_start: string;
+  period_end: string;
+  status: string;
+  plan_management_type: string;
+  total_amount: number;
+  gateway_status: string;
+  gateway_ref: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type ClaimLineRowDb = {
+  id: string;
+  claim_id: string;
+  line_no: number;
+  timesheet_id: string | null;
+  timesheet_line_id: string | null;
+  roster_shift_id: string | null;
+  client_id: string | null;
+  employee_id: string | null;
+  service_booking_id: string | null;
+  product_id: string | null;
+  ndis_support_item: string;
+  support_category: string;
+  service_date: string | null;
+  quantity: number;
+  unit_price: number;
+  line_amount: number;
+  claim_type: string;
+  validation_status: string;
+  validation_message: string;
+};
+
+export function claimFromRow(row: ClaimRow, lines: ClaimLineRowDb[]): ClaimRecord {
+  return {
+    id: row.id,
+    documentNo: row.document_no,
+    clientId: row.client_id ?? "",
+    periodStart: strDate(row.period_start),
+    periodEnd: strDate(row.period_end),
+    status: row.status,
+    planManagementType: row.plan_management_type,
+    totalAmount: Number(row.total_amount) || 0,
+    gatewayStatus: row.gateway_status || "Not submitted",
+    gatewayRef: row.gateway_ref ?? "",
+    notes: row.notes,
+    lines: lines.map(claimLineFromRow),
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+function claimLineFromRow(row: ClaimLineRowDb): ClaimLine {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    timesheetId: row.timesheet_id ?? "",
+    timesheetLineId: row.timesheet_line_id ?? "",
+    rosterShiftId: row.roster_shift_id ?? "",
+    clientId: row.client_id ?? "",
+    employeeId: row.employee_id ?? "",
+    serviceBookingId: row.service_booking_id ?? "",
+    productId: row.product_id ?? "",
+    ndisSupportItem: row.ndis_support_item ?? "",
+    supportCategory: row.support_category ?? "",
+    serviceDate: row.service_date ? strDate(row.service_date) : "",
+    quantity: Number(row.quantity) || 0,
+    unitPrice: Number(row.unit_price) || 0,
+    lineAmount: Number(row.line_amount) || 0,
+    claimType: row.claim_type || "Standard",
+    validationStatus: row.validation_status || "pass",
+    validationMessage: row.validation_message ?? "",
+  };
+}
+
+export function claimToRow(record: ClaimRecord): ClaimRow {
+  return {
+    id: record.id,
+    document_no: record.documentNo,
+    client_id: record.clientId?.trim() ? record.clientId : null,
+    period_start: toDate(record.periodStart) ?? record.periodStart,
+    period_end: toDate(record.periodEnd) ?? record.periodEnd,
+    status: record.status,
+    plan_management_type: record.planManagementType || "Agency managed",
+    total_amount: record.totalAmount,
+    gateway_status: record.gatewayStatus || "Not submitted",
+    gateway_ref: record.gatewayRef ?? "",
+    notes: record.notes,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function claimLineToRow(claimId: string, line: ClaimLine): ClaimLineRowDb {
+  return {
+    id: line.id,
+    claim_id: claimId,
+    line_no: line.lineNo,
+    timesheet_id: line.timesheetId?.trim() ? line.timesheetId : null,
+    timesheet_line_id: line.timesheetLineId?.trim() ? line.timesheetLineId : null,
+    roster_shift_id: line.rosterShiftId?.trim() ? line.rosterShiftId : null,
+    client_id: line.clientId?.trim() ? line.clientId : null,
+    employee_id: line.employeeId?.trim() ? line.employeeId : null,
+    service_booking_id: line.serviceBookingId?.trim() ? line.serviceBookingId : null,
+    product_id: line.productId?.trim() ? line.productId : null,
+    ndis_support_item: line.ndisSupportItem ?? "",
+    support_category: line.supportCategory ?? "",
+    service_date: line.serviceDate ? toDate(line.serviceDate) : null,
+    quantity: line.quantity,
+    unit_price: line.unitPrice,
+    line_amount: line.lineAmount,
+    claim_type: line.claimType || "Standard",
+    validation_status: line.validationStatus || "pass",
+    validation_message: line.validationMessage ?? "",
   };
 }

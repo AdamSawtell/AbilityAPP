@@ -134,6 +134,22 @@ export const deliveryArticle: HelpArticle = {
       relatedRoutes: ["/timesheets", "/generate-timesheets"],
       windowKeys: ["timesheets", "generate-timesheets"],
     },
+    {
+      id: "claims",
+      title: "NDIS claims",
+      body: "Generate draft claim batches from approved timesheet lines that passed shift verification. PAPL validation checks support items, prices, and booking readiness before gateway submission.",
+      steps: [
+        "Approve timesheets only after shift verification passes (check-in/out matches scheduled hours).",
+        "Open Generate claims and set the claim period start and end dates.",
+        "Review the preview — eligible lines come from Approved timesheets with verified roster links.",
+        "Click Generate claims — one Draft claim is created per participant for the period.",
+        "Open Claims, select a batch, and review the PAPL validation panel.",
+        "Fix blocking errors (missing product, price over limit, cancelled booking) before setting status to Submitted.",
+        "Gateway status stays Not submitted until PRODA or LanternPay integration is connected.",
+      ],
+      relatedRoutes: ["/claims", "/generate-claims"],
+      windowKeys: ["claims", "generate-claims"],
+    },
   ],
   relatedRoutes: [
     "/service-bookings",
@@ -141,8 +157,10 @@ export const deliveryArticle: HelpArticle = {
     "/rostering",
     "/timesheets",
     "/generate-timesheets",
+    "/claims",
+    "/generate-claims",
   ],
-  windowKeys: ["service-bookings", "rostering", "timesheets", "generate-timesheets"],
+  windowKeys: ["service-bookings", "rostering", "timesheets", "generate-timesheets", "claims", "generate-claims"],
 };
 
 export const servicePlanningArticle: HelpArticle = {

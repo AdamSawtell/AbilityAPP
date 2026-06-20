@@ -204,6 +204,22 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     abilityErpName: "Generate Timesheets",
     showInSidebar: true,
   },
+  {
+    key: "claims",
+    label: "Claims",
+    group: "Delivery",
+    href: "/claims",
+    abilityErpName: "Claim",
+    showInSidebar: true,
+  },
+  {
+    key: "generate-claims",
+    label: "Generate claims",
+    group: "Delivery",
+    href: "/generate-claims",
+    abilityErpName: "Generate Claims",
+    showInSidebar: true,
+  },
 ];
 
 const WORKFORCE_WINDOWS: AccessWindow[] = [

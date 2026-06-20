@@ -146,6 +146,9 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "After each pay run, reconcile exported timesheets — enter paid hours and pay run reference on Timesheets and clear Variance rows before closing payroll.",
       "When payroll paid hours match exported totals, use batch reconcile at exported hours with one pay run reference for multiple timesheets.",
       "Mark pay periods closed on Timesheets after reconciliation — closed periods block new draft timesheet generation for the same dates.",
+      "Grant Claims and Generate claims windows at Write for billing coordinators.",
+      "Generate claims only after timesheets are Approved and shift verification passes.",
+      "Review PAPL validation on each claim batch before marking Submitted — gateway export is a future integration.",
     ]
   ),
   moduleSetupArticle(

@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ClaimRecord } from "@/lib/claim";
+import { normalizeClaim } from "@/lib/claim";
 import type { ClientRecord } from "@/lib/client";
 import { normalizeClient } from "@/lib/client";
 import type { ContractRecord } from "@/lib/contract";
@@ -65,6 +67,11 @@ import {
   timesheetToRow,
   type TimesheetLineRowDb,
   type TimesheetRow,
+  claimFromRow,
+  claimLineToRow,
+  claimToRow,
+  type ClaimLineRowDb,
+  type ClaimRow,
   supportPlanFromRow,
   supportPlanToRow,
   type ClientActivityRowDb,
@@ -158,6 +165,7 @@ export type AppData = {
   rosterOfCares: RosterOfCareRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
+  claims: ClaimRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
@@ -205,6 +213,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     rosterShiftsRes,
     timesheetsRes,
     timesheetLinesRes,
+    claimsRes,
+    claimLinesRes,
     contractsRes,
     auditRes,
     supportPlansRes,
@@ -261,6 +271,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("roster_shift").select("*").order("shift_date"),
     supabase.from("timesheet").select("*").order("period_start", { ascending: false }),
     supabase.from("timesheet_line").select("*").order("line_no"),
+    supabase.from("claim").select("*").order("period_start", { ascending: false }),
+    supabase.from("claim_line").select("*").order("line_no"),
     supabase.from("contract").select("*").order("document_no"),
     supabase.from("contract_audit").select("*").order("line_no"),
     supabase.from("support_plan").select("*").order("document_no"),
@@ -319,6 +331,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     rosterShiftsRes.error ??
     timesheetsRes.error ??
     timesheetLinesRes.error ??
+    claimsRes.error ??
+    claimLinesRes.error ??
     contractsRes.error ??
     auditRes.error ??
     supportPlansRes.error ??
@@ -374,6 +388,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
   const linesByTimesheet = groupBy(timesheetLinesRes.data as TimesheetLineRowDb[], "timesheet_id");
+  const linesByClaim = groupBy(claimLinesRes.data as ClaimLineRowDb[], "claim_id");
   const linesByRosterOfCare = groupBy(rosterOfCareLinesRes.data as RosterOfCareLineRowDb[], "roster_of_care_id");
   const linesByMonthlyServicePlan = groupBy(
     monthlyServicePlanLinesRes.data as MonthlyServicePlanLineRowDb[],
@@ -453,6 +468,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     timesheets: ((timesheetsRes.data ?? []) as TimesheetRow[]).map((row) =>
       normalizeTimesheet(timesheetFromRow(row, linesByTimesheet.get(row.id) ?? []))
+    ),
+    claims: ((claimsRes.data ?? []) as ClaimRow[]).map((row) =>
+      normalizeClaim(claimFromRow(row, linesByClaim.get(row.id) ?? []))
     ),
     payrollClosedPeriods: ((payrollClosedPeriodsRes.data ?? []) as PayrollClosedPeriodRow[]).map(
       payrollClosedPeriodFromRow
@@ -986,6 +1004,26 @@ export async function saveTimesheet(supabase: SupabaseClient, record: TimesheetR
 export async function saveTimesheets(supabase: SupabaseClient, records: TimesheetRecord[]) {
   for (const record of records) {
     await saveTimesheet(supabase, record);
+  }
+}
+
+export async function saveClaim(supabase: SupabaseClient, record: ClaimRecord) {
+  const claim = normalizeClaim(record);
+  const { error } = await supabase.from("claim").upsert(claimToRow(claim));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "claim_line", "claim_id", claim.id);
+  if (claim.lines.length) {
+    const { error: lineError } = await supabase
+      .from("claim_line")
+      .insert(claim.lines.map((line) => claimLineToRow(claim.id, line)));
+    if (lineError) throw lineError;
+  }
+}
+
+export async function saveClaims(supabase: SupabaseClient, records: ClaimRecord[]) {
+  for (const record of records) {
+    await saveClaim(supabase, record);
   }
 }
 

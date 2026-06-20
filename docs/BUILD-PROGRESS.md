@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **80%** |
-| **Current work package** | Chunk 7 — Billing & claiming (claim generation scaffold) |
-| **Active slice** | WP-G/H complete — next: Chunk 7 billing scaffold |
-| **Next slice** | Chunk 7 — Billing & claiming (claim generation scaffold) |
-| **Last push** | 2026-06-20 — `c3473f7` |
+| **Overall completion** | **82%** |
+| **Current work package** | Chunk 7 — Billing & claiming |
+| **Active slice** | WP-I.1 claim generation scaffold (shipping) |
+| **Next slice** | WP-I.2 PAPL validation hard blocks + gateway stub |
+| **Last push** | 2026-06-20 — `6f8e0fb` |
 
 ---
 
@@ -81,7 +81,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 4 | Rostering | 22% | **95%** | 🟡 Partial | Participant portal (Chunk 0) |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
-| 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
+| 7 | Billing & claiming | 10% | **15%** | 🟡 Partial | PRODA/gateway |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
@@ -443,7 +443,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Reconcile at exported hours** with pay run ref | Selected rows marked Matched/Processed; audit logged |
 | 5 | Timesheet list **Reconcile** filter | Filters to Matched, Variance, or Pending |
 
-### WP-G/H — Master roster on records + workforce fill (`2026-06-18`)
+### WP-G/H — Master roster on records + workforce fill (`2026-06-20`)
 
 | Step | Action | Pass if |
 |------|--------|---------|
@@ -453,6 +453,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Workforce planning** → Worker schedule templates | Table lists workers with template summary |
 | 5 | **Workforce planning** → Fill board | Vacant shifts with suggested workers; Assign works |
 | 6 | **My workplace** → **My shifts** → Week calendar | Seven-day grid of worker's shifts |
+
+### WP-I.1 — Claim generation scaffold (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Claims** list | HTTP 200; Generate claims link visible |
+| 2 | **Generate claims** — set period with approved timesheets | Preview shows eligible lines or skip counts |
+| 3 | **Generate claims** — click Generate | Draft claim(s) created per participant |
+| 4 | Open claim detail | PAPL validation panel + claim lines table |
+| 5 | Save status change | Audit footer logs change |
 
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
@@ -704,6 +714,16 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Workforce planning** Read; **Rostering** Write to assign |
 | **Admin verify** | Assign removes vacancy; worker sees shift on Schedule tab |
 
+### WP-I.1 — Claim generation scaffold
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **NDIS claims** |
+| **User steps** | 1. Approve and verify timesheets. 2. Generate claims for period. 3. Review PAPL validation. 4. Submit when gateway connected (future). |
+| **System setup** | `/system/setup/services` — Claims + Generate claims grants |
+| **Role access** | **Claims** Read/Write; **Generate claims** Write |
+| **Admin verify** | Draft claim lines link to timesheet lines; validation blocks submit on errors |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
@@ -790,6 +810,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 8921a9d | Admin role always grants full catalog Write access |
 | 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
 | 2026-06-20 | c3473f7 | WP-G/H master roster on records + workforce fill board |
+| 2026-06-20 | pending | WP-I.1 claim generation scaffold + PAPL validation |
 
 ---
 
@@ -856,6 +877,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-F.1 | `/timesheets` reconciliation digest + batch | **Pass** | build verified |
 | 2026-06-18 | WP-F.2 | `/timesheets`, `/generate-timesheets` | **Pass** | build verified; closed period blocks generation |
 | 2026-06-20 | WP-G/H | `/clients/bp-bern`, `/employees/emp-isla`, `/workforce-planning`, `/my/shifts` | **Pass** | build verified; routes compile; tab grants via admin role |
+| 2026-06-20 | WP-I.1 | `/claims`, `/generate-claims` | **Pass** | build verified; 85 routes |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
