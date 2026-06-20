@@ -92,6 +92,7 @@ export const deliveryArticle: HelpArticle = {
         "If a worker is double-booked, save is blocked and the shift card shows a Conflict badge.",
         "Switch to Forward plan to see roster hours by client across 4–12 weeks.",
         "Open Gaps to review vacant shifts and weeks where active bookings have no staffed coverage.",
+        "Open Open shifts to browse the marketplace — coordinators assign cover; workers claim from My workplace → Open shifts.",
         "Use Add shift from a coverage gap to pre-fill the client and booking.",
       ],
       relatedRoutes: ["/rostering"],

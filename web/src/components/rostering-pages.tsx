@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
 import { RosterForwardPanel } from "@/components/roster-forward-panel";
 import { RosterGapsPanel } from "@/components/roster-gaps-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
@@ -19,6 +20,7 @@ import {
 } from "@/lib/roster-shift";
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
 import { gapsForWeek, isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
+import { listOpenMarketplaceShifts } from "@/lib/roster-open-shifts";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -26,7 +28,7 @@ export function RosteringWeekView() {
   const { clients, employees, locations, serviceBookings, rosterShifts } = useData();
   const { canWriteWindow } = useAuth();
   const canEditRoster = canWriteWindow("rostering");
-  const [view, setView] = useState<"week" | "forward" | "gaps">("week");
+  const [view, setView] = useState<"week" | "forward" | "gaps" | "open">("week");
   const [forwardWeeks, setForwardWeeks] = useState(8);
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate("2025-10-06"));
   const [editorShift, setEditorShift] = useState<ReturnType<typeof normalizeRosterShift> | null | "new">(null);
@@ -61,6 +63,11 @@ export function RosteringWeekView() {
   const weekGaps = useMemo(
     () => gapsForWeek(weekStart, rosterShifts.map(normalizeRosterShift), serviceBookings),
     [weekStart, rosterShifts, serviceBookings]
+  );
+
+  const openShiftCount = useMemo(
+    () => listOpenMarketplaceShifts(rosterShifts).length,
+    [rosterShifts]
   );
 
   function handleFillGap(gap: RosterGap) {
@@ -98,7 +105,9 @@ export function RosteringWeekView() {
             ? "Week calendar — create and edit shifts linked to client, worker, location, and service booking."
             : view === "forward"
               ? "Forward plan — roster hours and conflicts across the next 4–12 weeks."
-              : "Gap analysis — vacant shifts and weeks missing staffed coverage for active bookings."
+              : view === "gaps"
+                ? "Gap analysis — vacant shifts and weeks missing staffed coverage for active bookings."
+                : "Open shift marketplace — vacant shifts for coordinators to assign or workers to claim."
         }
         audit={{ moduleLabel: "Rostering" }}
         actions={
@@ -136,6 +145,20 @@ export function RosteringWeekView() {
                   </span>
                 ) : null}
               </button>
+              <button
+                type="button"
+                onClick={() => setView("open")}
+                className={`rounded-md px-3 py-1.5 font-medium ${
+                  view === "open" ? "bg-[#d4147a] text-white" : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Open shifts
+                {openShiftCount ? (
+                  <span className="ml-1.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-amber-950">
+                    {openShiftCount}
+                  </span>
+                ) : null}
+              </button>
             </div>
             {canEditRoster && view === "week" ? (
               <button
@@ -167,6 +190,16 @@ export function RosteringWeekView() {
             anchorWeekStart={weekStart}
             weekCount={forwardWeeks}
             onFillGap={canEditRoster ? handleFillGap : undefined}
+          />
+        ) : view === "open" ? (
+          <OpenShiftsMarketplacePanel
+            rosterShifts={rosterShifts}
+            clients={clients}
+            employees={employees}
+            locations={locations}
+            serviceBookings={serviceBookings}
+            mode="coordinator"
+            onAssign={(shift) => setEditorShift(normalizeRosterShift(shift))}
           />
         ) : (
           <>

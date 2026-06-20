@@ -280,6 +280,15 @@ const MY_WORKPLACE_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "my-open-shifts",
+    label: "Open shifts",
+    group: "My workplace",
+    href: "/my/open-shifts",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "Open shifts marketplace",
+    showInSidebar: false,
+  },
+  {
     key: "my-credentials",
     label: "My credentials",
     group: "My workplace",

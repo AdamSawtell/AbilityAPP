@@ -23,8 +23,8 @@ export const myWorkplaceArticle: HelpArticle = {
     "task",
     "how to",
   ],
-  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/contracts", "/my/credentials"],
-  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-contracts", "my-credentials"],
+  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/contracts", "/my/credentials"],
+  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-contracts", "my-credentials"],
   lastUpdated: "2026-06-19",
   sections: [
     {
@@ -85,6 +85,19 @@ export const myWorkplaceArticle: HelpArticle = {
       body: "Set your preferred weekly pattern so rostering can see when you are available, preferred, or unavailable.",
       relatedRoutes: ["/my/availability"],
       windowKeys: ["my-availability"],
+    },
+    {
+      id: "open-shifts",
+      title: "Claim open shifts",
+      body: "When rostering posts vacant shifts to the marketplace, you can browse and claim cover from My workplace → Open shifts. The system checks for double-booking before accepting your claim.",
+      steps: [
+        "Open My workplace → Open shifts.",
+        "Review date, time, client, and location on each card.",
+        "Click Claim shift — your user must be linked to your employee record.",
+        "If you are already rostered at that time, the claim is blocked with a message.",
+      ],
+      relatedRoutes: ["/my/open-shifts", "/rostering"],
+      windowKeys: ["my-open-shifts"],
     },
     {
       id: "contracts",

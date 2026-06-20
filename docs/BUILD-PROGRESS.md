@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **48%** |
+| **Overall completion** | **52%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) |
-| **Active slice** | WP-D.5 — Gap analysis / vacant shifts ✅ shipped |
-| **Next slice** | WP-D.6 — Open shift marketplace (placeholder) |
-| **Last push** | 2026-06-20 — `0515809` |
+| **Active slice** | WP-D.6 — Open shift marketplace ✅ shipped |
+| **Next slice** | WP-D.7 — Timesheet generation from shifts (Chunk 4 → 6 bridge) |
+| **Last push** | pending — WP-D.6 |
 
 ---
 
@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **35%** | 🔵 In progress | WP-D.5 gap analysis + vacant markers |
+| 4 | Rostering | 22% | **42%** | 🔵 In progress | WP-D.6 open shift marketplace |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -225,6 +225,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | Save **Draft** shift without worker | Saves with warning; not blocked |
 | 4 | **Forward plan** | **Coverage gaps** summary card; **Gap** cells in grid |
 | 5 | **Add shift** from coverage gap | Editor opens with client + booking pre-filled |
+
+### WP-D.6 — Open shift marketplace (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Rostering** → **Open shifts** tab | Vacant Draft shifts listed as cards |
+| 2 | **Assign worker** on a card | Edit modal opens |
+| 3 | **My workplace** → **Open shifts** | Same open shifts visible to staff |
+| 4 | **Claim shift** (linked employee user) | Worker assigned; shift leaves marketplace |
+| 5 | Double-book claim attempt | Blocked with conflict message |
 
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
@@ -415,7 +425,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | aa3c71f | Entity linking, WP-C.3 e-sign, WP-C.4 expiry hook, verification process |
 | 2026-06-20 | fd5e7e4 | WP-D.2 create/edit shifts + recurring, WP-D.3 conflict engine |
 | 2026-06-20 | 9336f35 | WP-D.4 master roster forward plan view |
-| 2026-06-20 | pending | WP-D.5 gap analysis + vacant shift markers |
+| 2026-06-20 | 0515809 | WP-D.5 gap analysis + vacant shift markers |
 
 ---
 

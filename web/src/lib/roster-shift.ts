@@ -74,6 +74,23 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
+  {
+    id: "rs-open-thu",
+    shiftRef: "OPEN-THU",
+    clientId: "bp-bern",
+    employeeId: "",
+    locationId: "loc-glenelg-sil",
+    serviceBookingId: "sb-50145",
+    shiftDate: "2025-10-09",
+    startTime: "10:00",
+    endTime: "16:00",
+    shiftType: "Standard",
+    status: "Draft",
+    notes: "Open shift — posted to marketplace for cover",
+    recurrenceGroupId: "",
+    createdBy: "Isla Robinson",
+    updatedBy: "Isla Robinson",
+  },
 ];
 
 export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftRecord {
