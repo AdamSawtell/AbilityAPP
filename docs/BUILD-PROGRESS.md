@@ -14,7 +14,7 @@
 | **Active slice** | WP-A.2 — Plan budget line table ✅ shipped |
 | **Next slice** | WP-A.3 — Consent tab alignment |
 | **Last verified** | 2026-06-18 — build + page-guides OK |
-| **Last push** | _pending_ |
+| **Last push** | 2026-06-18 — `0ad2f6c` |
 
 Progress is weighted by scope chunk size (rostering and downstream modules carry more weight once started).
 
