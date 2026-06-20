@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink } from "@/components/record-link";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
+import { ServiceAgreementEsignPanel } from "@/components/service-agreement-esign-panel";
 import { ServiceAgreementLifecyclePanel } from "@/components/service-agreement-lifecycle-panel";
 import {
   ServiceAgreementScheduleSummary,
@@ -229,6 +230,17 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
       >
         <div className="mb-6">
           <ServiceAgreementLifecyclePanel issues={lifecycleIssues} />
+        </div>
+
+        <div className="mb-6">
+          <ServiceAgreementEsignPanel
+            record={record}
+            readOnly={!canSaveAgreement}
+            onApply={(next) => {
+              setDraft(normalizeServiceAgreement({ ...next, updatedBy: "SuperUser" }));
+              setSaved(false);
+            }}
+          />
         </div>
 
         <fieldset disabled={!canSaveAgreement} className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4 disabled:opacity-100">

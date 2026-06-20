@@ -11,7 +11,7 @@ import { markScheduledAutomationsRan, shouldRunScheduledAutomations } from "@/li
  * Event-driven automations fire from data-store on record save.
  */
 export function TaskAutomationRunner() {
-  const { hydrated, incidents, employees, tasks, taskAutomations, addAutomationTasks } = useData();
+  const { hydrated, incidents, employees, serviceAgreements, clients, tasks, taskAutomations, addAutomationTasks } = useData();
   const { organization } = useOrganization();
   const attemptedRef = useRef(false);
 
@@ -25,6 +25,8 @@ export function TaskAutomationRunner() {
     const { drafts } = evaluateScheduledAutomations({
       incidents,
       employees,
+      serviceAgreements,
+      clients,
       rules: taskAutomations,
       tasks,
       investigationSlaDays: organization.incidentInvestigationSlaDays,
@@ -39,6 +41,8 @@ export function TaskAutomationRunner() {
     hydrated,
     incidents,
     employees,
+    serviceAgreements,
+    clients,
     tasks,
     taskAutomations,
     organization.incidentInvestigationSlaDays,

@@ -714,6 +714,10 @@ export type ServiceAgreementRow = {
   sent_at: string | null;
   signed_at: string | null;
   activated_at: string | null;
+  signer_name: string;
+  signer_role: string;
+  signature_image: string;
+  signature_captured_at: string | null;
   created_by: string;
   updated_by: string;
 };
@@ -754,6 +758,10 @@ export function serviceAgreementFromRow(
     sentAt: strDate(row.sent_at),
     signedAt: strDate(row.signed_at),
     activatedAt: strDate(row.activated_at),
+    signerName: row.signer_name ?? "",
+    signerRole: row.signer_role ?? "",
+    signatureImage: row.signature_image ?? "",
+    signatureCapturedAt: row.signature_captured_at ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     lines: lines.map(
@@ -792,6 +800,10 @@ export function serviceAgreementToRow(record: ServiceAgreementRecord): ServiceAg
     sent_at: toDate(record.sentAt),
     signed_at: toDate(record.signedAt),
     activated_at: toDate(record.activatedAt),
+    signer_name: record.signerName ?? "",
+    signer_role: record.signerRole ?? "",
+    signature_image: record.signatureImage ?? "",
+    signature_captured_at: record.signatureCapturedAt?.trim() ? record.signatureCapturedAt : null,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

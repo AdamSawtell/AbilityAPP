@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState, useEffect } from "react";
 import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink, ProductRecordLink } from "@/components/record-link";
@@ -60,6 +60,77 @@ const statusTone: Record<string, string> = {
   Completed: "bg-emerald-100 text-emerald-800",
   Cancelled: "bg-red-100 text-red-800",
 };
+
+export function ClientServiceBookingsPanel({
+  clientId,
+  searchKey,
+}: {
+  clientId: string;
+  clientName: string;
+  searchKey: string;
+}) {
+  const { getServiceBookingsByClientId } = useData();
+  const { canWriteWindow } = useAuth();
+  const canCreateBooking = canWriteWindow("service-bookings");
+  const bookings = getServiceBookingsByClientId(clientId);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className="text-sm text-slate-600">
+          Service bookings scheduled or delivered for this client. Each booking links to a service agreement and product
+          lines for claiming.
+        </p>
+        {canCreateBooking ? (
+          <Link
+            href={`/service-bookings/new?clientId=${encodeURIComponent(clientId)}`}
+            className="inline-flex shrink-0 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+          >
+            New service booking
+          </Link>
+        ) : null}
+      </div>
+      {bookings.length ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {bookings.map((booking) => (
+            <Link
+              key={booking.id}
+              href={`/service-bookings/${booking.id}`}
+              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#f9a8d4] hover:shadow-md"
+            >
+              <p className="text-xs font-medium text-slate-500">{booking.documentNo}</p>
+              <p className="font-semibold text-slate-900">{booking.description || "Service booking"}</p>
+              <p className="mt-2 text-sm text-slate-600">
+                {formatServiceBookingDate(booking.startDate)} → {formatServiceBookingDate(booking.endDate)}
+              </p>
+              <p className="mt-1 text-sm font-medium text-slate-800">${booking.grandTotal}</p>
+              <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span>{booking.lines.length} service lines</span>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 font-medium ${statusTone[booking.documentStatus] ?? "bg-slate-100 text-slate-700"}`}
+                >
+                  {booking.documentStatus}
+                </span>
+              </p>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-10 text-center">
+          <p className="text-sm text-slate-600">No service bookings linked to {searchKey} yet.</p>
+          {canCreateBooking ? (
+            <Link
+              href={`/service-bookings/new?clientId=${encodeURIComponent(clientId)}`}
+              className="mt-3 inline-flex text-sm font-medium text-[#b51266] hover:underline"
+            >
+              Create the first booking
+            </Link>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function ServiceBookingListView() {
   const { serviceBookings, clients } = useData();
@@ -578,10 +649,22 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
 
 export function ServiceBookingNewView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prefillClientId = searchParams.get("clientId")?.trim() ?? "";
   const { clients, serviceAgreements, addServiceBooking } = useData();
   const { canWriteWindow } = useAuth();
   const canCreateBooking = canWriteWindow("service-bookings");
-  const [clientId, setClientId] = useState("bp-bern");
+  const defaultClientId =
+    prefillClientId && clients.some((c) => c.id === prefillClientId) ? prefillClientId : (clients[0]?.id ?? "");
+  const [clientId, setClientId] = useState(defaultClientId);
+
+  useEffect(() => {
+    if (!prefillClientId) return;
+    if (clients.some((c) => c.id === prefillClientId)) {
+      setClientId(prefillClientId);
+    }
+  }, [prefillClientId, clients]);
+
   const [description, setDescription] = useState("Part 1");
   const [dateOrdered, setDateOrdered] = useState("2025-10-01");
   const [datePromised, setDatePromised] = useState("2025-10-12");

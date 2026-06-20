@@ -99,6 +99,9 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     sentAt: "Sent date",
     signedAt: "Signed date",
     activatedAt: "Activated date",
+    signerName: "Signer name",
+    signerRole: "Signer role",
+    signatureCapturedAt: "Signature captured at",
     lines: "Schedule of supports lines",
   },
   "service-booking": {

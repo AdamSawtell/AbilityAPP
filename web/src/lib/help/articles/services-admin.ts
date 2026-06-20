@@ -70,6 +70,32 @@ export const servicesArticle: HelpArticle = {
       relatedRoutes: ["/service-agreements"],
       windowKeys: ["service-agreements"],
     },
+    {
+      id: "service-agreement-esign",
+      title: "Participant e-sign",
+      body: "Capture an in-app signature when the participant or nominee agrees to the schedule of supports. The signature image, signer name, and role are stored on the agreement and appear in the audit trail when you save.",
+      steps: [
+        "Open the service agreement after the schedule is ready.",
+        "On Participant e-sign, enter the printed name and signer role.",
+        "Draw the signature with mouse, stylus, or finger.",
+        "Click Apply signature to agreement — status moves to Signed and signed date is set.",
+        "Save the agreement. Signature on file shows the captured image.",
+      ],
+      relatedRoutes: ["/service-agreements"],
+      windowKeys: ["service-agreements"],
+    },
+    {
+      id: "service-agreement-expiry",
+      title: "Agreement expiry notifications",
+      body: "Active or Signed agreements within 60 days of finish date trigger a scheduled task for coordinators. Tasks are created once per browser session day when you open the app, or when an admin runs POST /api/workforce/automation/scheduled.",
+      bullets: [
+        "Task automation rule: Service agreement expiring (Services module)",
+        "Linked to the service agreement record",
+        "Review renewal and set status to Expiring when appropriate",
+      ],
+      relatedRoutes: ["/service-agreements", "/tasks"],
+      windowKeys: ["service-agreements", "tasks"],
+    },
   ],
 };
 

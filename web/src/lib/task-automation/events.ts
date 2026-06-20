@@ -3,6 +3,7 @@ import type { EmployeeAutomationEvent } from "@/lib/task-automation/employee-tri
 import type { EnquiryAutomationEvent } from "@/lib/task-automation/enquiry-triggers";
 import type { IncidentAutomationEvent } from "@/lib/task-automation/incident-triggers";
 import type { LocationAutomationEvent } from "@/lib/task-automation/location-triggers";
+import type { ServiceAgreementAutomationEvent } from "@/lib/task-automation/service-agreement-triggers";
 import type { TaskAutomationTriggerEvent } from "@/lib/task-automation";
 
 export type AutomationEvent =
@@ -10,7 +11,8 @@ export type AutomationEvent =
   | EnquiryAutomationEvent
   | EmployeeAutomationEvent
   | ClientAutomationEvent
-  | LocationAutomationEvent;
+  | LocationAutomationEvent
+  | ServiceAgreementAutomationEvent;
 
 export function automationEventModule(event: AutomationEvent): string {
   return event.type.split(".")[0];

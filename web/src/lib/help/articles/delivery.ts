@@ -17,7 +17,7 @@ export const deliveryArticle: HelpArticle = {
     {
       id: "service-bookings",
       title: "Service bookings",
-      body: "Each booking is a document with header dates, business partner, invoice partner, and booking generator reference. Lines hold products, weekly periods, quantities, and amounts — matching AbilityERP Service Booking Line.",
+      body: "Each booking links to a client (business partner) and service agreement. Open from Delivery → Service bookings or from the client’s Service bookings tab. Lines hold products, weekly periods, quantities, and amounts — matching AbilityERP Service Booking Line.",
       relatedRoutes: ["/service-bookings", "/service-bookings/new"],
       windowKeys: ["service-bookings"],
     },

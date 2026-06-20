@@ -23,6 +23,7 @@ export type TaskEntityType =
   | "client"
   | "employee"
   | "service-agreement"
+  | "service-booking"
   | "contract"
   | "product"
   | "price-list"
@@ -74,6 +75,7 @@ export const taskEntityTypeLabels: Record<TaskEntityType, string> = {
   client: "Client",
   employee: "Employee",
   "service-agreement": "Service agreement",
+  "service-booking": "Service booking",
   contract: "Contract",
   product: "Product",
   "price-list": "Price list",
@@ -102,6 +104,8 @@ export function entityHref(entityType: TaskEntityType, entityId: string): string
       return `/employees/${entityId}`;
     case "service-agreement":
       return `/service-agreements/${entityId}`;
+    case "service-booking":
+      return `/service-bookings/${entityId}`;
     case "contract":
       return `/contracts/${entityId}`;
     case "product":

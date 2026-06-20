@@ -43,7 +43,7 @@ export const clientsArticle: HelpArticle = {
       title: "Client tab groups",
       body: "Client records use grouped tabs on the left. Your role controls which tabs you see.",
       bullets: [
-        "Core: Overview, Alerts, Activity, Full profile, Service agreements",
+        "Core: Overview, Alerts, Activity, Full profile, Service agreements, Service bookings",
         "Relationships: BP Associations, Locations, Contact Activity",
         "Care and compliance: Requests, Restrictive Practices, Consents and Legal Orders, Risks, Incidents",
         "Planning: Plan budget, Plan and Assessment, Support Plan, Goals, Progress Review, Support Receiver Needs and Rules",
@@ -122,6 +122,13 @@ export const clientsArticle: HelpArticle = {
       body: "Open Service agreements from the client tab or from Clients → All service agreements in the sidebar. Agreements link products and funding lines to the client.",
       relatedRoutes: ["/service-agreements"],
       windowKeys: ["client-service-agreements", "service-agreements"],
+    },
+    {
+      id: "service-bookings-tab",
+      title: "Service bookings tab",
+      body: "Lists service bookings linked to this client. Open a card to edit lines and compliance, or use New service booking to create one with the client pre-selected.",
+      relatedRoutes: ["/service-bookings"],
+      windowKeys: ["client-service-bookings", "service-bookings"],
     },
     {
       id: "risks-tab",

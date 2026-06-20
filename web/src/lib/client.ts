@@ -105,6 +105,7 @@ export const clientTabs = [
   "Contact Activity",
   "Risks",
   "Service agreements",
+  "Service bookings",
   "Support Receiver Needs and Rules",
 ] as const;
 
@@ -484,7 +485,10 @@ export const coreOverviewFields: ClientFieldDef[] = profileFields.filter((f) =>
 );
 
 export const clientTabGroups: ClientTabGroup[] = [
-  { label: "Core", tabs: ["Overview", "Activity", "Support Plan", "Alerts", "Service agreements", "Full profile"] },
+  {
+    label: "Core",
+    tabs: ["Overview", "Activity", "Support Plan", "Alerts", "Service agreements", "Service bookings", "Full profile"],
+  },
   {
     label: "Relationships",
     tabs: ["BP Associations", "Locations", "Incidents", "Contact Activity"],

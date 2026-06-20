@@ -22,6 +22,17 @@ Do not start a chunk out of order unless the roadmap explicitly marks it as para
 
 **Autonomous progress:** After each successful push, immediately start the **Next slice** in [BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md). Do not wait for the user to ask — build, verify, document, push, repeat.
 
+**Slice closure (non-negotiable):** Every slice ends with this loop — no exceptions for UI work:
+
+1. **Tier 1** — `npm run build` + `page-guides:check` (exit 0)
+2. **Tier 2** — Browser smoke on **localhost** (`npm run dev`) using **What you can test** steps; log pass/fail
+3. **Tier 3** — **Bugbot** subagent on uncommitted or branch changes; fix Critical/High before push; log result
+4. Update BUILD-PROGRESS (verification + browser + code review logs)
+5. Push to `main`
+6. **Immediately** start the next slice — do not pause for user confirmation
+
+See [.cursor/commands/test-before-handoff.md](../.cursor/commands/test-before-handoff.md).
+
 ## Current strategic spine
 
 ```

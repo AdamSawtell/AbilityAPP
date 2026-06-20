@@ -123,6 +123,8 @@ export async function runServerScheduledAutomations(supabase: SupabaseClient): P
   const { drafts } = evaluateScheduledAutomations({
     incidents,
     employees: data.employees,
+    serviceAgreements: data.serviceAgreements,
+    clients: data.clients,
     rules,
     tasks,
     investigationSlaDays: slaDays,

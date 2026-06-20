@@ -159,6 +159,7 @@ values
   ('role-admin', 'client-contact-activity', 'write'),
   ('role-admin', 'client-risks', 'write'),
   ('role-admin', 'client-service-agreements', 'write'),
+  ('role-admin', 'client-service-bookings', 'write'),
   ('role-admin', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-admin', 'incidents', 'write'),
   ('role-admin', 'incident-overview', 'write'),
@@ -273,6 +274,7 @@ values
   ('role-ceo', 'client-contact-activity', 'write'),
   ('role-ceo', 'client-risks', 'write'),
   ('role-ceo', 'client-service-agreements', 'write'),
+  ('role-ceo', 'client-service-bookings', 'write'),
   ('role-ceo', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-ceo', 'incidents', 'write'),
   ('role-ceo', 'incident-overview', 'write'),
@@ -363,6 +365,7 @@ values
   ('role-exec-operations', 'client-contact-activity', 'write'),
   ('role-exec-operations', 'client-risks', 'write'),
   ('role-exec-operations', 'client-service-agreements', 'write'),
+  ('role-exec-operations', 'client-service-bookings', 'write'),
   ('role-exec-operations', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-exec-operations', 'incidents', 'write'),
   ('role-exec-operations', 'incident-overview', 'write'),
@@ -453,6 +456,7 @@ values
   ('role-exec-hr', 'client-contact-activity', 'write'),
   ('role-exec-hr', 'client-risks', 'write'),
   ('role-exec-hr', 'client-service-agreements', 'write'),
+  ('role-exec-hr', 'client-service-bookings', 'write'),
   ('role-exec-hr', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-exec-hr', 'incidents', 'write'),
   ('role-exec-hr', 'incident-overview', 'write'),
@@ -543,6 +547,7 @@ values
   ('role-exec-finance', 'client-contact-activity', 'write'),
   ('role-exec-finance', 'client-risks', 'write'),
   ('role-exec-finance', 'client-service-agreements', 'write'),
+  ('role-exec-finance', 'client-service-bookings', 'write'),
   ('role-exec-finance', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-exec-finance', 'incidents', 'write'),
   ('role-exec-finance', 'incident-overview', 'write'),
@@ -633,6 +638,7 @@ values
   ('role-exec-ict', 'client-contact-activity', 'write'),
   ('role-exec-ict', 'client-risks', 'write'),
   ('role-exec-ict', 'client-service-agreements', 'write'),
+  ('role-exec-ict', 'client-service-bookings', 'write'),
   ('role-exec-ict', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-exec-ict', 'incidents', 'write'),
   ('role-exec-ict', 'incident-overview', 'write'),
@@ -723,6 +729,7 @@ values
   ('role-exec-quality', 'client-contact-activity', 'write'),
   ('role-exec-quality', 'client-risks', 'write'),
   ('role-exec-quality', 'client-service-agreements', 'write'),
+  ('role-exec-quality', 'client-service-bookings', 'write'),
   ('role-exec-quality', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-exec-quality', 'incidents', 'write'),
   ('role-exec-quality', 'incident-overview', 'write'),
@@ -812,6 +819,7 @@ values
   ('role-hr-manager', 'client-contact-activity', 'write'),
   ('role-hr-manager', 'client-risks', 'write'),
   ('role-hr-manager', 'client-service-agreements', 'write'),
+  ('role-hr-manager', 'client-service-bookings', 'write'),
   ('role-hr-manager', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-hr-manager', 'incidents', 'write'),
   ('role-hr-manager', 'incident-overview', 'write'),
@@ -891,6 +899,7 @@ values
   ('role-hr-officer', 'client-contact-activity', 'write'),
   ('role-hr-officer', 'client-risks', 'write'),
   ('role-hr-officer', 'client-service-agreements', 'write'),
+  ('role-hr-officer', 'client-service-bookings', 'write'),
   ('role-hr-officer', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-hr-officer', 'incidents', 'write'),
   ('role-hr-officer', 'incident-overview', 'write'),
@@ -952,6 +961,7 @@ values
   ('role-ict-manager', 'client-contact-activity', 'write'),
   ('role-ict-manager', 'client-risks', 'write'),
   ('role-ict-manager', 'client-service-agreements', 'write'),
+  ('role-ict-manager', 'client-service-bookings', 'write'),
   ('role-ict-manager', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-ict-manager', 'incidents', 'write'),
   ('role-ict-manager', 'incident-overview', 'write'),
@@ -1028,6 +1038,7 @@ values
   ('role-ict-officer', 'client-contact-activity', 'write'),
   ('role-ict-officer', 'client-risks', 'write'),
   ('role-ict-officer', 'client-service-agreements', 'write'),
+  ('role-ict-officer', 'client-service-bookings', 'write'),
   ('role-ict-officer', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-ict-officer', 'incidents', 'write'),
   ('role-ict-officer', 'incident-overview', 'write'),
@@ -1091,6 +1102,7 @@ values
   ('role-finance-manager', 'client-contact-activity', 'write'),
   ('role-finance-manager', 'client-risks', 'write'),
   ('role-finance-manager', 'client-service-agreements', 'write'),
+  ('role-finance-manager', 'client-service-bookings', 'write'),
   ('role-finance-manager', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-finance-manager', 'incidents', 'write'),
   ('role-finance-manager', 'incident-overview', 'write'),
@@ -1167,6 +1179,7 @@ values
   ('role-finance-officer', 'client-contact-activity', 'write'),
   ('role-finance-officer', 'client-risks', 'write'),
   ('role-finance-officer', 'client-service-agreements', 'write'),
+  ('role-finance-officer', 'client-service-bookings', 'write'),
   ('role-finance-officer', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-finance-officer', 'incidents', 'write'),
   ('role-finance-officer', 'incident-overview', 'write'),
@@ -1232,6 +1245,7 @@ values
   ('role-quality-manager', 'client-contact-activity', 'write'),
   ('role-quality-manager', 'client-risks', 'write'),
   ('role-quality-manager', 'client-service-agreements', 'write'),
+  ('role-quality-manager', 'client-service-bookings', 'write'),
   ('role-quality-manager', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-quality-manager', 'incidents', 'write'),
   ('role-quality-manager', 'incident-overview', 'write'),
@@ -1307,6 +1321,7 @@ values
   ('role-quality-officer', 'client-contact-activity', 'write'),
   ('role-quality-officer', 'client-risks', 'write'),
   ('role-quality-officer', 'client-service-agreements', 'write'),
+  ('role-quality-officer', 'client-service-bookings', 'write'),
   ('role-quality-officer', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-quality-officer', 'incidents', 'write'),
   ('role-quality-officer', 'incident-overview', 'write'),
@@ -1370,6 +1385,7 @@ values
   ('role-rostering-manager', 'client-contact-activity', 'write'),
   ('role-rostering-manager', 'client-risks', 'write'),
   ('role-rostering-manager', 'client-service-agreements', 'write'),
+  ('role-rostering-manager', 'client-service-bookings', 'write'),
   ('role-rostering-manager', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-rostering-manager', 'incidents', 'write'),
   ('role-rostering-manager', 'incident-overview', 'write'),
@@ -1446,6 +1462,7 @@ values
   ('role-rostering-officer', 'client-contact-activity', 'write'),
   ('role-rostering-officer', 'client-risks', 'write'),
   ('role-rostering-officer', 'client-service-agreements', 'write'),
+  ('role-rostering-officer', 'client-service-bookings', 'write'),
   ('role-rostering-officer', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-rostering-officer', 'incidents', 'write'),
   ('role-rostering-officer', 'incident-overview', 'write'),
@@ -1513,6 +1530,7 @@ values
   ('role-intake', 'client-contact-activity', 'write'),
   ('role-intake', 'client-risks', 'write'),
   ('role-intake', 'client-service-agreements', 'write'),
+  ('role-intake', 'client-service-bookings', 'write'),
   ('role-intake', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-intake', 'incidents', 'write'),
   ('role-intake', 'incident-overview', 'write'),
@@ -1580,6 +1598,7 @@ values
   ('role-coordinator', 'client-contact-activity', 'write'),
   ('role-coordinator', 'client-risks', 'write'),
   ('role-coordinator', 'client-service-agreements', 'write'),
+  ('role-coordinator', 'client-service-bookings', 'write'),
   ('role-coordinator', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-coordinator', 'incidents', 'write'),
   ('role-coordinator', 'incident-overview', 'write'),
@@ -1658,6 +1677,7 @@ values
   ('role-team-leader', 'client-contact-activity', 'write'),
   ('role-team-leader', 'client-risks', 'write'),
   ('role-team-leader', 'client-service-agreements', 'write'),
+  ('role-team-leader', 'client-service-bookings', 'write'),
   ('role-team-leader', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-team-leader', 'incidents', 'write'),
   ('role-team-leader', 'incident-overview', 'write'),
@@ -1729,6 +1749,7 @@ values
   ('role-support-worker', 'client-contact-activity', 'write'),
   ('role-support-worker', 'client-risks', 'write'),
   ('role-support-worker', 'client-service-agreements', 'write'),
+  ('role-support-worker', 'client-service-bookings', 'write'),
   ('role-support-worker', 'client-support-receiver-needs-and-rules', 'write'),
   ('role-support-worker', 'incidents', 'write'),
   ('role-support-worker', 'incident-overview', 'write'),
@@ -2179,40 +2200,40 @@ on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;
 
 -- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)
-update public.app_user set password = '$2b$10$e.ZNjlc1v287GVsAbZjEY.3CbboTO7OpZgoa1ZLXX8.qJEpZYmSIS' where username = 'SuperUser';
-update public.app_user set password = '$2b$10$wrb/sChjCuuGBsBuSq0XPeWCb4QZF7iHyXybObW.R7KUp9rKWlw1O' where username = 'PatriciaChen';
-update public.app_user set password = '$2b$10$SU2TBmKHOmrKhf/QxUJmp.DA/1m1c6s5b9EdzX0UqueFOP0e5wngO' where username = 'MichaelSmith';
-update public.app_user set password = '$2b$10$txTVjg3MduNsHzIUxOhZB.naJ5ta.Fal2uKABmkQzSP138p6fRsdC' where username = 'PiperCollins';
-update public.app_user set password = '$2b$10$H59oSNG7sq/Ms5qQSXCeA.FQVuPHbvdTJfOIWdXgY7hzhlP2sGrEm' where username = 'IslaRobinson';
-update public.app_user set password = '$2b$10$.E7xBjXEAFcHHjr.z376v.22KF30Ybvgl34/x6rd4rXqbtyXBfJeW' where username = 'GabrielaWilson';
-update public.app_user set password = '$2b$10$8Gi5Bu0TCqMW09yRCazDRuIshmm8a72RtOYxEzu8SwsK/Ss7MfvYm' where username = 'DianeFoster';
-update public.app_user set password = '$2b$10$YGwp859ItX4nv3Nln7PcWOpZ6psoQIWVrFb8f8ZQDrXefyGBeXLuG' where username = 'JamesWhitford';
-update public.app_user set password = '$2b$10$ijXATMMgXCmZbyCDXYM3f.kZE3QMax95ls8oajlBcg5eZLGVP9s6S' where username = 'SamRivera';
-update public.app_user set password = '$2b$10$5YUWM294Ag/oU7s4PkOWleFUyGJue04DgOewjMJVg.EescRct5ogm' where username = 'MargaretHolt';
-update public.app_user set password = '$2b$10$uWW0EFbLUo/77hDb6yfUbOTAYwV90ajG2Hl5/qirYTLb2uPxMhUhO' where username = 'RileyShaw';
-update public.app_user set password = '$2b$10$V5pOl/I/u9Tp..kMOtkpmuOuLH3AN2D10SbO8BxKUBB2r7wXWkH.O' where username = 'EleanorWright';
-update public.app_user set password = '$2b$10$qDZejOqx2S5Yq1RC9St04.I7KAgE478PPfFwG1BEIZh1DdpTuuTZ.' where username = 'MarcusOBrien';
-update public.app_user set password = '$2b$10$6rbBbmFiB.RiLfQ3eoBDoOR8YJM/MbaPXODvSouP4wyZ0QddTFSSu' where username = 'HelenTran';
-update public.app_user set password = '$2b$10$ahDZL9iH8/Ys8HQF68h2eOvozELgJSqbfIFHeoYp/djnwapNvFKn.' where username = 'DavidOkonkwo';
-update public.app_user set password = '$2b$10$WJgiTdv3FkGJIaaCl.Kl/e.LXUG1i/T6tVqYbph4BcA8g1W0E98x.' where username = 'SandraBlake';
-update public.app_user set password = '$2b$10$3HwThvp.RBfiLqxBGJHXgurr7RUZHu3VfEdadPW6HjDXUMq2nv37e' where username = 'CalebMurphy';
-update public.app_user set password = '$2b$10$5OxxL0rdow6y2SEt6t02VOAOD1MbirCqNl0QwStBSDN6thlHmgDkq' where username = 'AlexKim';
-update public.app_user set password = '$2b$10$UFSYhRWXPPgnLY2/W86kyO3v6Ct2frSbOYAX4wj1KaWqIX0BKXEHu' where username = 'JordanLee';
-update public.app_user set password = '$2b$10$gZXL16Q7U52XuX1VeTH8PuQgASbIzot6Ung.d2CFrBXyr5zb.h.bG' where username = 'QuinnTaylor';
-update public.app_user set password = '$2b$10$pkl47o1U6EPVv5mrUhRRquRswLV2iwY6HY2679Yz94SlRbDvDxpM6' where username = 'AudreyPatel';
-update public.app_user set password = '$2b$10$OERW6bJbY394C6Qgy9gZeeBsveiAisuDsJqUBYX7xtbJTf5NS34h6' where username = 'MorganBlake';
-update public.app_user set password = '$2b$10$zi.Z66V0AIo7TImTCFUtE.Y1syHce5lcfUA6ChgkvLp/xGWmJalX.' where username = 'TessaNguyen';
-update public.app_user set password = '$2b$10$vaXUh6O01cA5I1bMo1Y/Yu.JCsPyCchab8pRUO1s693ea.VHZsjzO' where username = 'JessicaHancock';
-update public.app_user set password = '$2b$10$hZR69Vf5sUddNMatqnnKmOOtqMnmgTiCivQaw8iQWebb5z5TjAJgq' where username = 'NaomiSingh';
-update public.app_user set password = '$2b$10$NW6Tj5c0Mg84V5/cPFCECuxDP6MnueaIDXHrfptx8WTP.mHaU6HK.' where username = 'RoseDash';
-update public.app_user set password = '$2b$10$H.A/Ld0BP3EM6L0.HcCKQOv3JDSDj.j5Uqer9i6jZiHffB/8ClAzO' where username = 'OliverWilliams';
-update public.app_user set password = '$2b$10$day2LU.mGYQ32.xFQWwZ6Ov27qDmmaaI.0THxYBKS4MmoF5Yc2Vqq' where username = 'AvaThomas';
-update public.app_user set password = '$2b$10$Vzeenb1x2HluNIyvYVKjdOrle//KHhUi2INzLRxWgFrUJXy2MJ1iK' where username = 'NoahJackson';
-update public.app_user set password = '$2b$10$jBInzrw3zPElBkfGhD9XAe/RbOAfijzNm1zlbDXedGPPWgMP0Egza' where username = 'MiaWhite';
-update public.app_user set password = '$2b$10$aDkhw3UXPnOWIMbLnZ3Jlu9La9tYzXZoOOiFwK./H0BiaVQHrGk2S' where username = 'LiamHarris';
-update public.app_user set password = '$2b$10$dCOfdd/AvrqW/.Gp4oj2C.0ot4O.MYuTV46xIBq6gRJ/7BB0kNTyy' where username = 'ZoeMartin';
-update public.app_user set password = '$2b$10$vYrEldIBkKa6EBLUM3k6H.zApF30gcKwveGo3ffFNr.KKIcueK4YC' where username = 'EthanThompson';
-update public.app_user set password = '$2b$10$bgnLoOptLP1pmQRAtx3CsOcp8QFP9af/4N36xiIVeeLSifTrLszfu' where username = 'ChloeGarcia';
-update public.app_user set password = '$2b$10$6Siq6vAQ3WLNsAWHa3BQfef2R77S/q2/loFDyAPr2Kx9QY3cMCbii' where username = 'MasonRobinson';
-update public.app_user set password = '$2b$10$QTDAfcKQyGsye8Z0Y.fALOugjMlnPIGoGmsAD4FtelW8XWtIYa2qa' where username = 'RubyClark';
-update public.app_user set password = '$2b$10$vYz48sXxMZFgEt3OKBNUpuOFOeENd/6qVEL9ISiQFbL1HnH1twAbe' where username = 'LucasLewis';
+update public.app_user set password = '$2b$10$bmfJikyZcbTbH9VGqCKtEe1eney/c1otTBVCF5o92gu0p7F.Yx9..' where username = 'SuperUser';
+update public.app_user set password = '$2b$10$YRqmC7oERJ9bPqrkzlfnj.xMYgzHe4vdmrhhFSA.A1ovSxnPPryP2' where username = 'PatriciaChen';
+update public.app_user set password = '$2b$10$4jwIRxhUCB67wE4BfPfozu2tol3LWaNRLomfYTZQ0ipj1S0Z/T1E2' where username = 'MichaelSmith';
+update public.app_user set password = '$2b$10$0cLuX36P3Egtf955NSA/8O7Z0NXYPYfVGvaIL3V7sruHcKIm6.YPq' where username = 'PiperCollins';
+update public.app_user set password = '$2b$10$mMCgzb5sUblPAuJY.UrDG.yQTYb5ECo7O/R5ZHVeduODUVsQwg6Tu' where username = 'IslaRobinson';
+update public.app_user set password = '$2b$10$U7DKiuJY3syCqMmV96Zm8uomyeF8cw1Xkg97bp7RgjbmD5FeJrRCe' where username = 'GabrielaWilson';
+update public.app_user set password = '$2b$10$KmjjzYSfSFY8AfmsjVLy4eBUB1jLiaBZj6AjaMmVKgqJPo7iEUziu' where username = 'DianeFoster';
+update public.app_user set password = '$2b$10$ZSkcuuTADpzud3sH9DyGcOrgpNPoPYDr/awZmhaEkfuzuT9iV6gJO' where username = 'JamesWhitford';
+update public.app_user set password = '$2b$10$LvLG8/IzslMKEtIIEJeHaupXO./FTWLrxfvRwWTfGf.3fFyZ6zWX6' where username = 'SamRivera';
+update public.app_user set password = '$2b$10$J9FKhW3zbeBb5XG974OHGe1JlRpcy64VrAD4jLPh/Z6P450UeR1vS' where username = 'MargaretHolt';
+update public.app_user set password = '$2b$10$iaYUrxEP9PkAw34s1ycfzO50RVOFX7z9wx/ysB6sk5OaUGs1eYHum' where username = 'RileyShaw';
+update public.app_user set password = '$2b$10$REycSL37SvUMDx5sJJSwQ.njD1LYSZn80NZN2yQQOYXGX.YSIwmF.' where username = 'EleanorWright';
+update public.app_user set password = '$2b$10$XfwooVl69ZAZCRctgSWuj.NttxbQADw5lpSL.CEet5Xx7dgHccC/K' where username = 'MarcusOBrien';
+update public.app_user set password = '$2b$10$xl0Xuip0bjHw4VCra.xDneiSJ87q7jmJiiOphprD1f/v280yRhzNi' where username = 'HelenTran';
+update public.app_user set password = '$2b$10$6zNVuhxg70xSFwt32zHOAOnTQMyRVfm7NTQtC3uQqsq.VTZ2ZrPaa' where username = 'DavidOkonkwo';
+update public.app_user set password = '$2b$10$YZr/xdV5XH0QQyoBZAfzP.WjysvJr.GQbR5704e0SIePe/IMOmivy' where username = 'SandraBlake';
+update public.app_user set password = '$2b$10$78.3Vu2EyG.2f.v6J.1uteQhLBGy1D6HbaxOSHhSwUaDeJXlkd0J.' where username = 'CalebMurphy';
+update public.app_user set password = '$2b$10$2wgIg8EZfGscBTFvJsRi6.vHXtajAamJ6xQzEDzYMHsbC/kO57CuK' where username = 'AlexKim';
+update public.app_user set password = '$2b$10$JAmmSLHIjy5Bl4zJPFC3/e06ac2oXXE6BVV5vO961pPcx6xkZMx5G' where username = 'JordanLee';
+update public.app_user set password = '$2b$10$6BUXNjjxEiT5HL/Oc3U/6.wnPtFDR/UMtZjsW/H28LkcSGgtK1Jx6' where username = 'QuinnTaylor';
+update public.app_user set password = '$2b$10$VMZCcUPeqVszERanE3n.Xenhcf8jgc4EgWSt5YZOrFZCuT.dhE3z2' where username = 'AudreyPatel';
+update public.app_user set password = '$2b$10$ddgkHvqtHU8V4wrsdIoouONPKtVhbIRDlKdatdbM9FfAxs1AscY.W' where username = 'MorganBlake';
+update public.app_user set password = '$2b$10$ThwMeJXg7tRf.MY9wB5SJeVWDyjrQP6InvuydsECS.CqxT/CRr4iq' where username = 'TessaNguyen';
+update public.app_user set password = '$2b$10$leyIs3gQhL.bCei757qNM.eWTnNhwFiLE1giDTx.LtwXCmZLMPdte' where username = 'JessicaHancock';
+update public.app_user set password = '$2b$10$oFOvUGCwE9hTqHZN45z7c.2b1W4F54yQkFtdxonNf1gSOw4BjEVPm' where username = 'NaomiSingh';
+update public.app_user set password = '$2b$10$cz7NoJMKTNtFAZpEoGwIwOnypFEQoOI/ffLvcNGwuIp.1axQnvo2S' where username = 'RoseDash';
+update public.app_user set password = '$2b$10$GeIepMdZLtEiD1ZiCSn4aOuY6I3KoGeKY6B1bL0hvgqDctbX5V0zm' where username = 'OliverWilliams';
+update public.app_user set password = '$2b$10$wAw2iQQr58Lak63SNWl2Ru5FhaXRw3ICm.PTGKG7R6BwCRipWKNSW' where username = 'AvaThomas';
+update public.app_user set password = '$2b$10$bExJ.WeTLbsHNE8kgl/VduHJwDchfB2cggIvQLhWmI6F1QLpaKuFC' where username = 'NoahJackson';
+update public.app_user set password = '$2b$10$20UCzbveWld4vh7q69PVD.gCYWZdXRUcWhID0GXmcoB1HquzBD3xu' where username = 'MiaWhite';
+update public.app_user set password = '$2b$10$ZWa.svPE6v0B3nOBFy3TRudVR.zIUEF1Fv2PyiR6QbWT6GDCqSekS' where username = 'LiamHarris';
+update public.app_user set password = '$2b$10$qVLXrzcKwUHUZzZUOvx1ceqOV1BcyUr9bk1N7Ij6FbMarKbaDE0vi' where username = 'ZoeMartin';
+update public.app_user set password = '$2b$10$z4dFbKJ20f4/TDpHMxSagujPc.XsFi2vOnS9eU7tNbF3l9gvotPFy' where username = 'EthanThompson';
+update public.app_user set password = '$2b$10$h15IHAfHGYJNQeS0lOpVnOFnAOFZqgMsl.vqL4oaiMk/waLt3PIEi' where username = 'ChloeGarcia';
+update public.app_user set password = '$2b$10$nPkkIWw5f4l23tcbunctB.izsRUrLr9ub069hoROCnyST6y7nUCBW' where username = 'MasonRobinson';
+update public.app_user set password = '$2b$10$hEfLTgK4092/sCke64RKgOhGqrE9zm.2FbBbGwGaF7biA30.jdHl.' where username = 'RubyClark';
+update public.app_user set password = '$2b$10$XatkZMsKdkc93vO5oH0KOOrr7Ia2V25siul8DywlRt7cPV/TRJGiu' where username = 'LucasLewis';

@@ -4,6 +4,7 @@ import type { EnquiryRecord } from "@/lib/enquiry";
 import type { IncidentRecord } from "@/lib/incident";
 import { formatDisplayDateTime } from "@/lib/incident";
 import type { LocationRecord } from "@/lib/location";
+import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { TaskRecord } from "@/lib/task";
 import {
   automationDedupeKey,
@@ -27,6 +28,9 @@ import {
   scheduledEmployeeCredentialCandidates,
 } from "@/lib/task-automation/employee-triggers";
 import {
+  scheduledServiceAgreementExpiryCandidates,
+} from "@/lib/task-automation/service-agreement-triggers";
+import {
   incidentDaysOpen,
   incidentFieldChanges,
   scheduledIncidentCandidates,
@@ -43,6 +47,8 @@ export type AutomationTemplateContext = {
   leaveRequest?: EmployeeLeaveRequestRow;
   client?: ClientRecord;
   location?: LocationRecord;
+  agreement?: ServiceAgreementRecord;
+  agreementDaysUntilFinish?: number;
   alertTitle?: string;
   org: { investigationSlaDays: number };
 };
@@ -107,6 +113,13 @@ function buildTemplateContextFromEvent(
         alertTitle: event.type === "location.alert_added" ? event.alertTitle : undefined,
         org,
       };
+    case "service-agreement.expiring":
+      return {
+        agreement: event.agreement,
+        client: event.client ?? undefined,
+        agreementDaysUntilFinish: event.daysUntilFinish,
+        org,
+      };
     default:
       return { org };
   }
@@ -137,6 +150,11 @@ const TEMPLATE_VARS: Record<string, (ctx: AutomationTemplateContext) => string> 
   "alert.title": (ctx) => ctx.alertTitle ?? "—",
   "location.name": (ctx) => ctx.location?.name ?? "—",
   "location.searchKey": (ctx) => ctx.location?.searchKey ?? "—",
+  "agreement.searchKey": (ctx) => ctx.agreement?.searchKey ?? "—",
+  "agreement.name": (ctx) => ctx.agreement?.name ?? "—",
+  "agreement.finishDate": (ctx) => formatDateField(ctx.agreement?.finishDate ?? ""),
+  "agreement.daysUntilFinish": (ctx) => String(ctx.agreementDaysUntilFinish ?? "—"),
+  "agreement.status": (ctx) => ctx.agreement?.status ?? "—",
   "org.investigationSlaDays": (ctx) => String(ctx.org.investigationSlaDays),
 };
 
@@ -288,6 +306,13 @@ function entityLinkFromEvent(event: AutomationEvent): EntityLink {
         entityLabel: `${event.location.searchKey} — ${event.alertTitle}`,
         dedupeEntityId: `${event.location.id}:${event.alertTitle}`,
       };
+    case "service-agreement.expiring":
+      return {
+        entityType: "service-agreement",
+        entityId: event.agreement.id,
+        entityLabel: `${event.agreement.searchKey} — ${event.agreement.name}`,
+        dedupeEntityId: event.agreement.id,
+      };
     default:
       return { entityType: "", entityId: "", entityLabel: "", dedupeEntityId: "" };
   }
@@ -426,6 +451,8 @@ export function evaluateIncidentAutomations(input: {
 export function evaluateScheduledAutomations(input: {
   incidents: IncidentRecord[];
   employees: EmployeeRecord[];
+  serviceAgreements?: ServiceAgreementRecord[];
+  clients?: ClientRecord[];
   rules: TaskAutomationRecord[];
   tasks: TaskRecord[];
   investigationSlaDays: number;
@@ -437,7 +464,11 @@ export function evaluateScheduledAutomations(input: {
     input.employees,
     CREDENTIAL_EXPIRY_WARNING_DAYS
   );
-  const events: AutomationEvent[] = [...incidentEvents, ...employeeEvents];
+  const agreementEvents = scheduledServiceAgreementExpiryCandidates(
+    input.serviceAgreements ?? [],
+    input.clients ?? []
+  );
+  const events: AutomationEvent[] = [...incidentEvents, ...employeeEvents, ...agreementEvents];
   const limit = input.batchLimit ?? TASK_AUTOMATION_SCHEDULED_BATCH_LIMIT;
   const limited = events.length > limit ? events.slice(0, limit) : events;
 
@@ -474,6 +505,8 @@ export type AutomationPreviewSamples = {
   client?: ClientRecord;
   location?: LocationRecord;
   alertTitle?: string;
+  agreement?: ServiceAgreementRecord;
+  agreementDaysUntilFinish?: number;
 };
 
 export function buildAutomationPreviewContext(
@@ -493,6 +526,8 @@ export function buildAutomationPreviewContext(
       return { client: samples.client, alertTitle: samples.alertTitle, org };
     case "locations":
       return { location: samples.location, alertTitle: samples.alertTitle, org };
+    case "services":
+      return { agreement: samples.agreement, client: samples.client, agreementDaysUntilFinish: samples.agreementDaysUntilFinish, org };
     default:
       return { org };
   }
@@ -549,6 +584,15 @@ export function previewEventForTrigger(
     case "employee.leave_requested":
       return samples.employee && samples.leaveRequest
         ? { type: trigger, employee: samples.employee, leaveRequest: samples.leaveRequest }
+        : null;
+    case "service-agreement.expiring":
+      return samples.agreement
+        ? {
+            type: trigger,
+            agreement: samples.agreement,
+            client: samples.client ?? null,
+            daysUntilFinish: samples.agreementDaysUntilFinish ?? 30,
+          }
         : null;
     default:
       return null;

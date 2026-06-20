@@ -110,7 +110,15 @@ External systems (PRODA, Keypay, Xero, HubSpot, etc.):
 
 ## 11. Verification before handoff
 
-Every slice must pass **automated checks** before push. **UI slices** also need a **browser smoke test**. **Every push to `main`** needs a **Bugbot code review** logged in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md).
+Every slice must pass **all applicable tiers** before push. **Do not stop after build alone** when UI changed. **Do not push without Bugbot.** **Do not wait for the user** to say continue — after push, start the next slice in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md).
+
+### Slice closure loop (agent default)
+
+```
+Implement → Tier 1 → Tier 2 localhost browser → Tier 3 Bugbot → log BUILD-PROGRESS → push → next slice
+```
+
+Command checklist: [.cursor/commands/test-before-handoff.md](../.cursor/commands/test-before-handoff.md).
 
 ### Tier 1 — Every slice (agent, required)
 
@@ -129,14 +137,16 @@ npm run supabase:push-remote
 
 Log commands and exit codes in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md) → **Verification log**.
 
-### Tier 2 — Browser smoke test (agent, required for UI)
+### Tier 2 — Browser smoke test on localhost (agent, required for UI)
 
 Run when the slice adds or changes pages, tabs, save flows, filters, or role-gated UI.
 
-1. Open the hosted app (Amplify URL after push) or `npm run dev` locally.
+1. Start or reuse `cd web && npm run dev` — test on **localhost** before push (Amplify spot-check is optional after push).
 2. Walk the **What you can test** steps for that slice in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md).
 3. Confirm: page loads, save persists after refresh, audit footer visible, no console errors on the path tested.
-4. Log result in BUILD-PROGRESS → **Browser verification log** (pass / fail + route).
+4. Log result in BUILD-PROGRESS → **Browser verification log** (pass / fail + route + localhost port).
+
+Use Cursor browser MCP or equivalent automation when available.
 
 Skip browser only for pure backend/migration-only slices with no UI surface.
 
@@ -168,3 +178,41 @@ Report **Verification** block with commands and exit codes in handoff messages.
 ## 13. Documentation updates
 
 When completing a roadmap chunk, update status in [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md).
+
+## 14. Entity linking (non-negotiable)
+
+Operational records must connect to the right **client**, **employee**, **location**, and upstream documents. Do not ship orphan records that cannot be traced from the participant or worker profile.
+
+### Required for every new record type
+
+| Requirement | Location |
+|-------------|----------|
+| Foreign keys in Supabase (or explicit parent id fields) | `supabase/migrations/` |
+| Typed id fields on the record | `web/src/lib/*.ts` |
+| Picker or read-only link on detail/new forms | Record pages + `record-link.tsx` |
+| Reverse panel on the parent record (client tab, employee tab, etc.) | `*-pages.tsx`, `client-view.tsx`, … |
+| Save blocked when a required link is missing | `*-compliance.ts` or save handler |
+| Task entity type when tasks can attach | `web/src/lib/task.ts`, `task-entities.ts` |
+| Help article mentions how to link from both sides | `web/src/lib/help/articles/` |
+
+### Link matrix (current)
+
+| Record | Required links | Reverse UI | Compliance |
+|--------|----------------|------------|------------|
+| **Client** | enquiry (optional) | — | — |
+| **Service agreement** | client, price list | Client → Service agreements tab | lifecycle validation |
+| **Service booking** | client, service agreement (when funded) | Client → Service bookings tab | `booking-compliance.ts` |
+| **Incident** | client | Client → Incidents tab | incident workflow |
+| **Task** | entityType + entityId when related | parent Requests tab | — |
+| **Location** | — | Client locations line table | — |
+| **Employee** | — | — | — |
+| **Timesheet / roster shift** (future) | employee, client and/or location, booking | employee + client tabs | Chunk 4+ |
+
+When adding a slice, extend this matrix in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md) if the record type is new or links change.
+
+### UI patterns
+
+- **Detail header:** use `ClientRecordLink`, `EmployeeRecordLink`, `LocationRecordLink`, or module list links — not plain text ids.
+- **Client Core tab group:** delivery documents (agreements, bookings) sit beside Support Plan so coordinators see funding and delivery in one place.
+- **List columns:** show linked client (or employee) with a record link, not only document number.
+- **New record:** pre-fill parent id when opened from a client tab (`?clientId=` or route context).

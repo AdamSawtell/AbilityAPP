@@ -8,6 +8,7 @@ import { ClientPlanBudgetWizard } from "@/components/client-plan-budget-wizard";
 import { ClientGoalsPanel, ClientProgressReviewPanel } from "@/components/client-planning-panels";
 import { ClientLocationsPanel } from "@/components/client-locations-panel";
 import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pages";
+import { ClientServiceBookingsPanel } from "@/components/service-booking-pages";
 import { ClientPlanAssessmentPanel, ClientSupportPlanPanel } from "@/components/support-plan-panels";
 import { LineItemTable } from "@/components/line-item-table";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
@@ -209,6 +210,7 @@ function tabCount(
   client: ClientRecord,
   tab: string,
   agreementCount: number,
+  bookingCount: number,
   hasSupportPlan: boolean,
   goalCount: number,
   progressReviewCount: number,
@@ -227,6 +229,7 @@ function tabCount(
   if (tab === "Goals") return goalCount;
   if (tab === "Progress Review") return progressReviewCount;
   if (tab === "Service agreements") return agreementCount;
+  if (tab === "Service bookings") return bookingCount;
   if (tab === "Support Plan") return hasSupportPlan ? 1 : 0;
   if (tab === "Incidents") return incidentCount;
   return null;
@@ -235,6 +238,7 @@ function tabCount(
 export function ClientTabbedView({
   client,
   agreementCount,
+  bookingCount = 0,
   hasSupportPlan,
   goalCount = 0,
   progressReviewCount = 0,
@@ -244,6 +248,7 @@ export function ClientTabbedView({
 }: {
   client: ClientRecord;
   agreementCount: number;
+  bookingCount?: number;
   hasSupportPlan: boolean;
   goalCount?: number;
   progressReviewCount?: number;
@@ -313,6 +318,7 @@ export function ClientTabbedView({
                     client,
                     tab,
                     agreementCount,
+                    bookingCount,
                     hasSupportPlan,
                     goalCount,
                     progressReviewCount,
@@ -619,6 +625,10 @@ export function ClientTabbedView({
 
         {activeTab === "Service agreements" && canClientTab("Service agreements") ? (
           <ClientServiceAgreementsPanel clientId={client.id} clientName={client.name} searchKey={client.searchKey} />
+        ) : null}
+
+        {activeTab === "Service bookings" && canClientTab("Service bookings") ? (
+          <ClientServiceBookingsPanel clientId={client.id} clientName={client.name} searchKey={client.searchKey} />
         ) : null}
 
         {activeTab === "Requests" && canClientTab("Requests") ? (

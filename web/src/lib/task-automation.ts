@@ -7,7 +7,8 @@ export type TaskAutomationModule =
   | "clients"
   | "locations"
   | "employees"
-  | "incidents";
+  | "incidents"
+  | "services";
 
 export type TaskAutomationTriggerEvent =
   | "incident.created"
@@ -26,7 +27,8 @@ export type TaskAutomationTriggerEvent =
   | "employee.created"
   | "employee.credential_expiring"
   | "employee.credential_pending_review"
-  | "employee.leave_requested";
+  | "employee.leave_requested"
+  | "service-agreement.expiring";
 
 export type TaskAutomationDedupePolicy = "one_open_per_entity" | "once_ever" | "none";
 
@@ -98,6 +100,12 @@ export const TASK_AUTOMATION_MODULES: TaskAutomationModuleMeta[] = [
     description: "Incident reports, NDIS deadlines, and investigation SLA",
     engineLive: true,
   },
+  {
+    value: "services",
+    label: "Services",
+    description: "Service agreements, bookings, and delivery documents",
+    engineLive: true,
+  },
 ];
 
 const MODULE_ORDER = new Map<TaskAutomationModule, number>(
@@ -119,6 +127,7 @@ export function moduleForTrigger(trigger: TaskAutomationTriggerEvent): TaskAutom
   if (trigger.startsWith("client.")) return "clients";
   if (trigger.startsWith("location.")) return "locations";
   if (trigger.startsWith("employee.")) return "employees";
+  if (trigger.startsWith("service-agreement.")) return "services";
   return "incidents";
 }
 
@@ -370,6 +379,27 @@ export const initialTaskAutomations: TaskAutomationRecord[] = [
     dedupePolicy: "one_open_per_entity",
     sortOrder: 70,
   },
+  {
+    id: "tar-service-agreement-expiring",
+    name: "Service agreement expiring",
+    active: true,
+    module: "services",
+    triggerEvent: "service-agreement.expiring",
+    conditions: {},
+    taskTypeId: "tt-review",
+    titleTemplate: "Renew agreement {{agreement.searchKey}} — {{agreement.daysUntilFinish}} days left",
+    descriptionTemplate:
+      "Service agreement {{agreement.searchKey}} for {{client.name}} finishes on {{agreement.finishDate}}. Review renewal, update lifecycle to Expiring, and arrange participant re-sign if required.",
+    priority: "Normal",
+    dueOffsetHours: null,
+    dueOffsetDays: 14,
+    dueFromField: null,
+    assigneeMode: "role",
+    assigneePositionId: "",
+    assigneeRoleId: "role-coordinator",
+    dedupePolicy: "one_open_per_entity",
+    sortOrder: 80,
+  },
 ];
 
 export function indexAutomationsByTrigger(
@@ -470,6 +500,12 @@ export const TASK_AUTOMATION_TRIGGER_OPTIONS: {
     hint: "Scheduled — open past organisation investigation SLA",
     module: "incidents",
   },
+  {
+    value: "service-agreement.expiring",
+    label: "Service agreement expiring",
+    hint: "Scheduled — finish date within 60 days for Active or Signed agreements",
+    module: "services",
+  },
 ];
 
 export function triggersForModule(module: TaskAutomationModule) {
@@ -510,6 +546,11 @@ export const TASK_AUTOMATION_TEMPLATE_PLACEHOLDERS = [
   "{{location.name}}",
   "{{location.searchKey}}",
   "{{alert.title}}",
+  "{{agreement.searchKey}}",
+  "{{agreement.name}}",
+  "{{agreement.finishDate}}",
+  "{{agreement.daysUntilFinish}}",
+  "{{agreement.status}}",
   "{{org.investigationSlaDays}}",
 ];
 

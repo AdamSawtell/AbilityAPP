@@ -45,7 +45,7 @@ function ClientDetailViewInner({ id }: { id: string }) {
   const draftLoad = useAiDraftLoader(aiDraftId);
   const { session, canWriteWindow } = useAuth();
   const canSaveClient = useModuleSaveAccess("clients", "client");
-  const { clients, upsertClient, getServiceAgreementsByClientId, getSupportPlanByClientId } = useData();
+  const { clients, upsertClient, getServiceAgreementsByClientId, getServiceBookingsByClientId, getSupportPlanByClientId } = useData();
   const { openClient, setTabDirty, touchTab } = useWorkspace();
   const stored = findClientByRouteId(clients, id);
   const [draft, setDraft] = useState<ClientRecord | null>(null);
@@ -55,7 +55,8 @@ function ClientDetailViewInner({ id }: { id: string }) {
   const client = draft ?? stored ?? null;
   const enquiryLink = client?.enquiryId;
   const hasUnsavedChanges = Boolean(draft);
-  const agreementCount = getServiceAgreementsByClientId(id).length;
+  const agreementCount = getServiceAgreementsByClientId(stored?.id ?? id).length;
+  const bookingCount = getServiceBookingsByClientId(stored?.id ?? id).length;
   const supportPlan = getSupportPlanByClientId(id);
   const hasSupportPlan = Boolean(supportPlan);
   const goalCount = supportPlan?.goals.length ?? 0;
@@ -241,6 +242,7 @@ function ClientDetailViewInner({ id }: { id: string }) {
           <ClientTabbedView
             client={client}
             agreementCount={agreementCount}
+            bookingCount={bookingCount}
             hasSupportPlan={hasSupportPlan}
             goalCount={goalCount}
             progressReviewCount={progressReviewCount}

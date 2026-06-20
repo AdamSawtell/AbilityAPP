@@ -63,7 +63,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Configure NDIS support budget and NDIS support category for Plan budget lines.",
       "Set Consent status options and consent, alert, risk, and activity types.",
       "Review support plan lists (goals, documents, assessments).",
-      "Under Admin → Roles, grant Clients module and Plan budget tab (client-plan-budget) at Read or Write for each role that edits budgets.",
+      "Under Admin → Roles, grant Clients module, Plan budget tab (client-plan-budget), Service agreements (client-service-agreements), and Service bookings (client-service-bookings) at Read or Write for each role that needs them.",
       "Create a test client: set lifecycle, add plan budget lines, record core consents, then save and verify Overview summaries.",
     ]
   ),

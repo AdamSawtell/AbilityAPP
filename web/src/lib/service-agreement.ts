@@ -29,6 +29,10 @@ export type ServiceAgreementRecord = {
   sentAt: string;
   signedAt: string;
   activatedAt: string;
+  signerName: string;
+  signerRole: string;
+  signatureImage: string;
+  signatureCapturedAt: string;
   lines: ServiceAgreementLine[];
   createdBy: string;
   updatedBy: string;
@@ -66,6 +70,11 @@ export const initialServiceAgreements: ServiceAgreementRecord[] = [
     sentAt: "2025-06-01",
     signedAt: "2025-06-08",
     activatedAt: "2025-06-09",
+    signerName: "Bernadette Rose",
+    signerRole: "Participant",
+    signatureImage:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+    signatureCapturedAt: "2025-06-08T10:00:00.000Z",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
     lines: [
@@ -117,6 +126,10 @@ export function normalizeServiceAgreement(record: ServiceAgreementRecord): Servi
     sentAt: record.sentAt ?? "",
     signedAt: record.signedAt ?? "",
     activatedAt: record.activatedAt ?? "",
+    signerName: record.signerName ?? "",
+    signerRole: record.signerRole ?? "",
+    signatureImage: record.signatureImage ?? "",
+    signatureCapturedAt: record.signatureCapturedAt ?? "",
   };
 }
 

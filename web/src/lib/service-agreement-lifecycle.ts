@@ -1,4 +1,5 @@
 import { localDateIso } from "@/lib/booking-cancellation";
+import { hasAgreementSignature } from "@/lib/service-agreement-esign";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 
 export const AGREEMENT_LIFECYCLE_STATUSES = [
@@ -53,11 +54,14 @@ export function validateServiceAgreementLifecycle(
   const prev = previousStatus?.trim() || status;
 
   if (prev !== status && !isValidAgreementTransition(prev, status)) {
-    issues.push({
-      code: "STATUS_TRANSITION_INVALID",
-      message: `Cannot change status from "${prev}" to "${status}". Follow the lifecycle: Draft → Sent → Signed → Active.`,
-      severity: "error",
-    });
+    const signatureFastPath = prev === "Draft" && status === "Signed" && hasAgreementSignature(record);
+    if (!signatureFastPath) {
+      issues.push({
+        code: "STATUS_TRANSITION_INVALID",
+        message: `Cannot change status from "${prev}" to "${status}". Follow the lifecycle: Draft → Sent → Signed → Active.`,
+        severity: "error",
+      });
+    }
   }
 
   if (!record.clientId?.trim()) {
@@ -90,6 +94,14 @@ export function validateServiceAgreementLifecycle(
       code: "SIGNED_DATE_REQUIRED",
       message: "Enter the signed date when status is Signed or later.",
       severity: "error",
+    });
+  }
+
+  if (["Signed", "Active", "Expiring"].includes(status) && !hasAgreementSignature(record)) {
+    issues.push({
+      code: "SIGNATURE_CAPTURE_REQUIRED",
+      message: "Capture an in-app signature on the Participant e-sign panel before saving Signed or Active agreements.",
+      severity: record.signedAt?.trim() ? "warning" : "error",
     });
   }
 
@@ -162,6 +174,10 @@ export function applyLifecycleStatusChange(
     next.sentAt = "";
     next.signedAt = "";
     next.activatedAt = "";
+    next.signerName = "";
+    next.signerRole = "";
+    next.signatureImage = "";
+    next.signatureCapturedAt = "";
   }
 
   return next;

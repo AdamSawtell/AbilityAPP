@@ -9,12 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **30%** |
-| **Current work package** | WP-C — Service agreements (Chunk 2) |
-| **Overall completion** | **32%** |
-| **Active slice** | WP-C.2 — Lifecycle states ✅ shipped |
-| **Next slice** | WP-C.3 — In-app e-sign capture |
-| **Last push** | 2026-06-18 — `f9e7359` |
+| **Overall completion** | **38%** |
+| **Current work package** | WP-D — Rostering (Chunk 4) |
+| **Active slice** | Entity linking + WP-C.3/C.4 ✅ shipped |
+| **Next slice** | WP-D.1 — Roster data model + read-only calendar |
+| **Last push** | 2026-06-20 — this commit |
 
 ---
 
@@ -56,13 +55,27 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 
 ---
 
+## Entity link matrix
+
+Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operational record must link to the right client, employee, location, or upstream document.
+
+| Record | Required links | Reverse UI (parent) | Save compliance |
+|--------|----------------|---------------------|-----------------|
+| Service agreement | client, price list | Client → Service agreements | lifecycle validation |
+| Service booking | client, service agreement (when funded) | Client → Service bookings | `booking-compliance.ts` |
+| Incident | client | Client → Incidents | workflow rules |
+| Task | entityType + entityId | Client → Requests | — |
+| Timesheet / roster (future) | employee, client/location, booking | TBD Chunk 4+ | TBD |
+
+---
+
 ## Chunk progress
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | 2% | 🟡 Partial | Portal auth (default: magic link) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
-| 2 | Service agreements | 10% | **50%** | 🔵 In progress | None |
+| 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | 0% | ⬜ Placeholder | Requires Chunk 1–3 |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
@@ -175,6 +188,31 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 2 | Set status *Draft* → *Active* directly | Save blocked |
 | 3 | Progress Draft → Sent → Signed → Active | Saves with dates |
 
+### WP-C.3 — Participant e-sign
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open **ROSE_Rose Ni** agreement | Participant e-sign panel visible |
+| 2 | Draw signature, apply | Status moves to Signed; signature on file |
+| 3 | Save, refresh | Signature image persists |
+
+### WP-C.4 — Agreement expiry hook
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open Home (SuperUser) | Scheduled automation runner fires once per day |
+| 2 | Admin → Task automations | **Service agreement expiring** rule visible under Services |
+| 3 | Agreement within 60 days of finish | Task created linked to agreement |
+
+### Entity linking — Service bookings on client (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Bern** → tab **Service bookings** | Tab visible; shows booking **50145** |
+| 2 | Click booking card | Opens `/service-bookings/50145` with client linked |
+| 3 | **New service booking** from client tab | Create form pre-selects Bern |
+| 4 | **Service bookings** list | Business partner column links to client |
+
 ---
 
 ## User guides & system setup (per slice)
@@ -279,9 +317,27 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Service agreements Write |
 | **Admin verify** | Template adds lines; total recalculates on save |
 
-### WP-C.2 — Agreement lifecycle (not shipped)
+### WP-C.2 — Agreement lifecycle
 
----
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Services** → **Agreement lifecycle** |
+| **User steps** | Progress Draft → Sent → Signed → Active; fix panel errors before save |
+| **System setup** | Service agreement status reference list |
+| **Role access** | Service agreements Write |
+| **Admin verify** | Invalid transition blocks save |
+
+### Entity linking — Service bookings on client
+
+| | Detail |
+|---|--------|
+| **Governance** | [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14 — entity link matrix |
+| **User how-to** | Help → **Clients** → **Service bookings tab**; Help → **Delivery** → **Service bookings** (client link) |
+| **User steps** | 1. Open client → **Service bookings**. 2. Open a booking or **New service booking**. 3. Confirm business partner on booking detail. |
+| **System setup** | `/system/setup/clients` — grant `client-service-bookings` + `service-bookings` |
+| **Reference data** | — |
+| **Role access** | `client-service-bookings` Read/Write; **Service bookings** module Write to create |
+| **Admin verify** | Client tab lists linked bookings; new booking from tab pre-fills client |
 
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
@@ -316,10 +372,10 @@ Each row is what end users and system administrators need. In-app: workspace foo
 |-------|-------------|--------|
 | C.1 | Template + schedule of supports | ✅ Done |
 | C.2 | Lifecycle states Draft → Active | ✅ Done |
-| C.3 | In-app e-sign capture | ⬜ Next |
-| C.4 | Expiry notification hook | ⬜ |
+| C.3 | In-app e-sign capture | ✅ Done |
+| C.4 | Expiry notification hook | ✅ Done |
 
-**WP-C completion:** 50%
+**WP-C completion:** 100%
 
 ---
 
@@ -333,6 +389,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 777b20e | WP-A complete + WP-B.1 booking compliance |
 | 2026-06-18 | 0ad2f6c | WP-A.2: plan budget lines |
 | 2026-06-18 | bd60219 | WP-A.1: lifecycle + governance |
+| 2026-06-20 | pending | Entity linking, WP-C.3 e-sign, WP-C.4 expiry hook, verification process |
 
 ---
 
@@ -343,8 +400,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | `npm run build` | exit 0 |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260624180000` cancellation fields |
-| 2026-06-18 | `npm run build` | exit 0 (WP-B.2) |
-| 2026-06-18 | `npm run page-guides:check` | exit 0 (WP-B.2) |
+| 2026-06-20 | `npm run build` | exit 0 (entity linking + WP-C.3/C.4) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 |
+| 2026-06-20 | `npm run supabase:push-remote` | pending — e-sign migration |
 
 ---
 
@@ -352,8 +410,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
-| — | WP-A.1–B.1 | — | **Not run** | Backlog — Adam can run **What you can test** above |
-| — | *Next slice* | *TBD* | Pending | Required before next push |
+| 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
+| — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
 
@@ -361,9 +419,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
-| — | *Next push* | — | Pending | Required per BUILD-EXPECTATIONS §11 |
 
 ---
 
@@ -374,6 +432,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-A.1–A.5 | `clients` — lifecycle, plan budget, consents, utilisation | `clients-setup` updated | exit 0 |
 | 2026-06-18 | WP-C.1 | `services` — schedule templates | `services-setup` | exit 0 |
 | 2026-06-18 | WP-B.2 | `delivery` — cancellation policy | `services-setup` updated | exit 0 |
+| 2026-06-20 | Entity linking | `clients` — Service bookings tab; `delivery` client link | `clients-setup` + seed-access | exit 0 |
+| 2026-06-20 | WP-C.3 | `services` — Participant e-sign | `services-setup` | exit 0 |
+| 2026-06-20 | WP-C.4 | `services` — Agreement expiry notifications | task automations seed | exit 0 |
 
 ---
 
