@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 8 — Reconciliation & reporting |
 | **Active slice** | WP-J.3 complete — next: NDIS audit pack export |
 | **Next slice** | NDIS audit pack export (Chunk 8) |
-| **Last push** | 2026-06-20 — `9543fef` |
+| **Last push** | 2026-06-20 — `271d15a` |
 
 ---
 
@@ -939,6 +939,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | dd42d05 | WP-I.3 remittance import + claim payment matching |
 | 2026-06-20 | 64fb7c9 | WP-I.4 plan-managed invoicing scaffold |
 | 2026-06-20 | 72a67e6 | WP-J.1 plan vs actual + WP-J.2 claim reconciliation dashboards |
+| 2026-06-20 | 271d15a | WP-J.3 financial close checklist + summary report |
 
 ---
 
