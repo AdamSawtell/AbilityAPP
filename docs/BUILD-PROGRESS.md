@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.14 — Publish shifts from RoC ✅ shipped |
 | **Next slice** | WP-D.15 — TBD (Keypay API hook or roster capacity planning) |
-| **Last push** | 2026-06-18 — `00c69f7` |
+| **Last push** | 2026-06-18 — `6456620` |
 
 ---
 
@@ -520,7 +520,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 9bd8fb6 | WP-D.11 geofence check-in alerts |
 | 2026-06-18 | 329ffb8 | WP-D.12 payroll CSV export |
 | 2026-06-18 | 7f984b9 | WP-D.13 RoC import and generate from agreement |
-| 2026-06-18 | pending | WP-D.14 publish roster shifts from RoC |
+| 2026-06-18 | 00c69f7 | WP-D.14 publish roster shifts from RoC |
 
 ---
 
