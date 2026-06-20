@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **82%** |
 | **Current work package** | Chunk 7 — Billing & claiming |
-| **Active slice** | WP-I.1 claim generation scaffold (shipping) |
+| **Active slice** | WP-I.1 complete — next: WP-I.2 gateway stub |
 | **Next slice** | WP-I.2 PAPL validation hard blocks + gateway stub |
-| **Last push** | 2026-06-20 — `6f8e0fb` |
+| **Last push** | 2026-06-20 — `e996324` |
 
 ---
 
@@ -844,8 +844,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.12) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625230000` timesheet payroll export columns |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625250000` timesheet payroll reconciliation columns |
-| 2026-06-20 | `npm run build` | exit 0 (WP-G/H) |
-| 2026-06-20 | `npm run page-guides:check` | exit 0 — 82 routes (WP-G/H) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-I.1) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 85 routes (WP-I.1) |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625280000` claim tables |
 
 ---
 
@@ -907,6 +908,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-F.1 | 0 | **Pass** | Batch uses bulkUpsertTimesheets + audit |
 | 2026-06-18 | WP-F.2 | 3 High + 1 Medium — all fixed | **Pass** | Supabase closed periods, overlap match, generation messaging |
 | 2026-06-20 | WP-G/H | 1 High + 1 Medium — all fixed | **Pass** | Fill board capacity per shift week; week calendar uses all shifts |
+| 2026-06-20 | WP-I.1 | 2 High — all fixed | **Pass** | Preview excludes locked claims; seed-access claims windows |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -949,6 +951,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-F.1 | `delivery` — batch payroll reconciliation steps | `services-setup` — batch reconcile | exit 0 — 82 routes |
 | 2026-06-18 | WP-F.2 | `delivery` — payroll period close steps | `services-setup` — close-period checklist | exit 0 — 82 routes |
 | 2026-06-20 | WP-G/H | `people` — schedule/template; `delivery` — RoC tab + fill board; `my-workplace` — week calendar | `services-setup` — worker templates + fill board | exit 0 — 82 routes |
+| 2026-06-20 | WP-I.1 | `delivery` — NDIS claims section | `services-setup` — claims grants | exit 0 — 85 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
