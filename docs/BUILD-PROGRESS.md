@@ -437,7 +437,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 9336f35 | WP-D.4 master roster forward plan view |
 | 2026-06-20 | 0515809 | WP-D.5 gap analysis + vacant shift markers |
 | 2026-06-20 | 4580bb4 | WP-D.6 open shift marketplace |
-| 2026-06-20 | pending | WP-D.7 timesheet generation from roster shifts |
+| 2026-06-20 | c7a6012 | WP-D.7 timesheet generation from roster shifts |
 
 ---
 
