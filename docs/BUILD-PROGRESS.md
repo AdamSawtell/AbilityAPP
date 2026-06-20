@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **82%** |
+| **Overall completion** | **84%** |
 | **Current work package** | Chunk 7 — Billing & claiming |
-| **Active slice** | WP-I.1 complete — next: WP-I.2 gateway stub |
-| **Next slice** | WP-I.2 PAPL validation hard blocks + gateway stub |
-| **Last push** | 2026-06-20 — `e996324` |
+| **Active slice** | WP-I.2 complete — next: WP-I.3 remittance import stub |
+| **Next slice** | WP-I.3 remittance import + match (Chunk 7) |
+| **Last push** | 2026-06-20 — `c14ed73` |
 
 ---
 
@@ -830,7 +830,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
 | 2026-06-20 | c3473f7 | WP-G/H master roster on records + workforce fill board |
 | 2026-06-20 | e996324 | WP-I.1 claim generation scaffold + PAPL validation |
-| 2026-06-20 | pending | WP-I.2 PAPL hard blocks + NDIS gateway dry-run stub |
+| 2026-06-20 | c14ed73 | WP-I.2 PAPL hard blocks + NDIS gateway dry-run stub |
 
 ---
 
