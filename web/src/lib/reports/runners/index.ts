@@ -18,7 +18,10 @@ import {
   buildNdisReportableIncidentsReport,
 } from "@/lib/reports/runners/incident-register";
 import { buildIncidentComplianceDigestReport } from "@/lib/reports/runners/incident-compliance-digest";
+import { buildNdisAuditPackSummaryReport } from "@/lib/reports/runners/ndis-audit-pack-summary";
 import { buildLocationRegisterReport } from "@/lib/reports/runners/location-register";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
+import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import { buildTasksAllReport } from "@/lib/reports/runners/tasks-all";
 import type { TaskRecord } from "@/lib/task";
 import type { TimesheetRecord } from "@/lib/timesheet";
@@ -34,6 +37,8 @@ export type ReportDataContext = {
   roles: AppRoleRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
+  rosterShifts: RosterShiftRecord[];
+  serviceAgreements: ServiceAgreementRecord[];
   claims: ClaimRecord[];
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
@@ -62,6 +67,20 @@ export function runReport(reportId: string, ctx: ReportDataContext): ReportResul
         clients: ctx.clients,
         monthlyServicePlans: ctx.monthlyServicePlans,
         timesheets: ctx.timesheets,
+        claims: ctx.claims,
+        invoices: ctx.invoices,
+        payrollClosedPeriods: ctx.payrollClosedPeriods,
+      });
+    case "ndis-audit-pack-summary":
+      return buildNdisAuditPackSummaryReport({
+        clients: ctx.clients,
+        employees: ctx.employees,
+        serviceAgreements: ctx.serviceAgreements,
+        incidents: ctx.incidents,
+        monthlyServicePlans: ctx.monthlyServicePlans,
+        timesheets: ctx.timesheets,
+        rosterShifts: ctx.rosterShifts,
+        locations: ctx.locations,
         claims: ctx.claims,
         invoices: ctx.invoices,
         payrollClosedPeriods: ctx.payrollClosedPeriods,

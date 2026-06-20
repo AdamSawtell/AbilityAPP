@@ -82,7 +82,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
 | 7 | Billing & claiming | 10% | **60%** | 🟡 Partial | Chunk 8 reconcile |
-| 8 | Reconciliation & reporting | 10% | **45%** | 🟡 Partial | NDIS audit pack export |
+| 8 | Reconciliation & reporting | 10% | **60%** | 🟡 Partial | Portal / plan import |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
 

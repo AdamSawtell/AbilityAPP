@@ -96,6 +96,16 @@ export const ACCESS_REPORTS: AccessReport[] = [
     maxColumns: 10,
     exportFormats: ["csv"],
   },
+  {
+    id: "ndis-audit-pack-summary",
+    label: "NDIS audit pack summary",
+    description:
+      "Audit readiness manifest for participants, delivery, billing, incidents, and credentials. Uses the current calendar month.",
+    moduleGroup: "Services",
+    parentModuleKey: "reports",
+    maxColumns: 10,
+    exportFormats: ["csv"],
+  },
 ];
 
 export const ALL_REPORT_IDS = ACCESS_REPORTS.map((r) => r.id);

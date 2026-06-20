@@ -156,6 +156,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant Plan reconciliation for coordinators reviewing monthly plan vs delivery.",
       "Grant Claim reconciliation for finance and billing coordinators reviewing remittance matches.",
       "Grant Financial close for month-end sign-off across plan, billing, and payroll.",
+      "Grant NDIS audit pack for quality and compliance audit evidence exports.",
     ]
   ),
   moduleSetupArticle(

@@ -260,6 +260,14 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     abilityErpName: "Financial close",
     showInSidebar: true,
   },
+  {
+    key: "ndis-audit-pack",
+    label: "NDIS audit pack",
+    group: "Delivery",
+    href: "/ndis-audit-pack",
+    abilityErpName: "NDIS audit pack",
+    showInSidebar: true,
+  },
 ];
 
 const WORKFORCE_WINDOWS: AccessWindow[] = [

@@ -14,7 +14,7 @@ type ReportRunnerViewProps = {
 };
 
 export function ReportRunnerView({ reportId }: ReportRunnerViewProps) {
-  const { clients, employees, locations, enquiries, incidents, tasks, timesheets, claims, invoices, monthlyServicePlans, payrollClosedPeriods } = useData();
+  const { clients, employees, locations, enquiries, incidents, tasks, timesheets, claims, invoices, monthlyServicePlans, payrollClosedPeriods, rosterShifts, serviceAgreements } = useData();
   const { users, roles, canReport } = useAuth();
   const report = reportById(reportId);
 
@@ -31,6 +31,8 @@ export function ReportRunnerView({ reportId }: ReportRunnerViewProps) {
       roles,
       monthlyServicePlans,
       timesheets,
+      rosterShifts,
+      serviceAgreements,
       claims,
       invoices,
       payrollClosedPeriods,
@@ -49,6 +51,8 @@ export function ReportRunnerView({ reportId }: ReportRunnerViewProps) {
     roles,
     monthlyServicePlans,
     timesheets,
+    rosterShifts,
+    serviceAgreements,
     claims,
     invoices,
     payrollClosedPeriods,

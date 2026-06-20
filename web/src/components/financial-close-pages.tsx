@@ -101,6 +101,12 @@ export function FinancialCloseView() {
             Export CSV
           </button>
         ) : null}
+        <Link
+          href="/ndis-audit-pack"
+          className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          NDIS audit pack
+        </Link>
       </div>
 
       <div
