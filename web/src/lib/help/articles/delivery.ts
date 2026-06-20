@@ -124,6 +124,7 @@ export const deliveryArticle: HelpArticle = {
         "Use summary cards to see exported vs paid hours, pending count, and matched records for the pay period.",
         "Select multiple timesheets and Reconcile at exported hours when payroll matches exported totals — one pay run reference for the batch.",
         "Filter the reconciliation table or timesheet list by Pending, Matched, or Variance.",
+        "Before archiving a pay period, open Payroll period close — confirm approve, export, and reconcile checks pass, then Mark period closed with the pay run reference.",
         "Review Matched vs Variance status — variance within 0.05h counts as matched; larger gaps flag for audit before closing the pay period.",
         "Re-run generation for the same period to append new shifts to an existing Draft timesheet.",
       ],

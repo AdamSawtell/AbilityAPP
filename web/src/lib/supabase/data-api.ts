@@ -138,6 +138,12 @@ import {
   type MonthlyServicePlanLineRowDb,
   type MonthlyServicePlanRow,
 } from "@/lib/supabase/monthly-service-plan-mappers";
+import {
+  payrollClosedPeriodFromRow,
+  payrollClosedPeriodToRow,
+  type PayrollClosedPeriodRow,
+} from "@/lib/supabase/payroll-closed-period-mappers";
+import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -152,6 +158,7 @@ export type AppData = {
   rosterOfCares: RosterOfCareRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
+  payrollClosedPeriods: PayrollPeriodCloseRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -224,6 +231,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     rosterOfCareLinesRes,
     monthlyServicePlansRes,
     monthlyServicePlanLinesRes,
+    payrollClosedPeriodsRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
@@ -279,6 +287,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("roster_of_care_line").select("*").order("line_no"),
     supabase.from("monthly_service_plan").select("*").order("plan_month", { ascending: false }),
     supabase.from("monthly_service_plan_line").select("*").order("line_no"),
+    supabase.from("payroll_closed_period").select("*").order("period_start", { ascending: false }),
   ]);
 
   const firstError =
@@ -335,7 +344,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     rosterOfCaresRes.error ??
     rosterOfCareLinesRes.error ??
     monthlyServicePlansRes.error ??
-    monthlyServicePlanLinesRes.error;
+    monthlyServicePlanLinesRes.error ??
+    payrollClosedPeriodsRes.error;
 
   if (firstError) throw firstError;
 
@@ -443,6 +453,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     timesheets: ((timesheetsRes.data ?? []) as TimesheetRow[]).map((row) =>
       normalizeTimesheet(timesheetFromRow(row, linesByTimesheet.get(row.id) ?? []))
+    ),
+    payrollClosedPeriods: ((payrollClosedPeriodsRes.data ?? []) as PayrollClosedPeriodRow[]).map(
+      payrollClosedPeriodFromRow
     ),
     contracts: ((contractsRes.data ?? []) as ContractRow[]).map((row) =>
       normalizeContract(contractFromRow(row, auditByContract.get(row.id) ?? []))
@@ -1664,4 +1677,9 @@ export async function saveMonthlyServicePlan(supabase: SupabaseClient, record: M
     const { error: deleteError } = await supabase.from("monthly_service_plan_line").delete().in("id", staleIds);
     if (deleteError) throw deleteError;
   }
+}
+
+export async function savePayrollClosedPeriod(supabase: SupabaseClient, record: PayrollPeriodCloseRecord) {
+  const { error } = await supabase.from("payroll_closed_period").upsert(payrollClosedPeriodToRow(record));
+  if (error) throw error;
 }

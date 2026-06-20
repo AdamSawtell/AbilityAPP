@@ -26,6 +26,7 @@ import { verifyTimesheet, timesheetApprovalBlocked } from "@/lib/timesheet-verif
 import { TimesheetVerificationPanel } from "@/components/timesheet-verification-panel";
 import { PayrollExportDetailActions, PayrollExportPanel } from "@/components/payroll-export-panel";
 import { PayrollReconciliationDetail, PayrollReconciliationPanel } from "@/components/payroll-reconciliation-panel";
+import { PayrollPeriodClosePanel } from "@/components/payroll-period-close-panel";
 import { payrollExportStatusClass } from "@/lib/timesheet-payroll-export";
 import { payrollReconcileStatusClass, PAYROLL_RECONCILE_STATUSES } from "@/lib/payroll-reconciliation";
 
@@ -85,6 +86,7 @@ export function TimesheetListView() {
       </div>
       <PayrollExportPanel />
       <PayrollReconciliationPanel />
+      <PayrollPeriodClosePanel />
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm text-slate-600">
           Status{" "}
@@ -224,7 +226,7 @@ export function TimesheetListView() {
 }
 
 export function GenerateTimesheetsView() {
-  const { rosterShifts, timesheets, employees, bulkUpsertTimesheets } = useData();
+  const { rosterShifts, timesheets, payrollClosedPeriods, employees, bulkUpsertTimesheets } = useData();
   const { session, canWriteWindow } = useAuth();
   const canGenerate = canWriteWindow("generate-timesheets");
   const router = useRouter();
@@ -241,13 +243,17 @@ export function GenerateTimesheetsView() {
   const [generating, setGenerating] = useState(false);
 
   const preview = useMemo(
-    () => previewTimesheetGeneration(rosterShifts, timesheets, periodStart, periodEnd),
-    [rosterShifts, timesheets, periodStart, periodEnd]
+    () => previewTimesheetGeneration(rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods),
+    [rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods]
   );
 
   const handleGenerate = () => {
     if (!canGenerate) {
       setMessage("You do not have permission to generate timesheets.");
+      return;
+    }
+    if (preview.periodClosed) {
+      setMessage("This pay period is marked closed — choose different dates before generating.");
       return;
     }
     if (!preview.eligibleShiftCount) {
@@ -256,10 +262,21 @@ export function GenerateTimesheetsView() {
     }
     setGenerating(true);
     const actor = session?.displayName || "SuperUser";
-    const result = generateTimesheetsFromShifts(rosterShifts, timesheets, periodStart, periodEnd, actor);
+    const result = generateTimesheetsFromShifts(
+      rosterShifts,
+      timesheets,
+      periodStart,
+      periodEnd,
+      actor,
+      payrollClosedPeriods
+    );
     const all = [...result.created, ...result.updated];
     bulkUpsertTimesheets(all);
     setGenerating(false);
+    if (result.periodClosed) {
+      setMessage("This pay period is marked closed — generation was blocked.");
+      return;
+    }
     const parts = [];
     if (result.created.length) parts.push(`${result.created.length} created`);
     if (result.updated.length) parts.push(`${result.updated.length} updated`);
@@ -295,13 +312,19 @@ export function GenerateTimesheetsView() {
         </label>
       </div>
       <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-700">
-        <p>
-          <span className="font-medium">{preview.eligibleShiftCount}</span> eligible shifts across{" "}
-          <span className="font-medium">{preview.rows.length}</span> workers.
-          {preview.alreadyLinkedCount ? (
-            <> {preview.alreadyLinkedCount} shifts already on a timesheet.</>
-          ) : null}
-        </p>
+        {preview.periodClosed ? (
+          <p className="font-medium text-rose-800">
+            This pay period is marked closed — timesheet generation is blocked until you choose an open period.
+          </p>
+        ) : (
+          <p>
+            <span className="font-medium">{preview.eligibleShiftCount}</span> eligible shifts across{" "}
+            <span className="font-medium">{preview.rows.length}</span> workers.
+            {preview.alreadyLinkedCount ? (
+              <> {preview.alreadyLinkedCount} shifts already on a timesheet.</>
+            ) : null}
+          </p>
+        )}
       </div>
       {preview.rows.length ? (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -328,7 +351,7 @@ export function GenerateTimesheetsView() {
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
-          disabled={generating || !preview.eligibleShiftCount || !canGenerate}
+          disabled={generating || !preview.eligibleShiftCount || !canGenerate || preview.periodClosed}
           onClick={handleGenerate}
           className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
         >

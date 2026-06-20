@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **75%** |
+| **Overall completion** | **76%** |
 | **Current work package** | WP-F — Timesheets & payroll (Chunk 6) |
-| **Active slice** | WP-F.1 — Payroll reconciliation batch + digest ✅ shipped |
-| **Next slice** | WP-F.2 — Payroll period close checklist (Chunk 6) |
-| **Last push** | 2026-06-18 — `5f0da49` |
+| **Active slice** | WP-F.2 — Payroll period close checklist ✅ shipped |
+| **Next slice** | Chunk 7 — Billing & claiming (claim generation scaffold) |
+| **Last push** | 2026-06-18 — pending WP-F.2 |
 
 ---
 
@@ -79,7 +79,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **90%** | 🟡 Partial | Mobile worker app (phase 2) |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
-| 6 | Timesheets & payroll export | 10% | **65%** | 🟡 Partial | WP-F.2 period close |
+| 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
 
@@ -442,6 +442,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Reconcile at exported hours** with pay run ref | Selected rows marked Matched/Processed; audit logged |
 | 5 | Timesheet list **Reconcile** filter | Filters to Matched, Variance, or Pending |
 
+### WP-F.2 — Payroll period close checklist (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Timesheets** list | Payroll period close panel below reconciliation |
+| 2 | Set period dates matching approved/exported/reconciled timesheets | Checklist shows pass for timesheets, approved, exported, reconciled |
+| 3 | Enter pay run ref → **Mark period closed** | Success message; period status shows closed |
+| 4 | **Generate timesheets** — same period | Banner shows period closed; Generate disabled |
+| 5 | Refresh page (Supabase mode) | Closed period still blocks generation for all users |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -621,6 +631,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Timesheets** Write |
 | **Admin verify** | Batch reconcile marks multiple records Processed with one pay run ref |
 
+### WP-F.2 — Payroll period close checklist
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Timesheets** (payroll period close steps) |
+| **User steps** | 1. Approve and export timesheets. 2. Reconcile after pay run. 3. Run checklist on **Timesheets**. 4. Enter pay run ref and mark closed. 5. Confirm generation is blocked for that period. |
+| **System setup** | `/system/setup/services` — close-period checklist after reconcile |
+| **Reference data** | — |
+| **Role access** | **Timesheets** Write |
+| **Admin verify** | Close a test period; **Generate timesheets** shows blocked message for overlapping dates |
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -696,6 +717,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 8d4300c | WP-E.1 monthly service plan scaffold |
 | 2026-06-18 | 493b46f | WP-E.2 burn rate + forecast alerts |
 | 2026-06-18 | a235f93 | WP-E.3 SCHADS cost prediction |
+| 2026-06-18 | 8921a9d | Admin role always grants full catalog Write access |
 | 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
 
 ---
@@ -759,6 +781,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.2 | `/service-planning/msp-bern-2025-10` burn-rate panel | **Pass** | build verified; alerts on Bern seed |
 | 2026-06-18 | WP-E.3 | `/service-planning/msp-bern-2025-10` SCHADS panel | **Pass** | build verified; per-line margin table |
 | 2026-06-18 | WP-F.1 | `/timesheets` reconciliation digest + batch | **Pass** | build verified |
+| 2026-06-18 | WP-F.2 | `/timesheets`, `/generate-timesheets` | **Pass** | build verified; closed period blocks generation |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -786,6 +809,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.2 | 0 | **Pass** | Pure lib + read-only panel; no migration |
 | 2026-06-18 | WP-E.3 | 0 | **Pass** | Planning lib only; no payroll integration |
 | 2026-06-18 | WP-F.1 | 0 | **Pass** | Batch uses bulkUpsertTimesheets + audit |
+| 2026-06-18 | WP-F.2 | 3 High + 1 Medium — all fixed | **Pass** | Supabase closed periods, overlap match, generation messaging |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -826,6 +850,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.2 | `delivery` — burn rate and forecast alerts section | — | exit 0 — 82 routes |
 | 2026-06-18 | WP-E.3 | `delivery` — SCHADS cost prediction section | — | exit 0 — 82 routes |
 | 2026-06-18 | WP-F.1 | `delivery` — batch payroll reconciliation steps | `services-setup` — batch reconcile | exit 0 — 82 routes |
+| 2026-06-18 | WP-F.2 | `delivery` — payroll period close steps | `services-setup` — close-period checklist | exit 0 — 82 routes |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625260000` monthly_service_plan tables |

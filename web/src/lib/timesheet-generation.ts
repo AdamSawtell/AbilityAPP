@@ -7,6 +7,7 @@ import {
   type TimesheetLine,
   type TimesheetRecord,
 } from "@/lib/timesheet";
+import { isPayrollPeriodClosed, type PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
 
 const ELIGIBLE_STATUSES = new Set(["Published", "Completed"]);
 
@@ -21,6 +22,7 @@ export type TimesheetGenerationPreview = {
   periodEnd: string;
   eligibleShiftCount: number;
   alreadyLinkedCount: number;
+  periodClosed: boolean;
   rows: TimesheetGenerationPreviewRow[];
 };
 
@@ -29,6 +31,7 @@ export type TimesheetGenerationResult = {
   updated: TimesheetRecord[];
   skippedAlreadyLinked: number;
   skippedLockedPeriod: number;
+  periodClosed: boolean;
 };
 
 function shiftInPeriod(shift: RosterShiftRecord, periodStart: string, periodEnd: string): boolean {
@@ -71,8 +74,10 @@ export function previewTimesheetGeneration(
   rosterShifts: RosterShiftRecord[],
   timesheets: TimesheetRecord[],
   periodStart: string,
-  periodEnd: string
+  periodEnd: string,
+  closedPeriods: PayrollPeriodCloseRecord[] = []
 ): TimesheetGenerationPreview {
+  const periodClosed = isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods);
   const linked = linkedRosterShiftIds(timesheets);
   const byEmployee = new Map<string, { shiftCount: number; totalHours: number }>();
   let eligibleShiftCount = 0;
@@ -97,7 +102,7 @@ export function previewTimesheetGeneration(
     .map(([employeeId, stats]) => ({ employeeId, ...stats }))
     .sort((a, b) => a.employeeId.localeCompare(b.employeeId));
 
-  return { periodStart, periodEnd, eligibleShiftCount, alreadyLinkedCount, rows };
+  return { periodStart, periodEnd, eligibleShiftCount, alreadyLinkedCount, periodClosed, rows };
 }
 
 function findTimesheetForPeriod(
@@ -129,8 +134,13 @@ export function generateTimesheetsFromShifts(
   timesheets: TimesheetRecord[],
   periodStart: string,
   periodEnd: string,
-  actorName = "SuperUser"
+  actorName = "SuperUser",
+  closedPeriods: PayrollPeriodCloseRecord[] = []
 ): TimesheetGenerationResult {
+  if (isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods)) {
+    return { created: [], updated: [], skippedAlreadyLinked: 0, skippedLockedPeriod: 0, periodClosed: true };
+  }
+
   const linked = linkedRosterShiftIds(timesheets);
   const shiftsByEmployee = new Map<string, RosterShiftRecord[]>();
   let skippedAlreadyLinked = 0;
@@ -200,5 +210,5 @@ export function generateTimesheetsFromShifts(
     created.push(next);
   }
 
-  return { created, updated, skippedAlreadyLinked, skippedLockedPeriod };
+  return { created, updated, skippedAlreadyLinked, skippedLockedPeriod, periodClosed: false };
 }

@@ -46,6 +46,7 @@ import {
   normalizeTimesheet,
   type TimesheetRecord,
 } from "@/lib/timesheet";
+import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
 import {
   initialPriceLists as seedPriceLists,
   initialProducts as seedProducts,
@@ -134,6 +135,7 @@ import {
   saveRosterOfCare,
   saveRosterOfCares,
   saveMonthlyServicePlan,
+  savePayrollClosedPeriod,
   saveRosterShifts,
   claimVacantRosterShift,
   saveTimesheet,
@@ -157,6 +159,7 @@ type DataStore = {
   rosterOfCares: RosterOfCareRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
+  payrollClosedPeriods: PayrollPeriodCloseRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -199,6 +202,7 @@ type DataStore = {
   upsertMonthlyServicePlan: (record: MonthlyServicePlanRecord, audit?: AuditLogOptions) => string | null;
   upsertTimesheet: (record: TimesheetRecord, audit?: AuditLogOptions) => void;
   bulkUpsertTimesheets: (records: TimesheetRecord[]) => void;
+  closePayrollPeriod: (record: PayrollPeriodCloseRecord) => void;
   getServiceBookingsByClientId: (clientId: string) => ServiceBookingRecord[];
   upsertSupportPlan: (record: SupportPlanRecord) => void;
   upsertEmployee: (record: EmployeeRecord) => void;
@@ -273,6 +277,7 @@ type Persisted = {
   rosterOfCares?: RosterOfCareRecord[];
   monthlyServicePlans?: MonthlyServicePlanRecord[];
   timesheets?: TimesheetRecord[];
+  payrollClosedPeriods?: PayrollPeriodCloseRecord[];
   supportPlans?: SupportPlanRecord[];
   planDocuments?: PlanAssessmentDocument[];
   employees?: EmployeeRecord[];
@@ -294,6 +299,7 @@ function seedData(): Required<Persisted> {
     rosterOfCares: seedRosterOfCares.map(normalizeRosterOfCare),
     monthlyServicePlans: seedMonthlyServicePlans.map(normalizeMonthlyServicePlan),
     timesheets: seedTimesheets.map(normalizeTimesheet),
+    payrollClosedPeriods: [],
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
     employees: seedEmployees.map(normalizeEmployee),
@@ -332,6 +338,7 @@ function loadLocal(): Required<Persisted> {
       rosterOfCares: (parsed.rosterOfCares ?? seedRosterOfCares).map(normalizeRosterOfCare),
       monthlyServicePlans: (parsed.monthlyServicePlans ?? seedMonthlyServicePlans).map(normalizeMonthlyServicePlan),
       timesheets: (parsed.timesheets ?? seedTimesheets).map(normalizeTimesheet),
+      payrollClosedPeriods: parsed.payrollClosedPeriods ?? [],
       supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
       employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
@@ -369,6 +376,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     defaults.monthlyServicePlans
   );
   const [timesheets, setTimesheets] = useState<TimesheetRecord[]>(defaults.timesheets);
+  const [payrollClosedPeriods, setPayrollClosedPeriods] = useState<PayrollPeriodCloseRecord[]>(
+    defaults.payrollClosedPeriods
+  );
   const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(defaults.supportPlans);
   const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
   const [employees, setEmployees] = useState<EmployeeRecord[]>(defaults.employees);
@@ -390,6 +400,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const rosterOfCaresRef = useSyncRef(rosterOfCares);
   const monthlyServicePlansRef = useSyncRef(monthlyServicePlans);
   const timesheetsRef = useSyncRef(timesheets);
+  const payrollClosedPeriodsRef = useSyncRef(payrollClosedPeriods);
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
   const locationsRef = useSyncRef(locations);
@@ -429,6 +440,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
       );
       setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
+      setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
       setSupportPlans(data.supportPlans);
       setPlanDocuments(data.planDocuments);
       setEmployees(data.employees);
@@ -478,6 +490,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
               data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
             );
             setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
+            setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
             setSupportPlans(data.supportPlans);
             setPlanDocuments(data.planDocuments);
             setEmployees(data.employees);
@@ -510,6 +523,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
         setMonthlyServicePlans(data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan));
         setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
+        setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
         setSupportPlans(data.supportPlans);
         setPlanDocuments(data.planDocuments);
         setEmployees(data.employees);
@@ -545,6 +559,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
+      payrollClosedPeriods,
       supportPlans,
       planDocuments,
       employees,
@@ -564,6 +579,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
+      payrollClosedPeriods,
       supportPlans,
     planDocuments,
     employees,
@@ -1113,6 +1129,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, timesheetsRef]
   );
 
+  const closePayrollPeriod = useCallback(
+    (record: PayrollPeriodCloseRecord) => {
+      setPayrollClosedPeriods((current) => {
+        const next = current.filter(
+          (row) => !(row.periodStart === record.periodStart && row.periodEnd === record.periodEnd)
+        );
+        return [...next, record];
+      });
+      void persistRemote((supabase) => savePayrollClosedPeriod(supabase, record));
+    },
+    [persistRemote]
+  );
+
   const upsertRosterOfCare = useCallback(
     (record: RosterOfCareRecord, audit?: AuditLogOptions) => {
       const prev = rosterOfCaresRef.current;
@@ -1405,6 +1434,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
+      payrollClosedPeriods,
       supportPlans,
       planDocuments,
       employees,
@@ -1436,6 +1466,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertMonthlyServicePlan,
       upsertTimesheet,
       bulkUpsertTimesheets,
+      closePayrollPeriod,
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,
@@ -1474,6 +1505,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
+      payrollClosedPeriods,
       supportPlans,
       planDocuments,
       employees,
@@ -1505,6 +1537,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertMonthlyServicePlan,
       upsertTimesheet,
       bulkUpsertTimesheets,
+      closePayrollPeriod,
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,
