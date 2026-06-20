@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **60%** |
+| **Overall completion** | **61%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.11 — Geofence check-in alerts ✅ shipped |
-| **Next slice** | WP-D.12 — RoC import (needs CSV template) or payroll export |
-| **Last push** | 2026-06-18 — `266f8b1` |
+| **Active slice** | WP-D.12 — Payroll CSV export ✅ shipped |
+| **Next slice** | WP-D.13 — RoC import (needs CSV template) or Keypay API hook |
+| **Last push** | pending |
 
 ---
 
@@ -79,7 +79,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **60%** | 🔵 In progress | WP-D.11 geofence alerts |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
-| 6 | Timesheets & payroll export | 10% | **25%** | 🟡 Partial | WP-D.9 verify vs check-in; geofence advisory on approve |
+| 6 | Timesheets & payroll export | 10% | **35%** | 🟡 Partial | WP-D.12 payroll CSV export |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | 3% | ⬜ Not started | Chunks 5 + 7 |
 
@@ -288,6 +288,18 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Open shift in roster editor | Worker check-in panel shows geofence warning |
 | 6 | **Timesheets** detail with verified line + geofence breach | Advisory geofence text on line; approval **not** blocked |
 
+### WP-D.12 — Payroll CSV export (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Approve a verified timesheet (all linked shifts checked out) | Status **Approved** saves |
+| 2 | **Timesheets** list — Payroll export panel | Approved timesheets listed with checkboxes |
+| 3 | Select and **Export selected to CSV** | CSV downloads; batch ref shown; status **Exported** |
+| 4 | Refresh — list **Payroll** column | Shows **Exported** + batch ref |
+| 5 | Open timesheet detail (saved Approved) | Payroll export panel + **Export to payroll CSV** |
+| 6 | Try export with unverified shift (Draft/Submitted) | Blocked with verification message |
+| 7 | Change status to Approved on detail without saving | Export hidden until saved |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -484,6 +496,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 957ed03 | WP-D.9 timesheet verification vs check-in |
 | 2026-06-20 | aee1aec | WP-D.10 GPS check-in capture |
 | 2026-06-18 | 9bd8fb6 | WP-D.11 geofence check-in alerts |
+| 2026-06-18 | pending | WP-D.12 payroll CSV export |
 
 ---
 
@@ -513,6 +526,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.11) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.11) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625220000` location geofence columns |
+| 2026-06-18 | `npm run build` | exit 0 (WP-D.12) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.12) |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260625230000` timesheet payroll export columns |
 
 ---
 
@@ -528,6 +544,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.9 | `/timesheets`, `/timesheets/[id]` | **Pass** | Verification panel + list column; approval block on unverified shift |
 | 2026-06-20 | WP-D.10 | `/my/shifts`, `/rostering` | **Partial** | Routes load; GPS capture needs employee-linked user + browser permission |
 | 2026-06-18 | WP-D.11 | `/locations/loc-glenelg-sil`, `/rostering`, `/timesheets` | **Pass** | HTTP 200; geofence UI needs linked worker + GPS coords outside radius for full flow |
+| 2026-06-18 | WP-D.12 | `/timesheets` | **Pass** | HTTP 200; payroll export panel on list |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -541,6 +558,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.9 | 1 High | **Pass** | Fixed: only block approval transition, not saves on already-approved timesheets |
 | 2026-06-20 | WP-D.10 | 1 Medium | **Pass** | Fixed: GPS badge when check-in or check-out coordinates present |
 | 2026-06-18 | WP-D.11 | 0 | **Pass** | No findings |
+| 2026-06-18 | WP-D.12 | 1 High + 1 Medium | **Pass** | Fixed: export uses saved record only; verification gate on export |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -563,6 +581,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.9 | `delivery` — timesheet verification vs check-in | `services-setup` — verify before approve | exit 0 |
 | 2026-06-20 | WP-D.10 | `my-workplace` + `delivery` — GPS on check-in | — | exit 0 |
 | 2026-06-18 | WP-D.11 | `my-workplace` + `delivery` — geofence alerts; `locations-setup` — site coordinates | `locations-setup` | exit 0 |
+| 2026-06-18 | WP-D.12 | `delivery` — payroll CSV export | `services-setup` — export approved timesheets | exit 0 |
 
 ---
 
