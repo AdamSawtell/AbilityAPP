@@ -22,6 +22,8 @@ import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
 import { gapsForWeek, isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
 import { listOpenMarketplaceShifts } from "@/lib/roster-open-shifts";
 import { shiftCheckInStatus, shiftCheckInStatusLabel } from "@/lib/roster-shift-checkin";
+import { hasShiftGeo } from "@/lib/geolocation";
+import { ShiftGeoLinks } from "@/components/shift-geo-links";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -349,6 +351,7 @@ export function RosteringWeekView() {
                               );
                             })()
                           ) : null}
+                          {hasShiftGeo(shift) ? <ShiftGeoLinks shift={shift} compact /> : null}
                         </button>
                       );
                     })}

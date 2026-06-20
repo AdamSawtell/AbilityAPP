@@ -2099,9 +2099,24 @@ export type RosterShiftRow = {
   checked_in_at: string | null;
   checked_out_at: string | null;
   check_in_notes: string;
+  check_in_latitude: number | null;
+  check_in_longitude: number | null;
+  check_out_latitude: number | null;
+  check_out_longitude: number | null;
   created_by: string;
   updated_by: string;
 };
+
+function geoFromRow(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) return "";
+  return value.toFixed(6);
+}
+
+function geoToRow(value: string): number | null {
+  if (!value?.trim()) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
 
 export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
   return {
@@ -2121,6 +2136,10 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     checkedInAt: row.checked_in_at ?? "",
     checkedOutAt: row.checked_out_at ?? "",
     checkInNotes: row.check_in_notes ?? "",
+    checkInLatitude: geoFromRow(row.check_in_latitude),
+    checkInLongitude: geoFromRow(row.check_in_longitude),
+    checkOutLatitude: geoFromRow(row.check_out_latitude),
+    checkOutLongitude: geoFromRow(row.check_out_longitude),
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2144,6 +2163,10 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     checked_in_at: record.checkedInAt?.trim() ? record.checkedInAt : null,
     checked_out_at: record.checkedOutAt?.trim() ? record.checkedOutAt : null,
     check_in_notes: record.checkInNotes ?? "",
+    check_in_latitude: geoToRow(record.checkInLatitude),
+    check_in_longitude: geoToRow(record.checkInLongitude),
+    check_out_latitude: geoToRow(record.checkOutLatitude),
+    check_out_longitude: geoToRow(record.checkOutLongitude),
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

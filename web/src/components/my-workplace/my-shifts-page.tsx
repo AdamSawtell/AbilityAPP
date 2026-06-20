@@ -16,6 +16,8 @@ import {
   shiftsForWorkerCheckIn,
 } from "@/lib/roster-shift-checkin";
 import { formatDayHeading, formatShiftTimeRange } from "@/lib/roster-shift";
+import { captureGeolocation } from "@/lib/geolocation";
+import { ShiftGeoLinks } from "@/components/shift-geo-links";
 
 function statusBadgeClass(status: ReturnType<typeof shiftCheckInStatus>): string {
   switch (status) {
@@ -49,7 +51,8 @@ export function MyShiftsPage() {
       setError("");
       setBusyId(shiftId);
       try {
-        const message = await checkInRosterShift(shiftId, employeeId, updatedBy);
+        const geo = await captureGeolocation();
+        const message = await checkInRosterShift(shiftId, employeeId, updatedBy, geo);
         if (message) setError(message);
       } finally {
         setBusyId(null);
@@ -63,7 +66,14 @@ export function MyShiftsPage() {
       setError("");
       setBusyId(shiftId);
       try {
-        const message = await checkOutRosterShift(shiftId, employeeId, updatedBy, notesByShift[shiftId] ?? "");
+        const geo = await captureGeolocation();
+        const message = await checkOutRosterShift(
+          shiftId,
+          employeeId,
+          updatedBy,
+          notesByShift[shiftId] ?? "",
+          geo
+        );
         if (message) setError(message);
       } finally {
         setBusyId(null);
@@ -76,7 +86,7 @@ export function MyShiftsPage() {
     <MyWorkplaceGuard windowKey="my-shifts">
       <AppShell
         title="My shifts"
-        subtitle="Check in and out of your assigned roster shifts. Verified shifts feed timesheet generation."
+        subtitle="Check in and out of your assigned roster shifts. Location is captured when your browser allows it."
         breadcrumbs={myWorkplaceBreadcrumbs("My shifts")}
         audit={{ moduleLabel: "My shifts" }}
       >
@@ -139,6 +149,7 @@ export function MyShiftsPage() {
                   {shift.checkInNotes ? (
                     <p className="mt-2 text-sm text-slate-600">Notes: {shift.checkInNotes}</p>
                   ) : null}
+                  <ShiftGeoLinks shift={shift} />
 
                   {canOut ? (
                     <label className="mt-3 block">

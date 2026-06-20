@@ -19,6 +19,8 @@ import {
   rosterShiftDropdowns,
   type RosterShiftRecord,
 } from "@/lib/roster-shift";
+import { ShiftGeoLinks } from "@/components/shift-geo-links";
+import { formatCheckInTimestamp } from "@/lib/roster-shift-checkin";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -293,6 +295,20 @@ export function RosterShiftEditor({
                 </label>
               </div>
             ) : null}
+          </div>
+        ) : null}
+
+        {!isNew && (draft.checkedInAt || draft.checkedOutAt) ? (
+          <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-3 text-sm">
+            <p className="font-medium text-slate-900">Worker check-in</p>
+            {draft.checkedInAt ? (
+              <p className="mt-1 text-slate-600">In {formatCheckInTimestamp(draft.checkedInAt)}</p>
+            ) : null}
+            {draft.checkedOutAt ? (
+              <p className="text-slate-600">Out {formatCheckInTimestamp(draft.checkedOutAt)}</p>
+            ) : null}
+            {draft.checkInNotes ? <p className="mt-1 text-slate-600">Notes: {draft.checkInNotes}</p> : null}
+            <ShiftGeoLinks shift={draft} />
           </div>
         ) : null}
 

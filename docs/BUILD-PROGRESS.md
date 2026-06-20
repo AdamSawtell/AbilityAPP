@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **58%** |
+| **Overall completion** | **59%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.9 — Timesheet check-in verification ✅ shipped |
-| **Next slice** | WP-D.10 — TBD (GPS check-in or RoC import — needs template) |
-| **Last push** | 2026-06-20 — `957ed03` |
+| **Active slice** | WP-D.10 — GPS check-in capture ✅ shipped |
+| **Next slice** | WP-D.11 — TBD (RoC import — needs template, or geofence alerts) |
+| **Last push** | pending |
 
 ---
 
@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **55%** | 🔵 In progress | WP-D.9 verification |
+| 4 | Rostering | 22% | **58%** | 🔵 In progress | WP-D.10 GPS check-in |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | **25%** | 🟡 Partial | WP-D.9 verify vs check-in; payroll export later |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -266,6 +266,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | Set status to **Approved** | Save blocked until shifts verified (manual-review-only lines excepted) |
 | 4 | **Timesheets** list | Verification column shows verified count |
 | 5 | Already **Approved** timesheet — edit notes, save | Saves without re-running verification block |
+
+### WP-D.10 — GPS check-in capture (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **My workplace** → **My shifts** — check in (linked worker, browser location allowed) | Check-in succeeds; map link shows coordinates |
+| 2 | Check out on same shift | Check-out location link appears |
+| 3 | **Rostering** week view on staffed shift | **GPS** badge when coordinates captured |
+| 4 | Open shift in roster editor | Worker check-in panel shows times + map links |
+| 5 | Deny browser location, check in | Check-in still succeeds without coordinates |
 
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
@@ -461,6 +471,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | c7a6012 | WP-D.7 timesheet generation from roster shifts |
 | 2026-06-20 | 7a518b5 | WP-D.8 worker shift check-in MVP |
 | 2026-06-20 | 957ed03 | WP-D.9 timesheet verification vs check-in |
+| 2026-06-20 | pending | WP-D.10 GPS check-in capture |
 
 ---
 
@@ -483,6 +494,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.8) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-D.9) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.9) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-D.10) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.10) |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625210000` check-in geo columns |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625200500` check-in + my-shifts access |
 
 ---
@@ -497,6 +511,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.7 | `/generate-timesheets`, `/timesheets`, `/timesheets/[id]` | **Pass** | Generate creates draft; detail shows shift lines + audit |
 | 2026-06-20 | WP-D.8 | `/my/shifts`, `/rostering` week view | **Partial** | Routes load; SuperUser blocked without employee link — use linked worker for check-in flow |
 | 2026-06-20 | WP-D.9 | `/timesheets`, `/timesheets/[id]` | **Pass** | Verification panel + list column; approval block on unverified shift |
+| 2026-06-20 | WP-D.10 | `/my/shifts`, `/rostering` | **Partial** | Routes load; GPS capture needs employee-linked user + browser permission |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -508,6 +523,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.5–D.7 follow-up | 3 High + 2 Medium + 1 Low | **Pass** | Fixed: coverage gap booking filter, atomic open-shift claim, timesheet IDs/overnight hours/permissions/locked period/audit |
 | 2026-06-20 | WP-D.8 | 3 High + 1 Medium | **Pass** | Fixed: local-date check-in, server API binding, preserve check-in on roster save, useMyEmployee |
 | 2026-06-20 | WP-D.9 | 1 High | **Pass** | Fixed: only block approval transition, not saves on already-approved timesheets |
+| 2026-06-20 | WP-D.10 | 1 Medium | **Pass** | Fixed: GPS badge when check-in or check-out coordinates present |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -528,6 +544,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.7 | `delivery` — timesheet generation | `services-setup` — roster + timesheet grants | exit 0 |
 | 2026-06-20 | WP-D.8 | `my-workplace` — check in; `delivery` — verified badges | `services-setup` — My shifts grant | exit 0 |
 | 2026-06-20 | WP-D.9 | `delivery` — timesheet verification vs check-in | `services-setup` — verify before approve | exit 0 |
+| 2026-06-20 | WP-D.10 | `my-workplace` + `delivery` — GPS on check-in | — | exit 0 |
 
 ---
 

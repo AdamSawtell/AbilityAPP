@@ -102,13 +102,13 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "my-shifts",
       title: "Check in to your shifts",
-      body: "Workers check in and out of assigned roster shifts from My workplace. Verified shifts show on the roster week view and feed timesheet generation.",
+      body: "Workers check in and out of assigned roster shifts from My workplace. GPS location is captured when the browser allows it. Verified shifts show on the roster week view and feed timesheet generation.",
       steps: [
         "Open My workplace → My shifts.",
         "Find today's or upcoming assigned shift — check-in opens on the shift date.",
-        "Tap Check in when you start the shift.",
+        "Tap Check in when you start the shift — your browser may ask to share location.",
         "Add optional notes, then tap Check out & verify when you finish — the shift moves to Completed.",
-        "Coordinators see Checked in or Verified badges on the roster week calendar.",
+        "Coordinators see Checked in or Verified badges and GPS links on the roster week calendar.",
       ],
       relatedRoutes: ["/my/shifts", "/rostering"],
       windowKeys: ["my-shifts"],
@@ -139,7 +139,7 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "future",
       title: "Coming later",
-      body: "GPS check-in, offline mobile, and pay slips will extend the same My workplace self-service foundation.",
+      body: "Offline mobile, geofence alerts, and pay slips will extend the same My workplace self-service foundation.",
     },
   ],
 };

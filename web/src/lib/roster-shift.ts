@@ -16,6 +16,10 @@ export type RosterShiftRecord = {
   checkedInAt: string;
   checkedOutAt: string;
   checkInNotes: string;
+  checkInLatitude: string;
+  checkInLongitude: string;
+  checkOutLatitude: string;
+  checkOutLongitude: string;
   createdBy: string;
   updatedBy: string;
 };
@@ -43,6 +47,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkedInAt: "",
     checkedOutAt: "",
     checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -63,6 +71,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkedInAt: "",
     checkedOutAt: "",
     checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -83,6 +95,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkedInAt: "",
     checkedOutAt: "",
     checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -103,6 +119,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkedInAt: "",
     checkedOutAt: "",
     checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -126,6 +146,10 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
     checkedInAt: record.checkedInAt ?? "",
     checkedOutAt: record.checkedOutAt ?? "",
     checkInNotes: record.checkInNotes ?? "",
+    checkInLatitude: record.checkInLatitude ?? "",
+    checkInLongitude: record.checkInLongitude ?? "",
+    checkOutLatitude: record.checkOutLatitude ?? "",
+    checkOutLongitude: record.checkOutLongitude ?? "",
   };
 }
 
@@ -153,6 +177,10 @@ export function createRosterShift(
     checkedInAt: "",
     checkedOutAt: "",
     checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
     ...partial,
     createdBy: partial.createdBy || "SuperUser",
     updatedBy: partial.updatedBy || "SuperUser",

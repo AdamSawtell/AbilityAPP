@@ -30,6 +30,7 @@ import {
 } from "@/lib/supabase/mappers";
 import { persistMyCredential, persistMyLeaveRequest, persistMyProfile } from "@/lib/my-workplace/persist";
 import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
+import { normalizeGeoInput, geoToDbNumber, type GeoCoordinates } from "@/lib/geolocation";
 import { normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
 import { rosterShiftFromRow, type RosterShiftRow } from "@/lib/supabase/mappers";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
@@ -420,7 +421,8 @@ export async function submitMyCredential(
 
 export async function performMyShiftCheckIn(
   ctx: MyWorkplaceContext,
-  shiftId: string
+  shiftId: string,
+  geo: GeoCoordinates | null = null
 ): Promise<RosterShiftRecord> {
   const supabase = isSupabaseConfigured() ? serviceClient() : null;
   const { data: row, error } = supabase
@@ -433,7 +435,7 @@ export async function performMyShiftCheckIn(
     : null;
   if (!shift) throw new Error("Shift not found.");
 
-  const built = buildCheckInUpdate(shift, ctx.employeeId, ctx.session.displayName);
+  const built = buildCheckInUpdate(shift, ctx.employeeId, ctx.session.displayName, new Date(), geo);
   if (!built.ok) throw new Error(built.message);
 
   if (supabase) {
@@ -441,6 +443,8 @@ export async function performMyShiftCheckIn(
       .from("roster_shift")
       .update({
         checked_in_at: built.shift.checkedInAt,
+        check_in_latitude: geoToDbNumber(built.shift.checkInLatitude),
+        check_in_longitude: geoToDbNumber(built.shift.checkInLongitude),
         updated_by: built.shift.updatedBy,
       })
       .eq("id", shiftId)
@@ -458,7 +462,8 @@ export async function performMyShiftCheckIn(
 export async function performMyShiftCheckOut(
   ctx: MyWorkplaceContext,
   shiftId: string,
-  notes: string
+  notes: string,
+  geo: GeoCoordinates | null = null
 ): Promise<RosterShiftRecord> {
   const supabase = isSupabaseConfigured() ? serviceClient() : null;
   const { data: row, error } = supabase
@@ -471,7 +476,7 @@ export async function performMyShiftCheckOut(
     : null;
   if (!shift) throw new Error("Shift not found.");
 
-  const built = buildCheckOutUpdate(shift, ctx.employeeId, ctx.session.displayName, notes);
+  const built = buildCheckOutUpdate(shift, ctx.employeeId, ctx.session.displayName, notes, new Date(), geo);
   if (!built.ok) throw new Error(built.message);
 
   if (supabase) {
@@ -480,6 +485,8 @@ export async function performMyShiftCheckOut(
       .update({
         checked_out_at: built.shift.checkedOutAt,
         check_in_notes: built.shift.checkInNotes ?? "",
+        check_out_latitude: geoToDbNumber(built.shift.checkOutLatitude),
+        check_out_longitude: geoToDbNumber(built.shift.checkOutLongitude),
         status: built.shift.status,
         updated_by: built.shift.updatedBy,
       })

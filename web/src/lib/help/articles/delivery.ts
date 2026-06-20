@@ -93,7 +93,7 @@ export const deliveryArticle: HelpArticle = {
         "Switch to Forward plan to see roster hours by client across 4–12 weeks.",
         "Open Gaps to review vacant shifts and weeks where active bookings have no staffed coverage.",
         "Open Open shifts to browse the marketplace — coordinators assign cover; workers claim from My workplace → Open shifts.",
-        "Workers check in from My workplace → My shifts — Verified badges appear on staffed shift cards.",
+        "Workers check in from My workplace → My shifts — Verified badges and GPS links appear on staffed shift cards.",
         "Use Add shift from a coverage gap to pre-fill the client and booking.",
       ],
       relatedRoutes: ["/rostering"],

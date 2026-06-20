@@ -1,4 +1,5 @@
 import { addDaysIso, normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
+import { geoToStrings, type GeoCoordinates } from "@/lib/geolocation";
 
 export type ShiftCheckInStatus = "not-started" | "checked-in" | "completed";
 
@@ -87,15 +88,19 @@ export function buildCheckInUpdate(
   shift: RosterShiftRecord,
   employeeId: string,
   updatedBy: string,
-  now = new Date()
+  now = new Date(),
+  geo: GeoCoordinates | null = null
 ): { ok: true; shift: RosterShiftRecord } | { ok: false; message: string } {
   const gate = canWorkerCheckIn(shift, employeeId, now);
   if (!gate.ok) return gate;
+  const geoStrings = geoToStrings(geo);
   return {
     ok: true,
     shift: normalizeRosterShift({
       ...shift,
       checkedInAt: now.toISOString(),
+      checkInLatitude: geoStrings.latitude,
+      checkInLongitude: geoStrings.longitude,
       updatedBy,
     }),
   };
@@ -106,16 +111,20 @@ export function buildCheckOutUpdate(
   employeeId: string,
   updatedBy: string,
   notes: string,
-  now = new Date()
+  now = new Date(),
+  geo: GeoCoordinates | null = null
 ): { ok: true; shift: RosterShiftRecord } | { ok: false; message: string } {
   const gate = canWorkerCheckOut(shift, employeeId);
   if (!gate.ok) return gate;
+  const geoStrings = geoToStrings(geo);
   return {
     ok: true,
     shift: normalizeRosterShift({
       ...shift,
       checkedOutAt: now.toISOString(),
       checkInNotes: notes.trim(),
+      checkOutLatitude: geoStrings.latitude,
+      checkOutLongitude: geoStrings.longitude,
       status: shift.status === "Published" ? "Completed" : shift.status,
       updatedBy,
     }),

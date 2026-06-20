@@ -18,6 +18,7 @@ import {
 import { isVacantShift } from "@/lib/roster-gap-analysis";
 import { buildClaimedShift } from "@/lib/roster-open-shifts";
 import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
+import type { GeoCoordinates } from "@/lib/geolocation";
 import {
   createRosterShift,
   initialRosterShifts as seedRosterShifts,
@@ -158,12 +159,18 @@ type DataStore = {
   upsertServiceBooking: (record: ServiceBookingRecord) => void;
   upsertRosterShift: (record: RosterShiftRecord) => void;
   claimOpenRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
-  checkInRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
+  checkInRosterShift: (
+    shiftId: string,
+    employeeId: string,
+    updatedBy: string,
+    geo?: GeoCoordinates | null
+  ) => Promise<string | null>;
   checkOutRosterShift: (
     shiftId: string,
     employeeId: string,
     updatedBy: string,
-    notes: string
+    notes: string,
+    geo?: GeoCoordinates | null
   ) => Promise<string | null>;
   addRecurringRosterShifts: (records: RosterShiftRecord[]) => void;
   upsertTimesheet: (record: TimesheetRecord, audit?: AuditLogOptions) => void;
@@ -833,6 +840,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           checkedInAt: normalized.checkedInAt?.trim() ? normalized.checkedInAt : before.checkedInAt,
           checkedOutAt: normalized.checkedOutAt?.trim() ? normalized.checkedOutAt : before.checkedOutAt,
           checkInNotes: normalized.checkInNotes?.trim() ? normalized.checkInNotes : before.checkInNotes,
+          checkInLatitude: normalized.checkInLatitude?.trim() ? normalized.checkInLatitude : before.checkInLatitude,
+          checkInLongitude: normalized.checkInLongitude?.trim() ? normalized.checkInLongitude : before.checkInLongitude,
+          checkOutLatitude: normalized.checkOutLatitude?.trim()
+            ? normalized.checkOutLatitude
+            : before.checkOutLatitude,
+          checkOutLongitude: normalized.checkOutLongitude?.trim()
+            ? normalized.checkOutLongitude
+            : before.checkOutLongitude,
         });
       }
       const stamped = persistRecordAudit("roster-shift", normalized, !exists, before);
@@ -874,11 +889,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const checkInRosterShift = useCallback(
-    async (shiftId: string, employeeId: string, updatedBy: string): Promise<string | null> => {
+    async (
+      shiftId: string,
+      employeeId: string,
+      updatedBy: string,
+      geo: GeoCoordinates | null = null
+    ): Promise<string | null> => {
       const prev = rosterShiftsRef.current;
       const shift = prev.find((s) => s.id === shiftId);
       if (!shift) return "Shift not found.";
-      const built = buildCheckInUpdate(shift, employeeId, updatedBy);
+      const built = buildCheckInUpdate(shift, employeeId, updatedBy, new Date(), geo);
       if (!built.ok) return built.message;
 
       if (source === "supabase" && isSupabaseConfigured()) {
@@ -886,7 +906,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ shiftId, action: "check-in" }),
+          body: JSON.stringify({
+            shiftId,
+            action: "check-in",
+            latitude: geo?.latitude,
+            longitude: geo?.longitude,
+          }),
         });
         const payload = (await res.json()) as { error?: string; shift?: RosterShiftRecord };
         if (!res.ok) return payload.error ?? "Check-in failed.";
@@ -919,12 +944,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       shiftId: string,
       employeeId: string,
       updatedBy: string,
-      notes: string
+      notes: string,
+      geo: GeoCoordinates | null = null
     ): Promise<string | null> => {
       const prev = rosterShiftsRef.current;
       const shift = prev.find((s) => s.id === shiftId);
       if (!shift) return "Shift not found.";
-      const built = buildCheckOutUpdate(shift, employeeId, updatedBy, notes);
+      const built = buildCheckOutUpdate(shift, employeeId, updatedBy, notes, new Date(), geo);
       if (!built.ok) return built.message;
 
       if (source === "supabase" && isSupabaseConfigured()) {
@@ -932,7 +958,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ shiftId, action: "check-out", notes }),
+          body: JSON.stringify({
+            shiftId,
+            action: "check-out",
+            notes,
+            latitude: geo?.latitude,
+            longitude: geo?.longitude,
+          }),
         });
         const payload = (await res.json()) as { error?: string; shift?: RosterShiftRecord };
         if (!res.ok) return payload.error ?? "Check-out failed.";

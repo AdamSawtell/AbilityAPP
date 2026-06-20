@@ -141,6 +141,10 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     checkedInAt: "Checked in at",
     checkedOutAt: "Checked out at",
     checkInNotes: "Check-in notes",
+    checkInLatitude: "Check-in latitude",
+    checkInLongitude: "Check-in longitude",
+    checkOutLatitude: "Check-out latitude",
+    checkOutLongitude: "Check-out longitude",
   },
   timesheet: {
     documentNo: "Document no.",

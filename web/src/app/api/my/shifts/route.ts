@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
+import { normalizeGeoInput } from "@/lib/geolocation";
 import { performMyShiftCheckIn, performMyShiftCheckOut, requireMyWorkplace } from "@/lib/my-workplace/server";
 
 export async function POST(request: Request) {
@@ -7,7 +8,7 @@ export async function POST(request: Request) {
   const ctx = await requireMyWorkplace(session, "my-shifts");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  let body: { shiftId?: string; action?: string; notes?: string };
+  let body: { shiftId?: string; action?: string; notes?: string; latitude?: number; longitude?: number };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -16,14 +17,15 @@ export async function POST(request: Request) {
 
   const shiftId = body.shiftId?.trim() ?? "";
   if (!shiftId) return NextResponse.json({ error: "Shift id is required" }, { status: 400 });
+  const geo = normalizeGeoInput(body.latitude, body.longitude);
 
   try {
     if (body.action === "check-in") {
-      const shift = await performMyShiftCheckIn(ctx, shiftId);
+      const shift = await performMyShiftCheckIn(ctx, shiftId, geo);
       return NextResponse.json({ shift });
     }
     if (body.action === "check-out") {
-      const shift = await performMyShiftCheckOut(ctx, shiftId, body.notes ?? "");
+      const shift = await performMyShiftCheckOut(ctx, shiftId, body.notes ?? "", geo);
       return NextResponse.json({ shift });
     }
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
