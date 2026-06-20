@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) |
 | **Active slice** | WP-D.19 — Roster hard enforcement ✅ shipped |
 | **Next slice** | WP-D.20 — Staff–client matching hints on shift editor |
-| **Last push** | 2026-06-18 — pending |
+| **Last push** | 2026-06-18 — `300b632` |
 
 ---
 
