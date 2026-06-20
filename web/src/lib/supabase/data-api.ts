@@ -18,6 +18,8 @@ import type { ServiceBookingRecord } from "@/lib/service-booking";
 import { normalizeServiceBooking } from "@/lib/service-booking";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import { normalizeRosterShift } from "@/lib/roster-shift";
+import type { TimesheetRecord } from "@/lib/timesheet";
+import { normalizeTimesheet } from "@/lib/timesheet";
 import type { PlanAssessmentDocument, SupportPlanRecord } from "@/lib/support-plan";
 import { normalizeSupportPlan } from "@/lib/support-plan";
 import type { TaskRecord, TaskUpdate } from "@/lib/task";
@@ -58,6 +60,11 @@ import {
   rosterShiftFromRow,
   rosterShiftToRow,
   type RosterShiftRow,
+  timesheetFromRow,
+  timesheetLineToRow,
+  timesheetToRow,
+  type TimesheetLineRowDb,
+  type TimesheetRow,
   supportPlanFromRow,
   supportPlanToRow,
   type ClientActivityRowDb,
@@ -123,6 +130,7 @@ export type AppData = {
   serviceAgreements: ServiceAgreementRecord[];
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
+  timesheets: TimesheetRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -167,6 +175,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     bookingsRes,
     bookingLinesRes,
     rosterShiftsRes,
+    timesheetsRes,
+    timesheetLinesRes,
     contractsRes,
     auditRes,
     supportPlansRes,
@@ -216,6 +226,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("service_booking").select("*").order("date_promised", { ascending: false }),
     supabase.from("service_booking_line").select("*").order("line_no"),
     supabase.from("roster_shift").select("*").order("shift_date"),
+    supabase.from("timesheet").select("*").order("period_start", { ascending: false }),
+    supabase.from("timesheet_line").select("*").order("line_no"),
     supabase.from("contract").select("*").order("document_no"),
     supabase.from("contract_audit").select("*").order("line_no"),
     supabase.from("support_plan").select("*").order("document_no"),
@@ -264,6 +276,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     priceLinesRes.error ??
     agreementsRes.error ??
     agreementLinesRes.error ??
+    bookingsRes.error ??
+    bookingLinesRes.error ??
+    rosterShiftsRes.error ??
+    timesheetsRes.error ??
+    timesheetLinesRes.error ??
     contractsRes.error ??
     auditRes.error ??
     supportPlansRes.error ??
@@ -313,6 +330,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByPriceList = groupBy(priceLinesRes.data as PriceListLineRow[], "price_list_id");
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
+  const linesByTimesheet = groupBy(timesheetLinesRes.data as TimesheetLineRowDb[], "timesheet_id");
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
   const goalsByPlan = groupBy(goalsRes.data as SupportPlanGoalRow[], "support_plan_id");
   const progressReviewsByGoal = groupBy(
@@ -376,6 +394,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     rosterShifts: ((rosterShiftsRes.data ?? []) as RosterShiftRow[]).map((row) =>
       normalizeRosterShift(rosterShiftFromRow(row))
+    ),
+    timesheets: ((timesheetsRes.data ?? []) as TimesheetRow[]).map((row) =>
+      normalizeTimesheet(timesheetFromRow(row, linesByTimesheet.get(row.id) ?? []))
     ),
     contracts: ((contractsRes.data ?? []) as ContractRow[]).map((row) =>
       normalizeContract(contractFromRow(row, auditByContract.get(row.id) ?? []))
@@ -822,6 +843,26 @@ export async function saveRosterShifts(supabase: SupabaseClient, records: Roster
   const rows = records.map((record) => rosterShiftToRow(normalizeRosterShift(record)));
   const { error } = await supabase.from("roster_shift").upsert(rows);
   if (error) throw error;
+}
+
+export async function saveTimesheet(supabase: SupabaseClient, record: TimesheetRecord) {
+  const sheet = normalizeTimesheet(record);
+  const { error } = await supabase.from("timesheet").upsert(timesheetToRow(sheet));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "timesheet_line", "timesheet_id", sheet.id);
+  if (sheet.lines.length) {
+    const { error: lineError } = await supabase
+      .from("timesheet_line")
+      .insert(sheet.lines.map((line) => timesheetLineToRow(sheet.id, line)));
+    if (lineError) throw lineError;
+  }
+}
+
+export async function saveTimesheets(supabase: SupabaseClient, records: TimesheetRecord[]) {
+  for (const record of records) {
+    await saveTimesheet(supabase, record);
+  }
 }
 
 export async function saveContract(supabase: SupabaseClient, record: ContractRecord) {

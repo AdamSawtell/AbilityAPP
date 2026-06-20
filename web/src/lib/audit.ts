@@ -11,6 +11,7 @@ export type AuditEntityType =
   | "service-agreement"
   | "service-booking"
   | "roster-shift"
+  | "timesheet"
   | "support-plan"
   | "plan-document"
   | "task"
@@ -70,6 +71,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   "service-agreement": "Service agreement",
   "service-booking": "Service booking",
   "roster-shift": "Roster shift",
+  timesheet: "Timesheet",
   "support-plan": "Support plan",
   "plan-document": "Plan document",
   task: "Task",

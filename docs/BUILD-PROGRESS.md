@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **52%** |
+| **Overall completion** | **55%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) |
-| **Active slice** | WP-D.6 — Open shift marketplace ✅ shipped |
-| **Next slice** | WP-D.7 — Timesheet generation from shifts (Chunk 4 → 6 bridge) |
-| **Last push** | pending — WP-D.6 |
+| **Active slice** | WP-D.7 — Timesheet generation from shifts ✅ shipped |
+| **Next slice** | WP-D.8 — TBD (mobile check-in MVP or RoC import) |
+| **Last push** | pending — WP-D.7 |
 
 ---
 
@@ -77,9 +77,9 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **42%** | 🔵 In progress | WP-D.6 open shift marketplace |
+| 4 | Rostering | 22% | **48%** | 🔵 In progress | WP-D.7 timesheets from shifts |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
-| 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts |
+| 6 | Timesheets & payroll export | 10% | **15%** | 🟡 Partial | WP-D.7 generation; payroll export later |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | 3% | ⬜ Not started | Chunks 5 + 7 |
 
@@ -226,7 +226,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Forward plan** | **Coverage gaps** summary card; **Gap** cells in grid |
 | 5 | **Add shift** from coverage gap | Editor opens with client + booking pre-filled |
 
-### WP-D.6 — Open shift marketplace (`2026-06-20`)
+### WP-D.6 — Open shift marketplace (`4580bb4`)
 
 | Step | Action | Pass if |
 |------|--------|---------|
@@ -235,6 +235,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | **My workplace** → **Open shifts** | Same open shifts visible to staff |
 | 4 | **Claim shift** (linked employee user) | Worker assigned; shift leaves marketplace |
 | 5 | Double-book claim attempt | Blocked with conflict message |
+
+### WP-D.7 — Timesheet generation from shifts (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Generate timesheets** — period 6–12 Oct 2025 | Preview shows eligible Published shifts |
+| 2 | **Generate timesheets** | Draft timesheets created per worker |
+| 3 | **Timesheets** list | Records show worker, period, hours, Draft status |
+| 4 | Open a timesheet | Shift lines from roster; audit footer visible |
+| 5 | Change status to Approved, save | Persists; **Full audit trail** logs change |
 
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
@@ -426,6 +436,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | fd5e7e4 | WP-D.2 create/edit shifts + recurring, WP-D.3 conflict engine |
 | 2026-06-20 | 9336f35 | WP-D.4 master roster forward plan view |
 | 2026-06-20 | 0515809 | WP-D.5 gap analysis + vacant shift markers |
+| 2026-06-20 | 4580bb4 | WP-D.6 open shift marketplace |
+| 2026-06-20 | pending | WP-D.7 timesheet generation from roster shifts |
 
 ---
 
@@ -441,6 +453,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run build` | exit 0 (WP-D.2 + WP-D.3) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-D.5) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 (WP-D.5) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-D.6 + WP-D.7) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 78 routes (WP-D.7) |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625190000_timesheet.sql` |
 
 ---
 
@@ -450,6 +465,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 |------|-------|---------------|--------|-------|
 | 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
 | 2026-06-20 | WP-D.5 | `/rostering` Gaps + Forward plan tabs | **Pass** | Gaps tab loads; forward plan shows coverage gaps card |
+| 2026-06-20 | WP-D.6 | `/rostering` Open shifts tab | **Pass** | Vacant shifts listed |
+| 2026-06-20 | WP-D.7 | `/generate-timesheets`, `/timesheets`, `/timesheets/[id]` | **Pass** | Generate creates draft; detail shows shift lines + audit |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -474,6 +491,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | Entity linking | `clients` — Service bookings tab; `delivery` client link | `clients-setup` + seed-access | exit 0 |
 | 2026-06-20 | WP-C.3 | `services` — Participant e-sign | `services-setup` | exit 0 |
 | 2026-06-20 | WP-D.5 | `delivery` — gap analysis + vacant shifts | — | exit 0 |
+| 2026-06-20 | WP-D.6 | `delivery` — open shift marketplace; `my-workplace` — claim shifts | — | exit 0 |
+| 2026-06-20 | WP-D.7 | `delivery` — timesheet generation | `services-setup` — roster + timesheet grants | exit 0 |
 
 ---
 

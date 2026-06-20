@@ -35,6 +35,7 @@ import type {
 import type { ServiceAgreementLine, ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { ServiceBookingLine, ServiceBookingRecord } from "@/lib/service-booking";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
+import type { TimesheetLine, TimesheetRecord } from "@/lib/timesheet";
 import type {
   PlanAssessmentDocument,
   SupportPlanGoalLine,
@@ -2136,5 +2137,102 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     recurrence_group_id: record.recurrenceGroupId ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
+  };
+}
+
+// --- Timesheet ---
+
+export type TimesheetRow = {
+  id: string;
+  document_no: string;
+  employee_id: string | null;
+  period_start: string;
+  period_end: string;
+  status: string;
+  total_hours: number;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type TimesheetLineRowDb = {
+  id: string;
+  timesheet_id: string;
+  line_no: number;
+  roster_shift_id: string | null;
+  client_id: string | null;
+  location_id: string | null;
+  service_booking_id: string | null;
+  shift_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  shift_type: string;
+  hours: number;
+  notes: string;
+};
+
+export function timesheetFromRow(row: TimesheetRow, lines: TimesheetLineRowDb[]): TimesheetRecord {
+  return {
+    id: row.id,
+    documentNo: row.document_no,
+    employeeId: row.employee_id ?? "",
+    periodStart: strDate(row.period_start),
+    periodEnd: strDate(row.period_end),
+    status: row.status,
+    totalHours: Number(row.total_hours) || 0,
+    notes: row.notes,
+    lines: lines.map(timesheetLineFromRow),
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+function timesheetLineFromRow(row: TimesheetLineRowDb): TimesheetLine {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    rosterShiftId: row.roster_shift_id ?? "",
+    clientId: row.client_id ?? "",
+    locationId: row.location_id ?? "",
+    serviceBookingId: row.service_booking_id ?? "",
+    shiftDate: row.shift_date ? strDate(row.shift_date) : "",
+    startTime: String(row.start_time ?? "").slice(0, 5),
+    endTime: String(row.end_time ?? "").slice(0, 5),
+    shiftType: row.shift_type,
+    hours: Number(row.hours) || 0,
+    notes: row.notes,
+  };
+}
+
+export function timesheetToRow(record: TimesheetRecord): TimesheetRow {
+  return {
+    id: record.id,
+    document_no: record.documentNo,
+    employee_id: record.employeeId?.trim() ? record.employeeId : null,
+    period_start: toDate(record.periodStart) ?? record.periodStart,
+    period_end: toDate(record.periodEnd) ?? record.periodEnd,
+    status: record.status,
+    total_hours: record.totalHours,
+    notes: record.notes,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function timesheetLineToRow(timesheetId: string, line: TimesheetLine): TimesheetLineRowDb {
+  return {
+    id: line.id,
+    timesheet_id: timesheetId,
+    line_no: line.lineNo,
+    roster_shift_id: line.rosterShiftId?.trim() ? line.rosterShiftId : null,
+    client_id: line.clientId?.trim() ? line.clientId : null,
+    location_id: line.locationId?.trim() ? line.locationId : null,
+    service_booking_id: line.serviceBookingId?.trim() ? line.serviceBookingId : null,
+    shift_date: line.shiftDate ? toDate(line.shiftDate) : null,
+    start_time: line.startTime?.slice(0, 5) || null,
+    end_time: line.endTime?.slice(0, 5) || null,
+    shift_type: line.shiftType,
+    hours: line.hours,
+    notes: line.notes,
   };
 }

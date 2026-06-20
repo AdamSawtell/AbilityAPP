@@ -1,16 +1,15 @@
-import { ModulePlaceholderView } from "@/components/module-placeholder-page";
+import { AppShell } from "@/components/app-shell";
+import { TimesheetListView } from "@/components/timesheet-pages";
 
 export default function TimesheetsPage() {
   return (
-    <ModulePlaceholderView
+    <AppShell
       title="Timesheets"
-      subtitle="Review and approve worker time from completed service bookings."
-      abilityErpName="Timesheet"
-      description="Timesheets will capture hours worked against service bookings, support approval workflows, and feed payroll and NDIS claiming. Use service bookings today to schedule delivery."
-      relatedLinks={[
-        { href: "/service-bookings", label: "Service bookings" },
-        { href: "/generate-timesheets", label: "Generate timesheets" },
-      ]}
-    />
+      subtitle="Review and approve worker time generated from roster shifts."
+      breadcrumbs={[{ label: "Home", href: "/" }, { label: "Timesheets" }]}
+      audit={{ moduleLabel: "Timesheets" }}
+    >
+      <TimesheetListView />
+    </AppShell>
   );
 }

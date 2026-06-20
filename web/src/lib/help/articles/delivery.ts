@@ -100,8 +100,16 @@ export const deliveryArticle: HelpArticle = {
     },
     {
       id: "timesheets",
-      title: "Timesheets (coming soon)",
-      body: "Timesheets will roll up completed bookings for approval and payroll. Generate timesheets will bulk-create lines from bookings in a date range.",
+      title: "Timesheets",
+      body: "Generate draft timesheets from published roster shifts for a pay period. Review shift lines, update status to Submitted or Approved, then export to payroll (coming soon).",
+      steps: [
+        "Open Generate timesheets and set the pay period start and end dates.",
+        "Review the preview — eligible Published or Completed shifts with a worker assigned are included.",
+        "Click Generate timesheets — one draft timesheet is created per worker.",
+        "Open Timesheets, select a record, and review shift lines linked to roster shifts.",
+        "Set status to Submitted or Approved when ready for payroll export.",
+        "Re-run generation for the same period to append new shifts to an existing Draft timesheet.",
+      ],
       relatedRoutes: ["/timesheets", "/generate-timesheets"],
       windowKeys: ["timesheets", "generate-timesheets"],
     },
