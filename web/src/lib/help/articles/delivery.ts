@@ -91,6 +91,7 @@ export const deliveryArticle: HelpArticle = {
         "Click an existing shift card to edit.",
         "If a worker is double-booked, save is blocked and the shift card shows a Conflict badge.",
         "Switch to Forward plan to see roster hours by client across 4–12 weeks.",
+        "Open Capacity to compare roster demand to active worker supply — flag weeks with unstaffed hours or workers over their weekly limit.",
         "Open Gaps to review vacant shifts and weeks where active bookings have no staffed coverage.",
         "Open Open shifts to browse the marketplace — coordinators assign cover; workers claim from My workplace → Open shifts.",
         "Workers check in from My workplace → My shifts — Verified badges, GPS links, and Geofence badges appear on staffed shift cards when check-in/out is outside the site radius.",

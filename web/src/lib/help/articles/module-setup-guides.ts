@@ -133,6 +133,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Publish roster shifts with workers assigned before running Generate timesheets for a pay period.",
       "Import or generate roster of care (RoC) weekly schedules on Rostering → RoC before building shifts.",
       "Publish RoC lines to the roster calendar as Draft shifts, assign workers, then publish before timesheet generation.",
+      "Review Rostering → Capacity weekly — unstaffed demand and over-capacity workers should be cleared before go-live.",
       "Workers should check out and verify shifts on My workplace before coordinators approve timesheets.",
       "Export approved timesheets to CSV from the Timesheets payroll export panel before running pay in Keypay or Xero.",
     ]

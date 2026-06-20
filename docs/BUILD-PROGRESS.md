@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **64%** |
+| **Overall completion** | **65%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.14 — Publish shifts from RoC ✅ shipped |
-| **Next slice** | WP-D.15 — TBD (Keypay API hook or roster capacity planning) |
+| **Active slice** | WP-D.15 — Roster capacity planning ✅ shipped |
+| **Next slice** | WP-D.16 — Keypay API export hook (OAuth) or mobile roster polish |
 | **Last push** | 2026-06-18 — `6456620` |
 
 ---
@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **68%** | 🔵 In progress | WP-D.14 RoC publish |
+| 4 | Rostering | 22% | **72%** | 🔵 In progress | WP-D.15 capacity |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | **35%** | 🟡 Partial | WP-D.12 payroll CSV export |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -322,6 +322,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Set status **Published** without workers | Publish blocked — worker required |
 | 6 | Assign worker on calendar, publish as Draft, edit to Published | Saves; visible on My shifts for worker |
 
+### WP-D.15 — Roster capacity planning (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Rostering** → **Capacity** tab | Summary cards and weekly table visible |
+| 2 | Review horizon totals | Demand, staffed, supply, utilization shown |
+| 3 | Click a week row | Worker load table updates for that week |
+| 4 | Worker rostered over employment-type capacity | Remaining shows hours over in red |
+| 5 | Week with vacant shifts | Unstaffed hours column > 0 |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -521,6 +531,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 329ffb8 | WP-D.12 payroll CSV export |
 | 2026-06-18 | 7f984b9 | WP-D.13 RoC import and generate from agreement |
 | 2026-06-18 | 00c69f7 | WP-D.14 publish roster shifts from RoC |
+| 2026-06-18 | pending | WP-D.15 roster capacity planning |
 
 ---
 
@@ -571,6 +582,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.12 | `/timesheets` | **Pass** | HTTP 200; payroll export panel on list |
 | 2026-06-18 | WP-D.13 | `/rostering` RoC tab | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.14 | `/rostering` RoC publish panel | **Pass** | HTTP 200 |
+| 2026-06-18 | WP-D.15 | `/rostering` Capacity tab | **Pass** | HTTP 200 |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
