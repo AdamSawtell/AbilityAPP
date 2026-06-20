@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.10 — GPS check-in capture ✅ shipped |
 | **Next slice** | WP-D.11 — TBD (RoC import — needs template, or geofence alerts) |
-| **Last push** | pending |
+| **Last push** | 2026-06-20 — `aee1aec` |
 
 ---
 
