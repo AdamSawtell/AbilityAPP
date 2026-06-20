@@ -27,7 +27,7 @@ export function SystemShell({
   return (
     <div className="flex h-screen overflow-hidden bg-[#f4f6f8] text-slate-900">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
-        <div className="flex h-16 shrink-0 items-center border-b border-slate-100 px-5">
+        <div className="shrink-0 border-b border-slate-100 px-5 py-3">
           <SystemHeaderBrand />
         </div>
         <div className="flex min-h-0 flex-1 flex-col py-4">

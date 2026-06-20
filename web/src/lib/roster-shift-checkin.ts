@@ -27,11 +27,11 @@ function localTodayIso(now = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
-/** Shifts a worker can see for self-service check-in (past week through next two weeks). */
-export function shiftsForWorkerCheckIn(
+/** Shifts assigned to a worker in the schedule window (includes Draft for visibility). */
+export function shiftsForWorkerSchedule(
   shifts: RosterShiftRecord[],
   employeeId: string,
-  anchorDate = localTodayIso()
+  anchorDate: string
 ): RosterShiftRecord[] {
   const id = employeeId.trim();
   if (!id) return [];
@@ -44,24 +44,40 @@ export function shiftsForWorkerCheckIn(
         s.shiftDate >= from &&
         s.shiftDate <= to &&
         s.status !== "Cancelled" &&
-        s.status !== "Draft"
+        (s.status === "Draft" || s.status === "Published" || s.status === "Completed")
     )
     .sort((a, b) => `${a.shiftDate}${a.startTime}`.localeCompare(`${b.shiftDate}${b.startTime}`));
+}
+
+/** Shifts a worker can check in on (Published / Completed only). */
+export function shiftsForWorkerCheckIn(
+  shifts: RosterShiftRecord[],
+  employeeId: string,
+  anchorDate = localTodayIso()
+): RosterShiftRecord[] {
+  return shiftsForWorkerSchedule(shifts, employeeId, anchorDate).filter((s) => s.status !== "Draft");
 }
 
 export function canWorkerCheckIn(
   shift: RosterShiftRecord,
   employeeId: string,
-  now = new Date()
+  now = new Date(),
+  anchorDate?: string
 ): { ok: true } | { ok: false; message: string } {
   const id = employeeId.trim();
   if (!id) return { ok: false, message: "Your login is not linked to an employee record." };
   if (shift.employeeId !== id) return { ok: false, message: "This shift is not assigned to you." };
   if (shift.status === "Cancelled" || shift.status === "Draft") {
-    return { ok: false, message: "This shift is not available for check-in." };
+    return {
+      ok: false,
+      message:
+        shift.status === "Draft"
+          ? "This shift is still Draft — your coordinator must publish it before you can check in."
+          : "This shift is not available for check-in.",
+    };
   }
   if (shift.checkedInAt?.trim()) return { ok: false, message: "You have already checked in." };
-  const today = localTodayIso(now);
+  const today = anchorDate ?? localTodayIso(now);
   const earliest = addDaysIso(today, -1);
   if (shift.shiftDate < earliest) {
     return { ok: false, message: "Check-in is only available for today and yesterday's shifts." };

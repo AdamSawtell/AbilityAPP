@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { OrgLogo } from "@/components/organization-landing";
+import { SystemClock } from "@/components/system-clock";
 import { SystemNavIcon } from "@/components/system/system-nav-icons";
 import { SYSTEM_NAV_SECTIONS, type SystemNavSection } from "@/lib/system/nav";
 import { organizationDisplayName } from "@/lib/organization";
@@ -208,12 +209,15 @@ export function SystemHeaderBrand() {
   const orgName = organizationDisplayName(organization);
 
   return (
-    <Link href="/system" className="flex min-w-0 items-center gap-2.5" title={`${orgName} — System setup`}>
-      <OrgLogo organization={organization} size="sm" />
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold text-slate-900">{orgName}</p>
-        <p className="truncate text-[10px] font-medium uppercase tracking-wide text-slate-500">System setup</p>
-      </div>
-    </Link>
+    <div className="min-w-0">
+      <Link href="/system" className="flex min-w-0 items-center gap-2.5" title={`${orgName} — System setup`}>
+        <OrgLogo organization={organization} size="sm" />
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-slate-900">{orgName}</p>
+          <p className="truncate text-[10px] font-medium uppercase tracking-wide text-slate-500">System setup</p>
+        </div>
+      </Link>
+      <SystemClock className="mt-1.5 pl-[2.625rem]" />
+    </div>
   );
 }

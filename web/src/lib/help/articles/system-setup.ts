@@ -23,6 +23,7 @@ export const coreSystemSetupArticle: HelpArticle = {
   relatedRoutes: [
     "/system",
     "/system/organization",
+    "/system/settings/time-and-date",
     "/system/reference-data/admin",
     "/system/admin/roles",
     "/system/admin/task-management",
@@ -49,6 +50,7 @@ export const coreSystemSetupArticle: HelpArticle = {
       body: "Follow this order for a clean go-live. You can revisit any step later.",
       steps: [
         "Organisation profile — legal name, branding, NDIS registration, incident SLA defaults.",
+        "Time & date — organisation timezone for the sidebar clock, My shifts, and roster dates.",
         "Admin → Reference data — shared lists (gender, states, Yes/No, show as alert, relationships, and similar).",
         "Per-module Reference data — statuses and types for enquiries, clients, locations, people, incidents, and services.",
         "Roles — windows, processes, reports, and task-type permissions for each security role.",
@@ -145,11 +147,11 @@ export const systemReferenceDataArticle: HelpArticle = {
 export const systemOrganisationArticle: HelpArticle = {
   id: "article-system-organisation",
   slug: "organisation-setup",
-  title: "Organisation profile and org chart tiers",
-  summary: "Set provider branding, NDIS details, incident defaults, and chart tier labels before workforce setup.",
+  title: "Organisation profile, time & date, and org chart tiers",
+  summary: "Set provider branding, organisation timezone, NDIS details, incident defaults, and chart tier labels before workforce setup.",
   category: "System setup",
   keywords: ["organisation", "logo", "NDIS", "provider", "org chart tiers", "branding", "SLA"],
-  relatedRoutes: ["/system/organization", "/system/org-chart-tiers"],
+  relatedRoutes: ["/system/organization", "/system/org-chart-tiers", "/system/settings/time-and-date"],
   windowKeys: ["admin-organization", "workforce-org-chart-tier"],
   lastUpdated: "2026-06-17",
   sections: [
@@ -164,6 +166,17 @@ export const systemOrganisationArticle: HelpArticle = {
         "Save. The audit footer records the change.",
       ],
       relatedRoutes: ["/system/organization"],
+    },
+    {
+      id: "time-and-date",
+      title: "Time & date",
+      body: "System → Organisation → Time & date sets the IANA timezone for the live clock under the logo, My shifts, roster dates, and session audit timestamps.\n\nAnyone signed in to System setup can change it — you do not need Record retention admin rights.",
+      steps: [
+        "Open System → Organisation → Time & date.",
+        "Pick your region (for example Australia/Adelaide).",
+        "Save timezone. The sidebar clock updates immediately.",
+      ],
+      relatedRoutes: ["/system/settings/time-and-date", "/system/guides/time-and-date"],
     },
     {
       id: "org-chart-tiers",

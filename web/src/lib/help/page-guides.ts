@@ -60,6 +60,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/system/admin/user-session-audit", slug: "user-session-audit", surface: "system" },
   { prefix: "/system/admin/process-audit", slug: "process-audit", surface: "system" },
   { prefix: "/system/admin/ai-query-audit", slug: "ai-query-audit", surface: "system" },
+  { prefix: "/system/settings/time-and-date", slug: "time-and-date", surface: "system" },
   { prefix: "/system/settings/record-retention", slug: "record-retention", surface: "system" },
   { prefix: "/system/admin/task-automations", slug: "task-automations", surface: "system" },
   { prefix: "/system/admin/task-management", slug: "task-setup", surface: "system" },

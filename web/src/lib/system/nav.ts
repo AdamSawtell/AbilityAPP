@@ -92,6 +92,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         match: (p) => p.startsWith("/system/organization"),
       },
       {
+        href: "/system/settings/time-and-date",
+        label: "Time & date",
+        match: (p) => p.startsWith("/system/settings/time-and-date"),
+      },
+      {
         href: "/system/org-chart-tiers",
         label: "Org chart tiers",
         match: (p) => p.startsWith("/system/org-chart-tiers"),
@@ -235,6 +240,12 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/organization",
     title: "Organisation profile",
     description: "Legal name, branding, NDIS registration, and provider details shown on sign-in.",
+  },
+  {
+    sectionKey: "organisation",
+    href: "/system/settings/time-and-date",
+    title: "Time & date",
+    description: "Organisation timezone for the sidebar clock, My shifts, and roster dates.",
   },
   {
     sectionKey: "organisation",

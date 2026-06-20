@@ -11,6 +11,7 @@ import { OrgAutomationContextBridge } from "@/components/org-automation-context-
 import { TaskAutomationRunner } from "@/components/task-automation-runner";
 import { WorkspaceProvider } from "@/lib/workspace-store";
 import { AiChatShellProvider } from "@/lib/ai/chat-shell-store";
+import { SystemTimezoneProvider } from "@/lib/system-timezone-store";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({
               <TaskTypeProvider>
                 <DataProvider>
                   <OrganizationProvider>
+                    <SystemTimezoneProvider>
                     <OrgChartTierConfigProvider>
                       <OrgStructureProvider>
                       <OrgAutomationContextBridge />
@@ -51,6 +53,7 @@ export default function RootLayout({
                       </WorkspaceProvider>
                       </OrgStructureProvider>
                     </OrgChartTierConfigProvider>
+                    </SystemTimezoneProvider>
                   </OrganizationProvider>
                 </DataProvider>
               </TaskTypeProvider>

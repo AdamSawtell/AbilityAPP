@@ -10,7 +10,7 @@ import { gettingStartedArticle, homeArticle, navigationArticle } from "@/lib/hel
 import { employeesArticle } from "@/lib/help/articles/people";
 import { myWorkplaceArticle } from "@/lib/help/articles/my-workplace";
 import { workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
-import { recordRetentionArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle } from "@/lib/help/articles/session-audit";
+import { recordRetentionArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle, timeAndDateArticle } from "@/lib/help/articles/session-audit";
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -37,6 +37,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   processAuditArticle,
   aiQueryAuditArticle,
   recordRetentionArticle,
+  timeAndDateArticle,
   maintainingGuideArticle,
   ...SYSTEM_SETUP_ARTICLES,
 ];

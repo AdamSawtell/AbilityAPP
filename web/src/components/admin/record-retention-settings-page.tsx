@@ -60,6 +60,9 @@ export function RecordRetentionSettingsView() {
       body: JSON.stringify({ settingKey: key, settingValue: value }),
     });
     setMessage("System setting saved.");
+    if (key === "timezone" && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("abilityapp-timezone-changed"));
+    }
     await load();
     setSaving(false);
   }
@@ -187,13 +190,15 @@ export function RecordRetentionSettingsView() {
               onBlur={(e) => void saveSetting("session_timeout_minutes", e.target.value)}
             />
           </label>
-          <label className="text-xs font-medium text-slate-600">
-            Timezone (display)
-            <input
-              className={`${inputClass} mt-1 w-full`}
-              defaultValue={settings.timezone ?? "Australia/Sydney"}
-              onBlur={(e) => void saveSetting("timezone", e.target.value)}
-            />
+          <label className="text-xs font-medium text-slate-600 sm:col-span-2">
+            <span className="font-medium text-slate-700">Organisation timezone</span>
+            <p className="mt-1 text-[11px] font-normal text-slate-500">
+              Configure under{" "}
+              <a href="/system/settings/time-and-date" className="font-medium text-[#b51266] hover:underline">
+                Organisation → Time &amp; date
+              </a>
+              .
+            </p>
           </label>
         </div>
       </section>

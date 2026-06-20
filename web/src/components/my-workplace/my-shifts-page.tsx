@@ -22,11 +22,16 @@ import {
   formatCheckInTimestamp,
   shiftCheckInStatus,
   shiftCheckInStatusLabel,
-  shiftsForWorkerCheckIn,
+  shiftsForWorkerSchedule,
 } from "@/lib/roster-shift-checkin";
 import { formatShiftTimeRange } from "@/lib/roster-shift";
 import { captureGeolocation } from "@/lib/geolocation";
 import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
+import {
+  DEFAULT_ORGANIZATION_TIMEZONE,
+  organizationTodayIso,
+} from "@/lib/system-timezone";
+import { useSystemTimezoneOptional } from "@/lib/system-timezone-store";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { ClientRecord } from "@/lib/client";
 import type { LocationRecord } from "@/lib/location";
@@ -52,12 +57,15 @@ export function MyShiftsPage() {
   const { session } = useAuth();
   const { employee } = useMyEmployee();
   const { clients, locations, rosterShifts, checkInRosterShift, checkOutRosterShift } = useData();
+  const timezoneCtx = useSystemTimezoneOptional();
+  const timezone = timezoneCtx?.timezone ?? DEFAULT_ORGANIZATION_TIMEZONE;
+  const orgToday = useMemo(() => organizationTodayIso(timezone), [timezone]);
   const employeeId = employee?.id?.trim() ?? session?.employeeBpId?.trim() ?? "";
   const updatedBy = session?.displayName ?? "Self-service";
 
   const shifts = useMemo(
-    () => shiftsForWorkerCheckIn(rosterShifts, employeeId),
-    [rosterShifts, employeeId]
+    () => shiftsForWorkerSchedule(rosterShifts, employeeId, orgToday),
+    [rosterShifts, employeeId, orgToday]
   );
 
   const [view, setView] = useState<MyShiftsView>("today");
@@ -65,10 +73,14 @@ export function MyShiftsPage() {
   const [error, setError] = useState("");
   const [notesByShift, setNotesByShift] = useState<Record<string, string>>({});
 
-  const counts = useMemo(() => countMyShiftsView(shifts, employeeId), [shifts, employeeId]);
-  const filtered = useMemo(() => filterMyShiftsView(shifts, view, employeeId), [shifts, view, employeeId]);
-  const groups = useMemo(() => groupShiftsByDate(filtered), [filtered]);
-  const actionShift = useMemo(() => nextMyShiftAction(shifts, employeeId), [shifts, employeeId]);
+  const counts = useMemo(() => countMyShiftsView(shifts, employeeId, orgToday), [shifts, employeeId, orgToday]);
+  const filtered = useMemo(
+    () => filterMyShiftsView(shifts, view, employeeId, orgToday),
+    [shifts, view, employeeId, orgToday]
+  );
+  const groups = useMemo(() => groupShiftsByDate(filtered, orgToday), [filtered, orgToday]);
+  const actionShift = useMemo(() => nextMyShiftAction(shifts, employeeId, orgToday), [shifts, employeeId, orgToday]);
+  const draftCount = useMemo(() => shifts.filter((s) => s.status === "Draft").length, [shifts]);
 
   const handleCheckIn = useCallback(
     async (shiftId: string) => {
@@ -137,7 +149,15 @@ export function MyShiftsPage() {
             onCheckIn={() => void handleCheckIn(actionShift.id)}
             onCheckOut={() => void handleCheckOut(actionShift.id)}
             employeeId={employeeId}
+            anchorDate={orgToday}
           />
+        ) : null}
+
+        {draftCount ? (
+          <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+            {draftCount} shift{draftCount === 1 ? "" : "s"} shown as Draft — check-in opens after your coordinator
+            publishes the shift on the roster.
+          </p>
         ) : null}
 
         <div
@@ -167,13 +187,22 @@ export function MyShiftsPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="text-sm text-slate-600">
-            {view === "today"
-              ? "No shifts scheduled for today."
-              : view === "upcoming"
-                ? "No upcoming shifts in the next two weeks."
-                : "No assigned shifts in the next two weeks."}
-          </p>
+          <div className="text-sm text-slate-600">
+            <p>
+              {view === "today"
+                ? "No shifts scheduled for today (organisation time)."
+                : view === "upcoming"
+                  ? "No upcoming shifts in the next two weeks."
+                  : "No assigned shifts in the next two weeks."}
+            </p>
+            {employeeId ? (
+              <ul className="mt-3 list-inside list-disc space-y-1 text-slate-500">
+                <li>Sign in as the worker linked to the shift (not SuperUser unless linked).</li>
+                <li>Shift must be assigned to you and status Published (Draft shifts appear once saved).</li>
+                <li>Coordinator publishes on Rostering → edit shift → status Published, or Publish week.</li>
+              </ul>
+            ) : null}
+          </div>
         ) : (
           <div className="space-y-6 pb-8">
             {groups.map((group) => (
@@ -197,6 +226,7 @@ export function MyShiftsPage() {
                       onCheckIn={() => void handleCheckIn(shift.id)}
                       onCheckOut={() => void handleCheckOut(shift.id)}
                       highlight={group.label === "Today" || group.label === "Yesterday"}
+                      anchorDate={orgToday}
                     />
                   ))}
                 </ul>
@@ -218,6 +248,7 @@ function NextActionBanner({
   onCheckIn,
   onCheckOut,
   employeeId,
+  anchorDate,
 }: {
   shift: RosterShiftRecord;
   client?: ClientRecord;
@@ -227,8 +258,9 @@ function NextActionBanner({
   onCheckIn: () => void;
   onCheckOut: () => void;
   employeeId: string;
+  anchorDate: string;
 }) {
-  const canIn = canWorkerCheckIn(shift, employeeId).ok;
+  const canIn = canWorkerCheckIn(shift, employeeId, new Date(), anchorDate).ok;
   const canOut = canWorkerCheckOut(shift, employeeId).ok;
   if (!canIn && !canOut) return null;
 
@@ -287,6 +319,7 @@ function MyShiftCard({
   onCheckIn,
   onCheckOut,
   highlight,
+  anchorDate,
 }: {
   shift: RosterShiftRecord;
   client?: ClientRecord;
@@ -298,11 +331,13 @@ function MyShiftCard({
   onCheckIn: () => void;
   onCheckOut: () => void;
   highlight: boolean;
+  anchorDate: string;
 }) {
   const status = shiftCheckInStatus(shift);
-  const canIn = canWorkerCheckIn(shift, employeeId).ok;
+  const canIn = canWorkerCheckIn(shift, employeeId, new Date(), anchorDate).ok;
   const canOut = canWorkerCheckOut(shift, employeeId).ok;
-  const checkInGate = canWorkerCheckIn(shift, employeeId);
+  const checkInGate = canWorkerCheckIn(shift, employeeId, new Date(), anchorDate);
+  const isDraft = shift.status === "Draft";
 
   return (
     <li
@@ -331,7 +366,7 @@ function MyShiftCard({
           ) : null}
         </div>
         <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusBadgeClass(status)}`}>
-          {shiftCheckInStatusLabel(status)}
+          {isDraft ? "Draft" : shiftCheckInStatusLabel(status)}
         </span>
       </div>
 
@@ -341,7 +376,7 @@ function MyShiftCard({
           {shift.checkedOutAt ? ` · Out ${formatCheckInTimestamp(shift.checkedOutAt)}` : null}
         </p>
       ) : null}
-      {!canIn && !canOut && status === "not-started" && !checkInGate.ok ? (
+      {!canIn && !canOut && (status === "not-started" || isDraft) && !checkInGate.ok ? (
         <p className="mt-2 text-xs text-slate-500">{checkInGate.message}</p>
       ) : null}
       {shift.checkInNotes ? (

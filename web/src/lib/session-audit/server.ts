@@ -3,6 +3,7 @@ import { decodeAuditCursor, encodeAuditCursor } from "@/lib/audit-monitoring/pag
 import { archiveAndDeleteBeforeCutoff } from "@/lib/audit-monitoring/retention-batch";
 import { enqueueRiskAssessment, type SessionRiskPayload } from "@/lib/audit-monitoring/risk-queue";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { normalizeOrganizationTimezone } from "@/lib/system-timezone";
 import { HIGH_PRIVILEGE_ROLE_IDS, DEFAULT_TIMEZONE } from "@/lib/session-audit/constants";
 import { parseUserAgent } from "@/lib/session-audit/parse-user-agent";
 import type {
@@ -578,6 +579,11 @@ export async function getSystemSettings(): Promise<Record<string, string>> {
   const supabase = serviceClient();
   const { data } = await supabase.from("system_setting").select("key, value");
   return Object.fromEntries((data ?? []).map((r) => [String(r.key), String(r.value)]));
+}
+
+export async function getOrganizationTimezone(): Promise<string> {
+  const settings = await getSystemSettings();
+  return normalizeOrganizationTimezone(settings.timezone);
 }
 
 export async function updateSystemSetting(key: string, value: string, updatedBy: string) {

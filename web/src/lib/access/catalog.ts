@@ -392,6 +392,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "system-time-and-date",
+    label: "Time & date",
+    group: "Admin",
+    surface: "system",
+    href: "/system/settings/time-and-date",
+    abilityErpName: "Time & date",
+    showInSidebar: false,
+  },
+  {
     key: "admin-record-retention",
     label: "Record retention settings",
     group: "Admin",

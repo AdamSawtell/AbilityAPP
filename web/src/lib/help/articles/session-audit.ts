@@ -35,6 +35,47 @@ export const userSessionAuditArticle: HelpArticle = {
   ],
 };
 
+export const timeAndDateArticle: HelpArticle = {
+  id: "article-time-and-date",
+  slug: "time-and-date",
+  title: "Time & date",
+  summary:
+    "Set the organisation timezone for the sidebar clock, My shifts, roster dates, and session audit display.",
+  category: "System setup",
+  keywords: ["timezone", "time", "date", "clock", "organisation", "IANA", "Australia"],
+  relatedRoutes: ["/system/settings/time-and-date"],
+  windowKeys: ["system-time-and-date"],
+  lastUpdated: "2026-06-18",
+  sections: [
+    {
+      id: "overview",
+      title: "What Time & date does",
+      body: "AbilityAPP shows live date and time under the logo in the workspace and System sidebars. The clock uses the organisation timezone — not your browser’s local zone. You cannot set a manual offset; only the IANA timezone name changes how dates and times display.",
+    },
+    {
+      id: "access",
+      title: "Who can access it",
+      body: "Anyone signed in to System setup can open and change the organisation timezone. You do not need Record retention admin rights.",
+    },
+    {
+      id: "set-timezone",
+      title: "Set organisation timezone",
+      steps: [
+        "Sign in to System setup.",
+        "Open Organisation → Time & date in the sidebar (or click the clock under the logo when signed in to System).",
+        "Choose an IANA timezone (for example Australia/Adelaide for South Australia).",
+        "Click Save timezone. The sidebar clock and My shifts dates update immediately.",
+      ],
+      relatedRoutes: ["/system/settings/time-and-date"],
+    },
+    {
+      id: "clock",
+      title: "Sidebar clock",
+      body: "Staff see the live clock under the AbilityAPP logo. In System setup, clicking the clock opens Time & date. In the workspace, the clock is read-only unless you are also signed in to System.",
+    },
+  ],
+};
+
 export const recordRetentionArticle: HelpArticle = {
   id: "article-record-retention",
   slug: "record-retention",
@@ -60,8 +101,13 @@ export const recordRetentionArticle: HelpArticle = {
         "AI query audit metadata retention (days)",
         "Allow multiple concurrent sessions per user — Allow, Warn, or Prevent",
         "Session idle timeout (minutes)",
-        "Organisation timezone for display",
       ],
+    },
+    {
+      id: "timezone",
+      title: "Organisation timezone",
+      body: "Timezone is configured separately under Organisation → Time & date. See the [Time & date](/system/guides/time-and-date) guide.",
+      relatedRoutes: ["/system/settings/time-and-date"],
     },
   ],
 };
