@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import type { KeypayPublicStatus } from "@/lib/integrations/keypay-payroll";
 import { downloadCsv } from "@/lib/reports/export";
 import {
   formatPayrollExportedAt,
@@ -19,6 +20,15 @@ export function PayrollExportPanel() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [keypayStatus, setKeypayStatus] = useState<KeypayPublicStatus | null>(null);
+
+  useEffect(() => {
+    if (!canExport) return;
+    void fetch("/api/payroll/keypay/status", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setKeypayStatus(data as KeypayPublicStatus | null))
+      .catch(() => setKeypayStatus(null));
+  }, [canExport]);
 
   const approvedSheets = useMemo(
     () =>
@@ -44,7 +54,7 @@ export function PayrollExportPanel() {
     });
   };
 
-  const handleExport = () => {
+  const handleExportCsv = () => {
     setError("");
     setMessage("");
     const selected = approvedSheets.filter((sheet) => selectedIds.has(sheet.id));
@@ -73,6 +83,51 @@ export function PayrollExportPanel() {
     }
   };
 
+  const handleExportKeypay = async () => {
+    setError("");
+    setMessage("");
+    const selected = approvedSheets.filter((sheet) => selectedIds.has(sheet.id));
+    if (!selected.length) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/payroll/keypay/export", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timesheetIds: selected.map((sheet) => sheet.id) }),
+      });
+      let payload: {
+        error?: string;
+        payRunRef?: string;
+        dryRun?: boolean;
+        lineCount?: number;
+        updatedTimesheets?: TimesheetRecord[];
+      } = {};
+      try {
+        payload = (await res.json()) as typeof payload;
+      } catch {
+        setError("Keypay export returned an invalid response.");
+        return;
+      }
+      if (!res.ok) {
+        setError(payload.error ?? "Keypay export failed.");
+        return;
+      }
+      if (payload.updatedTimesheets?.length) {
+        bulkUpsertTimesheets(payload.updatedTimesheets);
+      }
+      const modeNote = payload.dryRun ? " (dry run — not sent to Keypay)" : "";
+      setMessage(
+        `Sent ${payload.lineCount ?? 0} line${payload.lineCount === 1 ? "" : "s"} to Keypay — ref ${payload.payRunRef}${modeNote}.`
+      );
+      setSelectedIds(new Set());
+    } catch {
+      setError("Could not reach the Keypay export service. Try again or use CSV export.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (!canExport) return null;
 
   return (
@@ -81,18 +136,35 @@ export function PayrollExportPanel() {
         <div>
           <h2 className="text-sm font-semibold text-slate-900">Payroll export</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Download approved timesheets as CSV for Keypay or Xero. Award interpretation and pay runs stay in your
-            payroll system.
+            Download approved timesheets as CSV for Keypay or Xero, or post directly to Keypay when API credentials are
+            configured. Award interpretation and pay runs stay in your payroll system.
           </p>
+          {keypayStatus?.available ? (
+            <p className="mt-2 text-xs text-slate-500">
+              Keypay: {keypayStatus.mode === "live" ? "live API" : "dry run"} — {keypayStatus.message}
+            </p>
+          ) : null}
         </div>
-        <button
-          type="button"
-          disabled={busy || !selectedIds.size}
-          onClick={handleExport}
-          className="inline-flex shrink-0 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:opacity-60"
-        >
-          {busy ? "Exporting…" : "Export selected to CSV"}
-        </button>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          {keypayStatus?.available ? (
+            <button
+              type="button"
+              disabled={busy || !selectedIds.size}
+              onClick={() => void handleExportKeypay()}
+              className="inline-flex rounded-lg border border-[#b51266] bg-white px-4 py-2 text-sm font-medium text-[#b51266] hover:bg-[#fdf2f8] disabled:opacity-60"
+            >
+              {busy ? "Exporting…" : "Export to Keypay API"}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            disabled={busy || !selectedIds.size}
+            onClick={handleExportCsv}
+            className="inline-flex rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:opacity-60"
+          >
+            {busy ? "Exporting…" : "Export selected to CSV"}
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -178,6 +250,15 @@ export function PayrollExportDetailActions({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [keypayStatus, setKeypayStatus] = useState<KeypayPublicStatus | null>(null);
+
+  useEffect(() => {
+    if (!canExport) return;
+    void fetch("/api/payroll/keypay/status", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setKeypayStatus(data as KeypayPublicStatus | null))
+      .catch(() => setKeypayStatus(null));
+  }, [canExport]);
 
   if (!canExport || sheet.status !== "Approved" || disabled) return null;
 
@@ -201,37 +282,89 @@ export function PayrollExportDetailActions({
             ) : null}
           </p>
         </div>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => {
-            setError("");
-            setMessage("");
-            const result = preparePayrollExport(
-              [sheet],
-              employees,
-              clients,
-              locations,
-              session?.displayName || "SuperUser",
-              rosterShifts
-            );
-            if (!result.ok) {
-              setError(result.message);
-              return;
-            }
-            setBusy(true);
-            try {
-              downloadCsv(result.filename, result.csv);
-              bulkUpsertTimesheets(result.updatedTimesheets);
-              setMessage(`Exported batch ${result.batchRef}.`);
-            } finally {
-              setBusy(false);
-            }
-          }}
-          className="inline-flex shrink-0 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:opacity-60"
-        >
-          {busy ? "Exporting…" : "Export to payroll CSV"}
-        </button>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          {keypayStatus?.available ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setError("");
+                setMessage("");
+                void (async () => {
+                  setBusy(true);
+                  try {
+                    const res = await fetch("/api/payroll/keypay/export", {
+                      method: "POST",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ timesheetIds: [sheet.id] }),
+                    });
+                    let payload: {
+                      error?: string;
+                      payRunRef?: string;
+                      dryRun?: boolean;
+                      updatedTimesheets?: TimesheetRecord[];
+                    } = {};
+                    try {
+                      payload = (await res.json()) as typeof payload;
+                    } catch {
+                      setError("Keypay export returned an invalid response.");
+                      return;
+                    }
+                    if (!res.ok) {
+                      setError(payload.error ?? "Keypay export failed.");
+                      return;
+                    }
+                    if (payload.updatedTimesheets?.length) {
+                      bulkUpsertTimesheets(payload.updatedTimesheets);
+                    }
+                    setMessage(
+                      `Keypay ref ${payload.payRunRef}${payload.dryRun ? " (dry run)" : ""}.`
+                    );
+                  } catch {
+                    setError("Could not reach the Keypay export service.");
+                  } finally {
+                    setBusy(false);
+                  }
+                })();
+              }}
+              className="inline-flex rounded-lg border border-[#b51266] bg-white px-4 py-2 text-sm font-medium text-[#b51266] hover:bg-[#fdf2f8] disabled:opacity-60"
+            >
+              {busy ? "Exporting…" : "Export to Keypay API"}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setError("");
+              setMessage("");
+              const result = preparePayrollExport(
+                [sheet],
+                employees,
+                clients,
+                locations,
+                session?.displayName || "SuperUser",
+                rosterShifts
+              );
+              if (!result.ok) {
+                setError(result.message);
+                return;
+              }
+              setBusy(true);
+              try {
+                downloadCsv(result.filename, result.csv);
+                bulkUpsertTimesheets(result.updatedTimesheets);
+                setMessage(`Exported batch ${result.batchRef}.`);
+              } finally {
+                setBusy(false);
+              }
+            }}
+            className="inline-flex rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:opacity-60"
+          >
+            {busy ? "Exporting…" : "Export to payroll CSV"}
+          </button>
+        </div>
       </div>
       {error ? (
         <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{error}</p>

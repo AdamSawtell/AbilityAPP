@@ -136,6 +136,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Review Rostering → Capacity weekly — unstaffed demand and over-capacity workers should be cleared before go-live.",
       "Workers should check out and verify shifts on My workplace before coordinators approve timesheets.",
       "Export approved timesheets to CSV from the Timesheets payroll export panel before running pay in Keypay or Xero.",
+      "For Keypay API export, set KEYPAY_API_KEY and KEYPAY_BUSINESS_ID on the server (Amplify env vars). Use KEYPAY_DRY_RUN=true to test without posting.",
     ]
   ),
   moduleSetupArticle(

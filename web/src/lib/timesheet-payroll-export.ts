@@ -165,6 +165,7 @@ export type PayrollExportResult =
       filename: string;
       batchRef: string;
       rowCount: number;
+      rows: PayrollExportRow[];
       updatedTimesheets: TimesheetRecord[];
     }
   | { ok: false; message: string };
@@ -192,6 +193,7 @@ export function preparePayrollExport(
     filename: payrollExportFilename(batchRef),
     batchRef,
     rowCount: rows.length,
+    rows,
     updatedTimesheets,
   };
 }

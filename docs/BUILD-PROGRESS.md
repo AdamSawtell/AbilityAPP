@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **65%** |
+| **Overall completion** | **66%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.15 — Roster capacity planning ✅ shipped |
-| **Next slice** | WP-D.16 — Keypay API export hook (OAuth) or mobile roster polish |
+| **Active slice** | WP-D.16 — Keypay API export hook ✅ shipped |
+| **Next slice** | WP-D.17 — Mobile roster polish or payroll reconciliation stub |
 | **Last push** | 2026-06-18 — `63423e2` |
 
 ---
@@ -79,7 +79,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **72%** | 🔵 In progress | WP-D.15 capacity |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
-| 6 | Timesheets & payroll export | 10% | **35%** | 🟡 Partial | WP-D.12 payroll CSV export |
+| 6 | Timesheets & payroll export | 10% | **45%** | 🟡 Partial | WP-D.16 Keypay API hook |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | 3% | ⬜ Not started | Chunks 5 + 7 |
 
@@ -332,6 +332,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Worker rostered over employment-type capacity | Remaining shows hours over in red |
 | 5 | Week with vacant shifts | Unstaffed hours column > 0 |
 
+### WP-D.16 — Keypay API export hook (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Set `KEYPAY_DRY_RUN=true` in `web/.env.local`, restart dev server | — |
+| 2 | **Timesheets** → select Approved record(s) | Payroll export panel visible |
+| 3 | **Export to Keypay API** button appears | Status line shows dry run |
+| 4 | Export approved timesheet | Success message with DRY- batch ref; status Exported |
+| 5 | Without env vars | Only CSV button — no Keypay API option |
+| 6 | Unverified shift in selection | Export blocked (same gate as CSV) |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -531,7 +542,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 329ffb8 | WP-D.12 payroll CSV export |
 | 2026-06-18 | 7f984b9 | WP-D.13 RoC import and generate from agreement |
 | 2026-06-18 | 00c69f7 | WP-D.14 publish roster shifts from RoC |
-| 2026-06-18 | pending | WP-D.15 roster capacity planning |
+| 2026-06-18 | 63423e2 | WP-D.15 roster capacity planning |
+| 2026-06-18 | pending | WP-D.16 Keypay API export hook |
 
 ---
 
@@ -583,6 +595,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.13 | `/rostering` RoC tab | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.14 | `/rostering` RoC publish panel | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.15 | `/rostering` Capacity tab | **Pass** | HTTP 200 |
+| 2026-06-18 | WP-D.16 | `/timesheets` | **Pass** | HTTP 200 |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
