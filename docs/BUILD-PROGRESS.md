@@ -14,7 +14,7 @@
 | **Active slice** | WP-B.1 — Compliance rule engine ✅ shipped |
 | **Next slice** | WP-B.2 — Cancellation policy engine |
 | **Last verified** | 2026-06-18 — build OK |
-| **Last push** | _pending_ |
+| **Last push** | 2026-06-18 — `777b20e` |
 
 ---
 
