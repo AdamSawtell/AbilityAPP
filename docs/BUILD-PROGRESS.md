@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.12 — Payroll CSV export ✅ shipped |
 | **Next slice** | WP-D.13 — RoC import (needs CSV template) or Keypay API hook |
-| **Last push** | pending |
+| **Last push** | 2026-06-18 — `7e68bf3` |
 
 ---
 
