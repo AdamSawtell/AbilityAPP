@@ -28,6 +28,7 @@ export type TimesheetGenerationResult = {
   created: TimesheetRecord[];
   updated: TimesheetRecord[];
   skippedAlreadyLinked: number;
+  skippedLockedPeriod: number;
 };
 
 function shiftInPeriod(shift: RosterShiftRecord, periodStart: string, periodEnd: string): boolean {
@@ -99,7 +100,7 @@ export function previewTimesheetGeneration(
   return { periodStart, periodEnd, eligibleShiftCount, alreadyLinkedCount, rows };
 }
 
-function findDraftTimesheet(
+function findTimesheetForPeriod(
   timesheets: TimesheetRecord[],
   employeeId: string,
   periodStart: string,
@@ -109,9 +110,18 @@ function findDraftTimesheet(
     (sheet) =>
       sheet.employeeId === employeeId &&
       sheet.periodStart === periodStart &&
-      sheet.periodEnd === periodEnd &&
-      sheet.status === "Draft"
+      sheet.periodEnd === periodEnd
   );
+}
+
+function findDraftTimesheet(
+  timesheets: TimesheetRecord[],
+  employeeId: string,
+  periodStart: string,
+  periodEnd: string
+): TimesheetRecord | undefined {
+  const sheet = findTimesheetForPeriod(timesheets, employeeId, periodStart, periodEnd);
+  return sheet?.status === "Draft" ? sheet : undefined;
 }
 
 export function generateTimesheetsFromShifts(
@@ -140,8 +150,15 @@ export function generateTimesheetsFromShifts(
   const created: TimesheetRecord[] = [];
   const updated: TimesheetRecord[] = [];
   let working = [...timesheets];
+  let skippedLockedPeriod = 0;
 
   for (const [employeeId, shifts] of shiftsByEmployee) {
+    const existingPeriod = findTimesheetForPeriod(working, employeeId, periodStart, periodEnd);
+    if (existingPeriod && existingPeriod.status !== "Draft") {
+      skippedLockedPeriod += shifts.length;
+      continue;
+    }
+
     shifts.sort((a, b) =>
       `${a.shiftDate}${a.startTime}`.localeCompare(`${b.shiftDate}${b.startTime}`)
     );
@@ -183,5 +200,5 @@ export function generateTimesheetsFromShifts(
     created.push(next);
   }
 
-  return { created, updated, skippedAlreadyLinked };
+  return { created, updated, skippedAlreadyLinked, skippedLockedPeriod };
 }

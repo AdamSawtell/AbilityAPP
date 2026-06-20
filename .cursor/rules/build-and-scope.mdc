@@ -18,4 +18,6 @@ After shipping work, update chunk status in `docs/SCOPE-ROADMAP.md` and `docs/BU
 
 Follow [docs/BUILD-EXPECTATIONS.md](../../docs/BUILD-EXPECTATIONS.md) §11 for browser smoke tests and Bugbot before every push to `main`.
 
+After fixing Bugbot findings, **commit and push in the same session** — see [bugbot-commit.mdc](./bugbot-commit.mdc).
+
 Also follow [audit-and-records.mdc](./audit-and-records.mdc) for every page and record.

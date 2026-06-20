@@ -838,6 +838,26 @@ export async function saveRosterShift(supabase: SupabaseClient, record: RosterSh
   if (error) throw error;
 }
 
+/** Assign worker only when shift is still vacant — returns false if already claimed. */
+export async function claimVacantRosterShift(
+  supabase: SupabaseClient,
+  record: RosterShiftRecord
+): Promise<boolean> {
+  const shift = normalizeRosterShift(record);
+  const { data, error } = await supabase
+    .from("roster_shift")
+    .update({
+      employee_id: shift.employeeId?.trim() ? shift.employeeId : null,
+      status: shift.status,
+      updated_by: shift.updatedBy,
+    })
+    .eq("id", shift.id)
+    .is("employee_id", null)
+    .select("id");
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
 export async function saveRosterShifts(supabase: SupabaseClient, records: RosterShiftRecord[]) {
   if (!records.length) return;
   const rows = records.map((record) => rosterShiftToRow(normalizeRosterShift(record)));

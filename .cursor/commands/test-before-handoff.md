@@ -5,7 +5,7 @@ Run this **before** marking a slice done, committing, or pushing. Do not ask the
 ## Slice closure loop (mandatory)
 
 ```
-Implement → Tier 1 → Tier 2 (localhost) → Tier 3 (Bugbot) → Log BUILD-PROGRESS → Push → Next slice
+Implement → Tier 1 → Tier 2 (localhost) → Tier 3 (Bugbot) → fix findings → commit → push → Log BUILD-PROGRESS → Next slice
 ```
 
 **Never stop after Tier 1 only** when the slice touched UI. **Never push without Bugbot.** **Never wait for the user** to say "continue" — start the next slice in BUILD-PROGRESS immediately after push.

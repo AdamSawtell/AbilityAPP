@@ -22,7 +22,7 @@ export function bookingActiveInRange(
   rangeStart: string,
   rangeEnd: string
 ): boolean {
-  if (booking.documentStatus === "Cancelled") return false;
+  if (booking.documentStatus !== "In progress") return false;
   if (!booking.clientId?.trim()) return false;
   const start = booking.startDate?.slice(0, 10) || "";
   const end = booking.endDate?.slice(0, 10) || start;

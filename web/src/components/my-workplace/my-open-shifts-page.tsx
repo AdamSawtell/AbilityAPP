@@ -7,22 +7,18 @@ import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workpl
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
-import { buildClaimedShift } from "@/lib/roster-open-shifts";
 import { normalizeRosterShift } from "@/lib/roster-shift";
 
 export function MyOpenShiftsPage() {
   const { session } = useAuth();
-  const { clients, employees, locations, serviceBookings, rosterShifts, upsertRosterShift } = useData();
+  const { clients, employees, locations, serviceBookings, rosterShifts, claimOpenRosterShift } = useData();
   const employeeId = session?.employeeBpId?.trim() ?? "";
 
   const handleClaim = useCallback(
     async (shift: ReturnType<typeof normalizeRosterShift>) => {
-      const result = buildClaimedShift(shift, employeeId, session?.displayName ?? "Self-service", rosterShifts);
-      if (!result.ok) return result.message;
-      upsertRosterShift(result.shift);
-      return null;
+      return claimOpenRosterShift(shift.id, employeeId, session?.displayName ?? "Self-service");
     },
-    [employeeId, rosterShifts, session?.displayName, upsertRosterShift]
+    [claimOpenRosterShift, employeeId, session?.displayName]
   );
 
   return (

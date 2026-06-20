@@ -15,6 +15,8 @@ import {
   normalizeServiceBooking,
   type ServiceBookingRecord,
 } from "@/lib/service-booking";
+import { isVacantShift } from "@/lib/roster-gap-analysis";
+import { buildClaimedShift } from "@/lib/roster-open-shifts";
 import {
   createRosterShift,
   initialRosterShifts as seedRosterShifts,
@@ -112,6 +114,7 @@ import {
   saveServiceBooking,
   saveRosterShift,
   saveRosterShifts,
+  claimVacantRosterShift,
   saveTimesheet,
   saveTimesheets,
   saveSupportPlan,
@@ -153,6 +156,7 @@ type DataStore = {
   addServiceBooking: (partial: ServiceBookingRecord) => ServiceBookingRecord;
   upsertServiceBooking: (record: ServiceBookingRecord) => void;
   upsertRosterShift: (record: RosterShiftRecord) => void;
+  claimOpenRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
   addRecurringRosterShifts: (records: RosterShiftRecord[]) => void;
   upsertTimesheet: (record: TimesheetRecord, audit?: AuditLogOptions) => void;
   bulkUpsertTimesheets: (records: TimesheetRecord[]) => void;
@@ -824,6 +828,35 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, rosterShiftsRef]
   );
 
+  const claimOpenRosterShift = useCallback(
+    async (shiftId: string, employeeId: string, updatedBy: string): Promise<string | null> => {
+      const prev = rosterShiftsRef.current;
+      const shift = prev.find((s) => s.id === shiftId);
+      if (!shift) return "Shift not found.";
+      const built = buildClaimedShift(shift, employeeId, updatedBy, prev);
+      if (!built.ok) return built.message;
+
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const supabase = createClient();
+        const claimed = await claimVacantRosterShift(supabase, built.shift);
+        if (!claimed) return "This shift is no longer open.";
+      } else {
+        const latest = rosterShiftsRef.current.find((s) => s.id === shiftId);
+        if (!latest || !isVacantShift(latest)) return "This shift is no longer open.";
+      }
+
+      const before = rosterShiftsRef.current.find((r) => r.id === built.shift.id);
+      const stamped = persistRecordAudit("roster-shift", built.shift, false, before);
+      setRosterShifts((current) => {
+        const live = current.find((s) => s.id === shiftId);
+        if (!live || !isVacantShift(live)) return current;
+        return current.map((r) => (r.id === stamped.id ? stamped : r));
+      });
+      return null;
+    },
+    [rosterShiftsRef, source]
+  );
+
   const addRecurringRosterShifts = useCallback(
     (records: RosterShiftRecord[]) => {
       if (!records.length) return;
@@ -1129,6 +1162,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addServiceBooking,
       upsertServiceBooking,
       upsertRosterShift,
+      claimOpenRosterShift,
       addRecurringRosterShifts,
       upsertTimesheet,
       bulkUpsertTimesheets,
@@ -1190,6 +1224,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addServiceBooking,
       upsertServiceBooking,
       upsertRosterShift,
+      claimOpenRosterShift,
       addRecurringRosterShifts,
       upsertTimesheet,
       bulkUpsertTimesheets,

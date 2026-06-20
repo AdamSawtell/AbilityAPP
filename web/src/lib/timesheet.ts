@@ -89,7 +89,11 @@ export function createTimesheet(
   partial: TimesheetRecord,
   existing: TimesheetRecord[]
 ): TimesheetRecord {
-  const id = partial.id?.trim() || `ts-${Date.now()}`;
+  const id =
+    partial.id?.trim() ||
+    (typeof crypto !== "undefined" && crypto.randomUUID
+      ? `ts-${crypto.randomUUID()}`
+      : `ts-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`);
   const used = new Set(existing.map((r) => r.documentNo).filter(Boolean));
   let documentNo = partial.documentNo?.trim() || `TS-${50000 + existing.length + 1}`;
   if (used.has(documentNo)) documentNo = `${documentNo}-${existing.length + 1}`;

@@ -1,0 +1,36 @@
+---
+description: Always commit and push Bugbot fixes in the same session — never leave them uncommitted
+alwaysApply: true
+---
+
+# Bugbot fixes — commit required
+
+When Bugbot (Tier 3 review) reports findings on slice work:
+
+1. **Fix** all Critical and High findings before push. Fix Medium and Low in the same pass when straightforward.
+2. **Commit immediately** after fixes — do not leave Bugbot remediation uncommitted across turns.
+3. **Push** to `main` after `npm run build` passes (same session as the slice or Bugbot follow-up).
+4. **Log** in `docs/BUILD-PROGRESS.md` → **Code review log** (date, scope, findings count, result).
+
+## Commit message
+
+Use a dedicated commit (not bundled silently into unrelated work):
+
+```
+fix: Bugbot — <one-line summary of what was fixed>
+```
+
+Examples:
+
+- `fix: Bugbot — atomic open-shift claim and coverage gap booking filter`
+- `fix: Bugbot — timesheet bulk IDs, overnight hours, generate permission`
+
+## Workflow position
+
+```
+Implement → Tier 1 → Tier 2 → Tier 3 Bugbot → fix findings → commit Bugbot fixes → push → next slice
+```
+
+If Bugbot runs on already-pushed code and finds issues, treat that as a **hotfix slice**: fix → build → commit → push → update BUILD-PROGRESS.
+
+Never ask the user whether to commit Bugbot fixes — **always commit and push** unless they explicitly say not to push.

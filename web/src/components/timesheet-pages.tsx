@@ -144,7 +144,8 @@ export function TimesheetListView() {
 
 export function GenerateTimesheetsView() {
   const { rosterShifts, timesheets, employees, bulkUpsertTimesheets } = useData();
-  const { session } = useAuth();
+  const { session, canWriteWindow } = useAuth();
+  const canGenerate = canWriteWindow("generate-timesheets");
   const router = useRouter();
   const defaultWeekStart = weekStartFromDate("2025-10-06");
   const defaultWeekEnd = useMemo(() => {
@@ -164,6 +165,10 @@ export function GenerateTimesheetsView() {
   );
 
   const handleGenerate = () => {
+    if (!canGenerate) {
+      setMessage("You do not have permission to generate timesheets.");
+      return;
+    }
     if (!preview.eligibleShiftCount) {
       setMessage("No eligible roster shifts in this period — check dates and shift status (Published or Completed).");
       return;
@@ -178,7 +183,7 @@ export function GenerateTimesheetsView() {
     if (result.created.length) parts.push(`${result.created.length} created`);
     if (result.updated.length) parts.push(`${result.updated.length} updated`);
     setMessage(
-      `Generated timesheets: ${parts.join(", ") || "none"}.${result.skippedAlreadyLinked ? ` ${result.skippedAlreadyLinked} shifts already on a timesheet.` : ""}`
+      `Generated timesheets: ${parts.join(", ") || "none"}.${result.skippedAlreadyLinked ? ` ${result.skippedAlreadyLinked} shifts already on a timesheet.` : ""}${result.skippedLockedPeriod ? ` ${result.skippedLockedPeriod} shifts skipped — period already submitted or approved.` : ""}`
     );
     if (result.created.length === 1) {
       router.push(`/timesheets/${result.created[0].id}`);
@@ -242,7 +247,7 @@ export function GenerateTimesheetsView() {
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
-          disabled={generating || !preview.eligibleShiftCount}
+          disabled={generating || !preview.eligibleShiftCount || !canGenerate}
           onClick={handleGenerate}
           className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
         >
@@ -288,12 +293,22 @@ export function TimesheetDetailView({ id }: { id: string }) {
 
   if (!record) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-10 text-center">
-        <p className="text-sm text-slate-600">Timesheet not found.</p>
-        <Link href="/timesheets" className="mt-3 inline-flex text-sm font-medium text-[#b51266] hover:underline">
-          Back to timesheets
-        </Link>
-      </div>
+      <AppShell
+        title="Timesheet not found"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Timesheets", href: "/timesheets" },
+          { label: "Not found" },
+        ]}
+        audit={{ moduleLabel: "Timesheets" }}
+      >
+        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-10 text-center">
+          <p className="text-sm text-slate-600">Timesheet not found.</p>
+          <Link href="/timesheets" className="mt-3 inline-flex text-sm font-medium text-[#b51266] hover:underline">
+            Back to timesheets
+          </Link>
+        </div>
+      </AppShell>
     );
   }
 

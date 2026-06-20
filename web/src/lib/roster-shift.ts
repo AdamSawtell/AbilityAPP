@@ -169,9 +169,9 @@ function parseTimeMinutes(value: string): number {
 
 export function shiftDurationHours(shift: RosterShiftRecord): number {
   const start = parseTimeMinutes(shift.startTime);
-  const end = parseTimeMinutes(shift.endTime);
-  if (end <= start) return 0;
-  return (end - start) / 60;
+  let end = parseTimeMinutes(shift.endTime);
+  if (end <= start) end += 24 * 60;
+  return Math.round(((end - start) / 60) * 100) / 100;
 }
 
 export function forwardWeekStarts(anchorWeekStart: string, weekCount: number): string[] {
