@@ -155,6 +155,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Set client Funding body to plan-managed or self-managed before generating invoices.",
       "Grant Plan reconciliation for coordinators reviewing monthly plan vs delivery.",
       "Grant Claim reconciliation for finance and billing coordinators reviewing remittance matches.",
+      "Grant Financial close for month-end sign-off across plan, billing, and payroll.",
     ]
   ),
   moduleSetupArticle(

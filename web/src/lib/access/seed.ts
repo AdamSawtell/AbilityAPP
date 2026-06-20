@@ -87,6 +87,7 @@ const COORDINATOR_ACCESS = {
     "service-planning",
     "plan-reconciliation",
     "claim-reconciliation",
+    "financial-close",
     "rostering",
     "timesheets",
     "generate-timesheets",
@@ -98,7 +99,7 @@ const COORDINATOR_ACCESS = {
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],
   processIds: [...COORDINATOR_OPERATIONS_PROCESSES],
-  reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
+  reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents", "financial-close-summary"],
   taskTypePermissions: managerAccess().taskTypePermissions,
 };
 
@@ -161,7 +162,11 @@ export const SEED_ROLES: AppRoleRecord[] = [
   ),
   defineRole("role-ict-manager", "ICT_Manager", "ICT Manager", "ICT team leadership and system support", managerAccess()),
   defineRole("role-ict-officer", "ICT_Officer", "ICT Officer", "ICT support and administration", officerAccess()),
-  defineRole("role-finance-manager", "Finance_Manager", "Finance Manager", "Finance team leadership", managerAccess()),
+  defineRole("role-finance-manager", "Finance_Manager", "Finance Manager", "Finance team leadership", {
+    ...managerAccess(),
+    windowKeys: [...managerAccess().windowKeys, "financial-close", "plan-reconciliation", "claim-reconciliation"],
+    reportIds: [...managerAccess().reportIds, "financial-close-summary"],
+  }),
   defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess()),
   defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", managerAccess(["incidents-compliance", "incidents-dashboard"])),
   defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", officerAccess(["incidents-compliance"])),

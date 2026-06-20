@@ -14,14 +14,45 @@ type ReportRunnerViewProps = {
 };
 
 export function ReportRunnerView({ reportId }: ReportRunnerViewProps) {
-  const { canReport, users, roles } = useAuth();
-  const { clients, employees, locations, enquiries, incidents, tasks } = useData();
+  const { clients, employees, locations, enquiries, incidents, tasks, timesheets, claims, invoices, monthlyServicePlans, payrollClosedPeriods } = useData();
+  const { users, roles, canReport } = useAuth();
   const report = reportById(reportId);
 
   const result = useMemo(() => {
     if (!report || !canReport(reportId)) return null;
-    return runReport(reportId, { clients, employees, locations, enquiries, incidents, tasks, users, roles });
-  }, [reportId, report, canReport, clients, employees, locations, enquiries, incidents, tasks, users, roles]);
+    return runReport(reportId, {
+      clients,
+      employees,
+      locations,
+      enquiries,
+      incidents,
+      tasks,
+      users,
+      roles,
+      monthlyServicePlans,
+      timesheets,
+      claims,
+      invoices,
+      payrollClosedPeriods,
+    });
+  }, [
+    reportId,
+    report,
+    canReport,
+    clients,
+    employees,
+    locations,
+    enquiries,
+    incidents,
+    tasks,
+    users,
+    roles,
+    monthlyServicePlans,
+    timesheets,
+    claims,
+    invoices,
+    payrollClosedPeriods,
+  ]);
 
   if (!report) {
     return (

@@ -42,6 +42,7 @@ const EXEC_REPORTS = [
   "incident-register",
   "ndis-reportable-incidents",
   "enquiry-register",
+  "financial-close-summary",
 ] as const;
 
 const MANAGER_REPORTS = [
@@ -99,6 +100,7 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       "service-planning",
       "plan-reconciliation",
       "claim-reconciliation",
+      "financial-close",
       "rostering",
       "timesheets",
       "generate-timesheets",

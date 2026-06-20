@@ -246,7 +246,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 |-------------|--------|------------------|
 | Plan vs actual reconciliation | 🟡 | WP-J.1 scaffold |
 | Claim reconciliation dashboard | 🟡 | WP-J.2 scaffold |
-| Financial close reports | ⬜ | Partial via Xero later |
+| Financial close reports | 🟡 | WP-J.3 scaffold |
 | NDIS audit pack export | ⬜ | Yes |
 
 ---

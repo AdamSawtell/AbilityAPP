@@ -86,6 +86,16 @@ export const ACCESS_REPORTS: AccessReport[] = [
     maxColumns: 10,
     exportFormats: ["csv"],
   },
+  {
+    id: "financial-close-summary",
+    label: "Financial close summary",
+    description:
+      "Month-end checklist for plan vs actual, NDIS remittance, participant invoices, and payroll reconciliation. Uses the current calendar month.",
+    moduleGroup: "Services",
+    parentModuleKey: "reports",
+    maxColumns: 10,
+    exportFormats: ["csv"],
+  },
 ];
 
 export const ALL_REPORT_IDS = ACCESS_REPORTS.map((r) => r.id);

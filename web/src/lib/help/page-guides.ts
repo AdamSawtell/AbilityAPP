@@ -112,6 +112,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/service-bookings/new", slug: "delivery", surface: "app" },
   { prefix: "/service-bookings", slug: "delivery", surface: "app" },
   { prefix: "/generate-timesheets", slug: "delivery", surface: "app" },
+  { prefix: "/financial-close", slug: "delivery", surface: "app" },
   { prefix: "/claim-reconciliation", slug: "delivery", surface: "app" },
   { prefix: "/generate-claims", slug: "delivery", surface: "app" },
   { prefix: "/claims", slug: "delivery", surface: "app" },

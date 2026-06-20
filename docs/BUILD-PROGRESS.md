@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **91%** |
+| **Overall completion** | **92%** |
 | **Current work package** | Chunk 8 — Reconciliation & reporting |
-| **Active slice** | WP-J.2 complete — next: financial close reports |
-| **Next slice** | Financial close reports (Chunk 8) |
-| **Last push** | 2026-06-20 — `72a67e6` |
+| **Active slice** | WP-J.3 complete — next: NDIS audit pack export |
+| **Next slice** | NDIS audit pack export (Chunk 8) |
+| **Last push** | 2026-06-20 — `9543fef` |
 
 ---
 
@@ -82,7 +82,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
 | 7 | Billing & claiming | 10% | **60%** | 🟡 Partial | Chunk 8 reconcile |
-| 8 | Reconciliation & reporting | 10% | **30%** | 🟡 Partial | Financial close reports |
+| 8 | Reconciliation & reporting | 10% | **45%** | 🟡 Partial | NDIS audit pack export |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
 
@@ -517,6 +517,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | **Export CSV** | Downloads claim-reconciliation file |
 | 6 | **Claims** list | Claim reconciliation banner link visible |
 
+### WP-J.3 — Financial close reports (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Financial close** | HTTP 200; month picker and checklist visible |
+| 2 | Select **2025-10** | Plan, claims, invoices, payroll checks shown |
+| 3 | With Bern plan + no delivery | Plan check shows warning or pass (no variance) |
+| 4 | **Review** link on blocked check | Opens plan/claim/invoices/timesheets |
+| 5 | **Export CSV** | Downloads financial-close file |
+| 6 | **Reports** → Financial close summary | CSV report generates |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -827,6 +838,16 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Claim reconciliation** Read/Write |
 | **Admin verify** | Submitted claims show remittance status; variance when paid ≠ claimed |
 
+### WP-J.3 — Financial close reports
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Financial close checklist** |
+| **User steps** | 1. Open Financial close. 2. Select close month. 3. Resolve blocked checks. 4. Export CSV. |
+| **System setup** | `/system/setup/services` — Financial close grant for finance roles |
+| **Role access** | **Financial close** Read/Write; **Financial close summary** report |
+| **Admin verify** | Blocked plan variance prevents ready-to-close banner |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
@@ -956,6 +977,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625280000` claim tables |
 | 2026-06-20 | `npm run build` | exit 0 (WP-J.1 + WP-J.2) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 90 routes (WP-J.2) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-J.3) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 91 routes (WP-J.3) |
 
 ---
 
@@ -990,6 +1013,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-I.1 | `/claims`, `/generate-claims` | **Pass** | build verified; 85 routes |
 | 2026-06-20 | WP-J.1 | `/plan-reconciliation`, `/service-planning` | **Pass** | build verified; Bern Oct 2025 plan row |
 | 2026-06-20 | WP-J.2 | `/claim-reconciliation`, `/claims` | **Pass** | build verified; 90 routes |
+| 2026-06-20 | WP-J.3 | `/financial-close`, `/reports/financial-close-summary` | **Pass** | build verified; 91 routes |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1022,6 +1046,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-I.1 | 2 High — all fixed | **Pass** | Preview excludes locked claims; seed-access claims windows |
 | 2026-06-20 | WP-J.1 | 1 High + 2 Medium — all fixed | **Pass** | Billable status filter, zero-plan variance, export filter, funding-body split |
 | 2026-06-20 | WP-J.2 | 1 Medium — fixed | **Pass** | Month filter prorates claim/paid amounts by line |
+| 2026-06-20 | WP-J.3 | 1 High + 2 Medium — fixed | **Pass** | Finance manager grants, access gate, report parent module |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1067,6 +1092,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-I.1 | `delivery` — NDIS claims section | `services-setup` — claims grants | exit 0 — 85 routes |
 | 2026-06-20 | WP-J.1 | `service-planning` — plan vs actual reconciliation | `services-setup` — plan reconciliation grant | exit 0 — 89 routes |
 | 2026-06-20 | WP-J.2 | `delivery` — claim reconciliation dashboard | `services-setup` — claim reconciliation grant | exit 0 — 90 routes |
+| 2026-06-20 | WP-J.3 | `delivery` — financial close checklist | `services-setup` — financial close grant | exit 0 — 91 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

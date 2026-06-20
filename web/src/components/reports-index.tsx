@@ -31,6 +31,22 @@ export function ReportsIndexView() {
         <p className="text-sm text-slate-500">No reports are assigned to your role. Ask an administrator to grant report access.</p>
       ) : (
         <div className="space-y-8">
+          {canWindow("financial-close") ? (
+            <section>
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Month-end</h2>
+              <Link
+                href="/financial-close"
+                className="inline-flex rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#f9a8d4] hover:bg-[#fdf2f8]"
+              >
+                <div>
+                  <p className="font-medium text-slate-900">Financial close checklist</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Plan, billing, and payroll sign-off before month-end close.
+                  </p>
+                </div>
+              </Link>
+            </section>
+          ) : null}
           {MODULE_ORDER.map((module) => {
             const reports = grouped.get(module);
             if (!reports?.length) return null;

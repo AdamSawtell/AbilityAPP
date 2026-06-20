@@ -252,6 +252,14 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     abilityErpName: "Claim reconciliation",
     showInSidebar: true,
   },
+  {
+    key: "financial-close",
+    label: "Financial close",
+    group: "Delivery",
+    href: "/financial-close",
+    abilityErpName: "Financial close",
+    showInSidebar: true,
+  },
 ];
 
 const WORKFORCE_WINDOWS: AccessWindow[] = [
