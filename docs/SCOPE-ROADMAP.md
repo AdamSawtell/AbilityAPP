@@ -193,7 +193,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 |-------------|--------|------------------|
 | Monthly service plan from budget | 🟡 | Yes |
 | Burn rate + forecast alerts | 🟡 | Yes |
-| SCHADS cost **prediction** (not payroll) | ⬜ | Yes |
+| SCHADS cost **prediction** (not payroll) | 🟡 | Yes |
 | Multi-provider budget view | ⬜ | Later |
 
 **Can start after Chunk 1 budgets exist.** Feeds Chunk 0 cross-sell alerts.

@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { LineItemTable } from "@/components/line-item-table";
 import { ClientRecordLink } from "@/components/record-link";
 import { MonthlyServicePlanAlertsPanel } from "@/components/monthly-service-plan-alerts-panel";
+import { MonthlyServicePlanSchadsCostPanel } from "@/components/monthly-service-plan-schads-cost-panel";
 import { auditMetaFrom } from "@/lib/audit";
 import { useAuth } from "@/lib/auth-store";
 import { useReferenceData } from "@/lib/config-store";
@@ -106,6 +107,8 @@ export function MonthlyServicePlanEditor({
           </div>
         </section>
       ) : null}
+
+      <MonthlyServicePlanSchadsCostPanel lines={draft.lines} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">

@@ -187,5 +187,16 @@ export const servicePlanningArticle: HelpArticle = {
       ],
       relatedRoutes: ["/service-planning", "/clients"],
     },
+    {
+      id: "schads-cost-prediction",
+      title: "SCHADS cost prediction",
+      body: "Compare planned NDIS revenue to an estimated SCHADS labour cost from planned hours. This is a planning tool only — it uses weekday ordinary award rates and does not replace payroll.",
+      steps: [
+        "Open a monthly plan with planned hours on each line.",
+        "Review the SCHADS cost prediction panel — totals and per-line margin.",
+        "Change assumed employment type (e.g. Casual with 25% loading) to stress-test margin.",
+      ],
+      relatedRoutes: ["/service-planning"],
+    },
   ],
 };

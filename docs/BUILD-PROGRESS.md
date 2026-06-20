@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **73%** |
+| **Overall completion** | **74%** |
 | **Current work package** | WP-E — Service planning (Chunk 5) |
-| **Active slice** | WP-E.2 — Burn rate + forecast alerts ✅ shipped |
-| **Next slice** | WP-E.3 — SCHADS cost prediction (Chunk 5) |
+| **Active slice** | WP-E.3 — SCHADS cost prediction ✅ shipped |
+| **Next slice** | Chunk 5 complete — return to Chunk 4 mobile / Chunk 6 payroll |
 | **Last push** | 2026-06-18 — *(pending commit)* |
 
 ---
@@ -78,7 +78,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **90%** | 🟡 Partial | Mobile worker app (phase 2) |
-| 5 | Service planning | 8% | **50%** | 🟡 Partial | WP-E.3 SCHADS cost prediction |
+| 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **50%** | 🟡 Partial | WP-D.18 payroll reconciliation |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
@@ -422,6 +422,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Client **Bern** → **Monthly service plan** tab | Compact alerts panel above plan selector |
 | 5 | Client **Bern** → **Full profile** → **Plan review due** | Date drives plan period (e.g. 2026-10-15) |
 
+### WP-E.3 — SCHADS cost prediction (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open Bern monthly plan | **SCHADS cost prediction** panel below burn-rate section |
+| 2 | Review totals | Predicted labour cost, planned NDIS revenue, estimated margin |
+| 3 | Per-line table | Each line shows SCHADS level, hourly rate, margin |
+| 4 | Change **Assumed employment type** to Casual | Predicted cost increases (25% casual loading) |
+| 5 | Line with Support Coordination category | Defaults to Level 3.1 rate |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -579,6 +589,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Service planning** Read (alerts are read-only) |
 | **Admin verify** | Bern plan shows underserviced warning when utilisation &lt; 30% past 50% of plan period |
 
+### WP-E.3 — SCHADS cost prediction
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Services** → **Monthly service planning** → **SCHADS cost prediction** |
+| **User steps** | 1. Open monthly plan with planned hours. 2. Review predicted labour cost vs planned revenue. 3. Change employment type to stress-test margin. |
+| **System setup** | — |
+| **Reference data** | — |
+| **Role access** | **Service planning** Read |
+| **Admin verify** | Bern Oct plan shows per-line margin; Casual loading increases predicted cost |
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -652,7 +673,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | c400bd1 | WP-D.20 staff–client matching hints |
 | 2026-06-18 | 5a57d5c | WP-D.21 drag-and-drop week view |
 | 2026-06-18 | 8d4300c | WP-E.1 monthly service plan scaffold |
-| 2026-06-18 | *(pending)* | WP-E.2 burn rate + forecast alerts |
+| 2026-06-18 | 493b46f | WP-E.2 burn rate + forecast alerts |
 
 ---
 
