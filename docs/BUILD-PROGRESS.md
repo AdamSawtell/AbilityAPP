@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.15 — Roster capacity planning ✅ shipped |
 | **Next slice** | WP-D.16 — Keypay API export hook (OAuth) or mobile roster polish |
-| **Last push** | 2026-06-18 — `6456620` |
+| **Last push** | 2026-06-18 — `63423e2` |
 
 ---
 
@@ -599,6 +599,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.12 | 1 High + 1 Medium | **Pass** | Fixed: export uses saved record only; verification gate on export |
 | 2026-06-18 | WP-D.13 | 2 High + 3 Medium | **Pass** | Fixed: unique line IDs, draft-only generate, location validation, upsert lines |
 | 2026-06-18 | WP-D.14 | 2 High + 1 Medium | **Pass** | Fixed: stable shift IDs, overnight RoC lines, skip-all message |
+| 2026-06-18 | WP-D.15 | 2 Medium | **Pass** | Fixed: detail week sync on navigate; rostered non-active workers visible |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -626,6 +627,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.14 | `delivery` — publish RoC to roster calendar | `services-setup` — RoC publish workflow | exit 0 |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.14) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.14) |
+| 2026-06-18 | `npm run build` | exit 0 (WP-D.15) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.15) |
+| 2026-06-18 | WP-D.15 | `delivery` — capacity planning tab | `services-setup` — review capacity before go-live | exit 0 |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.13) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.13) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625240000` roster_of_care tables |
