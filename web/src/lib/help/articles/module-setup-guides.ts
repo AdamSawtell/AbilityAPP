@@ -151,6 +151,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Review PAPL validation on each claim batch before gateway submit.",
       "Set NDIS_GATEWAY_DRY_RUN=true on Amplify for dry-run gateway testing.",
       "Import NDIA remittance CSV on Claims after payment advice — preview matches before applying.",
+      "Grant Invoices and Generate invoices for plan-managed and self-managed billing.",
+      "Set client Funding body to plan-managed or self-managed before generating invoices.",
     ]
   ),
   moduleSetupArticle(

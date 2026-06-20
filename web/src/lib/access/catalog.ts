@@ -220,6 +220,22 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     abilityErpName: "Generate Claims",
     showInSidebar: true,
   },
+  {
+    key: "invoices",
+    label: "Invoices",
+    group: "Delivery",
+    href: "/invoices",
+    abilityErpName: "Invoice",
+    showInSidebar: true,
+  },
+  {
+    key: "generate-invoices",
+    label: "Generate invoices",
+    group: "Delivery",
+    href: "/generate-invoices",
+    abilityErpName: "Generate Invoices",
+    showInSidebar: true,
+  },
 ];
 
 const WORKFORCE_WINDOWS: AccessWindow[] = [

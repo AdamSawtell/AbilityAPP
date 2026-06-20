@@ -90,6 +90,8 @@ const COORDINATOR_ACCESS = {
     "generate-timesheets",
     "claims",
     "generate-claims",
+    "invoices",
+    "generate-invoices",
     ...windowKeysWithDependents("service-bookings"),
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],

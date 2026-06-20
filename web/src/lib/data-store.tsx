@@ -57,6 +57,11 @@ import {
   normalizeRemittance,
   type ClaimRemittanceRecord,
 } from "@/lib/claim-remittance";
+import {
+  initialInvoices as seedInvoices,
+  normalizeInvoice,
+  type InvoiceRecord,
+} from "@/lib/invoice";
 import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
 import {
   initialPriceLists as seedPriceLists,
@@ -154,6 +159,8 @@ import {
   saveClaim,
   saveClaims,
   saveClaimRemittance,
+  saveInvoice,
+  saveInvoices,
   saveSupportPlan,
   saveTask,
   saveTaskAutomation,
@@ -175,6 +182,7 @@ type DataStore = {
   timesheets: TimesheetRecord[];
   claims: ClaimRecord[];
   claimRemittances: ClaimRemittanceRecord[];
+  invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
@@ -225,6 +233,8 @@ type DataStore = {
     remittance: ClaimRemittanceRecord,
     actorName: string
   ) => { remittance: ClaimRemittanceRecord; updatedClaims: ClaimRecord[] };
+  upsertInvoice: (record: InvoiceRecord, audit?: AuditLogOptions) => void;
+  bulkUpsertInvoices: (records: InvoiceRecord[]) => void;
   closePayrollPeriod: (record: PayrollPeriodCloseRecord) => void;
   getServiceBookingsByClientId: (clientId: string) => ServiceBookingRecord[];
   upsertSupportPlan: (record: SupportPlanRecord) => void;
@@ -302,6 +312,7 @@ type Persisted = {
   timesheets?: TimesheetRecord[];
   claims?: ClaimRecord[];
   claimRemittances?: ClaimRemittanceRecord[];
+  invoices?: InvoiceRecord[];
   payrollClosedPeriods?: PayrollPeriodCloseRecord[];
   supportPlans?: SupportPlanRecord[];
   planDocuments?: PlanAssessmentDocument[];
@@ -326,6 +337,7 @@ function seedData(): Required<Persisted> {
     timesheets: seedTimesheets.map(normalizeTimesheet),
     claims: seedClaims.map(normalizeClaim),
     claimRemittances: [],
+    invoices: seedInvoices.map(normalizeInvoice),
     payrollClosedPeriods: [],
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
@@ -367,6 +379,7 @@ function loadLocal(): Required<Persisted> {
       timesheets: (parsed.timesheets ?? seedTimesheets).map(normalizeTimesheet),
       claims: (parsed.claims ?? seedClaims).map(normalizeClaim),
       claimRemittances: (parsed.claimRemittances ?? []).map(normalizeRemittance),
+      invoices: (parsed.invoices ?? seedInvoices).map(normalizeInvoice),
       payrollClosedPeriods: parsed.payrollClosedPeriods ?? [],
       supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
@@ -407,6 +420,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [timesheets, setTimesheets] = useState<TimesheetRecord[]>(defaults.timesheets);
   const [claims, setClaims] = useState<ClaimRecord[]>(defaults.claims);
   const [claimRemittances, setClaimRemittances] = useState<ClaimRemittanceRecord[]>(defaults.claimRemittances);
+  const [invoices, setInvoices] = useState<InvoiceRecord[]>(defaults.invoices);
   const [payrollClosedPeriods, setPayrollClosedPeriods] = useState<PayrollPeriodCloseRecord[]>(
     defaults.payrollClosedPeriods
   );
@@ -433,6 +447,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const timesheetsRef = useSyncRef(timesheets);
   const claimsRef = useSyncRef(claims);
   const claimRemittancesRef = useSyncRef(claimRemittances);
+  const invoicesRef = useSyncRef(invoices);
   const payrollClosedPeriodsRef = useSyncRef(payrollClosedPeriods);
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
@@ -475,6 +490,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
       setClaims(data.claims ?? seedClaims.map(normalizeClaim));
       setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
+      setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
       setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
       setSupportPlans(data.supportPlans);
       setPlanDocuments(data.planDocuments);
@@ -527,6 +543,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
             setClaims(data.claims ?? seedClaims.map(normalizeClaim));
             setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
+            setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
             setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
             setSupportPlans(data.supportPlans);
             setPlanDocuments(data.planDocuments);
@@ -562,6 +579,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
         setClaims(data.claims ?? seedClaims.map(normalizeClaim));
         setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
+        setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
         setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
         setSupportPlans(data.supportPlans);
         setPlanDocuments(data.planDocuments);
@@ -600,6 +618,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       timesheets,
       claims,
       claimRemittances,
+      invoices,
       payrollClosedPeriods,
       supportPlans,
       planDocuments,
@@ -622,6 +641,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       timesheets,
       claims,
       claimRemittances,
+      invoices,
       payrollClosedPeriods,
       supportPlans,
     planDocuments,
@@ -1272,6 +1292,41 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, claimsRef, claimRemittancesRef]
   );
 
+  const upsertInvoice = useCallback(
+    (record: InvoiceRecord, audit?: AuditLogOptions) => {
+      const prev = invoicesRef.current;
+      const normalized = normalizeInvoice(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("invoice", normalized, !exists, before, audit);
+      setInvoices((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveInvoice(supabase, stamped));
+    },
+    [persistRemote, invoicesRef]
+  );
+
+  const bulkUpsertInvoices = useCallback(
+    (records: InvoiceRecord[]) => {
+      if (!records.length) return;
+      const prev = invoicesRef.current;
+      const stamped = records.map((record) => {
+        const normalized = normalizeInvoice(record);
+        const before = prev.find((r) => r.id === normalized.id);
+        const exists = Boolean(before);
+        return persistRecordAudit("invoice", normalized, !exists, before);
+      });
+      setInvoices((current) => {
+        const byId = new Map(current.map((r) => [r.id, r]));
+        for (const row of stamped) byId.set(row.id, row);
+        return [...byId.values()];
+      });
+      void persistRemote((supabase) => saveInvoices(supabase, stamped));
+    },
+    [persistRemote, invoicesRef]
+  );
+
   const closePayrollPeriod = useCallback(
     (record: PayrollPeriodCloseRecord) => {
       setPayrollClosedPeriods((current) => {
@@ -1579,6 +1634,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       timesheets,
       claims,
       claimRemittances,
+      invoices,
       payrollClosedPeriods,
       supportPlans,
       planDocuments,
@@ -1615,6 +1671,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       bulkUpsertClaims,
       upsertClaimRemittance,
       applyClaimRemittance,
+      upsertInvoice,
+      bulkUpsertInvoices,
       closePayrollPeriod,
       upsertSupportPlan,
       upsertEmployee,
@@ -1656,6 +1714,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       timesheets,
       claims,
       claimRemittances,
+      invoices,
       payrollClosedPeriods,
       supportPlans,
       planDocuments,
@@ -1692,6 +1751,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       bulkUpsertClaims,
       upsertClaimRemittance,
       applyClaimRemittance,
+      upsertInvoice,
+      bulkUpsertInvoices,
       closePayrollPeriod,
       upsertSupportPlan,
       upsertEmployee,

@@ -155,6 +155,23 @@ export const deliveryArticle: HelpArticle = {
       relatedRoutes: ["/claims", "/generate-claims"],
       windowKeys: ["claims", "generate-claims"],
     },
+    {
+      id: "invoices",
+      title: "Participant invoices",
+      body: "Generate draft invoices for plan-managed and self-managed participants from verified timesheet lines. Agency-managed participants are billed via NDIS claims instead.",
+      steps: [
+        "Set the client Funding body to a plan-managed or self-managed option on the client record.",
+        "Approve timesheets with verified shift check-ins for the billing period.",
+        "Open Generate invoices and set the invoice period start and end dates.",
+        "Review the preview — agency-managed lines are skipped automatically.",
+        "Click Generate invoices — one Draft invoice is created per participant.",
+        "Open the invoice, confirm Invoice to and due date, and fix any PAPL validation errors.",
+        "Mark as sent when the invoice is issued to the plan manager or participant.",
+        "Record payment status and paid amount when payment is received.",
+      ],
+      relatedRoutes: ["/invoices", "/generate-invoices"],
+      windowKeys: ["invoices", "generate-invoices"],
+    },
   ],
   relatedRoutes: [
     "/service-bookings",
@@ -164,8 +181,19 @@ export const deliveryArticle: HelpArticle = {
     "/generate-timesheets",
     "/claims",
     "/generate-claims",
+    "/invoices",
+    "/generate-invoices",
   ],
-  windowKeys: ["service-bookings", "rostering", "timesheets", "generate-timesheets", "claims", "generate-claims"],
+  windowKeys: [
+    "service-bookings",
+    "rostering",
+    "timesheets",
+    "generate-timesheets",
+    "claims",
+    "generate-claims",
+    "invoices",
+    "generate-invoices",
+  ],
 };
 
 export const servicePlanningArticle: HelpArticle = {

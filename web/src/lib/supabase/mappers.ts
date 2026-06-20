@@ -2,6 +2,7 @@
 
 import type { ClaimLine, ClaimRecord } from "@/lib/claim";
 import type { ClaimRemittanceLine, ClaimRemittanceRecord } from "@/lib/claim-remittance";
+import type { InvoiceLine, InvoiceRecord } from "@/lib/invoice";
 import type { ClientRecord } from "@/lib/client";
 import type { ClientPlanBudgetRow } from "@/lib/client-line-tables";
 import type { ContractRecord } from "@/lib/contract";
@@ -2531,5 +2532,144 @@ export function claimRemittanceLineToRow(
     match_message: line.matchMessage ?? "",
     claim_id: line.claimId?.trim() ? line.claimId : null,
     claim_line_id: line.claimLineId?.trim() ? line.claimLineId : null,
+  };
+}
+
+// --- Invoice ---
+
+export type InvoiceRow = {
+  id: string;
+  document_no: string;
+  client_id: string | null;
+  period_start: string;
+  period_end: string;
+  status: string;
+  plan_management_type: string;
+  total_amount: number;
+  invoice_to: string;
+  invoice_to_email: string;
+  due_date: string | null;
+  sent_at: string | null;
+  payment_status: string;
+  paid_amount: number;
+  payment_reference: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type InvoiceLineRowDb = {
+  id: string;
+  invoice_id: string;
+  line_no: number;
+  timesheet_id: string | null;
+  timesheet_line_id: string | null;
+  roster_shift_id: string | null;
+  client_id: string | null;
+  employee_id: string | null;
+  service_booking_id: string | null;
+  product_id: string | null;
+  ndis_support_item: string;
+  support_category: string;
+  service_date: string | null;
+  quantity: number;
+  unit_price: number;
+  line_amount: number;
+  line_description: string;
+  validation_status: string;
+  validation_message: string;
+};
+
+export function invoiceFromRow(row: InvoiceRow, lines: InvoiceLineRowDb[]): InvoiceRecord {
+  return {
+    id: row.id,
+    documentNo: row.document_no,
+    clientId: row.client_id ?? "",
+    periodStart: strDate(row.period_start),
+    periodEnd: strDate(row.period_end),
+    status: row.status,
+    planManagementType: row.plan_management_type,
+    totalAmount: Number(row.total_amount) || 0,
+    invoiceTo: row.invoice_to ?? "",
+    invoiceToEmail: row.invoice_to_email ?? "",
+    dueDate: row.due_date ? strDate(row.due_date) : "",
+    sentAt: row.sent_at ?? "",
+    paymentStatus: row.payment_status || "Unpaid",
+    paidAmount: Number(row.paid_amount) || 0,
+    paymentReference: row.payment_reference ?? "",
+    notes: row.notes,
+    lines: lines.map(invoiceLineFromRow),
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+function invoiceLineFromRow(row: InvoiceLineRowDb): InvoiceLine {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    timesheetId: row.timesheet_id ?? "",
+    timesheetLineId: row.timesheet_line_id ?? "",
+    rosterShiftId: row.roster_shift_id ?? "",
+    clientId: row.client_id ?? "",
+    employeeId: row.employee_id ?? "",
+    serviceBookingId: row.service_booking_id ?? "",
+    productId: row.product_id ?? "",
+    ndisSupportItem: row.ndis_support_item ?? "",
+    supportCategory: row.support_category ?? "",
+    serviceDate: row.service_date ? strDate(row.service_date) : "",
+    quantity: Number(row.quantity) || 0,
+    unitPrice: Number(row.unit_price) || 0,
+    lineAmount: Number(row.line_amount) || 0,
+    lineDescription: row.line_description ?? "",
+    validationStatus: row.validation_status || "pass",
+    validationMessage: row.validation_message ?? "",
+  };
+}
+
+export function invoiceToRow(record: InvoiceRecord): InvoiceRow {
+  return {
+    id: record.id,
+    document_no: record.documentNo,
+    client_id: record.clientId?.trim() ? record.clientId : null,
+    period_start: toDate(record.periodStart) ?? record.periodStart,
+    period_end: toDate(record.periodEnd) ?? record.periodEnd,
+    status: record.status,
+    plan_management_type: record.planManagementType || "Plan managed",
+    total_amount: record.totalAmount,
+    invoice_to: record.invoiceTo ?? "",
+    invoice_to_email: record.invoiceToEmail ?? "",
+    due_date: record.dueDate ? toDate(record.dueDate) : null,
+    sent_at: record.sentAt?.trim() ? record.sentAt : null,
+    payment_status: record.paymentStatus || "Unpaid",
+    paid_amount: record.paidAmount,
+    payment_reference: record.paymentReference ?? "",
+    notes: record.notes,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+export function invoiceLineToRow(invoiceId: string, line: InvoiceLine): InvoiceLineRowDb {
+  return {
+    id: line.id,
+    invoice_id: invoiceId,
+    line_no: line.lineNo,
+    timesheet_id: line.timesheetId?.trim() ? line.timesheetId : null,
+    timesheet_line_id: line.timesheetLineId?.trim() ? line.timesheetLineId : null,
+    roster_shift_id: line.rosterShiftId?.trim() ? line.rosterShiftId : null,
+    client_id: line.clientId?.trim() ? line.clientId : null,
+    employee_id: line.employeeId?.trim() ? line.employeeId : null,
+    service_booking_id: line.serviceBookingId?.trim() ? line.serviceBookingId : null,
+    product_id: line.productId?.trim() ? line.productId : null,
+    ndis_support_item: line.ndisSupportItem ?? "",
+    support_category: line.supportCategory ?? "",
+    service_date: line.serviceDate ? toDate(line.serviceDate) : null,
+    quantity: line.quantity,
+    unit_price: line.unitPrice,
+    line_amount: line.lineAmount,
+    line_description: line.lineDescription ?? "",
+    validation_status: line.validationStatus || "pass",
+    validation_message: line.validationMessage ?? "",
   };
 }

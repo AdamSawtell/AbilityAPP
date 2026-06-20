@@ -1,58 +1,60 @@
-import type { ClientRecord } from "@/lib/client";
 import {
   billingLinkedTimesheetLineIds,
-  isAgencyManagedClient,
+  defaultInvoiceRecipient,
+  isInvoiceManagedClient,
   planManagementForClient,
 } from "@/lib/billing-plan-type";
+import type { ClientRecord } from "@/lib/client";
 import {
   applyLineValidation,
   validateClaimLine,
 } from "@/lib/claim-papl-validation";
+import type { ClaimLine } from "@/lib/claim";
+import type { ClaimRecord } from "@/lib/claim";
 import {
-  createClaim,
-  emptyClaimLine,
-  normalizeClaim,
-  sumClaimLineAmount,
-  type ClaimLine,
-  type ClaimRecord,
-} from "@/lib/claim";
+  createInvoice,
+  emptyInvoiceLine,
+  normalizeInvoice,
+  sumInvoiceLineAmount,
+  type InvoiceLine,
+  type InvoiceRecord,
+} from "@/lib/invoice";
 import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { getProductPrice } from "@/lib/product";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
 import type { TimesheetLine, TimesheetRecord } from "@/lib/timesheet";
 import { verifyTimesheet } from "@/lib/timesheet-verification";
-import type { InvoiceRecord } from "@/lib/invoice";
 import type { LocationRecord } from "@/lib/location";
 
-export type ClaimGenerationPreviewRow = {
+export type InvoiceGenerationPreviewRow = {
   clientId: string;
   lineCount: number;
   totalAmount: number;
-  verifiedLineCount: number;
+  planManagementType: string;
 };
 
-export type ClaimGenerationPreview = {
+export type InvoiceGenerationPreview = {
   periodStart: string;
   periodEnd: string;
   eligibleLineCount: number;
-  alreadyClaimedCount: number;
+  alreadyBilledCount: number;
   unverifiedSkippedCount: number;
-  lockedClaimSkippedCount: number;
-  invoiceManagedSkippedCount: number;
-  rows: ClaimGenerationPreviewRow[];
+  lockedInvoiceSkippedCount: number;
+  agencyManagedSkippedCount: number;
+  rows: InvoiceGenerationPreviewRow[];
 };
 
-export type ClaimGenerationResult = {
-  created: ClaimRecord[];
-  updated: ClaimRecord[];
-  skippedAlreadyClaimed: number;
+export type InvoiceGenerationResult = {
+  created: InvoiceRecord[];
+  updated: InvoiceRecord[];
+  skippedAlreadyBilled: number;
   skippedUnverified: number;
-  skippedLockedClaim: number;
-  skippedInvoiceManaged: number;
+  skippedLockedInvoice: number;
+  skippedAgencyManaged: number;
 };
 
-export type ClaimGenerationContext = {
+export type InvoiceGenerationContext = {
   timesheets: TimesheetRecord[];
   claims: ClaimRecord[];
   invoices: InvoiceRecord[];
@@ -66,10 +68,6 @@ export type ClaimGenerationContext = {
 
 function lineInPeriod(line: TimesheetLine, periodStart: string, periodEnd: string): boolean {
   return line.shiftDate >= periodStart && line.shiftDate <= periodEnd;
-}
-
-export function linkedTimesheetLineIds(claims: ClaimRecord[], invoices: InvoiceRecord[] = []): Set<string> {
-  return billingLinkedTimesheetLineIds(claims, invoices);
 }
 
 function resolveBookingLine(
@@ -106,7 +104,7 @@ function supportCategoryForProduct(product: ProductRecord | undefined): string {
   return product.productCategory || "";
 }
 
-function buildClaimLine(params: {
+function buildInvoiceLine(params: {
   lineNo: number;
   timesheet: TimesheetRecord;
   tsLine: TimesheetLine;
@@ -115,7 +113,7 @@ function buildClaimLine(params: {
   booking: ServiceBookingRecord | undefined;
   products: ProductRecord[];
   priceLists: PriceListRecord[];
-}): ClaimLine {
+}): InvoiceLine {
   const { lineNo, timesheet, tsLine, shift, client, booking, products, priceLists } = params;
   const bookingLine = resolveBookingLine(booking, tsLine.shiftDate);
   const productId = bookingLine?.productId ?? "";
@@ -126,8 +124,8 @@ function buildClaimLine(params: {
   const quantity = tsLine.hours ?? 0;
   const lineAmount = Math.round(quantity * unitPrice * 100) / 100;
 
-  const draft = emptyClaimLine(lineNo);
-  draft.id = `cll-${tsLine.id}`;
+  const draft = emptyInvoiceLine(lineNo);
+  draft.id = `inl-${tsLine.id}`;
   draft.timesheetId = timesheet.id;
   draft.timesheetLineId = tsLine.id;
   draft.rosterShiftId = tsLine.rosterShiftId;
@@ -141,16 +139,40 @@ function buildClaimLine(params: {
   draft.quantity = quantity;
   draft.unitPrice = unitPrice;
   draft.lineAmount = lineAmount;
-  draft.claimType = bookingLine?.claimType || "Standard";
+  draft.lineDescription = product?.name ?? "";
+
+  const claimShape: ClaimLine = {
+    id: draft.id,
+    lineNo: draft.lineNo,
+    timesheetId: draft.timesheetId,
+    timesheetLineId: draft.timesheetLineId,
+    rosterShiftId: draft.rosterShiftId,
+    clientId: draft.clientId,
+    employeeId: draft.employeeId,
+    serviceBookingId: draft.serviceBookingId,
+    productId: draft.productId,
+    ndisSupportItem: draft.ndisSupportItem,
+    supportCategory: draft.supportCategory,
+    serviceDate: draft.serviceDate,
+    quantity: draft.quantity,
+    unitPrice: draft.unitPrice,
+    lineAmount: draft.lineAmount,
+    claimType: bookingLine?.claimType || "Standard",
+    validationStatus: draft.validationStatus,
+    validationMessage: draft.validationMessage,
+  };
 
   const validation = validateClaimLine({
-    line: draft,
+    line: claimShape,
     client,
     product,
     priceList: priceLists.find((pl) => pl.id === product?.priceListId) ?? priceLists[0],
     booking,
   });
-  return applyLineValidation(draft, validation);
+  const validated = applyLineValidation(claimShape, validation);
+  draft.validationStatus = validated.validationStatus;
+  draft.validationMessage = validated.validationMessage;
+  return draft;
 }
 
 type EligibleSourceLine = {
@@ -159,42 +181,42 @@ type EligibleSourceLine = {
   clientId: string;
 };
 
-function lockedClaimClientIds(
-  claims: ClaimRecord[],
+function lockedInvoiceClientIds(
+  invoices: InvoiceRecord[],
   periodStart: string,
   periodEnd: string
 ): Set<string> {
   return new Set(
-    claims
+    invoices
       .filter(
-        (c) =>
-          c.periodStart === periodStart &&
-          c.periodEnd === periodEnd &&
-          c.status !== "Draft" &&
-          c.clientId?.trim()
+        (inv) =>
+          inv.periodStart === periodStart &&
+          inv.periodEnd === periodEnd &&
+          inv.status !== "Draft" &&
+          inv.clientId?.trim()
       )
-      .map((c) => c.clientId)
+      .map((inv) => inv.clientId)
   );
 }
 
 function collectEligibleLines(
-  ctx: ClaimGenerationContext,
+  ctx: InvoiceGenerationContext,
   periodStart: string,
   periodEnd: string
 ): {
   eligible: EligibleSourceLine[];
-  alreadyClaimed: number;
+  alreadyBilled: number;
   unverifiedSkipped: number;
-  lockedClaimSkipped: number;
-  invoiceManagedSkipped: number;
+  lockedInvoiceSkipped: number;
+  agencyManagedSkipped: number;
 } {
   const linked = billingLinkedTimesheetLineIds(ctx.claims, ctx.invoices);
-  const lockedClients = lockedClaimClientIds(ctx.claims, periodStart, periodEnd);
+  const lockedClients = lockedInvoiceClientIds(ctx.invoices, periodStart, periodEnd);
   const eligible: EligibleSourceLine[] = [];
-  let alreadyClaimed = 0;
+  let alreadyBilled = 0;
   let unverifiedSkipped = 0;
-  let lockedClaimSkipped = 0;
-  let invoiceManagedSkipped = 0;
+  let lockedInvoiceSkipped = 0;
+  let agencyManagedSkipped = 0;
 
   for (const timesheet of ctx.timesheets) {
     if (timesheet.status !== "Approved") continue;
@@ -207,16 +229,16 @@ function collectEligibleLines(
       if (!lineInPeriod(tsLine, periodStart, periodEnd)) continue;
       if (!tsLine.clientId?.trim()) continue;
       const client = ctx.clients.find((c) => c.id === tsLine.clientId);
-      if (!isAgencyManagedClient(client)) {
-        invoiceManagedSkipped += 1;
+      if (!isInvoiceManagedClient(client)) {
+        agencyManagedSkipped += 1;
         continue;
       }
       if (lockedClients.has(tsLine.clientId)) {
-        lockedClaimSkipped += 1;
+        lockedInvoiceSkipped += 1;
         continue;
       }
       if (linked.has(tsLine.id)) {
-        alreadyClaimed += 1;
+        alreadyBilled += 1;
         continue;
       }
       if (!verifiedLineIds.has(tsLine.id)) {
@@ -227,26 +249,23 @@ function collectEligibleLines(
     }
   }
 
-  return { eligible, alreadyClaimed, unverifiedSkipped, lockedClaimSkipped, invoiceManagedSkipped };
+  return { eligible, alreadyBilled, unverifiedSkipped, lockedInvoiceSkipped, agencyManagedSkipped };
 }
 
-export function previewClaimGeneration(
-  ctx: ClaimGenerationContext,
+export function previewInvoiceGeneration(
+  ctx: InvoiceGenerationContext,
   periodStart: string,
   periodEnd: string
-): ClaimGenerationPreview {
-  const { eligible, alreadyClaimed, unverifiedSkipped, lockedClaimSkipped, invoiceManagedSkipped } = collectEligibleLines(
-    ctx,
-    periodStart,
-    periodEnd
-  );
-  const byClient = new Map<string, { lineCount: number; totalAmount: number }>();
+): InvoiceGenerationPreview {
+  const { eligible, alreadyBilled, unverifiedSkipped, lockedInvoiceSkipped, agencyManagedSkipped } =
+    collectEligibleLines(ctx, periodStart, periodEnd);
+  const byClient = new Map<string, { lineCount: number; totalAmount: number; planManagementType: string }>();
 
   for (const row of eligible) {
     const client = ctx.clients.find((c) => c.id === row.clientId);
     const booking = ctx.serviceBookings.find((b) => b.id === row.tsLine.serviceBookingId);
     const shift = ctx.rosterShifts.find((s) => s.id === row.tsLine.rosterShiftId);
-    const claimLine = buildClaimLine({
+    const invoiceLine = buildInvoiceLine({
       lineNo: 1,
       timesheet: row.timesheet,
       tsLine: row.tsLine,
@@ -256,18 +275,22 @@ export function previewClaimGeneration(
       products: ctx.products,
       priceLists: ctx.priceLists,
     });
-    const stats = byClient.get(row.clientId) ?? { lineCount: 0, totalAmount: 0 };
+    const stats = byClient.get(row.clientId) ?? {
+      lineCount: 0,
+      totalAmount: 0,
+      planManagementType: planManagementForClient(client),
+    };
     stats.lineCount += 1;
-    stats.totalAmount = Math.round((stats.totalAmount + claimLine.lineAmount) * 100) / 100;
+    stats.totalAmount = Math.round((stats.totalAmount + invoiceLine.lineAmount) * 100) / 100;
     byClient.set(row.clientId, stats);
   }
 
   const rows = [...byClient.entries()]
     .map(([clientId, stats]) => ({
       clientId,
-      verifiedLineCount: stats.lineCount,
       lineCount: stats.lineCount,
       totalAmount: stats.totalAmount,
+      planManagementType: stats.planManagementType,
     }))
     .sort((a, b) => a.clientId.localeCompare(b.clientId));
 
@@ -275,40 +298,37 @@ export function previewClaimGeneration(
     periodStart,
     periodEnd,
     eligibleLineCount: eligible.length,
-    alreadyClaimedCount: alreadyClaimed,
+    alreadyBilledCount: alreadyBilled,
     unverifiedSkippedCount: unverifiedSkipped,
-    lockedClaimSkippedCount: lockedClaimSkipped,
-    invoiceManagedSkippedCount: invoiceManagedSkipped,
+    lockedInvoiceSkippedCount: lockedInvoiceSkipped,
+    agencyManagedSkippedCount: agencyManagedSkipped,
     rows,
   };
 }
 
-function findDraftClaim(
-  claims: ClaimRecord[],
+function findDraftInvoice(
+  invoices: InvoiceRecord[],
   clientId: string,
   periodStart: string,
   periodEnd: string
-): ClaimRecord | undefined {
-  const claim = claims.find(
-    (c) =>
-      c.clientId === clientId &&
-      c.periodStart === periodStart &&
-      c.periodEnd === periodEnd
+): InvoiceRecord | undefined {
+  const invoice = invoices.find(
+    (inv) =>
+      inv.clientId === clientId &&
+      inv.periodStart === periodStart &&
+      inv.periodEnd === periodEnd
   );
-  return claim?.status === "Draft" ? claim : undefined;
+  return invoice?.status === "Draft" ? invoice : undefined;
 }
 
-export function generateClaimsFromTimesheets(
-  ctx: ClaimGenerationContext,
+export function generateInvoicesFromTimesheets(
+  ctx: InvoiceGenerationContext,
   periodStart: string,
   periodEnd: string,
   actorName = "SuperUser"
-): ClaimGenerationResult {
-  const { eligible, alreadyClaimed, unverifiedSkipped, lockedClaimSkipped, invoiceManagedSkipped } = collectEligibleLines(
-    ctx,
-    periodStart,
-    periodEnd
-  );
+): InvoiceGenerationResult {
+  const { eligible, alreadyBilled, unverifiedSkipped, lockedInvoiceSkipped, agencyManagedSkipped } =
+    collectEligibleLines(ctx, periodStart, periodEnd);
   const byClient = new Map<string, EligibleSourceLine[]>();
 
   for (const row of eligible) {
@@ -317,13 +337,15 @@ export function generateClaimsFromTimesheets(
     byClient.set(row.clientId, list);
   }
 
-  const created: ClaimRecord[] = [];
-  const updated: ClaimRecord[] = [];
-  let working = [...ctx.claims];
+  const created: InvoiceRecord[] = [];
+  const updated: InvoiceRecord[] = [];
+  let working = [...ctx.invoices];
 
   for (const [clientId, sourceLines] of byClient) {
     const client = ctx.clients.find((c) => c.id === clientId);
-    const existingDraft = findDraftClaim(working, clientId, periodStart, periodEnd);
+    const planType = planManagementForClient(client);
+    const recipient = defaultInvoiceRecipient(client, planType);
+    const existingDraft = findDraftInvoice(working, clientId, periodStart, periodEnd);
 
     sourceLines.sort((a, b) =>
       `${a.tsLine.shiftDate}${a.tsLine.startTime}`.localeCompare(
@@ -335,7 +357,7 @@ export function generateClaimsFromTimesheets(
     const newLines = sourceLines.map((row, index) => {
       const booking = ctx.serviceBookings.find((b) => b.id === row.tsLine.serviceBookingId);
       const shift = ctx.rosterShifts.find((s) => s.id === row.tsLine.rosterShiftId);
-      return buildClaimLine({
+      return buildInvoiceLine({
         lineNo: startLineNo + index,
         timesheet: row.timesheet,
         tsLine: row.tsLine,
@@ -349,27 +371,35 @@ export function generateClaimsFromTimesheets(
 
     if (existingDraft) {
       const mergedLines = [...existingDraft.lines, ...newLines];
-      const next = normalizeClaim({
+      const next = normalizeInvoice({
         ...existingDraft,
         lines: mergedLines,
-        totalAmount: sumClaimLineAmount(mergedLines),
+        totalAmount: sumInvoiceLineAmount(mergedLines),
         updatedBy: actorName,
       });
-      working = working.map((c) => (c.id === next.id ? next : c));
+      working = working.map((inv) => (inv.id === next.id ? next : inv));
       updated.push(next);
       continue;
     }
 
-    const next = createClaim(
+    const due = new Date(`${periodEnd}T12:00:00`);
+    due.setDate(due.getDate() + 14);
+
+    const next = createInvoice(
       {
         clientId,
         periodStart,
         periodEnd,
         status: "Draft",
-        planManagementType: planManagementForClient(client),
-        totalAmount: sumClaimLineAmount(newLines),
-        gatewayStatus: "Not submitted",
-        gatewayRef: "",
+        planManagementType: planType,
+        totalAmount: sumInvoiceLineAmount(newLines),
+        invoiceTo: recipient.invoiceTo,
+        invoiceToEmail: recipient.invoiceToEmail,
+        dueDate: due.toISOString().slice(0, 10),
+        sentAt: "",
+        paymentStatus: "Unpaid",
+        paidAmount: 0,
+        paymentReference: "",
         notes: "",
         lines: newLines,
         createdBy: actorName,
@@ -384,9 +414,9 @@ export function generateClaimsFromTimesheets(
   return {
     created,
     updated,
-    skippedAlreadyClaimed: alreadyClaimed,
+    skippedAlreadyBilled: alreadyBilled,
     skippedUnverified: unverifiedSkipped,
-    skippedLockedClaim: lockedClaimSkipped,
-    skippedInvoiceManaged: invoiceManagedSkipped,
+    skippedLockedInvoice: lockedInvoiceSkipped,
+    skippedAgencyManaged: agencyManagedSkipped,
   };
 }

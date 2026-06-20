@@ -114,6 +114,8 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/generate-timesheets", slug: "delivery", surface: "app" },
   { prefix: "/generate-claims", slug: "delivery", surface: "app" },
   { prefix: "/claims", slug: "delivery", surface: "app" },
+  { prefix: "/generate-invoices", slug: "delivery", surface: "app" },
+  { prefix: "/invoices", slug: "delivery", surface: "app" },
   { prefix: "/timesheets", slug: "delivery", surface: "app" },
   { prefix: "/service-planning", slug: "service-planning", surface: "app" },
   { prefix: "/rostering", slug: "delivery", surface: "app" },

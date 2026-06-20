@@ -231,8 +231,8 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 | PAPL validation engine | ✅ | WP-I.1/I.2 — save + gateway strict modes |
 | Bulk PRODA claims | 🟡 | Gateway dry-run stub (WP-I.2) |
 | Bulk PRODA claims | ⬜ | PRODA approval |
-| Remittance import + match | ⬜ | Yes |
-| Invoicing (plan/self-managed) | ⬜ | Yes |
+| Remittance import + match | 🟡 | WP-I.3 |
+| Invoicing (plan/self-managed) | 🟡 | WP-I.4 scaffold |
 
 **User input needed:** PRODA Digital Partnership or gateway contract.
 

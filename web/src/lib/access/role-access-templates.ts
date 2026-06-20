@@ -102,6 +102,8 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       "generate-timesheets",
       "claims",
       "generate-claims",
+      "invoices",
+      "generate-invoices",
       ...windowKeysWithDependents("service-bookings"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],

@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **86%** |
+| **Overall completion** | **88%** |
 | **Current work package** | Chunk 7 — Billing & claiming |
-| **Active slice** | WP-I.3 complete — next: WP-I.4 invoicing scaffold |
-| **Next slice** | WP-I.4 invoicing scaffold (Chunk 7) |
+| **Active slice** | WP-I.4 complete — next: Chunk 8 reconciliation scaffold |
+| **Next slice** | WP-J.1 plan vs actual reconciliation (Chunk 8) |
 | **Last push** | 2026-06-20 — `c14ed73` |
 
 ---
@@ -81,7 +81,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 4 | Rostering | 22% | **95%** | 🟡 Partial | Participant portal (Chunk 0) |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
-| 7 | Billing & claiming | 10% | **45%** | 🟡 Partial | PRODA/gateway |
+| 7 | Billing & claiming | 10% | **60%** | 🟡 Partial | Chunk 8 reconcile |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
@@ -484,6 +484,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | **Apply remittance** | Claim status Accepted; gateway Paid; remittance column updated |
 | 6 | Refresh page (Supabase mode) | Remittance batch + claim payment fields persist |
 
+### WP-I.4 — Invoicing scaffold (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Invoices** list | HTTP 200; Generate invoices link visible |
+| 2 | Client with plan-managed funding body | Generate invoices preview shows participant |
+| 3 | **Generate invoices** — click Generate | Draft invoice created |
+| 4 | Open invoice detail | PAPL validation + lines; Mark as sent |
+| 5 | **Generate claims** for same period | Agency lines only; plan-managed skipped |
+| 6 | Save invoice change | Audit footer logs change |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -763,6 +774,16 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **System setup** | `/system/setup/services` — remittance import after gateway submit |
 | **Role access** | **Claims** Write |
 | **Admin verify** | Matched claims show Paid + remittance amount; variance flagged |
+
+### WP-I.4 — Invoicing scaffold
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Participant invoices** |
+| **User steps** | 1. Set plan-managed funding body. 2. Generate invoices. 3. Mark sent. 4. Record payment. |
+| **System setup** | `/system/setup/services` — Invoices + Generate invoices grants |
+| **Role access** | **Invoices** Read/Write; **Generate invoices** Write |
+| **Admin verify** | Plan-managed lines on invoices; agency lines on claims only |
 
 ### WP-G.0 (future) — Participant portal schedule
 

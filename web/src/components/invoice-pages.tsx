@@ -10,28 +10,24 @@ import { ClientRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import type { ClaimLine } from "@/lib/claim";
 import {
-  claimRecordIsLocked,
-  claimSaveBlocked,
   revalidateClaimRecord,
   type ClaimValidationContext,
 } from "@/lib/claim-papl-validation";
-import { ClaimGatewayPanel } from "@/components/claim-gateway-panel";
-import { ClaimRemittancePanel } from "@/components/claim-remittance-panel";
-import { claimLineTableConfig } from "@/lib/claim-line-tables";
+import { invoiceLineTableConfig } from "@/lib/invoice-line-tables";
 import {
-  generateClaimsFromTimesheets,
-  previewClaimGeneration,
-  type ClaimGenerationContext,
-} from "@/lib/claim-generation";
+  generateInvoicesFromTimesheets,
+  previewInvoiceGeneration,
+  type InvoiceGenerationContext,
+} from "@/lib/invoice-generation";
 import {
-  claimDropdowns,
-  formatClaimPeriod,
-  normalizeClaim,
-  sumClaimLineAmount,
-  type ClaimRecord,
-} from "@/lib/claim";
-import { remittanceStatusClass } from "@/lib/claim-remittance";
+  formatInvoicePeriod,
+  invoiceDropdowns,
+  invoiceRecordIsLocked,
+  normalizeInvoice,
+  type InvoiceRecord,
+} from "@/lib/invoice";
 import { useData } from "@/lib/data-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
 
@@ -40,9 +36,9 @@ const inputClass =
 
 const statusTone: Record<string, string> = {
   Draft: "bg-slate-100 text-slate-700",
-  Submitted: "bg-sky-100 text-sky-950",
-  Accepted: "bg-emerald-100 text-emerald-800",
-  Rejected: "bg-rose-100 text-rose-950",
+  Sent: "bg-sky-100 text-sky-950",
+  Paid: "bg-emerald-100 text-emerald-800",
+  Void: "bg-rose-100 text-rose-950",
 };
 
 function clientLabel(clients: { id: string; searchKey: string; name: string }[], id: string): string {
@@ -50,7 +46,7 @@ function clientLabel(clients: { id: string; searchKey: string; name: string }[],
   return match ? `${match.searchKey} — ${match.name}` : id || "—";
 }
 
-function buildClaimContext(data: ReturnType<typeof useData>): ClaimGenerationContext {
+function buildInvoiceContext(data: ReturnType<typeof useData>): InvoiceGenerationContext {
   return {
     timesheets: data.timesheets,
     claims: data.claims,
@@ -73,32 +69,94 @@ function validationContext(data: ReturnType<typeof useData>): ClaimValidationCon
   };
 }
 
-function revalidateClaimLines(record: ClaimRecord, data: ReturnType<typeof useData>): ClaimRecord {
-  return revalidateClaimRecord(record, validationContext(data), "save");
+function invoiceLinesAsClaimLines(record: InvoiceRecord): ClaimLine[] {
+  return record.lines.map((line) => ({
+    id: line.id,
+    lineNo: line.lineNo,
+    timesheetId: line.timesheetId,
+    timesheetLineId: line.timesheetLineId,
+    rosterShiftId: line.rosterShiftId,
+    clientId: line.clientId,
+    employeeId: line.employeeId,
+    serviceBookingId: line.serviceBookingId,
+    productId: line.productId,
+    ndisSupportItem: line.ndisSupportItem,
+    supportCategory: line.supportCategory,
+    serviceDate: line.serviceDate,
+    quantity: line.quantity,
+    unitPrice: line.unitPrice,
+    lineAmount: line.lineAmount,
+    claimType: "Standard",
+    validationStatus: line.validationStatus,
+    validationMessage: line.validationMessage,
+  }));
 }
 
-export function ClaimListView() {
-  const { claims, clients } = useData();
+function revalidateInvoiceLines(record: InvoiceRecord, data: ReturnType<typeof useData>): InvoiceRecord {
+  const asClaim = {
+    id: record.id,
+    documentNo: record.documentNo,
+    clientId: record.clientId,
+    periodStart: record.periodStart,
+    periodEnd: record.periodEnd,
+    status: record.status,
+    planManagementType: record.planManagementType,
+    totalAmount: record.totalAmount,
+    gatewayStatus: "Not submitted",
+    gatewayRef: "",
+    remittanceStatus: "Not imported",
+    remittancePaidAmount: 0,
+    remittancePaymentRef: "",
+    remittanceImportedAt: "",
+    notes: record.notes,
+    lines: invoiceLinesAsClaimLines(record),
+    createdBy: record.createdBy,
+    updatedBy: record.updatedBy,
+  };
+  const validated = revalidateClaimRecord(asClaim, validationContext(data), "save");
+  return normalizeInvoice({
+    ...record,
+    lines: record.lines.map((line) => {
+      const match = validated.lines.find((l) => l.id === line.id);
+      return match
+        ? { ...line, validationStatus: match.validationStatus, validationMessage: match.validationMessage }
+        : line;
+    }),
+  });
+}
+
+function invoiceSaveBlocked(record: InvoiceRecord): string | null {
+  const errors = record.lines.filter((l) => l.validationStatus === "error");
+  if (errors.length) {
+    return `Fix ${errors.length} line validation error${errors.length === 1 ? "" : "s"} before saving.`;
+  }
+  if (record.status === "Sent" && !record.invoiceTo?.trim()) {
+    return "Enter an invoice recipient before marking as Sent.";
+  }
+  return null;
+}
+
+export function InvoiceListView() {
+  const { invoices, clients } = useData();
   const [statusFilter, setStatusFilter] = useState("");
 
   const rows = useMemo(() => {
-    let sorted = [...claims].sort((a, b) => (b.periodStart || "").localeCompare(a.periodStart || ""));
+    let sorted = [...invoices].sort((a, b) => (b.periodStart || "").localeCompare(a.periodStart || ""));
     if (statusFilter) sorted = sorted.filter((r) => r.status === statusFilter);
     return sorted;
-  }, [claims, statusFilter]);
+  }, [invoices, statusFilter]);
 
   return (
     <div className="space-y-4">
-      <ClaimRemittancePanel />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
-          NDIS claim batches generated from approved, verified timesheet lines. Submit via PRODA or gateway when ready.
+          Participant invoices for plan-managed and self-managed NDIS billing — generated from verified timesheet lines.
         </p>
         <Link
-          href="/generate-claims"
+          href="/generate-invoices"
           className="inline-flex shrink-0 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
         >
-          Generate claims
+          Generate invoices
         </Link>
       </div>
       <label className="text-sm text-slate-600">
@@ -109,7 +167,7 @@ export function ClaimListView() {
           className="ml-2 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
         >
           <option value="">All</option>
-          {claimDropdowns.status.map((s) => (
+          {invoiceDropdowns.status.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>
@@ -123,18 +181,18 @@ export function ClaimListView() {
               <th className="px-4 py-3">Document</th>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Period</th>
-              <th className="px-4 py-3">Lines</th>
+              <th className="px-4 py-3">Plan type</th>
+              <th className="px-4 py-3">Invoice to</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Gateway</th>
-              <th className="px-4 py-3">Remittance</th>
+              <th className="px-4 py-3">Payment</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50/80">
                 <td className="px-4 py-3">
-                  <Link href={`/claims/${row.id}`} className="font-medium text-[#b51266] hover:underline">
+                  <Link href={`/invoices/${row.id}`} className="font-medium text-[#b51266] hover:underline">
                     {row.documentNo}
                   </Link>
                 </td>
@@ -145,31 +203,22 @@ export function ClaimListView() {
                     name={clients.find((c) => c.id === row.clientId)?.name ?? ""}
                   />
                 </td>
-                <td className="px-4 py-3 text-slate-700">{formatClaimPeriod(row)}</td>
-                <td className="px-4 py-3 text-slate-700">{row.lines.length}</td>
+                <td className="px-4 py-3 text-slate-700">{formatInvoicePeriod(row)}</td>
+                <td className="px-4 py-3 text-slate-700">{row.planManagementType}</td>
+                <td className="px-4 py-3 text-slate-700">{row.invoiceTo || "—"}</td>
                 <td className="px-4 py-3 text-slate-700">${row.totalAmount.toFixed(2)}</td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusTone[row.status] ?? ""}`}>
                     {row.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-slate-600">{row.gatewayStatus}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${remittanceStatusClass(row.remittanceStatus || "Not imported")}`}
-                  >
-                    {row.remittanceStatus || "Not imported"}
-                  </span>
-                  {row.remittancePaidAmount > 0 ? (
-                    <span className="mt-0.5 block text-xs text-slate-500">${row.remittancePaidAmount.toFixed(2)} paid</span>
-                  ) : null}
-                </td>
+                <td className="px-4 py-3 text-slate-600">{row.paymentStatus}</td>
               </tr>
             ))}
             {!rows.length ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
-                  No claims yet — generate from approved timesheets.
+                  No invoices yet — generate from approved timesheets for plan-managed participants.
                 </td>
               </tr>
             ) : null}
@@ -180,10 +229,10 @@ export function ClaimListView() {
   );
 }
 
-export function GenerateClaimsView() {
+export function GenerateInvoicesView() {
   const data = useData();
   const { session, canWriteWindow } = useAuth();
-  const canGenerate = canWriteWindow("generate-claims");
+  const canGenerate = canWriteWindow("generate-invoices");
   const router = useRouter();
   const defaultWeekStart = weekStartFromDate("2025-10-06");
   const defaultWeekEnd = useMemo(() => {
@@ -197,82 +246,78 @@ export function GenerateClaimsView() {
   const [message, setMessage] = useState("");
   const [generating, setGenerating] = useState(false);
 
-  const ctx = useMemo(() => buildClaimContext(data), [data]);
+  const ctx = useMemo(() => buildInvoiceContext(data), [data]);
   const preview = useMemo(
-    () => previewClaimGeneration(ctx, periodStart, periodEnd),
+    () => previewInvoiceGeneration(ctx, periodStart, periodEnd),
     [ctx, periodStart, periodEnd]
   );
 
   const handleGenerate = () => {
     if (!canGenerate) {
-      setMessage("You do not have permission to generate claims.");
+      setMessage("You do not have permission to generate invoices.");
       return;
     }
     if (!preview.eligibleLineCount) {
       setMessage(
-        "No eligible lines — approve timesheets, verify check-ins, and ensure lines are not already claimed."
+        "No eligible lines — use plan-managed or self-managed participants with approved, verified timesheets not already billed."
       );
       return;
     }
     setGenerating(true);
     const actor = session?.displayName || "SuperUser";
-    const result = generateClaimsFromTimesheets(ctx, periodStart, periodEnd, actor);
+    const result = generateInvoicesFromTimesheets(ctx, periodStart, periodEnd, actor);
     const all = [...result.created, ...result.updated];
-    data.bulkUpsertClaims(all);
+    data.bulkUpsertInvoices(all);
     setGenerating(false);
     const parts = [];
     if (result.created.length) parts.push(`${result.created.length} created`);
     if (result.updated.length) parts.push(`${result.updated.length} updated`);
     setMessage(
-      `Generated claims: ${parts.join(", ") || "none"}.${result.skippedAlreadyClaimed ? ` ${result.skippedAlreadyClaimed} lines already on a claim.` : ""}${result.skippedUnverified ? ` ${result.skippedUnverified} lines skipped — not verified.` : ""}${result.skippedLockedClaim ? ` ${result.skippedLockedClaim} lines skipped — submitted claim exists for participant.` : ""}${result.skippedInvoiceManaged ? ` ${result.skippedInvoiceManaged} plan/self-managed lines skipped — use Generate invoices.` : ""}`
+      `Generated invoices: ${parts.join(", ") || "none"}.${result.skippedAlreadyBilled ? ` ${result.skippedAlreadyBilled} lines already billed.` : ""}${result.skippedUnverified ? ` ${result.skippedUnverified} lines skipped — not verified.` : ""}${result.skippedLockedInvoice ? ` ${result.skippedLockedInvoice} lines skipped — sent invoice exists for participant.` : ""}${result.skippedAgencyManaged ? ` ${result.skippedAgencyManaged} agency-managed lines skipped — use Generate claims.` : ""}`
     );
     if (result.created.length === 1) {
-      router.push(`/claims/${result.created[0].id}`);
+      router.push(`/invoices/${result.created[0].id}`);
     } else if (all.length) {
-      router.push("/claims");
+      router.push("/invoices");
     }
   };
 
   return (
     <div className="space-y-6">
       <p className="text-sm text-slate-600">
-        Bulk-create draft NDIS claim batches from approved timesheet lines with verified check-ins. One claim is created
-        per participant for the selected period.
+        Bulk-create draft invoices from approved timesheet lines for plan-managed and self-managed participants. Agency
+        managed participants are billed via NDIS claims instead.
       </p>
       <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:max-w-xl">
         <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Claim period start</span>
+          <span className="mb-1 block font-medium text-slate-700">Invoice period start</span>
           <input type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} className={inputClass} />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Claim period end</span>
+          <span className="mb-1 block font-medium text-slate-700">Invoice period end</span>
           <input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} className={inputClass} />
         </label>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Eligible lines</p>
           <p className="mt-1 text-xl font-semibold text-slate-900">{preview.eligibleLineCount}</p>
         </div>
         <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Participants</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.rows.length}</p>
-        </div>
-        <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Already claimed</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.alreadyClaimedCount}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Already billed</p>
+          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.alreadyBilledCount}</p>
         </div>
         <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Unverified skipped</p>
           <p className="mt-1 text-xl font-semibold text-slate-900">{preview.unverifiedSkippedCount}</p>
         </div>
         <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Locked claims skipped</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.lockedClaimSkippedCount}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Sent invoice skipped</p>
+          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.lockedInvoiceSkippedCount}</p>
         </div>
         <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Plan/self managed skipped</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.invoiceManagedSkippedCount}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Agency managed skipped</p>
+          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.agencyManagedSkippedCount}</p>
         </div>
       </div>
       {preview.rows.length ? (
@@ -281,6 +326,7 @@ export function GenerateClaimsView() {
             <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3">Client</th>
+                <th className="px-4 py-3">Plan type</th>
                 <th className="px-4 py-3">Lines</th>
                 <th className="px-4 py-3">Est. amount</th>
               </tr>
@@ -289,6 +335,7 @@ export function GenerateClaimsView() {
               {preview.rows.map((row) => (
                 <tr key={row.clientId} className="border-b border-slate-100">
                   <td className="px-4 py-3">{clientLabel(data.clients, row.clientId)}</td>
+                  <td className="px-4 py-3">{row.planManagementType}</td>
                   <td className="px-4 py-3">{row.lineCount}</td>
                   <td className="px-4 py-3">${row.totalAmount.toFixed(2)}</td>
                 </tr>
@@ -304,10 +351,10 @@ export function GenerateClaimsView() {
           onClick={handleGenerate}
           className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {generating ? "Generating…" : "Generate claims"}
+          {generating ? "Generating…" : "Generate invoices"}
         </button>
-        <Link href="/claims" className="text-sm font-medium text-[#b51266] hover:underline">
-          View claims
+        <Link href="/invoices" className="text-sm font-medium text-[#b51266] hover:underline">
+          View invoices
         </Link>
       </div>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
@@ -315,12 +362,12 @@ export function GenerateClaimsView() {
   );
 }
 
-export function ClaimDetailView({ id }: { id: string }) {
+export function InvoiceDetailView({ id }: { id: string }) {
   const data = useData();
   const { session, canWriteWindow } = useAuth();
-  const canEdit = canWriteWindow("claims");
-  const stored = data.claims.find((c) => c.id === id);
-  const [draft, setDraft] = useState<ClaimRecord | null>(null);
+  const canEdit = canWriteWindow("invoices");
+  const stored = data.invoices.find((inv) => inv.id === id);
+  const [draft, setDraft] = useState<InvoiceRecord | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -330,40 +377,40 @@ export function ClaimDetailView({ id }: { id: string }) {
   if (!record) {
     return (
       <AppShell
-        title="Claim not found"
+        title="Invoice not found"
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Claims", href: "/claims" },
+          { label: "Invoices", href: "/invoices" },
           { label: "Not found" },
         ]}
-        audit={{ moduleLabel: "Claims" }}
+        audit={{ moduleLabel: "Invoices" }}
       >
         <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-10 text-center">
-          <p className="text-sm text-slate-600">Claim not found.</p>
-          <Link href="/claims" className="mt-3 inline-flex text-sm font-medium text-[#b51266] hover:underline">
-            Back to claims
+          <p className="text-sm text-slate-600">Invoice not found.</p>
+          <Link href="/invoices" className="mt-3 inline-flex text-sm font-medium text-[#b51266] hover:underline">
+            Back to invoices
           </Link>
         </div>
       </AppShell>
     );
   }
 
-  const update = (patch: Partial<ClaimRecord>) => {
+  const update = (patch: Partial<InvoiceRecord>) => {
     setSaveError("");
-    setDraft((prev) => normalizeClaim({ ...(prev ?? stored!), ...patch }));
+    setDraft((prev) => normalizeInvoice({ ...(prev ?? stored!), ...patch }));
     setDirty(true);
   };
 
   const handleSave = () => {
     if (!record || !canEdit) return;
     const actor = session?.displayName || "SuperUser";
-    const validated = revalidateClaimLines(record, data);
-    const block = claimSaveBlocked(stored, validated, validationContext(data));
+    const validated = revalidateInvoiceLines(record, data);
+    const block = invoiceSaveBlocked(validated);
     if (block) {
       setSaveError(block);
       return;
     }
-    data.upsertClaim({ ...validated, updatedBy: actor });
+    data.upsertInvoice({ ...validated, updatedBy: actor });
     setDraft(null);
     setDirty(false);
     setSaveError("");
@@ -374,21 +421,41 @@ export function ClaimDetailView({ id }: { id: string }) {
     setDirty(false);
   };
 
-  const locked = claimRecordIsLocked(stored ?? record);
-  const ctx = validationContext(data);
+  const handleMarkSent = () => {
+    if (!record || !canEdit || invoiceRecordIsLocked(stored ?? record)) return;
+    const actor = session?.displayName || "SuperUser";
+    const validated = revalidateInvoiceLines(record, data);
+    const next = normalizeInvoice({
+      ...validated,
+      status: "Sent",
+      sentAt: new Date().toISOString(),
+      updatedBy: actor,
+    });
+    const block = invoiceSaveBlocked(next);
+    if (block) {
+      setSaveError(block);
+      return;
+    }
+    data.upsertInvoice(next);
+    setDraft(null);
+    setDirty(false);
+    setSaveError("");
+  };
+
+  const locked = invoiceRecordIsLocked(stored ?? record);
 
   return (
     <>
       <AppShell
         title={record.documentNo}
-        subtitle={client ? `${client.searchKey} — ${client.name}` : "NDIS claim batch"}
+        subtitle={client ? `${client.searchKey} — ${client.name}` : "Participant invoice"}
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Claims", href: "/claims" },
+          { label: "Invoices", href: "/invoices" },
           { label: record.documentNo },
         ]}
         audit={{
-          entityType: "claim",
+          entityType: "invoice",
           entityId: record.id,
           meta: auditMetaFrom(stored ?? record),
         }}
@@ -405,7 +472,7 @@ export function ClaimDetailView({ id }: { id: string }) {
             </label>
             <label className="block text-sm">
               <span className="mb-1 block font-medium text-slate-700">Period</span>
-              <span className="text-slate-900">{formatClaimPeriod(record)}</span>
+              <span className="text-slate-900">{formatInvoicePeriod(record)}</span>
             </label>
             <label className="block text-sm">
               <span className="mb-1 block font-medium text-slate-700">Total amount</span>
@@ -419,27 +486,7 @@ export function ClaimDetailView({ id }: { id: string }) {
                 onChange={(e) => update({ status: e.target.value })}
                 className={inputClass}
               >
-                {claimDropdowns.status
-                  .filter((s) => s !== "Submitted" || locked)
-                  .map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-              </select>
-              {!locked ? (
-                <p className="mt-1 text-xs text-slate-500">Use Submit to gateway to move a Draft claim to Submitted.</p>
-              ) : null}
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1 block font-medium text-slate-700">Plan management</span>
-              <select
-                value={record.planManagementType}
-                disabled={!canEdit || locked}
-                onChange={(e) => update({ planManagementType: e.target.value })}
-                className={inputClass}
-              >
-                {claimDropdowns.planManagementType.map((s) => (
+                {invoiceDropdowns.status.map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>
@@ -447,25 +494,73 @@ export function ClaimDetailView({ id }: { id: string }) {
               </select>
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-medium text-slate-700">Gateway status</span>
-              <span className="block text-sm text-slate-900">{record.gatewayStatus || "Not submitted"}</span>
-              {record.gatewayRef ? (
-                <span className="mt-0.5 block text-xs text-slate-500">Ref: {record.gatewayRef}</span>
-              ) : null}
+              <span className="mb-1 block font-medium text-slate-700">Plan management</span>
+              <span className="block text-sm text-slate-900">{record.planManagementType}</span>
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-medium text-slate-700">Remittance</span>
-              <span
-                className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${remittanceStatusClass(record.remittanceStatus || "Not imported")}`}
+              <span className="mb-1 block font-medium text-slate-700">Payment status</span>
+              <select
+                value={record.paymentStatus}
+                disabled={!canEdit || locked}
+                onChange={(e) => update({ paymentStatus: e.target.value })}
+                className={inputClass}
               >
-                {record.remittanceStatus || "Not imported"}
-              </span>
-              {record.remittancePaidAmount > 0 ? (
-                <span className="mt-1 block text-sm text-slate-900">${record.remittancePaidAmount.toFixed(2)} paid</span>
-              ) : null}
-              {record.remittancePaymentRef ? (
-                <span className="mt-0.5 block text-xs text-slate-500">Payment ref: {record.remittancePaymentRef}</span>
-              ) : null}
+                {invoiceDropdowns.paymentStatus.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-sm lg:col-span-2">
+              <span className="mb-1 block font-medium text-slate-700">Invoice to</span>
+              <input
+                value={record.invoiceTo}
+                disabled={!canEdit || locked}
+                onChange={(e) => update({ invoiceTo: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">Invoice to email</span>
+              <input
+                type="email"
+                value={record.invoiceToEmail}
+                disabled={!canEdit || locked}
+                onChange={(e) => update({ invoiceToEmail: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">Due date</span>
+              <input
+                type="date"
+                value={record.dueDate}
+                disabled={!canEdit || locked}
+                onChange={(e) => update({ dueDate: e.target.value })}
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">Paid amount</span>
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={record.paidAmount}
+                disabled={!canEdit || locked}
+                onChange={(e) => update({ paidAmount: Number.parseFloat(e.target.value) || 0 })}
+                className={inputClass}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">Payment reference</span>
+              <input
+                value={record.paymentReference}
+                disabled={!canEdit || locked}
+                onChange={(e) => update({ paymentReference: e.target.value })}
+                className={inputClass}
+              />
             </label>
             <label className="block text-sm lg:col-span-3">
               <span className="mb-1 block font-medium text-slate-700">Notes</span>
@@ -479,32 +574,29 @@ export function ClaimDetailView({ id }: { id: string }) {
             </label>
           </div>
 
-          <ClaimValidationPanel lines={record.lines} claimStatus={record.status} />
+          {!locked && canEdit ? (
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleMarkSent}
+                className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+              >
+                Mark as sent
+              </button>
+              {record.sentAt ? (
+                <span className="self-center text-sm text-slate-500">Sent {new Date(record.sentAt).toLocaleString()}</span>
+              ) : null}
+            </div>
+          ) : record.sentAt ? (
+            <p className="text-sm text-slate-600">Sent {new Date(record.sentAt).toLocaleString()}</p>
+          ) : null}
 
-          <ClaimGatewayPanel
-            claim={record}
-            client={client}
-            products={data.products}
-            validationCtx={ctx}
-            canSubmit={canEdit}
-            actorName={session?.displayName || "SuperUser"}
-            onSubmitted={(next) => {
-              data.upsertClaim(next);
-              setDraft(null);
-              setDirty(false);
-              setSaveError("");
-            }}
-          />
+          <ClaimValidationPanel lines={invoiceLinesAsClaimLines(record)} claimStatus={record.status} />
 
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="text-sm font-semibold text-slate-900">Claim lines</h2>
+            <h2 className="text-sm font-semibold text-slate-900">Invoice lines</h2>
             <div className="mt-4">
-              <LineItemTable
-                config={claimLineTableConfig}
-                rows={record.lines}
-                onChange={() => {}}
-                readOnly
-              />
+              <LineItemTable config={invoiceLineTableConfig} rows={record.lines} onChange={() => {}} readOnly />
             </div>
           </div>
 
