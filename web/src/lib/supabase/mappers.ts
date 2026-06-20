@@ -2183,6 +2183,9 @@ export type TimesheetRow = {
   status: string;
   total_hours: number;
   notes: string;
+  payroll_export_status: string;
+  payroll_exported_at: string | null;
+  payroll_export_batch_ref: string;
   created_by: string;
   updated_by: string;
 };
@@ -2213,6 +2216,9 @@ export function timesheetFromRow(row: TimesheetRow, lines: TimesheetLineRowDb[])
     status: row.status,
     totalHours: Number(row.total_hours) || 0,
     notes: row.notes,
+    payrollExportStatus: row.payroll_export_status || "Not exported",
+    payrollExportedAt: row.payroll_exported_at ?? "",
+    payrollExportBatchRef: row.payroll_export_batch_ref ?? "",
     lines: lines.map(timesheetLineFromRow),
     createdBy: row.created_by,
     updatedBy: row.updated_by,
@@ -2246,6 +2252,9 @@ export function timesheetToRow(record: TimesheetRecord): TimesheetRow {
     status: record.status,
     total_hours: record.totalHours,
     notes: record.notes,
+    payroll_export_status: record.payrollExportStatus || "Not exported",
+    payroll_exported_at: record.payrollExportedAt?.trim() ? record.payrollExportedAt : null,
+    payroll_export_batch_ref: record.payrollExportBatchRef ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

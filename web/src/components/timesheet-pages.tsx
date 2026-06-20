@@ -24,6 +24,8 @@ import {
 } from "@/lib/timesheet";
 import { verifyTimesheet, timesheetApprovalBlocked } from "@/lib/timesheet-verification";
 import { TimesheetVerificationPanel } from "@/components/timesheet-verification-panel";
+import { PayrollExportDetailActions, PayrollExportPanel } from "@/components/payroll-export-panel";
+import { payrollExportStatusClass } from "@/lib/timesheet-payroll-export";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -70,6 +72,7 @@ export function TimesheetListView() {
           Generate timesheets
         </Link>
       </div>
+      <PayrollExportPanel />
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm text-slate-600">
           Status{" "}
@@ -98,6 +101,7 @@ export function TimesheetListView() {
                 <th className="px-4 py-3">Hours</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Verification</th>
+                <th className="px-4 py-3">Payroll</th>
                 <th className="px-4 py-3">Lines</th>
               </tr>
             </thead>
@@ -146,6 +150,17 @@ export function TimesheetListView() {
                             All verified
                           </span>
                         )
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {sheet.status === "Approved" ? (
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${payrollExportStatusClass(sheet.payrollExportStatus)}`}
+                        >
+                          {sheet.payrollExportStatus || "Not exported"}
+                        </span>
                       ) : (
                         "—"
                       )}
@@ -448,6 +463,7 @@ export function TimesheetDetailView({ id }: { id: string }) {
           {verification ? (
             <TimesheetVerificationPanel summary={verification} lines={record.lines} />
           ) : null}
+          <PayrollExportDetailActions sheet={stored ?? record} disabled={dirty || !stored} />
           {saveError ? (
             <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{saveError}</p>
           ) : null}

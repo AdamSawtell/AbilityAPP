@@ -23,6 +23,9 @@ export type TimesheetRecord = {
   status: string;
   totalHours: number;
   notes: string;
+  payrollExportStatus: string;
+  payrollExportedAt: string;
+  payrollExportBatchRef: string;
   lines: TimesheetLine[];
   createdBy: string;
   updatedBy: string;
@@ -30,6 +33,7 @@ export type TimesheetRecord = {
 
 export const timesheetDropdowns = {
   status: ["Draft", "Submitted", "Approved"],
+  payrollExportStatus: ["Not exported", "Exported", "Processed"],
 };
 
 export const initialTimesheets: TimesheetRecord[] = [];
@@ -79,6 +83,9 @@ export function normalizeTimesheet(record: TimesheetRecord): TimesheetRecord {
     status: record.status || "Draft",
     totalHours,
     notes: record.notes ?? "",
+    payrollExportStatus: record.payrollExportStatus || "Not exported",
+    payrollExportedAt: record.payrollExportedAt ?? "",
+    payrollExportBatchRef: record.payrollExportBatchRef ?? "",
     lines,
     createdBy: record.createdBy ?? "",
     updatedBy: record.updatedBy ?? "",
@@ -86,7 +93,7 @@ export function normalizeTimesheet(record: TimesheetRecord): TimesheetRecord {
 }
 
 export function createTimesheet(
-  partial: TimesheetRecord,
+  partial: Partial<TimesheetRecord>,
   existing: TimesheetRecord[]
 ): TimesheetRecord {
   const id =
@@ -98,6 +105,16 @@ export function createTimesheet(
   let documentNo = partial.documentNo?.trim() || `TS-${50000 + existing.length + 1}`;
   if (used.has(documentNo)) documentNo = `${documentNo}-${existing.length + 1}`;
   return normalizeTimesheet({
+    employeeId: "",
+    periodStart: "",
+    periodEnd: "",
+    status: "Draft",
+    totalHours: 0,
+    notes: "",
+    payrollExportStatus: "Not exported",
+    payrollExportedAt: "",
+    payrollExportBatchRef: "",
+    lines: [],
     ...partial,
     id,
     documentNo,

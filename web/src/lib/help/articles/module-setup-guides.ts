@@ -132,6 +132,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant My shifts to support workers and coordinators who check in on rostered work.",
       "Publish roster shifts with workers assigned before running Generate timesheets for a pay period.",
       "Workers should check out and verify shifts on My workplace before coordinators approve timesheets.",
+      "Export approved timesheets to CSV from the Timesheets payroll export panel before running pay in Keypay or Xero.",
     ]
   ),
   moduleSetupArticle(

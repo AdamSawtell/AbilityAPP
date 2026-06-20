@@ -110,6 +110,7 @@ export const deliveryArticle: HelpArticle = {
         "Open Timesheets, select a record, and review shift lines linked to roster shifts.",
         "Review the Shift verification panel — verified lines match worker check-in/out; geofence warnings are advisory only.",
         "Set status to Submitted or Approved when all linked shifts are verified (or manually reviewed).",
+        "On Timesheets, select approved records and use Payroll export to download a CSV for Keypay or Xero.",
         "Re-run generation for the same period to append new shifts to an existing Draft timesheet.",
       ],
       relatedRoutes: ["/timesheets", "/generate-timesheets"],
