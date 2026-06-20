@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
 | **Active slice** | WP-0.1 complete — enquiry pipeline stages + loss reasons |
 | **Next slice** | WP-0.2 — NDIS qualification scoring |
-| **Last push** | _pending WP-0.1_ |
+| **Last push** | 2026-06-20 — `b210c1a` |
 
 ---
 
@@ -985,7 +985,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 72a67e6 | WP-J.1 plan vs actual + WP-J.2 claim reconciliation dashboards |
 | 2026-06-20 | 271d15a | WP-J.3 financial close checklist + summary report |
 | 2026-06-20 | f56f6a5 | WP-J.4 NDIS audit pack export + summary report |
-| 2026-06-20 | pending | WP-0.1 enquiry pipeline stages + loss reasons |
+| 2026-06-20 | b210c1a | WP-0.1 enquiry pipeline stages + loss reasons |
 
 ---
 
