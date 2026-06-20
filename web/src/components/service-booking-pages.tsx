@@ -11,7 +11,7 @@ import { BookingCancellationPanel } from "@/components/booking-cancellation-pane
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
-import { evaluateCancellationPolicy } from "@/lib/booking-cancellation";
+import { evaluateCancellationPolicy, localDateIso } from "@/lib/booking-cancellation";
 import {
   bookingComplianceBlocked,
   validateServiceBookingCompliance,
@@ -211,8 +211,15 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
     const base = draft ?? stored;
     if (!base) return;
     const next = { ...base, [key]: value, updatedBy: "SuperUser" };
-    if (key === "documentStatus" && value === "Cancelled" && !next.cancelledAt?.trim()) {
-      next.cancelledAt = new Date().toISOString().slice(0, 10);
+    if (key === "documentStatus") {
+      if (value === "Cancelled" && !next.cancelledAt?.trim()) {
+        next.cancelledAt = localDateIso();
+      } else if (value !== "Cancelled") {
+        next.cancelledAt = "";
+        next.cancellationInitiatedBy = "";
+        next.cancellationReason = "";
+        next.cancellationNotes = "";
+      }
     }
     if (key === "lines") {
       const lines = value as ServiceBookingLine[];

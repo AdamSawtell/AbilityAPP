@@ -2,6 +2,14 @@ import type { ServiceBookingRecord } from "@/lib/service-booking";
 
 export const DEFAULT_CANCELLATION_NOTICE_DAYS = 7;
 
+/** Calendar date in the user's local timezone (`YYYY-MM-DD`). */
+export function localDateIso(date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export const CANCELLATION_INITIATED_BY = [
   "Participant",
   "Provider",
@@ -249,9 +257,12 @@ export function normalizeCancellationFields(
   return {
     ...booking,
     cancellationNoticeDays: noticeDays,
-    cancelledAt: booking.cancelledAt ?? "",
-    cancellationInitiatedBy: booking.cancellationInitiatedBy ?? "",
-    cancellationReason: booking.cancellationReason ?? "",
-    cancellationNotes: booking.cancellationNotes ?? "",
+    cancelledAt: booking.documentStatus === "Cancelled" ? (booking.cancelledAt ?? "") : "",
+    cancellationInitiatedBy:
+      booking.documentStatus === "Cancelled" ? (booking.cancellationInitiatedBy ?? "") : "",
+    cancellationReason:
+      booking.documentStatus === "Cancelled" ? (booking.cancellationReason ?? "") : "",
+    cancellationNotes:
+      booking.documentStatus === "Cancelled" ? (booking.cancellationNotes ?? "") : "",
   };
 }

@@ -324,8 +324,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
-| — | through `9873432` | — | **Not run** | Backlog — run before next push |
-| 2026-06-18 | `e0ccb56` | 1 High (multi-line date) — fixed in follow-up | Fixed | `serviceStartForCancellation` |
+| 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
+| 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
 | — | *Next push* | — | Pending | Required per BUILD-EXPECTATIONS §11 |
 
 ---
