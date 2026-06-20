@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **68%** |
-| **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.18 — Payroll reconciliation stub ✅ shipped |
-| **Next slice** | WP-D.19 — Roster hard enforcement (conflict blocks publish) |
-| **Last push** | 2026-06-18 — `ad3095d` |
+| **Overall completion** | **69%** |
+| **Current work package** | WP-D — Rostering (Chunk 4) |
+| **Active slice** | WP-D.19 — Roster hard enforcement ✅ shipped |
+| **Next slice** | WP-D.20 — Staff–client matching hints on shift editor |
+| **Last push** | 2026-06-18 — pending |
 
 ---
 
@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **75%** | 🔵 In progress | WP-D.19 roster hard enforcement |
+| 4 | Rostering | 22% | **80%** | 🔵 In progress | WP-D.20 matching hints |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | **50%** | 🟡 Partial | WP-D.18 payroll reconciliation |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -366,6 +366,18 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 6 | Edit timesheet fields without saving | Reconciliation save disabled until save or discard |
 | 7 | **Full audit trail** after reconcile | payroll paid hours, reconcile status logged |
 
+### WP-D.19 — Roster hard enforcement (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Rostering** → Week tab with staffed draft shifts | **Publish week** panel visible |
+| 2 | Create overlapping shifts for same worker, both Draft with workers | Conflict badges on calendar |
+| 3 | **Publish week** | Blocked shifts listed; only conflict-free shifts publish |
+| 4 | Edit shift → set status **Published** with conflict | Save blocked with error |
+| 5 | Client time overlap on two Published shifts | Hard block (error, not warning only) |
+| 6 | RoC publish overnight line | Still saves (overnight times allowed) |
+| 7 | Open shift claim with conflict | Blocked with conflict message |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -569,6 +581,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | b41d598 | WP-D.16 Keypay API export hook |
 | 2026-06-18 | fd6df49 | WP-D.17 mobile My shifts polish |
 | 2026-06-18 | 062fe13 | WP-D.18 payroll reconciliation stub |
+| 2026-06-18 | 629c4aa | WP-D.19 roster hard enforcement |
 
 ---
 
@@ -624,6 +637,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.16 | `/timesheets` | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.17 | `/my/shifts` | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.18 | `/timesheets` | **Pass** | HTTP 200 |
+| 2026-06-18 | WP-D.19 | `/rostering` | **Pass** | HTTP 200 |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -644,6 +658,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.16 | 5 High + 2 Medium | **Pass** | Fixed: server validation/persist, Basic auth, dry-run priority, double-click, fetch catch |
 | 2026-06-18 | WP-D.17 | 1 High + 1 Medium | **Pass** | Fixed: yesterday action shifts on Today tab; check-out before check-in in banner |
 | 2026-06-18 | WP-D.18 | 1 High + 1 Medium | **Pass** | Fixed: disable reconcile when draft dirty; reset form on timesheet navigation |
+| 2026-06-18 | WP-D.19 | 2 High | **Pass** | Fixed: skip TIME_RANGE_INVALID on batch save and open-shift claim for overnight RoC |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -677,7 +692,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.16 | `delivery` — Keypay API payroll export | `services-setup` — Keypay env vars on Amplify | exit 0 |
 | 2026-06-18 | WP-D.17 | `my-workplace` — mobile My shifts tabs | — | exit 0 |
 | 2026-06-18 | WP-D.18 | `delivery` — payroll reconciliation after export | `services-setup` — reconcile after pay run | exit 0 |
-| 2026-06-18 | `npm run build` | exit 0 (WP-D.18) |
+| 2026-06-18 | WP-D.19 | `delivery` — publish week hard blocks | `services-setup` — resolve conflicts before publish | exit 0 |
+| 2026-06-18 | `npm run build` | exit 0 (WP-D.19) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.19) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.18) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.17) |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.16) |

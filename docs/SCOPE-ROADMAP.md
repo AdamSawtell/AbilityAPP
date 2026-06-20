@@ -163,7 +163,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 | Drag-and-drop day/week views | ⬜ | Yes |
 | Recurring + ad-hoc shifts | ⬜ | Yes |
 | Staff–client matching rules | ⬜ | Yes |
-| Conflict detection (hard blocks) | ⬜ | Yes |
+| Conflict detection (hard blocks) | 🟡 | Yes |
 | Open shift marketplace | ⬜ | Yes |
 | Mobile worker app | ⬜ | Phase 2 (PWA or native) |
 | RoC import | ⬜ | Yes |
@@ -211,7 +211,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 | Keypay / Xero / EH API export | ⬜ | Needs OAuth |
 | SCHADS award interpretation | ❌ Out of scope | Payroll system only |
 | HR compliance alerts (screening, fatigue) | 🟡 | Partial via credentials/leave |
-| Hard enforcement blocks on roster | ⬜ | With Chunk 4 |
+| Hard enforcement blocks on roster | 🟡 | With Chunk 4 |
 
 **User input needed:** Primary payroll vendor (Keypay recommended in scope).
 
