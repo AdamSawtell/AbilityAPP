@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) |
 | **Active slice** | WP-D.5 — Gap analysis / vacant shifts ✅ shipped |
 | **Next slice** | WP-D.6 — Open shift marketplace (placeholder) |
-| **Last push** | 2026-06-20 — `9336f35` |
+| **Last push** | 2026-06-20 — `0515809` |
 
 ---
 
@@ -439,7 +439,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
 | 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
-| 2026-06-20 | WP-D.2 + WP-D.3 | `/rostering` | **Pass** | New shift on Tue 7 Oct saved; refresh shows seed shifts; double-book Isla Mon blocks save with error; conflict badge on calendar |
+| 2026-06-20 | WP-D.5 | `/rostering` Gaps + Forward plan tabs | **Pass** | Gaps tab loads; forward plan shows coverage gaps card |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -463,7 +463,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-B.2 | `delivery` — cancellation policy | `services-setup` updated | exit 0 |
 | 2026-06-20 | Entity linking | `clients` — Service bookings tab; `delivery` client link | `clients-setup` + seed-access | exit 0 |
 | 2026-06-20 | WP-C.3 | `services` — Participant e-sign | `services-setup` | exit 0 |
-| 2026-06-20 | WP-D.2 + WP-D.3 | `delivery` — rostering create/edit/recurring + conflicts | roster_shift migration + seed | exit 0 |
+| 2026-06-20 | WP-D.5 | `delivery` — gap analysis + vacant shifts | — | exit 0 |
 
 ---
 
