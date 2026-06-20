@@ -1,3 +1,10 @@
+import {
+  CORE_CONSENT_TYPES,
+  currentConsentForType,
+  normalizeConsentStatus,
+  normalizeConsentType,
+} from "@/lib/client-consent";
+
 export type LineColumnType = "text" | "date" | "select" | "textarea" | "number";
 
 export type LineColumnDef<TRow extends { id: string }> = {
@@ -45,6 +52,7 @@ export type ClientConsentRow = {
   id: string;
   lineNo: number;
   consentType: string;
+  consentStatus: string;
   showAsAlert: string;
   name: string;
   description: string;
@@ -251,6 +259,7 @@ export const consentTableConfig: ClientTabTableConfig<ClientConsentRow> = {
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "consentType", label: "Consent type", type: "select", optionsKey: "consentType", required: true },
+    { key: "consentStatus", label: "Status", type: "select", optionsKey: "consentStatus", required: true },
     { key: "showAsAlert", label: "Show as alert", type: "select", optionsKey: "showAsAlert" },
     { key: "name", label: "Name", type: "text", required: true },
     { key: "description", label: "Description", type: "textarea", className: "min-w-[200px]" },
@@ -261,6 +270,7 @@ export const consentTableConfig: ClientTabTableConfig<ClientConsentRow> = {
     id: newLineId("consent"),
     lineNo,
     consentType: "",
+    consentStatus: "Pending",
     showAsAlert: "Yes",
     name: "",
     description: "",
@@ -469,10 +479,29 @@ export function renumberLines<TRow extends { id: string; lineNo: number }>(rows:
 }
 
 export function buildConsentAlertList(consents: ClientConsentRow[]): string {
-  return consents
-    .filter((c) => c.showAsAlert === "Yes" && (c.name.trim() || c.consentType.trim()))
-    .map((c) => `Consent-${c.name.trim() || c.consentType}`)
-    .join("; ");
+  const parts: string[] = [];
+
+  for (const type of CORE_CONSENT_TYPES) {
+    const row = currentConsentForType(consents, type);
+    if (!row) {
+      parts.push(`Consent-${type} missing`);
+      continue;
+    }
+    const status = normalizeConsentStatus(row.consentStatus);
+    if (status === "Refused" || status === "Pending" || status === "Expired") {
+      parts.push(`Consent-${row.name.trim() || type} (${status})`);
+    }
+  }
+
+  for (const c of consents) {
+    if (c.showAsAlert !== "Yes") continue;
+    const label = c.name.trim() || normalizeConsentType(c.consentType);
+    if (!label) continue;
+    const entry = `Consent-${label}`;
+    if (!parts.includes(entry)) parts.push(entry);
+  }
+
+  return parts.join("; ");
 }
 
 export function buildRiskAlertsSummary(risks: ClientRiskRow[]): string {

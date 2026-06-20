@@ -244,6 +244,7 @@ export type ClientConsentRowDb = {
   client_id: string;
   line_no: number;
   consent_type: string;
+  consent_status: string;
   show_as_alert: string;
   name: string;
   description: string;
@@ -474,6 +475,7 @@ export function clientFromRow(
       id: c.id,
       lineNo: c.line_no,
       consentType: c.consent_type,
+      consentStatus: c.consent_status || "Pending",
       showAsAlert: c.show_as_alert,
       name: c.name,
       description: c.description,

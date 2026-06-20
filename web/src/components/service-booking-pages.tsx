@@ -6,9 +6,14 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink, ProductRecordLink } from "@/components/record-link";
+import { BookingCompliancePanel } from "@/components/booking-compliance-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import {
+  bookingComplianceBlocked,
+  validateServiceBookingCompliance,
+} from "@/lib/booking-compliance";
 import { useData } from "@/lib/data-store";
 import {
   emptyBookingLine,
@@ -170,6 +175,11 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
   const hasUnsavedChanges = Boolean(draft);
 
   const client = record ? clients.find((c) => c.id === record.clientId) : null;
+  const complianceIssues = useMemo(() => {
+    if (!record) return [];
+    return validateServiceBookingCompliance(record, { client });
+  }, [record, client]);
+  const saveBlocked = bookingComplianceBlocked(complianceIssues);
   const productLabels = Object.fromEntries(products.map((p) => [p.id, `${p.searchKey} — ${p.name}`]));
   const lineDropdowns = {
     productId: products.map((p) => p.id),
@@ -201,7 +211,7 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
   }
 
   function save() {
-    if (!draft) return;
+    if (!draft || saveBlocked) return;
     upsertServiceBooking(draft);
     setDraft(null);
   }
@@ -252,6 +262,10 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
               {t === "Lines" ? "Service booking line" : t}
             </button>
           ))}
+        </div>
+
+        <div className="mb-6">
+          <BookingCompliancePanel issues={complianceIssues} />
         </div>
 
         {tab === "Overview" ? (
@@ -456,7 +470,13 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
         )}
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveBooking} onSave={save} onDiscard={() => setDraft(null)} />
+      <UnsavedChangesBar
+        visible={hasUnsavedChanges && canSaveBooking}
+        saveDisabled={saveBlocked}
+        message={saveBlocked ? "Fix compliance errors before saving" : "You have unsaved changes"}
+        onSave={save}
+        onDiscard={() => setDraft(null)}
+      />
     </>
   );
 }

@@ -2,7 +2,9 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ClientConsentSummary } from "@/components/client-consent-summary";
 import { ClientPlanBudgetSummary } from "@/components/client-plan-budget-summary";
+import { ClientPlanBudgetWizard } from "@/components/client-plan-budget-wizard";
 import { ClientGoalsPanel, ClientProgressReviewPanel } from "@/components/client-planning-panels";
 import { ClientLocationsPanel } from "@/components/client-locations-panel";
 import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pages";
@@ -379,6 +381,36 @@ export function ClientTabbedView({
               ) : null}
             </div>
             <ReadOnlyFieldGrid fields={coreOverviewFields} client={client} />
+            {(client.planBudgets?.length ?? 0) > 0 && canClientTab("Plan budget") ? (
+              <div className="mt-6 border-t border-slate-100 pt-5">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="text-sm font-semibold text-slate-900">Plan utilisation</h4>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("Plan budget")}
+                    className="text-sm font-medium text-[#b51266] hover:underline"
+                  >
+                    Open Plan budget
+                  </button>
+                </div>
+                <ClientPlanBudgetSummary rows={client.planBudgets ?? []} />
+              </div>
+            ) : null}
+            {(client.consents?.length ?? 0) > 0 && canClientTab("Consents and Legal Orders") ? (
+              <div className="mt-6 border-t border-slate-100 pt-5">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="text-sm font-semibold text-slate-900">Core consents</h4>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("Consents and Legal Orders")}
+                    className="text-sm font-medium text-[#b51266] hover:underline"
+                  >
+                    Open consents
+                  </button>
+                </div>
+                <ClientConsentSummary consents={client.consents ?? []} />
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -435,10 +467,11 @@ export function ClientTabbedView({
           <>
             <ClientTabIntro
               title="Consents and legal orders"
-              description="Track photo consent, information sharing, guardianship, and other legal orders. Items marked Show as alert roll up to the consent alert list on the client profile."
+              description="Track the three core NDIS consents — service delivery, information sharing, and photography — plus guardianship and other legal orders."
             >
+              <ClientConsentSummary consents={client.consents ?? []} />
               {client.consentAlertList ? (
-                <p className="rounded-lg border border-amber-200/80 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+                <p className="mt-3 rounded-lg border border-amber-200/80 bg-amber-50 px-3 py-2 text-sm text-amber-950">
                   <span className="font-medium">Consent alert list: </span>
                   {client.consentAlertList}
                 </p>
@@ -562,7 +595,14 @@ export function ClientTabbedView({
               title="Plan budget"
               description="Track NDIS plan allocations by support budget and category. Claimed amounts are entered manually until billing integration is live."
             >
-              <ClientPlanBudgetSummary rows={client.planBudgets ?? []} />
+              <ClientPlanBudgetWizard
+                rows={client.planBudgets ?? []}
+                readOnly={!canWriteClientTab("Plan budget")}
+                onApply={(rows) => onLineItemsChange("planBudgets", rows)}
+              />
+              <div className="mt-3">
+                <ClientPlanBudgetSummary rows={client.planBudgets ?? []} />
+              </div>
             </ClientTabIntro>
             <LineItemTable
               config={planBudgetTableConfig}

@@ -100,6 +100,7 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   alertType: "clients",
   restrictivePracticeType: "clients",
   consentType: "clients",
+  consentStatus: "clients",
   riskType: "clients",
   bpAssociationType: "clients",
   contactActivityType: "clients",

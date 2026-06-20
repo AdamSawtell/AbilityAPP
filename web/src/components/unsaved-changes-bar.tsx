@@ -5,6 +5,7 @@ type UnsavedChangesBarProps = {
   onSave: () => void;
   onDiscard: () => void;
   message?: string;
+  saveDisabled?: boolean;
 };
 
 export function UnsavedChangesBar({
@@ -12,6 +13,7 @@ export function UnsavedChangesBar({
   onSave,
   onDiscard,
   message = "You have unsaved changes",
+  saveDisabled = false,
 }: UnsavedChangesBarProps) {
   if (!visible) return null;
 
@@ -30,7 +32,8 @@ export function UnsavedChangesBar({
           <button
             type="button"
             onClick={onSave}
-            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+            disabled={saveDisabled}
+            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Save changes
           </button>

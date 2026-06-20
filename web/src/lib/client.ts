@@ -11,7 +11,12 @@ import type {
   ClientRestrictivePracticeRow,
   ClientRiskRow,
 } from "@/lib/client-line-tables";
-import { buildConsentAlertList, buildRiskAlertsSummary, transferActivitiesToClient } from "@/lib/client-line-tables";
+import { normalizeConsentStatus, normalizeConsentType } from "@/lib/client-consent";
+import {
+  buildConsentAlertList,
+  buildRiskAlertsSummary,
+  transferActivitiesToClient,
+} from "@/lib/client-line-tables";
 import { inferLifecycleFromLegacyStatus, normalizeLifecycleStatus } from "@/lib/client-lifecycle";
 import { clientDropdowns } from "@/lib/reference-data";
 
@@ -223,10 +228,33 @@ export const initialClients: ClientRecord[] = [
       {
         id: "consent-photo",
         lineNo: 1,
-        consentType: "Photo / video",
+        consentType: "Photography and video",
+        consentStatus: "Refused",
         showAsAlert: "Yes",
         name: "No photo consent provided",
         description: "Participant has not provided consent for photos or video to be taken or shared.",
+        validFrom: "2021-01-05",
+        validTo: "",
+      },
+      {
+        id: "consent-bern-service",
+        lineNo: 2,
+        consentType: "Service delivery",
+        consentStatus: "Granted",
+        showAsAlert: "No",
+        name: "Service delivery consent",
+        description: "Participant consented to NDIS support delivery at intake.",
+        validFrom: "2021-01-05",
+        validTo: "",
+      },
+      {
+        id: "consent-bern-information",
+        lineNo: 3,
+        consentType: "Information collection and sharing",
+        consentStatus: "Granted",
+        showAsAlert: "No",
+        name: "Information sharing consent",
+        description: "Consent to collect and share information with NDIS and plan manager.",
         validFrom: "2021-01-05",
         validTo: "",
       },
@@ -501,6 +529,8 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
   const consents = (client.consents ?? []).map((row, index) => ({
     ...row,
     lineNo: row.lineNo ?? index + 1,
+    consentType: normalizeConsentType(row.consentType),
+    consentStatus: normalizeConsentStatus(row.consentStatus),
   }));
   const risks = (client.risks ?? []).map((row, index) => ({
     ...row,
@@ -696,7 +726,8 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
           {
             id: `consent-${enquiry.id}`,
             lineNo: 1,
-            consentType: "Information sharing",
+            consentType: "Information collection and sharing",
+            consentStatus: "Granted",
             showAsAlert: "Yes",
             name: enquiry.thirdPartyConsent,
             description: "Carried forward from enquiry third-party consent.",

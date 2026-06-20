@@ -652,6 +652,7 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
         client_id: client.id,
         line_no: c.lineNo,
         consent_type: c.consentType,
+        consent_status: c.consentStatus,
         show_as_alert: c.showAsAlert,
         name: c.name,
         description: c.description,

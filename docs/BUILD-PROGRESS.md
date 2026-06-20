@@ -9,14 +9,12 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **21%** |
-| **Current work package** | WP-A — Client foundation (Chunk 1) |
-| **Active slice** | WP-A.2 — Plan budget line table ✅ shipped |
-| **Next slice** | WP-A.3 — Consent tab alignment |
-| **Last verified** | 2026-06-18 — build + page-guides OK |
-| **Last push** | 2026-06-18 — `0ad2f6c` |
-
-Progress is weighted by scope chunk size (rostering and downstream modules carry more weight once started).
+| **Overall completion** | **24%** |
+| **Current work package** | WP-B — Service booking compliance (Chunk 3) |
+| **Active slice** | WP-B.1 — Compliance rule engine ✅ shipped |
+| **Next slice** | WP-B.2 — Cancellation policy engine |
+| **Last verified** | 2026-06-18 — build OK |
+| **Last push** | _pending_ |
 
 ---
 
@@ -38,30 +36,30 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | 2% | 🟡 Partial | Portal auth (default: magic link) |
-| 1 | Client & plan management | 12% | **35%** | 🔵 In progress | None |
+| 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | 5% | 🟡 Partial | Templates (default scaffold OK) |
-| 3 | Service bookings compliance | 12% | 8% | 🟡 Partial | WP-B unblocked after A.2 |
-| 4 | Rostering | 22% | 0% | ⬜ Placeholder | **Requires Chunk 1–3** |
-| 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets |
-| 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts; payroll OAuth |
+| 3 | Service bookings compliance | 12% | **25%** | 🔵 In progress | None |
+| 4 | Rostering | 22% | 0% | ⬜ Placeholder | Requires Chunk 1–3 |
+| 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
+| 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | 3% | ⬜ Not started | Chunks 5 + 7 |
 
-**Platform cross-cutting** (auth, roles, audit, AI, reports): ~85% — not counted in chunk weights above.
+**Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
 
 ---
 
-## WP-A — Client foundation (Chunk 1)
+## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
 |-------|-------------|--------|-----------|
-| A.1 | Client lifecycle status (DB, UI, filters, audit) | ✅ Done | 20% |
-| A.2 | Plan budget line table (Core/CB/Capital categories) | ✅ Done | 25% |
-| A.3 | Consent tab alignment (service / information / photo) | ⬜ Next | 15% |
-| A.4 | Plan manual entry wizard | ⬜ | 20% |
-| A.5 | Utilisation summary panel (read-only) | ⬜ | 20% |
+| A.1 | Client lifecycle status | ✅ Done | 20% |
+| A.2 | Plan budget line table | ✅ Done | 25% |
+| A.3 | Consent tab alignment (service / information / photo) | ✅ Done | 15% |
+| A.4 | Plan manual entry wizard | ✅ Done | 20% |
+| A.5 | Utilisation summary on Overview | ✅ Done | 20% |
 
-**WP-A completion:** 45% (2/5 slices)
+**WP-A completion:** 100%
 
 ---
 
@@ -69,12 +67,12 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 
 | Slice | Deliverable | Status |
 |-------|-------------|--------|
-| B.1 | Compliance rule engine module | ⬜ |
-| B.2 | UI warnings vs hard blocks | ⬜ |
+| B.1 | Compliance rule engine + UI panel + save blocks | ✅ Done |
+| B.2 | UI warnings vs hard blocks (extend rules) | ⬜ Next |
 | B.3 | Cancellation policy engine | ⬜ |
-| B.4 | Budget line validation link | ⬜ Ready (A.2 done) |
+| B.4 | Budget line validation link | ✅ Done (in B.1) |
 
-**WP-B completion:** 0% — start after WP-A.2
+**WP-B completion:** 35%
 
 ---
 
@@ -95,11 +93,10 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 
 | Date | Commit | What shipped |
 |------|--------|--------------|
-| 2026-06-18 | _pending_ | WP-A.2: `client_plan_budget_line`, Plan budget tab, utilisation summary |
-| 2026-06-18 | bd60219 | WP-A.1: lifecycle status + governance docs |
-| 2026-06 | 5126a5d | Roles window access tile UI |
-| 2026-06 | e35e09f | Per-window read/write access |
-| 2026-06 | 42c1f20 | Roles page scroll fix |
+| 2026-06-18 | _pending_ | WP-A.3–A.5: consent status, core consent summary, plan wizard, overview utilisation |
+| 2026-06-18 | _pending_ | WP-B.1: booking compliance engine + panel + save block |
+| 2026-06-18 | 0ad2f6c | WP-A.2: plan budget lines |
+| 2026-06-18 | bd60219 | WP-A.1: lifecycle status + governance |
 
 ---
 
@@ -108,14 +105,12 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 | Date | Command | Result |
 |------|---------|--------|
 | 2026-06-18 | `npm run build` | exit 0 |
-| 2026-06-18 | `npm run page-guides:check` | exit 0 (76 routes) |
-| 2026-06-18 | `npm run supabase:push-remote` | migration `20260624140000` applied |
-| 2026-06-18 | `npm run supabase:seed-access` | exit 0 (new client-plan-budget window) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260624160000` applied |
 
 ---
 
 ## How to update this file
 
 1. After each slice: update chunk %, WP slice status, overall %, shipped log, verification log.
-2. Recalculate **Overall completion** using chunk weights × chunk % complete (approximate is fine).
-3. Set **Next slice** to the first incomplete item on the critical path.
+2. Set **Next slice** to the first incomplete item on the critical path.
