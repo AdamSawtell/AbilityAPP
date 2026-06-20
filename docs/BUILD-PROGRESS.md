@@ -14,7 +14,7 @@
 | **Active slice** | WP-B.3 — Extended compliance rules ✅ shipped · **WP-B complete** |
 | **Next slice** | WP-C.1 — Template + schedule of supports |
 | **Last verified** | 2026-06-18 — Tier 1 build + page-guides |
-| **Last push** | 2026-06-18 — `8e6bc50` |
+| **Last push** | 2026-06-18 — `22a49ea` |
 
 ---
 
@@ -356,6 +356,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Date | Slice | User article | System setup | page-guides:check |
 |------|-------|--------------|--------------|-------------------|
 | 2026-06-18 | WP-A.1–A.5 | `clients` — lifecycle, plan budget, consents, utilisation | `clients-setup` updated | exit 0 |
+| 2026-06-18 | WP-B.3 | `delivery` — extended compliance | `services-setup` | exit 0 |
 | 2026-06-18 | WP-B.2 | `delivery` — cancellation policy | `services-setup` updated | exit 0 |
 
 ---
