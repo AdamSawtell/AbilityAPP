@@ -105,7 +105,9 @@ export const myWorkplaceArticle: HelpArticle = {
       body: "Workers check in and out of assigned roster shifts from My workplace. GPS location is captured when the browser allows it. If the site has geofence coordinates configured, check-in/out more than the allowed radius shows an amber alert for workers and coordinators. Verified shifts show on the roster week view and feed timesheet generation.",
       steps: [
         "Open My workplace → My shifts.",
-        "Find today's or upcoming assigned shift — check-in opens on the shift date.",
+        "Use Today, Upcoming, or All to filter — Today opens by default on mobile.",
+        "The Next action banner highlights today's shift when you can check in or out.",
+        "Find your shift under the day heading — check-in opens on the shift date.",
         "Tap Check in when you start the shift — your browser may ask to share location.",
         "If you are outside the site geofence, an amber warning appears — coordinators see the same on the roster.",
         "Add optional notes, then tap Check out & verify when you finish — the shift moves to Completed.",

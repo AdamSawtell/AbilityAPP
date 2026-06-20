@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **66%** |
+| **Overall completion** | **67%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.16 — Keypay API export hook ✅ shipped |
-| **Next slice** | WP-D.17 — Mobile roster polish or payroll reconciliation stub |
+| **Active slice** | WP-D.17 — Mobile My shifts polish ✅ shipped |
+| **Next slice** | WP-D.18 — Payroll reconciliation stub or roster hard enforcement |
 | **Last push** | 2026-06-18 — `b41d598` |
 
 ---
@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **72%** | 🔵 In progress | WP-D.15 capacity |
+| 4 | Rostering | 22% | **75%** | 🔵 In progress | WP-D.17 mobile My shifts |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | **45%** | 🟡 Partial | WP-D.16 Keypay API hook |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -343,6 +343,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Without env vars | Only CSV button — no Keypay API option |
 | 6 | Unverified shift in selection | Export blocked (same gate as CSV) |
 
+### WP-D.17 — Mobile My shifts polish (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **My workplace** → **My shifts** on a narrow viewport | Today / Upcoming / All tabs visible |
+| 2 | Today tab (default) | Only today's shifts listed |
+| 3 | Shift assigned for today | **Next action** banner with large Check in button |
+| 4 | After check-in | Banner offers Check out & verify |
+| 5 | Upcoming tab | Future shifts grouped by day (Tomorrow, etc.) |
+| 6 | Geofence/GPS | Badges still show on shift cards |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -543,7 +554,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 7f984b9 | WP-D.13 RoC import and generate from agreement |
 | 2026-06-18 | 00c69f7 | WP-D.14 publish roster shifts from RoC |
 | 2026-06-18 | 63423e2 | WP-D.15 roster capacity planning |
-| 2026-06-18 | pending | WP-D.16 Keypay API export hook |
+| 2026-06-18 | b41d598 | WP-D.16 Keypay API export hook |
+| 2026-06-18 | pending | WP-D.17 mobile My shifts polish |
 
 ---
 
@@ -596,6 +608,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.14 | `/rostering` RoC publish panel | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.15 | `/rostering` Capacity tab | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.16 | `/timesheets` | **Pass** | HTTP 200 |
+| 2026-06-18 | WP-D.17 | `/my/shifts` | **Pass** | HTTP 200 |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
