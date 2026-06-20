@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 7 — Billing & claiming (claim generation scaffold) |
 | **Active slice** | WP-G/H complete — next: Chunk 7 billing scaffold |
 | **Next slice** | Chunk 7 — Billing & claiming (claim generation scaffold) |
-| **Last push** | 2026-06-20 — *(pending commit)* |
+| **Last push** | 2026-06-20 — `c3473f7` |
 
 ---
 
@@ -789,7 +789,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | e2fcd01 | WP-F.2 payroll period close checklist + Supabase lock |
 | 2026-06-18 | 8921a9d | Admin role always grants full catalog Write access |
 | 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
-| 2026-06-20 | pending | WP-G/H master roster on records + workforce fill board |
+| 2026-06-20 | c3473f7 | WP-G/H master roster on records + workforce fill board |
 
 ---
 
