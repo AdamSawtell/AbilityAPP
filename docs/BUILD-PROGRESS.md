@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.18 — Payroll reconciliation stub ✅ shipped |
 | **Next slice** | WP-D.19 — Roster hard enforcement (conflict blocks publish) |
-| **Last push** | 2026-06-18 — pending |
+| **Last push** | 2026-06-18 — `ad3095d` |
 
 ---
 
