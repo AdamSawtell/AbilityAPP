@@ -6,12 +6,17 @@ import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink } from "@/components/record-link";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
+import {
+  ServiceAgreementScheduleSummary,
+  ServiceAgreementScheduleWizard,
+} from "@/components/service-agreement-schedule";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { formatContractDate } from "@/lib/contract";
 import { newLineId } from "@/lib/client-line-tables";
 import { useReferenceData } from "@/lib/config-store";
 import {
+  normalizeServiceAgreement,
   type ServiceAgreementLine,
   type ServiceAgreementRecord,
 } from "@/lib/service-agreement";
@@ -159,7 +164,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
 
   if (!record) {
     return (
-      <AppShell title="Service agreement not found">
+      <AppShell title="Service agreement not found" audit={{ moduleLabel: "Service agreements" }}>
         <Link href="/service-agreements" className="text-[#b51266] hover:underline">
           Back to service agreements
         </Link>
@@ -170,7 +175,8 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
   function onChange<K extends keyof ServiceAgreementRecord>(key: K, value: ServiceAgreementRecord[K]) {
     const base = draft ?? stored;
     if (!base) return;
-    setDraft({ ...base, [key]: value, updatedBy: "SuperUser" });
+    const next = { ...base, [key]: value, updatedBy: "SuperUser" };
+    setDraft(normalizeServiceAgreement(next));
     setSaved(false);
   }
 
@@ -243,10 +249,29 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
             </select>
           </label>
           <label>
+            <span className="mb-1.5 block text-xs font-medium text-slate-600">Status</span>
+            <select className={inputClass} value={record.status} onChange={(e) => onChange("status", e.target.value)}>
+              {getOptions("serviceAgreementStatus").map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Total planned amount</span>
-            <input className={inputClass} value={record.totalPlannedAmount} onChange={(e) => onChange("totalPlannedAmount", e.target.value)} />
+            <input className={inputClass} value={record.totalPlannedAmount} readOnly />
           </label>
         </fieldset>
+
+        <div className="mb-6 space-y-4">
+          <ServiceAgreementScheduleSummary lines={record.lines} />
+          <ServiceAgreementScheduleWizard
+            rows={record.lines}
+            readOnly={!canSaveAgreement}
+            onApply={(rows) => onChange("lines", rows)}
+          />
+        </div>
 
         {client ? (
           <p className="mb-4 text-sm text-slate-600">
@@ -256,6 +281,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           </p>
         ) : null}
 
+        <h3 className="mb-3 text-sm font-semibold text-slate-900">Schedule of supports</h3>
         <LineItemTable
           config={lineConfig}
           rows={record.lines}

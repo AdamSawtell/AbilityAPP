@@ -9,12 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **28%** |
+| **Overall completion** | **30%** |
 | **Current work package** | WP-C — Service agreements (Chunk 2) |
-| **Active slice** | WP-B.3 — Extended compliance rules ✅ shipped · **WP-B complete** |
-| **Next slice** | WP-C.1 — Template + schedule of supports |
-| **Last verified** | 2026-06-18 — Tier 1 build + page-guides |
-| **Last push** | 2026-06-18 — `22a49ea` |
+| **Active slice** | WP-C.1 — Template + schedule of supports ✅ shipped |
+| **Next slice** | WP-C.2 — Lifecycle states Draft → Active |
+| **Last push** | *pending* |
 
 ---
 
@@ -62,7 +61,7 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | 2% | 🟡 Partial | Portal auth (default: magic link) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
-| 2 | Service agreements | 10% | 5% | 🟡 Partial | Templates (default scaffold OK) |
+| 2 | Service agreements | 10% | **25%** | 🔵 In progress | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | 0% | ⬜ Placeholder | Requires Chunk 1–3 |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
@@ -158,11 +157,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | Remove product from a line, save | Error: product required |
 | 4 | Restore product + Active agreement | Compliance passes |
 
-### WP-C — Service agreements (not started)
+### WP-C.1 — Schedule of supports templates
 
 | Step | Action | Pass if |
 |------|--------|---------|
-| — | *Steps added when slice ships* | — |
+| 1 | **Service agreements** → open **ROSE_Rose Ni** | Agreement opens |
+| 2 | Click **SIL + community starter** | Two lines appended |
+| 3 | Enter planned prices, save | Total planned updates; persists after refresh |
+| 4 | Set status *Draft*, save | Status saved; audit trail logs change |
+
+### WP-C.2 — Agreement lifecycle (not shipped)
 
 ---
 
@@ -311,7 +315,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit | What shipped |
 |------|--------|--------------|
-| 2026-06-18 | *pending* | WP-B.3: extended booking compliance |
+| 2026-06-18 | 22a49ea | WP-B.3 extended compliance — **WP-B complete** |
 | 2026-06-18 | 8e6bc50 | Bugbot fixes: cancellation local date + stale fields |
 | 2026-06-18 | 6fce676 | Per-slice user guides and system setup docs |
 | 2026-06-18 | 777b20e | WP-A complete + WP-B.1 booking compliance |

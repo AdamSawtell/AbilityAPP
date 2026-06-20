@@ -93,13 +93,21 @@ export const initialServiceAgreements: ServiceAgreementRecord[] = [
   },
 ];
 
+export function sumPlannedAmounts(lines: ServiceAgreementLine[]): string {
+  const total = lines.reduce((sum, line) => sum + (parseFloat(line.plannedPrice) || 0), 0);
+  return total.toFixed(2);
+}
+
 export function normalizeServiceAgreement(record: ServiceAgreementRecord): ServiceAgreementRecord {
+  const lines = record.lines.map((line, index) => ({
+    ...line,
+    lineNo: line.lineNo ?? (index + 1) * 10,
+  }));
+  const totalPlannedAmount = sumPlannedAmounts(lines);
   return {
     ...record,
-    lines: record.lines.map((line, index) => ({
-      ...line,
-      lineNo: line.lineNo ?? (index + 1) * 10,
-    })),
+    lines,
+    totalPlannedAmount,
   };
 }
 

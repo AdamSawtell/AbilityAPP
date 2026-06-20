@@ -122,7 +122,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
     [
       "Configure product categories and units of measure.",
       "Set service agreement and contract status options.",
-      "Grant Service bookings window at Write for roles that create or edit bookings.",
+      "Configure NDIS products and price lists before building schedules of supports.",
+      "Grant Service agreements and Service bookings windows at Write for delivery roles.",
       "Review Booking cancellation reason and Cancellation initiated by reference lists.",
       "Ensure client Plan budget lines exist for participants — booking compliance compares totals to remaining budget.",
       "Confirm clients have service delivery consent and Active service agreements before bookings go live.",

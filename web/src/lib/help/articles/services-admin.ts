@@ -41,10 +41,17 @@ export const servicesArticle: HelpArticle = {
     {
       id: "service-agreements",
       title: "Service agreements",
-      body: "Service agreements connect a client to funded service lines. Open from the client record or from All service agreements under Clients in the sidebar.",
+      body: "Service agreements connect a client to funded service lines — the schedule of supports. Open from the client record or from All service agreements under Clients in the sidebar.",
+      steps: [
+        "Open the agreement and set status, dates, and price list on the header.",
+        "Use a schedule template (SIL + community starter, Core daily living, or Full schedule scaffold) to add lines.",
+        "Enter planned price per line — total planned updates automatically.",
+        "Save and activate the agreement before creating service bookings.",
+      ],
       bullets: [
-        "Overview: header, dates, and status",
-        "Lines: individual service rows with product and quantity",
+        "Header: name, term, dates, status, price list",
+        "Schedule of supports: product lines with registration group and funding",
+        "Templates append standard NDIS support rows for manual pricing",
       ],
       relatedRoutes: ["/service-agreements"],
       windowKeys: ["service-agreements"],

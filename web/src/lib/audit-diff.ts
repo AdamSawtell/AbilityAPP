@@ -90,9 +90,13 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
   },
   "service-agreement": {
     searchKey: "Search key",
+    name: "Name",
     status: "Status",
-    startDate: "Start date",
-    endDate: "End date",
+    term: "Term",
+    contractDate: "Contract date",
+    finishDate: "Finish date",
+    totalPlannedAmount: "Total planned amount",
+    lines: "Schedule of supports lines",
   },
   "service-booking": {
     documentNo: "Document no.",
