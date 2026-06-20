@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.11 — Geofence check-in alerts ✅ shipped |
 | **Next slice** | WP-D.12 — RoC import (needs CSV template) or payroll export |
-| **Last push** | 2026-06-18 — `9bd8fb6` pending |
+| **Last push** | 2026-06-18 — `266f8b1` |
 
 ---
 
@@ -483,7 +483,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 7a518b5 | WP-D.8 worker shift check-in MVP |
 | 2026-06-20 | 957ed03 | WP-D.9 timesheet verification vs check-in |
 | 2026-06-20 | aee1aec | WP-D.10 GPS check-in capture |
-| 2026-06-18 | pending | WP-D.11 geofence check-in alerts |
+| 2026-06-18 | 9bd8fb6 | WP-D.11 geofence check-in alerts |
 
 ---
 
