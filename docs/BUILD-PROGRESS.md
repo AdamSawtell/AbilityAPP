@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **61%** |
+| **Overall completion** | **63%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
-| **Active slice** | WP-D.12 — Payroll CSV export ✅ shipped |
-| **Next slice** | WP-D.13 — RoC import (needs CSV template) or Keypay API hook |
-| **Last push** | 2026-06-18 — `7e68bf3` |
+| **Active slice** | WP-D.13 — RoC import & generate ✅ shipped |
+| **Next slice** | WP-D.14 — Publish shifts from RoC or Keypay API hook |
+| **Last push** | pending |
 
 ---
 
@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **60%** | 🔵 In progress | WP-D.11 geofence alerts |
+| 4 | Rostering | 22% | **65%** | 🔵 In progress | WP-D.13 RoC import |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | **35%** | 🟡 Partial | WP-D.12 payroll CSV export |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -300,6 +300,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 6 | Try export with unverified shift (Draft/Submitted) | Blocked with verification message |
 | 7 | Change status to Approved on detail without saving | Export hidden until saved |
 
+### WP-D.13 — RoC import & generate (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Rostering** → **RoC** tab | Import panel and RoC list visible |
+| 2 | Click **Load sample template** → **Import CSV** | RoC for BERN with Mon/Wed lines; persists after refresh |
+| 3 | Invalid client or location in CSV | Import blocked with clear error |
+| 4 | **Generate draft RoC** from Rose agreement | New Draft RoC — Active RoC unchanged |
+| 5 | Re-import CSV for same client | Updates existing Active/Draft RoC lines |
+| 6 | **Full audit trail** on import | Imported event on roster of care record |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -496,7 +507,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 957ed03 | WP-D.9 timesheet verification vs check-in |
 | 2026-06-20 | aee1aec | WP-D.10 GPS check-in capture |
 | 2026-06-18 | 9bd8fb6 | WP-D.11 geofence check-in alerts |
-| 2026-06-18 | pending | WP-D.12 payroll CSV export |
+| 2026-06-18 | 329ffb8 | WP-D.12 payroll CSV export |
+| 2026-06-18 | pending | WP-D.13 RoC import and generate from agreement |
 
 ---
 
@@ -545,6 +557,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.10 | `/my/shifts`, `/rostering` | **Partial** | Routes load; GPS capture needs employee-linked user + browser permission |
 | 2026-06-18 | WP-D.11 | `/locations/loc-glenelg-sil`, `/rostering`, `/timesheets` | **Pass** | HTTP 200; geofence UI needs linked worker + GPS coords outside radius for full flow |
 | 2026-06-18 | WP-D.12 | `/timesheets` | **Pass** | HTTP 200; payroll export panel on list |
+| 2026-06-18 | WP-D.13 | `/rostering` RoC tab | **Pass** | HTTP 200 |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -559,6 +572,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.10 | 1 Medium | **Pass** | Fixed: GPS badge when check-in or check-out coordinates present |
 | 2026-06-18 | WP-D.11 | 0 | **Pass** | No findings |
 | 2026-06-18 | WP-D.12 | 1 High + 1 Medium | **Pass** | Fixed: export uses saved record only; verification gate on export |
+| 2026-06-18 | WP-D.13 | 2 High + 3 Medium | **Pass** | Fixed: unique line IDs, draft-only generate, location validation, upsert lines |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -582,6 +596,10 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.10 | `my-workplace` + `delivery` — GPS on check-in | — | exit 0 |
 | 2026-06-18 | WP-D.11 | `my-workplace` + `delivery` — geofence alerts; `locations-setup` — site coordinates | `locations-setup` | exit 0 |
 | 2026-06-18 | WP-D.12 | `delivery` — payroll CSV export | `services-setup` — export approved timesheets | exit 0 |
+| 2026-06-18 | WP-D.13 | `delivery` — RoC CSV import | `services-setup` — RoC before rostering | exit 0 |
+| 2026-06-18 | `npm run build` | exit 0 (WP-D.13) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.13) |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260625240000` roster_of_care tables |
 
 ---
 
