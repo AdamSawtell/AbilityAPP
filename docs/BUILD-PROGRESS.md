@@ -167,7 +167,13 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | Enter planned prices, save | Total planned updates; persists after refresh |
 | 4 | Set status *Draft*, save | Status saved; audit trail logs change |
 
-### WP-C.2 — Agreement lifecycle (not shipped)
+### WP-C.2 — Agreement lifecycle
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open **ROSE_Rose Ni** | Lifecycle panel visible |
+| 2 | Set status *Draft* → *Active* directly | Save blocked |
+| 3 | Progress Draft → Sent → Signed → Active | Saves with dates |
 
 ---
 
