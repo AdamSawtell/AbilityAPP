@@ -25,6 +25,8 @@ import {
   primaryEmergencyContact,
 } from "@/lib/employee-compliance";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
+import { EmployeeSchedulePanel } from "@/components/employee-schedule-panel";
+import { EmployeeScheduleTemplatePanel } from "@/components/employee-schedule-template-panel";
 import {
   credentialTableConfig,
   employeeActivityTableConfig,
@@ -487,6 +489,17 @@ export function EmployeeTabbedView({
               readOnly={!canWriteEmployeeTab("Leave")}
             />
           </div>
+        ) : null}
+
+        {activeTab === "Schedule" && canWindow("employee-schedule") ? (
+          <EmployeeSchedulePanel employeeId={employee.id} />
+        ) : null}
+
+        {activeTab === "Schedule template" && canWindow("employee-schedule-template") ? (
+          <EmployeeScheduleTemplatePanel
+            employeeId={employee.id}
+            readOnly={!canWriteWindow("workforce-planning")}
+          />
         ) : null}
 
         {activeTab === "Credentials Assigned" && canEditCredentials ? (

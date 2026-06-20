@@ -106,6 +106,7 @@ export const myWorkplaceArticle: HelpArticle = {
       steps: [
         "Open My workplace → My shifts.",
         "Use Today, Upcoming, or All — dates follow the organisation timezone shown under the app logo.",
+        "Switch to Week calendar for a seven-day grid of your assigned shifts.",
         "Draft shifts appear with a Draft badge; check-in opens after your coordinator publishes the shift.",
         "The Next action banner highlights today's shift when you can check in or out.",
         "Find your shift under the day heading — check-in opens on the shift date.",

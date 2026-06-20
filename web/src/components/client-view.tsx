@@ -6,6 +6,7 @@ import { ClientConsentSummary } from "@/components/client-consent-summary";
 import { ClientPlanBudgetSummary } from "@/components/client-plan-budget-summary";
 import { ClientPlanBudgetWizard } from "@/components/client-plan-budget-wizard";
 import { ClientMonthlyServicePlanPanel } from "@/components/service-planning-pages";
+import { ClientRosterOfCarePanel } from "@/components/client-roc-panel";
 import { ClientGoalsPanel, ClientProgressReviewPanel } from "@/components/client-planning-panels";
 import { ClientLocationsPanel } from "@/components/client-locations-panel";
 import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pages";
@@ -216,7 +217,8 @@ function tabCount(
   goalCount: number,
   progressReviewCount: number,
   incidentCount: number,
-  monthlyPlanCount?: number
+  monthlyPlanCount?: number,
+  rocCount?: number
 ): number | null {
   if (tab === "Alerts") return client.alerts.length;
   if (tab === "Activity") return client.activity.length;
@@ -229,6 +231,7 @@ function tabCount(
   if (tab === "Support Receiver Needs and Rules") return client.needsAndRules?.length ?? 0;
   if (tab === "Plan budget") return client.planBudgets?.length ?? 0;
   if (tab === "Monthly service plan") return monthlyPlanCount ?? 0;
+  if (tab === "Roster of care") return rocCount ?? 0;
   if (tab === "Goals") return goalCount;
   if (tab === "Progress Review") return progressReviewCount;
   if (tab === "Service agreements") return agreementCount;
@@ -263,11 +266,12 @@ export function ClientTabbedView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { session, canWindow, canWriteWindow } = useAuth();
-  const { getIncidentsForClient, monthlyServicePlans } = useData();
+  const { getIncidentsForClient, monthlyServicePlans, rosterOfCares } = useData();
 
   const allowedTabs = allowedDetailTabsFromGroups("clients", clientTabGroups, session?.windowKeys ?? []);
   const incidentCount = getIncidentsForClient(client.id).length;
   const monthlyPlanCount = monthlyServicePlans.filter((p) => p.clientId === client.id).length;
+  const rocCount = rosterOfCares.filter((r) => r.clientId === client.id && r.status !== "Archived").length;
   const defaultTab = allowedTabs[0] ?? "Overview";
   const coachSave = searchParams.get("coachSave") === "1";
   const requestedTab =
@@ -327,7 +331,8 @@ export function ClientTabbedView({
                     goalCount,
                     progressReviewCount,
                     incidentCount,
-                    monthlyPlanCount
+                    monthlyPlanCount,
+                    rocCount
                   );
                   const active = activeTab === tab;
                   return (
@@ -631,6 +636,16 @@ export function ClientTabbedView({
               description="Plan monthly hours and spend against the participant's NDIS plan budget before rostering and bookings."
             />
             <ClientMonthlyServicePlanPanel clientId={client.id} />
+          </>
+        ) : null}
+
+        {activeTab === "Roster of care" && canClientTab("Roster of care") ? (
+          <>
+            <ClientTabIntro
+              title="Roster of care"
+              description="Weekly care requirement template — compare required hours to rostered shifts before publishing."
+            />
+            <ClientRosterOfCarePanel clientId={client.id} />
           </>
         ) : null}
 

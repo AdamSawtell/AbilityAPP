@@ -10,6 +10,8 @@ import type { EmployeeRecord } from "@/lib/employee";
 import { addDays, formatMonthYear, isoFromDate, isSameDay, monthGridDays } from "@/lib/personal-calendar";
 import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planning-subnav";
 import { WorkforceReviewQueuePanel } from "@/components/workforce/workforce-review-queue";
+import { WorkforceAvailabilityPanel } from "@/components/workforce-availability-panel";
+import { WorkforceFillBoardPanel } from "@/components/workforce-fill-board-panel";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -165,12 +167,12 @@ export function WorkforcePlanningPage() {
   return (
     <AppShell
       title="Workforce planning"
-      subtitle="Organisation leave calendar, upcoming leave, and pending requests."
+      subtitle="Leave calendar, worker schedule templates, roster fill board, and review queue."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Workforce planning" }]}
       audit={{ moduleLabel: "Workforce planning" }}
     >
       <WorkforcePlanningSubnav />
-      <section className="mb-6 grid gap-4 sm:grid-cols-3">
+      <section className="mb-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <Link
           href="#reviews"
           className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#d4147a]/30"
@@ -189,8 +191,26 @@ export function WorkforcePlanningPage() {
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Credentials pending review</p>
           <p className="mt-2 text-3xl font-semibold text-slate-900">{pipeline.pendingCredentials}</p>
         </Link>
+        <Link
+          href="#worker-supply"
+          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#d4147a]/30"
+        >
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Worker templates</p>
+          <p className="mt-2 text-sm font-medium text-[#b51266]">View supply →</p>
+        </Link>
+        <Link
+          href="#fill-board"
+          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#d4147a]/30"
+        >
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Fill board</p>
+          <p className="mt-2 text-sm font-medium text-[#b51266]">Assign vacant shifts →</p>
+        </Link>
       </section>
       <WorkforceReviewQueuePanel />
+      <div className="mb-8 space-y-8">
+        <WorkforceAvailabilityPanel employees={activeEmployees} />
+        <WorkforceFillBoardPanel />
+      </div>
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <h2 className="text-lg font-semibold text-slate-900">Organisation leave calendar</h2>

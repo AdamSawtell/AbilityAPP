@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **76%** |
-| **Current work package** | WP-F — Timesheets & payroll (Chunk 6) |
-| **Active slice** | WP-F.2 — Payroll period close checklist ✅ shipped |
+| **Overall completion** | **80%** |
+| **Current work package** | Chunk 7 — Billing & claiming (claim generation scaffold) |
+| **Active slice** | WP-G/H complete — next: Chunk 7 billing scaffold |
 | **Next slice** | Chunk 7 — Billing & claiming (claim generation scaffold) |
-| **Last push** | 2026-06-18 — `e2fcd01` |
+| **Last push** | 2026-06-20 — *(pending commit)* |
 
 ---
 
@@ -66,6 +66,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | Incident | client | Client → Incidents | workflow rules |
 | Task | entityType + entityId | Client → Requests | — |
 | Timesheet / roster shift | employee, client, location, booking | roster week view | `roster-shift-conflicts.ts` blocks double-book |
+| Roster of care | client, service agreement (optional) | Client → Roster of care | weekly template + publish from Rostering |
 
 ---
 
@@ -77,7 +78,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **90%** | 🟡 Partial | Mobile worker app (phase 2) |
+| 4 | Rostering | 22% | **95%** | 🟡 Partial | Participant portal (Chunk 0) |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -442,6 +443,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Reconcile at exported hours** with pay run ref | Selected rows marked Matched/Processed; audit logged |
 | 5 | Timesheet list **Reconcile** filter | Filters to Matched, Variance, or Pending |
 
+### WP-G/H — Master roster on records + workforce fill (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Bern** → tab **Roster of care** | Active RoC with weekly lines, hour summaries, rostered vs required |
+| 2 | Employee with shifts → tab **Schedule** | Week/fortnight calendar shows assigned shifts |
+| 3 | Same employee → **Schedule template** | Weekly availability grid; save as coordinator |
+| 4 | **Workforce planning** → Worker schedule templates | Table lists workers with template summary |
+| 5 | **Workforce planning** → Fill board | Vacant shifts with suggested workers; Assign works |
+| 6 | **My workplace** → **My shifts** → Week calendar | Seven-day grid of worker's shifts |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -642,6 +654,63 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Timesheets** Write |
 | **Admin verify** | Close a test period; **Generate timesheets** shows blocked message for overlapping dates |
 
+### WP-G.1 — Client Roster of care tab
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Rostering** (client RoC tab steps) |
+| **User steps** | 1. Open client → **Roster of care**. 2. Review weekly template and hour totals. 3. Compare rostered hours for selected week. 4. Link to Rostering → RoC to publish. |
+| **System setup** | `/system/setup/services` — review client RoC tab before go-live |
+| **Role access** | **Clients** → **Roster of care** tab Read; **Rostering** Write to publish |
+| **Admin verify** | Bern shows RoC lines and gap vs rostered hours |
+
+### WP-G.2 — Employee Schedule tab
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **People** → **Schedule and template** |
+| **User steps** | 1. Open employee → **Schedule**. 2. Navigate weeks / fortnight. 3. Open linked shifts via Rostering. |
+| **System setup** | Grant **employee-schedule** tab to rostering roles |
+| **Role access** | **Employees** → **Schedule** Read |
+| **Admin verify** | Worker with published shifts shows on week calendar |
+
+### WP-G.3 — My shifts week calendar
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **My workplace** → **Check in to your shifts** |
+| **User steps** | My shifts → toggle **Week calendar** |
+| **System setup** | **My shifts** window for support workers |
+| **Role access** | **My shifts** Read |
+| **Admin verify** | Week grid shows same shifts as list view |
+
+### WP-H.1 — Worker schedule templates (Workforce planning)
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **People** → **Schedule and template**; Workforce planning worker supply |
+| **User steps** | 1. Worker sets My workplace → Availability. 2. Coordinator edits employee → Schedule template. 3. Workforce planning lists all templates. |
+| **System setup** | `/system/setup/services` — worker templates before fill board |
+| **Role access** | **Workforce planning** Write to edit templates; **employee-schedule-template** Read |
+| **Admin verify** | Template saves and appears on workforce supply table |
+
+### WP-H.2 — Workforce fill board
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Rostering** (fill board step) |
+| **User steps** | 1. Publish RoC as Draft vacant shifts. 2. Workforce planning → Fill board. 3. Assign suggested worker. 4. Publish shift on Rostering. |
+| **System setup** | `/system/setup/services` — fill board after RoC publish |
+| **Role access** | **Workforce planning** Read; **Rostering** Write to assign |
+| **Admin verify** | Assign removes vacancy; worker sees shift on Schedule tab |
+
+### WP-G.0 (future) — Participant portal schedule
+
+| | Detail |
+|---|--------|
+| **Status** | ⬜ Chunk 0 — not in this slice |
+| **Planned** | Read-only week view of participant services (Scope Stage 0 portal) |
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -720,6 +789,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | e2fcd01 | WP-F.2 payroll period close checklist + Supabase lock |
 | 2026-06-18 | 8921a9d | Admin role always grants full catalog Write access |
 | 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
+| 2026-06-20 | pending | WP-G/H master roster on records + workforce fill board |
 
 ---
 
@@ -753,6 +823,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.12) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625230000` timesheet payroll export columns |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625250000` timesheet payroll reconciliation columns |
+| 2026-06-20 | `npm run build` | exit 0 (WP-G/H) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 82 routes (WP-G/H) |
 
 ---
 
@@ -783,6 +855,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.3 | `/service-planning/msp-bern-2025-10` SCHADS panel | **Pass** | build verified; per-line margin table |
 | 2026-06-18 | WP-F.1 | `/timesheets` reconciliation digest + batch | **Pass** | build verified |
 | 2026-06-18 | WP-F.2 | `/timesheets`, `/generate-timesheets` | **Pass** | build verified; closed period blocks generation |
+| 2026-06-20 | WP-G/H | `/clients/bp-bern`, `/employees/emp-isla`, `/workforce-planning`, `/my/shifts` | **Pass** | build verified; routes compile; tab grants via admin role |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -811,6 +884,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.3 | 0 | **Pass** | Planning lib only; no payroll integration |
 | 2026-06-18 | WP-F.1 | 0 | **Pass** | Batch uses bulkUpsertTimesheets + audit |
 | 2026-06-18 | WP-F.2 | 3 High + 1 Medium — all fixed | **Pass** | Supabase closed periods, overlap match, generation messaging |
+| 2026-06-20 | WP-G/H | 1 High + 1 Medium — all fixed | **Pass** | Fill board capacity per shift week; week calendar uses all shifts |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -852,6 +926,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.3 | `delivery` — SCHADS cost prediction section | — | exit 0 — 82 routes |
 | 2026-06-18 | WP-F.1 | `delivery` — batch payroll reconciliation steps | `services-setup` — batch reconcile | exit 0 — 82 routes |
 | 2026-06-18 | WP-F.2 | `delivery` — payroll period close steps | `services-setup` — close-period checklist | exit 0 — 82 routes |
+| 2026-06-20 | WP-G/H | `people` — schedule/template; `delivery` — RoC tab + fill board; `my-workplace` — week calendar | `services-setup` — worker templates + fill board | exit 0 — 82 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

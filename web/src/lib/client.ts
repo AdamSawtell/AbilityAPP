@@ -107,6 +107,7 @@ export const clientTabs = [
   "Risks",
   "Service agreements",
   "Service bookings",
+  "Roster of care",
   "Support Receiver Needs and Rules",
 ] as const;
 
@@ -503,6 +504,7 @@ export const clientTabGroups: ClientTabGroup[] = [
     tabs: [
       "Plan budget",
       "Monthly service plan",
+      "Roster of care",
       "Plan & Assessment",
       "Goals",
       "Progress Review",

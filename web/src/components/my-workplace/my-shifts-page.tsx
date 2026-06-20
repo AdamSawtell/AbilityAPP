@@ -25,6 +25,7 @@ import {
   shiftsForWorkerSchedule,
 } from "@/lib/roster-shift-checkin";
 import { formatShiftTimeRange } from "@/lib/roster-shift";
+import { addDaysIso, weekStartFromDate } from "@/lib/roster-shift";
 import { captureGeolocation } from "@/lib/geolocation";
 import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
 import {
@@ -69,6 +70,7 @@ export function MyShiftsPage() {
   );
 
   const [view, setView] = useState<MyShiftsView>("today");
+  const [layout, setLayout] = useState<"list" | "week">("list");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [notesByShift, setNotesByShift] = useState<Record<string, string>>({});
@@ -79,6 +81,20 @@ export function MyShiftsPage() {
     [shifts, view, employeeId, orgToday]
   );
   const groups = useMemo(() => groupShiftsByDate(filtered, orgToday), [filtered, orgToday]);
+
+  const weekDays = useMemo(() => {
+    const start = weekStartFromDate(orgToday);
+    return Array.from({ length: 7 }, (_, i) => addDaysIso(start, i));
+  }, [orgToday]);
+
+  const shiftsByWeekDay = useMemo(() => {
+    const map = new Map<string, RosterShiftRecord[]>();
+    for (const day of weekDays) map.set(day, []);
+    for (const shift of shifts) {
+      if (map.has(shift.shiftDate)) map.get(shift.shiftDate)!.push(shift);
+    }
+    return map;
+  }, [shifts, weekDays]);
   const actionShift = useMemo(() => nextMyShiftAction(shifts, employeeId, orgToday), [shifts, employeeId, orgToday]);
   const draftCount = useMemo(() => shifts.filter((s) => s.status === "Draft").length, [shifts]);
 
@@ -186,6 +202,23 @@ export function MyShiftsPage() {
           ))}
         </div>
 
+        <div className="mb-4 flex gap-2 text-sm">
+          <button
+            type="button"
+            onClick={() => setLayout("list")}
+            className={`rounded-lg px-3 py-1.5 ${layout === "list" ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}
+          >
+            List
+          </button>
+          <button
+            type="button"
+            onClick={() => setLayout("week")}
+            className={`rounded-lg px-3 py-1.5 ${layout === "week" ? "bg-slate-900 text-white" : "border border-slate-200 text-slate-700"}`}
+          >
+            Week calendar
+          </button>
+        </div>
+
         {filtered.length === 0 ? (
           <div className="text-sm text-slate-600">
             <p>
@@ -202,6 +235,26 @@ export function MyShiftsPage() {
                 <li>Coordinator publishes on Rostering → edit shift → status Published, or Publish week.</li>
               </ul>
             ) : null}
+          </div>
+        ) : layout === "week" ? (
+          <div className="grid grid-cols-2 gap-2 pb-8 sm:grid-cols-4 lg:grid-cols-7">
+            {weekDays.map((day) => (
+              <div key={day} className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+                <p className="text-center text-xs font-semibold text-slate-700">{day.slice(5)}</p>
+                <ul className="mt-2 space-y-2">
+                  {(shiftsByWeekDay.get(day) ?? []).map((shift) => (
+                    <li key={shift.id} className="rounded-lg bg-slate-50 p-2 text-xs">
+                      <p className="font-medium text-slate-900">{formatShiftTimeRange(shift.startTime, shift.endTime)}</p>
+                      <p className="text-slate-600">
+                        {clients.find((c) => c.id === shift.clientId)?.preferredName ||
+                          clients.find((c) => c.id === shift.clientId)?.name ||
+                          "Client"}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="space-y-6 pb-8">

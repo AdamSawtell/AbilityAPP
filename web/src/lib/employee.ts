@@ -226,6 +226,8 @@ export const employeeTabGroups: EmployeeTabGroup[] = [
       "Payroll",
       "Leave",
       "Incidents",
+      "Schedule",
+      "Schedule template",
     ],
   },
   {

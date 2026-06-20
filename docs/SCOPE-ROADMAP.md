@@ -158,15 +158,18 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 
 | Deliverable | Status | Agent-buildable? |
 |-------------|--------|------------------|
-| Master roster (4–12 week view) | ⬜ | Yes |
-| Current roster calendar | ⬜ | Yes |
-| Drag-and-drop day/week views | 🟡 | Yes |
-| Recurring + ad-hoc shifts | ⬜ | Yes |
-| Staff–client matching rules | 🟡 | Yes |
-| Conflict detection (hard blocks) | 🟡 | Yes |
-| Open shift marketplace | ⬜ | Yes |
+| Master roster (4–12 week view) | ✅ | Yes — WP-D.4 forward plan + WP-G/H record tabs |
+| Current roster calendar | ✅ | Yes — week view, drag-drop (WP-D.21) |
+| Drag-and-drop day/week views | ✅ | Yes |
+| Recurring + ad-hoc shifts | ✅ | Yes — WP-D.2 |
+| Staff–client matching rules | ✅ | Yes — WP-D.20 + fill board (WP-H.2) |
+| Conflict detection (hard blocks) | ✅ | Yes — WP-D.19 |
+| Open shift marketplace | ✅ | Yes — WP-D.6 |
+| Worker schedule templates + fill board | ✅ | Yes — WP-H.1/H.2 |
+| Client RoC on record + rostered vs required | ✅ | Yes — WP-G.1 |
+| Employee schedule tab + My shifts calendar | ✅ | Yes — WP-G.2/G.3 |
 | Mobile worker app | ⬜ | Phase 2 (PWA or native) |
-| RoC import | ⬜ | Yes |
+| RoC import | ✅ | Yes — WP-D.13 |
 
 **Prerequisites:** Chunks 1–3 stable (client, agreement, booking data model).
 
@@ -178,6 +181,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 | 4b | Create/edit shifts + recurring | Coordinator can roster |
 | 4c | Conflict engine + matching | Compliance blocks |
 | 4d | Master roster + gap analysis | Forward planning |
+| 4d+ | RoC on client + worker templates + fill board | WP-G/H — demand/supply/assignment on records |
 | 4e | Worker mobile MVP | Check-in, notes, sign-off |
 | 4f | Marketplace + notifications | Fill vacant shifts |
 

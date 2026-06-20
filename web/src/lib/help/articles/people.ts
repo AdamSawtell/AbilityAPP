@@ -44,7 +44,7 @@ export const employeesArticle: HelpArticle = {
       id: "tab-groups",
       title: "Employee tab groups",
       bullets: [
-        "Employee: Overview, Contact, Address, Emergency contacts, Employment, Work rights, Payroll, Leave",
+        "Employee: Overview, Contact, Address, Emergency contacts, Employment, Work rights, Payroll, Leave, Schedule, Schedule template",
         "Compliance: Credentials Assigned, Alerts",
         "HR file: Documents, Activity, Skills and languages",
         "Organisation: System access",
@@ -68,6 +68,13 @@ export const employeesArticle: HelpArticle = {
       title: "Documents",
       body: "Store HR documents with type, reference or PDF URL, and expiry. Set Staff visible and Requires acknowledgement for items that should appear in My workplace → Contracts. Document expiry feeds the Home personal calendar for your own employee record.",
       windowKeys: ["employee-documents"],
+    },
+    {
+      id: "schedule",
+      title: "Schedule and template",
+      body: "Schedule shows assigned roster shifts on a week calendar. Schedule template is the worker's weekly availability pattern — editable by coordinators with Workforce planning access, or by the worker on My workplace → Availability.",
+      relatedRoutes: ["/workforce-planning#worker-supply", "/my/availability"],
+      windowKeys: ["employee-schedule", "employee-schedule-template", "workforce-planning"],
     },
     {
       id: "review-access",
