@@ -90,6 +90,7 @@ export const deliveryArticle: HelpArticle = {
         "Save — shifts appear on the calendar and persist after refresh.",
         "Click an existing shift card to edit.",
         "If a worker is double-booked, save is blocked and the shift card shows a Conflict badge.",
+        "Switch to Forward plan to see roster hours by client across 4–12 weeks.",
       ],
       relatedRoutes: ["/rostering"],
       windowKeys: ["rostering"],

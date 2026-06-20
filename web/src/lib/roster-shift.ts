@@ -111,6 +111,11 @@ export function createRosterShift(
   });
 }
 
+export function formatDayHeading(isoDate: string): string {
+  const d = new Date(`${isoDate.slice(0, 10)}T12:00:00`);
+  return d.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
+}
+
 export function formatShiftTimeRange(startTime: string, endTime: string): string {
   const start = startTime?.slice(0, 5) || "—";
   const end = endTime?.slice(0, 5) || "—";
@@ -136,4 +141,23 @@ export function addDaysIso(isoDate: string, days: number): string {
 export function shiftsForWeek(shifts: RosterShiftRecord[], weekStart: string): RosterShiftRecord[] {
   const end = addDaysIso(weekStart, 6);
   return shifts.filter((s) => s.shiftDate >= weekStart && s.shiftDate <= end);
+}
+
+function parseTimeMinutes(value: string): number {
+  const part = value?.slice(0, 5);
+  if (!/^\d{2}:\d{2}$/.test(part)) return 0;
+  const [h, m] = part.split(":").map(Number);
+  return h * 60 + m;
+}
+
+export function shiftDurationHours(shift: RosterShiftRecord): number {
+  const start = parseTimeMinutes(shift.startTime);
+  const end = parseTimeMinutes(shift.endTime);
+  if (end <= start) return 0;
+  return (end - start) / 60;
+}
+
+export function forwardWeekStarts(anchorWeekStart: string, weekCount: number): string[] {
+  const count = Math.max(1, Math.min(12, weekCount));
+  return Array.from({ length: count }, (_, i) => addDaysIso(anchorWeekStart, i * 7));
 }

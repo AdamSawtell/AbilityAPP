@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { RosterForwardPanel } from "@/components/roster-forward-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
   addDaysIso,
+  formatDayHeading,
   formatShiftTimeRange,
   normalizeRosterShift,
   shiftsForWeek,
@@ -18,15 +20,12 @@ import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function formatDayHeading(isoDate: string): string {
-  const d = new Date(`${isoDate}T12:00:00`);
-  return d.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
-}
-
 export function RosteringWeekView() {
   const { clients, employees, locations, serviceBookings, rosterShifts } = useData();
   const { canWriteWindow } = useAuth();
   const canEditRoster = canWriteWindow("rostering");
+  const [view, setView] = useState<"week" | "forward">("week");
+  const [forwardWeeks, setForwardWeeks] = useState(8);
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate("2025-10-06"));
   const [editorShift, setEditorShift] = useState<ReturnType<typeof normalizeRosterShift> | null | "new">(null);
   const [newShiftDate, setNewShiftDate] = useState("");
@@ -60,23 +59,60 @@ export function RosteringWeekView() {
     <>
       <AppShell
         title="Rostering"
-        subtitle="Week calendar — create and edit shifts linked to client, worker, location, and service booking."
+        subtitle={
+          view === "week"
+            ? "Week calendar — create and edit shifts linked to client, worker, location, and service booking."
+            : "Forward plan — roster hours and conflicts across the next 4–12 weeks."
+        }
         audit={{ moduleLabel: "Rostering" }}
         actions={
-          canEditRoster ? (
-            <button
-              type="button"
-              onClick={() => {
-                setNewShiftDate(weekStart);
-                setEditorShift("new");
-              }}
-              className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-            >
-              New shift
-            </button>
-          ) : null
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-lg border border-slate-200 bg-white p-0.5 text-sm">
+              <button
+                type="button"
+                onClick={() => setView("week")}
+                className={`rounded-md px-3 py-1.5 font-medium ${
+                  view === "week" ? "bg-[#d4147a] text-white" : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Week
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("forward")}
+                className={`rounded-md px-3 py-1.5 font-medium ${
+                  view === "forward" ? "bg-[#d4147a] text-white" : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Forward plan
+              </button>
+            </div>
+            {canEditRoster && view === "week" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setNewShiftDate(weekStart);
+                  setEditorShift("new");
+                }}
+                className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+              >
+                New shift
+              </button>
+            ) : null}
+          </div>
         }
       >
+        {view === "forward" ? (
+          <RosterForwardPanel
+            rosterShifts={rosterShifts}
+            clients={clients}
+            anchorWeekStart={weekStart}
+            weekCount={forwardWeeks}
+            onAnchorChange={setWeekStart}
+            onWeekCountChange={setForwardWeeks}
+          />
+        ) : (
+          <>
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <button
             type="button"
@@ -194,6 +230,8 @@ export function RosteringWeekView() {
             );
           })}
         </div>
+          </>
+        )}
       </AppShell>
 
       {editorShift ? (
