@@ -244,8 +244,8 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 
 | Deliverable | Status | Agent-buildable? |
 |-------------|--------|------------------|
-| Plan vs actual reconciliation | ⬜ | After 5 + 7 |
-| Claim reconciliation dashboard | ⬜ | After 7 |
+| Plan vs actual reconciliation | 🟡 | WP-J.1 scaffold |
+| Claim reconciliation dashboard | 🟡 | WP-J.2 scaffold |
 | Financial close reports | ⬜ | Partial via Xero later |
 | NDIS audit pack export | ⬜ | Yes |
 

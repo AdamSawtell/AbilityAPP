@@ -236,6 +236,22 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     abilityErpName: "Generate Invoices",
     showInSidebar: true,
   },
+  {
+    key: "plan-reconciliation",
+    label: "Plan reconciliation",
+    group: "Delivery",
+    href: "/plan-reconciliation",
+    abilityErpName: "Plan reconciliation",
+    showInSidebar: true,
+  },
+  {
+    key: "claim-reconciliation",
+    label: "Claim reconciliation",
+    group: "Delivery",
+    href: "/claim-reconciliation",
+    abilityErpName: "Claim reconciliation",
+    showInSidebar: true,
+  },
 ];
 
 const WORKFORCE_WINDOWS: AccessWindow[] = [

@@ -89,6 +89,17 @@ export function ClaimListView() {
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-3">
+        <p className="text-sm text-slate-600">
+          Compare submitted claims to remittance payments on the claim reconciliation dashboard.
+        </p>
+        <Link
+          href="/claim-reconciliation"
+          className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Claim reconciliation
+        </Link>
+      </div>
       <ClaimRemittancePanel />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">

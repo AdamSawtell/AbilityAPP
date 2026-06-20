@@ -85,6 +85,8 @@ const COORDINATOR_ACCESS = {
     ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
     "service-bookings",
     "service-planning",
+    "plan-reconciliation",
+    "claim-reconciliation",
     "rostering",
     "timesheets",
     "generate-timesheets",

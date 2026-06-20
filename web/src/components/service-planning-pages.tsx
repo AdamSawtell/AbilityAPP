@@ -289,6 +289,18 @@ export function ServicePlanningListView() {
         </section>
       ) : null}
 
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+        <p className="text-sm text-slate-600">
+          Compare approved plans to delivered hours and billing — open plan reconciliation for month-end review.
+        </p>
+        <Link
+          href="/plan-reconciliation"
+          className="inline-flex shrink-0 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-[#b51266] hover:bg-slate-50"
+        >
+          Plan reconciliation
+        </Link>
+      </div>
+
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">

@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **88%** |
-| **Current work package** | Chunk 7 — Billing & claiming |
-| **Active slice** | WP-I.4 complete — next: Chunk 8 reconciliation scaffold |
-| **Next slice** | WP-J.1 plan vs actual reconciliation (Chunk 8) |
-| **Last push** | 2026-06-20 — `c14ed73` |
+| **Overall completion** | **91%** |
+| **Current work package** | Chunk 8 — Reconciliation & reporting |
+| **Active slice** | WP-J.2 complete — next: financial close reports |
+| **Next slice** | Financial close reports (Chunk 8) |
+| **Last push** | 2026-06-20 — pending |
 
 ---
 
@@ -82,7 +82,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
 | 7 | Billing & claiming | 10% | **60%** | 🟡 Partial | Chunk 8 reconcile |
-| 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
+| 8 | Reconciliation & reporting | 10% | **30%** | 🟡 Partial | Financial close reports |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
 
@@ -495,6 +495,28 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | **Generate claims** for same period | Agency lines only; plan-managed skipped |
 | 6 | Save invoice change | Audit footer logs change |
 
+### WP-J.1 — Plan vs actual reconciliation (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Plan reconciliation** | HTTP 200; month picker and summary cards visible |
+| 2 | Select **2025-10** (Bern seed plan) | Bern row shows planned 72h / $6000 |
+| 3 | With no timesheets for month | Status **No actual** |
+| 4 | After approved timesheets + claims | Actual hours and billed $ populate |
+| 5 | **Export CSV** | Downloads plan-vs-actual file |
+| 6 | **Service planning** hub | Plan reconciliation link visible |
+
+### WP-J.2 — Claim reconciliation dashboard (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Claim reconciliation** | HTTP 200; summary cards and table visible |
+| 2 | With no submitted claims | Empty state message shown |
+| 3 | After gateway submit + remittance import | Matched/Variance rows populate |
+| 4 | Filter by remittance status | Table filters correctly |
+| 5 | **Export CSV** | Downloads claim-reconciliation file |
+| 6 | **Claims** list | Claim reconciliation banner link visible |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -785,6 +807,26 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Invoices** Read/Write; **Generate invoices** Write |
 | **Admin verify** | Plan-managed lines on invoices; agency lines on claims only |
 
+### WP-J.1 — Plan vs actual reconciliation
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Monthly service planning** → **Plan vs actual reconciliation** |
+| **User steps** | 1. Select plan month. 2. Review Matched/Variance. 3. Open plan or client. 4. Export CSV. |
+| **System setup** | `/system/setup/services` — Plan reconciliation grant for coordinators |
+| **Role access** | **Plan reconciliation** Read/Write |
+| **Admin verify** | Bern Oct 2025 plan shows planned totals; variance when delivery differs |
+
+### WP-J.2 — Claim reconciliation dashboard
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Claim reconciliation dashboard** |
+| **User steps** | 1. Open Claim reconciliation. 2. Filter by period and remittance status. 3. Review Not imported vs Matched. 4. Export CSV. |
+| **System setup** | `/system/setup/services` — Claim reconciliation grant for finance/billing roles |
+| **Role access** | **Claim reconciliation** Read/Write |
+| **Admin verify** | Submitted claims show remittance status; variance when paid ≠ claimed |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
@@ -909,6 +951,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run build` | exit 0 (WP-I.1) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 85 routes (WP-I.1) |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625280000` claim tables |
+| 2026-06-20 | `npm run build` | exit 0 (WP-J.1 + WP-J.2) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 90 routes (WP-J.2) |
 
 ---
 
@@ -941,6 +985,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-F.2 | `/timesheets`, `/generate-timesheets` | **Pass** | build verified; closed period blocks generation |
 | 2026-06-20 | WP-G/H | `/clients/bp-bern`, `/employees/emp-isla`, `/workforce-planning`, `/my/shifts` | **Pass** | build verified; routes compile; tab grants via admin role |
 | 2026-06-20 | WP-I.1 | `/claims`, `/generate-claims` | **Pass** | build verified; 85 routes |
+| 2026-06-20 | WP-J.1 | `/plan-reconciliation`, `/service-planning` | **Pass** | build verified; Bern Oct 2025 plan row |
+| 2026-06-20 | WP-J.2 | `/claim-reconciliation`, `/claims` | **Pass** | build verified; 90 routes |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -971,6 +1017,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-F.2 | 3 High + 1 Medium — all fixed | **Pass** | Supabase closed periods, overlap match, generation messaging |
 | 2026-06-20 | WP-G/H | 1 High + 1 Medium — all fixed | **Pass** | Fill board capacity per shift week; week calendar uses all shifts |
 | 2026-06-20 | WP-I.1 | 2 High — all fixed | **Pass** | Preview excludes locked claims; seed-access claims windows |
+| 2026-06-20 | WP-J.1 | 1 High + 2 Medium — all fixed | **Pass** | Billable status filter, zero-plan variance, export filter, funding-body split |
+| 2026-06-20 | WP-J.2 | 1 Medium — fixed | **Pass** | Month filter prorates claim/paid amounts by line |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1014,6 +1062,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-F.2 | `delivery` — payroll period close steps | `services-setup` — close-period checklist | exit 0 — 82 routes |
 | 2026-06-20 | WP-G/H | `people` — schedule/template; `delivery` — RoC tab + fill board; `my-workplace` — week calendar | `services-setup` — worker templates + fill board | exit 0 — 82 routes |
 | 2026-06-20 | WP-I.1 | `delivery` — NDIS claims section | `services-setup` — claims grants | exit 0 — 85 routes |
+| 2026-06-20 | WP-J.1 | `service-planning` — plan vs actual reconciliation | `services-setup` — plan reconciliation grant | exit 0 — 89 routes |
+| 2026-06-20 | WP-J.2 | `delivery` — claim reconciliation dashboard | `services-setup` — claim reconciliation grant | exit 0 — 90 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

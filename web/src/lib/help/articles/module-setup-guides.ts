@@ -153,6 +153,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Import NDIA remittance CSV on Claims after payment advice — preview matches before applying.",
       "Grant Invoices and Generate invoices for plan-managed and self-managed billing.",
       "Set client Funding body to plan-managed or self-managed before generating invoices.",
+      "Grant Plan reconciliation for coordinators reviewing monthly plan vs delivery.",
+      "Grant Claim reconciliation for finance and billing coordinators reviewing remittance matches.",
     ]
   ),
   moduleSetupArticle(
