@@ -32,11 +32,19 @@ export function validateRosterShift(
   }
 
   if (!record.employeeId?.trim()) {
-    issues.push({
-      code: "EMPLOYEE_REQUIRED",
-      message: "Assign a worker before saving this shift.",
-      severity: "error",
-    });
+    if (record.status === "Published" || record.status === "Completed") {
+      issues.push({
+        code: "EMPLOYEE_REQUIRED",
+        message: "Assign a worker before publishing this shift.",
+        severity: "error",
+      });
+    } else {
+      issues.push({
+        code: "VACANT_SHIFT",
+        message: "Vacant shift — assign a worker before publishing.",
+        severity: "warning",
+      });
+    }
   }
 
   if (!record.shiftDate?.trim()) {

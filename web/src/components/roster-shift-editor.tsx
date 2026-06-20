@@ -26,11 +26,13 @@ const inputClass =
 export function RosterShiftEditor({
   initial,
   defaultDate,
+  prefill,
   onClose,
   onSaved,
 }: {
   initial?: RosterShiftRecord | null;
   defaultDate?: string;
+  prefill?: { clientId?: string; serviceBookingId?: string };
   onClose: () => void;
   onSaved?: () => void;
 }) {
@@ -47,15 +49,15 @@ export function RosterShiftEditor({
           {
             id: "",
             shiftRef: "",
-            clientId: clients[0]?.id ?? "",
-            employeeId: employees[0]?.id ?? "",
+            clientId: prefill?.clientId ?? clients[0]?.id ?? "",
+            employeeId: prefill?.clientId ? "" : employees[0]?.id ?? "",
             locationId: locations[0]?.id ?? "",
-            serviceBookingId: "",
+            serviceBookingId: prefill?.serviceBookingId ?? "",
             shiftDate: defaultDate ?? new Date().toISOString().slice(0, 10),
             startTime: "09:00",
             endTime: "17:00",
             shiftType: "Standard",
-            status: "Published",
+            status: prefill?.clientId ? "Draft" : "Published",
             notes: "",
             recurrenceGroupId: "",
             createdBy: "SuperUser",

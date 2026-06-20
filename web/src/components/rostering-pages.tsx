@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { RosterForwardPanel } from "@/components/roster-forward-panel";
+import { RosterGapsPanel } from "@/components/roster-gaps-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
@@ -17,6 +18,7 @@ import {
   weekStartFromDate,
 } from "@/lib/roster-shift";
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
+import { gapsForWeek, isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -24,11 +26,12 @@ export function RosteringWeekView() {
   const { clients, employees, locations, serviceBookings, rosterShifts } = useData();
   const { canWriteWindow } = useAuth();
   const canEditRoster = canWriteWindow("rostering");
-  const [view, setView] = useState<"week" | "forward">("week");
+  const [view, setView] = useState<"week" | "forward" | "gaps">("week");
   const [forwardWeeks, setForwardWeeks] = useState(8);
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate("2025-10-06"));
   const [editorShift, setEditorShift] = useState<ReturnType<typeof normalizeRosterShift> | null | "new">(null);
   const [newShiftDate, setNewShiftDate] = useState("");
+  const [editorPrefill, setEditorPrefill] = useState<{ clientId?: string; serviceBookingId?: string } | null>(null);
 
   const shifts = useMemo(
     () => shiftsForWeek(rosterShifts.map(normalizeRosterShift), weekStart),
@@ -55,6 +58,37 @@ export function RosteringWeekView() {
     return map;
   }, [rosterShifts]);
 
+  const weekGaps = useMemo(
+    () => gapsForWeek(weekStart, rosterShifts.map(normalizeRosterShift), serviceBookings),
+    [weekStart, rosterShifts, serviceBookings]
+  );
+
+  function handleFillGap(gap: RosterGap) {
+    if (gap.code === "VACANT_SHIFT" && gap.shiftId) {
+      const shift = rosterShifts.find((s) => s.id === gap.shiftId);
+      if (shift) {
+        setEditorPrefill(null);
+        setEditorShift(normalizeRosterShift(shift));
+      }
+      return;
+    }
+    if (gap.code === "COVERAGE_GAP") {
+      setNewShiftDate(gap.weekStart ?? weekStart);
+      setEditorPrefill({
+        clientId: gap.clientId,
+        serviceBookingId: gap.serviceBookingId,
+      });
+      setEditorShift("new");
+      setView("week");
+    }
+  }
+
+  function openNewShift(date?: string) {
+    setEditorPrefill(null);
+    setNewShiftDate(date ?? weekStart);
+    setEditorShift("new");
+  }
+
   return (
     <>
       <AppShell
@@ -62,7 +96,9 @@ export function RosteringWeekView() {
         subtitle={
           view === "week"
             ? "Week calendar — create and edit shifts linked to client, worker, location, and service booking."
-            : "Forward plan — roster hours and conflicts across the next 4–12 weeks."
+            : view === "forward"
+              ? "Forward plan — roster hours and conflicts across the next 4–12 weeks."
+              : "Gap analysis — vacant shifts and weeks missing staffed coverage for active bookings."
         }
         audit={{ moduleLabel: "Rostering" }}
         actions={
@@ -86,14 +122,25 @@ export function RosteringWeekView() {
               >
                 Forward plan
               </button>
+              <button
+                type="button"
+                onClick={() => setView("gaps")}
+                className={`rounded-md px-3 py-1.5 font-medium ${
+                  view === "gaps" ? "bg-[#d4147a] text-white" : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Gaps
+                {weekGaps.length ? (
+                  <span className="ml-1.5 rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-amber-950">
+                    {weekGaps.length}
+                  </span>
+                ) : null}
+              </button>
             </div>
             {canEditRoster && view === "week" ? (
               <button
                 type="button"
-                onClick={() => {
-                  setNewShiftDate(weekStart);
-                  setEditorShift("new");
-                }}
+                onClick={() => openNewShift()}
                 className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
               >
                 New shift
@@ -105,11 +152,21 @@ export function RosteringWeekView() {
         {view === "forward" ? (
           <RosterForwardPanel
             rosterShifts={rosterShifts}
+            serviceBookings={serviceBookings}
             clients={clients}
             anchorWeekStart={weekStart}
             weekCount={forwardWeeks}
             onAnchorChange={setWeekStart}
             onWeekCountChange={setForwardWeeks}
+          />
+        ) : view === "gaps" ? (
+          <RosterGapsPanel
+            rosterShifts={rosterShifts}
+            serviceBookings={serviceBookings}
+            clients={clients}
+            anchorWeekStart={weekStart}
+            weekCount={forwardWeeks}
+            onFillGap={canEditRoster ? handleFillGap : undefined}
           />
         ) : (
           <>
@@ -136,6 +193,18 @@ export function RosteringWeekView() {
           </Link>
         </div>
 
+        {weekGaps.length ? (
+          <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950">
+            <p className="font-medium">
+              {weekGaps.length} gap{weekGaps.length === 1 ? "" : "s"} this week
+            </p>
+            <p className="mt-1 text-amber-900/90">
+              Open the <button type="button" onClick={() => setView("gaps")} className="font-medium underline">Gaps</button> tab to
+              assign workers or add coverage for active bookings.
+            </p>
+          </div>
+        ) : null}
+
         <div className="grid gap-3 lg:grid-cols-7">
           {days.map((day) => {
             const dayShifts = shiftsByDay.get(day) ?? [];
@@ -148,7 +217,7 @@ export function RosteringWeekView() {
                       type="button"
                       onClick={() => {
                         setNewShiftDate(day);
-                        setEditorShift("new");
+                        openNewShift(day);
                       }}
                       className="text-[10px] font-medium text-[#b51266] hover:underline"
                     >
@@ -165,6 +234,7 @@ export function RosteringWeekView() {
                       const booking = serviceBookings.find((b) => b.id === shift.serviceBookingId);
                       const conflicts = conflictByShiftId.get(shift.id) ?? [];
                       const hasError = conflicts.some((c) => c.severity === "error");
+                      const vacant = isVacantShift(shift);
                       return (
                         <button
                           key={shift.id}
@@ -173,7 +243,9 @@ export function RosteringWeekView() {
                           className={`w-full rounded-lg border p-2 text-left text-xs ${
                             hasError
                               ? "border-rose-300 bg-rose-50/80"
-                              : "border-[#f9a8d4]/40 bg-[#fdf2f8]/60"
+                              : vacant
+                                ? "border-amber-300 bg-amber-50/80"
+                                : "border-[#f9a8d4]/40 bg-[#fdf2f8]/60"
                           } ${canEditRoster ? "cursor-pointer hover:border-[#d4147a]/50 hover:shadow-sm" : "cursor-default"}`}
                         >
                           <p className="font-semibold text-slate-900">{formatShiftTimeRange(shift.startTime, shift.endTime)}</p>
@@ -194,7 +266,9 @@ export function RosteringWeekView() {
                               name={employee.name}
                               className="mt-0.5 block text-slate-600 hover:underline"
                             />
-                          ) : null}
+                          ) : (
+                            <p className="mt-0.5 text-amber-800">Vacant — no worker</p>
+                          )}
                           {location ? <p className="mt-0.5 text-slate-500">{location.name}</p> : null}
                           {booking ? (
                             <Link
@@ -204,6 +278,11 @@ export function RosteringWeekView() {
                             >
                               Booking {booking.documentNo}
                             </Link>
+                          ) : null}
+                          {vacant ? (
+                            <span className="mt-1 inline-flex rounded-full bg-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-950">
+                              Vacant
+                            </span>
                           ) : null}
                           {shift.recurrenceGroupId ? (
                             <span className="mt-1 inline-flex rounded-full bg-indigo-100 px-1.5 py-0.5 text-[10px] font-medium text-indigo-900">
@@ -238,7 +317,11 @@ export function RosteringWeekView() {
         <RosterShiftEditor
           initial={editorShift === "new" ? null : editorShift}
           defaultDate={newShiftDate}
-          onClose={() => setEditorShift(null)}
+          prefill={editorPrefill ?? undefined}
+          onClose={() => {
+            setEditorShift(null);
+            setEditorPrefill(null);
+          }}
         />
       ) : null}
     </>

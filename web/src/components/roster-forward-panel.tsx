@@ -13,12 +13,15 @@ import {
   type RosterShiftRecord,
 } from "@/lib/roster-shift";
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
+import { detectCoverageGapsForWeek } from "@/lib/roster-gap-analysis";
+import type { ServiceBookingRecord } from "@/lib/service-booking";
 
 type WeekSummary = {
   weekStart: string;
   shiftCount: number;
   hours: number;
   conflictCount: number;
+  coverageGapCount: number;
 };
 
 type ClientWeekRow = {
@@ -30,7 +33,8 @@ type ClientWeekRow = {
 function summarizeWeek(
   weekStart: string,
   shifts: RosterShiftRecord[],
-  allShifts: RosterShiftRecord[]
+  allShifts: RosterShiftRecord[],
+  bookings: ServiceBookingRecord[]
 ): WeekSummary {
   const weekShifts = shiftsForWeek(shifts, weekStart).filter((s) => s.status !== "Cancelled");
   let conflictCount = 0;
@@ -38,16 +42,19 @@ function summarizeWeek(
     const issues = detectRosterShiftConflicts(shift, { existing: allShifts });
     if (issues.some((i) => i.severity === "error")) conflictCount += 1;
   }
+  const coverageGapCount = detectCoverageGapsForWeek(weekStart, bookings, allShifts).length;
   return {
     weekStart,
     shiftCount: weekShifts.length,
     hours: weekShifts.reduce((sum, s) => sum + shiftDurationHours(s), 0),
     conflictCount,
+    coverageGapCount,
   };
 }
 
 export function RosterForwardPanel({
   rosterShifts,
+  serviceBookings,
   clients,
   anchorWeekStart,
   weekCount,
@@ -55,6 +62,7 @@ export function RosterForwardPanel({
   onWeekCountChange,
 }: {
   rosterShifts: RosterShiftRecord[];
+  serviceBookings: ServiceBookingRecord[];
   clients: ClientRecord[];
   anchorWeekStart: string;
   weekCount: number;
@@ -65,9 +73,19 @@ export function RosterForwardPanel({
   const weeks = useMemo(() => forwardWeekStarts(anchorWeekStart, weekCount), [anchorWeekStart, weekCount]);
 
   const weekTotals = useMemo(
-    () => weeks.map((weekStart) => summarizeWeek(weekStart, normalized, normalized)),
-    [weeks, normalized]
+    () => weeks.map((weekStart) => summarizeWeek(weekStart, normalized, normalized, serviceBookings)),
+    [weeks, normalized, serviceBookings]
   );
+
+  const coverageGapsByClientWeek = useMemo(() => {
+    const map = new Set<string>();
+    for (const weekStart of weeks) {
+      for (const gap of detectCoverageGapsForWeek(weekStart, serviceBookings, normalized)) {
+        map.add(`${gap.clientId}-${gap.weekStart}`);
+      }
+    }
+    return map;
+  }, [weeks, serviceBookings, normalized]);
 
   const clientRows = useMemo(() => {
     const clientIds = [...new Set(normalized.map((s) => s.clientId).filter(Boolean))];
@@ -76,7 +94,7 @@ export function RosterForwardPanel({
       const client = clients.find((c) => c.id === clientId);
       if (!client) continue;
       const clientShifts = normalized.filter((s) => s.clientId === clientId);
-      const byWeek = weeks.map((weekStart) => summarizeWeek(weekStart, clientShifts, normalized));
+      const byWeek = weeks.map((weekStart) => summarizeWeek(weekStart, clientShifts, normalized, serviceBookings));
       rows.push({
         client,
         byWeek,
@@ -84,9 +102,10 @@ export function RosterForwardPanel({
       });
     }
     return rows.sort((a, b) => a.client.name.localeCompare(b.client.name));
-  }, [clients, normalized, weeks]);
+  }, [clients, normalized, weeks, serviceBookings]);
 
   const grandTotalHours = weekTotals.reduce((sum, w) => sum + w.hours, 0);
+  const totalCoverageGaps = weekTotals.reduce((sum, w) => sum + w.coverageGapCount, 0);
 
   return (
     <div className="space-y-4">
@@ -124,7 +143,7 @@ export function RosterForwardPanel({
         </label>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Total rostered hours</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{grandTotalHours.toFixed(1)}</p>
@@ -140,6 +159,10 @@ export function RosterForwardPanel({
           <p className="mt-1 text-2xl font-semibold text-rose-700">
             {weekTotals.reduce((sum, w) => sum + w.conflictCount, 0)}
           </p>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Coverage gaps</p>
+          <p className="mt-1 text-2xl font-semibold text-sky-700">{totalCoverageGaps}</p>
         </div>
       </div>
 
@@ -168,7 +191,9 @@ export function RosterForwardPanel({
                       className="font-medium text-slate-900 hover:underline"
                     />
                   </td>
-                  {row.byWeek.map((cell) => (
+                  {row.byWeek.map((cell) => {
+                    const hasCoverageGap = coverageGapsByClientWeek.has(`${row.client.id}-${cell.weekStart}`);
+                    return (
                     <td key={`${row.client.id}-${cell.weekStart}`} className="px-3 py-3 text-slate-700">
                       {cell.shiftCount ? (
                         <span>
@@ -178,11 +203,13 @@ export function RosterForwardPanel({
                             <span className="ml-1 text-xs font-medium text-rose-700">{cell.conflictCount} conflict</span>
                           ) : null}
                         </span>
+                      ) : hasCoverageGap ? (
+                        <span className="font-medium text-sky-700">Gap</span>
                       ) : (
                         <span className="text-slate-400">—</span>
                       )}
                     </td>
-                  ))}
+                  );})}
                   <td className="px-4 py-3 font-medium text-slate-900">{row.totalHours.toFixed(1)}h</td>
                 </tr>
               ))
