@@ -7,6 +7,7 @@ import type {
   ClientContactActivityRow,
   ClientLocationRow,
   ClientNeedRuleRow,
+  ClientPlanBudgetRow,
   ClientRestrictivePracticeRow,
   ClientRiskRow,
 } from "@/lib/client-line-tables";
@@ -15,6 +16,8 @@ import { inferLifecycleFromLegacyStatus, normalizeLifecycleStatus } from "@/lib/
 import { clientDropdowns } from "@/lib/reference-data";
 
 export { clientDropdowns };
+
+export type ClientPlanBudget = ClientPlanBudgetRow;
 
 export type ClientAlert = ClientAlertRow;
 export type ClientActivity = ClientActivityRow;
@@ -75,6 +78,7 @@ export type ClientRecord = {
   bpAssociations: ClientBpAssociation[];
   contactActivity: ClientContactActivity[];
   needsAndRules: ClientNeedRule[];
+  planBudgets: ClientPlanBudgetRow[];
 };
 
 export const clientTabs = [
@@ -88,6 +92,7 @@ export const clientTabs = [
   "Requests",
   "Restrictive Practices",
   "Consents and Legal Orders",
+  "Plan budget",
   "Plan & Assessment",
   "Support Plan",
   "Goals",
@@ -278,6 +283,38 @@ export const initialClients: ClientRecord[] = [
         validTo: "",
       },
     ],
+    planBudgets: [
+      {
+        id: "budget-bern-core-daily",
+        lineNo: 1,
+        supportBudget: "Core",
+        supportCategory: "Assistance with Daily Life",
+        description: "Personal care and daily living supports",
+        ndisLineItemRef: "01_011_0107_1_1",
+        allocatedAmount: 45000,
+        claimedAmount: 12800,
+      },
+      {
+        id: "budget-bern-core-community",
+        lineNo: 2,
+        supportBudget: "Core",
+        supportCategory: "Social and Community Participation",
+        description: "Community access and social activities",
+        ndisLineItemRef: "04_104_0125_6_1",
+        allocatedAmount: 18000,
+        claimedAmount: 4200,
+      },
+      {
+        id: "budget-bern-cb-coord",
+        lineNo: 3,
+        supportBudget: "Capacity building",
+        supportCategory: "Support Coordination",
+        description: "Level 2 support coordination",
+        ndisLineItemRef: "07_002_0106_8_3",
+        allocatedAmount: 6000,
+        claimedAmount: 1800,
+      },
+    ],
   },
 ];
 
@@ -431,6 +468,7 @@ export const clientTabGroups: ClientTabGroup[] = [
   {
     label: "Planning",
     tabs: [
+      "Plan budget",
       "Plan & Assessment",
       "Goals",
       "Progress Review",
@@ -480,6 +518,12 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
     ...row,
     lineNo: row.lineNo ?? index + 1,
   }));
+  const planBudgets = (client.planBudgets ?? []).map((row, index) => ({
+    ...row,
+    lineNo: row.lineNo ?? index + 1,
+    allocatedAmount: Number(row.allocatedAmount) || 0,
+    claimedAmount: Number(row.claimedAmount) || 0,
+  }));
   const consentAlertList = buildConsentAlertList(consents) || client.consentAlertList;
   const riskAlerts = buildRiskAlertsSummary(risks) || client.riskAlerts;
   const lifecycleStatus = client.lifecycleStatus?.trim()
@@ -500,6 +544,7 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
     bpAssociations,
     contactActivity,
     needsAndRules,
+    planBudgets,
     consentAlertList,
     riskAlerts,
   };
@@ -587,6 +632,7 @@ export function emptyClientRecord(
     bpAssociations: [],
     contactActivity: [],
     needsAndRules: [],
+    planBudgets: [],
   });
 }
 
@@ -663,5 +709,6 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
     bpAssociations: [],
     contactActivity: [],
     needsAndRules: [],
+    planBudgets: [],
   };
 }

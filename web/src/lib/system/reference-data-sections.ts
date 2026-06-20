@@ -88,6 +88,8 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   clientStatus: "clients",
   clientLifecycleStatus: "clients",
   lifecycleExitReason: "clients",
+  ndisSupportBudget: "clients",
+  ndisSupportCategory: "clients",
   decisionMaking: "clients",
   livingArrangement: "clients",
   salesRepresentative: "clients",

@@ -100,6 +100,17 @@ export type ClientNeedRuleRow = {
   validTo: string;
 };
 
+export type ClientPlanBudgetRow = {
+  id: string;
+  lineNo: number;
+  supportBudget: string;
+  supportCategory: string;
+  description: string;
+  ndisLineItemRef: string;
+  allocatedAmount: number;
+  claimedAmount: number;
+};
+
 export type ClientLocationRow = {
   id: string;
   lineNo: number;
@@ -135,7 +146,8 @@ export type ClientLineCollectionKey =
   | "risks"
   | "bpAssociations"
   | "contactActivity"
-  | "needsAndRules";
+  | "needsAndRules"
+  | "planBudgets";
 
 export type ClientTabTableConfig<TRow extends { id: string }> = {
   collectionKey: ClientLineCollectionKey;
@@ -365,9 +377,42 @@ export const needRuleTableConfig: ClientTabTableConfig<ClientNeedRuleRow> = {
   }),
 };
 
+export const planBudgetTableConfig: ClientTabTableConfig<ClientPlanBudgetRow> = {
+  collectionKey: "planBudgets",
+  addLabel: "Add budget line",
+  emptyMessage:
+    "No plan budget lines recorded. Add Core, Capacity building, and Capital categories from the participant NDIS plan.",
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "supportBudget", label: "Support budget", type: "select", optionsKey: "ndisSupportBudget", required: true },
+    {
+      key: "supportCategory",
+      label: "Support category",
+      type: "select",
+      optionsKey: "ndisSupportCategory",
+      required: true,
+    },
+    { key: "description", label: "Description", type: "text" },
+    { key: "ndisLineItemRef", label: "NDIS line item", type: "text" },
+    { key: "allocatedAmount", label: "Allocated ($)", type: "number", required: true },
+    { key: "claimedAmount", label: "Claimed ($)", type: "number" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("budget"),
+    lineNo,
+    supportBudget: "",
+    supportCategory: "",
+    description: "",
+    ndisLineItemRef: "",
+    allocatedAmount: 0,
+    claimedAmount: 0,
+  }),
+};
+
 export const clientTabTableConfigs = {
   Alerts: alertTableConfig,
   Activity: activityTableConfig,
+  "Plan budget": planBudgetTableConfig,
   "Restrictive Practices": restrictivePracticeTableConfig,
   "Consents and Legal Orders": consentTableConfig,
   Risks: riskTableConfig,

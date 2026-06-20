@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ClientPlanBudgetSummary } from "@/components/client-plan-budget-summary";
 import { ClientGoalsPanel, ClientProgressReviewPanel } from "@/components/client-planning-panels";
 import { ClientLocationsPanel } from "@/components/client-locations-panel";
 import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pages";
@@ -20,6 +21,7 @@ import {
   consentTableConfig,
   contactActivityTableConfig,
   needRuleTableConfig,
+  planBudgetTableConfig,
   restrictivePracticeTableConfig,
   riskTableConfig,
   type ClientLineCollectionKey,
@@ -219,6 +221,7 @@ function tabCount(
   if (tab === "BP Associations") return client.bpAssociations?.length ?? 0;
   if (tab === "Contact Activity") return client.contactActivity?.length ?? 0;
   if (tab === "Support Receiver Needs and Rules") return client.needsAndRules?.length ?? 0;
+  if (tab === "Plan budget") return client.planBudgets?.length ?? 0;
   if (tab === "Goals") return goalCount;
   if (tab === "Progress Review") return progressReviewCount;
   if (tab === "Service agreements") return agreementCount;
@@ -550,6 +553,23 @@ export function ClientTabbedView({
               description="Record progress reviews against support plan goals."
             />
             <ClientProgressReviewPanel clientId={client.id} />
+          </>
+        ) : null}
+
+        {activeTab === "Plan budget" && canClientTab("Plan budget") ? (
+          <>
+            <ClientTabIntro
+              title="Plan budget"
+              description="Track NDIS plan allocations by support budget and category. Claimed amounts are entered manually until billing integration is live."
+            >
+              <ClientPlanBudgetSummary rows={client.planBudgets ?? []} />
+            </ClientTabIntro>
+            <LineItemTable
+              config={planBudgetTableConfig}
+              rows={client.planBudgets ?? []}
+              readOnly={!canWriteClientTab("Plan budget")}
+              onChange={(rows) => onLineItemsChange("planBudgets", rows)}
+            />
           </>
         ) : null}
 

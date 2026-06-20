@@ -32,6 +32,7 @@ import { legacyActionTypeToId, taskTypeIdToLegacy } from "@/lib/task-type";
 import {
   clientFromRow,
   clientToRow,
+  planBudgetFromRow,
   contractFromRow,
   contractToRow,
   employeeFromRow,
@@ -60,6 +61,7 @@ import {
   type ClientConsentRowDb,
   type ClientContactActivityRowDb,
   type ClientNeedRuleRowDb,
+  type ClientPlanBudgetRowDb,
   type ClientRestrictivePracticeRowDb,
   type ClientRiskRowDb,
   type ClientLocationRowDb,
@@ -150,6 +152,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     bpAssociationsRes,
     contactActivityRes,
     needsAndRulesRes,
+    planBudgetsRes,
     productsRes,
     priceListsRes,
     priceLinesRes,
@@ -197,6 +200,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("client_bp_association").select("*").order("line_no"),
     supabase.from("client_contact_activity").select("*").order("line_no"),
     supabase.from("client_support_receiver_need_rule").select("*").order("line_no"),
+    supabase.from("client_plan_budget_line").select("*").order("line_no"),
     supabase.from("product").select("*").order("search_key"),
     supabase.from("price_list").select("*").order("name"),
     supabase.from("price_list_line").select("*").order("line_no"),
@@ -246,6 +250,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     bpAssociationsRes.error ??
     contactActivityRes.error ??
     needsAndRulesRes.error ??
+    planBudgetsRes.error ??
     productsRes.error ??
     priceListsRes.error ??
     priceLinesRes.error ??
@@ -296,6 +301,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const bpAssociationsByClient = groupBy(bpAssociationsRes.data as ClientBpAssociationRowDb[], "client_id");
   const contactActivityByClient = groupBy(contactActivityRes.data as ClientContactActivityRowDb[], "client_id");
   const needsAndRulesByClient = groupBy(needsAndRulesRes.data as ClientNeedRuleRowDb[], "client_id");
+  const planBudgetsByClient = groupBy(planBudgetsRes.data as ClientPlanBudgetRowDb[], "client_id");
   const linesByPriceList = groupBy(priceLinesRes.data as PriceListLineRow[], "price_list_id");
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
@@ -334,8 +340,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
       )
     ),
     clients: ((clientsRes.data ?? []) as ClientRow[]).map((row) =>
-      normalizeClient(
-        clientFromRow(
+      normalizeClient({
+        ...clientFromRow(
           row,
           alertsByClient.get(row.id) ?? [],
           activityByClient.get(row.id) ?? [],
@@ -346,8 +352,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
           bpAssociationsByClient.get(row.id) ?? [],
           contactActivityByClient.get(row.id) ?? [],
           needsAndRulesByClient.get(row.id) ?? []
-        )
-      )
+        ),
+        planBudgets: (planBudgetsByClient.get(row.id) ?? []).map(planBudgetFromRow),
+      })
     ),
     products: ((productsRes.data ?? []) as ProductRow[]).map(productFromRow),
     priceLists: ((priceListsRes.data ?? []) as PriceListRow[]).map((row) =>
@@ -554,6 +561,7 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
   await replaceChildRows(supabase, "client_bp_association", "client_id", client.id);
   await replaceChildRows(supabase, "client_contact_activity", "client_id", client.id);
   await replaceChildRows(supabase, "client_support_receiver_need_rule", "client_id", client.id);
+  await replaceChildRows(supabase, "client_plan_budget_line", "client_id", client.id);
 
   if (client.alerts.length) {
     const { error: alertError } = await supabase.from("client_alert").insert(
@@ -724,6 +732,23 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
       }))
     );
     if (needError) throw needError;
+  }
+
+  if (client.planBudgets.length) {
+    const { error: budgetError } = await supabase.from("client_plan_budget_line").insert(
+      client.planBudgets.map((b) => ({
+        id: b.id,
+        client_id: client.id,
+        line_no: b.lineNo,
+        support_budget: b.supportBudget,
+        support_category: b.supportCategory,
+        description: b.description,
+        ndis_line_item_ref: b.ndisLineItemRef,
+        allocated_amount: b.allocatedAmount,
+        claimed_amount: b.claimedAmount,
+      }))
+    );
+    if (budgetError) throw budgetError;
   }
 }
 

@@ -46,6 +46,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     lifecycleStatus: "Lifecycle",
     planReviewDueDate: "Plan review due",
     lifecycleExitReason: "Exit reason",
+    planBudgets: "Plan budget lines",
     firstName: "First name",
     lastName: "Last name",
     email: "Email",

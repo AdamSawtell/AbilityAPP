@@ -258,6 +258,7 @@ function clientFromRowMinimal(
     bpAssociations: [],
     contactActivity: [],
     needsAndRules: [],
+    planBudgets: [],
   };
 }
 

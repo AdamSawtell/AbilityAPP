@@ -1,6 +1,7 @@
 /** Map between Postgres snake_case rows and app camelCase records. */
 
 import type { ClientRecord } from "@/lib/client";
+import type { ClientPlanBudgetRow } from "@/lib/client-line-tables";
 import type { ContractRecord } from "@/lib/contract";
 import type {
   EmployeeRecord,
@@ -302,6 +303,31 @@ export type ClientNeedRuleRowDb = {
   valid_to: string | null;
 };
 
+export type ClientPlanBudgetRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  support_budget: string;
+  support_category: string;
+  description: string;
+  ndis_line_item_ref: string;
+  allocated_amount: number | string;
+  claimed_amount: number | string;
+};
+
+export function planBudgetFromRow(row: ClientPlanBudgetRowDb): ClientPlanBudgetRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    supportBudget: row.support_budget,
+    supportCategory: row.support_category,
+    description: row.description,
+    ndisLineItemRef: row.ndis_line_item_ref,
+    allocatedAmount: Number(row.allocated_amount) || 0,
+    claimedAmount: Number(row.claimed_amount) || 0,
+  };
+}
+
 export type ClientActivityRowDb = {
   id: string;
   client_id: string;
@@ -498,6 +524,7 @@ export function clientFromRow(
       validFrom: strDate(n.valid_from),
       validTo: strDate(n.valid_to),
     })),
+    planBudgets: [],
   };
 }
 
