@@ -34,6 +34,7 @@ import type {
 } from "@/lib/product";
 import type { ServiceAgreementLine, ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { ServiceBookingLine, ServiceBookingRecord } from "@/lib/service-booking";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type {
   PlanAssessmentDocument,
   SupportPlanGoalLine,
@@ -2075,5 +2076,62 @@ export function incidentToRow(record: IncidentRecord): IncidentRow {
     lessons_learned: normalized.lessonsLearned,
     created_by: normalized.createdBy,
     updated_by: normalized.updatedBy,
+  };
+}
+
+// --- Roster shift ---
+
+export type RosterShiftRow = {
+  id: string;
+  shift_ref: string;
+  client_id: string | null;
+  employee_id: string | null;
+  location_id: string | null;
+  service_booking_id: string | null;
+  shift_date: string;
+  start_time: string;
+  end_time: string;
+  shift_type: string;
+  status: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
+  return {
+    id: row.id,
+    shiftRef: row.shift_ref,
+    clientId: row.client_id ?? "",
+    employeeId: row.employee_id ?? "",
+    locationId: row.location_id ?? "",
+    serviceBookingId: row.service_booking_id ?? "",
+    shiftDate: strDate(row.shift_date),
+    startTime: String(row.start_time ?? "").slice(0, 5),
+    endTime: String(row.end_time ?? "").slice(0, 5),
+    shiftType: row.shift_type,
+    status: row.status,
+    notes: row.notes,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
+  return {
+    id: record.id,
+    shift_ref: record.shiftRef,
+    client_id: record.clientId?.trim() ? record.clientId : null,
+    employee_id: record.employeeId?.trim() ? record.employeeId : null,
+    location_id: record.locationId?.trim() ? record.locationId : null,
+    service_booking_id: record.serviceBookingId?.trim() ? record.serviceBookingId : null,
+    shift_date: toDate(record.shiftDate) ?? record.shiftDate,
+    start_time: record.startTime?.slice(0, 5) || "09:00",
+    end_time: record.endTime?.slice(0, 5) || "17:00",
+    shift_type: record.shiftType,
+    status: record.status,
+    notes: record.notes,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
   };
 }

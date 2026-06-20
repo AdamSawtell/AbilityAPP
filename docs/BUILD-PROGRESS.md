@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **38%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) |
-| **Active slice** | Entity linking + WP-C.3/C.4 ✅ shipped |
-| **Next slice** | WP-D.1 — Roster data model + read-only calendar |
-| **Last push** | 2026-06-20 — this commit |
+| **Active slice** | WP-D.1 — Read-only roster calendar ✅ shipped |
+| **Next slice** | WP-D.2 — Create/edit shifts + recurring |
+| **Last push** | 2026-06-20 — `aa3c71f` |
 
 ---
 
@@ -390,6 +390,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 0ad2f6c | WP-A.2: plan budget lines |
 | 2026-06-18 | bd60219 | WP-A.1: lifecycle + governance |
 | 2026-06-20 | pending | Entity linking, WP-C.3 e-sign, WP-C.4 expiry hook, verification process |
+| 2026-06-20 | aa3c71f | Entity linking, WP-C.3 e-sign, WP-C.4 expiry hook, verification process |
 
 ---
 
