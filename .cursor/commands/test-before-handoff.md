@@ -52,8 +52,8 @@ Use Cursor browser MCP (`browser_navigate`, `browser_snapshot`, `browser_click`)
 ## Tier 3 — Bugbot (required before every push to `main`)
 
 1. Launch Bugbot subagent on **`uncommitted changes`** (pre-commit) or **`branch changes`** (pre-push).
-2. Fix **Critical** and **High** before push.
-3. Log **Medium** as follow-up in BUILD-PROGRESS if deferred.
+2. Fix **Critical** and **High** before push; fix **Medium/Low** when straightforward.
+3. **Commit Bugbot fixes immediately** — see `.cursor/rules/bugbot-commit.mdc` (dedicated `fix: Bugbot — …` commit, then push).
 4. Record in BUILD-PROGRESS → **Code review log**.
 
 ---
