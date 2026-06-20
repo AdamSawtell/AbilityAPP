@@ -13,7 +13,7 @@
 | **Current work package** | WP-F — Timesheets & payroll (Chunk 6) |
 | **Active slice** | WP-F.2 — Payroll period close checklist ✅ shipped |
 | **Next slice** | Chunk 7 — Billing & claiming (claim generation scaffold) |
-| **Last push** | 2026-06-18 — pending WP-F.2 |
+| **Last push** | 2026-06-18 — `e2fcd01` |
 
 ---
 
@@ -717,6 +717,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 8d4300c | WP-E.1 monthly service plan scaffold |
 | 2026-06-18 | 493b46f | WP-E.2 burn rate + forecast alerts |
 | 2026-06-18 | a235f93 | WP-E.3 SCHADS cost prediction |
+| 2026-06-18 | e2fcd01 | WP-F.2 payroll period close checklist + Supabase lock |
 | 2026-06-18 | 8921a9d | Admin role always grants full catalog Write access |
 | 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
 
@@ -851,6 +852,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.3 | `delivery` — SCHADS cost prediction section | — | exit 0 — 82 routes |
 | 2026-06-18 | WP-F.1 | `delivery` — batch payroll reconciliation steps | `services-setup` — batch reconcile | exit 0 — 82 routes |
 | 2026-06-18 | WP-F.2 | `delivery` — payroll period close steps | `services-setup` — close-period checklist | exit 0 — 82 routes |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625260000` monthly_service_plan tables |
