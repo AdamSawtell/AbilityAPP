@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) |
 | **Active slice** | WP-D.7 — Timesheet generation from shifts ✅ shipped |
 | **Next slice** | WP-D.8 — TBD (mobile check-in MVP or RoC import) |
-| **Last push** | pending — WP-D.7 |
+| **Last push** | 2026-06-20 — `c7a6012` |
 
 ---
 
