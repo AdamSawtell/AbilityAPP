@@ -7,13 +7,16 @@ import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink, ProductRecordLink } from "@/components/record-link";
 import { BookingCompliancePanel } from "@/components/booking-compliance-panel";
+import { BookingCancellationPanel } from "@/components/booking-cancellation-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { evaluateCancellationPolicy } from "@/lib/booking-cancellation";
 import {
   bookingComplianceBlocked,
   validateServiceBookingCompliance,
 } from "@/lib/booking-compliance";
+import { useReferenceData } from "@/lib/config-store";
 import { useData } from "@/lib/data-store";
 import {
   emptyBookingLine,
@@ -167,6 +170,7 @@ export function ServiceBookingListView() {
 export function ServiceBookingDetailView({ id }: { id: string }) {
   const { serviceBookings, clients, products, serviceAgreements, upsertServiceBooking } = useData();
   const { canWriteWindow } = useAuth();
+  const { getOptions } = useReferenceData();
   const canSaveBooking = canWriteWindow("service-bookings");
   const stored = serviceBookings.find((r) => r.id === id);
   const [draft, setDraft] = useState<ServiceBookingRecord | null>(null);
@@ -180,6 +184,12 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
     return validateServiceBookingCompliance(record, { client });
   }, [record, client]);
   const saveBlocked = bookingComplianceBlocked(complianceIssues);
+  const cancellationOutcome = useMemo(() => {
+    if (!record) return null;
+    return evaluateCancellationPolicy(record);
+  }, [record]);
+  const cancellationReasons = getOptions("bookingCancellationReason");
+  const cancellationInitiators = getOptions("bookingCancellationInitiatedBy");
   const productLabels = Object.fromEntries(products.map((p) => [p.id, `${p.searchKey} — ${p.name}`]));
   const lineDropdowns = {
     productId: products.map((p) => p.id),
@@ -201,6 +211,9 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
     const base = draft ?? stored;
     if (!base) return;
     const next = { ...base, [key]: value, updatedBy: "SuperUser" };
+    if (key === "documentStatus" && value === "Cancelled" && !next.cancelledAt?.trim()) {
+      next.cancelledAt = new Date().toISOString().slice(0, 10);
+    }
     if (key === "lines") {
       const lines = value as ServiceBookingLine[];
       const grandTotal = sumLineAmounts(lines);
@@ -264,8 +277,9 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
           ))}
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <BookingCompliancePanel issues={complianceIssues} />
+          <BookingCancellationPanel outcome={cancellationOutcome} />
         </div>
 
         {tab === "Overview" ? (
@@ -457,6 +471,77 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
                 ) : null}
               </div>
             </div>
+
+            {record.documentStatus === "Cancelled" ? (
+              <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">
+                <h3 className="text-sm font-semibold text-slate-900">Cancellation details</h3>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <label>
+                    <span className="mb-1.5 block text-xs font-medium text-slate-600">Cancellation date</span>
+                    <input
+                      className={inputClass}
+                      type="date"
+                      value={record.cancelledAt}
+                      onChange={(e) => onChange("cancelledAt", e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    <span className="mb-1.5 block text-xs font-medium text-slate-600">Initiated by</span>
+                    <select
+                      className={inputClass}
+                      value={record.cancellationInitiatedBy}
+                      onChange={(e) => onChange("cancellationInitiatedBy", e.target.value)}
+                    >
+                      <option value="">Select</option>
+                      {cancellationInitiators.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span className="mb-1.5 block text-xs font-medium text-slate-600">Reason</span>
+                    <select
+                      className={inputClass}
+                      value={record.cancellationReason}
+                      onChange={(e) => onChange("cancellationReason", e.target.value)}
+                    >
+                      <option value="">Select</option>
+                      {cancellationReasons.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span className="mb-1.5 block text-xs font-medium text-slate-600">
+                      Required notice (days)
+                    </span>
+                    <input
+                      className={inputClass}
+                      type="number"
+                      min={1}
+                      max={90}
+                      value={record.cancellationNoticeDays}
+                      onChange={(e) =>
+                        onChange("cancellationNoticeDays", parseInt(e.target.value, 10) || 7)
+                      }
+                    />
+                  </label>
+                  <label className="sm:col-span-2 lg:col-span-2">
+                    <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes</span>
+                    <input
+                      className={inputClass}
+                      value={record.cancellationNotes}
+                      onChange={(e) => onChange("cancellationNotes", e.target.value)}
+                      placeholder="Optional context for audit and claims"
+                    />
+                  </label>
+                </div>
+              </div>
+            ) : null}
           </fieldset>
         ) : (
           <LineItemTable
@@ -514,6 +599,11 @@ export function ServiceBookingNewView() {
       totalLines: "0",
       grandTotal: "0",
       documentStatus: "Drafted",
+      cancellationNoticeDays: 7,
+      cancelledAt: "",
+      cancellationInitiatedBy: "",
+      cancellationReason: "",
+      cancellationNotes: "",
       createdBy: "SuperUser",
       updatedBy: "SuperUser",
       lines: [],

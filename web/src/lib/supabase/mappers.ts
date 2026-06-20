@@ -830,6 +830,11 @@ export type ServiceBookingRow = {
   total_lines: number | null;
   grand_total: number | null;
   document_status: string;
+  cancellation_notice_days: number;
+  cancelled_at: string | null;
+  cancellation_initiated_by: string;
+  cancellation_reason: string;
+  cancellation_notes: string;
   created_by: string;
   updated_by: string;
 };
@@ -877,6 +882,11 @@ export function serviceBookingFromRow(
     totalLines: strMoney(row.total_lines),
     grandTotal: strMoney(row.grand_total),
     documentStatus: row.document_status,
+    cancellationNoticeDays: row.cancellation_notice_days ?? 7,
+    cancelledAt: strDate(row.cancelled_at),
+    cancellationInitiatedBy: row.cancellation_initiated_by ?? "",
+    cancellationReason: row.cancellation_reason ?? "",
+    cancellationNotes: row.cancellation_notes ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     lines: lines.map(
@@ -922,6 +932,11 @@ export function serviceBookingToRow(record: ServiceBookingRecord): ServiceBookin
     total_lines: toMoney(record.totalLines),
     grand_total: toMoney(record.grandTotal),
     document_status: record.documentStatus,
+    cancellation_notice_days: record.cancellationNoticeDays,
+    cancelled_at: toDate(record.cancelledAt),
+    cancellation_initiated_by: record.cancellationInitiatedBy,
+    cancellation_reason: record.cancellationReason,
+    cancellation_notes: record.cancellationNotes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

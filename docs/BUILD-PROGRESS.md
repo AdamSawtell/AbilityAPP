@@ -9,12 +9,12 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **24%** |
+| **Overall completion** | **26%** |
 | **Current work package** | WP-B — Service booking compliance (Chunk 3) |
-| **Active slice** | WP-B.1 — Compliance rule engine ✅ shipped |
-| **Next slice** | WP-B.2 — Cancellation policy engine |
-| **Last verified** | 2026-06-18 — build + page-guides only (see gaps below) |
-| **Last push** | 2026-06-18 — `9873432` |
+| **Active slice** | WP-B.2 — Cancellation policy engine ✅ shipped |
+| **Next slice** | WP-B.3 — Extended compliance rules |
+| **Last verified** | 2026-06-18 — Tier 1 build + page-guides + migration push |
+| **Last push** | 2026-06-18 — `6fce676` (docs); WP-B.2 pending push |
 
 ---
 
@@ -63,7 +63,7 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 | 0 | Enquiry & CRM + portal | 10% | 2% | 🟡 Partial | Portal auth (default: magic link) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | 5% | 🟡 Partial | Templates (default scaffold OK) |
-| 3 | Service bookings compliance | 12% | **25%** | 🔵 In progress | None |
+| 3 | Service bookings compliance | 12% | **50%** | 🔵 In progress | None |
 | 4 | Rostering | 22% | 0% | ⬜ Placeholder | Requires Chunk 1–3 |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts |
@@ -137,11 +137,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | Set dates valid, save | Saves successfully |
 | 4 | (Optional) Increase **Grand total** above client remaining budget | Budget exceeded error; save blocked |
 
-### WP-B.2 — Cancellation policy (not shipped yet)
+### WP-B.2 — Cancellation policy
 
 | Step | Action | Pass if |
 |------|--------|---------|
-| — | *Steps added when slice ships* | — |
+| 1 | **Service bookings** → open booking **50145** | Overview loads |
+| 2 | Set **Document status** to *Cancelled* | **Cancellation details** section appears; date defaults to today |
+| 3 | Leave **Initiated by** empty, save | Save **blocked** — initiator required |
+| 4 | Set **Initiated by** *Participant*, **Reason** *Participant request*, save | Saves successfully |
+| 5 | Set **Cancellation date** within 7 days of **Start date** | **Cancellation policy** panel shows short notice + estimated claimable amount |
+| 6 | Set cancellation date **after** start date | Save blocked; error shown |
+| 7 | Refresh page | Cancellation fields persist; audit trail logs changes |
 
 ### WP-C — Service agreements (not started)
 
@@ -221,12 +227,16 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Service bookings** window Write; clients need **Plan budget** for budget checks |
 | **Admin verify** | Invalid dates block save; budget exceeded blocks save when client has plan lines |
 
-### WP-B.2 — Cancellation policy (not shipped)
+### WP-B.2 — Cancellation policy
 
 | | Detail |
 |---|--------|
-| **User how-to** | *Add Delivery article section when slice ships* |
-| **System setup** | *Add Services setup checklist items when slice ships* |
+| **User how-to** | Help → **Delivery** → **Cancellation policy** (`delivery.ts` § `booking-cancellation`) |
+| **User steps** | 1. Set status *Cancelled*. 2. Complete date, initiator, reason. 3. Review policy panel (notice days, claimable estimate). 4. Save when compliance passes. |
+| **System setup** | `/system/setup/services` → **Services setup** |
+| **Reference data** | `/system/reference-data/services` → **Booking cancellation reason**, **Cancellation initiated by** |
+| **Role access** | **Service bookings** Write |
+| **Admin verify** | Cancel test booking with short notice; panel shows claimable estimate; fields persist after refresh |
 
 ### WP-C — Service agreements (not started)
 
@@ -256,11 +266,11 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Slice | Deliverable | Status |
 |-------|-------------|--------|
 | B.1 | Compliance rule engine + UI panel + save blocks | ✅ Done |
-| B.2 | Cancellation policy engine | ⬜ Next |
-| B.3 | Extended compliance rules | ⬜ |
+| B.2 | Cancellation policy engine | ✅ Done |
+| B.3 | Extended compliance rules | ⬜ Next |
 | B.4 | Budget line validation link | ✅ Done (in B.1) |
 
-**WP-B completion:** 35%
+**WP-B completion:** 65%
 
 ---
 
@@ -281,7 +291,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit | What shipped |
 |------|--------|--------------|
-| 2026-06-18 | 9873432 | BUILD-PROGRESS update |
+| 2026-06-18 | *pending* | WP-B.2: cancellation policy engine + guides |
+| 2026-06-18 | 6fce676 | Per-slice user guides and system setup docs |
 | 2026-06-18 | 777b20e | WP-A complete + WP-B.1 booking compliance |
 | 2026-06-18 | 0ad2f6c | WP-A.2: plan budget lines |
 | 2026-06-18 | bd60219 | WP-A.1: lifecycle + governance |
@@ -294,7 +305,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 |------|---------|--------|
 | 2026-06-18 | `npm run build` | exit 0 |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 |
-| 2026-06-18 | `npm run supabase:push-remote` | `20260624120000`, `20260624140000`, `20260624160000` |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260624180000` cancellation fields |
+| 2026-06-18 | `npm run build` | exit 0 (WP-B.2) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 (WP-B.2) |
 
 ---
 
@@ -321,7 +334,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Date | Slice | User article | System setup | page-guides:check |
 |------|-------|--------------|--------------|-------------------|
 | 2026-06-18 | WP-A.1–A.5 | `clients` — lifecycle, plan budget, consents, utilisation | `clients-setup` updated | exit 0 |
-| 2026-06-18 | WP-B.1 | `delivery` — booking compliance | `services-setup` updated | exit 0 |
+| 2026-06-18 | WP-B.2 | `delivery` — cancellation policy | `services-setup` updated | exit 0 |
 
 ---
 

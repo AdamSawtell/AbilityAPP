@@ -22,6 +22,25 @@ export const deliveryArticle: HelpArticle = {
       windowKeys: ["service-bookings"],
     },
     {
+      id: "booking-cancellation",
+      title: "Cancellation policy",
+      body: "When document status is Cancelled, complete cancellation details. The policy panel calculates notice given against the required period (default 7 clear days per NDIS) and estimates claimable amounts for short-notice participant cancellations.",
+      steps: [
+        "Set document status to Cancelled on the service booking Overview.",
+        "Enter cancellation date, who initiated it, and a reason.",
+        "Adjust required notice (days) if your service agreement differs from the 7-day default.",
+        "Review the Cancellation policy panel for short-notice and estimated claimable amount.",
+        "Save when compliance checks pass — missing cancellation fields block save.",
+      ],
+      relatedRoutes: ["/service-bookings"],
+      windowKeys: ["service-bookings"],
+      bullets: [
+        "Participant short-notice cancellation may be claimable up to 100% if supports could have been delivered.",
+        "Provider-initiated cancellations are not typically NDIS claimable.",
+        "Cancellation date after service start is blocked — use Completed or adjust dates instead.",
+      ],
+    },
+    {
       id: "booking-compliance",
       title: "Booking compliance checks",
       body: "When you open or edit a service booking, the compliance panel lists pass, warning, and error checks. Errors block Save until resolved.",

@@ -108,6 +108,11 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     bookingGeneratorRef: "Booking generator",
     documentStatus: "Document status",
     grandTotal: "Grand total",
+    cancellationNoticeDays: "Cancellation notice (days)",
+    cancelledAt: "Cancellation date",
+    cancellationInitiatedBy: "Cancellation initiated by",
+    cancellationReason: "Cancellation reason",
+    cancellationNotes: "Cancellation notes",
     lines: "Service booking lines",
   },
   task: {

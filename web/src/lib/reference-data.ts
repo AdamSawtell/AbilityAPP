@@ -119,6 +119,8 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   budgetRules: { label: "Budget rules", group: "Products & services" },
   registrationGroup: { label: "NDIS registration group", group: "Products & services" },
   claimType: { label: "Claim type", group: "Products & services" },
+  bookingCancellationReason: { label: "Booking cancellation reason", group: "Products & services" },
+  bookingCancellationInitiatedBy: { label: "Cancellation initiated by", group: "Products & services" },
   // Contracts
   contractType: { label: "Contract type", group: "Contracts" },
   contractTerm: { label: "Contract term", group: "Contracts" },
@@ -396,6 +398,16 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   budgetRules: ["Strict Limit", "Warning", "Allow over budget"],
   registrationGroup: ndisRegistrationGroups,
   claimType: ["NDIS", "Self Funded", "Other"],
+  bookingCancellationReason: [
+    "Participant unavailable",
+    "Participant request",
+    "Illness or hospitalisation",
+    "Provider capacity",
+    "Weather or emergency",
+    "Plan suspended",
+    "Other",
+  ],
+  bookingCancellationInitiatedBy: ["Participant", "Provider", "NDIA", "Mutual agreement"],
   contractType: [
     "Supplier Contract",
     "Tenancy Agreeement",

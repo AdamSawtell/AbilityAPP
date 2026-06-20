@@ -123,8 +123,9 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Configure product categories and units of measure.",
       "Set service agreement and contract status options.",
       "Grant Service bookings window at Write for roles that create or edit bookings.",
+      "Review Booking cancellation reason and Cancellation initiated by reference lists.",
       "Ensure client Plan budget lines exist for participants — booking compliance compares totals to remaining budget.",
-      "Create a test booking linked to a client with plan budget; confirm the compliance panel passes before go-live.",
+      "Create a test booking, cancel it with full details, and confirm the cancellation policy panel before go-live.",
     ]
   ),
   moduleSetupArticle(

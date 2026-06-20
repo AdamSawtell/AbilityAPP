@@ -170,6 +170,8 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   budgetRules: "services",
   registrationGroup: "services",
   claimType: "services",
+  bookingCancellationReason: "services",
+  bookingCancellationInitiatedBy: "services",
   contractType: "services",
   contractTerm: "services",
   auditAction: "services",

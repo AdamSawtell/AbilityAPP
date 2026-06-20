@@ -1,3 +1,4 @@
+import { DEFAULT_CANCELLATION_NOTICE_DAYS, normalizeCancellationFields } from "@/lib/booking-cancellation";
 import { newLineId } from "@/lib/client-line-tables";
 
 /** Service Booking Line — AbilityERP tab "Service Booking Line". */
@@ -40,6 +41,11 @@ export type ServiceBookingRecord = {
   totalLines: string;
   grandTotal: string;
   documentStatus: string;
+  cancellationNoticeDays: number;
+  cancelledAt: string;
+  cancellationInitiatedBy: string;
+  cancellationReason: string;
+  cancellationNotes: string;
   createdBy: string;
   updatedBy: string;
   lines: ServiceBookingLine[];
@@ -53,6 +59,7 @@ export const serviceBookingDropdowns = {
   documentStatus: ["Drafted", "In progress", "Completed", "Cancelled"],
   uom: ["Week", "Hour", "Day", "Each", "Month"],
   claimType: ["", "Standard", "Non-face-to-face", "Provider travel"],
+  cancellationInitiatedBy: ["Participant", "Provider", "NDIA", "Mutual agreement"],
 };
 
 export const initialServiceBookings: ServiceBookingRecord[] = [
@@ -76,6 +83,11 @@ export const initialServiceBookings: ServiceBookingRecord[] = [
     totalLines: "10907.80",
     grandTotal: "10907.80",
     documentStatus: "Drafted",
+    cancellationNoticeDays: DEFAULT_CANCELLATION_NOTICE_DAYS,
+    cancelledAt: "",
+    cancellationInitiatedBy: "",
+    cancellationReason: "",
+    cancellationNotes: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
     lines: [
@@ -135,6 +147,11 @@ export const initialServiceBookings: ServiceBookingRecord[] = [
     totalLines: "591.00",
     grandTotal: "591.00",
     documentStatus: "Completed",
+    cancellationNoticeDays: DEFAULT_CANCELLATION_NOTICE_DAYS,
+    cancelledAt: "",
+    cancellationInitiatedBy: "",
+    cancellationReason: "",
+    cancellationNotes: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
     lines: [
@@ -177,6 +194,11 @@ export const initialServiceBookings: ServiceBookingRecord[] = [
     totalLines: "261.88",
     grandTotal: "261.88",
     documentStatus: "Completed",
+    cancellationNoticeDays: DEFAULT_CANCELLATION_NOTICE_DAYS,
+    cancelledAt: "",
+    cancellationInitiatedBy: "",
+    cancellationReason: "",
+    cancellationNotes: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
     lines: [
@@ -212,12 +234,12 @@ export function normalizeServiceBooking(record: ServiceBookingRecord): ServiceBo
     lineNo: line.lineNo ?? (index + 1) * 10,
   }));
   const grandTotal = sumLineAmounts(lines);
-  return {
+  return normalizeCancellationFields({
     ...record,
     lines,
     totalLines: grandTotal,
     grandTotal,
-  };
+  });
 }
 
 export function createServiceBooking(

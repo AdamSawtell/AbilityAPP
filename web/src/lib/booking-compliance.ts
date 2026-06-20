@@ -1,3 +1,4 @@
+import { validateBookingCancellation } from "@/lib/booking-cancellation";
 import type { ClientPlanBudgetRow } from "@/lib/client-line-tables";
 import type { ClientRecord } from "@/lib/client";
 import { summarizePlanBudgets } from "@/lib/client-plan-budget";
@@ -106,6 +107,8 @@ export function validateServiceBookingCompliance(
       });
     }
   }
+
+  issues.push(...validateBookingCancellation(booking));
 
   return issues;
 }
