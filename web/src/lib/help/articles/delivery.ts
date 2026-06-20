@@ -37,7 +37,8 @@ export const deliveryArticle: HelpArticle = {
       bullets: [
         "Participant short-notice cancellation may be claimable up to 100% if supports could have been delivered.",
         "Provider-initiated cancellations are not typically NDIS claimable.",
-        "Cancellation date after service start is blocked — use Completed or adjust dates instead.",
+        "Cancellation date after the booking period ends is blocked — use Completed instead.",
+        "Cancellation after an earlier line started but before a later line may show a short-notice warning.",
       ],
     },
     {

@@ -14,7 +14,7 @@
 | **Active slice** | WP-B.2 — Cancellation policy engine ✅ shipped |
 | **Next slice** | WP-B.3 — Extended compliance rules |
 | **Last verified** | 2026-06-18 — Tier 1 build + page-guides + migration push |
-| **Last push** | 2026-06-18 — `e0ccb56` |
+| **Last push** | 2026-06-18 — `28656a2` |
 
 ---
 
@@ -146,7 +146,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | Leave **Initiated by** empty, save | Save **blocked** — initiator required |
 | 4 | Set **Initiated by** *Participant*, **Reason** *Participant request*, save | Saves successfully |
 | 5 | Set **Cancellation date** within 7 days of **Start date** | **Cancellation policy** panel shows short notice + estimated claimable amount |
-| 6 | Set cancellation date **after** start date | Save blocked; error shown |
+| 6 | Set cancellation date **after** booking **End date** | Save blocked; error shown |
 | 7 | Refresh page | Cancellation fields persist; audit trail logs changes |
 
 ### WP-C — Service agreements (not started)
@@ -291,7 +291,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit | What shipped |
 |------|--------|--------------|
-| 2026-06-18 | *pending* | WP-B.2: cancellation policy engine + guides |
+| 2026-06-18 | e0ccb56 | WP-B.2: cancellation policy engine + guides |
 | 2026-06-18 | 6fce676 | Per-slice user guides and system setup docs |
 | 2026-06-18 | 777b20e | WP-A complete + WP-B.1 booking compliance |
 | 2026-06-18 | 0ad2f6c | WP-A.2: plan budget lines |
@@ -325,6 +325,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
 | — | through `9873432` | — | **Not run** | Backlog — run before next push |
+| 2026-06-18 | `e0ccb56` | 1 High (multi-line date) — fixed in follow-up | Fixed | `serviceStartForCancellation` |
 | — | *Next push* | — | Pending | Required per BUILD-EXPECTATIONS §11 |
 
 ---

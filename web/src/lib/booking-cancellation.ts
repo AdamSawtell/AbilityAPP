@@ -44,15 +44,52 @@ function dayDiff(from: Date, to: Date): number {
   return Math.floor(ms / (1000 * 60 * 60 * 24));
 }
 
-/** Earliest scheduled service date from header or lines. */
-export function earliestServiceDate(booking: ServiceBookingRecord): string {
+/** Header start date, or earliest line start if header is blank. */
+export function primaryServiceStartDate(booking: ServiceBookingRecord): string {
+  if (booking.startDate?.trim()) return booking.startDate;
+  const lineStarts = booking.lines.map((l) => l.startDate).filter(Boolean);
+  if (!lineStarts.length) return "";
+  return lineStarts.sort()[0];
+}
+
+/**
+ * Service start used for notice calculation when a booking is cancelled.
+ * Prefer the next scheduled support on or after the cancellation date so multi-line
+ * bookings are not measured against an already-started earlier line.
+ */
+export function serviceStartForCancellation(booking: ServiceBookingRecord): string {
+  const fallback = primaryServiceStartDate(booking);
+  if (!booking.cancelledAt?.trim()) return fallback;
+
+  const cancelled = parseDate(booking.cancelledAt);
+  if (!cancelled) return fallback;
+
   const candidates = [
     booking.startDate,
     ...booking.lines.map((l) => l.startDate),
     ...booking.lines.map((l) => l.datePromised),
   ].filter(Boolean);
-  if (!candidates.length) return booking.startDate ?? "";
-  return candidates.sort()[0];
+
+  const upcoming = candidates
+    .map((d) => ({ d, date: parseDate(d) }))
+    .filter((entry): entry is { d: string; date: Date } => entry.date !== null && entry.date >= cancelled)
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  if (upcoming.length) return upcoming[0].d;
+
+  const allStarts = candidates
+    .map((d) => ({ d, date: parseDate(d) }))
+    .filter((entry): entry is { d: string; date: Date } => entry.date !== null)
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  return allStarts[0]?.d ?? fallback;
+}
+
+/** Latest scheduled end across header and lines. */
+export function latestServiceEndDate(booking: ServiceBookingRecord): string {
+  const candidates = [booking.endDate, ...booking.lines.map((l) => l.endDate)].filter(Boolean);
+  if (!candidates.length) return booking.endDate ?? "";
+  return candidates.sort().reverse()[0];
 }
 
 export function computeNoticeDays(cancelledAt: string, serviceStartDate: string): number | null {
@@ -73,7 +110,7 @@ export function evaluateCancellationPolicy(
 ): CancellationPolicyOutcome | null {
   if (booking.documentStatus !== "Cancelled") return null;
 
-  const serviceStartDate = earliestServiceDate(booking);
+  const serviceStartDate = serviceStartForCancellation(booking);
   const requiredNoticeDays = booking.cancellationNoticeDays || DEFAULT_CANCELLATION_NOTICE_DAYS;
   const noticeDaysGiven = booking.cancelledAt
     ? computeNoticeDays(booking.cancelledAt, serviceStartDate)
@@ -149,14 +186,25 @@ export function validateBookingCancellation(
     });
   }
 
-  const serviceStartDate = earliestServiceDate(booking);
-  if (booking.cancelledAt && serviceStartDate) {
+  const serviceStartDate = serviceStartForCancellation(booking);
+  const serviceEndDate = latestServiceEndDate(booking);
+  if (booking.cancelledAt && serviceEndDate) {
     const noticeDays = computeNoticeDays(booking.cancelledAt, serviceStartDate);
-    if (noticeDays !== null && noticeDays < 0) {
+    const cancelled = parseDate(booking.cancelledAt);
+    const serviceEnd = parseDate(serviceEndDate);
+    if (cancelled && serviceEnd && cancelled > serviceEnd) {
+      issues.push({
+        code: "CANCEL_AFTER_END",
+        message:
+          "Cancellation date is after the booking period ended. Use Completed or adjust dates instead.",
+        severity: "error",
+      });
+    } else if (noticeDays !== null && noticeDays < 0) {
       issues.push({
         code: "CANCEL_AFTER_START",
-        message: "Cancellation date is after the scheduled service start. Use Completed or adjust dates instead.",
-        severity: "error",
+        message:
+          "Cancellation date is after the next scheduled service start. Short-notice rules may still apply — confirm against your service agreement.",
+        severity: "warning",
       });
     }
   }
