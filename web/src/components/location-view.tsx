@@ -47,6 +47,9 @@ const fieldLabels: Partial<Record<keyof LocationRecord, string>> = {
   mobile: "Mobile",
   email: "Email",
   accessNotes: "Access notes",
+  latitude: "Latitude",
+  longitude: "Longitude",
+  geofenceRadiusM: "Geofence radius (m)",
   pictureUrl: "Photo URL",
 };
 

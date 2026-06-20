@@ -72,6 +72,9 @@ export type LocationRecord = {
   mobile: string;
   email: string;
   accessNotes: string;
+  latitude: string;
+  longitude: string;
+  geofenceRadiusM: string;
   pictureUrl: string;
   capacity: string;
   validFrom: string;
@@ -150,6 +153,9 @@ export const locationContactFields: (keyof LocationRecord)[] = [
   "mobile",
   "email",
   "accessNotes",
+  "latitude",
+  "longitude",
+  "geofenceRadiusM",
 ];
 
 export function createLocation(
@@ -182,6 +188,9 @@ export function createLocation(
     mobile: partial.mobile ?? "",
     email: partial.email ?? "",
     accessNotes: partial.accessNotes ?? "",
+    latitude: partial.latitude ?? "",
+    longitude: partial.longitude ?? "",
+    geofenceRadiusM: partial.geofenceRadiusM ?? "150",
     pictureUrl: partial.pictureUrl ?? "",
     capacity: partial.capacity ?? "",
     validFrom: partial.validFrom ?? new Date().toISOString().slice(0, 10),
@@ -199,6 +208,9 @@ export function createLocation(
 export function normalizeLocation(record: LocationRecord): LocationRecord {
   return {
     ...record,
+    latitude: record.latitude ?? "",
+    longitude: record.longitude ?? "",
+    geofenceRadiusM: record.geofenceRadiusM ?? "150",
     alerts: (record.alerts ?? []).map((a, i) => ({ ...a, lineNo: a.lineNo || i + 1 })),
     clientLinks: (record.clientLinks ?? []).map((l, i) => ({ ...l, lineNo: l.lineNo || i + 1 })),
     employeeLinks: (record.employeeLinks ?? []).map((l, i) => ({ ...l, lineNo: l.lineNo || i + 1 })),
@@ -231,6 +243,9 @@ export const initialLocations: LocationRecord[] = [
     mobile: "",
     email: "glenelg.sil@abilityapp.local",
     accessNotes: "Ramp at rear. Key safe code on file with on-call manager.",
+    latitude: "-34.9828",
+    longitude: "138.5153",
+    geofenceRadiusM: "150",
     pictureUrl: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=640&h=400&fit=crop",
     capacity: "3",
     validFrom: "2022-03-01",
@@ -333,6 +348,9 @@ export const initialLocations: LocationRecord[] = [
     mobile: "",
     email: "dayhub@abilityapp.local",
     accessNotes: "Lift access from ground floor. Visitor sign-in at reception.",
+    latitude: "-34.9287",
+    longitude: "138.5992",
+    geofenceRadiusM: "150",
     pictureUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=640&h=400&fit=crop",
     capacity: "20",
     validFrom: "2021-01-15",
@@ -366,5 +384,7 @@ export const initialLocations: LocationRecord[] = [
     ],
     activities: [],
   },
-  ...bulkLocations,
+  ...bulkLocations.map((location) =>
+    normalizeLocation({ ...location, latitude: "", longitude: "", geofenceRadiusM: "150" })
+  ),
 ];

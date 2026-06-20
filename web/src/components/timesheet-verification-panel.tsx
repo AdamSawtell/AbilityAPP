@@ -62,6 +62,9 @@ export function TimesheetVerificationPanel({
             <div>
               <p className="font-medium text-slate-900">{lineLabel(row.lineId)}</p>
               <p className="mt-0.5 text-slate-600">{row.message}</p>
+              {row.geofenceWarning ? (
+                <p className="mt-1 text-xs text-amber-800">{row.geofenceWarning}</p>
+              ) : null}
               {row.actualHours != null ? (
                 <p className="mt-0.5 text-xs text-slate-500">
                   Rostered {row.scheduledHours.toFixed(2)} h · Actual {row.actualHours.toFixed(2)} h

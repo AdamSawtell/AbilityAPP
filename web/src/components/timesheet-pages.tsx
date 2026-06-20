@@ -40,7 +40,7 @@ function employeeLabel(employees: { id: string; searchKey: string; name: string 
 }
 
 export function TimesheetListView() {
-  const { timesheets, employees, rosterShifts } = useData();
+  const { timesheets, employees, rosterShifts, locations } = useData();
   const [statusFilter, setStatusFilter] = useState("");
 
   const rows = useMemo(() => {
@@ -52,10 +52,10 @@ export function TimesheetListView() {
   const verificationById = useMemo(() => {
     const map = new Map<string, ReturnType<typeof verifyTimesheet>>();
     for (const sheet of rows) {
-      map.set(sheet.id, verifyTimesheet(sheet, rosterShifts));
+      map.set(sheet.id, verifyTimesheet(sheet, rosterShifts, locations));
     }
     return map;
-  }, [rows, rosterShifts]);
+  }, [rows, rosterShifts, locations]);
 
   return (
     <div className="space-y-4">
@@ -302,8 +302,8 @@ export function TimesheetDetailView({ id }: { id: string }) {
   const employee = employees.find((e) => e.id === record?.employeeId);
 
   const verification = useMemo(
-    () => (record ? verifyTimesheet(record, rosterShifts) : null),
-    [record, rosterShifts]
+    () => (record ? verifyTimesheet(record, rosterShifts, locations) : null),
+    [record, rosterShifts, locations]
   );
 
   const lineDropdowns = useMemo(
@@ -353,7 +353,7 @@ export function TimesheetDetailView({ id }: { id: string }) {
 
   const handleSave = () => {
     if (!record || !canEdit) return;
-    const block = timesheetApprovalBlocked(record, rosterShifts, record.status, stored?.status);
+    const block = timesheetApprovalBlocked(record, rosterShifts, record.status, stored?.status, locations);
     if (block) {
       setSaveError(block);
       return;

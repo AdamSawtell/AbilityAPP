@@ -18,6 +18,8 @@ import {
 import { formatDayHeading, formatShiftTimeRange } from "@/lib/roster-shift";
 import { captureGeolocation } from "@/lib/geolocation";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
+import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
+import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
 
 function statusBadgeClass(status: ReturnType<typeof shiftCheckInStatus>): string {
   switch (status) {
@@ -150,6 +152,7 @@ export function MyShiftsPage() {
                     <p className="mt-2 text-sm text-slate-600">Notes: {shift.checkInNotes}</p>
                   ) : null}
                   <ShiftGeoLinks shift={shift} />
+                  <ShiftGeofenceAlerts alerts={shiftGeofenceAlerts(shift, location)} />
 
                   {canOut ? (
                     <label className="mt-3 block">

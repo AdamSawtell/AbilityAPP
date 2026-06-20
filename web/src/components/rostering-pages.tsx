@@ -24,6 +24,8 @@ import { listOpenMarketplaceShifts } from "@/lib/roster-open-shifts";
 import { shiftCheckInStatus, shiftCheckInStatusLabel } from "@/lib/roster-shift-checkin";
 import { hasShiftGeo } from "@/lib/geolocation";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
+import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
+import { shiftGeofenceAlerts, shiftHasGeofenceAlert } from "@/lib/shift-geofence";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -352,6 +354,18 @@ export function RosteringWeekView() {
                             })()
                           ) : null}
                           {hasShiftGeo(shift) ? <ShiftGeoLinks shift={shift} compact /> : null}
+                          {shiftHasGeofenceAlert(
+                            shift,
+                            locations.find((l) => l.id === shift.locationId)
+                          ) ? (
+                            <ShiftGeofenceAlerts
+                              alerts={shiftGeofenceAlerts(
+                                shift,
+                                locations.find((l) => l.id === shift.locationId)
+                              )}
+                              compact
+                            />
+                          ) : null}
                         </button>
                       );
                     })}

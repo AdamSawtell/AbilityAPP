@@ -1,6 +1,8 @@
 import { shiftCheckInStatus } from "@/lib/roster-shift-checkin";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { TimesheetLine, TimesheetRecord } from "@/lib/timesheet";
+import type { LocationRecord } from "@/lib/location";
+import { geofenceWarningSummary, shiftGeofenceAlerts } from "@/lib/shift-geofence";
 
 export type TimesheetLineVerificationStatus =
   | "verified"
@@ -17,6 +19,7 @@ export type TimesheetLineVerification = {
   actualHours: number | null;
   varianceHours: number | null;
   message: string;
+  geofenceWarning: string | null;
 };
 
 export type TimesheetVerificationSummary = {
@@ -40,15 +43,20 @@ export function actualHoursFromCheckIn(shift: RosterShiftRecord): number | null 
 export function verifyTimesheetLine(
   line: TimesheetLine,
   shift: RosterShiftRecord | undefined,
-  varianceThreshold = DEFAULT_VARIANCE_THRESHOLD_HOURS
+  varianceThreshold = DEFAULT_VARIANCE_THRESHOLD_HOURS,
+  location?: Pick<LocationRecord, "latitude" | "longitude" | "geofenceRadiusM" | "name"> | null
 ): TimesheetLineVerification {
   const scheduledHours = line.hours ?? 0;
+  const geofenceWarning = shift
+    ? geofenceWarningSummary(shiftGeofenceAlerts(shift, location))
+    : null;
   const base = {
     lineId: line.id,
     rosterShiftId: line.rosterShiftId ?? "",
     scheduledHours,
     actualHours: null as number | null,
     varianceHours: null as number | null,
+    geofenceWarning,
   };
 
   if (!line.rosterShiftId?.trim()) {
@@ -116,12 +124,16 @@ export function verifyTimesheetLine(
 export function verifyTimesheet(
   sheet: TimesheetRecord,
   rosterShifts: RosterShiftRecord[],
+  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = [],
   varianceThreshold = DEFAULT_VARIANCE_THRESHOLD_HOURS
 ): TimesheetVerificationSummary {
   const shiftById = new Map(rosterShifts.map((s) => [s.id, s]));
-  const lines = sheet.lines.map((line) =>
-    verifyTimesheetLine(line, shiftById.get(line.rosterShiftId?.trim() ?? ""), varianceThreshold)
-  );
+  const locationById = new Map(locations.map((l) => [l.id, l]));
+  const lines = sheet.lines.map((line) => {
+    const shift = shiftById.get(line.rosterShiftId?.trim() ?? "");
+    const location = shift ? locationById.get(shift.locationId) : undefined;
+    return verifyTimesheetLine(line, shift, varianceThreshold, location);
+  });
   const verifiedCount = lines.filter((l) => l.status === "verified").length;
   const issueCount = lines.filter((l) => l.status !== "verified").length;
   const blockReason = timesheetApprovalBlockReason(lines);
@@ -146,11 +158,12 @@ export function timesheetApprovalBlocked(
   sheet: TimesheetRecord,
   rosterShifts: RosterShiftRecord[],
   nextStatus: string,
-  previousStatus?: string
+  previousStatus?: string,
+  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = []
 ): string | null {
   if (nextStatus !== "Approved") return null;
   if (previousStatus === "Approved") return null;
-  return verifyTimesheet(sheet, rosterShifts).blockReason;
+  return verifyTimesheet(sheet, rosterShifts, locations).blockReason;
 }
 
 export function verificationStatusLabel(status: TimesheetLineVerificationStatus): string {

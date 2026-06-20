@@ -1,4 +1,5 @@
 import type { LocationRecord } from "@/lib/location";
+import { geoToDbNumber } from "@/lib/geolocation";
 import { strDate, toDate } from "@/lib/supabase/mappers";
 
 export type SupportLocationRow = {
@@ -23,6 +24,9 @@ export type SupportLocationRow = {
   capacity: number | null;
   valid_from: string | null;
   valid_to: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  geofence_radius_m: number;
   created_by: string;
   updated_by: string;
 };
@@ -113,6 +117,9 @@ export function locationFromRow(
     mobile: row.mobile,
     email: row.email,
     accessNotes: row.access_notes,
+    latitude: row.latitude != null ? String(row.latitude) : "",
+    longitude: row.longitude != null ? String(row.longitude) : "",
+    geofenceRadiusM: row.geofence_radius_m != null ? String(row.geofence_radius_m) : "150",
     pictureUrl: row.picture_url,
     capacity: row.capacity != null ? String(row.capacity) : "",
     validFrom: strDate(row.valid_from),
@@ -189,6 +196,12 @@ export function locationToRow(record: LocationRecord): SupportLocationRow {
     mobile: record.mobile,
     email: record.email,
     access_notes: record.accessNotes,
+    latitude: geoToDbNumber(record.latitude),
+    longitude: geoToDbNumber(record.longitude),
+    geofence_radius_m: (() => {
+      const n = Number(record.geofenceRadiusM);
+      return Number.isFinite(n) && n > 0 ? Math.round(n) : 150;
+    })(),
     picture_url: record.pictureUrl,
     capacity: record.capacity?.trim() ? Number(record.capacity) : null,
     valid_from: toDate(record.validFrom),

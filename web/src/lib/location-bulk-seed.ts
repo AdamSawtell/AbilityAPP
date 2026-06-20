@@ -1,7 +1,9 @@
 import type { LocationRecord } from "@/lib/location";
 
+type BulkLocationSeed = Omit<LocationRecord, "latitude" | "longitude" | "geofenceRadiusM">;
+
 /** Generated bulk locations — run scripts/generate-bulk-dummy-data.mjs to refresh. */
-export const bulkLocations: LocationRecord[] = [
+export const bulkLocations: BulkLocationSeed[] = [
   {
     id: "loc-northern-sil",
     searchKey: "NTH-SIL",

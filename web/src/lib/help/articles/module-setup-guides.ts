@@ -73,7 +73,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
     "Site types, statuses, and location alert options.",
     "/system/setup/locations",
     "locations",
-    ["Set location type and status lists.", "Configure location alert types.", "Create a test location in the workspace."]
+    ["Set location type and status lists.", "Configure location alert types.", "Enter latitude, longitude, and geofence radius (m) on each site for shift check-in alerts.", "Create a test location in the workspace."]
   ),
   moduleSetupArticle(
     "people-setup",

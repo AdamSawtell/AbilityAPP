@@ -20,7 +20,9 @@ import {
   type RosterShiftRecord,
 } from "@/lib/roster-shift";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
+import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
 import { formatCheckInTimestamp } from "@/lib/roster-shift-checkin";
+import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -309,6 +311,12 @@ export function RosterShiftEditor({
             ) : null}
             {draft.checkInNotes ? <p className="mt-1 text-slate-600">Notes: {draft.checkInNotes}</p> : null}
             <ShiftGeoLinks shift={draft} />
+            <ShiftGeofenceAlerts
+              alerts={shiftGeofenceAlerts(
+                draft,
+                locations.find((l) => l.id === draft.locationId)
+              )}
+            />
           </div>
         ) : null}
 
