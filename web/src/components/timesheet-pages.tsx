@@ -22,6 +22,8 @@ import {
   timesheetDropdowns,
   type TimesheetRecord,
 } from "@/lib/timesheet";
+import { verifyTimesheet, timesheetApprovalBlocked } from "@/lib/timesheet-verification";
+import { TimesheetVerificationPanel } from "@/components/timesheet-verification-panel";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -38,7 +40,7 @@ function employeeLabel(employees: { id: string; searchKey: string; name: string 
 }
 
 export function TimesheetListView() {
-  const { timesheets, employees } = useData();
+  const { timesheets, employees, rosterShifts } = useData();
   const [statusFilter, setStatusFilter] = useState("");
 
   const rows = useMemo(() => {
@@ -46,6 +48,14 @@ export function TimesheetListView() {
     if (!statusFilter) return sorted;
     return sorted.filter((r) => r.status === statusFilter);
   }, [timesheets, statusFilter]);
+
+  const verificationById = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof verifyTimesheet>>();
+    for (const sheet of rows) {
+      map.set(sheet.id, verifyTimesheet(sheet, rosterShifts));
+    }
+    return map;
+  }, [rows, rosterShifts]);
 
   return (
     <div className="space-y-4">
@@ -87,12 +97,14 @@ export function TimesheetListView() {
                 <th className="px-4 py-3">Period</th>
                 <th className="px-4 py-3">Hours</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Verification</th>
                 <th className="px-4 py-3">Lines</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {rows.map((sheet) => {
                 const employee = employees.find((e) => e.id === sheet.employeeId);
+                const verification = verificationById.get(sheet.id);
                 return (
                   <tr key={sheet.id} className="hover:bg-slate-50/80">
                     <td className="px-4 py-3">
@@ -122,6 +134,21 @@ export function TimesheetListView() {
                       >
                         {sheet.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {verification && sheet.lines.length ? (
+                        verification.issueCount ? (
+                          <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-950">
+                            {verification.verifiedCount}/{sheet.lines.length} verified
+                          </span>
+                        ) : (
+                          <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-950">
+                            All verified
+                          </span>
+                        )
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-600">{sheet.lines.length}</td>
                   </tr>
@@ -263,15 +290,21 @@ export function GenerateTimesheetsView() {
 }
 
 export function TimesheetDetailView({ id }: { id: string }) {
-  const { timesheets, employees, clients, locations, serviceBookings, upsertTimesheet } = useData();
+  const { timesheets, employees, clients, locations, serviceBookings, rosterShifts, upsertTimesheet } = useData();
   const { session, canWriteWindow } = useAuth();
   const canEdit = canWriteWindow("timesheets");
   const stored = timesheets.find((t) => t.id === id);
   const [draft, setDraft] = useState<TimesheetRecord | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const record = draft ?? stored;
   const employee = employees.find((e) => e.id === record?.employeeId);
+
+  const verification = useMemo(
+    () => (record ? verifyTimesheet(record, rosterShifts) : null),
+    [record, rosterShifts]
+  );
 
   const lineDropdowns = useMemo(
     () => ({
@@ -313,16 +346,23 @@ export function TimesheetDetailView({ id }: { id: string }) {
   }
 
   const update = (patch: Partial<TimesheetRecord>) => {
+    setSaveError("");
     setDraft((prev) => normalizeTimesheet({ ...(prev ?? stored!), ...patch }));
     setDirty(true);
   };
 
   const handleSave = () => {
     if (!record || !canEdit) return;
+    const block = timesheetApprovalBlocked(record, rosterShifts, record.status, stored?.status);
+    if (block) {
+      setSaveError(block);
+      return;
+    }
     const actor = session?.displayName || "SuperUser";
     upsertTimesheet({ ...record, updatedBy: actor });
     setDraft(null);
     setDirty(false);
+    setSaveError("");
   };
 
   const handleDiscard = () => {
@@ -405,6 +445,12 @@ export function TimesheetDetailView({ id }: { id: string }) {
               )}
             </label>
           </div>
+          {verification ? (
+            <TimesheetVerificationPanel summary={verification} lines={record.lines} />
+          ) : null}
+          {saveError ? (
+            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{saveError}</p>
+          ) : null}
           <div>
             <h2 className="mb-3 text-sm font-semibold text-slate-900">Shift lines</h2>
             <LineItemTable

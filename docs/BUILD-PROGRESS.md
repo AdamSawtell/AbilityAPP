@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **56%** |
-| **Current work package** | WP-D — Rostering (Chunk 4) |
-| **Active slice** | WP-D.8 — Worker shift check-in MVP ✅ shipped |
-| **Next slice** | WP-D.9 — TBD (GPS mobile check-in or RoC import) |
-| **Last push** | 2026-06-20 — `7a518b5` |
+| **Overall completion** | **58%** |
+| **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
+| **Active slice** | WP-D.9 — Timesheet check-in verification ✅ shipped |
+| **Next slice** | WP-D.10 — TBD (GPS check-in or RoC import — needs template) |
+| **Last push** | 2026-06-20 — pending |
 
 ---
 
@@ -77,9 +77,9 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **52%** | 🔵 In progress | WP-D.8 check-in shipped |
+| 4 | Rostering | 22% | **55%** | 🔵 In progress | WP-D.9 verification |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
-| 6 | Timesheets & payroll export | 10% | **15%** | 🟡 Partial | WP-D.7 generation; payroll export later |
+| 6 | Timesheets & payroll export | 10% | **25%** | 🟡 Partial | WP-D.9 verify vs check-in; payroll export later |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | 3% | ⬜ Not started | Chunks 5 + 7 |
 
@@ -256,6 +256,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Rostering** week view | **Checked in** or **Verified** badge on staffed shift card |
 | 5 | Coordinator edits shift after check-in | Check-in timestamps preserved after save |
 | 6 | **Full audit trail** on shift (via data change) | Check-in fields logged |
+
+### WP-D.9 — Timesheet check-in verification (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open a draft timesheet with roster-linked lines | **Shift verification** panel lists each line |
+| 2 | Lines without worker check-out | **Not checked in** or **Awaiting check-out** badge |
+| 3 | Set status to **Approved** | Save blocked until shifts verified (manual-review-only lines excepted) |
+| 4 | **Timesheets** list | Verification column shows verified count |
+| 5 | Already **Approved** timesheet — edit notes, save | Saves without re-running verification block |
 
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
@@ -450,6 +460,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 4580bb4 | WP-D.6 open shift marketplace |
 | 2026-06-20 | c7a6012 | WP-D.7 timesheet generation from roster shifts |
 | 2026-06-20 | 7a518b5 | WP-D.8 worker shift check-in MVP |
+| 2026-06-20 | pending | WP-D.9 timesheet verification vs check-in |
 
 ---
 
@@ -470,6 +481,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625190000_timesheet.sql` |
 | 2026-06-20 | `npm run build` | exit 0 (WP-D.8) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.8) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-D.9) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.9) |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625200500` check-in + my-shifts access |
 
 ---
@@ -483,6 +496,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.6 | `/rostering` Open shifts tab | **Pass** | Vacant shifts listed |
 | 2026-06-20 | WP-D.7 | `/generate-timesheets`, `/timesheets`, `/timesheets/[id]` | **Pass** | Generate creates draft; detail shows shift lines + audit |
 | 2026-06-20 | WP-D.8 | `/my/shifts`, `/rostering` week view | **Partial** | Routes load; SuperUser blocked without employee link — use linked worker for check-in flow |
+| 2026-06-20 | WP-D.9 | `/timesheets`, `/timesheets/[id]` | **Pass** | Verification panel + list column; approval block on unverified shift |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -493,6 +507,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 |------|--------------|----------|--------|-------|
 | 2026-06-20 | WP-D.5–D.7 follow-up | 3 High + 2 Medium + 1 Low | **Pass** | Fixed: coverage gap booking filter, atomic open-shift claim, timesheet IDs/overnight hours/permissions/locked period/audit |
 | 2026-06-20 | WP-D.8 | 3 High + 1 Medium | **Pass** | Fixed: local-date check-in, server API binding, preserve check-in on roster save, useMyEmployee |
+| 2026-06-20 | WP-D.9 | 1 High | **Pass** | Fixed: only block approval transition, not saves on already-approved timesheets |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -512,6 +527,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-D.6 | `delivery` — open shift marketplace; `my-workplace` — claim shifts | — | exit 0 |
 | 2026-06-20 | WP-D.7 | `delivery` — timesheet generation | `services-setup` — roster + timesheet grants | exit 0 |
 | 2026-06-20 | WP-D.8 | `my-workplace` — check in; `delivery` — verified badges | `services-setup` — My shifts grant | exit 0 |
+| 2026-06-20 | WP-D.9 | `delivery` — timesheet verification vs check-in | `services-setup` — verify before approve | exit 0 |
 
 ---
 

@@ -102,13 +102,14 @@ export const deliveryArticle: HelpArticle = {
     {
       id: "timesheets",
       title: "Timesheets",
-      body: "Generate draft timesheets from published roster shifts for a pay period. Review shift lines, update status to Submitted or Approved, then export to payroll (coming soon).",
+      body: "Generate draft timesheets from published roster shifts for a pay period. Supervisors verify each line against worker check-in/out before approving for payroll export.",
       steps: [
         "Open Generate timesheets and set the pay period start and end dates.",
         "Review the preview — eligible Published or Completed shifts with a worker assigned are included.",
         "Click Generate timesheets — one draft timesheet is created per worker.",
         "Open Timesheets, select a record, and review shift lines linked to roster shifts.",
-        "Set status to Submitted or Approved when ready for payroll export.",
+        "Review the Shift verification panel — verified lines match worker check-in/out; fix gaps before approval.",
+        "Set status to Submitted or Approved when all linked shifts are verified (or manually reviewed).",
         "Re-run generation for the same period to append new shifts to an existing Draft timesheet.",
       ],
       relatedRoutes: ["/timesheets", "/generate-timesheets"],
