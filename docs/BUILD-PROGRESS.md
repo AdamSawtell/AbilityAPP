@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) |
 | **Active slice** | WP-D.20 — Staff–client matching hints ✅ shipped |
 | **Next slice** | WP-D.21 — Drag-and-drop shift reschedule on week view |
-| **Last push** | 2026-06-18 — pending |
+| **Last push** | 2026-06-18 — `c400bd1` |
 
 ---
 
