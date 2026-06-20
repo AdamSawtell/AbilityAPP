@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) / Chunk 6 Timesheets |
 | **Active slice** | WP-D.14 — Publish shifts from RoC ✅ shipped |
 | **Next slice** | WP-D.15 — TBD (Keypay API hook or roster capacity planning) |
-| **Last push** | pending |
+| **Last push** | 2026-06-18 — `00c69f7` |
 
 ---
 
