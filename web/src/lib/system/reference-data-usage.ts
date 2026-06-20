@@ -60,6 +60,9 @@ export const SHARED_REFERENCE_DATA_USAGE: Record<SharedReferenceDataKey, Referen
 export const MODULE_REFERENCE_DATA_USAGE: Record<string, ReferenceDataUsageLocation[]> = {
   enquiryStatus: [{ area: "Enquiries", pages: ["Overview — Status", "List filters"] }],
   enquiryLossReason: [{ area: "Enquiries", pages: ["Overview — Loss reason (lost enquiries)"] }],
+  enquiryPlanStatus: [{ area: "Enquiries", pages: ["Qualification — Plan status"] }],
+  enquiryPlanManagement: [{ area: "Enquiries", pages: ["Qualification — Plan management"] }],
+  enquiryUrgency: [{ area: "Enquiries", pages: ["Qualification — Urgency"] }],
   enquirySource: [{ area: "Enquiries", pages: ["Overview — Source"] }],
   isEnquiryForSelf: [{ area: "Enquiries", pages: ["Participant — Enquiry for self"] }],
   thirdPartyConsent: [{ area: "Enquiries", pages: ["Participant — Third party consent"] }],

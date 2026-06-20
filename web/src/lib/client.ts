@@ -702,7 +702,7 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
     salesRepresentative: "",
     services: enquiry.services,
     fundingBody: enquiry.fundingBody,
-    fundingBodyNumber: "",
+    fundingBodyNumber: enquiry.ndisNumber?.trim() ?? "",
     transitionedToPace: "",
     dateSupportCommencement: new Date().toISOString().slice(0, 10),
     dateSupportCeased: "",

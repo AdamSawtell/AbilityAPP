@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **94%** |
+| **Overall completion** | **95%** |
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
-| **Active slice** | WP-0.1 complete — enquiry pipeline stages + loss reasons |
-| **Next slice** | WP-0.2 — NDIS qualification scoring |
-| **Last push** | 2026-06-20 — `b210c1a` |
+| **Active slice** | WP-0.2 complete — NDIS qualification scoring |
+| **Next slice** | WP-0.3 — Portal MVP (read-only services + budget) |
+| **Last push** | _pending WP-0.2_ |
 
 ---
 
@@ -74,7 +74,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
-| 0 | Enquiry & CRM + portal | 10% | **15%** | 🟡 Partial | Portal auth (default: magic link) |
+| 0 | Enquiry & CRM + portal | 10% | **25%** | 🟡 Partial | Portal auth (default: magic link) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
@@ -550,6 +550,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Set status *Lost* without loss reason | Save blocked |
 | 6 | Set loss reason + next action date, save | Persists after refresh |
 | 7 | Overdue follow-ups scope | Past-due open enquiries listed in rose |
+
+### WP-0.2 — NDIS qualification scoring (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open enquiry **1000025** → **Qualification** tab | Score panel + breakdown visible |
+| 2 | Review score | Hot/Warm tier with NDIS + metro postcode factors |
+| 3 | Change urgency to *High*, save | Score increases; tier may rise |
+| 4 | **Enquiries** list | Qualification column + tier filter chips |
+| 5 | Filter **Hot** | Samuel Ryan appears when score ≥ 70 |
+| 6 | **Full audit trail** after save | Qualification score/tier logged |
 
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 

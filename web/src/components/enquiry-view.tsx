@@ -2,11 +2,13 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EnquiryForm } from "@/components/enquiry-form";
+import { EnquiryQualificationPanel } from "@/components/enquiry-qualification-panel";
 import { RecordActivitiesPanel } from "@/components/record-activities-panel";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { detailTabsForRole, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { useOrganization } from "@/lib/organization-store";
 import {
   enquiryTabGroups,
   formSections,
@@ -36,6 +38,7 @@ export function EnquiryTabbedView({
   const searchParams = useSearchParams();
   const { session, canWindow, canWriteWindow } = useAuth();
   const { getTasksByEntity } = useData();
+  const { organization } = useOrganization();
 
   const taskCount = getTasksByEntity("enquiry", record.id).length;
   const allowedTabs = detailTabsForRole("enquiries", session?.windowKeys ?? []);
@@ -144,6 +147,17 @@ export function EnquiryTabbedView({
                 entityLabel={`${record.documentNo} — ${participantName}`}
               />
             </div>
+          </div>
+        ) : activeTab === "Qualification" && canEnquiryTab("Qualification") ? (
+          <div className="space-y-6">
+            <EnquiryQualificationPanel record={record} organization={organization} />
+            <EnquiryForm
+              record={record}
+              sections={visibleFormSections}
+              onChange={onChange}
+              activeSection="Qualification"
+              readOnly={!canWriteEnquiryTab("Qualification")}
+            />
           </div>
         ) : canEnquiryTab(activeTab) ? (
           <EnquiryForm

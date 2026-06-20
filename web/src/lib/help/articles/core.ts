@@ -110,6 +110,7 @@ export const enquiriesArticle: HelpArticle = {
       body: "Each enquiry has four tabs grouped under Record and Work.",
       bullets: [
         "Enquiry details: intake metadata, source, status, and coordinator",
+        "Qualification: NDIS scoring fields, auto-score, and tier breakdown",
         "Participant: name, contact, demographics, and funding hints",
         "Support needs: disability, services sought, and notes",
         "Activity: line table of calls, emails, and meetings",
@@ -124,6 +125,19 @@ export const enquiriesArticle: HelpArticle = {
         "Set a next action date on every open enquiry so follow-ups appear in the list.",
         "Use Overdue follow-ups on the Enquiries list to triage past-due actions.",
         "When marking lost, select a loss reason and set a nurture follow-up date (next action) for plan review timing.",
+      ],
+      relatedRoutes: ["/enquiries"],
+    },
+    {
+      id: "enquiry-qualification",
+      title: "NDIS qualification scoring",
+      body: "The Qualification tab scores each enquiry against NDIS intake criteria: funding body, plan status, plan management, service area postcode, support categories, urgency, and contact details. The score updates when you save.",
+      steps: [
+        "Open the enquiry and go to the Qualification tab.",
+        "Enter NDIS number, plan status, plan management, postcode, support categories, and urgency.",
+        "Review the score breakdown and tier (Hot, Warm, Cold, or Not qualified).",
+        "Use tier filters on the Enquiries list to prioritise Hot and Warm leads.",
+        "Save the record — the score and tier are stored on the enquiry and appear in the audit trail.",
       ],
       relatedRoutes: ["/enquiries"],
     },

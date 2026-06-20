@@ -78,6 +78,9 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   // Enquiries
   enquiryStatus: "enquiries",
   enquiryLossReason: "enquiries",
+  enquiryPlanStatus: "enquiries",
+  enquiryPlanManagement: "enquiries",
+  enquiryUrgency: "enquiries",
   enquirySource: "enquiries",
   isEnquiryForSelf: "enquiries",
   thirdPartyConsent: "enquiries",

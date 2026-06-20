@@ -31,6 +31,9 @@ values
   ('activityType', 'Activity type', 'Client', null, 25),
   ('enquiryStatus', 'Enquiry status', 'Enquiry', null, 26),
   ('enquiryLossReason', 'Enquiry loss reason', 'Enquiry', null, 33),
+  ('enquiryPlanStatus', 'Enquiry plan status', 'Enquiry', null, 34),
+  ('enquiryPlanManagement', 'Enquiry plan management', 'Enquiry', null, 35),
+  ('enquiryUrgency', 'Enquiry urgency', 'Enquiry', null, 36),
   ('enquirySource', 'Enquiry source', 'Enquiry', null, 27),
   ('isEnquiryForSelf', 'Is enquiry for self', 'Enquiry', null, 28),
   ('thirdPartyConsent', '3rd party consent', 'Enquiry', null, 29),
@@ -553,6 +556,53 @@ cross join (values
   ('Other', 'Other', 7)
 ) as v(value, label, sort_order)
 where l.key = 'enquiryLossReason'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- enquiryPlanStatus
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Active', 'Active', 0),
+  ('Plan review within 3 months', 'Plan review within 3 months', 1),
+  ('New to NDIS — plan pending', 'New to NDIS — plan pending', 2),
+  ('Plan ended', 'Plan ended', 3),
+  ('Unknown', 'Unknown', 4)
+) as v(value, label, sort_order)
+where l.key = 'enquiryPlanStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- enquiryPlanManagement
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Agency managed', 'Agency managed', 0),
+  ('Plan managed', 'Plan managed', 1),
+  ('Self managed', 'Self managed', 2)
+) as v(value, label, sort_order)
+where l.key = 'enquiryPlanManagement'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- enquiryUrgency
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('High — start within 2 weeks', 'High — start within 2 weeks', 0),
+  ('Normal — start within 1–3 months', 'Normal — start within 1–3 months', 1),
+  ('Low — exploring options', 'Low — exploring options', 2)
+) as v(value, label, sort_order)
+where l.key = 'enquiryUrgency'
 on conflict (list_id, value) do update set
   label = excluded.label,
   sort_order = excluded.sort_order,

@@ -17,6 +17,8 @@ import {
   isEnquiryFollowUpOverdue,
   normalizeEnquiryStatus,
 } from "@/lib/enquiry-pipeline";
+import { ENQUIRY_QUALIFICATION_TIERS } from "@/lib/enquiry-qualification";
+import { EnquiryQualificationBadge } from "@/components/enquiry-qualification-badge";
 import { StatusBadge } from "./status-badge";
 
 export type EnquiryListScope = "active" | "all" | "overdue";
@@ -31,6 +33,7 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
         : "active";
   const [scope, setScope] = useState<EnquiryListScope>(initialScope);
   const [stageFilter, setStageFilter] = useState<string>("");
+  const [tierFilter, setTierFilter] = useState<string>("");
   const [search, setSearch] = useState("");
 
   const activeCount = useMemo(
@@ -64,6 +67,10 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
       rows = rows.filter((r) => normalizeEnquiryStatus(r.status) === stageFilter);
     }
 
+    if (tierFilter) {
+      rows = rows.filter((r) => (r.qualificationTier || "Not qualified") === tierFilter);
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase();
       rows = rows.filter(
@@ -77,7 +84,7 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
     }
 
     return rows;
-  }, [records, scope, stageFilter, search]);
+  }, [records, scope, stageFilter, tierFilter, search]);
 
   const resultSummary = filtered.length === 1 ? "1 record" : `${filtered.length} records`;
 
@@ -131,6 +138,30 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
         ))}
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setTierFilter("")}
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            !tierFilter ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
+          }`}
+        >
+          All tiers
+        </button>
+        {ENQUIRY_QUALIFICATION_TIERS.map((tier) => (
+          <button
+            key={tier}
+            type="button"
+            onClick={() => setTierFilter(tierFilter === tier ? "" : tier)}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              tierFilter === tier ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {tier}
+          </button>
+        ))}
+      </div>
+
       <RecordListTableCard
         hint={
           scope === "active"
@@ -149,6 +180,7 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Qualification</th>
                 <th className="px-4 py-3 font-medium">Date next action</th>
                 <th className="px-4 py-3 font-medium">First name</th>
                 <th className="px-4 py-3 font-medium">Last name</th>
@@ -163,6 +195,12 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
                   <tr key={record.id} className="group hover:bg-[#fdf2f8]/40">
                     <td className="px-4 py-3 whitespace-nowrap">
                       <StatusBadge status={record.status} />
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <EnquiryQualificationBadge
+                        tier={record.qualificationTier}
+                        score={record.qualificationScore}
+                      />
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-slate-600">
                       <span
@@ -199,7 +237,7 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
+                  <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
                     {scope === "active"
                       ? "No active enquiries match your search."
                       : scope === "overdue"

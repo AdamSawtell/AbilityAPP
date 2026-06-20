@@ -4,8 +4,9 @@ import type { ClientActivityRow } from "@/lib/client-line-tables";
 import {
   enquiryPipelineTone,
   normalizeEnquiryPipeline,
-  normalizeEnquiryStatus,
 } from "@/lib/enquiry-pipeline";
+import { applyEnquiryQualification, normalizeEnquiryQualification } from "@/lib/enquiry-qualification";
+import { readStoredOrganization } from "@/lib/organization";
 
 export type EnquiryActivityRow = ClientActivityRow;
 
@@ -16,6 +17,15 @@ export type EnquiryRecord = {
   dateNextAction: string;
   status: string;
   lossReason: string;
+  ndisNumber: string;
+  planStatus: string;
+  planManagementType: string;
+  postcode: string;
+  supportCategories: string;
+  urgency: string;
+  qualificationScore: number;
+  qualificationTier: string;
+  qualificationSummary: string;
   firstName: string;
   lastName: string;
   fundingBody: string;
@@ -53,12 +63,18 @@ export type FormSection = {
   fields: FieldDef[];
 };
 
-export const enquiryTabs = ["Enquiry details", "Activity", "Participant", "Support needs"] as const;
+export const enquiryTabs = [
+  "Enquiry details",
+  "Qualification",
+  "Activity",
+  "Participant",
+  "Support needs",
+] as const;
 
 export type EnquiryTab = (typeof enquiryTabs)[number];
 
 export const enquiryTabGroups: { label: string; tabs: EnquiryTab[] }[] = [
-  { label: "Record", tabs: ["Enquiry details", "Activity", "Participant", "Support needs"] },
+  { label: "Record", tabs: ["Enquiry details", "Qualification", "Activity", "Participant", "Support needs"] },
 ];
 
 export const enquiryModel = model;
@@ -72,7 +88,8 @@ export function normalizeEnquiry(record: EnquiryRecord): EnquiryRecord {
     ...row,
     lineNo: row.lineNo ?? index + 1,
   }));
-  return normalizeEnquiryPipeline({ ...record, activity });
+  const withPipeline = normalizeEnquiryPipeline({ ...record, activity });
+  return applyEnquiryQualification(normalizeEnquiryQualification(withPipeline), readStoredOrganization());
 }
 
 export const initialRecords = (model.records as EnquiryRecord[]).map(normalizeEnquiry);
@@ -96,6 +113,15 @@ export function emptyEnquiry(): EnquiryRecord {
     dateNextAction: "",
     status: "1_Enquiry received",
     lossReason: "",
+    ndisNumber: "",
+    planStatus: "",
+    planManagementType: "",
+    postcode: "",
+    supportCategories: "",
+    urgency: "",
+    qualificationScore: 0,
+    qualificationTier: "Not qualified",
+    qualificationSummary: "",
     firstName: "",
     lastName: "",
     fundingBody: "",

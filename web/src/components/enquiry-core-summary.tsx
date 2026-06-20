@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ClientRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
+import { EnquiryQualificationBadge } from "@/components/enquiry-qualification-badge";
 import { formatDisplayDate, type EnquiryRecord } from "@/lib/enquiry";
 import { isEnquiryFollowUpOverdue, isEnquiryLost } from "@/lib/enquiry-pipeline";
 import type { ClientRecord } from "@/lib/client";
@@ -50,6 +51,9 @@ export function EnquiryCoreSummary({
                   </span>
                 ) : null}
                 <StatusBadge status={record.status} />
+                {record.qualificationScore > 0 || record.qualificationTier !== "Not qualified" ? (
+                  <EnquiryQualificationBadge tier={record.qualificationTier} score={record.qualificationScore} />
+                ) : null}
                 {record.activity.length > 0 ? (
                   <Link
                     href={activityTabHref}

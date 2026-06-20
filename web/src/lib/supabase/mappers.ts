@@ -93,6 +93,15 @@ export type EnquiryRow = {
   additional_disability_information: string;
   other: string;
   loss_reason: string;
+  ndis_number: string;
+  plan_status: string;
+  plan_management_type: string;
+  postcode: string;
+  support_categories: string;
+  urgency: string;
+  qualification_score: number;
+  qualification_tier: string;
+  qualification_summary: string;
   created_by: string;
   updated_by: string;
 };
@@ -135,6 +144,15 @@ export function enquiryFromRow(row: EnquiryRow, activity: EnquiryActivityRowDb[]
     additionalDisabilityInformation: row.additional_disability_information,
     other: row.other,
     lossReason: row.loss_reason ?? "",
+    ndisNumber: row.ndis_number ?? "",
+    planStatus: row.plan_status ?? "",
+    planManagementType: row.plan_management_type ?? "",
+    postcode: row.postcode ?? "",
+    supportCategories: row.support_categories ?? "",
+    urgency: row.urgency ?? "",
+    qualificationScore: row.qualification_score ?? 0,
+    qualificationTier: row.qualification_tier ?? "Not qualified",
+    qualificationSummary: row.qualification_summary ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     activity: activity.map((a) => ({
@@ -176,6 +194,15 @@ export function enquiryToRow(record: EnquiryRecord): EnquiryRow {
     additional_disability_information: record.additionalDisabilityInformation,
     other: record.other,
     loss_reason: record.lossReason ?? "",
+    ndis_number: record.ndisNumber ?? "",
+    plan_status: record.planStatus ?? "",
+    plan_management_type: record.planManagementType ?? "",
+    postcode: record.postcode ?? "",
+    support_categories: record.supportCategories ?? "",
+    urgency: record.urgency ?? "",
+    qualification_score: record.qualificationScore ?? 0,
+    qualification_tier: record.qualificationTier ?? "Not qualified",
+    qualification_summary: record.qualificationSummary ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

@@ -62,7 +62,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 |-------------|--------|------------------|
 | Enquiry record + basic pipeline | ✅ | Yes |
 | Enquiry pipeline stages + loss reasons | ✅ | Yes — WP-0.1 |
-| NDIS qualification scoring | ⬜ | Yes (rules engine) |
+| NDIS qualification scoring | ✅ | Yes — WP-0.2 |
 | Custom enquiry forms / web-to-lead | ⬜ | Yes |
 | HubSpot / Zoho sync | ⬜ | Yes (needs OAuth credentials) |
 | One-click Enquiry → Client | 🟡 | Process 01 exists; enrich auto-populate |

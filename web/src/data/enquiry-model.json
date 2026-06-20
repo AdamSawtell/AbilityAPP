@@ -1,6 +1,7 @@
 {
   "listColumns": [
     { "key": "status", "label": "Status" },
+    { "key": "qualificationTier", "label": "Qualification" },
     { "key": "dateNextAction", "label": "Date next action" },
     { "key": "firstName", "label": "First name" },
     { "key": "lastName", "label": "Last name" },
@@ -22,6 +23,17 @@
         { "key": "enquirySource", "label": "Enquiry source", "type": "select", "optionsKey": "enquirySource" },
         { "key": "description", "label": "Description", "type": "textarea" },
         { "key": "outcome", "label": "Outcome", "type": "textarea" }
+      ]
+    },
+    {
+      "title": "Qualification",
+      "fields": [
+        { "key": "ndisNumber", "label": "NDIS number", "type": "text" },
+        { "key": "planStatus", "label": "Plan status", "type": "select", "optionsKey": "enquiryPlanStatus" },
+        { "key": "planManagementType", "label": "Plan management", "type": "select", "optionsKey": "enquiryPlanManagement" },
+        { "key": "postcode", "label": "Participant postcode", "type": "text" },
+        { "key": "supportCategories", "label": "Support categories needed", "type": "textarea" },
+        { "key": "urgency", "label": "Urgency", "type": "select", "optionsKey": "enquiryUrgency" }
       ]
     },
     {
@@ -67,6 +79,12 @@
       "dateReceived": "2022-12-05",
       "dateNextAction": "2023-05-22",
       "status": "1_Initial Enquiry",
+      "ndisNumber": "431234567",
+      "planStatus": "Active",
+      "planManagementType": "Agency managed",
+      "postcode": "5045",
+      "supportCategories": "Assistance with Daily Life, Social and Community Participation",
+      "urgency": "Normal",
       "firstName": "Samuel",
       "lastName": "Ryan",
       "fundingBody": "NDIS - National Disability Insurance Scheme",

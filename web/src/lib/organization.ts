@@ -45,6 +45,7 @@ export type OrganizationSection = {
 };
 
 export const ORGANIZATION_ID = "org-default";
+export const ORGANIZATION_STORAGE_KEY = "abilityapp-organization";
 
 export const organizationSections: OrganizationSection[] = [
   {
@@ -159,6 +160,20 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     registrationGroups: (record.registrationGroups ?? "").trim(),
     incidentInvestigationSlaDays: Number.isFinite(sla) && sla > 0 ? Math.round(sla) : 14,
   };
+}
+
+/** Organisation profile from browser storage — used when scoring enquiries outside React context. */
+export function readStoredOrganization(): OrganizationRecord {
+  if (typeof window === "undefined") return defaultOrganization();
+  try {
+    const raw = localStorage.getItem(ORGANIZATION_STORAGE_KEY);
+    if (!raw?.trim()) return defaultOrganization();
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return defaultOrganization();
+    return normalizeOrganization(parsed as OrganizationRecord);
+  } catch {
+    return defaultOrganization();
+  }
 }
 
 export function organizationDisplayName(record: OrganizationRecord) {

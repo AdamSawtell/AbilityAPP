@@ -47,9 +47,9 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
     "enquiries",
     [
       "Review enquiry pipeline status values (received → qualification → proposal → converted / lost).",
-      "Configure enquiry loss reasons for closed-lost enquiries.",
-      "Set enquiry source and participant communication options.",
-      "Create a test enquiry and confirm next action dates appear on the list.",
+      "Configure enquiry loss reasons, plan status, plan management, and urgency lists.",
+      "Grant the Qualification tab under Enquiries for intake roles.",
+      "Create a test enquiry and confirm the qualification score updates on save.",
     ]
   ),
   moduleSetupArticle(
