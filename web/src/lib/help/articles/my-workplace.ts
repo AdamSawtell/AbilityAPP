@@ -23,9 +23,9 @@ export const myWorkplaceArticle: HelpArticle = {
     "task",
     "how to",
   ],
-  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/contracts", "/my/credentials"],
-  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-19",
+  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/contracts", "/my/credentials"],
+  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-contracts", "my-credentials"],
+  lastUpdated: "2026-06-20",
   sections: [
     {
       id: "overview",
@@ -100,6 +100,20 @@ export const myWorkplaceArticle: HelpArticle = {
       windowKeys: ["my-open-shifts"],
     },
     {
+      id: "my-shifts",
+      title: "Check in to your shifts",
+      body: "Workers check in and out of assigned roster shifts from My workplace. Verified shifts show on the roster week view and feed timesheet generation.",
+      steps: [
+        "Open My workplace → My shifts.",
+        "Find today's or upcoming assigned shift — check-in opens on the shift date.",
+        "Tap Check in when you start the shift.",
+        "Add optional notes, then tap Check out & verify when you finish — the shift moves to Completed.",
+        "Coordinators see Checked in or Verified badges on the roster week calendar.",
+      ],
+      relatedRoutes: ["/my/shifts", "/rostering"],
+      windowKeys: ["my-shifts"],
+    },
+    {
       id: "contracts",
       title: "Contracts and policies",
       body: "Only documents marked staff-visible by HR appear here. Employment contracts can use a viewable PDF URL stored on the employee record.",
@@ -125,7 +139,7 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "future",
       title: "Coming later",
-      body: "Roster, timesheets, and pay slips will be added to My workplace and the mobility app using the same self-service foundation.",
+      body: "GPS check-in, offline mobile, and pay slips will extend the same My workplace self-service foundation.",
     },
   ],
 };

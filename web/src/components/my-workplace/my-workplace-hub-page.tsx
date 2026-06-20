@@ -137,6 +137,11 @@ export function MyWorkplaceHubPage() {
             badge={summary && !summary.availabilityConfigured ? 1 : 0}
           />
           <HubTile
+            title="My shifts"
+            description="Check in and out of roster shifts assigned to you."
+            href="/my/shifts"
+          />
+          <HubTile
             title="Contracts & policies"
             description="View employment documents and acknowledge required items."
             href="/my/contracts"

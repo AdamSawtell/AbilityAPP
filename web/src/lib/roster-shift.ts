@@ -13,6 +13,9 @@ export type RosterShiftRecord = {
   status: string;
   notes: string;
   recurrenceGroupId: string;
+  checkedInAt: string;
+  checkedOutAt: string;
+  checkInNotes: string;
   createdBy: string;
   updatedBy: string;
 };
@@ -37,6 +40,9 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     status: "Published",
     notes: "SIL morning — linked to booking 50145",
     recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -54,6 +60,9 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     status: "Published",
     notes: "Community access afternoon",
     recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -71,6 +80,9 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     status: "Published",
     notes: "",
     recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -88,6 +100,9 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     status: "Draft",
     notes: "Open shift — posted to marketplace for cover",
     recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -108,11 +123,14 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
     status: record.status || "Published",
     notes: record.notes ?? "",
     recurrenceGroupId: record.recurrenceGroupId ?? "",
+    checkedInAt: record.checkedInAt ?? "",
+    checkedOutAt: record.checkedOutAt ?? "",
+    checkInNotes: record.checkInNotes ?? "",
   };
 }
 
 export function createRosterShift(
-  partial: RosterShiftRecord,
+  partial: Partial<RosterShiftRecord> & Pick<RosterShiftRecord, "shiftDate">,
   existing: RosterShiftRecord[]
 ): RosterShiftRecord {
   const id = partial.id?.trim() || `rs-${Date.now()}`;
@@ -120,9 +138,22 @@ export function createRosterShift(
   let shiftRef = partial.shiftRef?.trim() || `SHIFT-${existing.length + 1}`;
   if (used.has(shiftRef)) shiftRef = `${shiftRef}-${existing.length + 1}`;
   return normalizeRosterShift({
-    ...partial,
     id,
     shiftRef,
+    clientId: "",
+    employeeId: "",
+    locationId: "",
+    serviceBookingId: "",
+    startTime: "09:00",
+    endTime: "17:00",
+    shiftType: "Standard",
+    status: "Published",
+    notes: "",
+    recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
+    ...partial,
     createdBy: partial.createdBy || "SuperUser",
     updatedBy: partial.updatedBy || "SuperUser",
   });

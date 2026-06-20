@@ -858,6 +858,51 @@ export async function claimVacantRosterShift(
   return (data?.length ?? 0) > 0;
 }
 
+/** Record worker check-in only when not already checked in. */
+export async function checkInRosterShift(
+  supabase: SupabaseClient,
+  record: RosterShiftRecord,
+  employeeId: string
+): Promise<boolean> {
+  const shift = normalizeRosterShift(record);
+  const { data, error } = await supabase
+    .from("roster_shift")
+    .update({
+      checked_in_at: shift.checkedInAt,
+      updated_by: shift.updatedBy,
+    })
+    .eq("id", shift.id)
+    .eq("employee_id", employeeId)
+    .is("checked_in_at", null)
+    .select("id");
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
+/** Record worker check-out only when checked in and not yet checked out. */
+export async function checkOutRosterShift(
+  supabase: SupabaseClient,
+  record: RosterShiftRecord,
+  employeeId: string
+): Promise<boolean> {
+  const shift = normalizeRosterShift(record);
+  const { data, error } = await supabase
+    .from("roster_shift")
+    .update({
+      checked_out_at: shift.checkedOutAt,
+      check_in_notes: shift.checkInNotes ?? "",
+      status: shift.status,
+      updated_by: shift.updatedBy,
+    })
+    .eq("id", shift.id)
+    .eq("employee_id", employeeId)
+    .not("checked_in_at", "is", null)
+    .is("checked_out_at", null)
+    .select("id");
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
 export async function saveRosterShifts(supabase: SupabaseClient, records: RosterShiftRecord[]) {
   if (!records.length) return;
   const rows = records.map((record) => rosterShiftToRow(normalizeRosterShift(record)));

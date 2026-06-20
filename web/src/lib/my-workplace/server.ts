@@ -29,6 +29,9 @@ import {
   type EmployeeRow,
 } from "@/lib/supabase/mappers";
 import { persistMyCredential, persistMyLeaveRequest, persistMyProfile } from "@/lib/my-workplace/persist";
+import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
+import { normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
+import { rosterShiftFromRow, type RosterShiftRow } from "@/lib/supabase/mappers";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
@@ -413,6 +416,84 @@ export async function submitMyCredential(
   });
 
   return { credential, employee: next };
+}
+
+export async function performMyShiftCheckIn(
+  ctx: MyWorkplaceContext,
+  shiftId: string
+): Promise<RosterShiftRecord> {
+  const supabase = isSupabaseConfigured() ? serviceClient() : null;
+  const { data: row, error } = supabase
+    ? await supabase.from("roster_shift").select("*").eq("id", shiftId).maybeSingle()
+    : { data: null, error: null };
+
+  if (supabase && (error || !row)) throw new Error("Shift not found.");
+  const shift = row
+    ? normalizeRosterShift(rosterShiftFromRow(row as RosterShiftRow))
+    : null;
+  if (!shift) throw new Error("Shift not found.");
+
+  const built = buildCheckInUpdate(shift, ctx.employeeId, ctx.session.displayName);
+  if (!built.ok) throw new Error(built.message);
+
+  if (supabase) {
+    const { data, error: updateError } = await supabase
+      .from("roster_shift")
+      .update({
+        checked_in_at: built.shift.checkedInAt,
+        updated_by: built.shift.updatedBy,
+      })
+      .eq("id", shiftId)
+      .eq("employee_id", ctx.employeeId)
+      .is("checked_in_at", null)
+      .select("*");
+    if (updateError) throw updateError;
+    if (!data?.length) throw new Error("Check-in is no longer available for this shift.");
+    return normalizeRosterShift(rosterShiftFromRow(data[0] as RosterShiftRow));
+  }
+
+  return built.shift;
+}
+
+export async function performMyShiftCheckOut(
+  ctx: MyWorkplaceContext,
+  shiftId: string,
+  notes: string
+): Promise<RosterShiftRecord> {
+  const supabase = isSupabaseConfigured() ? serviceClient() : null;
+  const { data: row, error } = supabase
+    ? await supabase.from("roster_shift").select("*").eq("id", shiftId).maybeSingle()
+    : { data: null, error: null };
+
+  if (supabase && (error || !row)) throw new Error("Shift not found.");
+  const shift = row
+    ? normalizeRosterShift(rosterShiftFromRow(row as RosterShiftRow))
+    : null;
+  if (!shift) throw new Error("Shift not found.");
+
+  const built = buildCheckOutUpdate(shift, ctx.employeeId, ctx.session.displayName, notes);
+  if (!built.ok) throw new Error(built.message);
+
+  if (supabase) {
+    const { data, error: updateError } = await supabase
+      .from("roster_shift")
+      .update({
+        checked_out_at: built.shift.checkedOutAt,
+        check_in_notes: built.shift.checkInNotes ?? "",
+        status: built.shift.status,
+        updated_by: built.shift.updatedBy,
+      })
+      .eq("id", shiftId)
+      .eq("employee_id", ctx.employeeId)
+      .not("checked_in_at", "is", null)
+      .is("checked_out_at", null)
+      .select("*");
+    if (updateError) throw updateError;
+    if (!data?.length) throw new Error("Check-out is no longer available for this shift.");
+    return normalizeRosterShift(rosterShiftFromRow(data[0] as RosterShiftRow));
+  }
+
+  return built.shift;
 }
 
 export async function submitLeaveOnBehalf(

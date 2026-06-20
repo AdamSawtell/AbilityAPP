@@ -2096,6 +2096,9 @@ export type RosterShiftRow = {
   status: string;
   notes: string;
   recurrence_group_id: string;
+  checked_in_at: string | null;
+  checked_out_at: string | null;
+  check_in_notes: string;
   created_by: string;
   updated_by: string;
 };
@@ -2115,6 +2118,9 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     status: row.status,
     notes: row.notes,
     recurrenceGroupId: row.recurrence_group_id ?? "",
+    checkedInAt: row.checked_in_at ?? "",
+    checkedOutAt: row.checked_out_at ?? "",
+    checkInNotes: row.check_in_notes ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2135,6 +2141,9 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     status: record.status,
     notes: record.notes,
     recurrence_group_id: record.recurrenceGroupId ?? "",
+    checked_in_at: record.checkedInAt?.trim() ? record.checkedInAt : null,
+    checked_out_at: record.checkedOutAt?.trim() ? record.checkedOutAt : null,
+    check_in_notes: record.checkInNotes ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

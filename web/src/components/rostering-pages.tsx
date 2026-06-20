@@ -21,6 +21,7 @@ import {
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
 import { gapsForWeek, isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
 import { listOpenMarketplaceShifts } from "@/lib/roster-open-shifts";
+import { shiftCheckInStatus, shiftCheckInStatusLabel } from "@/lib/roster-shift-checkin";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -330,6 +331,23 @@ export function RosteringWeekView() {
                             >
                               {hasError ? "Conflict" : "Overlap warning"}
                             </span>
+                          ) : null}
+                          {!vacant && shift.employeeId ? (
+                            (() => {
+                              const checkStatus = shiftCheckInStatus(shift);
+                              if (checkStatus === "not-started") return null;
+                              return (
+                                <span
+                                  className={`mt-1 inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                                    checkStatus === "completed"
+                                      ? "bg-emerald-100 text-emerald-950"
+                                      : "bg-sky-100 text-sky-950"
+                                  }`}
+                                >
+                                  {shiftCheckInStatusLabel(checkStatus)}
+                                </span>
+                              );
+                            })()
                           ) : null}
                         </button>
                       );

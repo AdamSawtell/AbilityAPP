@@ -47,21 +47,12 @@ export function RosterShiftEditor({
       initial ??
         createRosterShift(
           {
-            id: "",
-            shiftRef: "",
             clientId: prefill?.clientId ?? clients[0]?.id ?? "",
             employeeId: prefill?.clientId ? "" : employees[0]?.id ?? "",
             locationId: locations[0]?.id ?? "",
             serviceBookingId: prefill?.serviceBookingId ?? "",
             shiftDate: defaultDate ?? new Date().toISOString().slice(0, 10),
-            startTime: "09:00",
-            endTime: "17:00",
-            shiftType: "Standard",
             status: prefill?.clientId ? "Draft" : "Published",
-            notes: "",
-            recurrenceGroupId: "",
-            createdBy: "SuperUser",
-            updatedBy: "SuperUser",
           },
           rosterShifts
         )

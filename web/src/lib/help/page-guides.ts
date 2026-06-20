@@ -76,6 +76,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
 
   // App — my workplace
   { prefix: "/my/open-shifts", slug: "my-workplace", surface: "app" },
+  { prefix: "/my/shifts", slug: "my-workplace", surface: "app" },
   { prefix: "/my/credentials", slug: "my-workplace", surface: "app" },
   { prefix: "/my/contracts", slug: "my-workplace", surface: "app" },
   { prefix: "/my/availability", slug: "my-workplace", surface: "app" },

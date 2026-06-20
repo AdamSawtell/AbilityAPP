@@ -17,6 +17,7 @@ import {
 } from "@/lib/service-booking";
 import { isVacantShift } from "@/lib/roster-gap-analysis";
 import { buildClaimedShift } from "@/lib/roster-open-shifts";
+import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
 import {
   createRosterShift,
   initialRosterShifts as seedRosterShifts,
@@ -157,6 +158,13 @@ type DataStore = {
   upsertServiceBooking: (record: ServiceBookingRecord) => void;
   upsertRosterShift: (record: RosterShiftRecord) => void;
   claimOpenRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
+  checkInRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
+  checkOutRosterShift: (
+    shiftId: string,
+    employeeId: string,
+    updatedBy: string,
+    notes: string
+  ) => Promise<string | null>;
   addRecurringRosterShifts: (records: RosterShiftRecord[]) => void;
   upsertTimesheet: (record: TimesheetRecord, audit?: AuditLogOptions) => void;
   bulkUpsertTimesheets: (records: TimesheetRecord[]) => void;
@@ -816,9 +824,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const upsertRosterShift = useCallback(
     (record: RosterShiftRecord) => {
       const prev = rosterShiftsRef.current;
-      const normalized = normalizeRosterShift(record);
+      let normalized = normalizeRosterShift(record);
       const before = prev.find((r) => r.id === normalized.id);
       const exists = Boolean(before);
+      if (before && exists) {
+        normalized = normalizeRosterShift({
+          ...normalized,
+          checkedInAt: normalized.checkedInAt?.trim() ? normalized.checkedInAt : before.checkedInAt,
+          checkedOutAt: normalized.checkedOutAt?.trim() ? normalized.checkedOutAt : before.checkedOutAt,
+          checkInNotes: normalized.checkInNotes?.trim() ? normalized.checkInNotes : before.checkInNotes,
+        });
+      }
       const stamped = persistRecordAudit("roster-shift", normalized, !exists, before);
       setRosterShifts((current) =>
         exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
@@ -850,6 +866,95 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setRosterShifts((current) => {
         const live = current.find((s) => s.id === shiftId);
         if (!live || !isVacantShift(live)) return current;
+        return current.map((r) => (r.id === stamped.id ? stamped : r));
+      });
+      return null;
+    },
+    [rosterShiftsRef, source]
+  );
+
+  const checkInRosterShift = useCallback(
+    async (shiftId: string, employeeId: string, updatedBy: string): Promise<string | null> => {
+      const prev = rosterShiftsRef.current;
+      const shift = prev.find((s) => s.id === shiftId);
+      if (!shift) return "Shift not found.";
+      const built = buildCheckInUpdate(shift, employeeId, updatedBy);
+      if (!built.ok) return built.message;
+
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const res = await fetch("/api/my/shifts", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shiftId, action: "check-in" }),
+        });
+        const payload = (await res.json()) as { error?: string; shift?: RosterShiftRecord };
+        if (!res.ok) return payload.error ?? "Check-in failed.";
+        if (payload.shift) {
+          const before = rosterShiftsRef.current.find((r) => r.id === payload.shift!.id);
+          const stamped = persistRecordAudit("roster-shift", normalizeRosterShift(payload.shift), false, before);
+          setRosterShifts((current) => current.map((r) => (r.id === stamped.id ? stamped : r)));
+          return null;
+        }
+        return "Check-in is no longer available for this shift.";
+      }
+
+      const latest = rosterShiftsRef.current.find((s) => s.id === shiftId);
+      if (latest?.checkedInAt?.trim()) return "Check-in is no longer available for this shift.";
+
+      const before = rosterShiftsRef.current.find((r) => r.id === built.shift.id);
+      const stamped = persistRecordAudit("roster-shift", built.shift, false, before);
+      setRosterShifts((current) => {
+        const live = current.find((s) => s.id === shiftId);
+        if (!live || live.checkedInAt?.trim()) return current;
+        return current.map((r) => (r.id === stamped.id ? stamped : r));
+      });
+      return null;
+    },
+    [rosterShiftsRef, source]
+  );
+
+  const checkOutRosterShift = useCallback(
+    async (
+      shiftId: string,
+      employeeId: string,
+      updatedBy: string,
+      notes: string
+    ): Promise<string | null> => {
+      const prev = rosterShiftsRef.current;
+      const shift = prev.find((s) => s.id === shiftId);
+      if (!shift) return "Shift not found.";
+      const built = buildCheckOutUpdate(shift, employeeId, updatedBy, notes);
+      if (!built.ok) return built.message;
+
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const res = await fetch("/api/my/shifts", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shiftId, action: "check-out", notes }),
+        });
+        const payload = (await res.json()) as { error?: string; shift?: RosterShiftRecord };
+        if (!res.ok) return payload.error ?? "Check-out failed.";
+        if (payload.shift) {
+          const before = rosterShiftsRef.current.find((r) => r.id === payload.shift!.id);
+          const stamped = persistRecordAudit("roster-shift", normalizeRosterShift(payload.shift), false, before);
+          setRosterShifts((current) => current.map((r) => (r.id === stamped.id ? stamped : r)));
+          return null;
+        }
+        return "Check-out is no longer available for this shift.";
+      }
+
+      const latest = rosterShiftsRef.current.find((s) => s.id === shiftId);
+      if (!latest?.checkedInAt?.trim() || latest.checkedOutAt?.trim()) {
+        return "Check-out is no longer available for this shift.";
+      }
+
+      const before = rosterShiftsRef.current.find((r) => r.id === built.shift.id);
+      const stamped = persistRecordAudit("roster-shift", built.shift, false, before);
+      setRosterShifts((current) => {
+        const live = current.find((s) => s.id === shiftId);
+        if (!live?.checkedInAt?.trim() || live.checkedOutAt?.trim()) return current;
         return current.map((r) => (r.id === stamped.id ? stamped : r));
       });
       return null;
@@ -1163,6 +1268,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertServiceBooking,
       upsertRosterShift,
       claimOpenRosterShift,
+      checkInRosterShift,
+      checkOutRosterShift,
       addRecurringRosterShifts,
       upsertTimesheet,
       bulkUpsertTimesheets,
@@ -1225,6 +1332,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertServiceBooking,
       upsertRosterShift,
       claimOpenRosterShift,
+      checkInRosterShift,
+      checkOutRosterShift,
       addRecurringRosterShifts,
       upsertTimesheet,
       bulkUpsertTimesheets,

@@ -129,6 +129,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Confirm clients have service delivery consent and Active service agreements before bookings go live.",
       "Create a test booking, cancel it with full details, and confirm the cancellation policy panel before go-live.",
       "Grant Rostering, Timesheets, and Generate timesheets windows at Write for coordinators.",
+      "Grant My shifts to support workers and coordinators who check in on rostered work.",
       "Publish roster shifts with workers assigned before running Generate timesheets for a pay period.",
     ]
   ),

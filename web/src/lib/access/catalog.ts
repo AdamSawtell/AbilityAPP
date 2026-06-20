@@ -289,6 +289,15 @@ const MY_WORKPLACE_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "my-shifts",
+    label: "My shifts",
+    group: "My workplace",
+    href: "/my/shifts",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "My shifts check-in",
+    showInSidebar: false,
+  },
+  {
     key: "my-credentials",
     label: "My credentials",
     group: "My workplace",

@@ -138,6 +138,9 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     status: "Status",
     notes: "Notes",
     recurrenceGroupId: "Recurrence group",
+    checkedInAt: "Checked in at",
+    checkedOutAt: "Checked out at",
+    checkInNotes: "Check-in notes",
   },
   timesheet: {
     documentNo: "Document no.",
