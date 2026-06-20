@@ -181,6 +181,10 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     payrollExportStatus: "Payroll export status",
     payrollExportedAt: "Payroll exported at",
     payrollExportBatchRef: "Payroll export batch ref",
+    payrollPaidHours: "Payroll paid hours",
+    payrollPayRunRef: "Payroll pay run ref",
+    payrollReconcileStatus: "Payroll reconcile status",
+    payrollReconciledAt: "Payroll reconciled at",
     lines: "Timesheet lines",
   },
   task: {

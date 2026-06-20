@@ -116,6 +116,8 @@ export const deliveryArticle: HelpArticle = {
         "Set status to Submitted or Approved when all linked shifts are verified (or manually reviewed).",
         "On Timesheets, select approved records and use Payroll export to download a CSV for Keypay or Xero.",
         "When Keypay API credentials are configured (or KEYPAY_DRY_RUN=true in dev), use Export to Keypay API to post verified lines server-side.",
+        "After pay run in Keypay or Xero, open Payroll reconciliation on Timesheets — enter paid hours and pay run reference for each exported record.",
+        "Review Matched vs Variance status — variance within 0.05h counts as matched; larger gaps flag for audit before closing the pay period.",
         "Re-run generation for the same period to append new shifts to an existing Draft timesheet.",
       ],
       relatedRoutes: ["/timesheets", "/generate-timesheets"],

@@ -26,6 +26,10 @@ export type TimesheetRecord = {
   payrollExportStatus: string;
   payrollExportedAt: string;
   payrollExportBatchRef: string;
+  payrollPaidHours: number;
+  payrollPayRunRef: string;
+  payrollReconcileStatus: string;
+  payrollReconciledAt: string;
   lines: TimesheetLine[];
   createdBy: string;
   updatedBy: string;
@@ -34,6 +38,7 @@ export type TimesheetRecord = {
 export const timesheetDropdowns = {
   status: ["Draft", "Submitted", "Approved"],
   payrollExportStatus: ["Not exported", "Exported", "Processed"],
+  payrollReconcileStatus: ["Pending", "Matched", "Variance"],
 };
 
 export const initialTimesheets: TimesheetRecord[] = [];
@@ -86,6 +91,10 @@ export function normalizeTimesheet(record: TimesheetRecord): TimesheetRecord {
     payrollExportStatus: record.payrollExportStatus || "Not exported",
     payrollExportedAt: record.payrollExportedAt ?? "",
     payrollExportBatchRef: record.payrollExportBatchRef ?? "",
+    payrollPaidHours: Number.isFinite(record.payrollPaidHours) ? record.payrollPaidHours : 0,
+    payrollPayRunRef: record.payrollPayRunRef ?? "",
+    payrollReconcileStatus: record.payrollReconcileStatus || "Pending",
+    payrollReconciledAt: record.payrollReconciledAt ?? "",
     lines,
     createdBy: record.createdBy ?? "",
     updatedBy: record.updatedBy ?? "",
@@ -114,6 +123,10 @@ export function createTimesheet(
     payrollExportStatus: "Not exported",
     payrollExportedAt: "",
     payrollExportBatchRef: "",
+    payrollPaidHours: 0,
+    payrollPayRunRef: "",
+    payrollReconcileStatus: "Pending",
+    payrollReconciledAt: "",
     lines: [],
     ...partial,
     id,

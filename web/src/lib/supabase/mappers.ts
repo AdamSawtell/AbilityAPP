@@ -2186,6 +2186,10 @@ export type TimesheetRow = {
   payroll_export_status: string;
   payroll_exported_at: string | null;
   payroll_export_batch_ref: string;
+  payroll_paid_hours: number | null;
+  payroll_pay_run_ref: string;
+  payroll_reconcile_status: string;
+  payroll_reconciled_at: string | null;
   created_by: string;
   updated_by: string;
 };
@@ -2219,6 +2223,10 @@ export function timesheetFromRow(row: TimesheetRow, lines: TimesheetLineRowDb[])
     payrollExportStatus: row.payroll_export_status || "Not exported",
     payrollExportedAt: row.payroll_exported_at ?? "",
     payrollExportBatchRef: row.payroll_export_batch_ref ?? "",
+    payrollPaidHours: row.payroll_paid_hours != null ? Number(row.payroll_paid_hours) : 0,
+    payrollPayRunRef: row.payroll_pay_run_ref ?? "",
+    payrollReconcileStatus: row.payroll_reconcile_status || "Pending",
+    payrollReconciledAt: row.payroll_reconciled_at ?? "",
     lines: lines.map(timesheetLineFromRow),
     createdBy: row.created_by,
     updatedBy: row.updated_by,
@@ -2255,6 +2263,10 @@ export function timesheetToRow(record: TimesheetRecord): TimesheetRow {
     payroll_export_status: record.payrollExportStatus || "Not exported",
     payroll_exported_at: record.payrollExportedAt?.trim() ? record.payrollExportedAt : null,
     payroll_export_batch_ref: record.payrollExportBatchRef ?? "",
+    payroll_paid_hours: record.payrollPaidHours > 0 ? record.payrollPaidHours : null,
+    payroll_pay_run_ref: record.payrollPayRunRef ?? "",
+    payroll_reconcile_status: record.payrollReconcileStatus || "Pending",
+    payroll_reconciled_at: record.payrollReconciledAt?.trim() ? record.payrollReconciledAt : null,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };
