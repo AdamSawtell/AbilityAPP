@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | 0% | ⬜ Placeholder | Requires Chunk 1–3 |
+| 4 | Rostering | 22% | **5%** | 🔵 In progress | WP-D.1 read-only calendar |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
