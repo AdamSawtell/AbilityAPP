@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **71%** |
-| **Current work package** | WP-D — Rostering (Chunk 4) |
-| **Active slice** | WP-D.21 — Drag-and-drop week view ✅ shipped |
-| **Next slice** | WP-E.1 — Monthly service plan scaffold (Chunk 5) |
-| **Last push** | 2026-06-18 — `5a57d5c` |
+| **Overall completion** | **72%** |
+| **Current work package** | WP-E — Service planning (Chunk 5) |
+| **Active slice** | WP-E.1 — Monthly service plan scaffold ✅ shipped |
+| **Next slice** | WP-E.2 — Burn rate + forecast alerts (Chunk 5) |
+| **Last push** | 2026-06-18 — *(pending commit)* |
 
 ---
 
@@ -78,7 +78,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **90%** | 🟡 Partial | Mobile worker app (phase 2) |
-| 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
+| 5 | Service planning | 8% | **25%** | 🟡 Partial | WP-E.2 burn rate alerts |
 | 6 | Timesheets & payroll export | 10% | **50%** | 🟡 Partial | WP-D.18 payroll reconciliation |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
@@ -401,6 +401,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Shift with worker check-in | Not draggable; error if drop attempted |
 | 6 | Click shift (no drag) | Editor opens as before |
 
+### WP-E.1 — Monthly service plan scaffold (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Service planning** in sidebar (Delivery) | Hub list loads; audit footer shows module label |
+| 2 | Select client **Bern**, click **From plan budget** | Plan created with budget lines; opens in list |
+| 3 | Open plan detail | Summary cards: planned hours/spend vs budget remaining |
+| 4 | Edit planned hours on a line, save | Persists after refresh; audit trail logs change |
+| 5 | Client **Bern** → **Monthly service plan** tab | Tab visible; can generate or open plan |
+| 6 | Try duplicate month for same client | Error message — one plan per client per month |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -536,6 +547,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | `client-service-bookings` Read/Write; **Service bookings** module Write to create |
 | **Admin verify** | Client tab lists linked bookings; new booking from tab pre-fills client |
 
+### WP-E.1 — Monthly service plan scaffold
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Services** → **Monthly service planning** (`service-planning`) |
+| **User steps** | 1. Open **Service planning** hub. 2. **From plan budget** for a client with Plan budget lines. 3. Enter planned hours and spend. 4. Approve when signed off. 5. Or use client → **Monthly service plan** tab. |
+| **System setup** | `/system/setup/services` — grant **Service planning** + **Monthly service plan** client tab |
+| **Reference data** | NDIS support budget/category (for line dropdowns) |
+| **Role access** | Admin → Roles → **Service planning** Write; **Monthly service plan** tab on Clients |
+| **Admin verify** | Create plan from budget; save line edit; confirm Supabase `monthly_service_plan` row |
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -607,7 +629,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 629c4aa | WP-D.19 roster hard enforcement |
 | 2026-06-18 | 9811610 | System Time & date, sidebar clock, My shifts timezone |
 | 2026-06-18 | c400bd1 | WP-D.20 staff–client matching hints |
-| 2026-06-18 | pending | WP-D.21 drag-and-drop week view |
+| 2026-06-18 | 5a57d5c | WP-D.21 drag-and-drop week view |
+| 2026-06-18 | *(pending)* | WP-E.1 monthly service plan scaffold |
 
 ---
 
@@ -666,6 +689,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.19 | `/rostering` | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-D.20 | `/rostering` New shift editor | **Pass** | HTTP 200; matching panel in shift editor |
 | 2026-06-18 | WP-D.21 | `/rostering` Week drag-drop | **Pass** | HTTP 200 |
+| 2026-06-18 | WP-E.1 | `/service-planning`, `/service-planning/msp-bern-2025-10` | **Pass** | HTTP 200 |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -689,6 +713,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.19 | 2 High | **Pass** | Fixed: skip TIME_RANGE_INVALID on batch save and open-shift claim for overnight RoC |
 | 2026-06-18 | WP-D.20 | 2 High | **Pass** | Fixed: non-Current mandatory credentials warn; memoized worker ranking |
 | 2026-06-18 | WP-D.21 | 1 High | **Pass** | Fixed: canRescheduleShiftByDrag enforced on drop path |
+| 2026-06-18 | WP-E.1 | 3 High | **Pass** | Fixed: clientTabGroups tab, editor draft reset, duplicate plan month on save |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -725,6 +750,10 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.19 | `delivery` — publish week hard blocks | `services-setup` — resolve conflicts before publish | exit 0 |
 | 2026-06-18 | WP-D.20 | `delivery` — staff–client matching hints on shift editor | `services-setup` — credentials and skills for matching | exit 0 |
 | 2026-06-18 | WP-D.21 | `delivery` — drag shifts between days on week view | — | exit 0 |
+| 2026-06-18 | WP-E.1 | `delivery` — monthly service planning hub + client tab | `services-setup` — service planning grants | exit 0 — 82 routes |
+| 2026-06-18 | `npm run build` | exit 0 (WP-E.1) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-E.1) |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260625260000` monthly_service_plan tables |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.21) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 80 routes (WP-D.21) |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.19) |

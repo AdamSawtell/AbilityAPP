@@ -127,6 +127,17 @@ import {
   type RosterOfCareRow,
 } from "@/lib/supabase/roster-of-care-mappers";
 import { normalizeRosterOfCare, type RosterOfCareRecord } from "@/lib/roster-of-care";
+import {
+  normalizeMonthlyServicePlan,
+  type MonthlyServicePlanRecord,
+} from "@/lib/monthly-service-plan";
+import {
+  monthlyServicePlanFromRow,
+  monthlyServicePlanLineToRow,
+  monthlyServicePlanToRow,
+  type MonthlyServicePlanLineRowDb,
+  type MonthlyServicePlanRow,
+} from "@/lib/supabase/monthly-service-plan-mappers";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -139,6 +150,7 @@ export type AppData = {
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
   rosterOfCares: RosterOfCareRecord[];
+  monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
@@ -210,6 +222,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supportLocationActivitiesRes,
     rosterOfCaresRes,
     rosterOfCareLinesRes,
+    monthlyServicePlansRes,
+    monthlyServicePlanLinesRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
@@ -263,6 +277,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("support_location_activity").select("*").order("line_no"),
     supabase.from("roster_of_care").select("*").order("name"),
     supabase.from("roster_of_care_line").select("*").order("line_no"),
+    supabase.from("monthly_service_plan").select("*").order("plan_month", { ascending: false }),
+    supabase.from("monthly_service_plan_line").select("*").order("line_no"),
   ]);
 
   const firstError =
@@ -317,7 +333,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supportLocationProductsRes.error ??
     supportLocationActivitiesRes.error ??
     rosterOfCaresRes.error ??
-    rosterOfCareLinesRes.error;
+    rosterOfCareLinesRes.error ??
+    monthlyServicePlansRes.error ??
+    monthlyServicePlanLinesRes.error;
 
   if (firstError) throw firstError;
 
@@ -347,6 +365,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
   const linesByTimesheet = groupBy(timesheetLinesRes.data as TimesheetLineRowDb[], "timesheet_id");
   const linesByRosterOfCare = groupBy(rosterOfCareLinesRes.data as RosterOfCareLineRowDb[], "roster_of_care_id");
+  const linesByMonthlyServicePlan = groupBy(
+    monthlyServicePlanLinesRes.data as MonthlyServicePlanLineRowDb[],
+    "monthly_service_plan_id"
+  );
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
   const goalsByPlan = groupBy(goalsRes.data as SupportPlanGoalRow[], "support_plan_id");
   const progressReviewsByGoal = groupBy(
@@ -413,6 +435,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     rosterOfCares: ((rosterOfCaresRes.data ?? []) as RosterOfCareRow[]).map((row) =>
       normalizeRosterOfCare(rosterOfCareFromRow(row, linesByRosterOfCare.get(row.id) ?? []))
+    ),
+    monthlyServicePlans: ((monthlyServicePlansRes.data ?? []) as MonthlyServicePlanRow[]).map((row) =>
+      normalizeMonthlyServicePlan(
+        monthlyServicePlanFromRow(row, linesByMonthlyServicePlan.get(row.id) ?? [])
+      )
     ),
     timesheets: ((timesheetsRes.data ?? []) as TimesheetRow[]).map((row) =>
       normalizeTimesheet(timesheetFromRow(row, linesByTimesheet.get(row.id) ?? []))
@@ -1611,5 +1638,30 @@ export async function saveRosterOfCare(supabase: SupabaseClient, record: RosterO
 export async function saveRosterOfCares(supabase: SupabaseClient, records: RosterOfCareRecord[]) {
   for (const record of records) {
     await saveRosterOfCare(supabase, record);
+  }
+}
+
+export async function saveMonthlyServicePlan(supabase: SupabaseClient, record: MonthlyServicePlanRecord) {
+  const plan = normalizeMonthlyServicePlan(record);
+  const { error } = await supabase.from("monthly_service_plan").upsert(monthlyServicePlanToRow(plan));
+  if (error) throw error;
+
+  if (plan.lines.length) {
+    const { error: lineError } = await supabase
+      .from("monthly_service_plan_line")
+      .upsert(plan.lines.map((line) => monthlyServicePlanLineToRow(plan.id, line)));
+    if (lineError) throw lineError;
+  }
+
+  const keepIds = new Set(plan.lines.map((line) => line.id));
+  const { data: existingLines, error: fetchError } = await supabase
+    .from("monthly_service_plan_line")
+    .select("id")
+    .eq("monthly_service_plan_id", plan.id);
+  if (fetchError) throw fetchError;
+  const staleIds = (existingLines ?? []).map((row) => row.id).filter((id) => !keepIds.has(id));
+  if (staleIds.length) {
+    const { error: deleteError } = await supabase.from("monthly_service_plan_line").delete().in("id", staleIds);
+    if (deleteError) throw deleteError;
   }
 }

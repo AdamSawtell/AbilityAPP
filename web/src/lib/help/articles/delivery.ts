@@ -137,3 +137,44 @@ export const deliveryArticle: HelpArticle = {
   ],
   windowKeys: ["service-bookings", "rostering", "timesheets", "generate-timesheets"],
 };
+
+export const servicePlanningArticle: HelpArticle = {
+  id: "article-service-planning",
+  slug: "service-planning",
+  title: "Monthly service planning",
+  summary: "Build monthly service plans from NDIS plan budget — planned hours and spend before rostering.",
+  category: "Services",
+  keywords: ["service planning", "monthly plan", "utilisation", "budget", "NDIS"],
+  relatedRoutes: ["/service-planning", "/clients"],
+  windowKeys: ["service-planning", "client-monthly-service-plan", "client-plan-budget"],
+  lastUpdated: "2026-06-18",
+  sections: [
+    {
+      id: "overview",
+      title: "What monthly service plans do",
+      body: "Monthly service plans translate a participant's NDIS plan budget into planned hours and spend for a calendar month. Use them before rostering and service bookings to check utilisation against allocated funding.",
+    },
+    {
+      id: "hub",
+      title: "Service planning hub",
+      steps: [
+        "Open Service planning in the Services menu.",
+        "Click From plan budget to scaffold lines from the client's Plan budget tab.",
+        "Enter planned hours and planned spend on each line.",
+        "Set status to Approved when coordinators sign off the month.",
+        "Open a plan to review summary cards — planned totals vs plan budget remaining.",
+      ],
+      relatedRoutes: ["/service-planning"],
+    },
+    {
+      id: "client-tab",
+      title: "On the client record",
+      steps: [
+        "Open the client → Monthly service plan tab.",
+        "Generate from plan budget for a new month (requires Plan budget lines first).",
+        "Select an existing plan from the dropdown or open the full plan view.",
+      ],
+      relatedRoutes: ["/clients"],
+    },
+  ],
+};

@@ -98,6 +98,7 @@ export const clientTabs = [
   "Restrictive Practices",
   "Consents and Legal Orders",
   "Plan budget",
+  "Monthly service plan",
   "Plan & Assessment",
   "Support Plan",
   "Goals",
@@ -501,6 +502,7 @@ export const clientTabGroups: ClientTabGroup[] = [
     label: "Planning",
     tabs: [
       "Plan budget",
+      "Monthly service plan",
       "Plan & Assessment",
       "Goals",
       "Progress Review",

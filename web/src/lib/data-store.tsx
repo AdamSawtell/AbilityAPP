@@ -37,6 +37,11 @@ import {
   type RosterOfCareRecord,
 } from "@/lib/roster-of-care";
 import {
+  initialMonthlyServicePlans as seedMonthlyServicePlans,
+  normalizeMonthlyServicePlan,
+  type MonthlyServicePlanRecord,
+} from "@/lib/monthly-service-plan";
+import {
   initialTimesheets as seedTimesheets,
   normalizeTimesheet,
   type TimesheetRecord,
@@ -128,6 +133,7 @@ import {
   saveRosterShift,
   saveRosterOfCare,
   saveRosterOfCares,
+  saveMonthlyServicePlan,
   saveRosterShifts,
   claimVacantRosterShift,
   saveTimesheet,
@@ -149,6 +155,7 @@ type DataStore = {
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
   rosterOfCares: RosterOfCareRecord[];
+  monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
@@ -189,6 +196,7 @@ type DataStore = {
   addRecurringRosterShifts: (records: RosterShiftRecord[]) => string | null;
   upsertRosterOfCare: (record: RosterOfCareRecord, audit?: AuditLogOptions) => void;
   bulkUpsertRosterOfCares: (records: RosterOfCareRecord[]) => void;
+  upsertMonthlyServicePlan: (record: MonthlyServicePlanRecord, audit?: AuditLogOptions) => string | null;
   upsertTimesheet: (record: TimesheetRecord, audit?: AuditLogOptions) => void;
   bulkUpsertTimesheets: (records: TimesheetRecord[]) => void;
   getServiceBookingsByClientId: (clientId: string) => ServiceBookingRecord[];
@@ -263,6 +271,7 @@ type Persisted = {
   serviceBookings?: ServiceBookingRecord[];
   rosterShifts?: RosterShiftRecord[];
   rosterOfCares?: RosterOfCareRecord[];
+  monthlyServicePlans?: MonthlyServicePlanRecord[];
   timesheets?: TimesheetRecord[];
   supportPlans?: SupportPlanRecord[];
   planDocuments?: PlanAssessmentDocument[];
@@ -283,6 +292,7 @@ function seedData(): Required<Persisted> {
     serviceBookings: seedServiceBookings.map(normalizeServiceBooking),
     rosterShifts: seedRosterShifts.map(normalizeRosterShift),
     rosterOfCares: seedRosterOfCares.map(normalizeRosterOfCare),
+    monthlyServicePlans: seedMonthlyServicePlans.map(normalizeMonthlyServicePlan),
     timesheets: seedTimesheets.map(normalizeTimesheet),
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
@@ -320,6 +330,7 @@ function loadLocal(): Required<Persisted> {
       serviceBookings: (parsed.serviceBookings ?? seedServiceBookings).map(normalizeServiceBooking),
       rosterShifts: (parsed.rosterShifts ?? seedRosterShifts).map(normalizeRosterShift),
       rosterOfCares: (parsed.rosterOfCares ?? seedRosterOfCares).map(normalizeRosterOfCare),
+      monthlyServicePlans: (parsed.monthlyServicePlans ?? seedMonthlyServicePlans).map(normalizeMonthlyServicePlan),
       timesheets: (parsed.timesheets ?? seedTimesheets).map(normalizeTimesheet),
       supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
@@ -354,6 +365,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [serviceBookings, setServiceBookings] = useState<ServiceBookingRecord[]>(defaults.serviceBookings);
   const [rosterShifts, setRosterShifts] = useState<RosterShiftRecord[]>(defaults.rosterShifts);
   const [rosterOfCares, setRosterOfCares] = useState<RosterOfCareRecord[]>(defaults.rosterOfCares);
+  const [monthlyServicePlans, setMonthlyServicePlans] = useState<MonthlyServicePlanRecord[]>(
+    defaults.monthlyServicePlans
+  );
   const [timesheets, setTimesheets] = useState<TimesheetRecord[]>(defaults.timesheets);
   const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(defaults.supportPlans);
   const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
@@ -374,6 +388,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const serviceBookingsRef = useSyncRef(serviceBookings);
   const rosterShiftsRef = useSyncRef(rosterShifts);
   const rosterOfCaresRef = useSyncRef(rosterOfCares);
+  const monthlyServicePlansRef = useSyncRef(monthlyServicePlans);
   const timesheetsRef = useSyncRef(timesheets);
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
@@ -410,6 +425,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setServiceBookings(data.serviceBookings);
       setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
       setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
+      setMonthlyServicePlans(
+        data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
+      );
       setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
       setSupportPlans(data.supportPlans);
       setPlanDocuments(data.planDocuments);
@@ -456,6 +474,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setServiceBookings(data.serviceBookings);
             setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
             setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
+            setMonthlyServicePlans(
+              data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
+            );
             setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
             setSupportPlans(data.supportPlans);
             setPlanDocuments(data.planDocuments);
@@ -487,6 +508,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setServiceBookings(data.serviceBookings);
         setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
         setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
+        setMonthlyServicePlans(data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan));
         setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
         setSupportPlans(data.supportPlans);
         setPlanDocuments(data.planDocuments);
@@ -521,6 +543,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceBookings,
       rosterShifts,
       rosterOfCares,
+      monthlyServicePlans,
       timesheets,
       supportPlans,
       planDocuments,
@@ -538,9 +561,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     serviceAgreements,
     serviceBookings,
     rosterShifts,
-    rosterOfCares,
-    timesheets,
-    supportPlans,
+      rosterOfCares,
+      monthlyServicePlans,
+      timesheets,
+      supportPlans,
     planDocuments,
     employees,
     locations,
@@ -1126,6 +1150,31 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, rosterOfCaresRef]
   );
 
+  const upsertMonthlyServicePlan = useCallback(
+    (record: MonthlyServicePlanRecord, audit?: AuditLogOptions): string | null => {
+      const prev = monthlyServicePlansRef.current;
+      const normalized = normalizeMonthlyServicePlan(record);
+      const duplicate = prev.find(
+        (p) =>
+          p.id !== normalized.id &&
+          p.clientId === normalized.clientId &&
+          p.planMonth === normalized.planMonth
+      );
+      if (duplicate) {
+        return `A plan already exists for ${normalized.planMonth}. Choose a different month or open the existing plan.`;
+      }
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("monthly-service-plan", normalized, !exists, before, audit);
+      setMonthlyServicePlans((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveMonthlyServicePlan(supabase, stamped));
+      return null;
+    },
+    [persistRemote, monthlyServicePlansRef]
+  );
+
   const upsertSupportPlan = useCallback(
     (record: SupportPlanRecord) => {
       const prev = supportPlansRef.current;
@@ -1354,6 +1403,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceBookings,
       rosterShifts,
       rosterOfCares,
+      monthlyServicePlans,
       timesheets,
       supportPlans,
       planDocuments,
@@ -1383,6 +1433,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addRecurringRosterShifts,
       upsertRosterOfCare,
       bulkUpsertRosterOfCares,
+      upsertMonthlyServicePlan,
       upsertTimesheet,
       bulkUpsertTimesheets,
       upsertSupportPlan,
@@ -1421,6 +1472,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceBookings,
       rosterShifts,
       rosterOfCares,
+      monthlyServicePlans,
       timesheets,
       supportPlans,
       planDocuments,
@@ -1450,6 +1502,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addRecurringRosterShifts,
       upsertRosterOfCare,
       bulkUpsertRosterOfCares,
+      upsertMonthlyServicePlan,
       upsertTimesheet,
       bulkUpsertTimesheets,
       upsertSupportPlan,

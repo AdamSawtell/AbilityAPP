@@ -71,6 +71,7 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       "workforce-org-edit",
       ...windowKeysWithDependents("clients", "incidents", "locations", "employees", "enquiries"),
       "service-bookings",
+      "service-planning",
       "rostering",
       "timesheets",
       "generate-timesheets",

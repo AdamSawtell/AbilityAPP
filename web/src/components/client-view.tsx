@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClientConsentSummary } from "@/components/client-consent-summary";
 import { ClientPlanBudgetSummary } from "@/components/client-plan-budget-summary";
 import { ClientPlanBudgetWizard } from "@/components/client-plan-budget-wizard";
+import { ClientMonthlyServicePlanPanel } from "@/components/service-planning-pages";
 import { ClientGoalsPanel, ClientProgressReviewPanel } from "@/components/client-planning-panels";
 import { ClientLocationsPanel } from "@/components/client-locations-panel";
 import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pages";
@@ -214,7 +215,8 @@ function tabCount(
   hasSupportPlan: boolean,
   goalCount: number,
   progressReviewCount: number,
-  incidentCount: number
+  incidentCount: number,
+  monthlyPlanCount?: number
 ): number | null {
   if (tab === "Alerts") return client.alerts.length;
   if (tab === "Activity") return client.activity.length;
@@ -226,6 +228,7 @@ function tabCount(
   if (tab === "Contact Activity") return client.contactActivity?.length ?? 0;
   if (tab === "Support Receiver Needs and Rules") return client.needsAndRules?.length ?? 0;
   if (tab === "Plan budget") return client.planBudgets?.length ?? 0;
+  if (tab === "Monthly service plan") return monthlyPlanCount ?? 0;
   if (tab === "Goals") return goalCount;
   if (tab === "Progress Review") return progressReviewCount;
   if (tab === "Service agreements") return agreementCount;
@@ -260,10 +263,11 @@ export function ClientTabbedView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { session, canWindow, canWriteWindow } = useAuth();
-  const { getIncidentsForClient } = useData();
+  const { getIncidentsForClient, monthlyServicePlans } = useData();
 
   const allowedTabs = allowedDetailTabsFromGroups("clients", clientTabGroups, session?.windowKeys ?? []);
   const incidentCount = getIncidentsForClient(client.id).length;
+  const monthlyPlanCount = monthlyServicePlans.filter((p) => p.clientId === client.id).length;
   const defaultTab = allowedTabs[0] ?? "Overview";
   const coachSave = searchParams.get("coachSave") === "1";
   const requestedTab =
@@ -322,7 +326,8 @@ export function ClientTabbedView({
                     hasSupportPlan,
                     goalCount,
                     progressReviewCount,
-                    incidentCount
+                    incidentCount,
+                    monthlyPlanCount
                   );
                   const active = activeTab === tab;
                   return (
@@ -616,6 +621,16 @@ export function ClientTabbedView({
               readOnly={!canWriteClientTab("Plan budget")}
               onChange={(rows) => onLineItemsChange("planBudgets", rows)}
             />
+          </>
+        ) : null}
+
+        {activeTab === "Monthly service plan" && canClientTab("Monthly service plan") ? (
+          <>
+            <ClientTabIntro
+              title="Monthly service plan"
+              description="Plan monthly hours and spend against the participant's NDIS plan budget before rostering and bookings."
+            />
+            <ClientMonthlyServicePlanPanel clientId={client.id} />
           </>
         ) : null}
 

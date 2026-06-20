@@ -170,6 +170,13 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     validTo: "Valid to",
     lines: "Weekly lines",
   },
+  "monthly-service-plan": {
+    clientId: "Client",
+    planMonth: "Plan month",
+    status: "Status",
+    notes: "Notes",
+    lines: "Plan lines",
+  },
   timesheet: {
     documentNo: "Document no.",
     employeeId: "Worker",

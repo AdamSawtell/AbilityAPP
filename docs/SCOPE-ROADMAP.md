@@ -191,7 +191,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 
 | Deliverable | Status | Agent-buildable? |
 |-------------|--------|------------------|
-| Monthly service plan from budget | ⬜ | Yes |
+| Monthly service plan from budget | 🟡 | Yes |
 | Burn rate + forecast alerts | ⬜ | Yes |
 | SCHADS cost **prediction** (not payroll) | ⬜ | Yes |
 | Multi-provider budget view | ⬜ | Later |

@@ -82,6 +82,7 @@ const COORDINATOR_ACCESS = {
     "workforce-organisation",
     ...windowKeysWithDependents("clients", "incidents", "locations", "products", "price-lists", "service-agreements"),
     "service-bookings",
+    "service-planning",
     "rostering",
     "timesheets",
     "generate-timesheets",

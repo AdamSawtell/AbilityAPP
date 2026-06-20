@@ -135,6 +135,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Publish RoC lines to the roster calendar as Draft shifts, assign workers, then publish before timesheet generation.",
       "Review Rostering → Capacity weekly — unstaffed demand and over-capacity workers should be cleared before go-live.",
       "Keep employee credentials and Skills & languages up to date — matching hints use WWCC, NDIS screening, and specialisations.",
+      "Maintain Plan budget on each active client before generating monthly service plans.",
       "Resolve roster conflict badges on the week calendar before using Publish week or setting shifts to Published.",
       "Workers should check out and verify shifts on My workplace before coordinators approve timesheets.",
       "Export approved timesheets to CSV from the Timesheets payroll export panel before running pay in Keypay or Xero.",

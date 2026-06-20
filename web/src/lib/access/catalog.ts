@@ -173,6 +173,14 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "service-planning",
+    label: "Service planning",
+    group: "Delivery",
+    href: "/service-planning",
+    abilityErpName: "Service planning",
+    showInSidebar: true,
+  },
+  {
     key: "rostering",
     label: "Rostering",
     group: "Delivery",

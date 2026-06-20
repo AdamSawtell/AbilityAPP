@@ -60,6 +60,12 @@ const deliveryLinks = [
     match: (path: string) => path.startsWith("/service-bookings"),
   },
   {
+    href: "/service-planning",
+    label: "Service planning",
+    windowKey: "service-planning",
+    match: (path: string) => path.startsWith("/service-planning"),
+  },
+  {
     href: "/rostering",
     label: "Rostering",
     windowKey: "rostering",
@@ -397,7 +403,7 @@ export function SidebarNav() {
     if (key === "workforce" && pathname.startsWith("/workforce-planning")) return true;
     if (key === "incidents" && pathname.startsWith("/incidents")) return true;
     if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
-    if (key === "delivery" && (pathname.startsWith("/service-bookings") || pathname.startsWith("/rostering") || pathname.startsWith("/timesheets") || pathname.startsWith("/generate-timesheets"))) return true;
+    if (key === "delivery" && (pathname.startsWith("/service-bookings") || pathname.startsWith("/service-planning") || pathname.startsWith("/rostering") || pathname.startsWith("/timesheets") || pathname.startsWith("/generate-timesheets"))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
   }
