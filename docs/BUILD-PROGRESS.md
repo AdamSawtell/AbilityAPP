@@ -13,7 +13,7 @@
 | **Current work package** | WP-E — Service planning (Chunk 5) |
 | **Active slice** | WP-E.3 — SCHADS cost prediction ✅ shipped |
 | **Next slice** | Chunk 5 complete — return to Chunk 4 mobile / Chunk 6 payroll |
-| **Last push** | 2026-06-18 — *(pending commit)* |
+| **Last push** | 2026-06-18 — `a235f93` |
 
 ---
 
@@ -674,6 +674,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 5a57d5c | WP-D.21 drag-and-drop week view |
 | 2026-06-18 | 8d4300c | WP-E.1 monthly service plan scaffold |
 | 2026-06-18 | 493b46f | WP-E.2 burn rate + forecast alerts |
+| 2026-06-18 | a235f93 | WP-E.3 SCHADS cost prediction |
 
 ---
 
@@ -734,6 +735,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.21 | `/rostering` Week drag-drop | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-E.1 | `/service-planning`, `/service-planning/msp-bern-2025-10` | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-E.2 | `/service-planning/msp-bern-2025-10` burn-rate panel | **Pass** | build verified; alerts on Bern seed |
+| 2026-06-18 | WP-E.3 | `/service-planning/msp-bern-2025-10` SCHADS panel | **Pass** | build verified; per-line margin table |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -759,6 +761,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.21 | 1 High | **Pass** | Fixed: canRescheduleShiftByDrag enforced on drop path |
 | 2026-06-18 | WP-E.1 | 3 High | **Pass** | Fixed: clientTabGroups tab, editor draft reset, duplicate plan month on save |
 | 2026-06-18 | WP-E.2 | 0 | **Pass** | Pure lib + read-only panel; no migration |
+| 2026-06-18 | WP-E.3 | 0 | **Pass** | Planning lib only; no payroll integration |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -797,8 +800,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.21 | `delivery` — drag shifts between days on week view | — | exit 0 |
 | 2026-06-18 | WP-E.1 | `delivery` — monthly service planning hub + client tab | `services-setup` — service planning grants | exit 0 — 82 routes |
 | 2026-06-18 | WP-E.2 | `delivery` — burn rate and forecast alerts section | — | exit 0 — 82 routes |
-| 2026-06-18 | `npm run build` | exit 0 (WP-E.2) |
-| 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-E.2) |
+| 2026-06-18 | WP-E.3 | `delivery` — SCHADS cost prediction section | — | exit 0 — 82 routes |
+| 2026-06-18 | `npm run build` | exit 0 (WP-E.3) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-E.3) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625260000` monthly_service_plan tables |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.21) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 80 routes (WP-D.21) |
