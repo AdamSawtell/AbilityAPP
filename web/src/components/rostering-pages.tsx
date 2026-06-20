@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
 import { RosterForwardPanel } from "@/components/roster-forward-panel";
 import { RosterGapsPanel } from "@/components/roster-gaps-panel";
+import { RosterRocPanel } from "@/components/roster-roc-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
@@ -33,7 +34,7 @@ export function RosteringWeekView() {
   const { clients, employees, locations, serviceBookings, rosterShifts } = useData();
   const { canWriteWindow } = useAuth();
   const canEditRoster = canWriteWindow("rostering");
-  const [view, setView] = useState<"week" | "forward" | "gaps" | "open">("week");
+  const [view, setView] = useState<"week" | "forward" | "gaps" | "open" | "roc">("week");
   const [forwardWeeks, setForwardWeeks] = useState(8);
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate("2025-10-06"));
   const [editorShift, setEditorShift] = useState<ReturnType<typeof normalizeRosterShift> | null | "new">(null);
@@ -112,7 +113,9 @@ export function RosteringWeekView() {
               ? "Forward plan — roster hours and conflicts across the next 4–12 weeks."
               : view === "gaps"
                 ? "Gap analysis — vacant shifts and weeks missing staffed coverage for active bookings."
-                : "Open shift marketplace — vacant shifts for coordinators to assign or workers to claim."
+                : view === "roc"
+                  ? "Roster of care — import or generate weekly support schedules per participant."
+                  : "Open shift marketplace — vacant shifts for coordinators to assign or workers to claim."
         }
         audit={{ moduleLabel: "Rostering" }}
         actions={
@@ -164,6 +167,15 @@ export function RosteringWeekView() {
                   </span>
                 ) : null}
               </button>
+              <button
+                type="button"
+                onClick={() => setView("roc")}
+                className={`rounded-md px-3 py-1.5 font-medium ${
+                  view === "roc" ? "bg-[#d4147a] text-white" : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                RoC
+              </button>
             </div>
             {canEditRoster && view === "week" ? (
               <button
@@ -206,6 +218,8 @@ export function RosteringWeekView() {
             mode="coordinator"
             onAssign={(shift) => setEditorShift(normalizeRosterShift(shift))}
           />
+        ) : view === "roc" ? (
+          <RosterRocPanel />
         ) : (
           <>
         <div className="mb-4 flex flex-wrap items-center gap-3">

@@ -119,6 +119,14 @@ import {
   type SupportLocationProductRowDb,
   type SupportLocationRow,
 } from "@/lib/supabase/location-mappers";
+import {
+  rosterOfCareFromRow,
+  rosterOfCareLineToRow,
+  rosterOfCareToRow,
+  type RosterOfCareLineRowDb,
+  type RosterOfCareRow,
+} from "@/lib/supabase/roster-of-care-mappers";
+import { normalizeRosterOfCare, type RosterOfCareRecord } from "@/lib/roster-of-care";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -130,6 +138,7 @@ export type AppData = {
   serviceAgreements: ServiceAgreementRecord[];
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
+  rosterOfCares: RosterOfCareRecord[];
   timesheets: TimesheetRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
@@ -199,6 +208,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supportLocationEmployeesRes,
     supportLocationProductsRes,
     supportLocationActivitiesRes,
+    rosterOfCaresRes,
+    rosterOfCareLinesRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
@@ -250,6 +261,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("support_location_employee").select("*").order("line_no"),
     supabase.from("support_location_product").select("*").order("line_no"),
     supabase.from("support_location_activity").select("*").order("line_no"),
+    supabase.from("roster_of_care").select("*").order("name"),
+    supabase.from("roster_of_care_line").select("*").order("line_no"),
   ]);
 
   const firstError =
@@ -302,7 +315,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supportLocationClientsRes.error ??
     supportLocationEmployeesRes.error ??
     supportLocationProductsRes.error ??
-    supportLocationActivitiesRes.error;
+    supportLocationActivitiesRes.error ??
+    rosterOfCaresRes.error ??
+    rosterOfCareLinesRes.error;
 
   if (firstError) throw firstError;
 
@@ -331,6 +346,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
   const linesByTimesheet = groupBy(timesheetLinesRes.data as TimesheetLineRowDb[], "timesheet_id");
+  const linesByRosterOfCare = groupBy(rosterOfCareLinesRes.data as RosterOfCareLineRowDb[], "roster_of_care_id");
   const auditByContract = groupBy(auditRes.data as ContractAuditRowDb[], "contract_id");
   const goalsByPlan = groupBy(goalsRes.data as SupportPlanGoalRow[], "support_plan_id");
   const progressReviewsByGoal = groupBy(
@@ -394,6 +410,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     rosterShifts: ((rosterShiftsRes.data ?? []) as RosterShiftRow[]).map((row) =>
       normalizeRosterShift(rosterShiftFromRow(row))
+    ),
+    rosterOfCares: ((rosterOfCaresRes.data ?? []) as RosterOfCareRow[]).map((row) =>
+      normalizeRosterOfCare(rosterOfCareFromRow(row, linesByRosterOfCare.get(row.id) ?? []))
     ),
     timesheets: ((timesheetsRes.data ?? []) as TimesheetRow[]).map((row) =>
       normalizeTimesheet(timesheetFromRow(row, linesByTimesheet.get(row.id) ?? []))
@@ -1562,4 +1581,35 @@ export async function patchClientFields(
   if (fields.preferredName !== undefined) row.preferred_name = fields.preferredName;
   const { error } = await supabase.from("client").update(row).eq("id", clientId);
   if (error) throw error;
+}
+
+export async function saveRosterOfCare(supabase: SupabaseClient, record: RosterOfCareRecord) {
+  const roc = normalizeRosterOfCare(record);
+  const { error } = await supabase.from("roster_of_care").upsert(rosterOfCareToRow(roc));
+  if (error) throw error;
+
+  if (roc.lines.length) {
+    const { error: lineError } = await supabase
+      .from("roster_of_care_line")
+      .upsert(roc.lines.map((line) => rosterOfCareLineToRow(roc.id, line)));
+    if (lineError) throw lineError;
+  }
+
+  const keepIds = new Set(roc.lines.map((line) => line.id));
+  const { data: existingLines, error: fetchError } = await supabase
+    .from("roster_of_care_line")
+    .select("id")
+    .eq("roster_of_care_id", roc.id);
+  if (fetchError) throw fetchError;
+  const staleIds = (existingLines ?? []).map((row) => row.id).filter((id) => !keepIds.has(id));
+  if (staleIds.length) {
+    const { error: deleteError } = await supabase.from("roster_of_care_line").delete().in("id", staleIds);
+    if (deleteError) throw deleteError;
+  }
+}
+
+export async function saveRosterOfCares(supabase: SupabaseClient, records: RosterOfCareRecord[]) {
+  for (const record of records) {
+    await saveRosterOfCare(supabase, record);
+  }
 }

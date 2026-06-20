@@ -160,6 +160,16 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     checkOutLatitude: "Check-out latitude",
     checkOutLongitude: "Check-out longitude",
   },
+  "roster-of-care": {
+    name: "Name",
+    clientId: "Client",
+    serviceAgreementId: "Service agreement",
+    status: "Status",
+    source: "Source",
+    validFrom: "Valid from",
+    validTo: "Valid to",
+    lines: "Weekly lines",
+  },
   timesheet: {
     documentNo: "Document no.",
     employeeId: "Worker",

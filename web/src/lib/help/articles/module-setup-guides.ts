@@ -131,6 +131,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant Rostering, Timesheets, and Generate timesheets windows at Write for coordinators.",
       "Grant My shifts to support workers and coordinators who check in on rostered work.",
       "Publish roster shifts with workers assigned before running Generate timesheets for a pay period.",
+      "Import or generate roster of care (RoC) weekly schedules on Rostering → RoC before building shifts.",
       "Workers should check out and verify shifts on My workplace before coordinators approve timesheets.",
       "Export approved timesheets to CSV from the Timesheets payroll export panel before running pay in Keypay or Xero.",
     ]

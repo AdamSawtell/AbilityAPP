@@ -94,6 +94,7 @@ export const deliveryArticle: HelpArticle = {
         "Open Gaps to review vacant shifts and weeks where active bookings have no staffed coverage.",
         "Open Open shifts to browse the marketplace — coordinators assign cover; workers claim from My workplace → Open shifts.",
         "Workers check in from My workplace → My shifts — Verified badges, GPS links, and Geofence badges appear on staffed shift cards when check-in/out is outside the site radius.",
+        "Open Rostering → RoC to import weekly roster-of-care CSV or generate a draft from a service agreement.",
         "Use Add shift from a coverage gap to pre-fill the client and booking.",
       ],
       relatedRoutes: ["/rostering"],
