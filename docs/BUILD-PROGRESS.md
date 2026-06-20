@@ -14,7 +14,7 @@
 | **Overall completion** | **32%** |
 | **Active slice** | WP-C.2 — Lifecycle states ✅ shipped |
 | **Next slice** | WP-C.3 — In-app e-sign capture |
-| **Last push** | 2026-06-18 — `c9e74f7` |
+| **Last push** | 2026-06-18 — `f9e7359` |
 
 ---
 
@@ -62,7 +62,7 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | 2% | 🟡 Partial | Portal auth (default: magic link) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
-| 2 | Service agreements | 10% | **25%** | 🔵 In progress | None |
+| 2 | Service agreements | 10% | **50%** | 🔵 In progress | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | 0% | ⬜ Placeholder | Requires Chunk 1–3 |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
@@ -309,11 +309,11 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Slice | Deliverable | Status |
 |-------|-------------|--------|
 | C.1 | Template + schedule of supports | ✅ Done |
-| C.2 | Lifecycle states Draft → Active | ⬜ Next |
-| C.3 | In-app e-sign capture | ⬜ |
+| C.2 | Lifecycle states Draft → Active | ✅ Done |
+| C.3 | In-app e-sign capture | ⬜ Next |
 | C.4 | Expiry notification hook | ⬜ |
 
-**WP-C completion:** 25%
+**WP-C completion:** 50%
 
 ---
 
