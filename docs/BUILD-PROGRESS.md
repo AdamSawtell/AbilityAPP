@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 8 — Reconciliation & reporting |
 | **Active slice** | WP-J.2 complete — next: financial close reports |
 | **Next slice** | Financial close reports (Chunk 8) |
-| **Last push** | 2026-06-20 — pending |
+| **Last push** | 2026-06-20 — `72a67e6` |
 
 ---
 
@@ -915,6 +915,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | c3473f7 | WP-G/H master roster on records + workforce fill board |
 | 2026-06-20 | e996324 | WP-I.1 claim generation scaffold + PAPL validation |
 | 2026-06-20 | c14ed73 | WP-I.2 PAPL hard blocks + NDIS gateway dry-run stub |
+| 2026-06-20 | dd42d05 | WP-I.3 remittance import + claim payment matching |
+| 2026-06-20 | 64fb7c9 | WP-I.4 plan-managed invoicing scaffold |
+| 2026-06-20 | 72a67e6 | WP-J.1 plan vs actual + WP-J.2 claim reconciliation dashboards |
 
 ---
 
