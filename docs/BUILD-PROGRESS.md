@@ -13,7 +13,7 @@
 | **Current work package** | WP-C — Service agreements (Chunk 2) |
 | **Active slice** | WP-C.1 — Template + schedule of supports ✅ shipped |
 | **Next slice** | WP-C.2 — Lifecycle states Draft → Active |
-| **Last push** | *pending* |
+| **Last push** | 2026-06-18 — `c9e74f7` |
 
 ---
 
@@ -262,12 +262,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Service bookings Write |
 | **Admin verify** | Inactive agreement or refused consent blocks save |
 
-### WP-C — Service agreements (not started)
+### WP-C.1 — Schedule of supports templates
 
 | | Detail |
 |---|--------|
-| **User how-to** | *Extend Clients / Services articles when slice ships* |
-| **System setup** | *Extend services-setup checklist when slice ships* |
+| **User how-to** | Help → **Services** → **Service agreements** |
+| **User steps** | 1. Open agreement. 2. Use schedule template. 3. Enter planned prices. 4. Save. |
+| **System setup** | Products, price lists, service agreement status |
+| **Role access** | Service agreements Write |
+| **Admin verify** | Template adds lines; total recalculates on save |
+
+### WP-C.2 — Agreement lifecycle (not shipped)
 
 ---
 
@@ -302,12 +307,12 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Slice | Deliverable | Status |
 |-------|-------------|--------|
-| C.1 | Template + schedule of supports | ⬜ Next |
-| C.2 | Lifecycle states Draft → Active | ⬜ |
+| C.1 | Template + schedule of supports | ✅ Done |
+| C.2 | Lifecycle states Draft → Active | ⬜ Next |
 | C.3 | In-app e-sign capture | ⬜ |
 | C.4 | Expiry notification hook | ⬜ |
 
-**WP-C completion:** 0%
+**WP-C completion:** 25%
 
 ---
 
@@ -315,7 +320,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit | What shipped |
 |------|--------|--------------|
-| 2026-06-18 | 22a49ea | WP-B.3 extended compliance — **WP-B complete** |
+| 2026-06-18 | c9e74f7 | WP-C.1 schedule of supports templates |
 | 2026-06-18 | 8e6bc50 | Bugbot fixes: cancellation local date + stale fields |
 | 2026-06-18 | 6fce676 | Per-slice user guides and system setup docs |
 | 2026-06-18 | 777b20e | WP-A complete + WP-B.1 booking compliance |
@@ -360,7 +365,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Date | Slice | User article | System setup | page-guides:check |
 |------|-------|--------------|--------------|-------------------|
 | 2026-06-18 | WP-A.1–A.5 | `clients` — lifecycle, plan budget, consents, utilisation | `clients-setup` updated | exit 0 |
-| 2026-06-18 | WP-B.3 | `delivery` — extended compliance | `services-setup` | exit 0 |
+| 2026-06-18 | WP-C.1 | `services` — schedule templates | `services-setup` | exit 0 |
 | 2026-06-18 | WP-B.2 | `delivery` — cancellation policy | `services-setup` updated | exit 0 |
 
 ---
