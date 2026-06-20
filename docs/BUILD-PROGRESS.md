@@ -13,7 +13,7 @@
 | **Current work package** | WP-F — Timesheets & payroll (Chunk 6) |
 | **Active slice** | WP-F.1 — Payroll reconciliation batch + digest ✅ shipped |
 | **Next slice** | WP-F.2 — Payroll period close checklist (Chunk 6) |
-| **Last push** | 2026-06-18 — *(pending commit)* |
+| **Last push** | 2026-06-18 — `5f0da49` |
 
 ---
 
@@ -696,7 +696,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 8d4300c | WP-E.1 monthly service plan scaffold |
 | 2026-06-18 | 493b46f | WP-E.2 burn rate + forecast alerts |
 | 2026-06-18 | a235f93 | WP-E.3 SCHADS cost prediction |
-| 2026-06-18 | *(pending)* | WP-F.1 payroll reconciliation batch + digest |
+| 2026-06-18 | 5f0da49 | WP-F.1 payroll reconciliation batch + digest |
 
 ---
 
