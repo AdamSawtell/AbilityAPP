@@ -13,7 +13,7 @@
 | **Current work package** | WP-D — Rostering (Chunk 4) |
 | **Active slice** | WP-D.21 — Drag-and-drop week view ✅ shipped |
 | **Next slice** | WP-E.1 — Monthly service plan scaffold (Chunk 5) |
-| **Last push** | 2026-06-18 — pending |
+| **Last push** | 2026-06-18 — `5a57d5c` |
 
 ---
 
