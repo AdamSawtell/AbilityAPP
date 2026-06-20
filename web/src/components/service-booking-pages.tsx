@@ -179,10 +179,13 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
   const hasUnsavedChanges = Boolean(draft);
 
   const client = record ? clients.find((c) => c.id === record.clientId) : null;
+  const serviceAgreement = record?.serviceAgreementId
+    ? serviceAgreements.find((a) => a.id === record.serviceAgreementId) ?? null
+    : null;
   const complianceIssues = useMemo(() => {
     if (!record) return [];
-    return validateServiceBookingCompliance(record, { client });
-  }, [record, client]);
+    return validateServiceBookingCompliance(record, { client, serviceAgreement });
+  }, [record, client, serviceAgreement]);
   const saveBlocked = bookingComplianceBlocked(complianceIssues);
   const cancellationOutcome = useMemo(() => {
     if (!record) return null;

@@ -125,6 +125,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant Service bookings window at Write for roles that create or edit bookings.",
       "Review Booking cancellation reason and Cancellation initiated by reference lists.",
       "Ensure client Plan budget lines exist for participants — booking compliance compares totals to remaining budget.",
+      "Confirm clients have service delivery consent and Active service agreements before bookings go live.",
       "Create a test booking, cancel it with full details, and confirm the cancellation policy panel before go-live.",
     ]
   ),

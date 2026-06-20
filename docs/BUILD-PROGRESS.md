@@ -9,12 +9,12 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **26%** |
-| **Current work package** | WP-B — Service booking compliance (Chunk 3) |
-| **Active slice** | WP-B.2 — Cancellation policy engine ✅ shipped |
-| **Next slice** | WP-B.3 — Extended compliance rules |
-| **Last verified** | 2026-06-18 — Tier 1 build + page-guides + migration push |
-| **Last push** | 2026-06-18 — `28656a2` |
+| **Overall completion** | **28%** |
+| **Current work package** | WP-C — Service agreements (Chunk 2) |
+| **Active slice** | WP-B.3 — Extended compliance rules ✅ shipped · **WP-B complete** |
+| **Next slice** | WP-C.1 — Template + schedule of supports |
+| **Last verified** | 2026-06-18 — Tier 1 build + page-guides |
+| **Last push** | 2026-06-18 — `8e6bc50` |
 
 ---
 
@@ -63,7 +63,7 @@ Chunk 0 Portal/CRM (parallel after Chunk 1 basics)
 | 0 | Enquiry & CRM + portal | 10% | 2% | 🟡 Partial | Portal auth (default: magic link) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | 5% | 🟡 Partial | Templates (default scaffold OK) |
-| 3 | Service bookings compliance | 12% | **50%** | 🔵 In progress | None |
+| 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | 0% | ⬜ Placeholder | Requires Chunk 1–3 |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts |
@@ -148,6 +148,15 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Set **Cancellation date** within 7 days of **Start date** | **Cancellation policy** panel shows short notice + estimated claimable amount |
 | 6 | Set cancellation date **after** booking **End date** | Save blocked; error shown |
 | 7 | Refresh page | Cancellation fields persist; audit trail logs changes |
+
+### WP-B.3 — Extended compliance (`pending`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Booking **50145** — clear service agreement, save | Warning: link agreement |
+| 2 | Set agreement to *Draft* (if test copy), save | Error: agreement not Active |
+| 3 | Remove product from a line, save | Error: product required |
+| 4 | Restore product + Active agreement | Compliance passes |
 
 ### WP-C — Service agreements (not started)
 
@@ -238,6 +247,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Service bookings** Write |
 | **Admin verify** | Cancel test booking with short notice; panel shows claimable estimate; fields persist after refresh |
 
+### WP-B.3 — Extended compliance rules
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Extended compliance rules** |
+| **User steps** | 1. Link Active service agreement. 2. Confirm service delivery consent on client. 3. Add lines with products and dates in range. 4. Fix errors before save. |
+| **System setup** | Active agreements + client consents before bookings go live |
+| **Reference data** | Service agreement status |
+| **Role access** | Service bookings Write |
+| **Admin verify** | Inactive agreement or refused consent blocks save |
+
 ### WP-C — Service agreements (not started)
 
 | | Detail |
@@ -261,16 +281,16 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 ---
 
-## WP-B — Service booking compliance (Chunk 3)
+## WP-B — Service booking compliance (Chunk 3) ✅ COMPLETE
 
 | Slice | Deliverable | Status |
 |-------|-------------|--------|
 | B.1 | Compliance rule engine + UI panel + save blocks | ✅ Done |
 | B.2 | Cancellation policy engine | ✅ Done |
-| B.3 | Extended compliance rules | ⬜ Next |
+| B.3 | Extended compliance rules | ✅ Done |
 | B.4 | Budget line validation link | ✅ Done (in B.1) |
 
-**WP-B completion:** 65%
+**WP-B completion:** 100%
 
 ---
 
@@ -278,7 +298,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Slice | Deliverable | Status |
 |-------|-------------|--------|
-| C.1 | Template + schedule of supports | ⬜ |
+| C.1 | Template + schedule of supports | ⬜ Next |
 | C.2 | Lifecycle states Draft → Active | ⬜ |
 | C.3 | In-app e-sign capture | ⬜ |
 | C.4 | Expiry notification hook | ⬜ |
@@ -291,7 +311,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit | What shipped |
 |------|--------|--------------|
-| 2026-06-18 | e0ccb56 | WP-B.2: cancellation policy engine + guides |
+| 2026-06-18 | *pending* | WP-B.3: extended booking compliance |
+| 2026-06-18 | 8e6bc50 | Bugbot fixes: cancellation local date + stale fields |
 | 2026-06-18 | 6fce676 | Per-slice user guides and system setup docs |
 | 2026-06-18 | 777b20e | WP-A complete + WP-B.1 booking compliance |
 | 2026-06-18 | 0ad2f6c | WP-A.2: plan budget lines |

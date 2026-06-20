@@ -1,7 +1,9 @@
 import { validateBookingCancellation } from "@/lib/booking-cancellation";
+import { validateExtendedBookingCompliance } from "@/lib/booking-compliance-extended";
 import type { ClientPlanBudgetRow } from "@/lib/client-line-tables";
 import type { ClientRecord } from "@/lib/client";
 import { summarizePlanBudgets } from "@/lib/client-plan-budget";
+import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
 
 export type ComplianceSeverity = "error" | "warning";
@@ -14,6 +16,7 @@ export type BookingComplianceIssue = {
 
 export type BookingComplianceContext = {
   client?: ClientRecord | null;
+  serviceAgreement?: ServiceAgreementRecord | null;
 };
 
 function parseMoney(value: string | number | undefined): number {
@@ -109,6 +112,7 @@ export function validateServiceBookingCompliance(
   }
 
   issues.push(...validateBookingCancellation(booking));
+  issues.push(...validateExtendedBookingCompliance(booking, { client, serviceAgreement: context.serviceAgreement }));
 
   return issues;
 }

@@ -20,6 +20,8 @@ Development chunks **0–8** in [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md
 
 Do not start a chunk out of order unless the roadmap explicitly marks it as parallel-safe.
 
+**Autonomous progress:** After each successful push, immediately start the **Next slice** in [BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md). Do not wait for the user to ask — build, verify, document, push, repeat.
+
 ## Current strategic spine
 
 ```
