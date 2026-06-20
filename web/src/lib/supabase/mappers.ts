@@ -711,6 +711,9 @@ export type ServiceAgreementRow = {
   finish_date: string | null;
   review_date: string | null;
   total_planned_amount: number | null;
+  sent_at: string | null;
+  signed_at: string | null;
+  activated_at: string | null;
   created_by: string;
   updated_by: string;
 };
@@ -748,6 +751,9 @@ export function serviceAgreementFromRow(
     finishDate: strDate(row.finish_date),
     reviewDate: strDate(row.review_date),
     totalPlannedAmount: strMoney(row.total_planned_amount),
+    sentAt: strDate(row.sent_at),
+    signedAt: strDate(row.signed_at),
+    activatedAt: strDate(row.activated_at),
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     lines: lines.map(
@@ -783,6 +789,9 @@ export function serviceAgreementToRow(record: ServiceAgreementRecord): ServiceAg
     finish_date: toDate(record.finishDate),
     review_date: toDate(record.reviewDate),
     total_planned_amount: toMoney(record.totalPlannedAmount),
+    sent_at: toDate(record.sentAt),
+    signed_at: toDate(record.signedAt),
+    activated_at: toDate(record.activatedAt),
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

@@ -11,8 +11,9 @@
 |--------|-------|
 | **Overall completion** | **30%** |
 | **Current work package** | WP-C — Service agreements (Chunk 2) |
-| **Active slice** | WP-C.1 — Template + schedule of supports ✅ shipped |
-| **Next slice** | WP-C.2 — Lifecycle states Draft → Active |
+| **Overall completion** | **32%** |
+| **Active slice** | WP-C.2 — Lifecycle states ✅ shipped |
+| **Next slice** | WP-C.3 — In-app e-sign capture |
 | **Last push** | 2026-06-18 — `c9e74f7` |
 
 ---

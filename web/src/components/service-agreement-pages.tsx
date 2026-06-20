@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink } from "@/components/record-link";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
+import { ServiceAgreementLifecyclePanel } from "@/components/service-agreement-lifecycle-panel";
 import {
   ServiceAgreementScheduleSummary,
   ServiceAgreementScheduleWizard,
@@ -20,6 +21,12 @@ import {
   type ServiceAgreementLine,
   type ServiceAgreementRecord,
 } from "@/lib/service-agreement";
+import {
+  agreementLifecycleBlocked,
+  applyLifecycleStatusChange,
+  lifecycleStatusTone,
+  validateServiceAgreementLifecycle,
+} from "@/lib/service-agreement-lifecycle";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
 
@@ -90,7 +97,13 @@ export function ServiceAgreementListView() {
                 <td className="px-4 py-3">{formatContractDate(sa.contractDate)}</td>
                 <td className="px-4 py-3">{formatContractDate(sa.finishDate)}</td>
                 <td className="px-4 py-3">${sa.totalPlannedAmount}</td>
-                <td className="px-4 py-3">{sa.status}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${lifecycleStatusTone(sa.status)}`}
+                  >
+                    {sa.status}
+                  </span>
+                </td>
               </tr>
             );
           })}
@@ -155,6 +168,11 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
   const hasUnsavedChanges = Boolean(draft);
   const client = record ? clients.find((c) => c.id === record.clientId) : null;
   const priceList = record ? priceLists.find((pl) => pl.id === record.priceListId) : null;
+  const lifecycleIssues = useMemo(() => {
+    if (!record) return [];
+    return validateServiceAgreementLifecycle(record, stored?.status);
+  }, [record, stored?.status]);
+  const saveBlocked = agreementLifecycleBlocked(lifecycleIssues);
 
   const productDropdown = {
     productId: products.map((p) => p.id),
@@ -175,7 +193,10 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
   function onChange<K extends keyof ServiceAgreementRecord>(key: K, value: ServiceAgreementRecord[K]) {
     const base = draft ?? stored;
     if (!base) return;
-    const next = { ...base, [key]: value, updatedBy: "SuperUser" };
+    let next = { ...base, [key]: value, updatedBy: "SuperUser" };
+    if (key === "status") {
+      next = applyLifecycleStatusChange(next, String(value));
+    }
     setDraft(normalizeServiceAgreement(next));
     setSaved(false);
   }
@@ -206,6 +227,10 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? record),
         }}
       >
+        <div className="mb-6">
+          <ServiceAgreementLifecyclePanel issues={lifecycleIssues} />
+        </div>
+
         <fieldset disabled={!canSaveAgreement} className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4 disabled:opacity-100">
           <label>
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Name</span>
@@ -262,6 +287,18 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Total planned amount</span>
             <input className={inputClass} value={record.totalPlannedAmount} readOnly />
           </label>
+          <label>
+            <span className="mb-1.5 block text-xs font-medium text-slate-600">Sent date</span>
+            <input className={inputClass} type="date" value={record.sentAt} onChange={(e) => onChange("sentAt", e.target.value)} />
+          </label>
+          <label>
+            <span className="mb-1.5 block text-xs font-medium text-slate-600">Signed date</span>
+            <input className={inputClass} type="date" value={record.signedAt} onChange={(e) => onChange("signedAt", e.target.value)} />
+          </label>
+          <label>
+            <span className="mb-1.5 block text-xs font-medium text-slate-600">Activated date</span>
+            <input className={inputClass} type="date" value={record.activatedAt} onChange={(e) => onChange("activatedAt", e.target.value)} />
+          </label>
         </fieldset>
 
         <div className="mb-6 space-y-4">
@@ -302,7 +339,10 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
       </AppShell>
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSaveAgreement}
+        saveDisabled={saveBlocked}
+        message={saveBlocked ? "Fix lifecycle errors before saving" : "You have unsaved changes"}
         onSave={() => {
+          if (saveBlocked) return;
           upsertServiceAgreement(record);
           setDraft(null);
           setSaved(true);

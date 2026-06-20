@@ -26,6 +26,9 @@ export type ServiceAgreementRecord = {
   finishDate: string;
   reviewDate: string;
   totalPlannedAmount: string;
+  sentAt: string;
+  signedAt: string;
+  activatedAt: string;
   lines: ServiceAgreementLine[];
   createdBy: string;
   updatedBy: string;
@@ -33,7 +36,7 @@ export type ServiceAgreementRecord = {
 
 export const serviceAgreementDropdowns = {
   term: ["Fixed Term", "Ongoing"],
-  status: ["Draft", "Active", "Completed", "Cancelled"],
+  status: ["Draft", "Sent", "Signed", "Active", "Expiring", "Expired", "Terminated", "Cancelled"],
   fundingType: ["Funding Body", "Self Funded"],
   fundingManagementType: ["Portal Managed", "Plan Managed", "Self Managed"],
   budgetRules: ["Strict Limit", "Warning", "Allow over budget"],
@@ -60,6 +63,9 @@ export const initialServiceAgreements: ServiceAgreementRecord[] = [
     finishDate: "2026-06-30",
     reviewDate: "2026-03-01",
     totalPlannedAmount: "12057.83",
+    sentAt: "2025-06-01",
+    signedAt: "2025-06-08",
+    activatedAt: "2025-06-09",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
     lines: [
@@ -108,6 +114,9 @@ export function normalizeServiceAgreement(record: ServiceAgreementRecord): Servi
     ...record,
     lines,
     totalPlannedAmount,
+    sentAt: record.sentAt ?? "",
+    signedAt: record.signedAt ?? "",
+    activatedAt: record.activatedAt ?? "",
   };
 }
 

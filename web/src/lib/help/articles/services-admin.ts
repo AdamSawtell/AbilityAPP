@@ -56,6 +56,20 @@ export const servicesArticle: HelpArticle = {
       relatedRoutes: ["/service-agreements"],
       windowKeys: ["service-agreements"],
     },
+    {
+      id: "service-agreement-lifecycle",
+      title: "Agreement lifecycle",
+      body: "Progress agreements through Draft → Sent → Signed → Active. The lifecycle panel blocks invalid transitions and missing dates. Expiring, Expired, Terminated, and Cancelled are terminal or wind-down states.",
+      steps: [
+        "Draft: build the schedule of supports and set contract dates.",
+        "Sent: agreement sent to participant — sent date recorded automatically.",
+        "Signed: participant or nominee signed — signed date required.",
+        "Active: ready for service bookings — requires priced lines and activated date.",
+        "Save when lifecycle checks pass.",
+      ],
+      relatedRoutes: ["/service-agreements"],
+      windowKeys: ["service-agreements"],
+    },
   ],
 };
 

@@ -392,7 +392,7 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   uom: ["Hour", "Each", "Day", "Week", "Month", "Km", "Minutes", "Work Day", "Working Month", "Year"],
   productType: ["Service", "Item", "Resource", "Asset"],
   serviceAgreementTerm: ["Fixed Term", "Ongoing"],
-  serviceAgreementStatus: ["Draft", "Active", "Completed", "Cancelled"],
+  serviceAgreementStatus: ["Draft", "Sent", "Signed", "Active", "Expiring", "Expired", "Terminated", "Cancelled"],
   fundingType: ["Funding Body", "Self Funded"],
   fundingManagementType: ["Portal Managed", "Plan Managed", "Self Managed"],
   budgetRules: ["Strict Limit", "Warning", "Allow over budget"],
