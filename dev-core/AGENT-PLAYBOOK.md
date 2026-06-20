@@ -7,11 +7,11 @@
 | Order | Document | When |
 |-------|----------|------|
 | 1 | [docs/BUILD-EXPECTATIONS.md](../docs/BUILD-EXPECTATIONS.md) | Every task — stack rules, audit, DB, verification |
-| 2 | [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) | Every task — % complete, next slice, dependency path |
+| 2 | [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) | Every task — % complete, next slice, **what you can test** |
 | 3 | [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) | Every feature — which phase/chunk, dependencies |
-| 3 | [docs/scope/README.md](../docs/scope/README.md) | Deep requirements for the operational lifecycle |
-| 4 | [web/AGENTS.md](../web/AGENTS.md) | App-specific paths (catalog, System nav, help guides) |
-| 5 | [docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) | Any field, entity, tab, or table change |
+| 4 | [docs/scope/README.md](../docs/scope/README.md) | Deep requirements for the operational lifecycle |
+| 5 | [web/AGENTS.md](../web/AGENTS.md) | App-specific paths (catalog, System nav, help guides) |
+| 6 | [docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) | Any field, entity, tab, or table change |
 
 ## Scope authority
 
@@ -39,8 +39,11 @@ Enquiry → Client → Service Agreement → Service Booking → Service Plannin
 5. Line tables + `persistRecordAudit` on save  
 6. Process doc + `processes.json` if new workflow  
 7. Help article + `page-guides.ts` entry  
-8. `npm run build` (exit 0)  
-9. Update [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) status for the chunk touched  
+8. **Tier 1:** `npm run build` + `page-guides:check` (exit 0)  
+9. **Tier 2:** Browser smoke — steps in BUILD-PROGRESS for this slice  
+10. **Tier 3:** Bugbot review before push; log in BUILD-PROGRESS  
+11. Update [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) (status + test steps if new slice)  
+12. Update [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) when chunk status changes  
 
 ## Key paths
 

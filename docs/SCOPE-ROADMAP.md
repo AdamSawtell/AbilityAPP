@@ -329,6 +329,17 @@ After WP-A/B/C, begin **Chunk 4a** (roster data model + read-only calendar).
 
 ---
 
+## Verification (see BUILD-PROGRESS for detail)
+
+| Tier | When | What |
+|------|------|------|
+| 1 Automated | Every slice | `npm run build`, `page-guides:check`, migration push |
+| 2 Browser | UI slices | Smoke test steps in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md) |
+| 3 Bugbot | Before every push to `main` | Code review logged in BUILD-PROGRESS |
+| 4 You (Adam) | After each push | Same **What you can test** steps on live Amplify app |
+
+---
+
 ## How agents should use this doc
 
 1. Read [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) and [dev-core/AGENT-PLAYBOOK.md](../dev-core/AGENT-PLAYBOOK.md)

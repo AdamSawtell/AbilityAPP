@@ -16,4 +16,6 @@ Do not implement work from a later chunk unless the roadmap marks it parallel-sa
 
 After shipping work, update chunk status in `docs/SCOPE-ROADMAP.md` and `docs/BUILD-PROGRESS.md`.
 
+Follow [docs/BUILD-EXPECTATIONS.md](../../docs/BUILD-EXPECTATIONS.md) §11 for browser smoke tests and Bugbot before every push to `main`.
+
 Also follow [audit-and-records.mdc](./audit-and-records.mdc) for every page and record.

@@ -84,14 +84,54 @@ External systems (PRODA, Keypay, Xero, HubSpot, etc.):
 
 ## 11. Verification before handoff
 
+Every slice must pass **automated checks** before push. **UI slices** also need a **browser smoke test**. **Every push to `main`** needs a **Bugbot code review** logged in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md).
+
+### Tier 1 — Every slice (agent, required)
+
 ```powershell
 cd web
 npm run build
+npm run page-guides:check
 ```
 
-Optional: `npm run lint`, `npm run page-guides:check`
+If schema changed:
 
-Report **Verification** block with commands and exit codes.
+```powershell
+cd ..
+npm run supabase:push-remote
+```
+
+Log commands and exit codes in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md) → **Verification log**.
+
+### Tier 2 — Browser smoke test (agent, required for UI)
+
+Run when the slice adds or changes pages, tabs, save flows, filters, or role-gated UI.
+
+1. Open the hosted app (Amplify URL after push) or `npm run dev` locally.
+2. Walk the **What you can test** steps for that slice in [BUILD-PROGRESS.md](./BUILD-PROGRESS.md).
+3. Confirm: page loads, save persists after refresh, audit footer visible, no console errors on the path tested.
+4. Log result in BUILD-PROGRESS → **Browser verification log** (pass / fail + route).
+
+Skip browser only for pure backend/migration-only slices with no UI surface.
+
+### Tier 3 — Bugbot code review (agent, required before every push to `main`)
+
+After build passes and before `git push`:
+
+1. Launch Bugbot on **`branch changes`** (or `uncommitted changes` if not yet committed).
+2. Fix **Critical** and **High** findings before push; log **Medium** as follow-up in BUILD-PROGRESS if deferred.
+3. Record in BUILD-PROGRESS → **Code review log**: date, commit range, finding count, link or summary.
+
+Optional on request: Security Review subagent for auth/integration changes.
+
+### Tier 4 — Optional
+
+```powershell
+cd web
+npm run lint
+```
+
+Report **Verification** block with commands and exit codes in handoff messages.
 
 ## 12. Deploy pipeline
 
