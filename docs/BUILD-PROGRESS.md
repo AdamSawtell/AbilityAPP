@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **72%** |
+| **Overall completion** | **73%** |
 | **Current work package** | WP-E — Service planning (Chunk 5) |
-| **Active slice** | WP-E.1 — Monthly service plan scaffold ✅ shipped |
-| **Next slice** | WP-E.2 — Burn rate + forecast alerts (Chunk 5) |
+| **Active slice** | WP-E.2 — Burn rate + forecast alerts ✅ shipped |
+| **Next slice** | WP-E.3 — SCHADS cost prediction (Chunk 5) |
 | **Last push** | 2026-06-18 — *(pending commit)* |
 
 ---
@@ -78,7 +78,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **90%** | 🟡 Partial | Mobile worker app (phase 2) |
-| 5 | Service planning | 8% | **25%** | 🟡 Partial | WP-E.2 burn rate alerts |
+| 5 | Service planning | 8% | **50%** | 🟡 Partial | WP-E.3 SCHADS cost prediction |
 | 6 | Timesheets & payroll export | 10% | **50%** | 🟡 Partial | WP-D.18 payroll reconciliation |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
@@ -412,6 +412,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Client **Bern** → **Monthly service plan** tab | Tab visible; can generate or open plan |
 | 6 | Try duplicate month for same client | Error message — one plan per client per month |
 
+### WP-E.2 — Burn rate + forecast alerts (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open **Bern** monthly plan (`/service-planning/msp-bern-2025-10`) | **Burn rate and forecast** panel shows utilisation, burn rate, forecast cards |
+| 2 | Review alerts list | Underserviced warning (low utilisation mid-plan) or plan period info visible |
+| 3 | **Service planning** hub list | **Alerts** column shows **Review** for plans with warnings |
+| 4 | Client **Bern** → **Monthly service plan** tab | Compact alerts panel above plan selector |
+| 5 | Client **Bern** → **Full profile** → **Plan review due** | Date drives plan period (e.g. 2026-10-15) |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -558,6 +568,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Admin → Roles → **Service planning** Write; **Monthly service plan** tab on Clients |
 | **Admin verify** | Create plan from budget; save line edit; confirm Supabase `monthly_service_plan` row |
 
+### WP-E.2 — Burn rate + forecast alerts
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Services** → **Monthly service planning** → **Burn rate and forecast alerts** |
+| **User steps** | 1. Open a monthly plan. 2. Review utilisation, burn rate, and forecast cards. 3. Act on warnings (underserviced, overspend, plan review). 4. Check **Alerts** column on the hub list. |
+| **System setup** | Set **Plan review due** on client Full profile for accurate plan period |
+| **Reference data** | — |
+| **Role access** | **Service planning** Read (alerts are read-only) |
+| **Admin verify** | Bern plan shows underserviced warning when utilisation &lt; 30% past 50% of plan period |
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -630,7 +651,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 9811610 | System Time & date, sidebar clock, My shifts timezone |
 | 2026-06-18 | c400bd1 | WP-D.20 staff–client matching hints |
 | 2026-06-18 | 5a57d5c | WP-D.21 drag-and-drop week view |
-| 2026-06-18 | *(pending)* | WP-E.1 monthly service plan scaffold |
+| 2026-06-18 | 8d4300c | WP-E.1 monthly service plan scaffold |
+| 2026-06-18 | *(pending)* | WP-E.2 burn rate + forecast alerts |
 
 ---
 
@@ -690,6 +712,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.20 | `/rostering` New shift editor | **Pass** | HTTP 200; matching panel in shift editor |
 | 2026-06-18 | WP-D.21 | `/rostering` Week drag-drop | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-E.1 | `/service-planning`, `/service-planning/msp-bern-2025-10` | **Pass** | HTTP 200 |
+| 2026-06-18 | WP-E.2 | `/service-planning/msp-bern-2025-10` burn-rate panel | **Pass** | build verified; alerts on Bern seed |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -714,6 +737,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.20 | 2 High | **Pass** | Fixed: non-Current mandatory credentials warn; memoized worker ranking |
 | 2026-06-18 | WP-D.21 | 1 High | **Pass** | Fixed: canRescheduleShiftByDrag enforced on drop path |
 | 2026-06-18 | WP-E.1 | 3 High | **Pass** | Fixed: clientTabGroups tab, editor draft reset, duplicate plan month on save |
+| 2026-06-18 | WP-E.2 | 0 | **Pass** | Pure lib + read-only panel; no migration |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -751,8 +775,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-D.20 | `delivery` — staff–client matching hints on shift editor | `services-setup` — credentials and skills for matching | exit 0 |
 | 2026-06-18 | WP-D.21 | `delivery` — drag shifts between days on week view | — | exit 0 |
 | 2026-06-18 | WP-E.1 | `delivery` — monthly service planning hub + client tab | `services-setup` — service planning grants | exit 0 — 82 routes |
-| 2026-06-18 | `npm run build` | exit 0 (WP-E.1) |
-| 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-E.1) |
+| 2026-06-18 | WP-E.2 | `delivery` — burn rate and forecast alerts section | — | exit 0 — 82 routes |
+| 2026-06-18 | `npm run build` | exit 0 (WP-E.2) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-E.2) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625260000` monthly_service_plan tables |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.21) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 80 routes (WP-D.21) |

@@ -5,12 +5,17 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { LineItemTable } from "@/components/line-item-table";
 import { ClientRecordLink } from "@/components/record-link";
+import { MonthlyServicePlanAlertsPanel } from "@/components/monthly-service-plan-alerts-panel";
 import { auditMetaFrom } from "@/lib/audit";
 import { useAuth } from "@/lib/auth-store";
 import { useReferenceData } from "@/lib/config-store";
 import { useData } from "@/lib/data-store";
 import { formatPlanBudgetCurrency } from "@/lib/client-plan-budget";
 import { monthlyServicePlanLineTableConfig } from "@/lib/monthly-service-plan-line-tables";
+import {
+  buildMonthlyPlanBurnAlerts,
+  hasServicePlanBurnWarnings,
+} from "@/lib/monthly-service-plan-burn-rate";
 import {
   createMonthlyServicePlan,
   currentPlanMonthIso,
@@ -90,6 +95,18 @@ export function MonthlyServicePlanEditor({
 
   return (
     <div className="space-y-4">
+      {client ? (
+        <section className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+          <h3 className="text-sm font-semibold text-slate-900">Burn rate and forecast</h3>
+          <p className="mt-1 text-xs text-slate-600">
+            Compare claimed spend against plan period elapsed and this month&apos;s planned delivery.
+          </p>
+          <div className="mt-3">
+            <MonthlyServicePlanAlertsPanel client={client} plan={draft} />
+          </div>
+        </section>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Planned hours</p>
@@ -278,6 +295,7 @@ export function ServicePlanningListView() {
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Planned hours</th>
               <th className="px-4 py-3 font-medium">Planned spend</th>
+              <th className="px-4 py-3 font-medium">Alerts</th>
               <th className="px-4 py-3 font-medium" />
             </tr>
           </thead>
@@ -286,6 +304,8 @@ export function ServicePlanningListView() {
               rows.map((plan) => {
                 const client = clients.find((c) => c.id === plan.clientId);
                 const totals = summarizeMonthlyServicePlan(plan.lines);
+                const burnAlerts = client ? buildMonthlyPlanBurnAlerts(client, plan) : [];
+                const hasWarnings = hasServicePlanBurnWarnings(burnAlerts);
                 return (
                   <tr key={plan.id}>
                     <td className="px-4 py-3">
@@ -304,6 +324,15 @@ export function ServicePlanningListView() {
                     <td className="px-4 py-3 text-slate-700">{plan.status}</td>
                     <td className="px-4 py-3 text-slate-700">{totals.plannedHours.toFixed(1)}</td>
                     <td className="px-4 py-3 text-slate-700">{formatPlanBudgetCurrency(totals.plannedAmount)}</td>
+                    <td className="px-4 py-3">
+                      {hasWarnings ? (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">
+                          Review
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400">Clear</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <Link href={`/service-planning/${plan.id}`} className="font-medium text-[#b51266] hover:underline">
                         Open
@@ -314,7 +343,7 @@ export function ServicePlanningListView() {
               })
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                   No monthly service plans yet.
                 </td>
               </tr>
@@ -414,6 +443,8 @@ export function ClientMonthlyServicePlanPanel({ clientId }: { clientId: string }
         </Link>
         .
       </p>
+
+      <MonthlyServicePlanAlertsPanel client={client} plan={selected ?? null} compact />
 
       {canEdit ? (
         <div className="flex flex-wrap items-end gap-2">

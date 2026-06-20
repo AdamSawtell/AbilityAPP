@@ -176,5 +176,16 @@ export const servicePlanningArticle: HelpArticle = {
       ],
       relatedRoutes: ["/clients"],
     },
+    {
+      id: "burn-rate-alerts",
+      title: "Burn rate and forecast alerts",
+      body: "Each plan shows utilisation, burn rate (claimed spend vs plan period elapsed), and projected utilisation at the current pace. Warnings flag underserviced participants, overspend risk, monthly plans above pace, and plan reviews due within 30 days.",
+      steps: [
+        "Open a monthly plan — review the Burn rate and forecast panel above the line table.",
+        "On the Service planning list, check the Alerts column for plans that need review.",
+        "Set plan review due on the client Full profile so period progress is calculated correctly.",
+      ],
+      relatedRoutes: ["/service-planning", "/clients"],
+    },
   ],
 };

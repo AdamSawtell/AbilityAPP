@@ -127,7 +127,7 @@ export const initialClients: ClientRecord[] = [
     phone: "",
     status: "2_Active receiving support",
     lifecycleStatus: "active",
-    planReviewDueDate: "",
+    planReviewDueDate: "2026-10-15",
     lifecycleExitReason: "",
     birthday: "1995-06-26",
     isEstimatedAge: false,
