@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **74%** |
-| **Current work package** | WP-E — Service planning (Chunk 5) |
-| **Active slice** | WP-E.3 — SCHADS cost prediction ✅ shipped |
-| **Next slice** | Chunk 5 complete — return to Chunk 4 mobile / Chunk 6 payroll |
-| **Last push** | 2026-06-18 — `a235f93` |
+| **Overall completion** | **75%** |
+| **Current work package** | WP-F — Timesheets & payroll (Chunk 6) |
+| **Active slice** | WP-F.1 — Payroll reconciliation batch + digest ✅ shipped |
+| **Next slice** | WP-F.2 — Payroll period close checklist (Chunk 6) |
+| **Last push** | 2026-06-18 — *(pending commit)* |
 
 ---
 
@@ -79,7 +79,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **90%** | 🟡 Partial | Mobile worker app (phase 2) |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
-| 6 | Timesheets & payroll export | 10% | **50%** | 🟡 Partial | WP-D.18 payroll reconciliation |
+| 6 | Timesheets & payroll export | 10% | **65%** | 🟡 Partial | WP-F.2 period close |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
 | 8 | Reconciliation | 6% | **5%** | ⬜ Not started | Chunks 5 + 7 |
 
@@ -432,6 +432,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Change **Assumed employment type** to Casual | Predicted cost increases (25% casual loading) |
 | 5 | Line with Support Coordination category | Defaults to Level 3.1 rate |
 
+### WP-F.1 — Payroll reconciliation batch + digest (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Timesheets** list | Payroll reconciliation panel shows summary cards (exported, paid, pending, matched) |
+| 2 | Filter reconcile status **Pending** | Table and list filter to pending exported records |
+| 3 | Select multiple exported timesheets | Checkboxes + batch pay run ref field visible |
+| 4 | **Reconcile at exported hours** with pay run ref | Selected rows marked Matched/Processed; audit logged |
+| 5 | Timesheet list **Reconcile** filter | Filters to Matched, Variance, or Pending |
+
 ### Entity linking — Service bookings on client (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -600,6 +610,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Service planning** Read |
 | **Admin verify** | Bern Oct plan shows per-line margin; Casual loading increases predicted cost |
 
+### WP-F.1 — Payroll reconciliation batch + digest
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Timesheets** (batch reconciliation steps) |
+| **User steps** | 1. Export approved timesheets. 2. After pay run, review summary cards. 3. Batch reconcile at exported hours or enter paid hours per record. 4. Filter Variance rows before closing payroll. |
+| **System setup** | `/system/setup/services` — export then reconcile after pay run |
+| **Reference data** | — |
+| **Role access** | **Timesheets** Write |
+| **Admin verify** | Batch reconcile marks multiple records Processed with one pay run ref |
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -675,6 +696,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | 8d4300c | WP-E.1 monthly service plan scaffold |
 | 2026-06-18 | 493b46f | WP-E.2 burn rate + forecast alerts |
 | 2026-06-18 | a235f93 | WP-E.3 SCHADS cost prediction |
+| 2026-06-18 | *(pending)* | WP-F.1 payroll reconciliation batch + digest |
 
 ---
 
@@ -736,6 +758,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.1 | `/service-planning`, `/service-planning/msp-bern-2025-10` | **Pass** | HTTP 200 |
 | 2026-06-18 | WP-E.2 | `/service-planning/msp-bern-2025-10` burn-rate panel | **Pass** | build verified; alerts on Bern seed |
 | 2026-06-18 | WP-E.3 | `/service-planning/msp-bern-2025-10` SCHADS panel | **Pass** | build verified; per-line margin table |
+| 2026-06-18 | WP-F.1 | `/timesheets` reconciliation digest + batch | **Pass** | build verified |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -762,6 +785,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.1 | 3 High | **Pass** | Fixed: clientTabGroups tab, editor draft reset, duplicate plan month on save |
 | 2026-06-18 | WP-E.2 | 0 | **Pass** | Pure lib + read-only panel; no migration |
 | 2026-06-18 | WP-E.3 | 0 | **Pass** | Planning lib only; no payroll integration |
+| 2026-06-18 | WP-F.1 | 0 | **Pass** | Batch uses bulkUpsertTimesheets + audit |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -801,8 +825,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-E.1 | `delivery` — monthly service planning hub + client tab | `services-setup` — service planning grants | exit 0 — 82 routes |
 | 2026-06-18 | WP-E.2 | `delivery` — burn rate and forecast alerts section | — | exit 0 — 82 routes |
 | 2026-06-18 | WP-E.3 | `delivery` — SCHADS cost prediction section | — | exit 0 — 82 routes |
-| 2026-06-18 | `npm run build` | exit 0 (WP-E.3) |
-| 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-E.3) |
+| 2026-06-18 | WP-F.1 | `delivery` — batch payroll reconciliation steps | `services-setup` — batch reconcile | exit 0 — 82 routes |
+| 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
+| 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625260000` monthly_service_plan tables |
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.21) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 80 routes (WP-D.21) |

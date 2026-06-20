@@ -99,3 +99,79 @@ export function exportedTimesheetsForReconciliation(timesheets: TimesheetRecord[
     )
     .sort((a, b) => (b.payrollExportedAt || b.periodStart).localeCompare(a.payrollExportedAt || a.periodStart));
 }
+
+export type PayrollReconcileDigest = {
+  candidateCount: number;
+  pendingCount: number;
+  matchedCount: number;
+  varianceCount: number;
+  exportedHours: number;
+  paidHours: number;
+  varianceHours: number;
+};
+
+export function summarizePayrollReconciliationDigest(
+  timesheets: TimesheetRecord[]
+): PayrollReconcileDigest {
+  const candidates = exportedTimesheetsForReconciliation(timesheets);
+  let exportedHours = 0;
+  let paidHours = 0;
+
+  for (const sheet of candidates) {
+    exportedHours += sheet.totalHours;
+    paidHours += sheet.payrollPaidHours > 0 ? sheet.payrollPaidHours : 0;
+  }
+
+  return {
+    candidateCount: candidates.length,
+    pendingCount: candidates.filter((s) => (s.payrollReconcileStatus || "Pending") === "Pending").length,
+    matchedCount: candidates.filter((s) => s.payrollReconcileStatus === "Matched").length,
+    varianceCount: candidates.filter((s) => s.payrollReconcileStatus === "Variance").length,
+    exportedHours: Math.round(exportedHours * 100) / 100,
+    paidHours: Math.round(paidHours * 100) / 100,
+    varianceHours: Math.round((exportedHours - paidHours) * 100) / 100,
+  };
+}
+
+export function applyBatchPayrollReconciliation(
+  sheets: TimesheetRecord[],
+  input: {
+    payRunRef: string;
+    updatedBy: string;
+    paidHoursForSheet?: (sheet: TimesheetRecord) => number;
+    now?: Date;
+  }
+): { updated: TimesheetRecord[]; skipped: string[] } {
+  const payRunRef = input.payRunRef.trim();
+  if (!payRunRef) throw new Error("Enter a pay run reference from Keypay or Xero.");
+
+  const paidHoursForSheet = input.paidHoursForSheet ?? ((sheet) => sheet.totalHours);
+  const updated: TimesheetRecord[] = [];
+  const skipped: string[] = [];
+
+  for (const sheet of sheets) {
+    const gate = canReconcileTimesheet(sheet);
+    if (!gate.ok) {
+      skipped.push(gate.message);
+      continue;
+    }
+    try {
+      updated.push(
+        applyPayrollReconciliation(sheet, {
+          paidHours: paidHoursForSheet(sheet),
+          payRunRef,
+          updatedBy: input.updatedBy,
+          now: input.now,
+        })
+      );
+    } catch (err) {
+      skipped.push(err instanceof Error ? err.message : `${sheet.documentNo}: reconciliation failed.`);
+    }
+  }
+
+  if (!updated.length && skipped.length) {
+    throw new Error(skipped[0]);
+  }
+
+  return { updated, skipped };
+}

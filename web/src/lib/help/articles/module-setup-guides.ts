@@ -141,6 +141,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Export approved timesheets to CSV from the Timesheets payroll export panel before running pay in Keypay or Xero.",
       "For Keypay API export, set KEYPAY_API_KEY and KEYPAY_BUSINESS_ID on the server (Amplify env vars). Use KEYPAY_DRY_RUN=true to test without posting.",
       "After each pay run, reconcile exported timesheets — enter paid hours and pay run reference on Timesheets and clear Variance rows before closing payroll.",
+      "When payroll paid hours match exported totals, use batch reconcile at exported hours with one pay run reference for multiple timesheets.",
     ]
   ),
   moduleSetupArticle(

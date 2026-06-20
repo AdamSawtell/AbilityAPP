@@ -27,7 +27,7 @@ import { TimesheetVerificationPanel } from "@/components/timesheet-verification-
 import { PayrollExportDetailActions, PayrollExportPanel } from "@/components/payroll-export-panel";
 import { PayrollReconciliationDetail, PayrollReconciliationPanel } from "@/components/payroll-reconciliation-panel";
 import { payrollExportStatusClass } from "@/lib/timesheet-payroll-export";
-import { payrollReconcileStatusClass } from "@/lib/payroll-reconciliation";
+import { payrollReconcileStatusClass, PAYROLL_RECONCILE_STATUSES } from "@/lib/payroll-reconciliation";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -46,12 +46,21 @@ function employeeLabel(employees: { id: string; searchKey: string; name: string 
 export function TimesheetListView() {
   const { timesheets, employees, rosterShifts, locations } = useData();
   const [statusFilter, setStatusFilter] = useState("");
+  const [reconcileFilter, setReconcileFilter] = useState("");
 
   const rows = useMemo(() => {
-    const sorted = [...timesheets].sort((a, b) => (b.periodStart || "").localeCompare(a.periodStart || ""));
-    if (!statusFilter) return sorted;
-    return sorted.filter((r) => r.status === statusFilter);
-  }, [timesheets, statusFilter]);
+    let sorted = [...timesheets].sort((a, b) => (b.periodStart || "").localeCompare(a.periodStart || ""));
+    if (statusFilter) sorted = sorted.filter((r) => r.status === statusFilter);
+    if (reconcileFilter) {
+      sorted = sorted.filter(
+        (r) =>
+          r.status === "Approved" &&
+          r.payrollExportStatus !== "Not exported" &&
+          (r.payrollReconcileStatus || "Pending") === reconcileFilter
+      );
+    }
+    return sorted;
+  }, [timesheets, statusFilter, reconcileFilter]);
 
   const verificationById = useMemo(() => {
     const map = new Map<string, ReturnType<typeof verifyTimesheet>>();
@@ -86,6 +95,21 @@ export function TimesheetListView() {
           >
             <option value="">All</option>
             {timesheetDropdowns.status.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm text-slate-600">
+          Reconcile{" "}
+          <select
+            value={reconcileFilter}
+            onChange={(e) => setReconcileFilter(e.target.value)}
+            className="ml-2 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          >
+            <option value="">All</option>
+            {PAYROLL_RECONCILE_STATUSES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
