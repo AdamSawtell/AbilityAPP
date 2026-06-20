@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **38%** |
+| **Overall completion** | **42%** |
 | **Current work package** | WP-D — Rostering (Chunk 4) |
-| **Active slice** | WP-D.1 — Read-only roster calendar ✅ shipped |
-| **Next slice** | WP-D.2 — Create/edit shifts + recurring |
-| **Last push** | 2026-06-20 — `aa3c71f` |
+| **Active slice** | WP-D.3 — Shift conflict detection ✅ shipped (with D.2) |
+| **Next slice** | WP-D.4 — Master roster forward view |
+| **Last push** | pending — WP-D.2 + WP-D.3 |
 
 ---
 
@@ -65,7 +65,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | Service booking | client, service agreement (when funded) | Client → Service bookings | `booking-compliance.ts` |
 | Incident | client | Client → Incidents | workflow rules |
 | Task | entityType + entityId | Client → Requests | — |
-| Timesheet / roster (future) | employee, client/location, booking | TBD Chunk 4+ | TBD |
+| Timesheet / roster shift | employee, client, location, booking | roster week view | `roster-shift-conflicts.ts` blocks double-book |
 
 ---
 
@@ -77,7 +77,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **5%** | 🔵 In progress | WP-D.1 read-only calendar |
+| 4 | Rostering | 22% | **18%** | 🔵 In progress | WP-D.2 edit + recurring, WP-D.3 conflicts |
 | 5 | Service planning | 8% | 0% | ⬜ Not started | Chunk 1 budgets ✅ |
 | 6 | Timesheets & payroll export | 10% | 2% | ⬜ Placeholder | Chunk 4 shifts |
 | 7 | Billing & claiming | 10% | 0% | ⬜ Not started | PRODA/gateway |
@@ -204,7 +204,19 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 2 | Admin → Task automations | **Service agreement expiring** rule visible under Services |
 | 3 | Agreement within 60 days of finish | Task created linked to agreement |
 
-### Entity linking — Service bookings on client (`2026-06-20`)
+### WP-D.2 + WP-D.3 — Create/edit shifts, recurring, conflicts (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Rostering** → week of 6 Oct 2025 | Seed shifts visible Mon/Wed/Fri |
+| 2 | **New shift** or **Add** on empty day | Modal opens with client, worker, location, booking fields |
+| 3 | Save shift | Appears on calendar; persists after refresh |
+| 4 | **Repeat weekly** — select weekdays, 4 weeks | Multiple shifts created with Recurring badge |
+| 5 | Try double-book same worker overlapping times | Save blocked; error message; **Conflict** badge on calendar |
+| 6 | Click existing shift | Edit modal opens; save updates card |
+| 7 | Footer audit label | **Rostering** module label visible |
+
+---
 
 | Step | Action | Pass if |
 |------|--------|---------|
@@ -391,6 +403,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | bd60219 | WP-A.1: lifecycle + governance |
 | 2026-06-20 | pending | Entity linking, WP-C.3 e-sign, WP-C.4 expiry hook, verification process |
 | 2026-06-20 | aa3c71f | Entity linking, WP-C.3 e-sign, WP-C.4 expiry hook, verification process |
+| 2026-06-20 | pending | WP-D.2 create/edit shifts + recurring, WP-D.3 conflict engine |
 
 ---
 
@@ -403,7 +416,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | `npm run supabase:push-remote` | `20260624180000` cancellation fields |
 | 2026-06-20 | `npm run build` | exit 0 (entity linking + WP-C.3/C.4) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 |
-| 2026-06-20 | `npm run supabase:push-remote` | pending — e-sign migration |
+| 2026-06-20 | `npm run build` | exit 0 (WP-D.2 + WP-D.3) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625160000_roster_shift_recurrence.sql` applied |
 
 ---
 
@@ -412,6 +427,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
 | 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
+| 2026-06-20 | WP-D.2 + WP-D.3 | `/rostering` | **Pass** | New shift on Tue 7 Oct saved; refresh shows seed shifts; double-book Isla Mon blocks save with error; conflict badge on calendar |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -435,7 +451,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-18 | WP-B.2 | `delivery` — cancellation policy | `services-setup` updated | exit 0 |
 | 2026-06-20 | Entity linking | `clients` — Service bookings tab; `delivery` client link | `clients-setup` + seed-access | exit 0 |
 | 2026-06-20 | WP-C.3 | `services` — Participant e-sign | `services-setup` | exit 0 |
-| 2026-06-20 | WP-C.4 | `services` — Agreement expiry notifications | task automations seed | exit 0 |
+| 2026-06-20 | WP-D.2 + WP-D.3 | `delivery` — rostering create/edit/recurring + conflicts | roster_shift migration + seed | exit 0 |
 
 ---
 

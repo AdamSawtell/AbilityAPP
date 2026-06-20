@@ -12,6 +12,7 @@ export type RosterShiftRecord = {
   shiftType: string;
   status: string;
   notes: string;
+  recurrenceGroupId: string;
   createdBy: string;
   updatedBy: string;
 };
@@ -35,6 +36,7 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     shiftType: "Standard",
     status: "Published",
     notes: "SIL morning — linked to booking 50145",
+    recurrenceGroupId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -51,6 +53,7 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     shiftType: "Standard",
     status: "Published",
     notes: "Community access afternoon",
+    recurrenceGroupId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -67,6 +70,7 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     shiftType: "Standard",
     status: "Published",
     notes: "",
+    recurrenceGroupId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -86,7 +90,25 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
     shiftType: record.shiftType || "Standard",
     status: record.status || "Published",
     notes: record.notes ?? "",
+    recurrenceGroupId: record.recurrenceGroupId ?? "",
   };
+}
+
+export function createRosterShift(
+  partial: RosterShiftRecord,
+  existing: RosterShiftRecord[]
+): RosterShiftRecord {
+  const id = partial.id?.trim() || `rs-${Date.now()}`;
+  const used = new Set(existing.map((r) => r.shiftRef).filter(Boolean));
+  let shiftRef = partial.shiftRef?.trim() || `SHIFT-${existing.length + 1}`;
+  if (used.has(shiftRef)) shiftRef = `${shiftRef}-${existing.length + 1}`;
+  return normalizeRosterShift({
+    ...partial,
+    id,
+    shiftRef,
+    createdBy: partial.createdBy || "SuperUser",
+    updatedBy: partial.updatedBy || "SuperUser",
+  });
 }
 
 export function formatShiftTimeRange(startTime: string, endTime: string): string {

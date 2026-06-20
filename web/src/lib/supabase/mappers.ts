@@ -2094,6 +2094,7 @@ export type RosterShiftRow = {
   shift_type: string;
   status: string;
   notes: string;
+  recurrence_group_id: string;
   created_by: string;
   updated_by: string;
 };
@@ -2112,6 +2113,7 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     shiftType: row.shift_type,
     status: row.status,
     notes: row.notes,
+    recurrenceGroupId: row.recurrence_group_id ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2131,6 +2133,7 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     shift_type: record.shiftType,
     status: record.status,
     notes: record.notes,
+    recurrence_group_id: record.recurrenceGroupId ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

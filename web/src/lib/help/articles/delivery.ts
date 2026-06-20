@@ -12,7 +12,7 @@ export const deliveryArticle: HelpArticle = {
     {
       id: "overview",
       title: "Delivery stack",
-      body: "Delivery covers the path from scheduled supports to worker time and claiming. Service bookings are live today. Rostering, timesheets, and generate timesheets are placeholders aligned with AbilityERP.",
+      body: "Delivery covers service bookings, rostering, timesheets, and claiming. Service bookings and rostering are live — create shifts on the week calendar and link them to clients, workers, locations, and bookings.",
     },
     {
       id: "service-bookings",
@@ -80,8 +80,17 @@ export const deliveryArticle: HelpArticle = {
     },
     {
       id: "rostering",
-      title: "Rostering (coming soon)",
-      body: "Rostering and booking generator will build recurring patterns and bulk-create service bookings for a location or client.",
+      title: "Rostering",
+      body: "Build and review the week calendar. Each shift links to a client, worker, support location, and optional service booking. Use New shift or Add on a day to create one-off or weekly recurring shifts.",
+      steps: [
+        "Open Rostering and navigate weeks with Previous / Next week.",
+        "Click New shift or Add on a day column.",
+        "Select client, worker, location, and service booking.",
+        "Optional: tick Repeat weekly, choose weekdays, and set number of weeks.",
+        "Save — shifts appear on the calendar and persist after refresh.",
+        "Click an existing shift card to edit.",
+        "If a worker is double-booked, save is blocked and the shift card shows a Conflict badge.",
+      ],
       relatedRoutes: ["/rostering"],
       windowKeys: ["rostering"],
     },
