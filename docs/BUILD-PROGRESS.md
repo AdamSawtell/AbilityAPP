@@ -14,7 +14,7 @@
 | **Active slice** | WP-B.2 — Cancellation policy engine ✅ shipped |
 | **Next slice** | WP-B.3 — Extended compliance rules |
 | **Last verified** | 2026-06-18 — Tier 1 build + page-guides + migration push |
-| **Last push** | 2026-06-18 — `6fce676` (docs); WP-B.2 pending push |
+| **Last push** | 2026-06-18 — `e0ccb56` |
 
 ---
 
