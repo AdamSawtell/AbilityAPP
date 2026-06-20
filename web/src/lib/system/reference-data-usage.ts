@@ -59,6 +59,7 @@ export const SHARED_REFERENCE_DATA_USAGE: Record<SharedReferenceDataKey, Referen
 /** Module-specific lists — one System section owns each key. */
 export const MODULE_REFERENCE_DATA_USAGE: Record<string, ReferenceDataUsageLocation[]> = {
   enquiryStatus: [{ area: "Enquiries", pages: ["Overview — Status", "List filters"] }],
+  enquiryLossReason: [{ area: "Enquiries", pages: ["Overview — Loss reason (lost enquiries)"] }],
   enquirySource: [{ area: "Enquiries", pages: ["Overview — Source"] }],
   isEnquiryForSelf: [{ area: "Enquiries", pages: ["Participant — Enquiry for self"] }],
   thirdPartyConsent: [{ area: "Enquiries", pages: ["Participant — Third party consent"] }],

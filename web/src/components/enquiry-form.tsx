@@ -2,6 +2,7 @@
 
 import { useReferenceData } from "@/lib/config-store";
 import { withDraftHighlight } from "@/lib/ai/draft-field-highlight";
+import { normalizeEnquiryStatus } from "@/lib/enquiry-pipeline";
 import type { EnquiryRecord, FormSection } from "@/lib/enquiry";
 
 function Field({
@@ -37,7 +38,10 @@ function Field({
   }
 
   if (field.type === "select" && field.optionsKey) {
-    const options = getOptions(field.optionsKey);
+    let options = getOptions(field.optionsKey);
+    if (field.optionsKey === "enquiryStatus") {
+      options = options.filter((option) => normalizeEnquiryStatus(option) !== "4_Converted");
+    }
     return (
       <select
         className={fieldClass}

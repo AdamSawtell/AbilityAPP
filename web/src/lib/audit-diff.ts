@@ -17,6 +17,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     documentNo: "Document no.",
     dateReceived: "Date received",
     dateNextAction: "Next action date",
+    lossReason: "Loss reason",
     status: "Status",
     firstName: "First name",
     lastName: "Last name",

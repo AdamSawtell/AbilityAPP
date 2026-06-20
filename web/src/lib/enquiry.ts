@@ -1,6 +1,11 @@
 import model from "@/data/enquiry-model.json";
 import { enquiryDropdowns } from "@/lib/reference-data";
 import type { ClientActivityRow } from "@/lib/client-line-tables";
+import {
+  enquiryPipelineTone,
+  normalizeEnquiryPipeline,
+  normalizeEnquiryStatus,
+} from "@/lib/enquiry-pipeline";
 
 export type EnquiryActivityRow = ClientActivityRow;
 
@@ -10,6 +15,7 @@ export type EnquiryRecord = {
   dateReceived: string;
   dateNextAction: string;
   status: string;
+  lossReason: string;
   firstName: string;
   lastName: string;
   fundingBody: string;
@@ -66,7 +72,7 @@ export function normalizeEnquiry(record: EnquiryRecord): EnquiryRecord {
     ...row,
     lineNo: row.lineNo ?? index + 1,
   }));
-  return { ...record, activity };
+  return normalizeEnquiryPipeline({ ...record, activity });
 }
 
 export const initialRecords = (model.records as EnquiryRecord[]).map(normalizeEnquiry);
@@ -79,11 +85,7 @@ export function formatDisplayDate(iso: string) {
 }
 
 export function statusTone(status: string) {
-  if (status.startsWith("1_")) return "sky";
-  if (status.startsWith("2_")) return "amber";
-  if (status.startsWith("4_")) return "emerald";
-  if (status.startsWith("5_")) return "zinc";
-  return "slate";
+  return enquiryPipelineTone(status);
 }
 
 export function emptyEnquiry(): EnquiryRecord {
@@ -92,7 +94,8 @@ export function emptyEnquiry(): EnquiryRecord {
     documentNo: "",
     dateReceived: new Date().toISOString().slice(0, 10),
     dateNextAction: "",
-    status: "1_Initial Enquiry",
+    status: "1_Enquiry received",
+    lossReason: "",
     firstName: "",
     lastName: "",
     fundingBody: "",

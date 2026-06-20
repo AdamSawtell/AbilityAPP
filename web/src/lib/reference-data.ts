@@ -65,6 +65,7 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   activityType: { label: "Activity type", group: "Client" },
   // Enquiry
   enquiryStatus: { label: "Enquiry status", group: "Enquiry" },
+  enquiryLossReason: { label: "Enquiry loss reason", group: "Enquiry" },
   enquirySource: { label: "Enquiry source", group: "Enquiry" },
   isEnquiryForSelf: { label: "Is enquiry for self", group: "Enquiry" },
   thirdPartyConsent: { label: "3rd party consent", group: "Enquiry" },
@@ -318,11 +319,21 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   australianState: ["SA", "NSW", "VIC", "QLD", "WA", "TAS", "NT", "ACT"],
   country: ["Australia", "New Zealand"],
   enquiryStatus: [
-    "1_Initial Enquiry",
-    "2_To be processed",
-    "3_In progress",
+    "1_Enquiry received",
+    "2_Qualification",
+    "3_Proposal",
     "4_Converted",
-    "5_Closed",
+    "5_Lost",
+  ],
+  enquiryLossReason: [
+    "Chose another provider",
+    "Funding not suitable",
+    "Out of service area",
+    "No response from enquirer",
+    "Plan review — not ready yet",
+    "Services not offered",
+    "Duplicate enquiry",
+    "Other",
   ],
   enquirySource: ["Phone Call", "Email", "Website", "Referral", "Walk-in", "Other"],
   isEnquiryForSelf: ["Yes", "No"],
@@ -581,6 +592,7 @@ export const clientDropdowns = {
 /** @deprecated Use useReferenceData().getOptions instead */
 export const enquiryDropdowns = {
   enquiryStatus: defaultReferenceData.enquiryStatus,
+  enquiryLossReason: defaultReferenceData.enquiryLossReason,
   status: defaultReferenceData.enquiryStatus,
   enquirySource: defaultReferenceData.enquirySource,
   isEnquiryForSelf: defaultReferenceData.isEnquiryForSelf,

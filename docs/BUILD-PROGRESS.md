@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **93%** |
-| **Current work package** | Chunk 8 — Reconciliation & reporting |
-| **Active slice** | WP-J.4 complete — Chunk 8 reconciliation scaffold done |
-| **Next slice** | Chunk 0 portal / remaining Chunk 1 items (see SCOPE-ROADMAP) |
-| **Last push** | 2026-06-20 — `f56f6a5` |
+| **Overall completion** | **94%** |
+| **Current work package** | Chunk 0 — Enquiry & CRM + portal |
+| **Active slice** | WP-0.1 complete — enquiry pipeline stages + loss reasons |
+| **Next slice** | WP-0.2 — NDIS qualification scoring |
+| **Last push** | _pending WP-0.1_ |
 
 ---
 
@@ -74,7 +74,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
-| 0 | Enquiry & CRM + portal | 10% | 2% | 🟡 Partial | Portal auth (default: magic link) |
+| 0 | Enquiry & CRM + portal | 10% | **15%** | 🟡 Partial | Portal auth (default: magic link) |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
@@ -539,6 +539,18 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | **Export CSV** on a section | Section extract downloads |
 | 6 | **Reports** → NDIS audit pack summary | Manifest report generates |
 
+### WP-0.1 — Enquiry pipeline stages (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Enquiries** list | Stage filter chips + Overdue follow-ups stat card |
+| 2 | Open enquiry **1000025** | Pipeline panel shows five stages |
+| 3 | Set status *Qualification*, save | Saves; audit trail logs status |
+| 4 | Try status *Converted* manually | Blocked — use Convert to client |
+| 5 | Set status *Lost* without loss reason | Save blocked |
+| 6 | Set loss reason + next action date, save | Persists after refresh |
+| 7 | Overdue follow-ups scope | Past-due open enquiries listed in rose |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -869,6 +881,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **NDIS audit pack** Read/Write; **NDIS audit pack summary** report |
 | **Admin verify** | Bern Oct 2025 shows participant + plan sections |
 
+### WP-0.1 — Enquiry pipeline stages
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Core** → **Enquiries** → Intake pipeline and follow-ups |
+| **User steps** | 1. Progress status through pipeline. 2. Set next action dates. 3. Mark lost with reason + nurture date. |
+| **System setup** | `/system/setup/enquiries` — pipeline statuses + loss reasons |
+| **Reference data** | Enquiry status, Enquiry loss reason |
+| **Role access** | Enquiries Write |
+| **Admin verify** | Invalid transition blocked; overdue list highlights past-due actions |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
@@ -962,6 +985,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 72a67e6 | WP-J.1 plan vs actual + WP-J.2 claim reconciliation dashboards |
 | 2026-06-20 | 271d15a | WP-J.3 financial close checklist + summary report |
 | 2026-06-20 | f56f6a5 | WP-J.4 NDIS audit pack export + summary report |
+| 2026-06-20 | pending | WP-0.1 enquiry pipeline stages + loss reasons |
 
 ---
 
@@ -1004,6 +1028,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 91 routes (WP-J.3) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-J.4) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 92 routes (WP-J.4) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-0.1) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 92 routes (WP-0.1) |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625310000` enquiry pipeline + loss_reason |
 
 ---
 
@@ -1040,6 +1067,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-J.2 | `/claim-reconciliation`, `/claims` | **Pass** | build verified; 90 routes |
 | 2026-06-20 | WP-J.3 | `/financial-close`, `/reports/financial-close-summary` | **Pass** | build verified; 91 routes |
 | 2026-06-20 | WP-J.4 | `/ndis-audit-pack`, `/reports/ndis-audit-pack-summary` | **Pass** | build verified; 92 routes |
+| 2026-06-20 | WP-0.1 | `/enquiries`, `/enquiries/1000025` | **Pass** | build verified; pipeline panel + stage filters |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1074,6 +1102,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-J.2 | 1 Medium — fixed | **Pass** | Month filter prorates claim/paid amounts by line |
 | 2026-06-20 | WP-J.3 | 1 High + 2 Medium — fixed | **Pass** | Finance manager grants, access gate, report parent module |
 | 2026-06-20 | WP-J.4 | 1 High + 2 Medium — fixed | **Pass** | Hooks order, active employees only, period participants |
+| 2026-06-20 | WP-0.1 | 3 High — all fixed | **Pass** | Convert-only won status, local overdue date, pipeline validation on create/AI save |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1121,6 +1150,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-J.2 | `delivery` — claim reconciliation dashboard | `services-setup` — claim reconciliation grant | exit 0 — 90 routes |
 | 2026-06-20 | WP-J.3 | `delivery` — financial close checklist | `services-setup` — financial close grant | exit 0 — 91 routes |
 | 2026-06-20 | WP-J.4 | `delivery` — NDIS audit pack export | `services-setup` — NDIS audit pack grant | exit 0 — 92 routes |
+| 2026-06-20 | WP-0.1 | `core` — enquiry pipeline + follow-ups | `enquiries-setup` — pipeline statuses + loss reasons | exit 0 — 92 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

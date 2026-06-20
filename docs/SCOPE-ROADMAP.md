@@ -60,7 +60,8 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 
 | Deliverable | Status | Agent-buildable? |
 |-------------|--------|------------------|
-| Enquiry record + basic pipeline | 🟡 | Yes |
+| Enquiry record + basic pipeline | ✅ | Yes |
+| Enquiry pipeline stages + loss reasons | ✅ | Yes — WP-0.1 |
 | NDIS qualification scoring | ⬜ | Yes (rules engine) |
 | Custom enquiry forms / web-to-lead | ⬜ | Yes |
 | HubSpot / Zoho sync | ⬜ | Yes (needs OAuth credentials) |

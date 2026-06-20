@@ -12,6 +12,8 @@ type Identifiable = AuditStampable & { id: string };
 
 export type AuditLogOptions = {
   skip?: boolean;
+  /** Enquiry-to-client process may set converted status. */
+  allowConverted?: boolean;
   action?: AuditAction;
   summary?: string;
   detail?: string;

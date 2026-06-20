@@ -6,6 +6,7 @@ import { clientActivityCoachSaveHref } from "@/lib/ai/activity-coach-display";
 import { emptyClientRecord, normalizeClient, type ClientRecord } from "@/lib/client";
 import { convertEnquiryToClient } from "@/lib/convert";
 import { createEnquiry, emptyEnquiry, normalizeEnquiry, type EnquiryRecord } from "@/lib/enquiry";
+import { enquiryPipelineBlocked, validateEnquiryPipeline } from "@/lib/enquiry-pipeline";
 import {
   appendClientActivity,
   fetchTasks,
@@ -276,24 +277,34 @@ export async function persistAiEnquiry(
     const existing = (existingRows ?? []).map((r) =>
       normalizeEnquiry({ ...emptyEnquiry(), id: r.id, documentNo: r.document_no })
     );
-    const enquiry = createEnquiry(
-      {
-        ...emptyEnquiry(),
-        firstName: draft.firstName,
-        lastName: draft.lastName,
-        email: draft.email ?? "",
-        phone: draft.phone ?? "",
-        fundingBody: draft.fundingBody ?? "",
-        disability: draft.disability ?? "",
-        services: draft.services ?? "",
-        description: draft.description ?? "",
-        enquirySource: draft.enquirySource ?? "Phone Call",
-        status: draft.status ?? "1_Initial Enquiry",
-        createdBy: session.displayName,
-        updatedBy: session.displayName,
-      },
-      existing
+    const enquiry = normalizeEnquiry(
+      createEnquiry(
+        {
+          ...emptyEnquiry(),
+          firstName: draft.firstName,
+          lastName: draft.lastName,
+          email: draft.email ?? "",
+          phone: draft.phone ?? "",
+          fundingBody: draft.fundingBody ?? "",
+          disability: draft.disability ?? "",
+          services: draft.services ?? "",
+          description: draft.description ?? "",
+          enquirySource: draft.enquirySource ?? "Phone Call",
+          status: draft.status ?? "1_Enquiry received",
+          lossReason: draft.lossReason ?? "",
+          createdBy: session.displayName,
+          updatedBy: session.displayName,
+        },
+        existing
+      )
     );
+    const issues = validateEnquiryPipeline(enquiry);
+    if (enquiryPipelineBlocked(issues)) {
+      return {
+        ok: false,
+        error: issues.find((i) => i.severity === "error")?.message ?? "Enquiry pipeline validation failed.",
+      };
+    }
     await saveEnquiry(supabase, enquiry);
     return { ok: true, record: enquiry, href: `/enquiries/${enquiry.id}` };
   } catch (err) {

@@ -14,7 +14,7 @@ function normalizeDraft(raw: Record<string, unknown>): EnquiryDraft {
     services: String(raw.services ?? "").trim(),
     description: String(raw.description ?? "").trim(),
     enquirySource: String(raw.enquirySource ?? "Phone Call").trim(),
-    status: String(raw.status ?? "1_Initial Enquiry").trim(),
+    status: String(raw.status ?? "1_Enquiry received").trim(),
   };
 }
 

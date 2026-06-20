@@ -81,10 +81,10 @@ export const enquiriesArticle: HelpArticle = {
   title: "Enquiries",
   summary: "Capture intake enquiries, track activity, and convert participants to clients.",
   category: "Core",
-  keywords: ["enquiry", "intake", "participant", "convert", "client", "enquiry to client"],
+  keywords: ["enquiry", "intake", "participant", "convert", "client", "enquiry to client", "pipeline", "loss reason"],
   relatedRoutes: ["/enquiries", "/enquiries/new"],
   windowKeys: ["enquiries"],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-20",
   sections: [
     {
       id: "enquiry-list",
@@ -114,6 +114,18 @@ export const enquiriesArticle: HelpArticle = {
         "Support needs: disability, services sought, and notes",
         "Activity: line table of calls, emails, and meetings",
       ],
+    },
+    {
+      id: "enquiry-pipeline",
+      title: "Intake pipeline and follow-ups",
+      body: "Each enquiry moves through five stages: enquiry received, qualification, proposal, converted (won), or lost. The pipeline panel on the enquiry record shows valid transitions and blocks invalid status jumps.",
+      steps: [
+        "Set status as the intake progresses through received → qualification → proposal.",
+        "Set a next action date on every open enquiry so follow-ups appear in the list.",
+        "Use Overdue follow-ups on the Enquiries list to triage past-due actions.",
+        "When marking lost, select a loss reason and set a nurture follow-up date (next action) for plan review timing.",
+      ],
+      relatedRoutes: ["/enquiries"],
     },
     {
       id: "convert-to-client",

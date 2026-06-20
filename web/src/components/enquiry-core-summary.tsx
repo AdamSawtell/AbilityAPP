@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ClientRecordLink } from "@/components/record-link";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDisplayDate, type EnquiryRecord } from "@/lib/enquiry";
+import { isEnquiryFollowUpOverdue, isEnquiryLost } from "@/lib/enquiry-pipeline";
 import type { ClientRecord } from "@/lib/client";
 
 function initials(firstName: string, lastName: string) {
@@ -26,6 +27,8 @@ export function EnquiryCoreSummary({
   saved?: boolean;
 }) {
   const activityTabHref = `/enquiries/${record.id}?tab=${encodeURIComponent("Activity")}`;
+  const followUpOverdue = isEnquiryFollowUpOverdue(record.dateNextAction, record.status);
+  const lost = isEnquiryLost(record.status);
 
   return (
     <div className="mb-6 space-y-4">
@@ -88,8 +91,17 @@ export function EnquiryCoreSummary({
           </div>
           <div className="border-b border-slate-100 px-5 py-3 sm:border-b-0 sm:border-r">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Next action</p>
-            <p className="mt-0.5 text-sm text-slate-800">{formatDisplayDate(record.dateNextAction)}</p>
+            <p className={`mt-0.5 text-sm ${followUpOverdue ? "font-medium text-rose-700" : "text-slate-800"}`}>
+              {formatDisplayDate(record.dateNextAction)}
+              {followUpOverdue ? " (overdue)" : ""}
+            </p>
           </div>
+          {lost && record.lossReason ? (
+            <div className="border-b border-slate-100 px-5 py-3 lg:border-b-0 lg:border-r">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Loss reason</p>
+              <p className="mt-0.5 text-sm text-slate-800">{record.lossReason}</p>
+            </div>
+          ) : null}
           <div className="border-b border-slate-100 px-5 py-3 lg:border-b-0 lg:border-r">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Phone</p>
             <p className="mt-0.5 text-sm text-slate-800">{record.phone || "—"}</p>

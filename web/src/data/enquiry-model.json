@@ -18,6 +18,7 @@
         { "key": "dateReceived", "label": "Date received", "type": "date" },
         { "key": "status", "label": "Status", "type": "select", "optionsKey": "enquiryStatus" },
         { "key": "dateNextAction", "label": "Date next action", "type": "date" },
+        { "key": "lossReason", "label": "Loss reason", "type": "select", "optionsKey": "enquiryLossReason" },
         { "key": "enquirySource", "label": "Enquiry source", "type": "select", "optionsKey": "enquirySource" },
         { "key": "description", "label": "Description", "type": "textarea" },
         { "key": "outcome", "label": "Outcome", "type": "textarea" }

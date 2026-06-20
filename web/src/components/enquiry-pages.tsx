@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EnquiryCoreSummary } from "@/components/enquiry-core-summary";
+import { EnquiryPipelinePanel } from "@/components/enquiry-pipeline-panel";
 import { EnquiryTabbedView } from "@/components/enquiry-view";
 import { ClientRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
@@ -14,7 +15,13 @@ import { useConvertEnquiry, useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { EnquiryActivityRow, EnquiryRecord } from "@/lib/enquiry";
+import { normalizeEnquiry } from "@/lib/enquiry";
 import { auditMetaFrom } from "@/lib/audit";
+import {
+  applyEnquiryStatusChange,
+  enquiryPipelineBlocked,
+  validateEnquiryPipeline,
+} from "@/lib/enquiry-pipeline";
 
 function EnquiryTabbedViewFallback() {
   return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
@@ -37,6 +44,12 @@ export function EnquiryDetailView({ id }: { id: string }) {
   const hasUnsavedChanges = Boolean(draft);
   const tabKey = workspaceKey("enquiry", id);
 
+  const pipelineIssues = useMemo(() => {
+    if (!record) return [];
+    return validateEnquiryPipeline(record, stored?.status);
+  }, [record, stored?.status]);
+  const saveBlocked = enquiryPipelineBlocked(pipelineIssues);
+
   useEffect(() => {
     if (!stored) return;
     openEnquiry(stored.id, stored.documentNo, `${stored.firstName} ${stored.lastName}`.trim());
@@ -55,6 +68,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
           { label: "Enquiries", href: "/enquiries" },
           { label: "Not found" },
         ]}
+        audit={{ moduleLabel: "Enquiries" }}
       >
         <p className="text-slate-600">No record with ID {id}.</p>
         <Link href="/enquiries" className="mt-4 inline-block text-[#b51266] hover:underline">
@@ -64,13 +78,17 @@ export function EnquiryDetailView({ id }: { id: string }) {
     );
   }
 
-  const isConverted = record.status.startsWith("4_") || Boolean(linkedClient);
+  const isConverted = Boolean(linkedClient);
   const participantName = `${record.firstName} ${record.lastName}`.trim();
 
   function onChange(key: keyof EnquiryRecord, value: string) {
     const base = draft ?? stored;
     if (!base) return;
-    setDraft({ ...base, [key]: value, updatedBy: "SuperUser" });
+    let next = { ...base, [key]: value, updatedBy: "SuperUser" };
+    if (key === "status") {
+      next = applyEnquiryStatusChange(next, value);
+    }
+    setDraft(normalizeEnquiry(next));
     setSaved(false);
   }
 
@@ -82,8 +100,8 @@ export function EnquiryDetailView({ id }: { id: string }) {
   }
 
   function onSave() {
-    if (!record) return;
-    updateEnquiry(record);
+    if (!record || saveBlocked) return;
+    updateEnquiry(normalizeEnquiry(record));
     setDraft(null);
     setSaved(true);
   }
@@ -155,6 +173,10 @@ export function EnquiryDetailView({ id }: { id: string }) {
           saved={saved && !hasUnsavedChanges}
         />
 
+        <div className="mb-6">
+          <EnquiryPipelinePanel status={record.status} issues={pipelineIssues} />
+        </div>
+
         <Suspense fallback={<EnquiryTabbedViewFallback />}>
           <EnquiryTabbedView
             record={record}
@@ -165,7 +187,13 @@ export function EnquiryDetailView({ id }: { id: string }) {
         </Suspense>
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveEnquiry} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar
+        visible={hasUnsavedChanges && canSaveEnquiry}
+        onSave={onSave}
+        onDiscard={onDiscard}
+        saveDisabled={saveBlocked}
+        message={saveBlocked ? "Fix pipeline errors before you can save." : "You have unsaved changes"}
+      />
     </>
   );
 }

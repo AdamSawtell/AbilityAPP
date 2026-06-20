@@ -46,9 +46,10 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
     "/system/setup/enquiries",
     "enquiries",
     [
-      "Review enquiry status values against your intake stages.",
+      "Review enquiry pipeline status values (received → qualification → proposal → converted / lost).",
+      "Configure enquiry loss reasons for closed-lost enquiries.",
       "Set enquiry source and participant communication options.",
-      "Create a test enquiry in the workspace after saving reference data.",
+      "Create a test enquiry and confirm next action dates appear on the list.",
     ]
   ),
   moduleSetupArticle(

@@ -13,6 +13,7 @@ import {
   type EnquiryActivityRow,
   type EnquiryRecord,
 } from "@/lib/enquiry";
+import { normalizeEnquiryStatus } from "@/lib/enquiry-pipeline";
 
 function tabCount(record: EnquiryRecord, tab: string, taskCount: number): number | null {
   if (tab === "Activity") return record.activity.length + taskCount;
@@ -64,6 +65,15 @@ export function EnquiryTabbedView({
     params.set("tab", tab);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
+
+  const visibleFormSections = formSections.map((section) => {
+    if (section.title !== "Enquiry details") return section;
+    const showLossReason = normalizeEnquiryStatus(record.status) === "5_Lost";
+    return {
+      ...section,
+      fields: section.fields.filter((field) => field.key !== "lossReason" || showLossReason),
+    };
+  });
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -138,7 +148,7 @@ export function EnquiryTabbedView({
         ) : canEnquiryTab(activeTab) ? (
           <EnquiryForm
             record={record}
-            sections={formSections}
+            sections={visibleFormSections}
             onChange={onChange}
             activeSection={activeTab}
             readOnly={!canWriteEnquiryTab(activeTab)}

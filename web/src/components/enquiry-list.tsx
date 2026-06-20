@@ -10,28 +10,58 @@ import {
   RecordListTableCard,
 } from "@/components/record-list-shell";
 import { formatDisplayDate, type EnquiryRecord } from "@/lib/enquiry";
+import {
+  ENQUIRY_PIPELINE_LABELS,
+  ENQUIRY_PIPELINE_STATUSES,
+  isEnquiryClosed,
+  isEnquiryFollowUpOverdue,
+  normalizeEnquiryStatus,
+} from "@/lib/enquiry-pipeline";
 import { StatusBadge } from "./status-badge";
 
-export type EnquiryListScope = "active" | "all";
-
-function isConvertedEnquiry(record: EnquiryRecord) {
-  return record.status.startsWith("4_");
-}
+export type EnquiryListScope = "active" | "all" | "overdue";
 
 export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
   const searchParams = useSearchParams();
-  const initialScope = searchParams.get("scope") === "all" ? "all" : "active";
+  const initialScope =
+    searchParams.get("scope") === "all"
+      ? "all"
+      : searchParams.get("scope") === "overdue"
+        ? "overdue"
+        : "active";
   const [scope, setScope] = useState<EnquiryListScope>(initialScope);
+  const [stageFilter, setStageFilter] = useState<string>("");
   const [search, setSearch] = useState("");
 
-  const activeCount = useMemo(() => records.filter((r) => !isConvertedEnquiry(r)).length, [records]);
-  const convertedCount = useMemo(() => records.filter((r) => isConvertedEnquiry(r)).length, [records]);
+  const activeCount = useMemo(
+    () => records.filter((r) => !isEnquiryClosed(r.status)).length,
+    [records]
+  );
+  const convertedCount = useMemo(
+    () => records.filter((r) => normalizeEnquiryStatus(r.status) === "4_Converted").length,
+    [records]
+  );
+  const overdueCount = useMemo(
+    () =>
+      records.filter(
+        (r) => !isEnquiryClosed(r.status) && isEnquiryFollowUpOverdue(r.dateNextAction, r.status)
+      ).length,
+    [records]
+  );
 
   const filtered = useMemo(() => {
     let rows = [...records];
 
     if (scope === "active") {
-      rows = rows.filter((r) => !isConvertedEnquiry(r));
+      rows = rows.filter((r) => !isEnquiryClosed(r.status));
+    } else if (scope === "overdue") {
+      rows = rows.filter(
+        (r) => !isEnquiryClosed(r.status) && isEnquiryFollowUpOverdue(r.dateNextAction, r.status)
+      );
+    }
+
+    if (stageFilter) {
+      rows = rows.filter((r) => normalizeEnquiryStatus(r.status) === stageFilter);
     }
 
     if (search.trim()) {
@@ -47,7 +77,7 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
     }
 
     return rows;
-  }, [records, scope, search]);
+  }, [records, scope, stageFilter, search]);
 
   const resultSummary = filtered.length === 1 ? "1 record" : `${filtered.length} records`;
 
@@ -62,6 +92,13 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
           onClick={() => setScope("active")}
         />
         <RecordListStatCard
+          label="Overdue follow-ups"
+          value={overdueCount}
+          hint="Open enquiries past next action date"
+          active={scope === "overdue"}
+          onClick={() => setScope("overdue")}
+        />
+        <RecordListStatCard
           label="All enquiries"
           value={records.length}
           hint={`Includes ${convertedCount} converted ${convertedCount === 1 ? "record" : "records"}`}
@@ -70,11 +107,37 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
         />
       </RecordListDashboard>
 
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setStageFilter("")}
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            !stageFilter ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
+          }`}
+        >
+          All stages
+        </button>
+        {ENQUIRY_PIPELINE_STATUSES.map((stage) => (
+          <button
+            key={stage}
+            type="button"
+            onClick={() => setStageFilter(stageFilter === stage ? "" : stage)}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              stageFilter === stage ? "bg-[#fdf2f8] text-[#b51266]" : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {ENQUIRY_PIPELINE_LABELS[stage]}
+          </button>
+        ))}
+      </div>
+
       <RecordListTableCard
         hint={
           scope === "active"
-            ? "Showing active enquiries only. Choose All enquiries to include converted records."
-            : "Showing every enquiry, including converted."
+            ? "Showing open enquiries in the pipeline. Choose All enquiries to include converted and lost records."
+            : scope === "overdue"
+              ? "Showing open enquiries with a next action date in the past."
+              : "Showing every enquiry, including converted and lost."
         }
         searchPlaceholder="Search name, document no., funding…"
         search={search}
@@ -102,7 +165,15 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
                       <StatusBadge status={record.status} />
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-slate-600">
-                      {formatDisplayDate(record.dateNextAction)}
+                      <span
+                        className={
+                          isEnquiryFollowUpOverdue(record.dateNextAction, record.status)
+                            ? "font-medium text-rose-700"
+                            : undefined
+                        }
+                      >
+                        {formatDisplayDate(record.dateNextAction)}
+                      </span>
                     </td>
                     <td className="px-4 py-3 font-medium text-slate-900">
                       <EnquiryRecordLink
@@ -129,7 +200,11 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
               ) : (
                 <tr>
                   <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
-                    {scope === "active" ? "No active enquiries match your search." : "No enquiries match your search."}
+                    {scope === "active"
+                      ? "No active enquiries match your search."
+                      : scope === "overdue"
+                        ? "No overdue follow-ups match your search."
+                        : "No enquiries match your search."}
                   </td>
                 </tr>
               )}

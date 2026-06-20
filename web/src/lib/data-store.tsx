@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createEnquiry, initialRecords as seedEnquiries, normalizeEnquiry, type EnquiryRecord } from "@/lib/enquiry";
+import { enquiryPipelineBlocked, validateEnquiryPipeline } from "@/lib/enquiry-pipeline";
 import { initialClients as seedClients, normalizeClient, type ClientRecord } from "@/lib/client";
 import { createContract, initialContracts as seedContracts, normalizeContract, type ContractRecord } from "@/lib/contract";
 import {
@@ -754,7 +755,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const addEnquiry = useCallback(
     (partial: EnquiryRecord) => {
       const prev = enquiriesRef.current;
-      const next = createEnquiry(partial, prev);
+      const next = normalizeEnquiry(createEnquiry(partial, prev));
+      const issues = validateEnquiryPipeline(next);
+      if (enquiryPipelineBlocked(issues)) {
+        throw new Error(issues.find((i) => i.severity === "error")?.message ?? "Enquiry pipeline validation failed.");
+      }
       const created = persistRecordAudit("enquiry", next, true);
       setEnquiries((current) => [...current, created]);
       void persistRemote((supabase) => saveEnquiry(supabase, created));
@@ -767,7 +772,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const updateEnquiry = useCallback(
     (record: EnquiryRecord, audit?: AuditLogOptions) => {
       const before = enquiriesRef.current.find((e) => e.id === record.id);
-      const stamped = persistRecordAudit("enquiry", record, false, before, audit);
+      const normalized = normalizeEnquiry(record);
+      const issues = validateEnquiryPipeline(normalized, before?.status, {
+        allowConverted: audit?.allowConverted,
+      });
+      if (enquiryPipelineBlocked(issues)) {
+        throw new Error(issues.find((i) => i.severity === "error")?.message ?? "Enquiry pipeline validation failed.");
+      }
+      const stamped = persistRecordAudit("enquiry", normalized, false, before, audit);
       setEnquiries((prev) => prev.map((e) => (e.id === stamped.id ? stamped : e)));
       void persistRemote((supabase) => saveEnquiry(supabase, stamped));
       runAutomationEvents(enquiryEventsFromSave(stamped, before));
@@ -1815,7 +1827,7 @@ export function useConvertEnquiry() {
         enquiry.outcome || `Converted to client ${client.searchKey} on ${new Date().toLocaleDateString("en-AU")}.`,
       updatedBy: "SuperUser",
     };
-    updateEnquiry(updatedEnquiry, { skip: true });
+    updateEnquiry(updatedEnquiry, { skip: true, allowConverted: true });
     upsertClient(client, {
       action: "converted",
       summary: `Client ${client.searchKey} created from enquiry ${enquiry.documentNo}`,

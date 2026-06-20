@@ -112,6 +112,7 @@ export type EnquiryDraft = {
   description?: string;
   enquirySource?: string;
   status?: string;
+  lossReason?: string;
 };
 
 export type TaskDraft = {

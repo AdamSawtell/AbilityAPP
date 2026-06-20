@@ -92,6 +92,7 @@ export type EnquiryRow = {
   outcome: string;
   additional_disability_information: string;
   other: string;
+  loss_reason: string;
   created_by: string;
   updated_by: string;
 };
@@ -133,6 +134,7 @@ export function enquiryFromRow(row: EnquiryRow, activity: EnquiryActivityRowDb[]
     outcome: row.outcome,
     additionalDisabilityInformation: row.additional_disability_information,
     other: row.other,
+    lossReason: row.loss_reason ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     activity: activity.map((a) => ({
@@ -173,6 +175,7 @@ export function enquiryToRow(record: EnquiryRecord): EnquiryRow {
     outcome: record.outcome,
     additional_disability_information: record.additionalDisabilityInformation,
     other: record.other,
+    loss_reason: record.lossReason ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

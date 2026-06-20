@@ -30,6 +30,7 @@ values
   ('needRuleCategory', 'Need / rule category', 'Client', null, 24),
   ('activityType', 'Activity type', 'Client', null, 25),
   ('enquiryStatus', 'Enquiry status', 'Enquiry', null, 26),
+  ('enquiryLossReason', 'Enquiry loss reason', 'Enquiry', null, 33),
   ('enquirySource', 'Enquiry source', 'Enquiry', null, 27),
   ('isEnquiryForSelf', 'Is enquiry for self', 'Enquiry', null, 28),
   ('thirdPartyConsent', '3rd party consent', 'Enquiry', null, 29),
@@ -525,13 +526,33 @@ insert into public.reference_option (list_id, value, label, sort_order, active)
 select l.id, v.value, v.label, v.sort_order, true
 from public.reference_list l
 cross join (values
-  ('1_Initial Enquiry', '1_Initial Enquiry', 0),
-  ('2_To be processed', '2_To be processed', 1),
-  ('3_In progress', '3_In progress', 2),
-  ('4_Converted', '4_Converted', 3),
-  ('5_Closed', '5_Closed', 4)
+  ('1_Enquiry received', 'Enquiry received', 0),
+  ('2_Qualification', 'Qualification', 1),
+  ('3_Proposal', 'Proposal', 2),
+  ('4_Converted', 'Converted (won)', 3),
+  ('5_Lost', 'Lost', 4)
 ) as v(value, label, sort_order)
 where l.key = 'enquiryStatus'
+on conflict (list_id, value) do update set
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  active = excluded.active;
+
+-- enquiryLossReason
+insert into public.reference_option (list_id, value, label, sort_order, active)
+select l.id, v.value, v.label, v.sort_order, true
+from public.reference_list l
+cross join (values
+  ('Chose another provider', 'Chose another provider', 0),
+  ('Funding not suitable', 'Funding not suitable', 1),
+  ('Out of service area', 'Out of service area', 2),
+  ('No response from enquirer', 'No response from enquirer', 3),
+  ('Plan review — not ready yet', 'Plan review — not ready yet', 4),
+  ('Services not offered', 'Services not offered', 5),
+  ('Duplicate enquiry', 'Duplicate enquiry', 6),
+  ('Other', 'Other', 7)
+) as v(value, label, sort_order)
+where l.key = 'enquiryLossReason'
 on conflict (list_id, value) do update set
   label = excluded.label,
   sort_order = excluded.sort_order,
