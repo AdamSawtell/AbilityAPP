@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **99%** |
-| **Current work package** | Chunk 4 — Rostering ✅ |
-| **Active slice** | WP-D.22 complete — Roster week CSV export |
-| **Next slice** | Chunk 1 PDF/OCR or Chunk 5 multi-provider budget |
-| **Last push** | 2026-06-20 — `2c088cd` |
+| **Current work package** | Chunk 1 — Client & plan management |
+| **Active slice** | WP-A.8 complete — Plan budget text paste import |
+| **Next slice** | Chunk 5 multi-provider budget or Chunk 7/8 polish |
+| **Last push** | 2026-06-20 — pending (WP-A.8) |
 
 ---
 
@@ -75,7 +75,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | **100%** | ✅ Complete | — |
-| 1 | Client & plan management | 12% | **72%** | 🟡 Partial | Plan gateway stub ✅; PDF/OCR/API later |
+| 1 | Client & plan management | 12% | **80%** | 🟡 Partial | PDF paste ✅; live OCR/API later |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **100%** | ✅ Complete | — |
@@ -159,6 +159,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 1 | Client **Bern** → **Plan budget** | **NDIS plan gateway** panel visible |
 | 2 | Confirm NDIS number on profile | Panel shows funding body number |
 | 3 | Click **Pull plan from gateway** (with `NDIS_GATEWAY_DRY_RUN=true`) | Three scaffold lines replace table |
+| 4 | Save, refresh | Lines persist |
+| 5 | **Full audit trail** | Save logs plan budget change |
+
+### WP-A.8 — Plan budget text paste import (pending)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Bern** → **Plan budget** | **Paste from plan PDF** panel visible |
+| 2 | Click **Load sample template**, then **Import pasted text** | Three lines appended |
+| 3 | Check **Replace existing lines**, import again | Table shows only imported rows |
 | 4 | Save, refresh | Lines persist |
 | 5 | **Full audit trail** | Save logs plan budget change |
 
@@ -754,6 +764,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | `client-plan-budget` Write |
 | **Admin verify** | Missing NDIS number blocks pull; dry-run loads scaffold lines with valid categories |
 
+### WP-A.8 — Plan budget text paste import
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → **Plan budget** (PDF paste steps) |
+| **User steps** | 1. Copy budget lines from NDIS plan PDF or myplace. 2. **Paste from plan PDF** → paste text or load sample. 3. **Import pasted text**, then save. |
+| **System setup** | Same as WP-A.2 — NDIS support budget and category lists |
+| **Reference data** | **NDIS support budget**, **NDIS support category** |
+| **Role access** | `client-plan-budget` Write |
+| **Admin verify** | Invalid paste shows errors; valid import updates line table after save |
+
 ### WP-B.1 — Booking compliance
 
 | | Detail |
@@ -1103,6 +1124,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | A.5 | Utilisation summary on Overview | ✅ Done | 20% |
 | A.6 | Plan budget CSV import | ✅ Done | — (Chunk 1 gap) |
 | A.7 | NDIS plan gateway stub | ✅ Done | — (Chunk 1 gap) |
+| A.8 | Plan budget text paste import | ✅ Done | — (Chunk 1 gap) |
 
 **WP-A completion:** 100%
 
@@ -1190,7 +1212,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 9cf9a3f | WP-0.7 client portal requests on Requests tab (Chunk 0 complete) |
 | 2026-06-20 | d7cfaa4 | WP-A.6 plan budget CSV import on client Plan budget tab |
 | 2026-06-20 | e544aa9 | WP-A.7 NDIS plan gateway stub on Plan budget tab |
-| 2026-06-20 | pending | WP-D.22 roster week CSV export (Chunk 4 complete) |
+| 2026-06-20 | 2c088cd | WP-D.22 roster week CSV export (Chunk 4 complete) |
+| 2026-06-20 | pending | WP-A.8 plan budget text paste import |
 
 ---
 
@@ -1260,6 +1283,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.7) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-D.22) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-D.22) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-A.8) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.8) |
 
 ---
 
@@ -1307,6 +1332,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-A.6 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; CSV import panel + reference validation |
 | 2026-06-20 | WP-A.7 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; plan gateway panel + sync API |
 | 2026-06-20 | WP-D.22 | `/rostering` Week tab | **Pass** | build verified; Export week CSV button |
+| 2026-06-20 | WP-A.8 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; PDF paste import panel |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1352,6 +1378,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-A.6 | 2 Medium — all fixed | **Pass** | Sample template casing; CSV validates against NDIS reference lists |
 | 2026-06-20 | WP-A.7 | 1 High + 1 Medium — all fixed | **Pass** | Sync uses draft NDIS number from request; localDateIso for plan dates |
 | 2026-06-20 | WP-D.22 | 0 | **Pass** | No findings |
+| 2026-06-20 | WP-A.8 | 1 High + 1 Medium — all fixed | **Pass** | Follow-up rows validated; incomplete pending lines error |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1410,6 +1437,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-A.6 | `clients-locations` — Plan budget CSV import | `clients-setup` — CSV import on Plan budget tab | exit 0 — 96 routes |
 | 2026-06-20 | WP-A.7 | `clients-locations` — NDIS plan gateway pull | `clients-setup` — NDIS_GATEWAY_DRY_RUN | exit 0 — 96 routes |
 | 2026-06-20 | WP-D.22 | `delivery` — Export week CSV on rostering | `services-setup` — export week CSV test | exit 0 — 96 routes |
+| 2026-06-20 | WP-A.8 | `clients-locations` — Plan budget PDF paste import | `clients-setup` — PDF paste on Plan budget tab | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

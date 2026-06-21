@@ -76,6 +76,7 @@ export const clientsArticle: HelpArticle = {
         "Review summary cards: total allocated, claimed, and remaining.",
         "Add rows manually, use Core supports starter / Full plan scaffold, or import a CSV.",
         "For CSV import: paste or upload columns support_budget, support_category, description, ndis_line_item, allocated_amount, claimed_amount. Use Load sample template or Replace existing lines when replacing all rows.",
+        "For PDF copy: use Paste from plan PDF — one line per category (budget type, category name, allocated amount) copied from myplace or the plan PDF.",
         "For gateway pull: set the participant NDIS number on the profile, then use Pull plan from gateway when NDIS_GATEWAY_DRY_RUN is enabled (or live credentials are configured).",
         "Enter Support budget, Support category, description, allocated ($), and claimed ($) per line.",
         "Save the record. Changes appear in Overview plan utilisation and in service booking compliance checks.",
