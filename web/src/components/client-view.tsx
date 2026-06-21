@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClientConsentSummary } from "@/components/client-consent-summary";
 import { ClientPlanBudgetImportPanel } from "@/components/client-plan-budget-import-panel";
+import { ClientPlanGatewayPanel } from "@/components/client-plan-gateway-panel";
 import { ClientPlanBudgetSummary } from "@/components/client-plan-budget-summary";
 import { ClientPlanBudgetWizard } from "@/components/client-plan-budget-wizard";
 import { ClientMonthlyServicePlanPanel } from "@/components/service-planning-pages";
@@ -625,6 +626,12 @@ export function ClientTabbedView({
             <ClientPlanBudgetImportPanel
               rows={client.planBudgets ?? []}
               readOnly={!canWriteClientTab("Plan budget")}
+              onApply={(rows) => onLineItemsChange("planBudgets", rows)}
+            />
+            <ClientPlanGatewayPanel
+              client={client}
+              rows={client.planBudgets ?? []}
+              canSync={canWriteClientTab("Plan budget")}
               onApply={(rows) => onLineItemsChange("planBudgets", rows)}
             />
             <LineItemTable

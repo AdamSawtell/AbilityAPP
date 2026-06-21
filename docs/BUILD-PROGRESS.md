@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **99%** |
 | **Current work package** | Chunk 1 — Client & plan management |
-| **Active slice** | WP-A.6 complete — Plan budget CSV import |
-| **Next slice** | Chunk 4 roster polish or plan gateway stub |
-| **Last push** | 2026-06-20 — `d7cfaa4` |
+| **Active slice** | WP-A.7 complete — NDIS plan gateway stub |
+| **Next slice** | Chunk 4 roster polish (100%) or Chunk 1 PDF/OCR |
+| **Last push** | 2026-06-20 — pending (WP-A.7) |
 
 ---
 
@@ -75,7 +75,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | **100%** | ✅ Complete | — |
-| 1 | Client & plan management | 12% | **65%** | 🟡 Partial | Plan import manual ✅; PDF/OCR/API later |
+| 1 | Client & plan management | 12% | **72%** | 🟡 Partial | Plan gateway stub ✅; PDF/OCR/API later |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **95%** | 🟡 Partial | Minor roster polish |
@@ -151,6 +151,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 3 | Check **Replace existing lines**, import again | Table shows only imported rows |
 | 4 | Save, refresh | Imported lines persist |
 | 5 | **Full audit trail** | Save logs plan budget line change |
+
+### WP-A.7 — NDIS plan gateway stub (pending)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Bern** → **Plan budget** | **NDIS plan gateway** panel visible |
+| 2 | Confirm NDIS number on profile | Panel shows funding body number |
+| 3 | Click **Pull plan from gateway** (with `NDIS_GATEWAY_DRY_RUN=true`) | Three scaffold lines replace table |
+| 4 | Save, refresh | Lines persist |
+| 5 | **Full audit trail** | Save logs plan budget change |
 
 ### WP-B.1 — Booking compliance (`777b20e`)
 
@@ -724,6 +734,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | `client-plan-budget` Write |
 | **Admin verify** | Invalid CSV shows errors; valid import updates line table after save |
 
+### WP-A.7 — NDIS plan gateway stub
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → **Plan budget** (gateway pull steps) |
+| **User steps** | 1. Set participant **Funding body number** (NDIS number) on client profile. 2. **Plan budget** tab → **Pull plan from gateway**. 3. Choose replace or append. 4. Save the client record. |
+| **System setup** | `/system/setup/clients` — `NDIS_GATEWAY_DRY_RUN=true` for dry-run; `NDIS_GATEWAY_API_KEY` + `NDIS_GATEWAY_PROVIDER` when live |
+| **Reference data** | — |
+| **Role access** | `client-plan-budget` Write |
+| **Admin verify** | Missing NDIS number blocks pull; dry-run loads scaffold lines with valid categories |
+
 ### WP-B.1 — Booking compliance
 
 | | Detail |
@@ -1072,6 +1093,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | A.4 | Plan manual entry wizard | ✅ Done | 20% |
 | A.5 | Utilisation summary on Overview | ✅ Done | 20% |
 | A.6 | Plan budget CSV import | ✅ Done | — (Chunk 1 gap) |
+| A.7 | NDIS plan gateway stub | ✅ Done | — (Chunk 1 gap) |
 
 **WP-A completion:** 100%
 
@@ -1158,6 +1180,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 7a5ad64 | WP-0.6 live HubSpot CRM contact upsert |
 | 2026-06-20 | 9cf9a3f | WP-0.7 client portal requests on Requests tab (Chunk 0 complete) |
 | 2026-06-20 | d7cfaa4 | WP-A.6 plan budget CSV import on client Plan budget tab |
+| 2026-06-20 | pending | WP-A.7 NDIS plan gateway stub on Plan budget tab |
 
 ---
 
@@ -1223,6 +1246,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.7) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-A.6) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.6) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-A.7) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.7) |
 
 ---
 
@@ -1268,6 +1293,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.6 | `/enquiries/1000025` CRM panel | **Pass** | build verified; live HubSpot REST adapter |
 | 2026-06-20 | WP-0.7 | `/clients/bp-bern?tab=Requests` | **Pass** | build verified; portal requests panel + list API |
 | 2026-06-20 | WP-A.6 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; CSV import panel + reference validation |
+| 2026-06-20 | WP-A.7 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; plan gateway panel + sync API |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1311,6 +1337,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.6 | 2 High + 1 Medium — all fixed | **Pass** | HubSpot base URL allowlist; PATCH 404-only fallback; sanitized fetch errors |
 | 2026-06-20 | WP-0.7 | 1 High + 1 Medium — all fixed | **Pass** | client-requests window auth on API; abort stale fetches |
 | 2026-06-20 | WP-A.6 | 2 Medium — all fixed | **Pass** | Sample template casing; CSV validates against NDIS reference lists |
+| 2026-06-20 | WP-A.7 | 1 High + 1 Medium — all fixed | **Pass** | Sync uses draft NDIS number from request; localDateIso for plan dates |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1367,6 +1394,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.6 | `core` — live HubSpot contact upsert | `enquiries-setup` — token scopes + property mapping | exit 0 — 96 routes |
 | 2026-06-20 | WP-0.7 | `clients-locations` — Requests tab portal list | `clients-setup` — portal request on Requests tab | exit 0 — 96 routes |
 | 2026-06-20 | WP-A.6 | `clients-locations` — Plan budget CSV import | `clients-setup` — CSV import on Plan budget tab | exit 0 — 96 routes |
+| 2026-06-20 | WP-A.7 | `clients-locations` — NDIS plan gateway pull | `clients-setup` — NDIS_GATEWAY_DRY_RUN | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
