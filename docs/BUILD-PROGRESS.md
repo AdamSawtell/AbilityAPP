@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 1 — Client & plan management |
 | **Active slice** | WP-A.6 complete — Plan budget CSV import |
 | **Next slice** | Chunk 4 roster polish or plan gateway stub |
-| **Last push** | 2026-06-20 — pending (WP-A.6) |
+| **Last push** | 2026-06-20 — `d7cfaa4` |
 
 ---
 
