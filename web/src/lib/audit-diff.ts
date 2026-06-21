@@ -253,6 +253,18 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     notes: "Notes",
     lines: "Invoice lines",
   },
+  "board-report-pack": {
+    title: "Title",
+    reportPeriod: "Reporting period",
+    status: "Status",
+    templateId: "Template",
+    sections: "Report sections",
+    executiveSummary: "Executive summary",
+    ceoCommentary: "CEO commentary",
+    keyDecisionsRequired: "Key decisions required",
+    operationalIssues: "Operational issues",
+    publishedAt: "Published at",
+  },
   task: {
     title: "Title",
     status: "Status",

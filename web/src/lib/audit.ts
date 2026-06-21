@@ -21,7 +21,8 @@ export type AuditEntityType =
   | "plan-document"
   | "task"
   | "incident"
-  | "organization";
+  | "organization"
+  | "board-report-pack";
 
 export type AuditAction = "created" | "updated" | "deleted" | "converted" | "assigned" | "status_changed" | "imported";
 
@@ -87,6 +88,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   task: "Task",
   incident: "Incident",
   organization: "Organisation",
+  "board-report-pack": "Board report pack",
 };
 
 export const auditActionLabels: Record<AuditAction, string> = {

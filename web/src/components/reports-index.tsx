@@ -31,7 +31,7 @@ export function ReportsIndexView() {
         <p className="text-sm text-slate-500">No reports are assigned to your role. Ask an administrator to grant report access.</p>
       ) : (
         <div className="space-y-8">
-          {canWindow("financial-close") || canWindow("ndis-audit-pack") ? (
+          {canWindow("financial-close") || canWindow("ndis-audit-pack") || canWindow("board-reporting") ? (
             <section>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Month-end & audit</h2>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -57,6 +57,19 @@ export function ReportsIndexView() {
                       <p className="font-medium text-slate-900">NDIS audit pack</p>
                       <p className="mt-1 text-xs text-slate-500">
                         Export audit evidence CSVs for compliance review.
+                      </p>
+                    </div>
+                  </Link>
+                ) : null}
+                {canWindow("board-reporting") ? (
+                  <Link
+                    href="/board-reporting"
+                    className="inline-flex rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#f9a8d4] hover:bg-[#fdf2f8]"
+                  >
+                    <div>
+                      <p className="font-medium text-slate-900">Board reporting</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Monthly NDIS board report packs with executive commentary and printable export.
                       </p>
                     </div>
                   </Link>

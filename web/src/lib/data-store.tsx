@@ -67,6 +67,11 @@ import {
 import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
 import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
 import {
+  normalizeBoardReportPack,
+  type BoardReportPackRecord,
+} from "@/lib/board-report-pack";
+import { defaultBoardReportTemplate, type BoardReportTemplateRecord } from "@/lib/board-report-template";
+import {
   initialPriceLists as seedPriceLists,
   initialProducts as seedProducts,
   normalizePriceList,
@@ -156,6 +161,7 @@ import {
   saveMonthlyServicePlan,
   savePayrollClosedPeriod,
   saveFinancialClosedMonth,
+  saveBoardReportPack,
   saveRosterShifts,
   claimVacantRosterShift,
   saveTimesheet,
@@ -189,6 +195,8 @@ type DataStore = {
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
   financialClosedMonths: FinancialClosedMonthRecord[];
+  boardReportTemplates: BoardReportTemplateRecord[];
+  boardReportPacks: BoardReportPackRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -242,6 +250,7 @@ type DataStore = {
   bulkUpsertInvoices: (records: InvoiceRecord[]) => void;
   closePayrollPeriod: (record: PayrollPeriodCloseRecord) => void;
   closeFinancialMonth: (record: FinancialClosedMonthRecord) => void;
+  upsertBoardReportPack: (record: BoardReportPackRecord, audit?: AuditLogOptions) => void;
   getServiceBookingsByClientId: (clientId: string) => ServiceBookingRecord[];
   upsertSupportPlan: (record: SupportPlanRecord) => void;
   upsertEmployee: (record: EmployeeRecord) => void;
@@ -321,6 +330,8 @@ type Persisted = {
   invoices?: InvoiceRecord[];
   payrollClosedPeriods?: PayrollPeriodCloseRecord[];
   financialClosedMonths?: FinancialClosedMonthRecord[];
+  boardReportTemplates?: BoardReportTemplateRecord[];
+  boardReportPacks?: BoardReportPackRecord[];
   supportPlans?: SupportPlanRecord[];
   planDocuments?: PlanAssessmentDocument[];
   employees?: EmployeeRecord[];
@@ -347,6 +358,8 @@ function seedData(): Required<Persisted> {
     invoices: seedInvoices.map(normalizeInvoice),
     payrollClosedPeriods: [],
     financialClosedMonths: [],
+    boardReportTemplates: [defaultBoardReportTemplate()],
+    boardReportPacks: [],
     supportPlans: seedSupportPlans.map(normalizeSupportPlan),
     planDocuments: seedPlanDocuments,
     employees: seedEmployees.map(normalizeEmployee),
@@ -374,6 +387,8 @@ function portalEmptyData(): Required<Persisted> {
     invoices: [],
     payrollClosedPeriods: [],
     financialClosedMonths: [],
+    boardReportTemplates: [defaultBoardReportTemplate()],
+    boardReportPacks: [],
     supportPlans: [],
     planDocuments: [],
     employees: [],
@@ -417,6 +432,10 @@ function loadLocal(): Required<Persisted> {
       invoices: (parsed.invoices ?? seedInvoices).map(normalizeInvoice),
       payrollClosedPeriods: parsed.payrollClosedPeriods ?? [],
       financialClosedMonths: parsed.financialClosedMonths ?? [],
+      boardReportTemplates: (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()]).length
+        ? (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()])
+        : [defaultBoardReportTemplate()],
+      boardReportPacks: (parsed.boardReportPacks ?? []).map(normalizeBoardReportPack),
       supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
       employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
@@ -465,6 +484,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [financialClosedMonths, setFinancialClosedMonths] = useState<FinancialClosedMonthRecord[]>(
     defaults.financialClosedMonths
   );
+  const [boardReportTemplates, setBoardReportTemplates] = useState<BoardReportTemplateRecord[]>(
+    defaults.boardReportTemplates
+  );
+  const [boardReportPacks, setBoardReportPacks] = useState<BoardReportPackRecord[]>(defaults.boardReportPacks);
   const [supportPlans, setSupportPlans] = useState<SupportPlanRecord[]>(defaults.supportPlans);
   const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
   const [employees, setEmployees] = useState<EmployeeRecord[]>(defaults.employees);
@@ -490,6 +513,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const claimRemittancesRef = useSyncRef(claimRemittances);
   const invoicesRef = useSyncRef(invoices);
   const payrollClosedPeriodsRef = useSyncRef(payrollClosedPeriods);
+  const boardReportPacksRef = useSyncRef(boardReportPacks);
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
   const locationsRef = useSyncRef(locations);
@@ -534,6 +558,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
       setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
       setFinancialClosedMonths(data.financialClosedMonths ?? []);
+      setBoardReportTemplates(
+        data.boardReportTemplates?.length ? data.boardReportTemplates : [defaultBoardReportTemplate()]
+      );
+      setBoardReportPacks((data.boardReportPacks ?? []).map(normalizeBoardReportPack));
       setSupportPlans(data.supportPlans);
       setPlanDocuments(data.planDocuments);
       setEmployees(data.employees);
@@ -596,6 +624,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
             setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
             setFinancialClosedMonths(data.financialClosedMonths ?? []);
+            setBoardReportTemplates(
+              data.boardReportTemplates?.length ? data.boardReportTemplates : [defaultBoardReportTemplate()]
+            );
+            setBoardReportPacks((data.boardReportPacks ?? []).map(normalizeBoardReportPack));
             setSupportPlans(data.supportPlans);
             setPlanDocuments(data.planDocuments);
             setEmployees(data.employees);
@@ -673,6 +705,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       invoices,
       payrollClosedPeriods,
       financialClosedMonths,
+      boardReportTemplates,
+      boardReportPacks,
       supportPlans,
       planDocuments,
       employees,
@@ -697,6 +731,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       invoices,
       payrollClosedPeriods,
       financialClosedMonths,
+      boardReportTemplates,
+      boardReportPacks,
       supportPlans,
     planDocuments,
     employees,
@@ -1416,6 +1452,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote]
   );
 
+  const upsertBoardReportPack = useCallback(
+    (record: BoardReportPackRecord, audit?: AuditLogOptions) => {
+      const prev = boardReportPacksRef.current;
+      const normalized = normalizeBoardReportPack(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("board-report-pack", normalized, !exists, before, audit);
+      setBoardReportPacks((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveBoardReportPack(supabase, stamped));
+    },
+    [boardReportPacksRef, persistRemote]
+  );
+
   const upsertRosterOfCare = useCallback(
     (record: RosterOfCareRecord, audit?: AuditLogOptions) => {
       const prev = rosterOfCaresRef.current;
@@ -1713,6 +1764,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       invoices,
       payrollClosedPeriods,
       financialClosedMonths,
+      boardReportTemplates,
+      boardReportPacks,
       supportPlans,
       planDocuments,
       employees,
@@ -1752,6 +1805,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       bulkUpsertInvoices,
       closePayrollPeriod,
       closeFinancialMonth,
+      upsertBoardReportPack,
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,
@@ -1795,6 +1849,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       invoices,
       payrollClosedPeriods,
       financialClosedMonths,
+      boardReportTemplates,
+      boardReportPacks,
       supportPlans,
       planDocuments,
       employees,
@@ -1834,6 +1890,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       bulkUpsertInvoices,
       closePayrollPeriod,
       closeFinancialMonth,
+      upsertBoardReportPack,
       upsertSupportPlan,
       upsertEmployee,
       addEmployee,

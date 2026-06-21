@@ -285,6 +285,14 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     abilityErpName: "NDIS audit pack",
     showInSidebar: true,
   },
+  {
+    key: "board-reporting",
+    label: "Board reporting",
+    group: "Delivery",
+    href: "/board-reporting",
+    abilityErpName: "Board reporting",
+    showInSidebar: true,
+  },
 ];
 
 const WORKFORCE_WINDOWS: AccessWindow[] = [

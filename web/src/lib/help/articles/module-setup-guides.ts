@@ -174,6 +174,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Use Mark month closed on Financial close after the checklist passes — requires `financial_closed_month` migration on Supabase.",
       "Grant My timesheets for workers submitting draft timesheets from My workplace.",
       "Grant NDIS audit pack for quality and compliance audit evidence exports.",
+      "Grant Board reporting for executives preparing monthly NDIS board report packs — board members receive read-only access to published reports.",
     ]
   ),
   moduleSetupArticle(

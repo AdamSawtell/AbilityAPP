@@ -171,6 +171,18 @@ import {
   financialClosedMonthToRow,
   type FinancialClosedMonthRow,
 } from "@/lib/supabase/financial-closed-month-mappers";
+import type { BoardReportPackRecord } from "@/lib/board-report-pack";
+import type { BoardReportTemplateRecord } from "@/lib/board-report-template";
+import {
+  boardReportPackFromRows,
+  boardReportPackSectionToRow,
+  boardReportPackToRow,
+  boardReportTemplateFromRows,
+  type BoardReportPackRow,
+  type BoardReportPackSectionRow,
+  type BoardReportTemplateRow,
+  type BoardReportTemplateSectionRow,
+} from "@/lib/supabase/board-report-mappers";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -190,6 +202,8 @@ export type AppData = {
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
   financialClosedMonths: FinancialClosedMonthRecord[];
+  boardReportTemplates: BoardReportTemplateRecord[];
+  boardReportPacks: BoardReportPackRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -454,6 +468,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const employeesByLocation = groupBy(supportLocationEmployeesRes.data as SupportLocationEmployeeRowDb[], "location_id");
   const productsByLocation = groupBy(supportLocationProductsRes.data as SupportLocationProductRowDb[], "location_id");
   const activitiesByLocation = groupBy(supportLocationActivitiesRes.data as SupportLocationActivityRowDb[], "location_id");
+  const boardReporting = await fetchBoardReporting(supabase);
 
   return {
     enquiries: ((enquiriesRes.data ?? []) as EnquiryRow[]).map((row) =>
@@ -559,6 +574,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
         })
       )
     ),
+    boardReportTemplates: boardReporting.templates,
+    boardReportPacks: boardReporting.packs,
   };
 }
 
@@ -1809,4 +1826,40 @@ export async function savePayrollClosedPeriod(supabase: SupabaseClient, record: 
 export async function saveFinancialClosedMonth(supabase: SupabaseClient, record: FinancialClosedMonthRecord) {
   const { error } = await supabase.from("financial_closed_month").upsert(financialClosedMonthToRow(record));
   if (error) throw error;
+}
+
+export async function fetchBoardReporting(supabase: SupabaseClient) {
+  const [templatesRes, templateSectionsRes, packsRes, packSectionsRes] = await Promise.all([
+    supabase.from("board_report_template").select("*").order("name"),
+    supabase.from("board_report_template_section").select("*").order("sort_order"),
+    supabase.from("board_report_pack").select("*").order("report_period", { ascending: false }),
+    supabase.from("board_report_pack_section").select("*").order("sort_order"),
+  ]);
+  if (templatesRes.error) throw templatesRes.error;
+  if (templateSectionsRes.error) throw templateSectionsRes.error;
+  if (packsRes.error) throw packsRes.error;
+  if (packSectionsRes.error) throw packSectionsRes.error;
+
+  const templates = ((templatesRes.data ?? []) as BoardReportTemplateRow[]).map((row) =>
+    boardReportTemplateFromRows(row, (templateSectionsRes.data ?? []) as BoardReportTemplateSectionRow[])
+  );
+  const packs = ((packsRes.data ?? []) as BoardReportPackRow[]).map((row) =>
+    boardReportPackFromRows(row, (packSectionsRes.data ?? []) as BoardReportPackSectionRow[])
+  );
+
+  return { templates, packs };
+}
+
+export async function saveBoardReportPack(supabase: SupabaseClient, record: BoardReportPackRecord) {
+  const row = boardReportPackToRow(record);
+  const { error } = await supabase.from("board_report_pack").upsert(row);
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "board_report_pack_section", "pack_id", record.id);
+  if (record.sections.length) {
+    const { error: sectionError } = await supabase
+      .from("board_report_pack_section")
+      .insert(record.sections.map((section) => boardReportPackSectionToRow(section, record.id)));
+    if (sectionError) throw sectionError;
+  }
 }

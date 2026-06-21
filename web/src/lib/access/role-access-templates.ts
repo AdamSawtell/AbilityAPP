@@ -104,6 +104,7 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       "invoice-reconciliation",
       "financial-close",
       "ndis-audit-pack",
+      "board-reporting",
       "rostering",
       "timesheets",
       "generate-timesheets",
@@ -176,9 +177,14 @@ export function officerAccess(
   };
 }
 
-export function boardAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
+export function boardAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions" | "windowAccess"> {
+  const windowKeys = ["home", "reports", "workforce-planning", "workforce-organisation", "incidents", "incidents-dashboard", "board-reporting"];
   return {
-    windowKeys: ["home", "reports", "workforce-planning", "workforce-organisation", "incidents", "incidents-dashboard"],
+    windowKeys,
+    windowAccess: {
+      ...windowAccessFromKeys(["home", "reports", "workforce-planning", "workforce-organisation", "incidents", "incidents-dashboard"], "write"),
+      "board-reporting": "read",
+    },
     processIds: [],
     reportIds: ["incident-register", "ndis-reportable-incidents", "client-register"],
     taskTypePermissions: permissionsForTypes(["tt-review"]),

@@ -253,6 +253,23 @@ export const deliveryArticle: HelpArticle = {
       windowKeys: ["ndis-audit-pack", "financial-close", "plan-reconciliation", "claim-reconciliation", "incidents"],
     },
     {
+      id: "board-reporting",
+      title: "NDIS board reporting",
+      body: "Generate monthly board report packs with configurable sections, data-driven metrics from AbilityAPP, executive commentary, and a printable board-ready export.",
+      steps: [
+        "Open Board reporting from Reports or the sidebar.",
+        "Create a new report and choose the reporting period (for example June 2026).",
+        "Use Configure sections to include, exclude, or reorder report sections.",
+        "Click Generate report to refresh data-driven content from clients, claims, incidents, rostering, and finance.",
+        "Add executive summary, CEO commentary, and section commentary where needed.",
+        "Save draft, then mark reviewed, approve, and publish when ready for the board.",
+        "Board members with read access see published reports only.",
+        "Use Print / export for a clean board pack without app navigation.",
+      ],
+      relatedRoutes: ["/board-reporting", "/reports"],
+      windowKeys: ["board-reporting"],
+    },
+    {
       id: "cancellation-claims",
       title: "Cancellation claim generation",
       body: "Generate draft NDIS claim lines from cancelled service bookings where the participant cancelled with insufficient notice. Uses the same cancellation policy as the booking compliance panel.",

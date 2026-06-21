@@ -120,6 +120,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/generate-timesheets", slug: "delivery", surface: "app" },
   { prefix: "/ndis-audit-pack", slug: "delivery", surface: "app" },
   { prefix: "/financial-close", slug: "delivery", surface: "app" },
+  { prefix: "/board-reporting", slug: "delivery", surface: "app" },
   { prefix: "/invoice-reconciliation", slug: "delivery", surface: "app" },
   { prefix: "/multi-provider-budget", slug: "service-planning", surface: "app" },
   { prefix: "/my/timesheets", slug: "my-workplace", surface: "app" },
