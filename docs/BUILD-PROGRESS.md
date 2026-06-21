@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | Reconciliation & billing polish — complete |
-| **Active slice** | WP-I.5 through WP-J.7 batch shipped (local) |
-| **Next slice** | Push + Amplify spot-check; live OCR/API when credentials available |
-| **Last push** | 2026-06-20 — `ff19fbd` (prior slice) |
+| **Active slice** | WP-I.5 through WP-J.7 batch shipped |
+| **Next slice** | Amplify spot-check; live OCR/API when credentials available |
+| **Last push** | 2026-06-18 — `16f703c` (billing/reconciliation batch + Bugbot fixes) |
 
 ---
 
