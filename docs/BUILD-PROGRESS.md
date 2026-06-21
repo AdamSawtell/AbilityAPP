@@ -142,7 +142,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 1 | Client **Bern** → **Overview** | **Plan utilisation** section with totals |
 | 2 | Click **Open Plan budget** | Navigates to Plan budget tab |
 
-### WP-A.6 — Plan budget CSV import (pending)
+### WP-A.6 — Plan budget CSV import (`d7cfaa4`)
 
 | Step | Action | Pass if |
 |------|--------|---------|
@@ -1157,6 +1157,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 1f6318b | WP-G.0 participant portal week calendar |
 | 2026-06-20 | 7a5ad64 | WP-0.6 live HubSpot CRM contact upsert |
 | 2026-06-20 | 9cf9a3f | WP-0.7 client portal requests on Requests tab (Chunk 0 complete) |
+| 2026-06-20 | d7cfaa4 | WP-A.6 plan budget CSV import on client Plan budget tab |
 
 ---
 
