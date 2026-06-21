@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal ✅ |
 | **Active slice** | WP-0.7 complete — Client portal requests on Requests tab |
 | **Next slice** | Chunk 1 gaps or Chunk 4 roster polish |
-| **Last push** | 2026-06-20 — `06c6b69` |
+| **Last push** | 2026-06-20 — `9cf9a3f` |
 
 ---
 
@@ -1134,7 +1134,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 5c64029 | WP-0.5 external CRM sync + cross-sell alerts |
 | 2026-06-20 | 1f6318b | WP-G.0 participant portal week calendar |
 | 2026-06-20 | 7a5ad64 | WP-0.6 live HubSpot CRM contact upsert |
-| 2026-06-20 | pending | WP-0.7 client portal requests on Requests tab |
+| 2026-06-20 | 9cf9a3f | WP-0.7 client portal requests on Requests tab (Chunk 0 complete) |
 
 ---
 
