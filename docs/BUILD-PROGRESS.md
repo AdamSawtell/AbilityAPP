@@ -1285,6 +1285,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-D.22) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-A.8) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.8) |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260625360000` financial_closed_month (renamed from 25280000 — claim version conflict) |
+| 2026-06-18 | `npm run supabase:push-remote` | `20260625361000` client_plan_budget plan_provider column |
 
 ---
 
