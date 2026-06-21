@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
 | **Active slice** | WP-G.0 complete — Participant portal week calendar |
 | **Next slice** | Live HubSpot REST contact upsert or Chunk 0 completion |
-| **Last push** | 2026-06-20 — `3ba6b55` |
+| **Last push** | 2026-06-20 — `1f6318b` |
 
 ---
 
@@ -1090,6 +1090,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 98dcf9f | WP-0.3 participant portal MVP |
 | 2026-06-20 | c472e40 | WP-0.4 portal service request workflow stub |
 | 2026-06-20 | 5c64029 | WP-0.5 external CRM sync + cross-sell alerts |
+| 2026-06-20 | 1f6318b | WP-G.0 participant portal week calendar |
 
 ---
 
