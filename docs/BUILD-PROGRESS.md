@@ -13,7 +13,7 @@
 | **Current work package** | **Chunk D — Document platform** |
 | **Active slice** | WP-D.4 — batch invoice ZIP + process binding admin |
 | **Next slice** | WP-D.5 agreement pack; WP-D.6 HR contract pack |
-| **Last push** | 2026-06-18 — `3279b7d` (BUILD-PROGRESS tracker) |
+| **Last push** | 2026-06-18 — `f0ee36b` (Chunk D4 batch invoice ZIP + binding admin) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
