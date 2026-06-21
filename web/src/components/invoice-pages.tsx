@@ -29,7 +29,11 @@ import {
   type InvoiceRecord,
 } from "@/lib/invoice";
 import { useData } from "@/lib/data-store";
-import { printClientInvoice } from "@/lib/invoice-print";
+import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { downloadDocumentHtml } from "@/lib/document-render";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
 import { useOrganization } from "@/lib/organization-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
 
@@ -378,13 +382,24 @@ export function GenerateInvoicesView() {
 export function InvoiceDetailView({ id }: { id: string }) {
   const data = useData();
   const { organization } = useOrganization();
-  const { session, canWriteWindow } = useAuth();
+  const { session, canWriteWindow, canProcess } = useAuth();
+  const { listTemplatesForProcess, resolveTemplate } = useDocumentPlatform();
   const canEdit = canWriteWindow("invoices");
+  const canPrint = canProcess(DOCUMENT_PRINT_PROCESSES.printInvoice);
   const stored = data.invoices.find((inv) => inv.id === id);
   const [draft, setDraft] = useState<InvoiceRecord | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [printError, setPrintError] = useState("");
+  const [templateId, setTemplateId] = useState("");
+
+  const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printInvoice, "invoice");
+  const activeTemplateId = templateId || resolveTemplate(DOCUMENT_PRINT_PROCESSES.printInvoice, "invoice")?.id || templateOptions[0]?.id || "";
+  const activeTemplate =
+    templateOptions.find((t) => t.id === activeTemplateId) ??
+    resolveTemplate(DOCUMENT_PRINT_PROCESSES.printInvoice, "invoice", activeTemplateId) ??
+    templateOptions[0] ??
+    null;
 
   const record = draft ?? stored;
   const client = data.clients.find((c) => c.id === record?.clientId);
@@ -459,16 +474,59 @@ export function InvoiceDetailView({ id }: { id: string }) {
 
   const locked = invoiceRecordIsLocked(stored ?? record);
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     setPrintError("");
-    const ok = printClientInvoice({
-      invoice: record,
-      client,
-      organization,
-    });
+    if (!activeTemplate) {
+      setPrintError("No active invoice template is available.");
+      return;
+    }
+    const ok = printClientInvoice(
+      {
+        invoice: record,
+        client,
+        organization,
+      },
+      activeTemplate
+    );
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      return;
     }
+    const exported = exportClientInvoiceHtml({ invoice: record, client, organization }, activeTemplate);
+    if (exported) {
+      void registerGeneratedDocument({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: activeTemplate.documentClass,
+        entityType: "invoice",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        fileName: `${record.documentNo}.html`,
+      });
+    }
+  };
+
+  const handleDownload = async () => {
+    setPrintError("");
+    if (!activeTemplate) {
+      setPrintError("No active invoice template is available.");
+      return;
+    }
+    const exported = exportClientInvoiceHtml({ invoice: record, client, organization }, activeTemplate);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check invoice fields and organisation profile.");
+      return;
+    }
+    downloadDocumentHtml(exported.html, record.documentNo);
+    void registerGeneratedDocument({
+      html: exported.html,
+      templateId: exported.templateId,
+      documentClass: activeTemplate.documentClass,
+      entityType: "invoice",
+      entityId: record.id,
+      entityLabel: record.documentNo,
+      fileName: `${record.documentNo}.html`,
+    });
   };
 
   return (
@@ -488,17 +546,48 @@ export function InvoiceDetailView({ id }: { id: string }) {
         }}
       >
         <div className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-slate-600">
-              Print a tax invoice for the plan manager or participant. Save any edits before printing.
-            </p>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-            >
-              Print invoice
-            </button>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="space-y-2">
+              <p className="text-sm text-slate-600">
+                Print or download using the assigned document template. Save any edits before printing.
+              </p>
+              {templateOptions.length > 1 ? (
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">Template</span>
+                  <select
+                    className={inputClass}
+                    value={activeTemplateId}
+                    onChange={(e) => setTemplateId(e.target.value)}
+                  >
+                    {templateOptions.map((template) => (
+                      <option key={template.id} value={template.id}>
+                        {template.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : activeTemplate ? (
+                <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
+              ) : null}
+            </div>
+            {canPrint ? (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleDownload()}
+                  className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                >
+                  Download HTML
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handlePrint()}
+                  className="inline-flex shrink-0 items-center rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+                >
+                  Print invoice
+                </button>
+              </div>
+            ) : null}
           </div>
 
           {printError ? (

@@ -479,6 +479,24 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "admin-document-templates",
+    label: "Document templates",
+    group: "Admin",
+    surface: "system",
+    href: "/system/admin/document-templates",
+    abilityErpName: "Document templates",
+    showInSidebar: true,
+  },
+  {
+    key: "admin-document-registry",
+    label: "Document registry",
+    group: "Admin",
+    surface: "system",
+    href: "/system/admin/document-registry",
+    abilityErpName: "Generated document registry",
+    showInSidebar: false,
+  },
+  {
     key: "admin-user-session-audit",
     label: "User Session Audit",
     group: "Admin",
@@ -659,6 +677,18 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     label: "Approve timesheet",
     description: "Supervisors approve submitted timesheets within their management line or site scope",
     parentWindowKey: "timesheet-approval",
+  },
+  {
+    id: "print-invoice",
+    label: "Print invoice",
+    description: "Print or download an invoice using the assigned document template",
+    parentWindowKey: "invoices",
+  },
+  {
+    id: "batch-print-invoices",
+    label: "Batch print invoices",
+    description: "Generate documents for multiple invoices in one run",
+    parentWindowKey: "invoices",
   },
   {
     id: "manage-session-audit-risk",

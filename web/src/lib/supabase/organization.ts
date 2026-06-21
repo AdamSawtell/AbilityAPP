@@ -24,6 +24,12 @@ export type OrganizationRow = {
   primary_contact_phone: string;
   registration_groups: string;
   incident_investigation_sla_days: number;
+  bank_bsb: string;
+  bank_account: string;
+  bank_account_name: string;
+  remittance_email: string;
+  document_footer_text: string;
+  gst_registered: boolean;
   notes: string;
   created_by: string;
   updated_by: string;
@@ -55,6 +61,12 @@ export function organizationFromRow(row: OrganizationRow): OrganizationRecord {
     primaryContactPhone: row.primary_contact_phone ?? "",
     registrationGroups: row.registration_groups ?? "",
     incidentInvestigationSlaDays: row.incident_investigation_sla_days ?? 14,
+    bankBsb: row.bank_bsb ?? "",
+    bankAccount: row.bank_account ?? "",
+    bankAccountName: row.bank_account_name ?? "",
+    remittanceEmail: row.remittance_email ?? "",
+    documentFooterText: row.document_footer_text ?? "",
+    gstRegistered: row.gst_registered ?? false,
     notes: row.notes ?? "",
     createdBy: row.created_by ?? "",
     updatedBy: row.updated_by ?? "",
@@ -87,6 +99,12 @@ export function organizationToRow(record: OrganizationRecord): OrganizationRow {
     primary_contact_phone: record.primaryContactPhone,
     registration_groups: record.registrationGroups,
     incident_investigation_sla_days: record.incidentInvestigationSlaDays > 0 ? record.incidentInvestigationSlaDays : 14,
+    bank_bsb: record.bankBsb,
+    bank_account: record.bankAccount,
+    bank_account_name: record.bankAccountName,
+    remittance_email: record.remittanceEmail,
+    document_footer_text: record.documentFooterText,
+    gst_registered: record.gstRegistered,
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,

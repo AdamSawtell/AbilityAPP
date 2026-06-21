@@ -183,6 +183,20 @@ import {
   type BoardReportTemplateRow,
   type BoardReportTemplateSectionRow,
 } from "@/lib/supabase/board-report-mappers";
+import type {
+  DocumentTemplateRecord,
+  GeneratedDocumentRecord,
+  ProcessDocumentBindingRecord,
+} from "@/lib/document-template";
+import {
+  documentTemplateBlockToRow,
+  documentTemplateFromRow,
+  documentTemplateToRow,
+  generatedDocumentFromRow,
+  generatedDocumentToRow,
+  processDocumentBindingFromRow,
+  processDocumentBindingToRow,
+} from "@/lib/supabase/document-mappers";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -1862,4 +1876,66 @@ export async function saveBoardReportPack(supabase: SupabaseClient, record: Boar
       .insert(record.sections.map((section) => boardReportPackSectionToRow(section, record.id)));
     if (sectionError) throw sectionError;
   }
+}
+
+export async function fetchDocumentPlatform(supabase: SupabaseClient) {
+  const [templatesRes, blocksRes, bindingsRes, generatedRes] = await Promise.all([
+    supabase.from("app_document_template").select("*").order("name"),
+    supabase.from("app_document_template_block").select("*").order("sort_order"),
+    supabase.from("app_process_document_binding").select("*"),
+    supabase.from("app_generated_document").select("*").order("generated_at", { ascending: false }).limit(500),
+  ]);
+  if (templatesRes.error) throw templatesRes.error;
+  if (blocksRes.error) throw blocksRes.error;
+  if (bindingsRes.error) throw bindingsRes.error;
+  if (generatedRes.error) throw generatedRes.error;
+
+  const blocksByTemplate = new Map<string, import("@/lib/supabase/document-mappers").DocumentTemplateBlockRow[]>();
+  for (const block of (blocksRes.data ?? []) as import("@/lib/supabase/document-mappers").DocumentTemplateBlockRow[]) {
+    const list = blocksByTemplate.get(block.template_id) ?? [];
+    list.push(block);
+    blocksByTemplate.set(block.template_id, list);
+  }
+
+  const templates = ((templatesRes.data ?? []) as import("@/lib/supabase/document-mappers").DocumentTemplateRow[]).map(
+    (row) =>
+      documentTemplateFromRow(row, blocksByTemplate.get(row.id) ?? [])
+  );
+
+  const bindings = ((bindingsRes.data ?? []) as import("@/lib/supabase/document-mappers").ProcessDocumentBindingRow[]).map(
+    processDocumentBindingFromRow
+  );
+
+  const generatedDocuments = (
+    (generatedRes.data ?? []) as import("@/lib/supabase/document-mappers").GeneratedDocumentRow[]
+  ).map(generatedDocumentFromRow);
+
+  return { templates, bindings, generatedDocuments };
+}
+
+export async function saveDocumentTemplate(supabase: SupabaseClient, record: DocumentTemplateRecord) {
+  const row = documentTemplateToRow(record);
+  const { error } = await supabase.from("app_document_template").upsert(row);
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "app_document_template_block", "template_id", record.id);
+  if (record.blocks.length) {
+    const { error: blockError } = await supabase
+      .from("app_document_template_block")
+      .insert(record.blocks.map(documentTemplateBlockToRow));
+    if (blockError) throw blockError;
+  }
+}
+
+export async function saveProcessDocumentBinding(
+  supabase: SupabaseClient,
+  record: ProcessDocumentBindingRecord
+) {
+  const { error } = await supabase.from("app_process_document_binding").upsert(processDocumentBindingToRow(record));
+  if (error) throw error;
+}
+
+export async function saveGeneratedDocument(supabase: SupabaseClient, record: GeneratedDocumentRecord) {
+  const { error } = await supabase.from("app_generated_document").upsert(generatedDocumentToRow(record));
+  if (error) throw error;
 }

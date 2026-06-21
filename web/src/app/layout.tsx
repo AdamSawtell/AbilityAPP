@@ -5,6 +5,7 @@ import { DataProvider } from "@/lib/data-store";
 import { ReferenceDataProvider } from "@/lib/config-store";
 import { TaskTypeProvider } from "@/lib/task-type-store";
 import { OrganizationProvider } from "@/lib/organization-store";
+import { DocumentPlatformProvider } from "@/lib/document-platform-store";
 import { OrgChartTierConfigProvider } from "@/lib/org-chart-tier-config-store";
 import { OrgStructureProvider } from "@/lib/org-structure-store";
 import { OrgAutomationContextBridge } from "@/components/org-automation-context-bridge";
@@ -43,6 +44,7 @@ export default function RootLayout({
               <TaskTypeProvider>
                 <DataProvider>
                   <OrganizationProvider>
+                    <DocumentPlatformProvider>
                     <SystemTimezoneProvider>
                     <OrgChartTierConfigProvider>
                       <OrgStructureProvider>
@@ -54,6 +56,7 @@ export default function RootLayout({
                       </OrgStructureProvider>
                     </OrgChartTierConfigProvider>
                     </SystemTimezoneProvider>
+                    </DocumentPlatformProvider>
                   </OrganizationProvider>
                 </DataProvider>
               </TaskTypeProvider>

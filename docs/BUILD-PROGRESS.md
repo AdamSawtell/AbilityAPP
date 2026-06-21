@@ -9,11 +9,39 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **100%** |
-| **Current work package** | Reconciliation & billing polish — complete |
-| **Active slice** | WP-I.5 through WP-J.7 batch shipped |
-| **Next slice** | Amplify spot-check; live OCR/API when credentials available |
-| **Last push** | 2026-06-21 — `eae272a` (billing batch + migration rename + doc audit) |
+| **Overall completion** | **100%** (+ Chunk D document platform in progress) |
+| **Current work package** | **Chunk D — Document platform** |
+| **Active slice** | WP-D.0–D.3 — invoice templates, registry, System admin |
+| **Next slice** | WP-D.4 batch invoice ZIP; WP-D.5 agreement pack |
+| **Last push** | 2026-06-18 — Phase 2 timesheet + planning pack (`7826752`) |
+| **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
+
+---
+
+## Chunk D — Document platform (live tracker)
+
+| Stage | Deliverable | Status |
+|-------|-------------|--------|
+| D0 | Schema, org brand kit (bank/footer/GST), template seed | ✅ Shipped |
+| D1 | Invoice template render + `print-invoice` / `batch-print-invoices` | ✅ Shipped |
+| D2 | System template admin (`/system/admin/document-templates`) | ✅ Shipped |
+| D3 | Document registry + `/api/documents/register` + private bucket | ✅ Shipped |
+| D4 | Batch invoice ZIP on list | ⬜ Next |
+| D5 | Service agreement printable pack | ⬜ Planned |
+| D6 | HR contract pack | ⬜ Planned |
+
+**Policy:** Active template = production-ready (no separate legal sign-off gate).
+
+### What you can test — WP-D.0–D.3
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | System → Tasks → Document templates | Template list shows NDIS participant invoice |
+| 2 | Edit title/footer, save, refresh | Changes persist |
+| 3 | System → Organisation → Document branding | Bank BSB/account fields save |
+| 4 | Invoices → open invoice → Print invoice | Print preview with org header/footer |
+| 5 | Download HTML | File downloads; registry row appears in Document registry |
+| 6 | `npm run build` + `page-guides:check` | Exit 0 |
 
 ---
 

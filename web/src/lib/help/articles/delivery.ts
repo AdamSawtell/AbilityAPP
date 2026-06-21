@@ -235,6 +235,19 @@ export const deliveryArticle: HelpArticle = {
       windowKeys: ["timesheet-approval", "approve-timesheet"],
     },
     {
+      id: "document-templates",
+      title: "Document templates and invoice print",
+      body: "System operators manage print templates with standard org header and footer. Finance users print or download invoices using the assigned template; generated files are stored in the document registry.",
+      steps: [
+        "System → Tasks → Document templates — edit title, footer, and active flag.",
+        "System → Organisation → Document branding — set bank details and footer text.",
+        "Invoices → open a record → choose template if more than one → Print invoice or Download HTML.",
+        "System → Tasks → Document registry — confirm the generated file was saved.",
+      ],
+      relatedRoutes: ["/system/admin/document-templates", "/system/admin/document-registry", "/invoices", "/system/organization"],
+      windowKeys: ["admin-document-templates", "invoices", "admin-organization"],
+    },
+    {
       id: "financial-close",
       title: "Financial close checklist",
       body: "Month-end sign-off across plan delivery, NDIS remittance, participant invoices, and payroll reconciliation.",

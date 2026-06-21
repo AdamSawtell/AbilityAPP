@@ -53,6 +53,20 @@ function OrgField({
     );
   }
 
+  if (field.type === "checkbox") {
+    return (
+      <label className="flex items-center gap-2 text-sm text-slate-800">
+        <input
+          type="checkbox"
+          className="h-4 w-4 rounded border-slate-300"
+          checked={value === "true"}
+          onChange={(e) => onChange(field.key, e.target.checked ? "true" : "false")}
+        />
+        {field.label}
+      </label>
+    );
+  }
+
   return (
     <input
       className={base}
@@ -85,6 +99,8 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
     if (key === "incidentInvestigationSlaDays") {
       const n = Number.parseInt(value, 10);
       next.incidentInvestigationSlaDays = Number.isFinite(n) && n > 0 ? n : 14;
+    } else if (key === "gstRegistered") {
+      next.gstRegistered = value === "true";
     } else {
       (next as Record<string, unknown>)[key] = value;
     }
@@ -180,13 +196,17 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
                     key={field.key}
                     className={field.type === "textarea" ? "sm:col-span-2" : ""}
                   >
-                    <label className="mb-1 block text-sm font-medium text-slate-700">{field.label}</label>
+                    {field.type !== "checkbox" ? (
+                      <label className="mb-1 block text-sm font-medium text-slate-700">{field.label}</label>
+                    ) : null}
                     <OrgField
                       field={field}
                       value={
                         field.key === "incidentInvestigationSlaDays"
                           ? String(record.incidentInvestigationSlaDays)
-                          : String(record[field.key] ?? "")
+                          : field.key === "gstRegistered"
+                            ? String(record.gstRegistered)
+                            : String(record[field.key] ?? "")
                       }
                       onChange={onChange}
                     />

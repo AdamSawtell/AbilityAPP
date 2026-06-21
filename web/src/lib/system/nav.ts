@@ -118,6 +118,16 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "Task automations",
         match: (p) => p.startsWith("/system/admin/task-automations"),
       },
+      {
+        href: "/system/admin/document-templates",
+        label: "Document templates",
+        match: (p) => p.startsWith("/system/admin/document-templates"),
+      },
+      {
+        href: "/system/admin/document-registry",
+        label: "Document registry",
+        match: (p) => p.startsWith("/system/admin/document-registry"),
+      },
     ]),
   },
   {

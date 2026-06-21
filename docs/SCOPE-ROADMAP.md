@@ -307,10 +307,10 @@ Everything else can proceed with sensible defaults and feature flags.
 
 | Stage | Deliverable | Status |
 |-------|-------------|--------|
-| D0 | Schema, org brand kit (bank/footer/logo upload), merge field registry | ⬜ |
-| D1 | Invoice template + `print-invoice` process binding (replaces `invoice-print.ts`) | ⬜ |
-| D2 | System template editor (block list, preview, publish) | ⬜ |
-| D3 | PDF export + document registry (private bucket) | ⬜ |
+| D0 | Schema, org brand kit (bank/footer/logo upload), merge field registry | ✅ |
+| D1 | Invoice template + `print-invoice` process binding (replaces `invoice-print.ts`) | ✅ |
+| D2 | System template editor (block list, preview, publish) | ✅ |
+| D3 | PDF export + document registry (private bucket) | ✅ |
 | D4 | Batch invoice PDF + process binding admin | ⬜ |
 | D5 | Service agreement printable pack + e-sign PDF archive | ⬜ |
 | D6 | HR employment contract pack + My workplace delivery | ⬜ |

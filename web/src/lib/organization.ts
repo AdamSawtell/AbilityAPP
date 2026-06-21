@@ -25,6 +25,12 @@ export type OrganizationRecord = AuditStampable & {
   primaryContactPhone: string;
   registrationGroups: string;
   incidentInvestigationSlaDays: number;
+  bankBsb: string;
+  bankAccount: string;
+  bankAccountName: string;
+  remittanceEmail: string;
+  documentFooterText: string;
+  gstRegistered: boolean;
   notes: string;
   createdBy: string;
   updatedBy: string;
@@ -33,7 +39,7 @@ export type OrganizationRecord = AuditStampable & {
 export type OrganizationFieldDef = {
   key: keyof OrganizationRecord;
   label: string;
-  type: "text" | "email" | "tel" | "url" | "textarea" | "number";
+  type: "text" | "email" | "tel" | "url" | "textarea" | "number" | "checkbox";
   placeholder?: string;
   hint?: string;
 };
@@ -97,6 +103,28 @@ export const organizationSections: OrganizationSection[] = [
     ],
   },
   {
+    title: "Document branding",
+    description: "Header, footer, and payment details used on invoices and other generated documents.",
+    fields: [
+      { key: "bankBsb", label: "Bank BSB", type: "text", placeholder: "000-000" },
+      { key: "bankAccount", label: "Bank account number", type: "text" },
+      { key: "bankAccountName", label: "Bank account name", type: "text" },
+      { key: "remittanceEmail", label: "Remittance email", type: "email" },
+      {
+        key: "gstRegistered",
+        label: "GST registered",
+        type: "checkbox",
+        hint: "When checked, invoice templates use Tax Invoice and show GST lines.",
+      },
+      {
+        key: "documentFooterText",
+        label: "Document footer",
+        type: "textarea",
+        placeholder: "Optional footer text on all generated documents.",
+      },
+    ],
+  },
+  {
     title: "Incident management",
     description: "Defaults used by the incident dashboard and investigation SLA alerts.",
     fields: [
@@ -145,6 +173,12 @@ export function defaultOrganization(): OrganizationRecord {
       "Support Coordination",
     ].join("\n"),
     incidentInvestigationSlaDays: 14,
+    bankBsb: "",
+    bankAccount: "",
+    bankAccountName: "",
+    remittanceEmail: "",
+    documentFooterText: "",
+    gstRegistered: false,
     notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -159,6 +193,12 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     id: ORGANIZATION_ID,
     registrationGroups: (record.registrationGroups ?? "").trim(),
     incidentInvestigationSlaDays: Number.isFinite(sla) && sla > 0 ? Math.round(sla) : 14,
+    gstRegistered: Boolean(record.gstRegistered),
+    bankBsb: (record.bankBsb ?? "").trim(),
+    bankAccount: (record.bankAccount ?? "").trim(),
+    bankAccountName: (record.bankAccountName ?? "").trim(),
+    remittanceEmail: (record.remittanceEmail ?? "").trim(),
+    documentFooterText: (record.documentFooterText ?? "").trim(),
   };
 }
 
