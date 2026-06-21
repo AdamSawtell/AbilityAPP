@@ -10,6 +10,7 @@ import {
   DOCUMENT_PRINT_PROCESSES,
   DEFAULT_AGREEMENT_TEMPLATE_ID,
   DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
+  DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
   DEFAULT_INVOICE_TEMPLATE_ID,
   type DocumentTemplateRecord,
 } from "@/lib/document-template";
@@ -26,7 +27,7 @@ export function DocumentTemplatesAdminPage() {
   const hasPageAccess = hasAnyAccess(["admin-document-templates"]);
   const { templates, bindings, upsertTemplate, upsertBinding, loading } = useDocumentPlatform();
   const { organization } = useOrganization();
-  const { invoices, clients, serviceAgreements } = useData();
+  const { invoices, clients, serviceAgreements, employees } = useData();
   const sorted = useMemo(
     () => [...templates].sort((a, b) => a.name.localeCompare(b.name)),
     [templates]
@@ -56,8 +57,13 @@ export function DocumentTemplatesAdminPage() {
       const client = clients.find((c) => c.id === agreement.clientId);
       return renderDocument(record, { agreement, client, organization }, { skipValidation: true });
     }
+    if (record.documentClass.startsWith("hr-contract")) {
+      const employee = employees[0];
+      if (!employee) return null;
+      return renderDocument(record, { employee, managerName: "Manager", organization }, { skipValidation: true });
+    }
     return null;
-  }, [record, invoices, serviceAgreements, clients, organization]);
+  }, [record, invoices, serviceAgreements, employees, clients, organization]);
 
   const processBindings = useMemo(
     () => bindings.filter((b) => b.templateId === record?.id),
@@ -74,6 +80,11 @@ export function DocumentTemplatesAdminPage() {
       sorted.filter(
         (t) => t.active && (t.documentClass === "service-agreement" || t.documentClass === "service-agreement-variation")
       ),
+    [sorted]
+  );
+
+  const hrTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass.startsWith("hr-contract")),
     [sorted]
   );
 
@@ -108,8 +119,15 @@ export function DocumentTemplatesAdminPage() {
           templates: agreementTemplates.filter((t) => t.documentClass === "service-agreement-variation"),
           fallbackId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
         },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printEmployeeContract,
+          entityType: "employee",
+          label: "Generate employee contract",
+          templates: hrTemplates,
+          fallbackId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
+        },
       ] as const,
-    [invoiceTemplates, agreementTemplates]
+    [invoiceTemplates, agreementTemplates, hrTemplates]
   );
 
   async function handleBindingChange(processId: string, entityType: string, templateId: string) {

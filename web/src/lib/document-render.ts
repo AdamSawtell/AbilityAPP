@@ -1,5 +1,7 @@
 import type { AgreementDocumentContext } from "@/lib/document-render-agreement";
 import { buildAgreementDocumentHtml } from "@/lib/document-render-agreement";
+import type { EmployeeDocumentContext } from "@/lib/document-render-employee";
+import { buildEmployeeDocumentHtml } from "@/lib/document-render-employee";
 import { buildInvoiceDocumentHtml, type InvoiceDocumentContext } from "@/lib/document-render-invoice";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import {
@@ -50,6 +52,23 @@ export function renderAgreementDocument(
   };
 }
 
+export function renderEmployeeDocument(
+  template: DocumentTemplateRecord,
+  ctx: EmployeeDocumentContext,
+  options?: { autoPrint?: boolean; skipValidation?: boolean }
+): DocumentRenderResult {
+  const issues = options?.skipValidation ? [] : validateDocumentContext(template, ctx);
+  const blocked = options?.skipValidation ? null : documentBlockedByValidation(issues);
+  if (blocked) {
+    return { html: "", issues, blocked };
+  }
+  return {
+    html: buildEmployeeDocumentHtml(template, ctx, options),
+    issues,
+    blocked: null,
+  };
+}
+
 export function renderDocument(
   template: DocumentTemplateRecord,
   ctx: DocumentRenderContext,
@@ -60,6 +79,9 @@ export function renderDocument(
   }
   if (template.documentClass.startsWith("service-agreement")) {
     return renderAgreementDocument(template, ctx as AgreementDocumentContext, options);
+  }
+  if (template.documentClass.startsWith("hr-contract")) {
+    return renderEmployeeDocument(template, ctx as EmployeeDocumentContext, options);
   }
   return {
     html: "",

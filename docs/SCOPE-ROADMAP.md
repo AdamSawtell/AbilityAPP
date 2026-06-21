@@ -313,7 +313,7 @@ Everything else can proceed with sensible defaults and feature flags.
 | D3 | PDF export + document registry (private bucket) | ✅ |
 | D4 | Batch invoice PDF + process binding admin | ✅ |
 | D5 | Service agreement printable pack + e-sign PDF archive | ✅ |
-| D6 | HR employment contract pack + My workplace delivery | ⬜ |
+| D6 | HR employment contract pack + My workplace delivery | ✅ |
 
 **DMS decision:** Lightweight **document registry** (metadata + private storage + entity links) — not a full enterprise DMS. See architecture doc in planning pack.
 

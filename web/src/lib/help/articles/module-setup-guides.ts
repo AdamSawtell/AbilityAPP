@@ -167,6 +167,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant Invoices and Generate invoices for plan-managed and self-managed billing.",
       "Grant print-invoice and batch-print-invoices processes for finance roles.",
       "Grant print-service-agreement and print-agreement-variation for coordinators managing NDIS agreements.",
+      "Grant print-employee-contract on HR roles that generate employment agreements.",
       "System → Organisation → Document branding — set bank BSB, account, remittance email, and footer.",
       "System → Tasks → Document templates — confirm NDIS participant invoice is Active; set default templates for print and batch processes.",
       "Invoices list — grant batch-print-invoices process for month-end ZIP export.",

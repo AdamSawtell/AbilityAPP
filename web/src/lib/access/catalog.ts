@@ -703,6 +703,12 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "service-agreements",
   },
   {
+    id: "print-employee-contract",
+    label: "Generate employee contract",
+    description: "Generate an employment contract document and HR file line",
+    parentWindowKey: "employee-documents",
+  },
+  {
     id: "manage-session-audit-risk",
     label: "Investigate session risk",
     description: "Review flagged sessions, update risk status, and add investigation notes",

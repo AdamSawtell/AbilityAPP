@@ -1,4 +1,10 @@
-import type { DocumentClass } from "@/lib/document-template";
+import type { DocumentClass, GeneratedDocumentRecord } from "@/lib/document-template";
+
+export type RegisteredDocument = {
+  id: string;
+  documentNo: string;
+  downloadUrl: string | null;
+};
 
 export async function registerGeneratedDocument(input: {
   html: string;
@@ -9,7 +15,7 @@ export async function registerGeneratedDocument(input: {
   entityLabel?: string;
   fileName?: string;
   batchId?: string;
-}): Promise<void> {
+}): Promise<RegisteredDocument | null> {
   const res = await fetch("/api/documents/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -24,5 +30,16 @@ export async function registerGeneratedDocument(input: {
       /* ignore */
     }
     throw new Error(message);
+  }
+  try {
+    const payload = (await res.json()) as { record?: GeneratedDocumentRecord; downloadUrl?: string | null };
+    if (!payload.record?.id) return null;
+    return {
+      id: payload.record.id,
+      documentNo: payload.record.documentNo,
+      downloadUrl: payload.downloadUrl ?? null,
+    };
+  } catch {
+    return null;
   }
 }

@@ -1,4 +1,5 @@
 import type { AgreementDocumentContext } from "@/lib/document-render-agreement";
+import type { EmployeeDocumentContext } from "@/lib/document-render-employee";
 import type { ClientRecord } from "@/lib/client";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import type { InvoiceRecord } from "@/lib/invoice";
@@ -11,7 +12,7 @@ export type InvoiceDocumentContext = {
   organization: OrganizationRecord;
 };
 
-export type DocumentRenderContext = InvoiceDocumentContext | AgreementDocumentContext;
+export type DocumentRenderContext = InvoiceDocumentContext | AgreementDocumentContext | EmployeeDocumentContext;
 
 export type DocumentValidationIssue = {
   severity: "error" | "warning";
@@ -90,6 +91,28 @@ export function validateAgreementDocument(ctx: AgreementDocumentContext): Docume
   return issues;
 }
 
+export function validateEmployeeDocument(ctx: EmployeeDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  const { employee, organization } = ctx;
+
+  if (!organization.abn?.trim()) {
+    issues.push({ severity: "error", field: "org.abn", message: "Organisation ABN is required on employment contracts." });
+  }
+  if (!employee.searchKey?.trim()) {
+    issues.push({ severity: "error", field: "employee.searchKey", message: "Employee search key is required." });
+  }
+  if (!employee.firstName?.trim() && !employee.lastName?.trim()) {
+    issues.push({ severity: "warning", field: "employee.name", message: "Employee name is incomplete." });
+  }
+  if (!employee.startDate?.trim()) {
+    issues.push({ severity: "warning", field: "employee.startDate", message: "Commencement date is missing." });
+  }
+  if (!employee.jobTitle?.trim()) {
+    issues.push({ severity: "warning", field: "employee.jobTitle", message: "Job title is missing." });
+  }
+  return issues;
+}
+
 export function documentBlockedByValidation(issues: DocumentValidationIssue[]): string | null {
   const error = issues.find((i) => i.severity === "error");
   return error?.message ?? null;
@@ -104,6 +127,9 @@ export function validateDocumentContext(
   }
   if (template.documentClass.startsWith("service-agreement")) {
     return validateAgreementDocument(ctx as AgreementDocumentContext);
+  }
+  if (template.documentClass.startsWith("hr-contract")) {
+    return validateEmployeeDocument(ctx as EmployeeDocumentContext);
   }
   return [];
 }

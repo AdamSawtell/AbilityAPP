@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { EmployeeAddressesPanel, PrimaryAddressSummary } from "@/components/employee-addresses-panel";
+import { EmployeeContractGeneratePanel } from "@/components/employee-contract-generate-panel";
 import {
   EmployeeEmergencyContactsPanel,
   PrimaryEmergencyContactSummary,
@@ -569,13 +569,21 @@ export function EmployeeTabbedView({
         ) : null}
 
         {activeTab === "Documents" && canWindow("employee-documents") ? (
-          <LineItemTable
-            config={employeeDocumentTableConfig}
-            rows={employee.documents}
-            onChange={onDocumentsChange}
-            dropdowns={employeeDropdowns}
-            readOnly={!canWriteEmployeeTab("Documents")}
-          />
+          <div className="space-y-4">
+            <EmployeeContractGeneratePanel
+              employee={employee}
+              managerName={managerName(employee, allEmployees)}
+              existingDocuments={employee.documents}
+              onDocumentsChange={onDocumentsChange}
+            />
+            <LineItemTable
+              config={employeeDocumentTableConfig}
+              rows={employee.documents}
+              onChange={onDocumentsChange}
+              dropdowns={employeeDropdowns}
+              readOnly={!canWriteEmployeeTab("Documents")}
+            />
+          </div>
         ) : null}
 
         {activeTab === "Activity" && canWindow("employee-activity") ? (

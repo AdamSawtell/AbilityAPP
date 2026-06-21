@@ -93,12 +93,15 @@ export const DOCUMENT_CLASS_LABELS: Record<DocumentClass, string> = {
 export const DEFAULT_INVOICE_TEMPLATE_ID = "dtax-invoice-ndis-v1";
 export const DEFAULT_AGREEMENT_TEMPLATE_ID = "dagreement-ndis-v1";
 export const DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID = "dagreement-variation-v1";
+export const DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID = "dhr-contract-casual-v1";
+export const DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID = "dhr-contract-pt-v1";
 
 export const DOCUMENT_PRINT_PROCESSES = {
   printInvoice: "print-invoice",
   batchPrintInvoices: "batch-print-invoices",
   printServiceAgreement: "print-service-agreement",
   printAgreementVariation: "print-agreement-variation",
+  printEmployeeContract: "print-employee-contract",
 } as const;
 
 export function defaultInvoiceTemplate(): DocumentTemplateRecord {
@@ -179,13 +182,65 @@ export function defaultAgreementVariationTemplate(): DocumentTemplateRecord {
 function templateFallbackForClass(documentClass: DocumentClass): DocumentTemplateRecord {
   if (documentClass === "service-agreement-variation") return defaultAgreementVariationTemplate();
   if (documentClass.startsWith("service-agreement")) return defaultAgreementTemplate();
+  if (documentClass === "hr-contract-pt") return defaultHrContractPtTemplate();
+  if (documentClass.startsWith("hr-contract")) return defaultHrContractCasualTemplate();
   return defaultInvoiceTemplate();
+}
+
+export function defaultHrContractCasualTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
+    name: "Casual employment agreement",
+    description: "SCHADS-aware casual employment contract scaffold.",
+    documentClass: "hr-contract-casual",
+    active: true,
+    isDefault: true,
+    titleText: "Casual Employment Agreement",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-hr-casual-header", templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-hr-casual-title", templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Casual Employment Agreement", sortOrder: 2, locked: false },
+      { id: "dtblk-hr-casual-parties", templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID, blockType: "parties", label: "Parties", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-hr-casual-meta", templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID, blockType: "metadata", label: "Employment details", contentHtml: "", sortOrder: 4, locked: false },
+      { id: "dtblk-hr-casual-terms", templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID, blockType: "rich-text", label: "Terms of employment", contentHtml: "<p>Casual employment terms apply under the National Employment Standards and applicable modern award.</p>", sortOrder: 5, locked: false },
+      { id: "dtblk-hr-casual-signature", templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID, blockType: "signature", label: "Signatures", contentHtml: "", sortOrder: 6, locked: true },
+      { id: "dtblk-hr-casual-footer", templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 7, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultHrContractPtTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID,
+    name: "Part-time employment agreement",
+    description: "SCHADS-aware part-time employment contract scaffold.",
+    documentClass: "hr-contract-pt",
+    active: true,
+    isDefault: false,
+    titleText: "Part-time Employment Agreement",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-hr-pt-header", templateId: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-hr-pt-title", templateId: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Part-time Employment Agreement", sortOrder: 2, locked: false },
+      { id: "dtblk-hr-pt-parties", templateId: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID, blockType: "parties", label: "Parties", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-hr-pt-meta", templateId: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID, blockType: "metadata", label: "Employment details", contentHtml: "", sortOrder: 4, locked: false },
+      { id: "dtblk-hr-pt-terms", templateId: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID, blockType: "rich-text", label: "Terms of employment", contentHtml: "<p>Part-time employment terms apply under the National Employment Standards and applicable modern award.</p>", sortOrder: 5, locked: false },
+      { id: "dtblk-hr-pt-signature", templateId: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID, blockType: "signature", label: "Signatures", contentHtml: "", sortOrder: 6, locked: true },
+      { id: "dtblk-hr-pt-footer", templateId: DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 7, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
 }
 
 export const initialDocumentTemplates: DocumentTemplateRecord[] = [
   defaultInvoiceTemplate(),
   defaultAgreementTemplate(),
   defaultAgreementVariationTemplate(),
+  defaultHrContractCasualTemplate(),
+  defaultHrContractPtTemplate(),
 ];
 
 export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
@@ -218,6 +273,14 @@ export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
     processId: "print-agreement-variation",
     entityType: "service-agreement",
     templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-employee-contract",
+    processId: "print-employee-contract",
+    entityType: "employee",
+    templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
     isDefault: true,
     allowUserOverride: true,
   },
@@ -257,9 +320,11 @@ export function resolveTemplateForProcess(
   const classHint =
     entityType === "service-agreement"
       ? "service-agreement"
-      : entityType === "invoice"
-        ? "tax-invoice"
-        : "";
+      : entityType === "employee"
+        ? "hr-contract"
+        : entityType === "invoice"
+          ? "tax-invoice"
+          : "";
   if (classHint) {
     return active.find((t) => t.isDefault && t.documentClass.startsWith(classHint)) ?? active.find((t) => t.documentClass.startsWith(classHint)) ?? null;
   }
@@ -287,6 +352,9 @@ export function templatesForProcess(
       return templates.filter(
         (t) => t.active && (t.documentClass === "service-agreement" || t.documentClass === "service-agreement-variation")
       );
+    }
+    if (entityType === "employee") {
+      return templates.filter((t) => t.active && t.documentClass.startsWith("hr-contract"));
     }
     return templates.filter((t) => t.active && t.documentClass.startsWith("tax-invoice"));
   }

@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** (+ Chunk D document platform in progress) |
 | **Current work package** | **Chunk D — Document platform** |
-| **Active slice** | WP-D.5 — service agreement printable pack |
-| **Next slice** | WP-D.6 HR contract pack |
-| **Last push** | 2026-06-18 — `6e970ba` (D4 batch invoice ZIP) |
+| **Active slice** | WP-D.6 — HR employment contract pack |
+| **Next slice** | WP-D.7 extended templates (enquiry, remittance) |
+| **Last push** | 2026-06-18 — pending (D6 HR contract pack) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -28,7 +28,7 @@
 | D3 | Document registry + `/api/documents/register` + private bucket | ✅ Shipped |
 | D4 | Batch invoice ZIP on list + binding admin | ✅ Shipped |
 | D5 | Service agreement printable pack + e-sign registry | ✅ Shipped |
-| D6 | HR contract pack | ⬜ Next |
+| D6 | HR contract pack + My workplace delivery | ✅ Shipped |
 
 **Policy:** Active template = production-ready (no separate legal sign-off gate).
 
@@ -60,6 +60,15 @@
 | 2 | Service agreements → open agreement → Print agreement | HTML preview with schedule lines and scaffold notice |
 | 3 | Apply participant e-sign | Signature appears on print; registry row with `-signed` label suffix |
 | 4 | System → Document registry | Agreement entries linked to service-agreement entity |
+
+### What you can test — WP-D.6
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Employees → HR file → Documents → Generate contract | HR file line added; save persists |
+| 2 | My workplace → Contracts | Generated contract visible; View document opens HTML |
+| 3 | System → Document registry | Employee entity row exists |
+| 4 | Part-time employee | Part-time template selected automatically |
 
 ---
 
