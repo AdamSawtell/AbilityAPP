@@ -670,7 +670,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
     });
   };
 
-  const handleSend = async () => {
+  const handleIssue = async () => {
     setSendError("");
     setSendMessage("");
     if (!activeTemplate) {
@@ -682,7 +682,6 @@ export function InvoiceDetailView({ id }: { id: string }) {
       setSendError("Could not generate the document. Check invoice fields and organisation profile.");
       return;
     }
-    const recipientEmail = record.invoiceToEmail?.trim() || client?.email?.trim() || "";
     setSending(true);
     try {
       const res = await fetch("/api/documents/send-invoice", {
@@ -695,31 +694,25 @@ export function InvoiceDetailView({ id }: { id: string }) {
           entityId: record.id,
           entityLabel: record.documentNo,
           fileName: `${record.documentNo}.html`,
-          recipientEmail,
         }),
       });
       const payload = (await res.json()) as {
         error?: string;
         message?: string;
-        dryRun?: boolean;
-        recipientEmail?: string;
         documentNo?: string;
+        registryId?: string;
       };
       if (!res.ok) {
-        setSendError(payload.error ?? "Could not send the invoice.");
+        setSendError(payload.error ?? "Could not issue the invoice.");
         return;
       }
-      const modeNote = payload.dryRun ? " (dry run — email provider not wired yet)" : "";
-      const recipientNote =
-        payload.recipientEmail?.trim() ?
-          ` Would send to ${payload.recipientEmail.trim()}.`
-        : " Add a bill-to email on the invoice or participant profile.";
-      setSendMessage(`${payload.message ?? "Invoice send queued."}${modeNote}${recipientNote}`);
+      const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
+      setSendMessage(`${payload.message ?? "Invoice issued in-system."}${registryNote}`);
       if (canEdit && record.status !== "Sent") {
         handleMarkSent();
       }
     } catch {
-      setSendError("Could not send the invoice. Try again.");
+      setSendError("Could not issue the invoice. Try again.");
     } finally {
       setSending(false);
     }
@@ -745,7 +738,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="space-y-2">
               <p className="text-sm text-slate-600">
-                Print or download using the assigned document template. Save any edits before printing.
+                Print, download, or issue using the assigned document template. Issuing saves to the document registry and marks the invoice sent — delivery stays in AbilityAPP, not email. Save any edits before printing or issuing.
               </p>
               {templateOptions.length > 1 ? (
                 <label className="block text-sm">
@@ -790,10 +783,10 @@ export function InvoiceDetailView({ id }: { id: string }) {
                   <button
                     type="button"
                     disabled={sending}
-                    onClick={() => void handleSend()}
+                    onClick={() => void handleIssue()}
                     className="inline-flex shrink-0 items-center rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {sending ? "Sending…" : "Send invoice"}
+                    {sending ? "Issuing…" : "Issue invoice"}
                   </button>
                 ) : null}
               </div>

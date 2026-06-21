@@ -12,7 +12,7 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Document platform — complete** |
 | **Active slice** | — |
-| **Next slice** | Outbound email for `send-invoice` (or server PDF when host decided) |
+| **Next slice** | Server PDF when host decided, or HR offer letter template |
 | **Last push** | 2026-06-18 — `b1a0ed7` (D7 progress tracker) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
@@ -31,7 +31,7 @@
 | D6 | HR contract pack + My workplace delivery | ✅ Shipped |
 | D7 | Extended templates (enquiry, remittance, statement, board report, send invoice, clone) | ✅ Shipped |
 
-**Chunk D (document platform): complete** — HTML print + registry; server PDF deferred until host decision.
+**Chunk D (document platform): complete** — HTML print + registry; server PDF deferred until host decision. **Delivery: in-system only** (registry, print, portal) — no outbound email.
 
 **Policy:** Active template = production-ready (no separate legal sign-off gate).
 
@@ -82,7 +82,7 @@
 | 3 | Invoice reconciliation → Print remittance cover | Cover sheet lists filtered invoices; registry row appears |
 | 4 | Clients → Overview → Print statement | Statement for participant; registry row for client entity |
 | 5 | Board reporting → open pack → Print / export | Print opens; registry row when role has `print-board-report` |
-| 6 | Invoices → open invoice → Send invoice | Dry-run message in dev; invoice marked Sent; registry row |
+| 6 | Invoices → open invoice → Issue invoice | Registry row created; invoice marked Sent; no outbound email |
 | 7 | Document templates → Duplicate template | Copy appears in list with "(copy)" suffix |
 | 8 | `npm run build` + `page-guides:check` + `supabase:push-remote` | Exit 0 |
 

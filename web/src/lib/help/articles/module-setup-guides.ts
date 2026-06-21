@@ -165,7 +165,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Set NDIS_GATEWAY_DRY_RUN=true on Amplify for dry-run gateway testing.",
       "Import NDIA remittance CSV on Claims after payment advice — preview matches before applying.",
       "Grant Invoices and Generate invoices for plan-managed and self-managed billing.",
-      "Grant print-invoice, batch-print-invoices, and send-invoice processes for finance roles.",
+      "Grant print-invoice, batch-print-invoices, and send-invoice (issue in registry) for finance roles.",
       "Grant print-enquiry-acknowledgement for enquiry coordinators.",
       "Grant print-remittance-cover and print-participant-statement for finance follow-up.",
       "Grant print-board-report for executives preparing board packs.",

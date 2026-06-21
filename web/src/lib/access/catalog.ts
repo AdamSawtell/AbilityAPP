@@ -734,8 +734,8 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
   },
   {
     id: "send-invoice",
-    label: "Send invoice",
-    description: "Email an invoice document to the bill-to address and register the send",
+    label: "Issue invoice",
+    description: "Save the invoice document to the registry and mark it sent (in-system delivery only)",
     parentWindowKey: "invoices",
   },
   {

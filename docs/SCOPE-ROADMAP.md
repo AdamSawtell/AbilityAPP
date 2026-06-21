@@ -318,7 +318,7 @@ Everything else can proceed with sensible defaults and feature flags.
 
 **DMS decision:** Lightweight **document registry** (metadata + private storage + entity links) — not a full enterprise DMS. See architecture doc in planning pack.
 
-**Export policy:** HTML + browser print / Save as PDF. Server-side PDF engine deferred (Stage 3 host TBD).
+**Export policy:** HTML + browser print / Save as PDF. Server-side PDF engine deferred (Stage 3 host TBD). **Delivery policy:** In-system only — document registry, print, and portal; no outbound email for invoices or documents.
 
 **Recommended entry:** WP-D.0 (Stages D0 + D1) after stakeholder review — can run in parallel with Chunk 2/7 once invoice module is live.
 

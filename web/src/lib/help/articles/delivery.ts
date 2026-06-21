@@ -237,12 +237,13 @@ export const deliveryArticle: HelpArticle = {
     {
       id: "document-templates",
       title: "Document templates and generated documents",
-      body: "System operators manage print templates with standard org header and footer. Active templates are production-ready. Finance and coordinators print or download HTML; use Save as PDF from the browser print dialog. Generated files are stored in the document registry. Send invoice queues email in dry-run until an outbound provider is configured.",
+      body: "System operators manage print templates with standard org header and footer. Active templates are production-ready. Finance and coordinators print or download HTML; use Save as PDF from the browser print dialog. Generated files are stored in the document registry. Issuing an invoice saves it to the registry and marks it sent — delivery stays in AbilityAPP (no outbound email).",
       steps: [
         "System → Tasks → Document templates — edit title, footer, and active flag; duplicate a template to create a copy.",
         "On the same page, set default templates for each print process (invoice, batch, agreement, HR contract, enquiry, remittance, statement, board report).",
         "System → Organisation → Document branding — set bank details and footer text.",
-        "Invoices → open a record → Print invoice, Download HTML, or Send invoice (registers document; marks Sent when permitted).",
+        "Invoices → open a record → Issue invoice — saves HTML to the registry and marks the invoice Sent.",
+        "Invoices → Print invoice or Download HTML when you need a copy for manual handoff.",
         "Invoices list → select rows → Batch print — downloads a ZIP and saves one registry row per invoice.",
         "Enquiries → Print acknowledgement — letter with enquiry reference saved to registry.",
         "Invoice reconciliation → Print remittance cover — cover sheet for the filtered period.",

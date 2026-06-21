@@ -13,26 +13,26 @@ function serviceClient() {
   return createSupabaseClient(url, key, { auth: { persistSession: false } });
 }
 
-type SendInvoiceBody = {
+type IssueInvoiceBody = {
   html: string;
   templateId: string;
   documentClass: DocumentClass;
   entityId: string;
   entityLabel?: string;
   fileName?: string;
-  recipientEmail?: string;
 };
 
+/** Issue an invoice in-system: save HTML to the document registry (no outbound email). */
 export async function POST(request: Request) {
   const session = await getAuthSessionFromRequest();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   if (!session.processIds.includes("send-invoice")) {
-    return NextResponse.json({ error: "You do not have permission to send invoices." }, { status: 403 });
+    return NextResponse.json({ error: "You do not have permission to issue invoices." }, { status: 403 });
   }
 
-  let body: SendInvoiceBody;
+  let body: IssueInvoiceBody;
   try {
-    body = (await request.json()) as SendInvoiceBody;
+    body = (await request.json()) as IssueInvoiceBody;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
@@ -41,18 +41,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "html, templateId, and entityId are required" }, { status: 400 });
   }
 
-  const recipientEmail = body.recipientEmail?.trim() ?? "";
-  const generic = {
-    ok: true as const,
-    message: "If the recipient address is on file, the invoice will be delivered by email.",
-    dryRun: process.env.NODE_ENV !== "production",
-  };
-
   if (!isSupabaseConfigured()) {
     return NextResponse.json({
-      ...generic,
+      ok: true,
+      message: "Invoice issued locally. Connect Supabase to persist in the document registry.",
       localOnly: true,
-      recipientEmail: process.env.NODE_ENV !== "production" ? recipientEmail || undefined : undefined,
     });
   }
 
@@ -90,16 +83,10 @@ export async function POST(request: Request) {
 
   await saveGeneratedDocument(supabase, record);
 
-  if (process.env.NODE_ENV === "production") {
-    console.info("[send-invoice] invoice queued for delivery", body.entityId, recipientEmail || "(no email on file)");
-  } else {
-    console.info("[send-invoice] dry run — would email invoice to", recipientEmail || "(no email on file)", body.entityId);
-  }
-
   return NextResponse.json({
-    ...generic,
+    ok: true,
+    message: "Invoice saved to the document registry. Delivery stays in AbilityAPP — use Print or the registry to share.",
     documentNo: record.documentNo,
     registryId: record.id,
-    recipientEmail: process.env.NODE_ENV !== "production" ? recipientEmail || undefined : undefined,
   });
 }
