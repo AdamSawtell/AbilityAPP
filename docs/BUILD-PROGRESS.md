@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 4 — Rostering ✅ |
 | **Active slice** | WP-D.22 complete — Roster week CSV export |
 | **Next slice** | Chunk 1 PDF/OCR or Chunk 5 multi-provider budget |
-| **Last push** | 2026-06-20 — pending (WP-D.22) |
+| **Last push** | 2026-06-20 — `2c088cd` |
 
 ---
 
@@ -422,7 +422,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | Shift with worker check-in | Not draggable; error if drop attempted |
 | 6 | Click shift (no drag) | Editor opens as before |
 
-### WP-D.22 — Roster week CSV export (pending)
+### WP-D.22 — Roster week CSV export (`2c088cd`)
 
 | Step | Action | Pass if |
 |------|--------|---------|
