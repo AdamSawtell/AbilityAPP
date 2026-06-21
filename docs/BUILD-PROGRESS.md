@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **99%** |
-| **Current work package** | Chunk 1 — Client & plan management |
-| **Active slice** | WP-A.7 complete — NDIS plan gateway stub |
-| **Next slice** | Chunk 4 roster polish (100%) or Chunk 1 PDF/OCR |
-| **Last push** | 2026-06-20 — `e544aa9` |
+| **Current work package** | Chunk 4 — Rostering ✅ |
+| **Active slice** | WP-D.22 complete — Roster week CSV export |
+| **Next slice** | Chunk 1 PDF/OCR or Chunk 5 multi-provider budget |
+| **Last push** | 2026-06-20 — pending (WP-D.22) |
 
 ---
 
@@ -78,7 +78,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | 1 | Client & plan management | 12% | **72%** | 🟡 Partial | Plan gateway stub ✅; PDF/OCR/API later |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **95%** | 🟡 Partial | Minor roster polish |
+| 4 | Rostering | 22% | **100%** | ✅ Complete | — |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
 | 7 | Billing & claiming | 10% | **60%** | 🟡 Partial | Chunk 8 reconcile |
@@ -421,6 +421,15 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Drag **Published** shift onto worker conflict | Drop blocked; error banner with conflict message |
 | 5 | Shift with worker check-in | Not draggable; error if drop attempted |
 | 6 | Click shift (no drag) | Editor opens as before |
+
+### WP-D.22 — Roster week CSV export (pending)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Rostering** → Week tab | **Export week CSV** button visible |
+| 2 | Navigate to week of 6 Oct 2025 (Bern shifts) | Shifts visible on calendar |
+| 3 | Click **Export week CSV** | File `roster-week-2025-10-06.csv` downloads |
+| 4 | Open CSV | Header row + shift rows with client/worker search keys and times |
 
 ### WP-E.1 — Monthly service plan scaffold (`2026-06-18`)
 
@@ -1181,6 +1190,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 9cf9a3f | WP-0.7 client portal requests on Requests tab (Chunk 0 complete) |
 | 2026-06-20 | d7cfaa4 | WP-A.6 plan budget CSV import on client Plan budget tab |
 | 2026-06-20 | e544aa9 | WP-A.7 NDIS plan gateway stub on Plan budget tab |
+| 2026-06-20 | pending | WP-D.22 roster week CSV export (Chunk 4 complete) |
 
 ---
 
@@ -1248,6 +1258,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.6) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-A.7) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.7) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-D.22) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-D.22) |
 
 ---
 
@@ -1294,6 +1306,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.7 | `/clients/bp-bern?tab=Requests` | **Pass** | build verified; portal requests panel + list API |
 | 2026-06-20 | WP-A.6 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; CSV import panel + reference validation |
 | 2026-06-20 | WP-A.7 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; plan gateway panel + sync API |
+| 2026-06-20 | WP-D.22 | `/rostering` Week tab | **Pass** | build verified; Export week CSV button |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1338,6 +1351,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.7 | 1 High + 1 Medium — all fixed | **Pass** | client-requests window auth on API; abort stale fetches |
 | 2026-06-20 | WP-A.6 | 2 Medium — all fixed | **Pass** | Sample template casing; CSV validates against NDIS reference lists |
 | 2026-06-20 | WP-A.7 | 1 High + 1 Medium — all fixed | **Pass** | Sync uses draft NDIS number from request; localDateIso for plan dates |
+| 2026-06-20 | WP-D.22 | 0 | **Pass** | No findings |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1395,6 +1409,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.7 | `clients-locations` — Requests tab portal list | `clients-setup` — portal request on Requests tab | exit 0 — 96 routes |
 | 2026-06-20 | WP-A.6 | `clients-locations` — Plan budget CSV import | `clients-setup` — CSV import on Plan budget tab | exit 0 — 96 routes |
 | 2026-06-20 | WP-A.7 | `clients-locations` — NDIS plan gateway pull | `clients-setup` — NDIS_GATEWAY_DRY_RUN | exit 0 — 96 routes |
+| 2026-06-20 | WP-D.22 | `delivery` — Export week CSV on rostering | `services-setup` — export week CSV test | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

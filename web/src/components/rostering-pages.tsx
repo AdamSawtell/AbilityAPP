@@ -31,6 +31,11 @@ import { ShiftGeoLinks } from "@/components/shift-geo-links";
 import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
 import { shiftGeofenceAlerts, shiftHasGeofenceAlert } from "@/lib/shift-geofence";
 import { canRescheduleShiftByDrag, rescheduledShiftOnDate } from "@/lib/roster-shift-reschedule";
+import {
+  buildRosterWeekCsv,
+  downloadRosterWeekCsv,
+  rosterWeekCsvFilename,
+} from "@/lib/roster-week-csv-export";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -169,6 +174,16 @@ export function RosteringWeekView() {
     if (dragStartedRef.current) return;
     setEditorPrefill(null);
     setEditorShift(shift);
+  }
+
+  function handleExportWeekCsv() {
+    const csv = buildRosterWeekCsv(shifts, {
+      clients,
+      employees,
+      locations,
+      serviceBookings,
+    });
+    downloadRosterWeekCsv(csv, rosterWeekCsvFilename(weekStart));
   }
 
   return (
@@ -328,6 +343,13 @@ export function RosteringWeekView() {
             className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
           >
             Next week
+          </button>
+          <button
+            type="button"
+            onClick={handleExportWeekCsv}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Export week CSV
           </button>
           <Link href="/service-bookings" className="ml-auto text-sm font-medium text-[#b51266] hover:underline">
             Service bookings

@@ -148,6 +148,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Keep employee credentials and Skills & languages up to date — matching hints use WWCC, NDIS screening, and specialisations.",
       "Maintain Plan budget on each active client before generating monthly service plans.",
       "Resolve roster conflict badges on the week calendar before using Publish week or setting shifts to Published.",
+      "Test Export week CSV on Rostering → Week — confirm client and worker search keys appear for payroll or external tools.",
       "Workers should check out and verify shifts on My workplace before coordinators approve timesheets.",
       "Export approved timesheets to CSV from the Timesheets payroll export panel before running pay in Keypay or Xero.",
       "For Keypay API export, set KEYPAY_API_KEY and KEYPAY_BUSINESS_ID on the server (Amplify env vars). Use KEYPAY_DRY_RUN=true to test without posting.",

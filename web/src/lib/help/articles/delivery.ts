@@ -84,6 +84,7 @@ export const deliveryArticle: HelpArticle = {
       body: "Build and review the week calendar. Each shift links to a client, worker, support location, and optional service booking. Use New shift or Add on a day to create one-off or weekly recurring shifts.",
       steps: [
         "Open Rostering and navigate weeks with Previous / Next week.",
+        "On the Week tab, click Export week CSV to download the visible week for payroll handoff or external scheduling tools.",
         "Click New shift or Add on a day column.",
         "Select client, worker, location, and service booking.",
         "Review Staff–client matching hints — prior roster history, credentials, client risks, and suggested workers (advisory only).",
