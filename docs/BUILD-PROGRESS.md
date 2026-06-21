@@ -13,7 +13,7 @@
 | **Current work package** | **Chunk D — Document platform** |
 | **Active slice** | WP-D.0–D.3 — invoice templates, registry, System admin |
 | **Next slice** | WP-D.4 batch invoice ZIP; WP-D.5 agreement pack |
-| **Last push** | 2026-06-18 — Phase 2 timesheet + planning pack (`7826752`) |
+| **Last push** | 2026-06-18 — `f159297` (Chunk D document platform D0–D3) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
