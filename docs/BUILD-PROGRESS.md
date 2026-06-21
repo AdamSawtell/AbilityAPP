@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 1 — Client & plan management |
 | **Active slice** | WP-A.8 complete — Plan budget text paste import |
 | **Next slice** | Chunk 5 multi-provider budget or Chunk 7/8 polish |
-| **Last push** | 2026-06-20 — pending (WP-A.8) |
+| **Last push** | 2026-06-20 — `bc6daf9` |
 
 ---
 
@@ -162,7 +162,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Save, refresh | Lines persist |
 | 5 | **Full audit trail** | Save logs plan budget change |
 
-### WP-A.8 — Plan budget text paste import (pending)
+### WP-A.8 — Plan budget text paste import (`bc6daf9`)
 
 | Step | Action | Pass if |
 |------|--------|---------|
