@@ -155,6 +155,7 @@ import {
   saveRosterOfCares,
   saveMonthlyServicePlan,
   savePayrollClosedPeriod,
+  saveFinancialClosedMonth,
   saveRosterShifts,
   claimVacantRosterShift,
   saveTimesheet,
@@ -1404,12 +1405,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote]
   );
 
-  const closeFinancialMonth = useCallback((record: FinancialClosedMonthRecord) => {
-    setFinancialClosedMonths((current) => {
-      const next = current.filter((row) => row.closeMonth !== record.closeMonth);
-      return [...next, record];
-    });
-  }, []);
+  const closeFinancialMonth = useCallback(
+    (record: FinancialClosedMonthRecord) => {
+      setFinancialClosedMonths((current) => {
+        const next = current.filter((row) => row.closeMonth !== record.closeMonth);
+        return [...next, record];
+      });
+      void persistRemote((supabase) => saveFinancialClosedMonth(supabase, record));
+    },
+    [persistRemote]
+  );
 
   const upsertRosterOfCare = useCallback(
     (record: RosterOfCareRecord, audit?: AuditLogOptions) => {

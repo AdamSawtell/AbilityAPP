@@ -102,15 +102,31 @@ export function applyBillingClaimedRollup(
   invoices: InvoiceRecord[]
 ): ClientPlanBudgetRow[] {
   const byCategory = aggregateBillingClaimedByCategory(clientId, claims, invoices);
-  const used = new Set<string>();
+
+  const allocatedByCategory = new Map<string, number>();
+  for (const row of rows) {
+    const key = categoryKey(row.supportCategory);
+    allocatedByCategory.set(key, round2((allocatedByCategory.get(key) ?? 0) + (Number(row.allocatedAmount) || 0)));
+  }
 
   return rows.map((row) => {
     const key = categoryKey(row.supportCategory);
-    const billingClaimed = byCategory[key] ?? 0;
-    if (billingClaimed > 0) used.add(key);
+    const billingTotal = byCategory[key] ?? 0;
+    if (billingTotal <= 0) return row;
+
+    const categoryAllocated = allocatedByCategory.get(key) ?? 0;
+    const rowAllocated = Number(row.allocatedAmount) || 0;
+    let share: number;
+    if (categoryAllocated > 0) {
+      share = round2(billingTotal * (rowAllocated / categoryAllocated));
+    } else {
+      const rowsInCategory = rows.filter((r) => categoryKey(r.supportCategory) === key).length;
+      share = round2(billingTotal / Math.max(1, rowsInCategory));
+    }
+
     return {
       ...row,
-      claimedAmount: billingClaimed > 0 ? billingClaimed : row.claimedAmount,
+      claimedAmount: share > 0 ? share : row.claimedAmount,
     };
   });
 }

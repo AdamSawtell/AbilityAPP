@@ -166,6 +166,11 @@ import {
 } from "@/lib/supabase/payroll-closed-period-mappers";
 import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
 import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
+import {
+  financialClosedMonthFromRow,
+  financialClosedMonthToRow,
+  type FinancialClosedMonthRow,
+} from "@/lib/supabase/financial-closed-month-mappers";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -264,6 +269,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     monthlyServicePlansRes,
     monthlyServicePlanLinesRes,
     payrollClosedPeriodsRes,
+    financialClosedMonthsRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
@@ -326,6 +332,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("monthly_service_plan").select("*").order("plan_month", { ascending: false }),
     supabase.from("monthly_service_plan_line").select("*").order("line_no"),
     supabase.from("payroll_closed_period").select("*").order("period_start", { ascending: false }),
+    supabase.from("financial_closed_month").select("*").order("close_month", { ascending: false }),
   ]);
 
   const firstError =
@@ -389,7 +396,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     rosterOfCareLinesRes.error ??
     monthlyServicePlansRes.error ??
     monthlyServicePlanLinesRes.error ??
-    payrollClosedPeriodsRes.error;
+    payrollClosedPeriodsRes.error ??
+    financialClosedMonthsRes.error;
 
   if (firstError) throw firstError;
 
@@ -513,7 +521,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     payrollClosedPeriods: ((payrollClosedPeriodsRes.data ?? []) as PayrollClosedPeriodRow[]).map(
       payrollClosedPeriodFromRow
     ),
-    financialClosedMonths: [],
+    financialClosedMonths: ((financialClosedMonthsRes.data ?? []) as FinancialClosedMonthRow[]).map(
+      financialClosedMonthFromRow
+    ),
     contracts: ((contractsRes.data ?? []) as ContractRow[]).map((row) =>
       normalizeContract(contractFromRow(row, auditByContract.get(row.id) ?? []))
     ),
@@ -893,6 +903,7 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
         support_category: b.supportCategory,
         description: b.description,
         ndis_line_item_ref: b.ndisLineItemRef,
+        plan_provider: b.planProvider?.trim() || "This organisation",
         allocated_amount: b.allocatedAmount,
         claimed_amount: b.claimedAmount,
       }))
@@ -1792,5 +1803,10 @@ export async function saveMonthlyServicePlan(supabase: SupabaseClient, record: M
 
 export async function savePayrollClosedPeriod(supabase: SupabaseClient, record: PayrollPeriodCloseRecord) {
   const { error } = await supabase.from("payroll_closed_period").upsert(payrollClosedPeriodToRow(record));
+  if (error) throw error;
+}
+
+export async function saveFinancialClosedMonth(supabase: SupabaseClient, record: FinancialClosedMonthRecord) {
+  const { error } = await supabase.from("financial_closed_month").upsert(financialClosedMonthToRow(record));
   if (error) throw error;
 }

@@ -451,6 +451,13 @@ export function TimesheetDetailView({ id }: { id: string }) {
       setSaveError(block);
       return;
     }
+    if (record.status === "Submitted" && stored?.status !== "Submitted") {
+      const submitBlock = timesheetSubmitBlocked(record);
+      if (submitBlock) {
+        setSaveError(submitBlock);
+        return;
+      }
+    }
     const actor = session?.displayName || "SuperUser";
     upsertTimesheet({ ...record, updatedBy: actor });
     setDraft(null);

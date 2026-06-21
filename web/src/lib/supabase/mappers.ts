@@ -356,6 +356,7 @@ export type ClientPlanBudgetRowDb = {
   support_category: string;
   description: string;
   ndis_line_item_ref: string;
+  plan_provider: string;
   allocated_amount: number | string;
   claimed_amount: number | string;
 };
@@ -364,6 +365,7 @@ export function planBudgetFromRow(row: ClientPlanBudgetRowDb): ClientPlanBudgetR
   return {
     id: row.id,
     lineNo: row.line_no,
+    planProvider: row.plan_provider?.trim() || "This organisation",
     supportBudget: row.support_budget,
     supportCategory: row.support_category,
     description: row.description,

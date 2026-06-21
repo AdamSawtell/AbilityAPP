@@ -130,7 +130,7 @@ export function generateCancellationClaims(
   const created: ClaimRecord[] = [];
   const updated: ClaimRecord[] = [];
   let skippedAlreadyLinked = preview.alreadyLinkedCount;
-  let skippedNotClaimable = 0;
+  let working = [...existingClaims];
 
   for (const row of preview.rows) {
     const booking = ctx.serviceBookings.find((b) => b.id === row.bookingId);
@@ -138,16 +138,8 @@ export function generateCancellationClaims(
     const client = ctx.clients.find((c) => c.id === booking.clientId);
     const periodStart = booking.cancelledAt?.slice(0, 10) || booking.startDate || "";
     const periodEnd = periodStart;
-    const claimLine = buildCancellationClaimLine(
-      booking,
-      1,
-      row.claimableAmount,
-      ctx.products,
-      ctx.priceLists,
-      client
-    );
 
-    const existing = existingClaims.find(
+    const existingDraft = working.find(
       (claim) =>
         claim.clientId === booking.clientId &&
         claim.periodStart === periodStart &&
@@ -155,40 +147,61 @@ export function generateCancellationClaims(
         claim.status === "Draft"
     );
 
-    if (existing) {
-      if (existing.lines.some((line) => line.serviceBookingId === booking.id)) {
-        skippedAlreadyLinked += 1;
-        continue;
-      }
-      const mergedLines = [...existing.lines, { ...claimLine, lineNo: existing.lines.length + 1 }];
-      updated.push(
-        normalizeClaim({
-          ...existing,
-          lines: mergedLines,
-          totalAmount: sumClaimLineAmount(mergedLines),
-          updatedBy: actor,
-          notes: existing.notes || "Includes cancellation claim lines.",
-        })
-      );
-    } else {
-      created.push(
-        normalizeClaim({
-          ...createClaim({ clientId: booking.clientId }, [...existingClaims, ...created]),
-          periodStart,
-          periodEnd,
-          status: "Draft",
-          planManagementType: "Agency managed",
-          totalAmount: sumClaimLineAmount([claimLine]),
-          notes: `Cancellation claim for booking ${booking.documentNo}.`,
-          lines: [claimLine],
-          createdBy: actor,
-          updatedBy: actor,
-        })
-      );
+    if (existingDraft?.lines.some((line) => line.serviceBookingId === booking.id)) {
+      skippedAlreadyLinked += 1;
+      continue;
     }
+
+    const startLineNo = existingDraft ? existingDraft.lines.length + 1 : 1;
+    const claimLine = buildCancellationClaimLine(
+      booking,
+      startLineNo,
+      row.claimableAmount,
+      ctx.products,
+      ctx.priceLists,
+      client
+    );
+
+    if (existingDraft) {
+      const mergedLines = [...existingDraft.lines, claimLine];
+      const next = normalizeClaim({
+        ...existingDraft,
+        lines: mergedLines,
+        totalAmount: sumClaimLineAmount(mergedLines),
+        updatedBy: actor,
+        notes: existingDraft.notes || "Includes cancellation claim lines.",
+      });
+      working = working.map((c) => (c.id === next.id ? next : c));
+      const updatedIndex = updated.findIndex((c) => c.id === next.id);
+      if (updatedIndex >= 0) {
+        updated[updatedIndex] = next;
+      } else {
+        updated.push(next);
+      }
+      continue;
+    }
+
+    const next = createClaim(
+      {
+        clientId: booking.clientId,
+        periodStart,
+        periodEnd,
+        status: "Draft",
+        planManagementType: "Agency managed",
+        totalAmount: sumClaimLineAmount([claimLine]),
+        notes: `Cancellation claim for booking ${booking.documentNo}.`,
+        lines: [claimLine],
+        createdBy: actor,
+        updatedBy: actor,
+      },
+      working
+    );
+    working.push(next);
+    created.push(next);
   }
 
-  skippedNotClaimable = cancelledBookingsEligible(ctx.serviceBookings).length - preview.eligibleCount - skippedAlreadyLinked;
+  const skippedNotClaimable =
+    cancelledBookingsEligible(ctx.serviceBookings).length - preview.eligibleCount - skippedAlreadyLinked;
 
   return { created, updated, skippedAlreadyLinked, skippedNotClaimable };
 }
