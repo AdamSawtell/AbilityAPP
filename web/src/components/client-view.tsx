@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ClientParticipantStatementPanel } from "@/components/client-participant-statement-panel";
 import { ClientConsentSummary } from "@/components/client-consent-summary";
 import { ClientPlanBudgetTextImportPanel } from "@/components/client-plan-budget-text-import-panel";
 import { ClientPlanBudgetImportPanel } from "@/components/client-plan-budget-import-panel";
@@ -402,6 +403,7 @@ export function ClientTabbedView({
               ) : null}
             </div>
             <ReadOnlyFieldGrid fields={coreOverviewFields} client={client} />
+            <ClientParticipantStatementPanel client={client} />
             {(client.planBudgets?.length ?? 0) > 0 && canClientTab("Plan budget") ? (
               <div className="mt-6 border-t border-slate-100 pt-5">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">

@@ -523,11 +523,15 @@ export function InvoiceDetailView({ id }: { id: string }) {
   const { listTemplatesForProcess, resolveTemplate } = useDocumentPlatform();
   const canEdit = canWriteWindow("invoices");
   const canPrint = canProcess(DOCUMENT_PRINT_PROCESSES.printInvoice);
+  const canSend = canProcess(DOCUMENT_PRINT_PROCESSES.sendInvoice);
   const stored = data.invoices.find((inv) => inv.id === id);
   const [draft, setDraft] = useState<InvoiceRecord | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [printError, setPrintError] = useState("");
+  const [sendError, setSendError] = useState("");
+  const [sendMessage, setSendMessage] = useState("");
+  const [sending, setSending] = useState(false);
   const [templateId, setTemplateId] = useState("");
 
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printInvoice, "invoice");
@@ -666,6 +670,61 @@ export function InvoiceDetailView({ id }: { id: string }) {
     });
   };
 
+  const handleSend = async () => {
+    setSendError("");
+    setSendMessage("");
+    if (!activeTemplate) {
+      setSendError("No active invoice template is available.");
+      return;
+    }
+    const exported = exportClientInvoiceHtml({ invoice: record, client, organization }, activeTemplate);
+    if (!exported) {
+      setSendError("Could not generate the document. Check invoice fields and organisation profile.");
+      return;
+    }
+    const recipientEmail = record.invoiceToEmail?.trim() || client?.email?.trim() || "";
+    setSending(true);
+    try {
+      const res = await fetch("/api/documents/send-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: activeTemplate.documentClass,
+          entityId: record.id,
+          entityLabel: record.documentNo,
+          fileName: `${record.documentNo}.html`,
+          recipientEmail,
+        }),
+      });
+      const payload = (await res.json()) as {
+        error?: string;
+        message?: string;
+        dryRun?: boolean;
+        recipientEmail?: string;
+        documentNo?: string;
+      };
+      if (!res.ok) {
+        setSendError(payload.error ?? "Could not send the invoice.");
+        return;
+      }
+      const modeNote = payload.dryRun ? " (dry run — email provider not wired yet)" : "";
+      const recipientNote =
+        payload.recipientEmail?.trim() ?
+          ` Would send to ${payload.recipientEmail.trim()}.`
+        : " Add a bill-to email on the invoice or participant profile.";
+      setSendMessage(`${payload.message ?? "Invoice send queued."}${modeNote}${recipientNote}`);
+      if (canEdit && record.status !== "Sent") {
+        handleMarkSent();
+      }
+    } catch {
+      setSendError("Could not send the invoice. Try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <>
       <AppShell
@@ -707,28 +766,48 @@ export function InvoiceDetailView({ id }: { id: string }) {
                 <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
               ) : null}
             </div>
-            {canPrint ? (
+            {canPrint || canSend ? (
               <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => void handleDownload()}
-                  className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                >
-                  Download HTML
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handlePrint()}
-                  className="inline-flex shrink-0 items-center rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-                >
-                  Print invoice
-                </button>
+                {canPrint ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => void handleDownload()}
+                      className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                    >
+                      Download HTML
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handlePrint()}
+                      className="inline-flex shrink-0 items-center rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+                    >
+                      Print invoice
+                    </button>
+                  </>
+                ) : null}
+                {canSend ? (
+                  <button
+                    type="button"
+                    disabled={sending}
+                    onClick={() => void handleSend()}
+                    className="inline-flex shrink-0 items-center rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {sending ? "Sending…" : "Send invoice"}
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>
 
           {printError ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
+          ) : null}
+          {sendError ? (
+            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{sendError}</p>
+          ) : null}
+          {sendMessage ? (
+            <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">{sendMessage}</p>
           ) : null}
 
           <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-3">

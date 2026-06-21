@@ -18,6 +18,11 @@ import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { EnquiryActivityRow, EnquiryRecord } from "@/lib/enquiry";
 import { normalizeEnquiry } from "@/lib/enquiry";
 import { auditMetaFrom } from "@/lib/audit";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
+import { exportExtendedDocumentHtml, printExtendedDocument } from "@/lib/extended-document-print";
+import { useOrganization } from "@/lib/organization-store";
 import {
   applyEnquiryStatusChange,
   enquiryPipelineBlocked,
@@ -33,6 +38,10 @@ export function EnquiryDetailView({ id }: { id: string }) {
   const { enquiries, updateEnquiry, getClientByEnquiryId } = useData();
   const convert = useConvertEnquiry();
   const { canProcess, session, canWriteWindow } = useAuth();
+  const { organization } = useOrganization();
+  const { resolveTemplate } = useDocumentPlatform();
+  const canPrintAck = canProcess(DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement);
+  const [printError, setPrintError] = useState("");
   const canSaveEnquiry = useModuleSaveAccess("enquiries", "enquiry");
   const canSyncCrm = canWriteWindow("enquiries");
   const { openEnquiry, setTabDirty } = useWorkspace();
@@ -122,6 +131,37 @@ export function EnquiryDetailView({ id }: { id: string }) {
     setConverting(false);
   }
 
+  async function handlePrintAcknowledgement() {
+    if (!record) return;
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement, "enquiry");
+    if (!template) {
+      setPrintError("No active enquiry acknowledgement template is available.");
+      return;
+    }
+    const ok = printExtendedDocument({ enquiry: record, organization }, template);
+    if (!ok) {
+      setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      return;
+    }
+    const exported = exportExtendedDocumentHtml({ enquiry: record, organization }, template);
+    if (exported) {
+      try {
+        await registerGeneratedDocument({
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: exported.documentClass,
+          entityType: "enquiry",
+          entityId: record.id,
+          entityLabel: record.documentNo,
+          fileName: `${record.documentNo.replace(/[^\w.-]+/g, "_")}-ack.html`,
+        });
+      } catch (err) {
+        setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+      }
+    }
+  }
+
   return (
     <>
       <AppShell
@@ -160,6 +200,15 @@ export function EnquiryDetailView({ id }: { id: string }) {
                 {isConverted ? "Converted" : converting ? "Converting…" : "Convert to client"}
               </button>
             ) : null}
+            {canPrintAck ? (
+              <button
+                type="button"
+                onClick={() => void handlePrintAcknowledgement()}
+                className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+              >
+                Print acknowledgement
+              </button>
+            ) : null}
           </>
         }
         audit={{
@@ -174,6 +223,10 @@ export function EnquiryDetailView({ id }: { id: string }) {
           linkedClient={linkedClient}
           saved={saved && !hasUnsavedChanges}
         />
+
+        {printError ? (
+          <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
+        ) : null}
 
         <div className="mb-6">
           <EnquiryPipelinePanel status={record.status} issues={pipelineIssues} />

@@ -2,6 +2,16 @@ import type { AgreementDocumentContext } from "@/lib/document-render-agreement";
 import { buildAgreementDocumentHtml } from "@/lib/document-render-agreement";
 import type { EmployeeDocumentContext } from "@/lib/document-render-employee";
 import { buildEmployeeDocumentHtml } from "@/lib/document-render-employee";
+import {
+  buildBoardReportDocumentHtml,
+  buildEnquiryDocumentHtml,
+  buildParticipantStatementHtml,
+  buildRemittanceDocumentHtml,
+  type BoardReportDocumentContext,
+  type EnquiryDocumentContext,
+  type ParticipantStatementContext,
+  type RemittanceDocumentContext,
+} from "@/lib/document-render-extended";
 import { buildInvoiceDocumentHtml, type InvoiceDocumentContext } from "@/lib/document-render-invoice";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import {
@@ -10,7 +20,14 @@ import {
   type DocumentValidationIssue,
 } from "@/lib/document-validation";
 
-export type DocumentRenderContext = InvoiceDocumentContext | AgreementDocumentContext;
+export type DocumentRenderContext =
+  | InvoiceDocumentContext
+  | AgreementDocumentContext
+  | EmployeeDocumentContext
+  | EnquiryDocumentContext
+  | RemittanceDocumentContext
+  | ParticipantStatementContext
+  | BoardReportDocumentContext;
 
 export type DocumentRenderResult = {
   html: string;
@@ -18,9 +35,10 @@ export type DocumentRenderResult = {
   blocked: string | null;
 };
 
-export function renderInvoiceDocument(
+function renderWithValidation<T extends DocumentRenderContext>(
   template: DocumentTemplateRecord,
-  ctx: InvoiceDocumentContext,
+  ctx: T,
+  build: (template: DocumentTemplateRecord, ctx: T, options?: { autoPrint?: boolean }) => string,
   options?: { autoPrint?: boolean; skipValidation?: boolean }
 ): DocumentRenderResult {
   const issues = options?.skipValidation ? [] : validateDocumentContext(template, ctx);
@@ -29,10 +47,18 @@ export function renderInvoiceDocument(
     return { html: "", issues, blocked };
   }
   return {
-    html: buildInvoiceDocumentHtml(template, ctx, options),
+    html: build(template, ctx, options),
     issues,
     blocked: null,
   };
+}
+
+export function renderInvoiceDocument(
+  template: DocumentTemplateRecord,
+  ctx: InvoiceDocumentContext,
+  options?: { autoPrint?: boolean; skipValidation?: boolean }
+): DocumentRenderResult {
+  return renderWithValidation(template, ctx, buildInvoiceDocumentHtml, options);
 }
 
 export function renderAgreementDocument(
@@ -40,16 +66,7 @@ export function renderAgreementDocument(
   ctx: AgreementDocumentContext,
   options?: { autoPrint?: boolean; skipValidation?: boolean }
 ): DocumentRenderResult {
-  const issues = options?.skipValidation ? [] : validateDocumentContext(template, ctx);
-  const blocked = options?.skipValidation ? null : documentBlockedByValidation(issues);
-  if (blocked) {
-    return { html: "", issues, blocked };
-  }
-  return {
-    html: buildAgreementDocumentHtml(template, ctx, options),
-    issues,
-    blocked: null,
-  };
+  return renderWithValidation(template, ctx, buildAgreementDocumentHtml, options);
 }
 
 export function renderEmployeeDocument(
@@ -57,16 +74,7 @@ export function renderEmployeeDocument(
   ctx: EmployeeDocumentContext,
   options?: { autoPrint?: boolean; skipValidation?: boolean }
 ): DocumentRenderResult {
-  const issues = options?.skipValidation ? [] : validateDocumentContext(template, ctx);
-  const blocked = options?.skipValidation ? null : documentBlockedByValidation(issues);
-  if (blocked) {
-    return { html: "", issues, blocked };
-  }
-  return {
-    html: buildEmployeeDocumentHtml(template, ctx, options),
-    issues,
-    blocked: null,
-  };
+  return renderWithValidation(template, ctx, buildEmployeeDocumentHtml, options);
 }
 
 export function renderDocument(
@@ -82,6 +90,18 @@ export function renderDocument(
   }
   if (template.documentClass.startsWith("hr-contract")) {
     return renderEmployeeDocument(template, ctx as EmployeeDocumentContext, options);
+  }
+  if (template.documentClass === "enquiry-letter") {
+    return renderWithValidation(template, ctx as EnquiryDocumentContext, buildEnquiryDocumentHtml, options);
+  }
+  if (template.documentClass === "remittance-cover") {
+    return renderWithValidation(template, ctx as RemittanceDocumentContext, buildRemittanceDocumentHtml, options);
+  }
+  if (template.documentClass === "participant-statement") {
+    return renderWithValidation(template, ctx as ParticipantStatementContext, buildParticipantStatementHtml, options);
+  }
+  if (template.documentClass === "board-report") {
+    return renderWithValidation(template, ctx as BoardReportDocumentContext, buildBoardReportDocumentHtml, options);
   }
   return {
     html: "",

@@ -21,6 +21,11 @@ import {
   type BoardReportPackSection,
 } from "@/lib/board-report-pack";
 import { printBoardReportPack } from "@/lib/board-report-print";
+import { boardReportRegistryLabel } from "@/lib/document-render-extended";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
+import { exportExtendedDocumentHtml } from "@/lib/extended-document-print";
 import { defaultBoardReportTemplate } from "@/lib/board-report-template";
 import { currentPlanMonthIso } from "@/lib/monthly-service-plan";
 import { useOrganization } from "@/lib/organization-store";
@@ -208,7 +213,9 @@ export function BoardReportingCreateView() {
 export function BoardReportingDetailView({ id }: { id: string }) {
   const data = useData();
   const { organization } = useOrganization();
-  const { session, canWindow, canWriteWindow } = useAuth();
+  const { session, canWindow, canWriteWindow, canProcess } = useAuth();
+  const { resolveTemplate } = useDocumentPlatform();
+  const canPrintReport = canProcess(DOCUMENT_PRINT_PROCESSES.printBoardReport);
   const canView = canWindow("board-reporting");
   const canWrite = canWriteWindow("board-reporting");
   const isBoardViewer = session?.activeRoleId === "role-board" && !canWrite;
@@ -301,10 +308,34 @@ export function BoardReportingDetailView({ id }: { id: string }) {
     setDirty(true);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printBoardReport, "board-report");
+    if (!template) {
+      setPrintError("No active board report template is available.");
+      return;
+    }
     const ok = printBoardReportPack({ pack: record, organization });
-    if (!ok) setPrintError("Could not open print window. Allow pop-ups and try again.");
+    if (!ok) {
+      setPrintError("Could not open print window. Allow pop-ups and try again.");
+      return;
+    }
+    const exported = exportExtendedDocumentHtml({ pack: record, organization }, template);
+    if (exported && canPrintReport) {
+      try {
+        await registerGeneratedDocument({
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: exported.documentClass,
+          entityType: "board-report",
+          entityId: record.id,
+          entityLabel: boardReportRegistryLabel(record),
+          fileName: `${record.title.replace(/[^\w.-]+/g, "_")}-board-report.html`,
+        });
+      } catch (err) {
+        setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+      }
+    }
   };
 
   const navItems = [
@@ -350,7 +381,7 @@ export function BoardReportingDetailView({ id }: { id: string }) {
                 ) : null}
               </>
             ) : null}
-            <button type="button" onClick={handlePrint} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+            <button type="button" onClick={() => void handlePrint()} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
               Print / export
             </button>
           </div>

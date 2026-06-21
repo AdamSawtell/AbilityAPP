@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** (+ Chunk D document platform in progress) |
 | **Current work package** | **Chunk D — Document platform** |
-| **Active slice** | WP-D.6 — HR employment contract pack |
-| **Next slice** | WP-D.7 extended templates (enquiry, remittance) |
-| **Last push** | 2026-06-18 — `4c67e9d` (D6 HR contract pack) |
+| **Active slice** | WP-D.7 — Extended document pack |
+| **Next slice** | Chunk D complete — polish / Chunk E |
+| **Last push** | 2026-06-18 — D7 extended document pack (pending commit) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -29,6 +29,7 @@
 | D4 | Batch invoice ZIP on list + binding admin | ✅ Shipped |
 | D5 | Service agreement printable pack + e-sign registry | ✅ Shipped |
 | D6 | HR contract pack + My workplace delivery | ✅ Shipped |
+| D7 | Extended templates (enquiry, remittance, statement, board report, send invoice, clone) | ✅ Shipped |
 
 **Policy:** Active template = production-ready (no separate legal sign-off gate).
 
@@ -69,6 +70,19 @@
 | 2 | My workplace → Contracts | Generated contract visible; View document opens HTML |
 | 3 | System → Document registry | Employee entity row exists |
 | 4 | Part-time employee | Part-time template selected automatically |
+
+### What you can test — WP-D.7
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | System → Document templates | Enquiry, remittance, participant statement, and board report templates listed |
+| 2 | Enquiries → open enquiry → Print acknowledgement | Print preview opens; registry row for enquiry entity |
+| 3 | Invoice reconciliation → Print remittance cover | Cover sheet lists filtered invoices; registry row appears |
+| 4 | Clients → Overview → Print statement | Statement for participant; registry row for client entity |
+| 5 | Board reporting → open pack → Print / export | Print opens; registry row when role has `print-board-report` |
+| 6 | Invoices → open invoice → Send invoice | Dry-run message in dev; invoice marked Sent; registry row |
+| 7 | Document templates → Duplicate template | Copy appears in list with "(copy)" suffix |
+| 8 | `npm run build` + `page-guides:check` + `supabase:push-remote` | Exit 0 |
 
 ---
 

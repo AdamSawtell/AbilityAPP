@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ClientRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
+import { registerGeneratedDocument } from "@/lib/document-client";
 import { useData } from "@/lib/data-store";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
+import { exportExtendedDocumentHtml, printExtendedDocument } from "@/lib/extended-document-print";
 import {
   buildInvoiceReconcileRows,
   INVOICE_RECONCILE_STATUSES,
@@ -13,15 +17,20 @@ import {
   summarizeInvoiceReconciliation,
 } from "@/lib/invoice-reconciliation";
 import { currentPlanMonthIso } from "@/lib/monthly-service-plan";
+import { useOrganization } from "@/lib/organization-store";
 import { downloadCsv } from "@/lib/reports/export";
 
 export function InvoiceReconciliationView() {
   const { invoices, clients } = useData();
-  const { canWriteWindow } = useAuth();
+  const { organization } = useOrganization();
+  const { canProcess, canWriteWindow } = useAuth();
+  const { resolveTemplate } = useDocumentPlatform();
   const canExport = canWriteWindow("invoice-reconciliation");
+  const canPrintRemittance = canProcess(DOCUMENT_PRINT_PROCESSES.printRemittanceCover);
 
   const [periodMonth, setPeriodMonth] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [printError, setPrintError] = useState("");
 
   const rows = useMemo(() => buildInvoiceReconcileRows(invoices, periodMonth), [invoices, periodMonth]);
   const digest = useMemo(() => summarizeInvoiceReconciliation(rows), [rows]);
@@ -45,6 +54,39 @@ export function InvoiceReconciliationView() {
     const content = invoiceReconcileCsv(filteredRows, clients);
     const suffix = periodMonth || currentPlanMonthIso();
     downloadCsv(`invoice-reconciliation-${suffix}.csv`, content);
+  };
+
+  const periodLabel = periodMonth || "All periods";
+
+  const handlePrintRemittance = async () => {
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printRemittanceCover, "invoice");
+    if (!template) {
+      setPrintError("No active remittance cover template is available.");
+      return;
+    }
+    const rows = filteredRows.filter((row) => row.invoicedAmount > 0);
+    const ok = printExtendedDocument({ rows, periodLabel, organization }, template);
+    if (!ok) {
+      setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      return;
+    }
+    const exported = exportExtendedDocumentHtml({ rows, periodLabel, organization }, template);
+    if (exported) {
+      try {
+        await registerGeneratedDocument({
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: exported.documentClass,
+          entityType: "invoice",
+          entityId: periodMonth || "all-periods",
+          entityLabel: `Remittance — ${periodLabel}`,
+          fileName: `remittance-${(periodMonth || "all").replace(/[^\w.-]+/g, "_")}.html`,
+        });
+      } catch (err) {
+        setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+      }
+    }
   };
 
   return (
@@ -95,7 +137,21 @@ export function InvoiceReconciliationView() {
             Export CSV
           </button>
         ) : null}
+        {canPrintRemittance ? (
+          <button
+            type="button"
+            onClick={() => void handlePrintRemittance()}
+            disabled={!filteredRows.length}
+            className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Print remittance cover
+          </button>
+        ) : null}
       </div>
+
+      {printError ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">

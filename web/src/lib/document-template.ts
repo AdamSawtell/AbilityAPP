@@ -12,7 +12,8 @@ export type DocumentClass =
   | "hr-letter-offer"
   | "participant-statement"
   | "enquiry-letter"
-  | "remittance-cover";
+  | "remittance-cover"
+  | "board-report";
 
 export type DocumentTemplateBlockType =
   | "org-header"
@@ -88,6 +89,7 @@ export const DOCUMENT_CLASS_LABELS: Record<DocumentClass, string> = {
   "participant-statement": "Participant service statement",
   "enquiry-letter": "Enquiry acknowledgement",
   "remittance-cover": "Remittance cover sheet",
+  "board-report": "Board report pack",
 };
 
 export const DEFAULT_INVOICE_TEMPLATE_ID = "dtax-invoice-ndis-v1";
@@ -95,6 +97,10 @@ export const DEFAULT_AGREEMENT_TEMPLATE_ID = "dagreement-ndis-v1";
 export const DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID = "dagreement-variation-v1";
 export const DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID = "dhr-contract-casual-v1";
 export const DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID = "dhr-contract-pt-v1";
+export const DEFAULT_ENQUIRY_ACK_TEMPLATE_ID = "denquiry-ack-v1";
+export const DEFAULT_REMITTANCE_COVER_TEMPLATE_ID = "dremittance-cover-v1";
+export const DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID = "dparticipant-statement-v1";
+export const DEFAULT_BOARD_REPORT_TEMPLATE_ID = "dboard-report-v1";
 
 export const DOCUMENT_PRINT_PROCESSES = {
   printInvoice: "print-invoice",
@@ -102,6 +108,11 @@ export const DOCUMENT_PRINT_PROCESSES = {
   printServiceAgreement: "print-service-agreement",
   printAgreementVariation: "print-agreement-variation",
   printEmployeeContract: "print-employee-contract",
+  printEnquiryAcknowledgement: "print-enquiry-acknowledgement",
+  printRemittanceCover: "print-remittance-cover",
+  printParticipantStatement: "print-participant-statement",
+  printBoardReport: "print-board-report",
+  sendInvoice: "send-invoice",
 } as const;
 
 export function defaultInvoiceTemplate(): DocumentTemplateRecord {
@@ -184,6 +195,10 @@ function templateFallbackForClass(documentClass: DocumentClass): DocumentTemplat
   if (documentClass.startsWith("service-agreement")) return defaultAgreementTemplate();
   if (documentClass === "hr-contract-pt") return defaultHrContractPtTemplate();
   if (documentClass.startsWith("hr-contract")) return defaultHrContractCasualTemplate();
+  if (documentClass === "enquiry-letter") return defaultEnquiryAckTemplate();
+  if (documentClass === "remittance-cover") return defaultRemittanceCoverTemplate();
+  if (documentClass === "participant-statement") return defaultParticipantStatementTemplate();
+  if (documentClass === "board-report") return defaultBoardReportTemplate();
   return defaultInvoiceTemplate();
 }
 
@@ -235,12 +250,102 @@ export function defaultHrContractPtTemplate(): DocumentTemplateRecord {
   };
 }
 
+export function defaultEnquiryAckTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID,
+    name: "Enquiry acknowledgement",
+    description: "Acknowledgement letter for new NDIS enquiries.",
+    documentClass: "enquiry-letter",
+    active: true,
+    isDefault: true,
+    titleText: "Enquiry acknowledgement",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-enquiry-header", templateId: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-enquiry-title", templateId: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Enquiry acknowledgement", sortOrder: 2, locked: false },
+      { id: "dtblk-enquiry-parties", templateId: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID, blockType: "parties", label: "Recipient", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-enquiry-body", templateId: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID, blockType: "rich-text", label: "Acknowledgement", contentHtml: "<p>Thank you for contacting {{org.tradingName}}. We have received your enquiry and will respond within two business days.</p>", sortOrder: 4, locked: false },
+      { id: "dtblk-enquiry-footer", templateId: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 5, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultRemittanceCoverTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_REMITTANCE_COVER_TEMPLATE_ID,
+    name: "Remittance advice cover",
+    description: "Cover sheet listing invoices included in a remittance or month-end billing run.",
+    documentClass: "remittance-cover",
+    active: true,
+    isDefault: true,
+    titleText: "Remittance advice",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-remittance-header", templateId: DEFAULT_REMITTANCE_COVER_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-remittance-title", templateId: DEFAULT_REMITTANCE_COVER_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Remittance advice", sortOrder: 2, locked: false },
+      { id: "dtblk-remittance-lines", templateId: DEFAULT_REMITTANCE_COVER_TEMPLATE_ID, blockType: "line-table", label: "Invoice list", contentHtml: "", sortOrder: 3, locked: true },
+      { id: "dtblk-remittance-footer", templateId: DEFAULT_REMITTANCE_COVER_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 4, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultParticipantStatementTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID,
+    name: "Participant service statement",
+    description: "Summary of services and invoices for a participant over a period.",
+    documentClass: "participant-statement",
+    active: true,
+    isDefault: true,
+    titleText: "Participant service statement",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-statement-header", templateId: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-statement-title", templateId: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Participant service statement", sortOrder: 2, locked: false },
+      { id: "dtblk-statement-parties", templateId: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID, blockType: "parties", label: "Participant", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-statement-lines", templateId: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID, blockType: "line-table", label: "Services summary", contentHtml: "", sortOrder: 4, locked: true },
+      { id: "dtblk-statement-footer", templateId: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 5, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultBoardReportTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_BOARD_REPORT_TEMPLATE_ID,
+    name: "Board report pack",
+    description: "Print wrapper for generated board report packs.",
+    documentClass: "board-report",
+    active: true,
+    isDefault: true,
+    titleText: "Board report",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-board-header", templateId: DEFAULT_BOARD_REPORT_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-board-title", templateId: DEFAULT_BOARD_REPORT_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Board report", sortOrder: 2, locked: false },
+      { id: "dtblk-board-body", templateId: DEFAULT_BOARD_REPORT_TEMPLATE_ID, blockType: "rich-text", label: "Report body", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-board-footer", templateId: DEFAULT_BOARD_REPORT_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 4, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
 export const initialDocumentTemplates: DocumentTemplateRecord[] = [
   defaultInvoiceTemplate(),
   defaultAgreementTemplate(),
   defaultAgreementVariationTemplate(),
   defaultHrContractCasualTemplate(),
   defaultHrContractPtTemplate(),
+  defaultEnquiryAckTemplate(),
+  defaultRemittanceCoverTemplate(),
+  defaultParticipantStatementTemplate(),
+  defaultBoardReportTemplate(),
 ];
 
 export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
@@ -284,6 +389,38 @@ export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
     isDefault: true,
     allowUserOverride: true,
   },
+  {
+    id: "pdb-print-enquiry-ack",
+    processId: "print-enquiry-acknowledgement",
+    entityType: "enquiry",
+    templateId: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-remittance-cover",
+    processId: "print-remittance-cover",
+    entityType: "invoice",
+    templateId: DEFAULT_REMITTANCE_COVER_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-participant-statement",
+    processId: "print-participant-statement",
+    entityType: "client",
+    templateId: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-board-report",
+    processId: "print-board-report",
+    entityType: "board-report",
+    templateId: DEFAULT_BOARD_REPORT_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
 ];
 
 export function normalizeDocumentTemplate(record: DocumentTemplateRecord): DocumentTemplateRecord {
@@ -318,13 +455,21 @@ export function resolveTemplateForProcess(
     if (match) return match;
   }
   const classHint =
-    entityType === "service-agreement"
-      ? "service-agreement"
-      : entityType === "employee"
-        ? "hr-contract"
-        : entityType === "invoice"
-          ? "tax-invoice"
-          : "";
+    processId === DOCUMENT_PRINT_PROCESSES.printRemittanceCover
+      ? "remittance-cover"
+      : entityType === "service-agreement"
+        ? "service-agreement"
+        : entityType === "employee"
+          ? "hr-contract"
+          : entityType === "enquiry"
+            ? "enquiry-letter"
+            : entityType === "client"
+              ? "participant-statement"
+              : entityType === "board-report"
+                ? "board-report"
+                : entityType === "invoice"
+                  ? "tax-invoice"
+                  : "";
   if (classHint) {
     return active.find((t) => t.isDefault && t.documentClass.startsWith(classHint)) ?? active.find((t) => t.documentClass.startsWith(classHint)) ?? null;
   }
@@ -356,7 +501,38 @@ export function templatesForProcess(
     if (entityType === "employee") {
       return templates.filter((t) => t.active && t.documentClass.startsWith("hr-contract"));
     }
+    if (entityType === "enquiry") {
+      return templates.filter((t) => t.active && t.documentClass === "enquiry-letter");
+    }
+    if (entityType === "client") {
+      return templates.filter((t) => t.active && t.documentClass === "participant-statement");
+    }
+    if (entityType === "board-report") {
+      return templates.filter((t) => t.active && t.documentClass === "board-report");
+    }
+    if (processId === DOCUMENT_PRINT_PROCESSES.printRemittanceCover) {
+      return templates.filter((t) => t.active && t.documentClass === "remittance-cover");
+    }
     return templates.filter((t) => t.active && t.documentClass.startsWith("tax-invoice"));
   }
   return templates.filter((t) => t.active && boundIds.has(t.id));
+}
+
+export function cloneDocumentTemplate(source: DocumentTemplateRecord, actor = "System operator"): DocumentTemplateRecord {
+  const id = `dtpl-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  return normalizeDocumentTemplate({
+    ...source,
+    id,
+    name: `${source.name} (copy)`,
+    isDefault: false,
+    active: true,
+    blocks: source.blocks.map((block, index) => ({
+      ...block,
+      id: `dtblk-${Date.now().toString(36)}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+      templateId: id,
+      sortOrder: index + 1,
+    })),
+    createdBy: actor,
+    updatedBy: actor,
+  });
 }

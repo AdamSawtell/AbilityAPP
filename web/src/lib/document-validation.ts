@@ -1,5 +1,11 @@
 import type { AgreementDocumentContext } from "@/lib/document-render-agreement";
 import type { EmployeeDocumentContext } from "@/lib/document-render-employee";
+import type {
+  BoardReportDocumentContext,
+  EnquiryDocumentContext,
+  ParticipantStatementContext,
+  RemittanceDocumentContext,
+} from "@/lib/document-render-extended";
 import type { ClientRecord } from "@/lib/client";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import type { InvoiceRecord } from "@/lib/invoice";
@@ -12,7 +18,14 @@ export type InvoiceDocumentContext = {
   organization: OrganizationRecord;
 };
 
-export type DocumentRenderContext = InvoiceDocumentContext | AgreementDocumentContext | EmployeeDocumentContext;
+export type DocumentRenderContext =
+  | InvoiceDocumentContext
+  | AgreementDocumentContext
+  | EmployeeDocumentContext
+  | EnquiryDocumentContext
+  | RemittanceDocumentContext
+  | ParticipantStatementContext
+  | BoardReportDocumentContext;
 
 export type DocumentValidationIssue = {
   severity: "error" | "warning";
@@ -113,6 +126,44 @@ export function validateEmployeeDocument(ctx: EmployeeDocumentContext): Document
   return issues;
 }
 
+export function validateEnquiryDocument(ctx: EnquiryDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.enquiry.documentNo?.trim()) {
+    issues.push({ severity: "error", field: "enquiry.documentNo", message: "Enquiry reference is required." });
+  }
+  if (!ctx.organization.abn?.trim()) {
+    issues.push({ severity: "warning", field: "org.abn", message: "Organisation ABN is not set." });
+  }
+  return issues;
+}
+
+export function validateRemittanceDocument(ctx: RemittanceDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.rows.length) {
+    issues.push({ severity: "warning", field: "rows", message: "No invoices are included in this remittance period." });
+  }
+  return issues;
+}
+
+export function validateParticipantStatementDocument(ctx: ParticipantStatementContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.client.name?.trim()) {
+    issues.push({ severity: "error", field: "client.name", message: "Participant name is required." });
+  }
+  if (!ctx.invoices.length) {
+    issues.push({ severity: "warning", field: "invoices", message: "No invoices match the selected period." });
+  }
+  return issues;
+}
+
+export function validateBoardReportDocument(ctx: BoardReportDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.pack.title?.trim()) {
+    issues.push({ severity: "error", field: "pack.title", message: "Board report title is required." });
+  }
+  return issues;
+}
+
 export function documentBlockedByValidation(issues: DocumentValidationIssue[]): string | null {
   const error = issues.find((i) => i.severity === "error");
   return error?.message ?? null;
@@ -130,6 +181,18 @@ export function validateDocumentContext(
   }
   if (template.documentClass.startsWith("hr-contract")) {
     return validateEmployeeDocument(ctx as EmployeeDocumentContext);
+  }
+  if (template.documentClass === "enquiry-letter") {
+    return validateEnquiryDocument(ctx as EnquiryDocumentContext);
+  }
+  if (template.documentClass === "remittance-cover") {
+    return validateRemittanceDocument(ctx as RemittanceDocumentContext);
+  }
+  if (template.documentClass === "participant-statement") {
+    return validateParticipantStatementDocument(ctx as ParticipantStatementContext);
+  }
+  if (template.documentClass === "board-report") {
+    return validateBoardReportDocument(ctx as BoardReportDocumentContext);
   }
   return [];
 }

@@ -10,8 +10,13 @@ import {
   DOCUMENT_PRINT_PROCESSES,
   DEFAULT_AGREEMENT_TEMPLATE_ID,
   DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
+  DEFAULT_BOARD_REPORT_TEMPLATE_ID,
+  DEFAULT_ENQUIRY_ACK_TEMPLATE_ID,
   DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
   DEFAULT_INVOICE_TEMPLATE_ID,
+  DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID,
+  DEFAULT_REMITTANCE_COVER_TEMPLATE_ID,
+  cloneDocumentTemplate,
   type DocumentTemplateRecord,
 } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
@@ -27,7 +32,7 @@ export function DocumentTemplatesAdminPage() {
   const hasPageAccess = hasAnyAccess(["admin-document-templates"]);
   const { templates, bindings, upsertTemplate, upsertBinding, loading } = useDocumentPlatform();
   const { organization } = useOrganization();
-  const { invoices, clients, serviceAgreements, employees } = useData();
+  const { invoices, clients, serviceAgreements, employees, enquiries, boardReportPacks } = useData();
   const sorted = useMemo(
     () => [...templates].sort((a, b) => a.name.localeCompare(b.name)),
     [templates]
@@ -62,8 +67,27 @@ export function DocumentTemplatesAdminPage() {
       if (!employee) return null;
       return renderDocument(record, { employee, managerName: "Manager", organization }, { skipValidation: true });
     }
+    if (record.documentClass === "enquiry-letter") {
+      const enquiry = enquiries[0];
+      if (!enquiry) return null;
+      return renderDocument(record, { enquiry, organization }, { skipValidation: true });
+    }
+    if (record.documentClass === "remittance-cover") {
+      return renderDocument(record, { rows: [], periodLabel: "Sample period", organization }, { skipValidation: true });
+    }
+    if (record.documentClass === "participant-statement") {
+      const client = clients[0];
+      if (!client) return null;
+      const clientInvoices = invoices.filter((inv) => inv.clientId === client.id).slice(0, 3);
+      return renderDocument(record, { client, invoices: clientInvoices, periodLabel: "Sample period", organization }, { skipValidation: true });
+    }
+    if (record.documentClass === "board-report") {
+      const pack = boardReportPacks[0];
+      if (!pack) return null;
+      return renderDocument(record, { pack, organization }, { skipValidation: true });
+    }
     return null;
-  }, [record, invoices, serviceAgreements, employees, clients, organization]);
+  }, [record, invoices, serviceAgreements, employees, clients, organization, enquiries, boardReportPacks]);
 
   const processBindings = useMemo(
     () => bindings.filter((b) => b.templateId === record?.id),
@@ -85,6 +109,26 @@ export function DocumentTemplatesAdminPage() {
 
   const hrTemplates = useMemo(
     () => sorted.filter((t) => t.active && t.documentClass.startsWith("hr-contract")),
+    [sorted]
+  );
+
+  const enquiryTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "enquiry-letter"),
+    [sorted]
+  );
+
+  const remittanceTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "remittance-cover"),
+    [sorted]
+  );
+
+  const statementTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "participant-statement"),
+    [sorted]
+  );
+
+  const boardReportTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "board-report"),
     [sorted]
   );
 
@@ -126,8 +170,36 @@ export function DocumentTemplatesAdminPage() {
           templates: hrTemplates,
           fallbackId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
         },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement,
+          entityType: "enquiry",
+          label: "Print enquiry acknowledgement",
+          templates: enquiryTemplates,
+          fallbackId: DEFAULT_ENQUIRY_ACK_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printRemittanceCover,
+          entityType: "invoice",
+          label: "Print remittance cover",
+          templates: remittanceTemplates,
+          fallbackId: DEFAULT_REMITTANCE_COVER_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printParticipantStatement,
+          entityType: "client",
+          label: "Print participant statement",
+          templates: statementTemplates,
+          fallbackId: DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printBoardReport,
+          entityType: "board-report",
+          label: "Print board report",
+          templates: boardReportTemplates,
+          fallbackId: DEFAULT_BOARD_REPORT_TEMPLATE_ID,
+        },
       ] as const,
-    [invoiceTemplates, agreementTemplates, hrTemplates]
+    [invoiceTemplates, agreementTemplates, hrTemplates, enquiryTemplates, remittanceTemplates, statementTemplates, boardReportTemplates]
   );
 
   async function handleBindingChange(processId: string, entityType: string, templateId: string) {
@@ -170,6 +242,20 @@ export function DocumentTemplatesAdminPage() {
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Could not save template");
       setSaveState("idle");
+    }
+  }
+
+  async function handleClone() {
+    if (!record) return;
+    setSaveError("");
+    try {
+      const cloned = cloneDocumentTemplate(record, "System operator");
+      await upsertTemplate(cloned);
+      setActiveId(cloned.id);
+      setDraft(null);
+      setSaveState("saved");
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Could not duplicate template");
     }
   }
 
@@ -265,6 +351,13 @@ export function DocumentTemplatesAdminPage() {
                   />
                   Active
                 </label>
+                <button
+                  type="button"
+                  onClick={() => void handleClone()}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Duplicate template
+                </button>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

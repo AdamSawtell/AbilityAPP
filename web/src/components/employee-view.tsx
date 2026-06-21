@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EmployeeContractGeneratePanel } from "@/components/employee-contract-generate-panel";
+import { EmployeeAddressesPanel, PrimaryAddressSummary } from "@/components/employee-addresses-panel";
 import {
   EmployeeEmergencyContactsPanel,
   PrimaryEmergencyContactSummary,

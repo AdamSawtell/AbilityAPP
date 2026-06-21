@@ -709,6 +709,36 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "employee-documents",
   },
   {
+    id: "print-enquiry-acknowledgement",
+    label: "Print enquiry acknowledgement",
+    description: "Print or download an acknowledgement letter for a new enquiry",
+    parentWindowKey: "enquiries",
+  },
+  {
+    id: "print-remittance-cover",
+    label: "Print remittance cover",
+    description: "Print a remittance advice cover sheet for invoice reconciliation",
+    parentWindowKey: "invoice-reconciliation",
+  },
+  {
+    id: "print-participant-statement",
+    label: "Print participant statement",
+    description: "Print a participant service statement from the client record",
+    parentWindowKey: "clients",
+  },
+  {
+    id: "print-board-report",
+    label: "Print board report",
+    description: "Print or export a board report pack to the document registry",
+    parentWindowKey: "board-reporting",
+  },
+  {
+    id: "send-invoice",
+    label: "Send invoice",
+    description: "Email an invoice document to the bill-to address and register the send",
+    parentWindowKey: "invoices",
+  },
+  {
     id: "manage-session-audit-risk",
     label: "Investigate session risk",
     description: "Review flagged sessions, update risk status, and add investigation notes",
