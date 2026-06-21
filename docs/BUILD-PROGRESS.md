@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **100%** |
-| **Current work package** | **Document platform — D8 HR offer letter** |
-| **Active slice** | WP-D.8 — Offer of employment |
+| **Current work package** | **Document platform — complete** |
+| **Active slice** | — |
 | **Next slice** | Server PDF when host decided |
-| **Last push** | 2026-06-18 — D8 HR offer letter (pending commit) |
+| **Last push** | 2026-06-18 — `d0567d9` (D8 HR offer letter) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
