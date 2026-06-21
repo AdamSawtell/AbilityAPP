@@ -314,8 +314,11 @@ Everything else can proceed with sensible defaults and feature flags.
 | D4 | Batch invoice PDF + process binding admin | ✅ |
 | D5 | Service agreement printable pack + e-sign PDF archive | ✅ |
 | D6 | HR employment contract pack + My workplace delivery | ✅ |
+| D7 | Extended pack (enquiry ack, remittance, statement, board report, send invoice, clone) | ✅ |
 
 **DMS decision:** Lightweight **document registry** (metadata + private storage + entity links) — not a full enterprise DMS. See architecture doc in planning pack.
+
+**Export policy:** HTML + browser print / Save as PDF. Server-side PDF engine deferred (Stage 3 host TBD).
 
 **Recommended entry:** WP-D.0 (Stages D0 + D1) after stakeholder review — can run in parallel with Chunk 2/7 once invoice module is live.
 

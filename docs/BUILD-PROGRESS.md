@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **100%** (+ Chunk D document platform in progress) |
-| **Current work package** | **Chunk D — Document platform** |
-| **Active slice** | WP-D.7 — Extended document pack |
-| **Next slice** | Chunk D complete — polish / Chunk E |
-| **Last push** | 2026-06-18 — `af0ac32` (D7 extended document pack) |
+| **Overall completion** | **100%** |
+| **Current work package** | **Document platform — complete** |
+| **Active slice** | — |
+| **Next slice** | Outbound email for `send-invoice` (or server PDF when host decided) |
+| **Last push** | 2026-06-18 — `b1a0ed7` (D7 progress tracker) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -30,6 +30,8 @@
 | D5 | Service agreement printable pack + e-sign registry | ✅ Shipped |
 | D6 | HR contract pack + My workplace delivery | ✅ Shipped |
 | D7 | Extended templates (enquiry, remittance, statement, board report, send invoice, clone) | ✅ Shipped |
+
+**Chunk D (document platform): complete** — HTML print + registry; server PDF deferred until host decision.
 
 **Policy:** Active template = production-ready (no separate legal sign-off gate).
 
