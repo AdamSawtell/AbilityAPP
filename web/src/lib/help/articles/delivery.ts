@@ -7,7 +7,7 @@ export const deliveryArticle: HelpArticle = {
   summary: "Schedule NDIS service delivery, then roster staff and generate timesheets.",
   category: "Services",
   keywords: ["service booking", "rostering", "timesheet", "NDIS", "delivery", "schedule"],
-  lastUpdated: "2026-06-19",
+  lastUpdated: "2026-06-21",
   sections: [
     {
       id: "overview",
@@ -253,6 +253,20 @@ export const deliveryArticle: HelpArticle = {
       windowKeys: ["ndis-audit-pack", "financial-close", "plan-reconciliation", "claim-reconciliation", "incidents"],
     },
     {
+      id: "cancellation-claims",
+      title: "Cancellation claim generation",
+      body: "Generate draft NDIS claim lines from cancelled service bookings where the participant cancelled with insufficient notice. Uses the same cancellation policy as the booking compliance panel.",
+      steps: [
+        "Cancel a service booking with status Cancelled, cancellation date, initiator Participant, and a short-notice reason.",
+        "Open Generate claims → Cancellation claims panel.",
+        "Review eligible bookings, claimable total, and already-linked count.",
+        "Click Generate cancellation claims — one draft claim per participant for the booking period.",
+        "Open the draft claim, review PAPL validation, and submit when ready.",
+      ],
+      relatedRoutes: ["/generate-claims", "/service-bookings", "/claims"],
+      windowKeys: ["generate-claims", "claims", "service-bookings"],
+    },
+    {
       id: "invoices",
       title: "Participant invoices",
       body: "Generate draft invoices for plan-managed and self-managed participants from verified timesheet lines. Agency-managed participants are billed via NDIS claims instead.",
@@ -279,6 +293,8 @@ export const deliveryArticle: HelpArticle = {
     "/claims",
     "/generate-claims",
     "/claim-reconciliation",
+    "/invoice-reconciliation",
+    "/multi-provider-budget",
     "/financial-close",
     "/ndis-audit-pack",
     "/invoices",
@@ -292,6 +308,8 @@ export const deliveryArticle: HelpArticle = {
     "claims",
     "generate-claims",
     "claim-reconciliation",
+    "invoice-reconciliation",
+    "multi-provider-budget",
     "financial-close",
     "ndis-audit-pack",
     "invoices",
@@ -308,7 +326,7 @@ export const servicePlanningArticle: HelpArticle = {
   keywords: ["service planning", "monthly plan", "utilisation", "budget", "NDIS"],
   relatedRoutes: ["/service-planning", "/plan-reconciliation", "/clients"],
   windowKeys: ["service-planning", "plan-reconciliation", "client-monthly-service-plan", "client-plan-budget"],
-  lastUpdated: "2026-06-18",
+  lastUpdated: "2026-06-21",
   sections: [
     {
       id: "overview",
@@ -366,7 +384,9 @@ export const servicePlanningArticle: HelpArticle = {
       steps: [
         "Open Plan reconciliation from the Service planning menu.",
         "Select the plan month to review.",
+        "Review Scheduled h (rostered hours), Actual h, Billed $, Rejected $, and variance columns.",
         "Check Matched vs Variance rows — hours tolerance is 0.5h and amount tolerance is $1.",
+        "Investigate Rejected $ when NDIS claims were rejected or gateway-paid amounts differ.",
         "Open the linked monthly plan or client record to investigate variance.",
         "Export CSV for finance or audit review.",
       ],

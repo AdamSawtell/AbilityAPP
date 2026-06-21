@@ -19,6 +19,7 @@ Start here, then open the linked doc for full detail.
 | 10 | `submit-leave-on-behalf` | Submit leave on behalf | **Live** | Managers enter leave on Workforce planning for another employee. |
 | 11 | `review-employee-credential` | Review employee credential | **Live** | HR approves or rejects pending credentials. |
 | 12 | `approve-leave-request` | Approve leave request | **Live** | HR or line manager approves leave; balance deducts; task closes. |
+| 13 | `financial-month-close` | Financial month close | **Planned** | Month-end checklist → mark calendar month closed → audit pack. See Help → Financial close. |
 
 Workforce comms use **tasks, not email**. See [`MY-WORKPLACE-DEV-NOTES.md`](../MY-WORKPLACE-DEV-NOTES.md).
 

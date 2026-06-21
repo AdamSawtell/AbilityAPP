@@ -23,9 +23,9 @@ export const myWorkplaceArticle: HelpArticle = {
     "task",
     "how to",
   ],
-  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/contracts", "/my/credentials"],
-  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-20",
+  relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/timesheets", "/my/contracts", "/my/credentials"],
+  windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-timesheets", "my-contracts", "my-credentials"],
+  lastUpdated: "2026-06-21",
   sections: [
     {
       id: "overview",
@@ -117,6 +117,20 @@ export const myWorkplaceArticle: HelpArticle = {
       ],
       relatedRoutes: ["/my/shifts", "/rostering"],
       windowKeys: ["my-shifts"],
+    },
+    {
+      id: "my-timesheets",
+      title: "My timesheets",
+      body: "Workers review draft timesheets generated from verified shifts and submit them for supervisor approval. Submit is blocked when shift verification is incomplete.",
+      steps: [
+        "Open My workplace → My timesheets.",
+        "Open a Draft timesheet for the current pay period.",
+        "Review shift lines and verification status.",
+        "Click Submit — status moves to Submitted and supervisors can approve on Timesheets.",
+        "If submit is blocked, complete check-out and verification on My shifts first.",
+      ],
+      relatedRoutes: ["/my/timesheets", "/timesheets"],
+      windowKeys: ["my-timesheets", "timesheets"],
     },
     {
       id: "contracts",

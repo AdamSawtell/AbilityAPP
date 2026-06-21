@@ -13,7 +13,7 @@
 | **Current work package** | Reconciliation & billing polish — complete |
 | **Active slice** | WP-I.5 through WP-J.7 batch shipped |
 | **Next slice** | Amplify spot-check; live OCR/API when credentials available |
-| **Last push** | 2026-06-18 — `16f703c` (billing/reconciliation batch + Bugbot fixes) |
+| **Last push** | 2026-06-21 — `eae272a` (billing batch + migration rename + doc audit) |
 
 ---
 
@@ -578,6 +578,69 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | **Export CSV** on a section | Section extract downloads |
 | 6 | **Reports** → NDIS audit pack summary | Manifest report generates |
 
+### WP-E.4 — Multi-provider budget (`3e8c61c`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Plan budget** tab | Plan provider column on each line (default This organisation) |
+| 2 | Set provider label → save → refresh | Value persists (Supabase `plan_provider` column) |
+| 3 | **Multi-provider budget** | HTTP 200; provider filter and participant rows |
+| 4 | Filter by provider | Table filters; totals update |
+| 5 | **Export CSV** | Downloads multi-provider-budget file |
+
+### WP-F.3 — Timesheet submit + approval (`3e8c61c`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Worker **My workplace → My timesheets** | Draft timesheet list loads |
+| 2 | Open draft → **Submit** | Status Submitted when verification passes |
+| 3 | Submit with unverified shift | Blocked with message |
+| 4 | Change status to Submitted via dropdown → Save | Submit validation still blocks |
+| 5 | Supervisor **Timesheets** → **Approve** | Status Approved when verification green |
+
+### WP-I.5 — Plan budget billing claimed rollup (`3e8c61c`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Plan budget** tab | Billing claimed rollup panel visible |
+| 2 | With no claims/invoices | Manual claimed shown; billing $0 |
+| 3 | **Apply billing rollup** → save → refresh | Claimed split proportionally by allocated amount within category |
+
+### WP-I.6 — Cancellation claim generation (`3e8c61c`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Generate claims** | Cancellation claims panel visible |
+| 2 | Cancelled booking (participant, short notice) | Eligible bookings count &gt; 0 |
+| 3 | **Generate cancellation claims** | Draft claim created/merged without losing existing lines |
+| 4 | Open draft claim | Cancellation lines linked to booking |
+
+### WP-J.5 — Financial month lock (`3e8c61c` / `16f703c`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Financial close** → Mark month closed panel | Month picker + checklist + button |
+| 2 | Blocked month (e.g. June 2026) | Mark month closed disabled |
+| 3 | Month with passing checklist → **Mark month closed** | Success message; closed banner |
+| 4 | Refresh page | Closed state persists from Supabase `financial_closed_month` |
+
+### WP-J.6 — Invoice reconciliation dashboard (`3e8c61c`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Invoice reconciliation** | HTTP 200; summary cards + filters |
+| 2 | **Financial close** / **Invoices** | Link to invoice reconciliation visible |
+| 3 | Filter by reconcile status | Table filters |
+| 4 | **Export CSV** | Downloads when rows exist |
+
+### WP-J.7 — Plan reconciliation v2 columns (`3e8c61c`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Plan reconciliation** | Scheduled h and Rejected $ columns visible |
+| 2 | Select month with roster + rejected claim | Scheduled h and Rejected $ populate |
+| 3 | **Export CSV** | New columns included in export |
+
 ### WP-0.1 — Enquiry pipeline stages (`2026-06-20`)
 
 | Step | Action | Pass if |
@@ -1025,6 +1088,83 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **NDIS audit pack** Read/Write; **NDIS audit pack summary** report |
 | **Admin verify** | Bern Oct 2025 shows participant + plan sections |
 
+### WP-E.4 — Multi-provider budget
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Multi-provider budget**; Help → **Clients** → **Plan budget tab** (Plan provider field) |
+| **User steps** | 1. Set Plan provider on each budget line. 2. Open Multi-provider budget. 3. Filter by provider. 4. Export CSV. |
+| **System setup** | `/system/setup/clients` — Plan provider on lines; `/system/setup/services` — Multi-provider budget grant |
+| **Reference data** | — |
+| **Role access** | `client-plan-budget` Write; **Multi-provider budget** Read/Write |
+| **Admin verify** | Provider label persists after refresh; multi-provider view shows split totals |
+
+### WP-F.3 — Timesheet submit + approval
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **My workplace** → **My timesheets**; Help → **Delivery** → **Timesheet submit and approval** |
+| **User steps** | 1. Worker submits draft from My timesheets. 2. Supervisor approves on Timesheets when verification passes. |
+| **System setup** | `/system/setup/services` — My timesheets + Timesheets grants |
+| **Reference data** | — |
+| **Role access** | **My timesheets** Write for workers; **Timesheets** Write for supervisors |
+| **Admin verify** | Unverified shift blocks submit; status dropdown cannot bypass submit validation |
+
+### WP-I.5 — Plan budget billing claimed rollup
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Plan budget billing claimed rollup**; Help → **Clients** → **Plan budget tab** |
+| **User steps** | 1. Review rollup panel. 2. Apply billing rollup. 3. Save client record. |
+| **System setup** | Submitted claims + sent invoices must exist for billing totals |
+| **Reference data** | — |
+| **Role access** | `client-plan-budget` Write |
+| **Admin verify** | Rollup splits by allocated amount within category; save persists claimed |
+
+### WP-I.6 — Cancellation claim generation
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Cancellation claim generation**; Help → **Delivery** → **Cancellation policy** |
+| **User steps** | 1. Cancel booking with participant short notice. 2. Generate claims → Cancellation claims. 3. Review draft claim. |
+| **System setup** | `/system/setup/services` — cancellation reference lists + Generate claims grant |
+| **Reference data** | Booking cancellation reason, Cancellation initiated by |
+| **Role access** | **Generate claims** Write |
+| **Admin verify** | Multiple generates merge into one draft per participant without losing lines |
+
+### WP-J.5 — Financial month lock
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Financial close checklist** (Mark month closed section) |
+| **User steps** | 1. Pass all non-blocked checklist items. 2. Add optional notes. 3. Mark month closed. 4. Confirm closed banner after refresh. |
+| **System setup** | `/system/setup/services` — run `20260625360000` migration; Financial close Write |
+| **Reference data** | — |
+| **Role access** | **Financial close** Write |
+| **Admin verify** | Closed month persists in Supabase; already-closed month shows lock pass check |
+
+### WP-J.6 — Invoice reconciliation dashboard
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Delivery** → **Invoice reconciliation dashboard** |
+| **User steps** | 1. Open Invoice reconciliation. 2. Filter by period and status. 3. Follow up Unpaid/Overdue. 4. Export CSV. |
+| **System setup** | `/system/setup/services` — Invoice reconciliation grant |
+| **Reference data** | — |
+| **Role access** | **Invoice reconciliation** Read/Write |
+| **Admin verify** | Sent invoices show Unpaid/Overdue; financial close links to dashboard |
+
+### WP-J.7 — Plan reconciliation v2 columns
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Service planning** → **Plan vs actual reconciliation** (Scheduled h, Rejected $) |
+| **User steps** | 1. Open Plan reconciliation. 2. Review Scheduled h vs Actual h. 3. Investigate Rejected $ before close. 4. Export CSV. |
+| **System setup** | Roster shifts + claims data for column population |
+| **Reference data** | — |
+| **Role access** | **Plan reconciliation** Read |
+| **Admin verify** | Rejected claims add to Rejected $ column for selected month |
+
 ### WP-0.1 — Enquiry pipeline stages
 
 | | Detail |
@@ -1214,6 +1354,10 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | e544aa9 | WP-A.7 NDIS plan gateway stub on Plan budget tab |
 | 2026-06-20 | 2c088cd | WP-D.22 roster week CSV export (Chunk 4 complete) |
 | 2026-06-20 | bc6daf9 | WP-A.8 plan budget text paste import from PDF copy |
+| 2026-06-21 | 3e8c61c | WP-E.4, F.3, I.5, I.6, J.5–J.7 billing & reconciliation batch |
+| 2026-06-21 | 16f703c | Bugbot fixes: Supabase persistence, rollup split, cancellation merge, timesheet submit guard |
+| 2026-06-21 | 72b1920 | BUILD-PROGRESS last-push update |
+| 2026-06-21 | eae272a | Migration rename 25360000/25361000 after claim version conflict |
 
 ---
 
@@ -1323,6 +1467,13 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-J.2 | `/claim-reconciliation`, `/claims` | **Pass** | build verified; 90 routes |
 | 2026-06-20 | WP-J.3 | `/financial-close`, `/reports/financial-close-summary` | **Pass** | build verified; 91 routes |
 | 2026-06-20 | WP-J.4 | `/ndis-audit-pack`, `/reports/ndis-audit-pack-summary` | **Pass** | build verified; 92 routes |
+| 2026-06-21 | WP-E.4 | `/multi-provider-budget`, `/clients/bp-bern?tab=Plan budget` | **Pass** | Plan provider column; provider filter |
+| 2026-06-21 | WP-F.3 | `/my/timesheets`, `/timesheets` | **Pass** | My timesheets route; submit guard in code |
+| 2026-06-21 | WP-I.5 | `/clients/bp-bern?tab=Plan budget` | **Pass** | Billing claimed rollup panel |
+| 2026-06-21 | WP-I.6 | `/generate-claims` | **Pass** | Cancellation claims panel |
+| 2026-06-21 | WP-J.5 | `/financial-close` | **Pass** | Supabase read verified (2020-01 closed row); June 2026 blocked by payroll |
+| 2026-06-21 | WP-J.6 | `/invoice-reconciliation` | **Pass** | Dashboard loads |
+| 2026-06-21 | WP-J.7 | `/plan-reconciliation` | **Pass** | Scheduled h + Rejected $ columns (build verified) |
 | 2026-06-20 | WP-0.1 | `/enquiries`, `/enquiries/1000025` | **Pass** | build verified; pipeline panel + stage filters |
 | 2026-06-20 | WP-0.2 | `/enquiries/1000025?tab=Qualification`, `/enquiries` | **Pass** | build verified; score panel + tier filters |
 | 2026-06-20 | WP-0.3 | `/portal/login`, `/portal`, `/portal/services`, `/portal/budget` | **Pass** | build verified; magic-link auth + read-only APIs |
@@ -1387,6 +1538,30 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 ---
 
+## Feature artifact audit — billing & reconciliation batch (`3e8c61c`)
+
+Maps each new/updated library surface to required handoff artifacts. **Todo** = gap before slice is fully documented.
+
+| Module / function group | Key exports | User how-to | System setup | Test steps | Process doc | Audit on save | Status |
+|-------------------------|-------------|-------------|--------------|------------|-------------|---------------|--------|
+| `plan-budget-claimed-rollup.ts` | `aggregateBillingClaimedByCategory`, `summarizePlanBudgetClaimedRollup`, `applyBillingClaimedRollup` | `delivery` § plan-budget-claimed-rollup; `clients-locations` § plan-budget | `clients-setup` rollup verify | WP-I.5 | — | Client save via `persistRecordAudit` | ✅ |
+| `multi-provider-budget.ts` | `buildMultiProviderBudgetRows`, `summarizeMultiProviderBudget`, `multiProviderBudgetCsv` | `delivery` § multi-provider-budget | `clients-setup` + `services-setup` grants | WP-E.4 | — | N/A (report view) | ✅ |
+| `timesheet-workflow.ts` | `timesheetSubmitBlocked`, `timesheetApproveBlocked`, `timesheetWorkflowSummary` | `delivery` § timesheet-submit-approval; `my-workplace` § my-timesheets | `services-setup` My timesheets grant | WP-F.3 | — | Timesheet save audit | ✅ |
+| `cancellation-claim-generation.ts` | `previewCancellationClaims`, `generateCancellationClaims` | `delivery` § cancellation-claims | `services-setup` cancellation lists | WP-I.6 | — | Claim save audit | ✅ |
+| `financial-close-period.ts` | `buildFinancialClosedMonthRecord`, `canCloseFinancialMonth`, `isFinancialMonthClosed` | `delivery` § financial-close (Mark month closed) | `services-setup` + migration `25360000` | WP-J.5 | **Todo:** month-end close process in `docs/processes/` | **Todo:** no `persistRecordAudit` on close (singleton action) | 🟡 |
+| `invoice-reconciliation.ts` | `buildInvoiceReconcileRows`, `summarizeInvoiceReconciliation`, `invoiceReconcileCsv` | `delivery` § invoice-reconciliation | `services-setup` grant | WP-J.6 | — | N/A (dashboard) | ✅ |
+| `financial-closed-month-mappers.ts` + `data-api.saveFinancialClosedMonth` | DB persistence | (covered by financial-close) | migration applied | WP-J.5 | — | — | ✅ |
+| `plan-vs-actual-reconciliation.ts` (v2) | Scheduled h, Rejected $ columns | `service-planning` § plan-reconciliation | — | WP-J.7 | — | N/A | ✅ |
+| `client-line-tables.ts` (`planProvider`) | Line field | `clients-locations` § plan-budget | migration `25361000` | WP-E.4 | — | Client line audit diff | ✅ |
+
+**Remaining todos (non-blocking for demo):**
+
+1. **Process doc** — add `docs/processes/NN-financial-month-close.md` (checklist → mark closed → audit pack).
+2. **Audit trail** — log `closeFinancialMonth` to process audit or module audit (financial close is not a single record page today).
+3. **Amplify spot-check** — Adam Tier 4 on live deploy (`eae272a`).
+
+---
+
 ## Guide delivery log
 
 | Date | Slice | User article | System setup | page-guides:check |
@@ -1440,6 +1615,11 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-A.7 | `clients-locations` — NDIS plan gateway pull | `clients-setup` — NDIS_GATEWAY_DRY_RUN | exit 0 — 96 routes |
 | 2026-06-20 | WP-D.22 | `delivery` — Export week CSV on rostering | `services-setup` — export week CSV test | exit 0 — 96 routes |
 | 2026-06-20 | WP-A.8 | `clients-locations` — Plan budget PDF paste import | `clients-setup` — PDF paste on Plan budget tab | exit 0 — 96 routes |
+| 2026-06-21 | WP-E.4 | `delivery` + `clients-locations` — multi-provider budget + Plan provider | `clients-setup` + `services-setup` | exit 0 — 99 routes |
+| 2026-06-21 | WP-F.3 | `my-workplace` — My timesheets; `delivery` — submit/approval | `services-setup` — My timesheets grant | exit 0 |
+| 2026-06-21 | WP-I.5 | `delivery` — plan-budget-claimed-rollup | `clients-setup` — rollup verify | exit 0 |
+| 2026-06-21 | WP-I.6 | `delivery` — cancellation-claims | `services-setup` — cancellation lists | exit 0 |
+| 2026-06-21 | WP-J.5–J.7 | `delivery` + `service-planning` — financial close lock, invoice recon, plan recon v2 | `services-setup` — migrations 25360000/25361000 | exit 0 |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
