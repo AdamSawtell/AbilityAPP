@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 1 — Client & plan management |
 | **Active slice** | WP-A.7 complete — NDIS plan gateway stub |
 | **Next slice** | Chunk 4 roster polish (100%) or Chunk 1 PDF/OCR |
-| **Last push** | 2026-06-20 — pending (WP-A.7) |
+| **Last push** | 2026-06-20 — `e544aa9` |
 
 ---
 
@@ -152,7 +152,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Save, refresh | Imported lines persist |
 | 5 | **Full audit trail** | Save logs plan budget line change |
 
-### WP-A.7 — NDIS plan gateway stub (pending)
+### WP-A.7 — NDIS plan gateway stub (`e544aa9`)
 
 | Step | Action | Pass if |
 |------|--------|---------|
@@ -1180,7 +1180,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 7a5ad64 | WP-0.6 live HubSpot CRM contact upsert |
 | 2026-06-20 | 9cf9a3f | WP-0.7 client portal requests on Requests tab (Chunk 0 complete) |
 | 2026-06-20 | d7cfaa4 | WP-A.6 plan budget CSV import on client Plan budget tab |
-| 2026-06-20 | pending | WP-A.7 NDIS plan gateway stub on Plan budget tab |
+| 2026-06-20 | e544aa9 | WP-A.7 NDIS plan gateway stub on Plan budget tab |
 
 ---
 
