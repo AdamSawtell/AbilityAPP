@@ -68,6 +68,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Create a test client: set lifecycle, add plan budget lines, record core consents, then save and verify Overview summaries.",
       "Set a participant email on the client record — it must match the address they use at /portal/login.",
       "Roster future shifts to the client and confirm they appear on /portal/services after magic-link sign-in.",
+      "Test a portal service request with Bernie@email — confirm a coordinator task appears and approve creates a draft agreement variation.",
     ]
   ),
   moduleSetupArticle(

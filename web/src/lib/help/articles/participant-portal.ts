@@ -5,7 +5,7 @@ export const participantPortalArticle: HelpArticle = {
   slug: "participant-portal",
   title: "Participant portal",
   summary:
-    "Participants sign in with a magic link sent to the email on their client record, then view upcoming services and plan funding in read-only mode.",
+    "Participants sign in with a magic link, view services and funding, and submit service requests that coordinators review and convert to agreement variations.",
   category: "Core",
   keywords: [
     "participant portal",
@@ -16,9 +16,10 @@ export const participantPortalArticle: HelpArticle = {
     "funding",
     "self service",
     "client portal",
-    "how to",
+    "request service",
+    "service request",
   ],
-  relatedRoutes: ["/portal", "/portal/services", "/portal/budget"],
+  relatedRoutes: ["/portal", "/portal/services", "/portal/budget", "/portal/requests"],
   windowKeys: [],
   lastUpdated: "2026-06-20",
   sections: [
@@ -62,9 +63,27 @@ export const participantPortalArticle: HelpArticle = {
       relatedRoutes: ["/portal/budget"],
     },
     {
+      id: "service-request",
+      title: "Request a new service",
+      steps: [
+        "From the portal home, open **Request a service**.",
+        "Choose a service type and describe the support you need.",
+        "Add preferred days or times if you have them.",
+        "Submit — status shows as Submitted, then Under review while your coordinator assesses it.",
+        "When approved, your provider prepares a draft agreement variation. If declined, read the reason on the same page.",
+      ],
+      relatedRoutes: ["/portal/requests"],
+    },
+    {
+      id: "staff-review",
+      title: "How coordinators review portal requests",
+      body: "Each portal submission creates a task assigned to the Support Coordinator role and appears on the client **Requests** tab. Open the linked task to approve (creates a draft service agreement variation stub) or decline with a reason the participant can read on the portal.",
+      relatedRoutes: ["/tasks", "/clients"],
+    },
+    {
       id: "staff-setup",
       title: "What staff need to configure",
-      body: "Ensure each participant's **Email** on their client record matches the address they will use to sign in. Plan budget lines on the client **Plan budget** tab feed the funding summary. Future roster shifts linked to the participant appear under **My services**.",
+      body: "Ensure each participant's **Email** on their client record matches the address they will use to sign in. Plan budget lines on the client **Plan budget** tab feed the funding summary. Future roster shifts linked to the participant appear under **My services**. Coordinators need Tasks access and an active service agreement on the client before approving a variation stub.",
       relatedRoutes: ["/clients"],
     },
   ],

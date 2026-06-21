@@ -66,7 +66,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 | Custom enquiry forms / web-to-lead | ⬜ | Yes |
 | HubSpot / Zoho sync | ⬜ | Yes (needs OAuth credentials) |
 | One-click Enquiry → Client | 🟡 | Process 01 exists; enrich auto-populate |
-| Client portal (services, budget, request service) | 🟡 | Yes — WP-0.3 MVP (read-only); request workflow WP-0.4 |
+| Client portal (services, budget, request service) | 🟡 | Yes — WP-0.3 MVP + WP-0.4 service request stub |
 | Cross-sell intelligence (utilisation alerts) | ⬜ | Depends on Chunk 5 |
 
 **User input needed (once):** Portal auth (magic link vs NDIS login), HubSpot vs built-in CRM priority, branding.
@@ -75,7 +75,7 @@ Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
 1. Enquiry pipeline stages + loss reasons + follow-up dates
 2. Qualification fields + auto-score rules
 3. Portal MVP (read-only services + budget) ✅ WP-0.3
-4. Service request workflow → agreement variation stub
+4. Service request workflow → agreement variation stub ✅ WP-0.4
 5. External CRM sync (optional branch)
 
 ---

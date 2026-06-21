@@ -2703,3 +2703,65 @@ export function invoiceLineToRow(invoiceId: string, line: InvoiceLine): InvoiceL
     validation_message: line.validationMessage ?? "",
   };
 }
+
+// --- Portal service request ---
+
+export type PortalServiceRequestRow = {
+  id: string;
+  client_id: string;
+  status: string;
+  service_category: string;
+  support_budget: string;
+  description: string;
+  preferred_schedule: string;
+  task_id: string | null;
+  variation_agreement_id: string | null;
+  submitted_by_email: string;
+  decline_reason: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function portalServiceRequestFromRow(row: PortalServiceRequestRow) {
+  return {
+    id: row.id,
+    clientId: row.client_id,
+    status: row.status as import("@/lib/portal/service-request").PortalServiceRequestStatus,
+    serviceCategory: row.service_category ?? "",
+    supportBudget: row.support_budget ?? "",
+    description: row.description ?? "",
+    preferredSchedule: row.preferred_schedule ?? "",
+    taskId: row.task_id ?? "",
+    variationAgreementId: row.variation_agreement_id ?? "",
+    submittedByEmail: row.submitted_by_email ?? "",
+    declineReason: row.decline_reason ?? "",
+    createdAt: row.created_at ?? "",
+    updatedAt: row.updated_at ?? "",
+    createdBy: row.created_by ?? "",
+    updatedBy: row.updated_by ?? "",
+  };
+}
+
+export function portalServiceRequestToRow(
+  record: import("@/lib/portal/service-request").PortalServiceRequestRecord
+): PortalServiceRequestRow {
+  return {
+    id: record.id,
+    client_id: record.clientId,
+    status: record.status,
+    service_category: record.serviceCategory,
+    support_budget: record.supportBudget,
+    description: record.description,
+    preferred_schedule: record.preferredSchedule,
+    task_id: record.taskId || null,
+    variation_agreement_id: record.variationAgreementId || null,
+    submitted_by_email: record.submittedByEmail,
+    decline_reason: record.declineReason,
+    created_at: record.createdAt,
+    updated_at: record.updatedAt,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}

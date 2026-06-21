@@ -44,7 +44,7 @@ export function PortalShell({
   );
 }
 
-export function PortalNav({ active }: { active: "home" | "services" | "budget" }) {
+export function PortalNav({ active }: { active: "home" | "services" | "budget" | "requests" }) {
   const linkClass = (key: typeof active) =>
     `rounded-lg px-3 py-2 text-sm font-medium ${
       active === key ? "bg-[#fdf2f8] text-[#b51266]" : "text-slate-600 hover:bg-slate-100"
@@ -60,6 +60,9 @@ export function PortalNav({ active }: { active: "home" | "services" | "budget" }
       </Link>
       <Link href="/portal/budget" className={linkClass("budget")}>
         My funding
+      </Link>
+      <Link href="/portal/requests" className={linkClass("requests")}>
+        Request a service
       </Link>
     </nav>
   );

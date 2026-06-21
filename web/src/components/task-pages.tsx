@@ -9,6 +9,7 @@ import { TaskActivityTimeline } from "@/components/task-activity-timeline";
 import { TaskForm, type TaskFormValues } from "@/components/task-form";
 import { TaskHubView } from "@/components/task-hub-view";
 import { TaskUpdatePanel, type TaskUpdatePayload } from "@/components/task-update-panel";
+import { PortalServiceRequestPanel } from "@/components/portal/portal-service-request-panel";
 import { useAuth } from "@/lib/auth-store";
 import { displayName } from "@/lib/access/types";
 import { useData } from "@/lib/data-store";
@@ -413,6 +414,8 @@ function TaskDetailViewInner({ id }: { id: string }) {
               </p>
             ) : null}
           </section>
+
+          <PortalServiceRequestPanel task={liveTask} canManage={canManage && active} />
 
           {canManage && active ? (
             <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">

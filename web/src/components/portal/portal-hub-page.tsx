@@ -90,6 +90,15 @@ export function PortalHubPage() {
               <h2 className="text-base font-semibold text-slate-900">My funding</h2>
               <p className="mt-1 text-sm text-slate-600">Plan budget summary by support category.</p>
             </Link>
+            <Link
+              href="/portal/requests"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#f9a8d4]/60 hover:shadow-md sm:col-span-2"
+            >
+              <h2 className="text-base font-semibold text-slate-900">Request a service</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Ask for new or changed supports. Track status from submitted through to approval.
+              </p>
+            </Link>
           </div>
 
           {session.planReviewDueDate ? (

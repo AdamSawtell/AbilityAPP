@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **96%** |
+| **Overall completion** | **97%** |
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
-| **Active slice** | WP-0.3 complete — Portal MVP (read-only services + budget) |
-| **Next slice** | WP-0.4 — Service request workflow stub |
-| **Last push** | 2026-06-20 — `98dcf9f` |
+| **Active slice** | WP-0.4 complete — Service request workflow stub |
+| **Next slice** | WP-0.5 — External CRM sync (optional) or Chunk 0 cross-sell |
+| **Last push** | 2026-06-20 — `544a3b7` |
 
 ---
 
@@ -74,7 +74,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
-| 0 | Enquiry & CRM + portal | 10% | **37%** | 🟡 Partial | Service request workflow (WP-0.4) |
+| 0 | Enquiry & CRM + portal | 10% | **50%** | 🟡 Partial | Cross-sell / CRM sync optional |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
@@ -573,6 +573,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 5 | **My funding** | Plan budget summary + category lines |
 | 6 | **Sign out** | Returns to login; protected routes redirect |
 
+### WP-0.4 — Service request workflow stub (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Portal sign-in as **Bernie@email** → **Request a service** | Form + request list load |
+| 2 | Submit community participation request | Status **Under review**; success message |
+| 3 | Staff **Tasks** → open linked review task | Portal service request panel visible |
+| 4 | **Approve and create variation draft** | Draft SA link shown; request **Approved** on portal |
+| 5 | Portal refresh | Participant sees **Approved** status |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -936,6 +946,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Portal is separate from staff roles; staff configure client email + plan budget |
 | **Admin verify** | Bernie@email signs in; services + budget render read-only |
 
+### WP-0.4 — Service request workflow stub
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Participant portal** → Request a new service + coordinator review |
+| **User steps** | 1. Portal → **Request a service**. 2. Submit form. 3. Track status. 4. Staff approve on linked task → draft variation. |
+| **System setup** | `/system/setup/clients` — portal email + active service agreement for variation stub |
+| **Reference data** | — |
+| **Role access** | Support Coordinator role receives review tasks; assign-task / action-task to approve |
+| **Admin verify** | Approve creates draft SA variation; decline shows reason on portal |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
@@ -1081,6 +1102,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run build` | exit 0 (WP-0.3) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 95 routes (WP-0.3) |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625330000` portal demo shifts |
+| 2026-06-20 | `npm run build` | exit 0 (WP-0.4) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.4) |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625340000` portal service request |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625320000` enquiry qualification |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625310000` enquiry pipeline + loss_reason |
 
@@ -1122,6 +1146,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.1 | `/enquiries`, `/enquiries/1000025` | **Pass** | build verified; pipeline panel + stage filters |
 | 2026-06-20 | WP-0.2 | `/enquiries/1000025?tab=Qualification`, `/enquiries` | **Pass** | build verified; score panel + tier filters |
 | 2026-06-20 | WP-0.3 | `/portal/login`, `/portal`, `/portal/services`, `/portal/budget` | **Pass** | build verified; magic-link auth + read-only APIs |
+| 2026-06-20 | WP-0.4 | `/portal/requests`, `/tasks` (portal review task) | **Pass** | build verified; submit + approve variation stub |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1159,6 +1184,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.1 | 3 High — all fixed | **Pass** | Convert-only won status, local overdue date, pipeline validation on create/AI save |
 | 2026-06-20 | WP-0.2 | 1 High — fixed | **Pass** | Stored org profile used for persisted qualification score |
 | 2026-06-20 | WP-0.3 | 4 High + 3 Medium — all fixed | **Pass** | Email revalidation, draft shift filter, portal DataStore skip, duplicate email guard |
+| 2026-06-20 | WP-0.4 | 2 High + 2 Medium — all fixed | **Pass** | Staff process auth, conditional status update, submit order, panel canManage |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1209,6 +1235,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.1 | `core` — enquiry pipeline + follow-ups | `enquiries-setup` — pipeline statuses + loss reasons | exit 0 — 92 routes |
 | 2026-06-20 | WP-0.2 | `core` — NDIS qualification scoring | `enquiries-setup` — plan status + urgency lists | exit 0 — 92 routes |
 | 2026-06-20 | WP-0.3 | `participant-portal` — magic link, services, funding | `clients-setup` — participant email + portal demo | exit 0 — 95 routes |
+| 2026-06-20 | WP-0.4 | `participant-portal` — service request + coordinator review | `clients-setup` — portal request test + SA variation | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
