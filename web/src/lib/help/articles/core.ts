@@ -156,11 +156,12 @@ export const enquiriesArticle: HelpArticle = {
     {
       id: "enquiry-crm-sync",
       title: "HubSpot CRM sync",
-      body: "When HubSpot is configured, coordinators can push an enquiry to your external CRM as a contact. Dry-run mode validates the payload without sending a live request.",
+      body: "When HubSpot is configured, coordinators can push an enquiry to your external CRM as a contact. Dry-run mode validates the payload without sending a live request. Live mode upserts by email (or updates the stored HubSpot contact id on re-sync).",
       steps: [
         "Open an enquiry with email or phone filled in.",
         "Review the External CRM sync panel below the pipeline.",
         "Click Sync to HubSpot (or Re-sync after contact details change).",
+        "In live mode, AbilityAPP calls the HubSpot CRM v3 API — contacts match on email when no HubSpot id is stored yet.",
         "Check the audit trail and Activity tab for the CRM sync entry.",
       ],
       relatedRoutes: ["/enquiries"],

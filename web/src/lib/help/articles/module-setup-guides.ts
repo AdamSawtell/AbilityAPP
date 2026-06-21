@@ -51,6 +51,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant the Qualification tab under Enquiries for intake roles.",
       "Create a test enquiry and confirm the qualification score updates on save.",
       "Optional: set WEB_TO_LEAD_SECRET and HUBSPOT_DRY_RUN=true — POST a test payload to /api/public/web-to-lead and sync an enquiry from the CRM panel.",
+      "For live HubSpot sync: create a private app with crm.objects.contacts.read + crm.objects.contacts.write scopes, set HUBSPOT_ACCESS_TOKEN (unset HUBSPOT_DRY_RUN), and map optional custom properties via HUBSPOT_PROPERTY_* env vars if needed.",
       "Confirm cross-sell alerts appear on the Enquiries list for underserviced active clients (e.g. Bern).",
     ]
   ),
