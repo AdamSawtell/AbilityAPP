@@ -114,6 +114,7 @@ import { enquiryEventsFromSave } from "@/lib/task-automation/enquiry-triggers";
 import type { AutomationEvent } from "@/lib/task-automation/events";
 import { incidentEventsFromSave } from "@/lib/task-automation/incident-triggers";
 import { locationEventsFromSave } from "@/lib/task-automation/location-triggers";
+import { timesheetEventsFromSave } from "@/lib/task-automation/timesheet-triggers";
 import { investigationSlaDays } from "@/lib/incident-analytics";
 import { defaultOrganization } from "@/lib/organization";
 import { convertEnquiryToClient } from "@/lib/convert";
@@ -1269,8 +1270,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
       );
       void persistRemote((supabase) => saveTimesheet(supabase, stamped));
+      const employee = employeesRef.current.find((e) => e.id === stamped.employeeId);
+      runAutomationEvents(timesheetEventsFromSave(stamped, before, employee));
     },
-    [persistRemote, timesheetsRef]
+    [persistRemote, timesheetsRef, employeesRef, runAutomationEvents]
   );
 
   const bulkUpsertTimesheets = useCallback(

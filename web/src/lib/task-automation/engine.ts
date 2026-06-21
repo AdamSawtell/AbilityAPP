@@ -5,6 +5,8 @@ import type { IncidentRecord } from "@/lib/incident";
 import { formatDisplayDateTime } from "@/lib/incident";
 import type { LocationRecord } from "@/lib/location";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
+import type { TimesheetRecord } from "@/lib/timesheet";
+import { formatTimesheetPeriod } from "@/lib/timesheet";
 import type { TaskRecord } from "@/lib/task";
 import {
   automationDedupeKey,
@@ -45,6 +47,7 @@ export type AutomationTemplateContext = {
   employee?: EmployeeRecord;
   credential?: EmployeeCredentialRow;
   leaveRequest?: EmployeeLeaveRequestRow;
+  timesheet?: TimesheetRecord;
   client?: ClientRecord;
   location?: LocationRecord;
   agreement?: ServiceAgreementRecord;
@@ -98,6 +101,8 @@ function buildTemplateContextFromEvent(
       };
     case "employee.leave_requested":
       return { employee: event.employee, leaveRequest: event.leaveRequest, org };
+    case "timesheet.submitted":
+      return { employee: event.employee, timesheet: event.timesheet, org };
     case "client.created":
     case "client.updated":
     case "client.alert_added":
@@ -145,6 +150,11 @@ const TEMPLATE_VARS: Record<string, (ctx: AutomationTemplateContext) => string> 
   "leave.startDate": (ctx) => formatDateField(ctx.leaveRequest?.startDate ?? ""),
   "leave.endDate": (ctx) => formatDateField(ctx.leaveRequest?.endDate ?? ""),
   "leave.daysRequested": (ctx) => String(ctx.leaveRequest?.daysRequested ?? "—"),
+  "timesheet.documentNo": (ctx) => ctx.timesheet?.documentNo ?? "—",
+  "timesheet.period": (ctx) =>
+    ctx.timesheet ? formatTimesheetPeriod(ctx.timesheet.periodStart, ctx.timesheet.periodEnd) : "—",
+  "timesheet.totalHours": (ctx) =>
+    ctx.timesheet?.totalHours != null ? String(ctx.timesheet.totalHours) : "—",
   "client.name": (ctx) => ctx.client?.name ?? "—",
   "client.searchKey": (ctx) => ctx.client?.searchKey ?? "—",
   "alert.title": (ctx) => ctx.alertTitle ?? "—",
@@ -279,6 +289,13 @@ function entityLinkFromEvent(event: AutomationEvent): EntityLink {
         entityId: event.employee.id,
         entityLabel: `${event.employee.searchKey} — ${event.leaveRequest.leaveType}`,
         dedupeEntityId: `${event.employee.id}:${event.leaveRequest.id}`,
+      };
+    case "timesheet.submitted":
+      return {
+        entityType: "employee",
+        entityId: event.employee.id,
+        entityLabel: `${event.employee.searchKey} — ${event.timesheet.documentNo}`,
+        dedupeEntityId: `${event.employee.id}:${event.timesheet.id}`,
       };
     case "client.created":
     case "client.updated":
@@ -502,6 +519,7 @@ export type AutomationPreviewSamples = {
   employee?: EmployeeRecord;
   credential?: EmployeeCredentialRow;
   leaveRequest?: EmployeeLeaveRequestRow;
+  timesheet?: TimesheetRecord;
   client?: ClientRecord;
   location?: LocationRecord;
   alertTitle?: string;
@@ -521,7 +539,13 @@ export function buildAutomationPreviewContext(
     case "enquiries":
       return { enquiry: samples.enquiry, org };
     case "employees":
-      return { employee: samples.employee, credential: samples.credential, leaveRequest: samples.leaveRequest, org };
+      return {
+        employee: samples.employee,
+        credential: samples.credential,
+        leaveRequest: samples.leaveRequest,
+        timesheet: samples.timesheet,
+        org,
+      };
     case "clients":
       return { client: samples.client, alertTitle: samples.alertTitle, org };
     case "locations":
@@ -584,6 +608,10 @@ export function previewEventForTrigger(
     case "employee.leave_requested":
       return samples.employee && samples.leaveRequest
         ? { type: trigger, employee: samples.employee, leaveRequest: samples.leaveRequest }
+        : null;
+    case "timesheet.submitted":
+      return samples.employee && samples.timesheet
+        ? { type: trigger, employee: samples.employee, timesheet: samples.timesheet }
         : null;
     case "service-agreement.expiring":
       return samples.agreement

@@ -71,6 +71,7 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
     locations,
     tasks,
     employees,
+    timesheets,
   } = useData();
   const { organization } = useOrganization();
   const { taskTypes, getTaskTypeName } = useTaskTypes();
@@ -97,6 +98,8 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
   const previewSamples = useMemo(() => {
     const employee = employees.find((e) => e.id === previewSampleId) ?? employees[0];
     const credential = employee?.credentials?.find((c) => c.expiryDate) ?? employee?.credentials?.[0];
+    const leaveRequest = employee?.leaveRequests?.[0];
+    const timesheet = timesheets.find((t) => t.employeeId === employee?.id) ?? timesheets[0];
     return {
       incident: incidents.find((i) => i.id === previewSampleId) ?? incidents[0],
       enquiry: enquiries.find((e) => e.id === previewSampleId) ?? enquiries[0],
@@ -104,9 +107,11 @@ export function TaskAutomationsAdminView({ variant = "workspace" }: { variant?: 
       location: locations.find((l) => l.id === previewSampleId) ?? locations[0],
       employee,
       credential,
+      leaveRequest,
+      timesheet,
       alertTitle: "Sample alert",
     };
-  }, [incidents, enquiries, clients, locations, employees, previewSampleId]);
+  }, [incidents, enquiries, clients, locations, employees, timesheets, previewSampleId]);
 
   const previewContext = useMemo(() => {
     if (!record) return null;

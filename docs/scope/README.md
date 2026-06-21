@@ -16,6 +16,7 @@ Keep the `.docx` as the legal/product authority. This repo holds structured extr
 | File | Purpose |
 |------|---------|
 | [../SCOPE-ROADMAP.md](../SCOPE-ROADMAP.md) | Phased backlog, status, next work packages |
+| [../plans/document-platform/README.md](../plans/document-platform/README.md) | Document/form creator — approach, compliance, core pack, stages (draft for review) |
 | [_extract.txt](./_extract.txt) | Plain-text extract for search (encoding may be imperfect) |
 
 To refresh the extract from the docx (Windows, with Word installed):

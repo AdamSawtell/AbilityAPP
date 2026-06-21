@@ -9,10 +9,16 @@ import { canApproveTimesheet, type TimesheetApprovalScopeKind } from "@/lib/work
 import { recordProcessExecution } from "@/lib/process-audit/server";
 
 function parseScope(value: string | null): TimesheetApprovalScopeKind {
-  if (value === "direct-reports" || value === "my-locations" || value === "location" || value === "organisation") {
+  if (
+    value === "management-line" ||
+    value === "direct-reports" ||
+    value === "my-locations" ||
+    value === "location" ||
+    value === "organisation"
+  ) {
     return value;
   }
-  return "direct-reports";
+  return "management-line";
 }
 
 export async function GET(request: Request) {

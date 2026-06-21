@@ -295,8 +295,29 @@ Chunk 1 Client ──► Chunk 2 Agreement ──► Chunk 3 Booking
 | 6 | Payroll primary: Keypay vs Xero | Chunk 6 | Keypay per scope doc |
 | 7 | Client portal auth model | Chunk 0 portal | Email magic link |
 | 8 | RoC CSV/template sample | Chunk 4d | Generate from agreements |
+| 9 | Document platform PDF host + legal sign-off on scaffolds | Chunk D Stage 3 | HTML print only until decided; see [plans/document-platform](./plans/document-platform/README.md) |
 
 Everything else can proceed with sensible defaults and feature flags.
+
+---
+
+## Chunk D — Document & form platform (cross-cutting)
+
+**Planning pack (review):** [docs/plans/document-platform/README.md](./plans/document-platform/README.md)
+
+| Stage | Deliverable | Status |
+|-------|-------------|--------|
+| D0 | Schema, org brand kit (bank/footer/logo upload), merge field registry | ⬜ |
+| D1 | Invoice template + `print-invoice` process binding (replaces `invoice-print.ts`) | ⬜ |
+| D2 | System template editor (block list, preview, publish) | ⬜ |
+| D3 | PDF export + document registry (private bucket) | ⬜ |
+| D4 | Batch invoice PDF + process binding admin | ⬜ |
+| D5 | Service agreement printable pack + e-sign PDF archive | ⬜ |
+| D6 | HR employment contract pack + My workplace delivery | ⬜ |
+
+**DMS decision:** Lightweight **document registry** (metadata + private storage + entity links) — not a full enterprise DMS. See architecture doc in planning pack.
+
+**Recommended entry:** WP-D.0 (Stages D0 + D1) after stakeholder review — can run in parallel with Chunk 2/7 once invoice module is live.
 
 ---
 

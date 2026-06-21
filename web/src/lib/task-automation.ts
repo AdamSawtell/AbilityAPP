@@ -28,6 +28,7 @@ export type TaskAutomationTriggerEvent =
   | "employee.credential_expiring"
   | "employee.credential_pending_review"
   | "employee.leave_requested"
+  | "timesheet.submitted"
   | "service-agreement.expiring";
 
 export type TaskAutomationDedupePolicy = "one_open_per_entity" | "once_ever" | "none";
@@ -338,6 +339,27 @@ export const initialTaskAutomations: TaskAutomationRecord[] = [
     sortOrder: 60,
   },
   {
+    id: "tar-timesheet-submitted",
+    name: "Timesheet submitted — manager approval",
+    active: true,
+    module: "employees",
+    triggerEvent: "timesheet.submitted",
+    conditions: {},
+    taskTypeId: "tt-approve",
+    titleTemplate: "Approve timesheet — {{employee.name}}",
+    descriptionTemplate:
+      "{{employee.name}} submitted timesheet {{timesheet.documentNo}} for {{timesheet.period}} ({{timesheet.totalHours}} hours). Approve in Timesheet approval.",
+    priority: "Normal",
+    dueOffsetHours: 48,
+    dueOffsetDays: null,
+    dueFromField: null,
+    assigneeMode: "org_reports_to_manager",
+    assigneePositionId: "",
+    assigneeRoleId: "role-team-leader",
+    dedupePolicy: "one_open_per_entity",
+    sortOrder: 62,
+  },
+  {
     id: "tar-client-alert",
     name: "Client alert added",
     active: true,
@@ -489,6 +511,12 @@ export const TASK_AUTOMATION_TRIGGER_OPTIONS: {
     hint: "When staff submit a leave request for manager approval",
     module: "employees",
   },
+  {
+    value: "timesheet.submitted",
+    label: "Timesheet submitted",
+    hint: "When a worker submits a draft timesheet for supervisor approval",
+    module: "employees",
+  },
   { value: "incident.created", label: "Incident created", hint: "When a new incident is saved", module: "incidents" },
   { value: "incident.updated", label: "Incident updated", hint: "Any incident save (use conditions to narrow)", module: "incidents" },
   { value: "incident.reportable_set", label: "Marked reportable", hint: "When isReportable becomes true", module: "incidents" },
@@ -541,6 +569,9 @@ export const TASK_AUTOMATION_TEMPLATE_PLACEHOLDERS = [
   "{{leave.startDate}}",
   "{{leave.endDate}}",
   "{{leave.daysRequested}}",
+  "{{timesheet.documentNo}}",
+  "{{timesheet.period}}",
+  "{{timesheet.totalHours}}",
   "{{client.name}}",
   "{{client.searchKey}}",
   "{{location.name}}",

@@ -29,7 +29,12 @@ const bucketLabel: Record<TimesheetApprovalBucket, string> = {
 };
 
 function defaultScope(scopes: TimesheetApprovalQueue["scopes"]): TimesheetApprovalScopeKind {
-  return scopes.find((s) => s.kind === "direct-reports")?.kind ?? scopes[0]?.kind ?? "direct-reports";
+  return (
+    scopes.find((s) => s.kind === "management-line")?.kind ??
+    scopes.find((s) => s.kind === "direct-reports")?.kind ??
+    scopes[0]?.kind ??
+    "management-line"
+  );
 }
 
 export function TimesheetApprovalView() {
@@ -38,7 +43,7 @@ export function TimesheetApprovalView() {
   const canView = canWindow("timesheet-approval");
   const canApprove = canProcess("approve-timesheet");
 
-  const [scope, setScope] = useState<TimesheetApprovalScopeKind>("direct-reports");
+  const [scope, setScope] = useState<TimesheetApprovalScopeKind>("management-line");
   const [locationId, setLocationId] = useState("");
   const [activeBucket, setActiveBucket] = useState<TimesheetApprovalBucket | "all">("ready");
   const [selected, setSelected] = useState<Set<string>>(new Set());

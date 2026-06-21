@@ -123,8 +123,20 @@ export function entityHref(entityType: TaskEntityType, entityId: string): string
 
 export const WORKFORCE_LEAVE_AUTOMATION_RULE = "tar-employee-leave-requested";
 export const WORKFORCE_CREDENTIAL_AUTOMATION_RULE = "tar-employee-credential-pending-review";
+export const WORKFORCE_TIMESHEET_AUTOMATION_RULE = "tar-timesheet-submitted";
 
 export type TaskRelatedLink = { href: string; label: string };
+
+function timesheetIdFromTimesheetAutomationTask(task: TaskRecord): string | null {
+  if (task.automationRuleId !== WORKFORCE_TIMESHEET_AUTOMATION_RULE) return null;
+  const key = task.automationDedupeKey?.trim();
+  if (!key) return null;
+  const prefix = `rule:${WORKFORCE_TIMESHEET_AUTOMATION_RULE}:employee:`;
+  if (!key.startsWith(prefix)) return null;
+  const rest = key.slice(prefix.length);
+  const sep = rest.indexOf(":");
+  return sep >= 0 ? rest.slice(sep + 1) : null;
+}
 
 /** Primary action links for automation-created workforce tasks. */
 export function taskRelatedLinks(task: TaskRecord): TaskRelatedLink[] {
@@ -135,6 +147,24 @@ export function taskRelatedLinks(task: TaskRecord): TaskRelatedLink[] {
     task.automationRuleId === WORKFORCE_CREDENTIAL_AUTOMATION_RULE
   ) {
     links.push({ href: "/workforce-planning#reviews", label: "Workforce review queue" });
+  }
+
+  if (task.automationRuleId === WORKFORCE_TIMESHEET_AUTOMATION_RULE) {
+    links.push({ href: "/timesheet-approval", label: "Timesheet approval" });
+    const timesheetId = timesheetIdFromTimesheetAutomationTask(task);
+    if (timesheetId) {
+      links.push({
+        href: `/timesheets/${timesheetId}`,
+        label: task.entityLabel?.trim() || "Timesheet record",
+      });
+    }
+    if (task.entityType === "employee" && task.entityId) {
+      links.push({
+        href: entityHref("employee", task.entityId),
+        label: "Employee record",
+      });
+    }
+    return links;
   }
 
   if (task.entityType === "employee" && task.entityId) {

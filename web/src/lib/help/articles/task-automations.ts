@@ -34,7 +34,7 @@ export const taskAutomationsArticle: HelpArticle = {
     {
       id: "what-are-task-automations",
       title: "What task automations are",
-      body: "Task automations replace external email for operational alerts. Rules assign to a security role, an org position holder, the incident accountable manager, or the employee's reports-to manager.\n\nAll rule types are live: enquiry, client, location, employee (credential pending review, leave requested, scheduled credential expiry), and incident (scheduled NDIS and investigation SLA checks).",
+      body: "Task automations replace external email for operational alerts. Rules assign to a security role, an org position holder, the incident accountable manager, or the employee's reports-to manager.\n\nAll rule types are live: enquiry, client, location, employee (credential pending review, leave requested, timesheet submitted, scheduled credential expiry), and incident (scheduled NDIS and investigation SLA checks).",
       bullets: [
         "Automations are rules, not one-off tasks.",
         "Each rule has a rule type (enquiry, client, location, employee, or incident).",
@@ -70,7 +70,7 @@ export const taskAutomationsArticle: HelpArticle = {
         "Enquiry: intake events such as new enquiry or status change.",
         "Client: client record events such as new client or new alert line.",
         "Location: support location events such as new site or new alert.",
-        "Employee: staff events — credential pending review, leave requested, credential expiry, new employee.",
+        "Employee: staff events — credential pending review, leave requested, timesheet submitted, credential expiry, new employee.",
         "Incident: reportable incidents, NDIS deadlines, and investigation SLA.",
       ],
     },
@@ -100,6 +100,7 @@ export const taskAutomationsArticle: HelpArticle = {
       bullets: [
         "Credential pending review: staff submits a credential from My workplace → Credentials.",
         "Leave requested: staff submits leave from My workplace or a manager submits on behalf.",
+        "Timesheet submitted: worker submits a draft timesheet from My workplace or Timesheets.",
         "Employee created: first save of a new employee record.",
       ],
       relatedRoutes: ["/my/credentials", "/my/leave", "/workforce-planning"],
@@ -117,6 +118,7 @@ export const taskAutomationsArticle: HelpArticle = {
         "{{employee.name}}, {{employee.searchKey}}, {{employee.jobTitle}}",
         "{{credential.type}}, {{credential.expiryDate}}",
         "{{leave.type}}, {{leave.startDate}}, {{leave.endDate}}, {{leave.daysRequested}}",
+        "{{timesheet.documentNo}}, {{timesheet.period}}, {{timesheet.totalHours}}",
       ],
     },
     {
@@ -131,6 +133,19 @@ export const taskAutomationsArticle: HelpArticle = {
         "Manager approves in review queue — task auto-closes; balance deducts.",
       ],
       relatedRoutes: ["/my/leave", "/workforce-planning#reviews", "/system/admin/task-automations"],
+    },
+    {
+      id: "walkthrough-timesheet-task",
+      title: "Walkthrough: timesheet approval task",
+      steps: [
+        "Confirm seeded rule Timesheet submitted — manager approval is Active.",
+        "Assignee mode: Employee reports-to manager; fallback role Team leader.",
+        "Worker submits a draft timesheet on My workplace → My timesheets.",
+        "Manager sees Approve task under Tasks → Assigned to me.",
+        "Task links to Timesheet approval and the timesheet record.",
+        "Manager approves in Timesheet approval — automation task closes.",
+      ],
+      relatedRoutes: ["/my/timesheets", "/timesheet-approval", "/system/admin/task-automations"],
     },
     {
       id: "walkthrough-credential-task",

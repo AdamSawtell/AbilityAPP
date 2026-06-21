@@ -16,6 +16,7 @@ import {
   logTaskUpdate,
   WORKFORCE_CREDENTIAL_AUTOMATION_RULE,
   WORKFORCE_LEAVE_AUTOMATION_RULE,
+  WORKFORCE_TIMESHEET_AUTOMATION_RULE,
 } from "@/lib/task";
 import type { AutomationTaskDraft } from "@/lib/task-automation/engine";
 
@@ -136,7 +137,8 @@ export async function runServerScheduledAutomations(supabase: SupabaseClient): P
 
 export type WorkforceAutomationCloseInput =
   | { type: "leave"; employeeId: string; requestId: string; summary: string; reviewerName: string }
-  | { type: "credential"; employeeId: string; credentialId: string; summary: string; reviewerName: string };
+  | { type: "credential"; employeeId: string; credentialId: string; summary: string; reviewerName: string }
+  | { type: "timesheet"; employeeId: string; timesheetId: string; summary: string; reviewerName: string };
 
 /** Close open automation tasks when a workforce review action completes the loop. */
 export async function closeWorkforceAutomationTasks(
@@ -144,8 +146,17 @@ export async function closeWorkforceAutomationTasks(
   input: WorkforceAutomationCloseInput
 ): Promise<number> {
   const ruleId =
-    input.type === "leave" ? WORKFORCE_LEAVE_AUTOMATION_RULE : WORKFORCE_CREDENTIAL_AUTOMATION_RULE;
-  const lineId = input.type === "leave" ? input.requestId : input.credentialId;
+    input.type === "leave"
+      ? WORKFORCE_LEAVE_AUTOMATION_RULE
+      : input.type === "credential"
+        ? WORKFORCE_CREDENTIAL_AUTOMATION_RULE
+        : WORKFORCE_TIMESHEET_AUTOMATION_RULE;
+  const lineId =
+    input.type === "leave"
+      ? input.requestId
+      : input.type === "credential"
+        ? input.credentialId
+        : input.timesheetId;
   const dedupeKey = automationDedupeKey(ruleId, "employee", `${input.employeeId}:${lineId}`);
 
   const tasks = await fetchTasks(supabase);

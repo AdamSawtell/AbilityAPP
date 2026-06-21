@@ -189,6 +189,26 @@ values
     60
   ),
   (
+    'tar-timesheet-submitted',
+    'Timesheet submitted — manager approval',
+    true,
+    'employees',
+    'timesheet.submitted',
+    '{}'::jsonb,
+    'tt-approve',
+    'Approve timesheet — {{employee.name}}',
+    '{{employee.name}} submitted timesheet {{timesheet.documentNo}} for {{timesheet.period}} ({{timesheet.totalHours}} hours). Approve in Timesheet approval.',
+    'Normal',
+    48,
+    null,
+    null,
+    'org_reports_to_manager',
+    null,
+    'role-team-leader',
+    'one_open_per_entity',
+    62
+  ),
+  (
     'tar-client-alert',
     'Client alert added',
     true,

@@ -5,8 +5,14 @@ import type { RosterShiftRecord } from "@/lib/roster-shift";
 import { formatTimesheetPeriod, type TimesheetRecord } from "@/lib/timesheet";
 import { verifyTimesheet } from "@/lib/timesheet-verification";
 import { timesheetApproveBlocked } from "@/lib/timesheet-workflow";
+import { isInManagementLine } from "@/lib/workforce/management-line";
 
-export type TimesheetApprovalScopeKind = "direct-reports" | "my-locations" | "location" | "organisation";
+export type TimesheetApprovalScopeKind =
+  | "management-line"
+  | "direct-reports"
+  | "my-locations"
+  | "location"
+  | "organisation";
 
 export type TimesheetApprovalBucket = "ready" | "review" | "blocked";
 
@@ -117,6 +123,10 @@ export function employeeInApprovalScope(
   const sheetLocations = timesheetLocationIds(sheet, ctx.rosterShifts);
   const reviewerLocations = reviewerLocationIds(reviewerId, ctx.locations);
 
+  if (scope === "management-line") {
+    return Boolean(reviewerId && isInManagementLine(employeeId, reviewerId, ctx.employees));
+  }
+
   if (scope === "direct-reports") {
     return Boolean(reviewerId && employee.reportsToId === reviewerId);
   }
@@ -166,6 +176,7 @@ export function buildTimesheetApprovalScopes(
 
   const scopes: TimesheetApprovalScopeOption[] = [];
   if (ctx.reviewerEmployeeId) {
+    scopes.push({ kind: "management-line", label: "My management line" });
     scopes.push({ kind: "direct-reports", label: "My direct reports" });
     const mine = reviewerLocationIds(ctx.reviewerEmployeeId, ctx.locations);
     if (mine.size) scopes.push({ kind: "my-locations", label: "My site(s)" });

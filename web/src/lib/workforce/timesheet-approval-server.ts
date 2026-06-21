@@ -7,6 +7,7 @@ import { normalizeTimesheet, type TimesheetRecord } from "@/lib/timesheet";
 import { fetchUsers } from "@/lib/supabase/access-api";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { saveTimesheet } from "@/lib/supabase/data-api";
+import { closeWorkforceAutomationTasks } from "@/lib/task-automation/run-server";
 import {
   rosterShiftFromRow,
   timesheetFromRow,
@@ -206,6 +207,13 @@ export async function applyTimesheetApprovals(
     });
     if (isSupabaseConfigured()) {
       await saveTimesheet(serviceClient(), next);
+      await closeWorkforceAutomationTasks(serviceClient(), {
+        type: "timesheet",
+        employeeId: sheet.employeeId,
+        timesheetId: sheet.id,
+        summary: `Approved ${sheet.documentNo}`,
+        reviewerName: actorName,
+      });
     }
     approved.push(next);
   }
