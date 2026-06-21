@@ -689,6 +689,11 @@ export const ALL_WINDOW_KEYS = ACCESS_WINDOWS.map((w) => w.key);
 /** Windows assignable via workspace roles — excludes System-surface windows. */
 export const APP_WINDOW_KEYS = ACCESS_WINDOWS.filter((w) => w.surface !== "system").map((w) => w.key);
 
+/** Delivery group windows shown in the workspace sidebar (catalog-driven). */
+export function deliverySidebarWindows(): AccessWindow[] {
+  return DELIVERY_WINDOWS.filter((w) => w.showInSidebar !== false && w.href);
+}
+
 export const SYSTEM_SURFACE_WINDOW_KEYS = ACCESS_WINDOWS.filter((w) => w.surface === "system").map((w) => w.key);
 
 export function windowSurface(key: string): "app" | "system" {

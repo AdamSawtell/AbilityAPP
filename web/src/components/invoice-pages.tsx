@@ -29,6 +29,8 @@ import {
   type InvoiceRecord,
 } from "@/lib/invoice";
 import { useData } from "@/lib/data-store";
+import { printClientInvoice } from "@/lib/invoice-print";
+import { useOrganization } from "@/lib/organization-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
 
 const inputClass =
@@ -375,12 +377,14 @@ export function GenerateInvoicesView() {
 
 export function InvoiceDetailView({ id }: { id: string }) {
   const data = useData();
+  const { organization } = useOrganization();
   const { session, canWriteWindow } = useAuth();
   const canEdit = canWriteWindow("invoices");
   const stored = data.invoices.find((inv) => inv.id === id);
   const [draft, setDraft] = useState<InvoiceRecord | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [printError, setPrintError] = useState("");
 
   const record = draft ?? stored;
   const client = data.clients.find((c) => c.id === record?.clientId);
@@ -455,6 +459,18 @@ export function InvoiceDetailView({ id }: { id: string }) {
 
   const locked = invoiceRecordIsLocked(stored ?? record);
 
+  const handlePrint = () => {
+    setPrintError("");
+    const ok = printClientInvoice({
+      invoice: record,
+      client,
+      organization,
+    });
+    if (!ok) {
+      setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+    }
+  };
+
   return (
     <>
       <AppShell
@@ -472,6 +488,23 @@ export function InvoiceDetailView({ id }: { id: string }) {
         }}
       >
         <div className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-slate-600">
+              Print a tax invoice for the plan manager or participant. Save any edits before printing.
+            </p>
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              Print invoice
+            </button>
+          </div>
+
+          {printError ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
+          ) : null}
+
           <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-3">
             <label className="block text-sm">
               <span className="mb-1 block font-medium text-slate-700">Client</span>

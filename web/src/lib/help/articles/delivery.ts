@@ -278,6 +278,7 @@ export const deliveryArticle: HelpArticle = {
         "Click Generate invoices — one Draft invoice is created per participant.",
         "Open the invoice, confirm Invoice to and due date, and fix any PAPL validation errors.",
         "Mark as sent when the invoice is issued to the plan manager or participant.",
+        "Use Print invoice on the invoice detail page to open a printable tax invoice for email or post.",
         "Record payment status and paid amount when payment is received.",
       ],
       relatedRoutes: ["/invoices", "/generate-invoices"],

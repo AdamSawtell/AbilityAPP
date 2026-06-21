@@ -28,8 +28,9 @@ Do not start a chunk out of order unless the roadmap explicitly marks it as para
 2. **Tier 2** — Browser smoke on **localhost** (`npm run dev`) using **What you can test** steps; log pass/fail
 3. **Tier 3** — **Bugbot** subagent on uncommitted or branch changes; fix Critical/High before push; log result
 4. Update BUILD-PROGRESS (verification + browser + code review logs)
-5. Push to `main`
-6. **Immediately** start the next slice — do not pause for user confirmation
+5. **Supabase (required when migrations or seed SQL changed)** — `npm run supabase:push-remote` for new migrations; run targeted seed SQL when access/seed files changed (`npm run supabase:seed-demo-once -- --file supabase/seed-access.sql` or the file you touched). Do not hand off without applying to remote.
+6. **Commit and push to `main`** — never leave finished work only on local disk; push includes any pending commits from the slice.
+7. **Immediately** start the next slice — do not pause for user confirmation
 
 See [.cursor/commands/test-before-handoff.md](../.cursor/commands/test-before-handoff.md).
 

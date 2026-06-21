@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth-store";
-import { ACCESS_WINDOWS } from "@/lib/access/catalog";
+import { ACCESS_WINDOWS, deliverySidebarWindows } from "@/lib/access/catalog";
 import { useData } from "@/lib/data-store";
 import { incidentHomeStats } from "@/lib/incident-hub";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
@@ -52,41 +52,12 @@ const serviceLinks = [
   { href: "/contracts", label: "Contracts", windowKey: "contracts", match: (path: string) => path.startsWith("/contracts") },
 ];
 
-const deliveryLinks = [
-  {
-    href: "/service-bookings",
-    label: "Service bookings",
-    windowKey: "service-bookings",
-    match: (path: string) => path.startsWith("/service-bookings"),
-  },
-  {
-    href: "/service-planning",
-    label: "Service planning",
-    windowKey: "service-planning",
-    match: (path: string) => path.startsWith("/service-planning"),
-  },
-  {
-    href: "/rostering",
-    label: "Rostering",
-    windowKey: "rostering",
-    match: (path: string) => path.startsWith("/rostering"),
-    comingSoon: true,
-  },
-  {
-    href: "/timesheets",
-    label: "Timesheets",
-    windowKey: "timesheets",
-    match: (path: string) => path.startsWith("/timesheets"),
-    comingSoon: true,
-  },
-  {
-    href: "/generate-timesheets",
-    label: "Generate timesheets",
-    windowKey: "generate-timesheets",
-    match: (path: string) => path.startsWith("/generate-timesheets"),
-    comingSoon: true,
-  },
-];
+const deliveryLinks = deliverySidebarWindows().map((w) => ({
+  href: w.href!,
+  label: w.label,
+  windowKey: w.key,
+  match: (path: string) => path === w.href || path.startsWith(`${w.href}/`),
+}));
 
 const adminLinks = ACCESS_WINDOWS.filter(
   (w) => w.group === "Admin" && w.surface !== "system" && w.showInSidebar !== false && w.href
@@ -369,7 +340,8 @@ export function SidebarNav() {
     return map;
   }, [visibleReports]);
   const showReports = canWindow("reports") && visibleReports.length > 0;
-  const hasCoreNav = showHome || showTasks;
+  const showMyWorkplace = visibleMyWorkplaceLinks.length > 0;
+  const hasCoreNav = showHome || showMyWorkplace || showTasks;
   const hasAnyNav =
     hasCoreNav ||
     showEnquiries ||
@@ -403,7 +375,7 @@ export function SidebarNav() {
     if (key === "workforce" && pathname.startsWith("/workforce-planning")) return true;
     if (key === "incidents" && pathname.startsWith("/incidents")) return true;
     if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
-    if (key === "delivery" && (pathname.startsWith("/service-bookings") || pathname.startsWith("/service-planning") || pathname.startsWith("/rostering") || pathname.startsWith("/timesheets") || pathname.startsWith("/generate-timesheets"))) return true;
+    if (key === "delivery" && deliveryLinks.some((l) => l.match(pathname))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
   }
@@ -421,8 +393,26 @@ export function SidebarNav() {
       {showHome ? (
         <TopNavLink href="/" active={pathname === "/"} icon={<NavIcon name="home" />} label="Home" />
       ) : null}
-      {showTasks ? (
+      {showMyWorkplace ? (
         <div className={sectionDividerClass(showHome)}>
+          {visibleMyWorkplaceLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
+                link.match(pathname)
+                  ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/40"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              }`}
+            >
+              <NavIcon name="my-workplace" />
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+      {showTasks ? (
+        <div className={sectionDividerClass(showHome || showMyWorkplace)}>
           <TopNavLink
             href="/tasks"
             active={tasksActive}
@@ -636,33 +626,10 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {visibleMyWorkplaceLinks.length > 0 ? (
-        <div
-          className={sectionDividerClass(
-            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0
-          )}
-        >
-          {visibleMyWorkplaceLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
-                link.match(pathname)
-                  ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4]/40"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-              }`}
-            >
-              <NavIcon name="my-workplace" />
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      ) : null}
-
       {visibleWorkforceLinks.length > 0 ? (
         <div
           className={sectionDividerClass(
-            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0 || visibleMyWorkplaceLinks.length > 0
+            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0
           )}
         >
           <SectionHeader
@@ -801,7 +768,7 @@ export function SidebarNav() {
           )}
         >
           <SectionHeader
-            label="Delivery"
+            label="Service delivery"
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path
@@ -814,8 +781,8 @@ export function SidebarNav() {
             sectionKey="delivery"
             open={isOpen("delivery")}
             onToggle={toggleSection}
-            href="/service-bookings"
-            active={pathname.startsWith("/service-bookings")}
+            href={visibleDeliveryLinks[0]?.href ?? "/service-bookings"}
+            active={visibleDeliveryLinks.some((l) => l.match(pathname))}
           />
           {isOpen("delivery") ? (
             <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
@@ -823,18 +790,13 @@ export function SidebarNav() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs font-medium ${
+                  className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
                     link.match(pathname)
                       ? "bg-[#fdf2f8] text-[#b51266]"
                       : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                   }`}
                 >
-                  <span>{link.label}</span>
-                  {"comingSoon" in link && link.comingSoon ? (
-                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-slate-400">
-                      Soon
-                    </span>
-                  ) : null}
+                  {link.label}
                 </Link>
               ))}
             </div>

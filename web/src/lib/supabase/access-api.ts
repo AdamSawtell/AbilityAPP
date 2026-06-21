@@ -136,15 +136,19 @@ export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecor
     taskTypesByRole.set(row.role_id, list);
   }
 
-  return ((rolesRes.data ?? []) as RoleRow[]).map((row) =>
-    roleFromRow(
+  return ((rolesRes.data ?? []) as RoleRow[]).map((row) => {
+    const role = roleFromRow(
       row,
       windowsByRole.get(row.id) ?? {},
       processesByRole.get(row.id) ?? [],
       reportsByRole.get(row.id) ?? [],
       taskTypesByRole.get(row.id) ?? []
-    )
-  );
+    );
+    if (isAdminRole(role)) {
+      return ensureAdminRoleAccess(role, INITIAL_TASK_TYPES.map((t) => t.id));
+    }
+    return role;
+  });
 }
 
 export async function saveUser(supabase: SupabaseClient, user: AppUserRecord, password?: string) {
