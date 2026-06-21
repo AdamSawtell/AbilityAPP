@@ -27,6 +27,7 @@ function buildContext(data: ReturnType<typeof useData>): AuditPackContext {
     claims: data.claims,
     invoices: data.invoices,
     payrollClosedPeriods: data.payrollClosedPeriods,
+    financialClosedMonths: data.financialClosedMonths,
   };
 }
 

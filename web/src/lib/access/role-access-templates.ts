@@ -101,6 +101,7 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
       "service-planning",
       "plan-reconciliation",
       "claim-reconciliation",
+      "invoice-reconciliation",
       "financial-close",
       "ndis-audit-pack",
       "rostering",

@@ -163,8 +163,12 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant Invoices and Generate invoices for plan-managed and self-managed billing.",
       "Set client Funding body to plan-managed or self-managed before generating invoices.",
       "Grant Plan reconciliation for coordinators reviewing monthly plan vs delivery.",
+      "Grant Multi-provider budget when participants receive support from more than one NDIS provider.",
       "Grant Claim reconciliation for finance and billing coordinators reviewing remittance matches.",
+      "Grant Invoice reconciliation for finance follow-up on unpaid participant invoices.",
       "Grant Financial close for month-end sign-off across plan, billing, and payroll.",
+      "Use Mark month closed on Financial close after the checklist passes.",
+      "Grant My timesheets for workers submitting draft timesheets from My workplace.",
       "Grant NDIS audit pack for quality and compliance audit evidence exports.",
     ]
   ),

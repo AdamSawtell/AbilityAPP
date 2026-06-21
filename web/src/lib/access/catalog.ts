@@ -181,6 +181,15 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "multi-provider-budget",
+    label: "Multi-provider budget",
+    group: "Delivery",
+    href: "/multi-provider-budget",
+    parentWindowKey: "service-planning",
+    abilityErpName: "Multi-provider budget",
+    showInSidebar: false,
+  },
+  {
     key: "rostering",
     label: "Rostering",
     group: "Delivery",
@@ -250,6 +259,14 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     group: "Delivery",
     href: "/claim-reconciliation",
     abilityErpName: "Claim reconciliation",
+    showInSidebar: true,
+  },
+  {
+    key: "invoice-reconciliation",
+    label: "Invoice reconciliation",
+    group: "Delivery",
+    href: "/invoice-reconciliation",
+    abilityErpName: "Invoice reconciliation",
     showInSidebar: true,
   },
   {
@@ -367,6 +384,15 @@ const MY_WORKPLACE_WINDOWS: AccessWindow[] = [
     href: "/my/shifts",
     parentWindowKey: "my-workplace",
     abilityErpName: "My shifts check-in",
+    showInSidebar: false,
+  },
+  {
+    key: "my-timesheets",
+    label: "My timesheets",
+    group: "My workplace",
+    href: "/my/timesheets",
+    parentWindowKey: "my-workplace",
+    abilityErpName: "My timesheets",
     showInSidebar: false,
   },
   {

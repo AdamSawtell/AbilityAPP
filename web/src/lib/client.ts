@@ -559,6 +559,7 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
   const planBudgets = (client.planBudgets ?? []).map((row, index) => ({
     ...row,
     lineNo: row.lineNo ?? index + 1,
+    planProvider: row.planProvider?.trim() || "This organisation",
     allocatedAmount: Number(row.allocatedAmount) || 0,
     claimedAmount: Number(row.claimedAmount) || 0,
   }));

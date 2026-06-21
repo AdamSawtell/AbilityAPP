@@ -22,7 +22,13 @@ import {
   timesheetDropdowns,
   type TimesheetRecord,
 } from "@/lib/timesheet";
-import { verifyTimesheet, timesheetApprovalBlocked } from "@/lib/timesheet-verification";
+import { verifyTimesheet } from "@/lib/timesheet-verification";
+import {
+  timesheetApproveBlocked,
+  timesheetRevertToDraftBlocked,
+  timesheetSubmitBlocked,
+  timesheetWorkflowSummary,
+} from "@/lib/timesheet-workflow";
 import { TimesheetVerificationPanel } from "@/components/timesheet-verification-panel";
 import { PayrollExportDetailActions, PayrollExportPanel } from "@/components/payroll-export-panel";
 import { PayrollReconciliationDetail, PayrollReconciliationPanel } from "@/components/payroll-reconciliation-panel";
@@ -383,6 +389,11 @@ export function TimesheetDetailView({ id }: { id: string }) {
     [record, rosterShifts, locations]
   );
 
+  const workflow = useMemo(
+    () => (record ? timesheetWorkflowSummary(record, rosterShifts, locations) : null),
+    [record, rosterShifts, locations]
+  );
+
   const lineDropdowns = useMemo(
     () => ({
       clientId: clients.map((c) => c.id),
@@ -430,13 +441,46 @@ export function TimesheetDetailView({ id }: { id: string }) {
 
   const handleSave = () => {
     if (!record || !canEdit) return;
-    const block = timesheetApprovalBlocked(record, rosterShifts, record.status, stored?.status, locations);
+    const revertBlock = timesheetRevertToDraftBlocked(stored ?? record, record.status);
+    if (revertBlock) {
+      setSaveError(revertBlock);
+      return;
+    }
+    const block = timesheetApproveBlocked(record, rosterShifts, record.status, stored?.status, locations);
     if (block) {
       setSaveError(block);
       return;
     }
     const actor = session?.displayName || "SuperUser";
     upsertTimesheet({ ...record, updatedBy: actor });
+    setDraft(null);
+    setDirty(false);
+    setSaveError("");
+  };
+
+  const handleSubmit = () => {
+    if (!record || !canEdit) return;
+    const block = timesheetSubmitBlocked(record);
+    if (block) {
+      setSaveError(block);
+      return;
+    }
+    const actor = session?.displayName || "SuperUser";
+    upsertTimesheet({ ...record, status: "Submitted", updatedBy: actor });
+    setDraft(null);
+    setDirty(false);
+    setSaveError("");
+  };
+
+  const handleApprove = () => {
+    if (!record || !canEdit) return;
+    const block = timesheetApproveBlocked(record, rosterShifts, "Approved", stored?.status, locations);
+    if (block) {
+      setSaveError(block);
+      return;
+    }
+    const actor = session?.displayName || "SuperUser";
+    upsertTimesheet({ ...record, status: "Approved", updatedBy: actor });
     setDraft(null);
     setDirty(false);
     setSaveError("");
@@ -524,6 +568,31 @@ export function TimesheetDetailView({ id }: { id: string }) {
           </div>
           {verification ? (
             <TimesheetVerificationPanel summary={verification} lines={record.lines} />
+          ) : null}
+          {canEdit && workflow && !dirty ? (
+            <div className="flex flex-wrap gap-3">
+              {record.status === "Draft" && workflow.canSubmit ? (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
+                >
+                  Submit for approval
+                </button>
+              ) : null}
+              {record.status === "Submitted" && workflow.canApprove ? (
+                <button
+                  type="button"
+                  onClick={handleApprove}
+                  className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+                >
+                  Approve timesheet
+                </button>
+              ) : null}
+              {record.status === "Submitted" && workflow.approveBlock ? (
+                <p className="text-sm text-amber-800">{workflow.approveBlock}</p>
+              ) : null}
+            </div>
           ) : null}
           <PayrollExportDetailActions sheet={stored ?? record} disabled={dirty || !stored} />
           <PayrollReconciliationDetail sheet={stored ?? record} disabled={dirty || !stored} />

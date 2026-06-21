@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClientConsentSummary } from "@/components/client-consent-summary";
 import { ClientPlanBudgetTextImportPanel } from "@/components/client-plan-budget-text-import-panel";
 import { ClientPlanBudgetImportPanel } from "@/components/client-plan-budget-import-panel";
+import { ClientPlanBudgetClaimedPanel } from "@/components/client-plan-budget-claimed-panel";
 import { ClientPlanGatewayPanel } from "@/components/client-plan-gateway-panel";
 import { ClientPlanBudgetSummary } from "@/components/client-plan-budget-summary";
 import { ClientPlanBudgetWizard } from "@/components/client-plan-budget-wizard";
@@ -638,6 +639,12 @@ export function ClientTabbedView({
               client={client}
               rows={client.planBudgets ?? []}
               canSync={canWriteClientTab("Plan budget")}
+              onApply={(rows) => onLineItemsChange("planBudgets", rows)}
+            />
+            <ClientPlanBudgetClaimedPanel
+              clientId={client.id}
+              rows={client.planBudgets ?? []}
+              readOnly={!canWriteClientTab("Plan budget")}
               onApply={(rows) => onLineItemsChange("planBudgets", rows)}
             />
             <LineItemTable

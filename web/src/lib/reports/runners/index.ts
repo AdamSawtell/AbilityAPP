@@ -8,6 +8,7 @@ import type { InvoiceRecord } from "@/lib/invoice";
 import type { LocationRecord } from "@/lib/location";
 import type { MonthlyServicePlanRecord } from "@/lib/monthly-service-plan";
 import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
+import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
 import type { ReportResult } from "@/lib/reports/types";
 import { buildClientRegisterReport } from "@/lib/reports/runners/client-register";
 import { buildEmployeeRegisterReport } from "@/lib/reports/runners/employee-register";
@@ -42,6 +43,7 @@ export type ReportDataContext = {
   claims: ClaimRecord[];
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
+  financialClosedMonths: FinancialClosedMonthRecord[];
 };
 
 export function runReport(reportId: string, ctx: ReportDataContext): ReportResult | null {
@@ -70,6 +72,8 @@ export function runReport(reportId: string, ctx: ReportDataContext): ReportResul
         claims: ctx.claims,
         invoices: ctx.invoices,
         payrollClosedPeriods: ctx.payrollClosedPeriods,
+        financialClosedMonths: ctx.financialClosedMonths,
+        rosterShifts: ctx.rosterShifts,
       });
     case "ndis-audit-pack-summary":
       return buildNdisAuditPackSummaryReport({
@@ -84,6 +88,7 @@ export function runReport(reportId: string, ctx: ReportDataContext): ReportResul
         claims: ctx.claims,
         invoices: ctx.invoices,
         payrollClosedPeriods: ctx.payrollClosedPeriods,
+        financialClosedMonths: ctx.financialClosedMonths,
       });
     default:
       return null;

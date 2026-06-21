@@ -23,6 +23,7 @@ function buildContext(data: ReturnType<typeof useData>): PlanVsActualContext {
     timesheets: data.timesheets,
     claims: data.claims,
     invoices: data.invoices,
+    rosterShifts: data.rosterShifts,
   };
 }
 
@@ -153,9 +154,11 @@ export function PlanReconciliationView() {
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Plan</th>
               <th className="px-4 py-3">Planned h</th>
+              <th className="px-4 py-3">Scheduled h</th>
               <th className="px-4 py-3">Actual h</th>
               <th className="px-4 py-3">Planned $</th>
               <th className="px-4 py-3">Billed $</th>
+              <th className="px-4 py-3">Rejected $</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Detail</th>
             </tr>
@@ -182,9 +185,17 @@ export function PlanReconciliationView() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-slate-700">{row.plannedHours.toFixed(1)}</td>
+                  <td className="px-4 py-3 text-slate-700">{row.scheduledHours.toFixed(1)}</td>
                   <td className="px-4 py-3 text-slate-700">{row.actualHours.toFixed(1)}</td>
                   <td className="px-4 py-3 text-slate-700">${row.plannedAmount.toFixed(2)}</td>
                   <td className="px-4 py-3 text-slate-700">${row.actualAmount.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-slate-700">
+                    {row.rejectedClaimAmount > 0 ? (
+                      <span className="font-medium text-rose-800">${row.rejectedClaimAmount.toFixed(2)}</span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${planReconcileStatusClass(row.reconcileStatus)}`}
@@ -198,7 +209,7 @@ export function PlanReconciliationView() {
             })}
             {!filteredRows.length ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={10} className="px-4 py-8 text-center text-slate-500">
                   No reconciliation rows for {formatPlanMonthLabel(planMonth)} — create a monthly service plan or approve
                   timesheets for this month.
                 </td>

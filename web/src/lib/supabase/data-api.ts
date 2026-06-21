@@ -165,6 +165,7 @@ import {
   type PayrollClosedPeriodRow,
 } from "@/lib/supabase/payroll-closed-period-mappers";
 import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
+import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
 
 export type AppData = {
   enquiries: EnquiryRecord[];
@@ -183,6 +184,7 @@ export type AppData = {
   claimRemittances: ClaimRemittanceRecord[];
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
+  financialClosedMonths: FinancialClosedMonthRecord[];
   supportPlans: SupportPlanRecord[];
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
@@ -511,6 +513,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     payrollClosedPeriods: ((payrollClosedPeriodsRes.data ?? []) as PayrollClosedPeriodRow[]).map(
       payrollClosedPeriodFromRow
     ),
+    financialClosedMonths: [],
     contracts: ((contractsRes.data ?? []) as ContractRow[]).map((row) =>
       normalizeContract(contractFromRow(row, auditByContract.get(row.id) ?? []))
     ),

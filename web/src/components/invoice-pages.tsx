@@ -148,6 +148,17 @@ export function InvoiceListView() {
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-3">
+        <p className="text-sm text-slate-600">
+          Follow up unpaid or overdue participant invoices on the invoice reconciliation dashboard before financial close.
+        </p>
+        <Link
+          href="/invoice-reconciliation"
+          className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Invoice reconciliation
+        </Link>
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
           Participant invoices for plan-managed and self-managed NDIS billing — generated from verified timesheet lines.

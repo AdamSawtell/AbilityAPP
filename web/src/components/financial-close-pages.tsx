@@ -1,5 +1,6 @@
 "use client";
 
+import { FinancialCloseMonthPanel } from "@/components/financial-close-month-panel";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
@@ -21,6 +22,8 @@ function buildContext(data: ReturnType<typeof useData>): FinancialCloseContext {
     claims: data.claims,
     invoices: data.invoices,
     payrollClosedPeriods: data.payrollClosedPeriods,
+    financialClosedMonths: data.financialClosedMonths,
+    rosterShifts: data.rosterShifts,
   };
 }
 
@@ -102,6 +105,12 @@ export function FinancialCloseView() {
           </button>
         ) : null}
         <Link
+          href="/invoice-reconciliation"
+          className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Invoice reconciliation
+        </Link>
+        <Link
           href="/ndis-audit-pack"
           className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
@@ -173,6 +182,8 @@ export function FinancialCloseView() {
           </div>
         ))}
       </div>
+
+      <FinancialCloseMonthPanel />
     </div>
   );
 }

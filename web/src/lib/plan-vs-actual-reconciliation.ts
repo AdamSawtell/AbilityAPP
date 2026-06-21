@@ -3,6 +3,7 @@ import { isAgencyManagedClient, isInvoiceManagedClient } from "@/lib/billing-pla
 import type { ClientRecord } from "@/lib/client";
 import type { InvoiceRecord } from "@/lib/invoice";
 import { summarizeMonthlyServicePlan, type MonthlyServicePlanRecord } from "@/lib/monthly-service-plan";
+import { shiftDurationHours, type RosterShiftRecord } from "@/lib/roster-shift";
 import type { TimesheetRecord } from "@/lib/timesheet";
 
 export const PLAN_RECONCILE_STATUSES = [
@@ -23,9 +24,11 @@ export type PlanVsActualRow = {
   monthlyPlanId: string;
   monthlyPlanStatus: string;
   plannedHours: number;
+  scheduledHours: number;
   plannedAmount: number;
   actualHours: number;
   actualAmount: number;
+  rejectedClaimAmount: number;
   hoursVariance: number;
   amountVariance: number;
   reconcileStatus: PlanReconcileStatus;
@@ -50,6 +53,7 @@ export type PlanVsActualContext = {
   timesheets: TimesheetRecord[];
   claims: ClaimRecord[];
   invoices: InvoiceRecord[];
+  rosterShifts: RosterShiftRecord[];
 };
 
 function round2(n: number): number {
@@ -78,6 +82,42 @@ function claimCountsForPlanReconciliation(claim: ClaimRecord): boolean {
 
 function invoiceCountsForPlanReconciliation(invoice: InvoiceRecord): boolean {
   return invoice.status === "Sent" || invoice.status === "Paid";
+}
+
+function claimRejected(claim: ClaimRecord): boolean {
+  return claim.status === "Rejected" || claim.gatewayStatus === "Rejected";
+}
+
+export function scheduledHoursForClientMonth(
+  rosterShifts: RosterShiftRecord[],
+  clientId: string,
+  planMonth: string
+): number {
+  let hours = 0;
+  for (const shift of rosterShifts) {
+    if (shift.clientId !== clientId) continue;
+    if (!dateInPlanMonth(shift.shiftDate, planMonth)) continue;
+    if (shift.status === "Cancelled" || shift.status === "Draft") continue;
+    hours += shiftDurationHours(shift);
+  }
+  return round2(hours);
+}
+
+export function rejectedClaimAmountForClientMonth(
+  claims: ClaimRecord[],
+  clientId: string,
+  planMonth: string
+): number {
+  let amount = 0;
+  for (const claim of claims) {
+    if (claim.clientId !== clientId) continue;
+    if (!claimRejected(claim)) continue;
+    for (const line of claim.lines) {
+      if (!dateInPlanMonth(line.serviceDate, planMonth)) continue;
+      amount += line.lineAmount ?? 0;
+    }
+  }
+  return round2(amount);
 }
 
 export function actualDeliveryForClientMonth(
@@ -183,7 +223,9 @@ export function buildPlanVsActualRow(
   const { plannedHours, plannedAmount } = plan
     ? summarizeMonthlyServicePlan(plan.lines)
     : { plannedHours: 0, plannedAmount: 0 };
+  const scheduledHours = scheduledHoursForClientMonth(ctx.rosterShifts, clientId, planMonth);
   const { actualHours, actualAmount } = actualDeliveryForClientMonth(ctx, clientId, planMonth);
+  const rejectedClaimAmount = rejectedClaimAmountForClientMonth(ctx.claims, clientId, planMonth);
   const hoursVariance = round2(actualHours - plannedHours);
   const amountVariance = round2(actualAmount - plannedAmount);
   const { status, message } = evaluateReconcileStatus(
@@ -194,19 +236,31 @@ export function buildPlanVsActualRow(
     Boolean(plan)
   );
 
+  const detailParts = [message];
+  if (scheduledHours > 0 && Math.abs(scheduledHours - plannedHours) > PLAN_RECONCILE_HOURS_TOLERANCE) {
+    detailParts.push(
+      `Scheduled ${scheduledHours.toFixed(1)}h on roster vs ${plannedHours.toFixed(1)}h planned`
+    );
+  }
+  if (rejectedClaimAmount > 0) {
+    detailParts.push(`Rejected claims $${rejectedClaimAmount.toFixed(2)} this month`);
+  }
+
   return {
     clientId,
     planMonth,
     monthlyPlanId: plan?.id ?? "",
     monthlyPlanStatus: plan?.status ?? "",
     plannedHours: round2(plannedHours),
+    scheduledHours,
     plannedAmount: round2(plannedAmount),
     actualHours,
     actualAmount,
+    rejectedClaimAmount,
     hoursVariance,
     amountVariance,
     reconcileStatus: status,
-    reconcileMessage: message,
+    reconcileMessage: detailParts.join("; "),
   };
 }
 
@@ -308,9 +362,11 @@ export function planVsActualCsv(rows: PlanVsActualRow[], clients: ClientRecord[]
     "PlanMonth",
     "PlanStatus",
     "PlannedHours",
+    "ScheduledHours",
     "PlannedAmount",
     "ActualHours",
     "ActualAmount",
+    "RejectedClaims",
     "HoursVariance",
     "AmountVariance",
     "ReconcileStatus",
@@ -324,9 +380,11 @@ export function planVsActualCsv(rows: PlanVsActualRow[], clients: ClientRecord[]
       row.planMonth,
       row.monthlyPlanStatus || "—",
       row.plannedHours.toFixed(2),
+      row.scheduledHours.toFixed(2),
       row.plannedAmount.toFixed(2),
       row.actualHours.toFixed(2),
       row.actualAmount.toFixed(2),
+      row.rejectedClaimAmount.toFixed(2),
       row.hoursVariance.toFixed(2),
       row.amountVariance.toFixed(2),
       row.reconcileStatus,

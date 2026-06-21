@@ -111,6 +111,7 @@ export type ClientNeedRuleRow = {
 export type ClientPlanBudgetRow = {
   id: string;
   lineNo: number;
+  planProvider?: string;
   supportBudget: string;
   supportCategory: string;
   description: string;
@@ -394,6 +395,7 @@ export const planBudgetTableConfig: ClientTabTableConfig<ClientPlanBudgetRow> = 
     "No plan budget lines recorded. Add Core, Capacity building, and Capital categories from the participant NDIS plan.",
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "planProvider", label: "Plan provider", type: "text" },
     { key: "supportBudget", label: "Support budget", type: "select", optionsKey: "ndisSupportBudget", required: true },
     {
       key: "supportCategory",
@@ -410,6 +412,7 @@ export const planBudgetTableConfig: ClientTabTableConfig<ClientPlanBudgetRow> = 
   emptyRow: (lineNo) => ({
     id: newLineId("budget"),
     lineNo,
+    planProvider: "This organisation",
     supportBudget: "",
     supportCategory: "",
     description: "",

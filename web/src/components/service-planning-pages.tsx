@@ -299,6 +299,12 @@ export function ServicePlanningListView() {
         >
           Plan reconciliation
         </Link>
+        <Link
+          href="/multi-provider-budget"
+          className="inline-flex shrink-0 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-[#b51266] hover:bg-slate-50"
+        >
+          Multi-provider budget
+        </Link>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">

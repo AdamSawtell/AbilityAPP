@@ -13,6 +13,7 @@ const tabs = [
   { href: "/my/contracts", label: "Contracts", windowKey: "my-contracts" },
   { href: "/my/open-shifts", label: "Open shifts", windowKey: "my-open-shifts" },
   { href: "/my/shifts", label: "My shifts", windowKey: "my-shifts" },
+  { href: "/my/timesheets", label: "My timesheets", windowKey: "my-timesheets" },
   { href: "/my/credentials", label: "Credentials", windowKey: "my-credentials" },
 ] as const;
 

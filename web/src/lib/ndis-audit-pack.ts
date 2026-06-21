@@ -3,6 +3,7 @@ import { buildClaimReconcileRows } from "@/lib/claim-reconciliation";
 import type { ClientRecord } from "@/lib/client";
 import type { EmployeeRecord } from "@/lib/employee";
 import { evaluateFinancialClose, type FinancialCloseContext } from "@/lib/financial-close";
+import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
 import type { IncidentRecord } from "@/lib/incident";
 import { isNdisReportOverdue } from "@/lib/incident";
 import type { InvoiceRecord } from "@/lib/invoice";
@@ -46,6 +47,7 @@ export type AuditPackContext = {
   claims: ClaimRecord[];
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
+  financialClosedMonths: FinancialClosedMonthRecord[];
 };
 
 export type AuditPackEvaluation = {
@@ -215,6 +217,7 @@ export function evaluateAuditPack(ctx: AuditPackContext, auditMonth: string): Au
     timesheets: ctx.timesheets,
     claims: ctx.claims,
     invoices: ctx.invoices,
+    rosterShifts: ctx.rosterShifts,
   };
   const planRows = buildPlanVsActualRows(planCtx, month);
   const planVariance = planRows.filter((row) => row.reconcileStatus === "Variance");
@@ -226,6 +229,8 @@ export function evaluateAuditPack(ctx: AuditPackContext, auditMonth: string): Au
     claims: ctx.claims,
     invoices: ctx.invoices,
     payrollClosedPeriods: ctx.payrollClosedPeriods,
+    financialClosedMonths: ctx.financialClosedMonths,
+    rosterShifts: ctx.rosterShifts,
   };
   const financialClose = evaluateFinancialClose(financialCtx, month);
 
@@ -487,6 +492,7 @@ export function auditPackSectionCsv(ctx: AuditPackContext, evaluation: AuditPack
         timesheets: ctx.timesheets,
         claims: ctx.claims,
         invoices: ctx.invoices,
+        rosterShifts: ctx.rosterShifts,
       };
       return planVsActualCsv(buildPlanVsActualRows(planCtx, month), ctx.clients);
     }
@@ -498,6 +504,8 @@ export function auditPackSectionCsv(ctx: AuditPackContext, evaluation: AuditPack
         claims: ctx.claims,
         invoices: ctx.invoices,
         payrollClosedPeriods: ctx.payrollClosedPeriods,
+        financialClosedMonths: ctx.financialClosedMonths,
+        rosterShifts: ctx.rosterShifts,
       };
       const close = evaluateFinancialClose(financialCtx, month);
       const header = ["Check", "Status", "Message", "Count"].join(",");

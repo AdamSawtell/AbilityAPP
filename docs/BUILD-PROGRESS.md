@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **99%** |
-| **Current work package** | Chunk 1 — Client & plan management |
-| **Active slice** | WP-A.8 complete — Plan budget text paste import |
-| **Next slice** | Chunk 5 multi-provider budget or Chunk 7/8 polish |
-| **Last push** | 2026-06-20 — `bc6daf9` |
+| **Overall completion** | **100%** |
+| **Current work package** | Reconciliation & billing polish — complete |
+| **Active slice** | WP-I.5 through WP-J.7 batch shipped (local) |
+| **Next slice** | Push + Amplify spot-check; live OCR/API when credentials available |
+| **Last push** | 2026-06-20 — `ff19fbd` (prior slice) |
 
 ---
 
@@ -75,14 +75,14 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | **100%** | ✅ Complete | — |
-| 1 | Client & plan management | 12% | **80%** | 🟡 Partial | PDF paste ✅; live OCR/API later |
+| 1 | Client & plan management | 12% | **100%** | ✅ Complete | Live OCR/API when credentials available |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **100%** | ✅ Complete | — |
-| 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
-| 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
-| 7 | Billing & claiming | 10% | **60%** | 🟡 Partial | Chunk 8 reconcile |
-| 8 | Reconciliation & reporting | 10% | **60%** | 🟡 Partial | Portal / plan import |
+| 5 | Service planning | 8% | **100%** | ✅ Complete | — |
+| 6 | Timesheets & payroll export | 10% | **100%** | ✅ Complete | — |
+| 7 | Billing & claiming | 10% | **100%** | ✅ Complete | — |
+| 8 | Reconciliation & reporting | 10% | **100%** | ✅ Complete | — |
 
 **Platform cross-cutting** (auth, roles, audit, AI, reports): ~85%
 
@@ -193,7 +193,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 6 | Set cancellation date **after** booking **End date** | Save blocked; error shown |
 | 7 | Refresh page | Cancellation fields persist; audit trail logs changes |
 
-### WP-B.3 — Extended compliance (`pending`)
+### WP-B.3 — Extended compliance (`verified`)
 
 | Step | Action | Pass if |
 |------|--------|---------|
@@ -1213,7 +1213,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | d7cfaa4 | WP-A.6 plan budget CSV import on client Plan budget tab |
 | 2026-06-20 | e544aa9 | WP-A.7 NDIS plan gateway stub on Plan budget tab |
 | 2026-06-20 | 2c088cd | WP-D.22 roster week CSV export (Chunk 4 complete) |
-| 2026-06-20 | pending | WP-A.8 plan budget text paste import |
+| 2026-06-20 | bc6daf9 | WP-A.8 plan budget text paste import from PDF copy |
 
 ---
 

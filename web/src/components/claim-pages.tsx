@@ -25,6 +25,11 @@ import {
   type ClaimGenerationContext,
 } from "@/lib/claim-generation";
 import {
+  generateCancellationClaims,
+  previewCancellationClaims,
+  type CancellationClaimContext,
+} from "@/lib/cancellation-claim-generation";
+import {
   claimDropdowns,
   formatClaimPeriod,
   normalizeClaim,
@@ -322,7 +327,96 @@ export function GenerateClaimsView() {
         </Link>
       </div>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+      <CancellationClaimsPanel />
     </div>
+  );
+}
+
+function CancellationClaimsPanel() {
+  const data = useData();
+  const { session, canWriteWindow } = useAuth();
+  const canGenerate = canWriteWindow("generate-claims");
+  const router = useRouter();
+  const [message, setMessage] = useState("");
+  const [generating, setGenerating] = useState(false);
+
+  const ctx = useMemo(
+    (): CancellationClaimContext => ({
+      serviceBookings: data.serviceBookings,
+      claims: data.claims,
+      clients: data.clients,
+      products: data.products,
+      priceLists: data.priceLists,
+    }),
+    [data]
+  );
+  const preview = useMemo(() => previewCancellationClaims(ctx), [ctx]);
+
+  const handleGenerate = () => {
+    if (!canGenerate) {
+      setMessage("You do not have permission to generate cancellation claims.");
+      return;
+    }
+    if (!preview.eligibleCount) {
+      setMessage("No claimable cancelled bookings — check cancellation policy on service bookings.");
+      return;
+    }
+    setGenerating(true);
+    const actor = session?.displayName || "SuperUser";
+    const result = generateCancellationClaims(ctx, actor, data.claims);
+    const all = [...result.created, ...result.updated];
+    data.bulkUpsertClaims(all);
+    setGenerating(false);
+    setMessage(
+      `Cancellation claims: ${result.created.length} created, ${result.updated.length} updated.${result.skippedAlreadyLinked ? ` ${result.skippedAlreadyLinked} already linked.` : ""}`
+    );
+    if (result.created.length === 1) {
+      router.push(`/claims/${result.created[0].id}`);
+    }
+  };
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <h2 className="text-sm font-semibold text-slate-900">Cancellation claims</h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Generate draft NDIS claim lines from cancelled service bookings with short-notice participant cancellations.
+      </p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Eligible bookings</p>
+          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.eligibleCount}</p>
+        </div>
+        <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Claimable total</p>
+          <p className="mt-1 text-xl font-semibold text-slate-900">${preview.totalClaimable.toFixed(2)}</p>
+        </div>
+        <div className="rounded-lg border border-slate-100 bg-slate-50/80 p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Already linked</p>
+          <p className="mt-1 text-xl font-semibold text-slate-900">{preview.alreadyLinkedCount}</p>
+        </div>
+      </div>
+      {preview.rows.length ? (
+        <ul className="mt-3 space-y-2 text-sm text-slate-700">
+          {preview.rows.slice(0, 5).map((row) => (
+            <li key={row.bookingId} className="rounded-lg border border-slate-100 px-3 py-2">
+              <span className="font-medium">{row.documentNo}</span> — ${row.claimableAmount.toFixed(2)} (
+              {row.claimablePercent}%)
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={generating || !preview.eligibleCount || !canGenerate}
+          onClick={handleGenerate}
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+        >
+          {generating ? "Generating…" : "Generate cancellation claims"}
+        </button>
+      </div>
+      {message ? <p className="mt-3 text-sm text-slate-600">{message}</p> : null}
+    </section>
   );
 }
 

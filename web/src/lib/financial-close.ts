@@ -1,7 +1,9 @@
 import type { ClaimRecord } from "@/lib/claim";
 import { buildClaimReconcileRows } from "@/lib/claim-reconciliation";
 import type { ClientRecord } from "@/lib/client";
+import { isFinancialMonthClosed } from "@/lib/financial-close-period";
 import type { InvoiceRecord } from "@/lib/invoice";
+import { buildInvoiceReconcileRows } from "@/lib/invoice-reconciliation";
 import { currentPlanMonthIso, type MonthlyServicePlanRecord } from "@/lib/monthly-service-plan";
 import {
   buildPlanVsActualRows,
@@ -12,6 +14,8 @@ import {
   evaluatePayrollPeriodClose,
   type PayrollPeriodCloseRecord,
 } from "@/lib/payroll-period-close";
+import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { TimesheetRecord } from "@/lib/timesheet";
 
 export type FinancialCloseCheckStatus = "pass" | "warning" | "block";
@@ -32,6 +36,8 @@ export type FinancialCloseContext = {
   claims: ClaimRecord[];
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
+  financialClosedMonths: FinancialClosedMonthRecord[];
+  rosterShifts: RosterShiftRecord[];
 };
 
 export type FinancialCloseEvaluation = {
@@ -71,6 +77,7 @@ export function evaluateFinancialClose(
     timesheets: ctx.timesheets,
     claims: ctx.claims,
     invoices: ctx.invoices,
+    rosterShifts: ctx.rosterShifts,
   };
   const planRows = buildPlanVsActualRows(planCtx, month);
   const planVariance = planRows.filter((row) => row.reconcileStatus === "Variance");
@@ -187,6 +194,47 @@ export function evaluateFinancialClose(
       status: "pass",
       message: "No draft invoices remain for this month.",
       href: "/invoices",
+    });
+  }
+
+  const invoiceReconRows = buildInvoiceReconcileRows(ctx.invoices, month).filter((row) => row.invoicedAmount > 0);
+  const overdueInvoices = invoiceReconRows.filter((row) => row.reconcileStatus === "Overdue");
+  const unpaidInvoices = invoiceReconRows.filter((row) => row.reconcileStatus === "Unpaid");
+  if (overdueInvoices.length) {
+    checks.push({
+      code: "invoice-recon",
+      label: "Invoice payments",
+      status: "warning",
+      message: `${overdueInvoices.length} overdue participant invoice${overdueInvoices.length === 1 ? "" : "s"} for this month — follow up before sign-off.`,
+      count: overdueInvoices.length,
+      href: "/invoice-reconciliation",
+    });
+  } else if (unpaidInvoices.length) {
+    checks.push({
+      code: "invoice-recon",
+      label: "Invoice payments",
+      status: "warning",
+      message: `${unpaidInvoices.length} sent invoice${unpaidInvoices.length === 1 ? "" : "s"} awaiting payment.`,
+      count: unpaidInvoices.length,
+      href: "/invoice-reconciliation",
+    });
+  } else if (invoiceReconRows.length) {
+    checks.push({
+      code: "invoice-recon",
+      label: "Invoice payments",
+      status: "pass",
+      message: "Sent invoices for this month are paid or current.",
+      href: "/invoice-reconciliation",
+    });
+  }
+
+  if (isFinancialMonthClosed(month, ctx.financialClosedMonths)) {
+    checks.push({
+      code: "month-closed",
+      label: "Financial month lock",
+      status: "pass",
+      message: "This month is already marked closed.",
+      href: "/financial-close",
     });
   }
 
