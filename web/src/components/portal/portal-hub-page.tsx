@@ -81,7 +81,7 @@ export function PortalHubPage() {
               className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-[#f9a8d4]/60 hover:shadow-md"
             >
               <h2 className="text-base font-semibold text-slate-900">My services</h2>
-              <p className="mt-1 text-sm text-slate-600">Upcoming supports, times, workers, and locations.</p>
+              <p className="mt-1 text-sm text-slate-600">Week calendar and list of upcoming supports, workers, and locations.</p>
             </Link>
             <Link
               href="/portal/budget"

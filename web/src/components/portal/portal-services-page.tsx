@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { PortalGuard, PortalLogoutButton } from "@/components/portal/portal-hub-page";
+import { PortalServicesWeekCalendar } from "@/components/portal/portal-services-week-calendar";
 import { PortalNav, PortalShell } from "@/components/portal/portal-shell";
 import { formatDisplayDate } from "@/lib/enquiry";
 import type { PortalServiceItem } from "@/lib/portal/types";
 
+type ServicesView = "week" | "list";
+
 export function PortalServicesPage() {
   const [services, setServices] = useState<PortalServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<ServicesView>("week");
 
   useEffect(() => {
     fetch("/api/portal/services", { credentials: "include" })
@@ -30,41 +34,68 @@ export function PortalServicesPage() {
         >
           <PortalNav active="services" />
 
+          <div className="mb-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setView("week")}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                view === "week" ? "bg-[#fdf2f8] text-[#b51266]" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              Week view
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("list")}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                view === "list" ? "bg-[#fdf2f8] text-[#b51266]" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              List view
+            </button>
+          </div>
+
           {loading ? (
             <p className="text-sm text-slate-500">Loading services…</p>
           ) : services.length ? (
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <table className="min-w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Date</th>
-                    <th className="px-4 py-3 font-medium">Time</th>
-                    <th className="px-4 py-3 font-medium">Support</th>
-                    <th className="px-4 py-3 font-medium">Worker</th>
-                    <th className="px-4 py-3 font-medium">Location</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {services.map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-4 py-3 whitespace-nowrap text-slate-800">
-                        {formatDisplayDate(item.shiftDate)}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-slate-700">
-                        {item.startTime} – {item.endTime}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">{item.shiftType}</td>
-                      <td className="px-4 py-3 text-slate-700">{item.workerName || "To be confirmed"}</td>
-                      <td className="px-4 py-3 text-slate-600">{item.locationName}</td>
+            view === "week" ? (
+              <PortalServicesWeekCalendar services={services} />
+            ) : (
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Date</th>
+                      <th className="px-4 py-3 font-medium">Time</th>
+                      <th className="px-4 py-3 font-medium">Support</th>
+                      <th className="px-4 py-3 font-medium">Worker</th>
+                      <th className="px-4 py-3 font-medium">Location</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {services.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-4 py-3 whitespace-nowrap text-slate-800">
+                          {formatDisplayDate(item.shiftDate)}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-slate-700">
+                          {item.startTime} – {item.endTime}
+                        </td>
+                        <td className="px-4 py-3 text-slate-700">{item.shiftType}</td>
+                        <td className="px-4 py-3 text-slate-700">{item.workerName || "To be confirmed"}</td>
+                        <td className="px-4 py-3 text-slate-600">{item.locationName}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           ) : (
             <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-6 py-10 text-center">
               <p className="text-sm text-slate-600">No upcoming services in the next eight weeks.</p>
-              <p className="mt-1 text-xs text-slate-500">Contact your provider if you expected to see supports here.</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Contact your provider if you expected to see supports here.
+              </p>
             </div>
           )}
         </PortalShell>

@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **98%** |
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
-| **Active slice** | WP-0.5 complete — External CRM sync + cross-sell alerts |
-| **Next slice** | Chunk 0 wrap-up — live HubSpot API or portal schedule calendar |
-| **Last push** | 2026-06-20 — `5c64029` |
+| **Active slice** | WP-G.0 complete — Participant portal week calendar |
+| **Next slice** | Live HubSpot REST contact upsert or Chunk 0 completion |
+| **Last push** | 2026-06-20 — `3ba6b55` |
 
 ---
 
@@ -74,7 +74,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
-| 0 | Enquiry & CRM + portal | 10% | **60%** | 🟡 Partial | Live HubSpot API; portal week calendar |
+| 0 | Enquiry & CRM + portal | 10% | **75%** | 🟡 Partial | Live HubSpot API |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
@@ -593,6 +593,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Enquiries** list | Cross-sell panel shows Bern (underserviced) when plan utilisation is low |
 | 5 | POST `/api/public/web-to-lead` with `x-abilityapp-webhook-secret` | 201 + new enquiry with source Website form |
 
+### WP-G.0 — Participant portal week calendar (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Portal sign-in as **Bernie@email** → **My services** | **Week view** selected by default |
+| 2 | Navigate to week containing Jun 2026 demo shifts | Bern shifts appear on calendar days |
+| 3 | **Previous week** / **Next week** / **This week** | Calendar updates; shift count card changes |
+| 4 | Switch to **List view** | Table shows all upcoming shifts (8-week horizon) |
+| 5 | Empty week | Days show “No supports” without error |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -978,12 +988,16 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Enquiries Write for CRM sync panel |
 | **Admin verify** | Web-to-lead webhook creates enquiry; dry-run sync stores contact id on record |
 
-### WP-G.0 (future) — Participant portal schedule
+### WP-G.0 — Participant portal week calendar
 
 | | Detail |
 |---|--------|
-| **Status** | 🟡 Partial — read-only services list shipped in WP-0.3; week calendar view still planned |
-| **Planned** | Read-only week view of participant services (Scope Stage 0 portal) |
+| **User how-to** | Help → **Participant portal** → View upcoming services (week + list toggle) |
+| **User steps** | 1. Open **My services**. 2. Use **Week view** calendar. 3. Navigate weeks. 4. Switch to **List view** for full horizon. |
+| **System setup** | `/system/setup/clients` — roster published shifts for participant; portal email match |
+| **Reference data** | — |
+| **Role access** | Portal only — no staff role change |
+| **Admin verify** | Demo Bernie shifts visible on week containing Jun 2026 roster dates |
 
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
@@ -1133,6 +1147,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run build` | exit 0 (WP-0.5) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.5) |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625350000` enquiry external CRM columns |
+| 2026-06-20 | `npm run build` | exit 0 (WP-G.0) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-G.0) |
 
 ---
 
@@ -1174,6 +1190,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.3 | `/portal/login`, `/portal`, `/portal/services`, `/portal/budget` | **Pass** | build verified; magic-link auth + read-only APIs |
 | 2026-06-20 | WP-0.4 | `/portal/requests`, `/tasks` (portal review task) | **Pass** | build verified; submit + approve variation stub |
 | 2026-06-20 | WP-0.5 | `/enquiries`, `/enquiries/1000025` | **Pass** | build verified; CRM panel + cross-sell panel compile |
+| 2026-06-20 | WP-G.0 | `/portal/services` | **Pass** | build verified; week + list view toggle |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1213,6 +1230,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.3 | 4 High + 3 Medium — all fixed | **Pass** | Email revalidation, draft shift filter, portal DataStore skip, duplicate email guard |
 | 2026-06-20 | WP-0.4 | 2 High + 2 Medium — all fixed | **Pass** | Staff process auth, conditional status update, submit order, panel canManage |
 | 2026-06-20 | WP-0.5 | 2 High — all fixed | **Pass** | Cross-sell gated on clients access; web-to-lead insert retry on id conflict |
+| 2026-06-20 | WP-G.0 | 1 Medium — fixed | **Pass** | Week calendar uses localDateIso for This week anchor |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1265,6 +1283,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.3 | `participant-portal` — magic link, services, funding | `clients-setup` — participant email + portal demo | exit 0 — 95 routes |
 | 2026-06-20 | WP-0.4 | `participant-portal` — service request + coordinator review | `clients-setup` — portal request test + SA variation | exit 0 — 96 routes |
 | 2026-06-20 | WP-0.5 | `core` — HubSpot CRM sync + cross-sell alerts | `enquiries-setup` — WEB_TO_LEAD_SECRET + HUBSPOT_DRY_RUN | exit 0 — 96 routes |
+| 2026-06-20 | WP-G.0 | `participant-portal` — week calendar on My services | `clients-setup` — week view roster test | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
