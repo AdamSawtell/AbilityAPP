@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EnquiryCoreSummary } from "@/components/enquiry-core-summary";
+import { EnquiryCrmSyncPanel } from "@/components/enquiry-crm-sync-panel";
 import { EnquiryPipelinePanel } from "@/components/enquiry-pipeline-panel";
 import { EnquiryTabbedView } from "@/components/enquiry-view";
 import { ClientRecordLink } from "@/components/record-link";
@@ -31,8 +32,9 @@ export function EnquiryDetailView({ id }: { id: string }) {
   const router = useRouter();
   const { enquiries, updateEnquiry, getClientByEnquiryId } = useData();
   const convert = useConvertEnquiry();
-  const { canProcess } = useAuth();
+  const { canProcess, session, canWriteWindow } = useAuth();
   const canSaveEnquiry = useModuleSaveAccess("enquiries", "enquiry");
+  const canSyncCrm = canWriteWindow("enquiries");
   const { openEnquiry, setTabDirty } = useWorkspace();
   const stored = enquiries.find((r) => r.id === id);
   const linkedClient = getClientByEnquiryId(id);
@@ -175,6 +177,20 @@ export function EnquiryDetailView({ id }: { id: string }) {
 
         <div className="mb-6">
           <EnquiryPipelinePanel status={record.status} issues={pipelineIssues} />
+        </div>
+
+        <div className="mb-6">
+          <EnquiryCrmSyncPanel
+            enquiry={record}
+            canSync={canSyncCrm}
+            actorName={session?.displayName ?? "SuperUser"}
+            onSynced={(next) => {
+              updateEnquiry(normalizeEnquiry(next));
+              if (draft?.id === next.id) {
+                setDraft(null);
+              }
+            }}
+          />
         </div>
 
         <Suspense fallback={<EnquiryTabbedViewFallback />}>

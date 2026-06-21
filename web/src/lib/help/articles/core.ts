@@ -81,7 +81,7 @@ export const enquiriesArticle: HelpArticle = {
   title: "Enquiries",
   summary: "Capture intake enquiries, track activity, and convert participants to clients.",
   category: "Core",
-  keywords: ["enquiry", "intake", "participant", "convert", "client", "enquiry to client", "pipeline", "loss reason"],
+  keywords: ["enquiry", "intake", "participant", "convert", "client", "enquiry to client", "pipeline", "loss reason", "hubspot", "crm", "cross-sell", "web to lead"],
   relatedRoutes: ["/enquiries", "/enquiries/new"],
   windowKeys: ["enquiries"],
   lastUpdated: "2026-06-20",
@@ -152,6 +152,24 @@ export const enquiriesArticle: HelpArticle = {
         "Continue setup on the client Overview and Full profile tabs.",
       ],
       windowKeys: ["enquiries", "clients"],
+    },
+    {
+      id: "enquiry-crm-sync",
+      title: "HubSpot CRM sync",
+      body: "When HubSpot is configured, coordinators can push an enquiry to your external CRM as a contact. Dry-run mode validates the payload without sending a live request.",
+      steps: [
+        "Open an enquiry with email or phone filled in.",
+        "Review the External CRM sync panel below the pipeline.",
+        "Click Sync to HubSpot (or Re-sync after contact details change).",
+        "Check the audit trail and Activity tab for the CRM sync entry.",
+      ],
+      relatedRoutes: ["/enquiries"],
+    },
+    {
+      id: "enquiry-cross-sell",
+      title: "Cross-sell alerts on the enquiries list",
+      body: "The enquiries list shows active clients who may be underserviced or approaching plan review. Use these signals to follow up on additional supports while triaging new intake.",
+      relatedRoutes: ["/enquiries"],
     },
   ],
 };

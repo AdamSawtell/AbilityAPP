@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
+import { EnquiriesCrossSellPanel } from "@/components/enquiries-cross-sell-panel";
 import { EnquiryList } from "@/components/enquiry-list";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -12,9 +13,10 @@ function EnquiryListFallback() {
 }
 
 export default function EnquiriesPage() {
-  const { enquiries } = useData();
-  const { canWriteWindow } = useAuth();
+  const { enquiries, clients } = useData();
+  const { canWriteWindow, canWindow } = useAuth();
   const canCreateEnquiry = canWriteWindow("enquiries");
+  const canViewCrossSell = canWindow("clients");
 
   return (
     <AppShell
@@ -33,6 +35,7 @@ export default function EnquiriesPage() {
         ) : null
       }
     >
+      {canViewCrossSell ? <EnquiriesCrossSellPanel clients={clients} /> : null}
       <Suspense fallback={<EnquiryListFallback />}>
         <EnquiryList records={enquiries} />
       </Suspense>

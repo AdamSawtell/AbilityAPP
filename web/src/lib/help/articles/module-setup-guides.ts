@@ -50,6 +50,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Configure enquiry loss reasons, plan status, plan management, and urgency lists.",
       "Grant the Qualification tab under Enquiries for intake roles.",
       "Create a test enquiry and confirm the qualification score updates on save.",
+      "Optional: set WEB_TO_LEAD_SECRET and HUBSPOT_DRY_RUN=true — POST a test payload to /api/public/web-to-lead and sync an enquiry from the CRM panel.",
+      "Confirm cross-sell alerts appear on the Enquiries list for underserviced active clients (e.g. Bern).",
     ]
   ),
   moduleSetupArticle(

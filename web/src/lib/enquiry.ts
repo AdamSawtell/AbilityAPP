@@ -45,6 +45,9 @@ export type EnquiryRecord = {
   outcome: string;
   additionalDisabilityInformation: string;
   other: string;
+  externalCrmProvider: string;
+  externalCrmId: string;
+  externalCrmSyncedAt: string;
   createdBy: string;
   updatedBy: string;
   activity: EnquiryActivityRow[];
@@ -141,6 +144,9 @@ export function emptyEnquiry(): EnquiryRecord {
     outcome: "",
     additionalDisabilityInformation: "",
     other: "",
+    externalCrmProvider: "",
+    externalCrmId: "",
+    externalCrmSyncedAt: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
     activity: [],

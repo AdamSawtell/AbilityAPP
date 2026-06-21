@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| **Overall completion** | **97%** |
+| **Overall completion** | **98%** |
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
-| **Active slice** | WP-0.4 complete — Service request workflow stub |
-| **Next slice** | WP-0.5 — External CRM sync (optional) or Chunk 0 cross-sell |
-| **Last push** | 2026-06-20 — `c472e40` |
+| **Active slice** | WP-0.5 complete — External CRM sync + cross-sell alerts |
+| **Next slice** | Chunk 0 wrap-up — live HubSpot API or portal schedule calendar |
+| **Last push** | 2026-06-20 — pending WP-0.5 commit |
 
 ---
 
@@ -74,7 +74,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
-| 0 | Enquiry & CRM + portal | 10% | **50%** | 🟡 Partial | Cross-sell / CRM sync optional |
+| 0 | Enquiry & CRM + portal | 10% | **60%** | 🟡 Partial | Live HubSpot API; portal week calendar |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
@@ -583,6 +583,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | **Approve and create variation draft** | Draft SA link shown; request **Approved** on portal |
 | 5 | Portal refresh | Participant sees **Approved** status |
 
+### WP-0.5 — External CRM sync + cross-sell (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Set `HUBSPOT_DRY_RUN=true`, open enquiry **1000025** | External CRM sync panel shows dry-run mode |
+| 2 | Click **Sync to HubSpot** | Success message with DRY-HS contact id; activity logged |
+| 3 | **Full audit trail** | CRM provider, contact id, and sync date logged |
+| 4 | **Enquiries** list | Cross-sell panel shows Bern (underserviced) when plan utilisation is low |
+| 5 | POST `/api/public/web-to-lead` with `x-abilityapp-webhook-secret` | 201 + new enquiry with source Website form |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -957,6 +967,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Support Coordinator role receives review tasks; assign-task / action-task to approve |
 | **Admin verify** | Approve creates draft SA variation; decline shows reason on portal |
 
+### WP-0.5 — External CRM sync + cross-sell
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Core** → **Enquiries** → HubSpot CRM sync + Cross-sell alerts |
+| **User steps** | 1. Sync enquiry to HubSpot from CRM panel. 2. Review cross-sell alerts on Enquiries list. 3. Follow up with active clients flagged underserviced. |
+| **System setup** | `/system/setup/enquiries` — `WEB_TO_LEAD_SECRET`, `HUBSPOT_DRY_RUN` or `HUBSPOT_ACCESS_TOKEN` |
+| **Reference data** | — |
+| **Role access** | Enquiries Write for CRM sync panel |
+| **Admin verify** | Web-to-lead webhook creates enquiry; dry-run sync stores contact id on record |
+
 ### WP-G.0 (future) — Participant portal schedule
 
 | | Detail |
@@ -1108,6 +1129,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625340000` portal service request |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625320000` enquiry qualification |
 | 2026-06-20 | `npm run supabase:push-remote` | `20260625310000` enquiry pipeline + loss_reason |
+| 2026-06-20 | `npm run build` | exit 0 (WP-0.5) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.5) |
+| 2026-06-20 | `npm run supabase:push-remote` | `20260625350000` enquiry external CRM columns |
 
 ---
 
@@ -1148,6 +1172,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.2 | `/enquiries/1000025?tab=Qualification`, `/enquiries` | **Pass** | build verified; score panel + tier filters |
 | 2026-06-20 | WP-0.3 | `/portal/login`, `/portal`, `/portal/services`, `/portal/budget` | **Pass** | build verified; magic-link auth + read-only APIs |
 | 2026-06-20 | WP-0.4 | `/portal/requests`, `/tasks` (portal review task) | **Pass** | build verified; submit + approve variation stub |
+| 2026-06-20 | WP-0.5 | `/enquiries`, `/enquiries/1000025` | **Pass** | build verified; CRM panel + cross-sell panel compile |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1186,6 +1211,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.2 | 1 High — fixed | **Pass** | Stored org profile used for persisted qualification score |
 | 2026-06-20 | WP-0.3 | 4 High + 3 Medium — all fixed | **Pass** | Email revalidation, draft shift filter, portal DataStore skip, duplicate email guard |
 | 2026-06-20 | WP-0.4 | 2 High + 2 Medium — all fixed | **Pass** | Staff process auth, conditional status update, submit order, panel canManage |
+| 2026-06-20 | WP-0.5 | 2 High — all fixed | **Pass** | Cross-sell gated on clients access; web-to-lead insert retry on id conflict |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1237,6 +1263,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.2 | `core` — NDIS qualification scoring | `enquiries-setup` — plan status + urgency lists | exit 0 — 92 routes |
 | 2026-06-20 | WP-0.3 | `participant-portal` — magic link, services, funding | `clients-setup` — participant email + portal demo | exit 0 — 95 routes |
 | 2026-06-20 | WP-0.4 | `participant-portal` — service request + coordinator review | `clients-setup` — portal request test + SA variation | exit 0 — 96 routes |
+| 2026-06-20 | WP-0.5 | `core` — HubSpot CRM sync + cross-sell alerts | `enquiries-setup` — WEB_TO_LEAD_SECRET + HUBSPOT_DRY_RUN | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

@@ -102,6 +102,9 @@ export type EnquiryRow = {
   qualification_score: number;
   qualification_tier: string;
   qualification_summary: string;
+  external_crm_provider: string;
+  external_crm_id: string;
+  external_crm_synced_at: string | null;
   created_by: string;
   updated_by: string;
 };
@@ -153,6 +156,9 @@ export function enquiryFromRow(row: EnquiryRow, activity: EnquiryActivityRowDb[]
     qualificationScore: row.qualification_score ?? 0,
     qualificationTier: row.qualification_tier ?? "Not qualified",
     qualificationSummary: row.qualification_summary ?? "",
+    externalCrmProvider: row.external_crm_provider ?? "",
+    externalCrmId: row.external_crm_id ?? "",
+    externalCrmSyncedAt: row.external_crm_synced_at ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     activity: activity.map((a) => ({
@@ -203,6 +209,9 @@ export function enquiryToRow(record: EnquiryRecord): EnquiryRow {
     qualification_score: record.qualificationScore ?? 0,
     qualification_tier: record.qualificationTier ?? "Not qualified",
     qualification_summary: record.qualificationSummary ?? "",
+    external_crm_provider: record.externalCrmProvider ?? "",
+    external_crm_id: record.externalCrmId ?? "",
+    external_crm_synced_at: toDate(record.externalCrmSyncedAt),
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

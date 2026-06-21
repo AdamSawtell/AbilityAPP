@@ -47,6 +47,9 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     outcome: "Outcome",
     additionalDisabilityInformation: "Additional disability information",
     other: "Other",
+    externalCrmProvider: "CRM provider",
+    externalCrmId: "CRM contact id",
+    externalCrmSyncedAt: "CRM last synced",
     activity: "Activity",
   },
   client: {
