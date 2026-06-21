@@ -13,7 +13,7 @@
 | **Current work package** | **Chunk D — Document platform** |
 | **Active slice** | WP-D.7 — Extended document pack |
 | **Next slice** | Chunk D complete — polish / Chunk E |
-| **Last push** | 2026-06-18 — D7 extended document pack (pending commit) |
+| **Last push** | 2026-06-18 — `af0ac32` (D7 extended document pack) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
