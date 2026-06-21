@@ -40,15 +40,34 @@ function partiesBlock(ctx: EmployeeDocumentContext): string {
   </div>`;
 }
 
-function richTextBlocks(template: DocumentTemplateRecord): string {
+function mergeOrgTokens(html: string, org: OrganizationRecord): string {
+  return html.replace(/\{\{org\.tradingName\}\}/g, escapeDocumentHtml(organizationDisplayName(org)));
+}
+
+function richTextBlocks(template: DocumentTemplateRecord, org: OrganizationRecord): string {
   return template.blocks
     .filter((block) => block.blockType === "rich-text" && block.contentHtml.trim())
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map(
       (block) =>
-        `<section class="rich-text"><h3>${escapeDocumentHtml(block.label || "Terms")}</h3>${block.contentHtml}</section>`
+        `<section class="rich-text"><h3>${escapeDocumentHtml(block.label || "Terms")}</h3>${mergeOrgTokens(block.contentHtml, org)}</section>`
     )
     .join("");
+}
+
+function acceptanceBlock(): string {
+  return `<section class="acceptance">
+    <h3>Acceptance</h3>
+    <p>Please sign and return this letter to confirm your acceptance of the offer, or contact HR if you have questions.</p>
+    <div class="sig-grid">
+      <div class="sig-box">
+        <p class="sig-label">Candidate</p>
+        <div class="sig-line"></div>
+        <p class="sig-name">—</p>
+        <p class="sig-meta">Date —</p>
+      </div>
+    </div>
+  </section>`;
 }
 
 function signatureBlock(): string {
@@ -110,30 +129,35 @@ export function buildEmployeeDocumentHtml(
   options?: { autoPrint?: boolean }
 ): string {
   const { employee, managerName, organization } = ctx;
-  const titleBlock = template.titleText?.trim() || "Employment Agreement";
+  const isOffer = template.documentClass === "hr-letter-offer";
+  const titleBlock = template.titleText?.trim() || (isOffer ? "Offer of Employment" : "Employment Agreement");
   const titleUpper = titleBlock.toUpperCase();
+  const offerDate = formatPrintDate(new Date().toISOString().slice(0, 10));
 
   const headerMetaHtml = `<div class="doc-meta">
     <h2>${escapeDocumentHtml(titleUpper)}</h2>
     <p class="doc-no">${escapeDocumentHtml(employee.searchKey)}</p>
     <p><span class="label">Employee no.</span> ${escapeDocumentHtml(employee.employeeNumber || "—")}</p>
+    ${isOffer ? `<p><span class="label">Offer date</span> ${escapeDocumentHtml(offerDate)}</p>` : ""}
   </div>`;
 
+  const notice = isOffer
+    ? "Offer letter scaffold — customise terms in System → Document templates before issuing to candidates."
+    : "Template scaffold — customise employment terms in System → Document templates before relying on this document for compliance.";
+
   const bodyHtml = `<style>${employeeBodyStyles()}</style>
-  <div class="scaffold-notice">
-    Template scaffold — customise employment terms in System → Document templates before relying on this document for compliance.
-  </div>
-  ${partiesBlock(ctx)}
+  <div class="scaffold-notice">${escapeDocumentHtml(notice)}</div>
+  ${isOffer ? `<div class="panel" style="margin-bottom:20px"><p class="party-name">${escapeDocumentHtml(employeeDisplayName(employee))}</p>${employee.email?.trim() ? `<p>${escapeDocumentHtml(employee.email.trim())}</p>` : ""}</div>` : partiesBlock(ctx)}
   <div class="meta-grid">
     <p><span class="label">Job title</span> ${escapeDocumentHtml(employee.jobTitle || "—")}</p>
     <p><span class="label">Employment type</span> ${escapeDocumentHtml(employee.employmentType || "—")}</p>
-    <p><span class="label">Commencement date</span> ${escapeDocumentHtml(formatPrintDate(employee.startDate))}</p>
+    <p><span class="label">${isOffer ? "Proposed start date" : "Commencement date"}</span> ${escapeDocumentHtml(formatPrintDate(employee.startDate))}</p>
     <p><span class="label">Department</span> ${escapeDocumentHtml(employee.department || "—")}</p>
     <p><span class="label">Reports to</span> ${escapeDocumentHtml(managerName || "—")}</p>
-    <p><span class="label">Standard hours / week</span> ${escapeDocumentHtml(employee.standardHoursPerWeek || "—")}</p>
+    ${isOffer ? "" : `<p><span class="label">Standard hours / week</span> ${escapeDocumentHtml(employee.standardHoursPerWeek || "—")}</p>`}
   </div>
-  ${richTextBlocks(template)}
-  ${signatureBlock()}`;
+  ${richTextBlocks(template, organization)}
+  ${isOffer ? acceptanceBlock() : signatureBlock()}`;
 
   return wrapDocumentHtml({
     title: `${employee.searchKey} — ${titleBlock}`,

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EmployeeContractGeneratePanel } from "@/components/employee-contract-generate-panel";
+import { EmployeeOfferGeneratePanel } from "@/components/employee-offer-generate-panel";
 import { EmployeeAddressesPanel, PrimaryAddressSummary } from "@/components/employee-addresses-panel";
 import {
   EmployeeEmergencyContactsPanel,
@@ -571,6 +572,12 @@ export function EmployeeTabbedView({
 
         {activeTab === "Documents" && canWindow("employee-documents") ? (
           <div className="space-y-4">
+            <EmployeeOfferGeneratePanel
+              employee={employee}
+              managerName={managerName(employee, allEmployees)}
+              existingDocuments={employee.documents}
+              onDocumentsChange={onDocumentsChange}
+            />
             <EmployeeContractGeneratePanel
               employee={employee}
               managerName={managerName(employee, allEmployees)}

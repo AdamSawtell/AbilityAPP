@@ -170,7 +170,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant print-remittance-cover and print-participant-statement for finance follow-up.",
       "Grant print-board-report for executives preparing board packs.",
       "Grant print-service-agreement and print-agreement-variation for coordinators managing NDIS agreements.",
-      "Grant print-employee-contract on HR roles that generate employment agreements.",
+      "Grant print-employee-contract and print-employee-offer on HR roles that generate employment documents.",
       "System → Organisation → Document branding — set bank BSB, account, remittance email, and footer.",
       "System → Tasks → Document templates — confirm NDIS participant invoice is Active; set default templates for print and batch processes.",
       "Invoices list — grant batch-print-invoices process for month-end ZIP export.",

@@ -88,7 +88,7 @@ export function renderDocument(
   if (template.documentClass.startsWith("service-agreement")) {
     return renderAgreementDocument(template, ctx as AgreementDocumentContext, options);
   }
-  if (template.documentClass.startsWith("hr-contract")) {
+  if (template.documentClass.startsWith("hr-contract") || template.documentClass === "hr-letter-offer") {
     return renderEmployeeDocument(template, ctx as EmployeeDocumentContext, options);
   }
   if (template.documentClass === "enquiry-letter") {

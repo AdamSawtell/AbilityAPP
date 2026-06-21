@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **100%** |
-| **Current work package** | **Document platform — complete** |
-| **Active slice** | — |
-| **Next slice** | Server PDF when host decided, or HR offer letter template |
-| **Last push** | 2026-06-18 — `b1a0ed7` (D7 progress tracker) |
+| **Current work package** | **Document platform — D8 HR offer letter** |
+| **Active slice** | WP-D.8 — Offer of employment |
+| **Next slice** | Server PDF when host decided |
+| **Last push** | 2026-06-18 — D8 HR offer letter (pending commit) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -29,7 +29,8 @@
 | D4 | Batch invoice ZIP on list + binding admin | ✅ Shipped |
 | D5 | Service agreement printable pack + e-sign registry | ✅ Shipped |
 | D6 | HR contract pack + My workplace delivery | ✅ Shipped |
-| D7 | Extended templates (enquiry, remittance, statement, board report, send invoice, clone) | ✅ Shipped |
+| D7 | Extended templates (enquiry, remittance, statement, board report, issue invoice, clone) | ✅ Shipped |
+| D8 | HR offer of employment letter | ✅ Shipped |
 
 **Chunk D (document platform): complete** — HTML print + registry; server PDF deferred until host decision. **Delivery: in-system only** (registry, print, portal) — no outbound email.
 
@@ -85,6 +86,16 @@
 | 6 | Invoices → open invoice → Issue invoice | Registry row created; invoice marked Sent; no outbound email |
 | 7 | Document templates → Duplicate template | Copy appears in list with "(copy)" suffix |
 | 8 | `npm run build` + `page-guides:check` + `supabase:push-remote` | Exit 0 |
+
+### What you can test — WP-D.8
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | System → Document templates | Offer of employment template listed |
+| 2 | Employees → HR file → Documents → Generate offer letter | HR file line added; save persists |
+| 3 | System → Document registry | Employee entity row with offer label |
+| 4 | My workplace → Contracts | Offer visible after save when staff-visible |
+| 5 | Print preview | Offer layout with acceptance block (no contract signatures) |
 
 ---
 

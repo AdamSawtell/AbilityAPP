@@ -709,6 +709,12 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "employee-documents",
   },
   {
+    id: "print-employee-offer",
+    label: "Generate offer of employment",
+    description: "Generate an offer letter, save to the document registry, and add an HR file line",
+    parentWindowKey: "employee-documents",
+  },
+  {
     id: "print-enquiry-acknowledgement",
     label: "Print enquiry acknowledgement",
     description: "Print or download an acknowledgement letter for a new enquiry",

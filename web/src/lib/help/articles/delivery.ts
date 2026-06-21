@@ -249,7 +249,7 @@ export const deliveryArticle: HelpArticle = {
         "Invoice reconciliation → Print remittance cover — cover sheet for the filtered period.",
         "Clients → Overview → Print statement — participant invoice summary for a period.",
         "Board reporting → Print / export — report pack; registry row when role has print-board-report.",
-        "Service agreements → Print agreement; employee HR file → Generate contract.",
+        "Service agreements → Print agreement; employee HR file → Generate contract or offer letter.",
         "System → Tasks → Document registry — search generated documents by entity and batch id.",
       ],
       relatedRoutes: [

@@ -179,7 +179,7 @@ export function validateDocumentContext(
   if (template.documentClass.startsWith("service-agreement")) {
     return validateAgreementDocument(ctx as AgreementDocumentContext);
   }
-  if (template.documentClass.startsWith("hr-contract")) {
+  if (template.documentClass.startsWith("hr-contract") || template.documentClass === "hr-letter-offer") {
     return validateEmployeeDocument(ctx as EmployeeDocumentContext);
   }
   if (template.documentClass === "enquiry-letter") {

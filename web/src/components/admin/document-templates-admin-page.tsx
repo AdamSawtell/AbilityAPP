@@ -13,6 +13,7 @@ import {
   DEFAULT_BOARD_REPORT_TEMPLATE_ID,
   DEFAULT_ENQUIRY_ACK_TEMPLATE_ID,
   DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
+  DEFAULT_HR_OFFER_TEMPLATE_ID,
   DEFAULT_INVOICE_TEMPLATE_ID,
   DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID,
   DEFAULT_REMITTANCE_COVER_TEMPLATE_ID,
@@ -67,6 +68,11 @@ export function DocumentTemplatesAdminPage() {
       if (!employee) return null;
       return renderDocument(record, { employee, managerName: "Manager", organization }, { skipValidation: true });
     }
+    if (record.documentClass === "hr-letter-offer") {
+      const employee = employees[0];
+      if (!employee) return null;
+      return renderDocument(record, { employee, managerName: "Manager", organization }, { skipValidation: true });
+    }
     if (record.documentClass === "enquiry-letter") {
       const enquiry = enquiries[0];
       if (!enquiry) return null;
@@ -109,6 +115,11 @@ export function DocumentTemplatesAdminPage() {
 
   const hrTemplates = useMemo(
     () => sorted.filter((t) => t.active && t.documentClass.startsWith("hr-contract")),
+    [sorted]
+  );
+
+  const hrOfferTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "hr-letter-offer"),
     [sorted]
   );
 
@@ -171,6 +182,13 @@ export function DocumentTemplatesAdminPage() {
           fallbackId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
         },
         {
+          processId: DOCUMENT_PRINT_PROCESSES.printEmployeeOffer,
+          entityType: "employee",
+          label: "Generate offer of employment",
+          templates: hrOfferTemplates,
+          fallbackId: DEFAULT_HR_OFFER_TEMPLATE_ID,
+        },
+        {
           processId: DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement,
           entityType: "enquiry",
           label: "Print enquiry acknowledgement",
@@ -199,7 +217,7 @@ export function DocumentTemplatesAdminPage() {
           fallbackId: DEFAULT_BOARD_REPORT_TEMPLATE_ID,
         },
       ] as const,
-    [invoiceTemplates, agreementTemplates, hrTemplates, enquiryTemplates, remittanceTemplates, statementTemplates, boardReportTemplates]
+    [invoiceTemplates, agreementTemplates, hrTemplates, hrOfferTemplates, enquiryTemplates, remittanceTemplates, statementTemplates, boardReportTemplates]
   );
 
   async function handleBindingChange(processId: string, entityType: string, templateId: string) {

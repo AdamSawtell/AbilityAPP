@@ -314,7 +314,8 @@ Everything else can proceed with sensible defaults and feature flags.
 | D4 | Batch invoice PDF + process binding admin | ✅ |
 | D5 | Service agreement printable pack + e-sign PDF archive | ✅ |
 | D6 | HR employment contract pack + My workplace delivery | ✅ |
-| D7 | Extended pack (enquiry ack, remittance, statement, board report, send invoice, clone) | ✅ |
+| D7 | Extended pack (enquiry ack, remittance, statement, board report, issue invoice, clone) | ✅ |
+| D8 | HR offer of employment letter + registry + My workplace | ✅ |
 
 **DMS decision:** Lightweight **document registry** (metadata + private storage + entity links) — not a full enterprise DMS. See architecture doc in planning pack.
 

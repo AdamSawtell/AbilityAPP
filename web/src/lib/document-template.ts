@@ -97,6 +97,7 @@ export const DEFAULT_AGREEMENT_TEMPLATE_ID = "dagreement-ndis-v1";
 export const DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID = "dagreement-variation-v1";
 export const DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID = "dhr-contract-casual-v1";
 export const DEFAULT_HR_CONTRACT_PT_TEMPLATE_ID = "dhr-contract-pt-v1";
+export const DEFAULT_HR_OFFER_TEMPLATE_ID = "dhr-letter-offer-v1";
 export const DEFAULT_ENQUIRY_ACK_TEMPLATE_ID = "denquiry-ack-v1";
 export const DEFAULT_REMITTANCE_COVER_TEMPLATE_ID = "dremittance-cover-v1";
 export const DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID = "dparticipant-statement-v1";
@@ -108,6 +109,7 @@ export const DOCUMENT_PRINT_PROCESSES = {
   printServiceAgreement: "print-service-agreement",
   printAgreementVariation: "print-agreement-variation",
   printEmployeeContract: "print-employee-contract",
+  printEmployeeOffer: "print-employee-offer",
   printEnquiryAcknowledgement: "print-enquiry-acknowledgement",
   printRemittanceCover: "print-remittance-cover",
   printParticipantStatement: "print-participant-statement",
@@ -195,6 +197,7 @@ function templateFallbackForClass(documentClass: DocumentClass): DocumentTemplat
   if (documentClass.startsWith("service-agreement")) return defaultAgreementTemplate();
   if (documentClass === "hr-contract-pt") return defaultHrContractPtTemplate();
   if (documentClass.startsWith("hr-contract")) return defaultHrContractCasualTemplate();
+  if (documentClass === "hr-letter-offer") return defaultHrOfferTemplate();
   if (documentClass === "enquiry-letter") return defaultEnquiryAckTemplate();
   if (documentClass === "remittance-cover") return defaultRemittanceCoverTemplate();
   if (documentClass === "participant-statement") return defaultParticipantStatementTemplate();
@@ -336,12 +339,36 @@ export function defaultBoardReportTemplate(): DocumentTemplateRecord {
   };
 }
 
+export function defaultHrOfferTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_HR_OFFER_TEMPLATE_ID,
+    name: "Offer of employment",
+    description: "Letter offering employment before the formal contract is signed.",
+    documentClass: "hr-letter-offer",
+    active: true,
+    isDefault: true,
+    titleText: "Offer of Employment",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-hr-offer-header", templateId: DEFAULT_HR_OFFER_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-hr-offer-title", templateId: DEFAULT_HR_OFFER_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Offer of Employment", sortOrder: 2, locked: false },
+      { id: "dtblk-hr-offer-parties", templateId: DEFAULT_HR_OFFER_TEMPLATE_ID, blockType: "parties", label: "Recipient", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-hr-offer-meta", templateId: DEFAULT_HR_OFFER_TEMPLATE_ID, blockType: "metadata", label: "Offer details", contentHtml: "", sortOrder: 4, locked: false },
+      { id: "dtblk-hr-offer-body", templateId: DEFAULT_HR_OFFER_TEMPLATE_ID, blockType: "rich-text", label: "Offer terms", contentHtml: "<p>We are pleased to offer you employment on the terms outlined below. This offer is subject to satisfactory checks and signing the formal employment agreement.</p>", sortOrder: 5, locked: false },
+      { id: "dtblk-hr-offer-footer", templateId: DEFAULT_HR_OFFER_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 6, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
 export const initialDocumentTemplates: DocumentTemplateRecord[] = [
   defaultInvoiceTemplate(),
   defaultAgreementTemplate(),
   defaultAgreementVariationTemplate(),
   defaultHrContractCasualTemplate(),
   defaultHrContractPtTemplate(),
+  defaultHrOfferTemplate(),
   defaultEnquiryAckTemplate(),
   defaultRemittanceCoverTemplate(),
   defaultParticipantStatementTemplate(),
@@ -386,6 +413,14 @@ export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
     processId: "print-employee-contract",
     entityType: "employee",
     templateId: DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-employee-offer",
+    processId: "print-employee-offer",
+    entityType: "employee",
+    templateId: DEFAULT_HR_OFFER_TEMPLATE_ID,
     isDefault: true,
     allowUserOverride: true,
   },
@@ -457,7 +492,9 @@ export function resolveTemplateForProcess(
   const classHint =
     processId === DOCUMENT_PRINT_PROCESSES.printRemittanceCover
       ? "remittance-cover"
-      : entityType === "service-agreement"
+      : processId === DOCUMENT_PRINT_PROCESSES.printEmployeeOffer
+        ? "hr-letter-offer"
+        : entityType === "service-agreement"
         ? "service-agreement"
         : entityType === "employee"
           ? "hr-contract"
@@ -499,6 +536,9 @@ export function templatesForProcess(
       );
     }
     if (entityType === "employee") {
+      if (processId === DOCUMENT_PRINT_PROCESSES.printEmployeeOffer) {
+        return templates.filter((t) => t.active && t.documentClass === "hr-letter-offer");
+      }
       return templates.filter((t) => t.active && t.documentClass.startsWith("hr-contract"));
     }
     if (entityType === "enquiry") {
