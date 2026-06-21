@@ -221,6 +221,20 @@ export const deliveryArticle: HelpArticle = {
       windowKeys: ["my-timesheets", "timesheets"],
     },
     {
+      id: "timesheet-approval",
+      title: "Timesheet approval queue",
+      body: "Supervisors approve submitted timesheets in scope — direct reports, assigned sites, or all submitted for coordinators. Ready timesheets can be bulk-approved; blocked rows need shift verification first.",
+      steps: [
+        "Open Timesheet approval from the sidebar (Service delivery).",
+        "Choose scope: My direct reports, My site(s), a specific location, or All submitted (coordinators).",
+        "Review Ready, Review, and Blocked tabs — ready rows are safe to bulk approve.",
+        "Use Approve all ready or select rows and Approve selected.",
+        "Open blocked or review rows to fix check-in/out or roster links on the full timesheet record.",
+      ],
+      relatedRoutes: ["/timesheet-approval", "/timesheets"],
+      windowKeys: ["timesheet-approval", "approve-timesheet"],
+    },
+    {
       id: "financial-close",
       title: "Financial close checklist",
       body: "Month-end sign-off across plan delivery, NDIS remittance, participant invoices, and payroll reconciliation.",

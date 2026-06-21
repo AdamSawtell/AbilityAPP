@@ -132,6 +132,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/plan-reconciliation", slug: "service-planning", surface: "app" },
   { prefix: "/service-planning", slug: "service-planning", surface: "app" },
   { prefix: "/timesheets", slug: "delivery", surface: "app" },
+  { prefix: "/timesheet-approval", slug: "delivery", surface: "app" },
   { prefix: "/rostering", slug: "delivery", surface: "app" },
   { prefix: "/reports/advance", slug: "reports-setup", surface: "system" },
   { prefix: "/reports", slug: "reports", surface: "app" },

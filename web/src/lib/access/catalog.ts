@@ -206,6 +206,14 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "timesheet-approval",
+    label: "Timesheet approval",
+    group: "Delivery",
+    href: "/timesheet-approval",
+    abilityErpName: "Timesheet approval",
+    showInSidebar: true,
+  },
+  {
     key: "generate-timesheets",
     label: "Generate timesheets",
     group: "Delivery",
@@ -645,6 +653,12 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     label: "Approve leave request",
     description: "Managers and HR approve or decline pending leave requests",
     parentWindowKey: "workforce-planning",
+  },
+  {
+    id: "approve-timesheet",
+    label: "Approve timesheet",
+    description: "Supervisors approve submitted timesheets within their management line or site scope",
+    parentWindowKey: "timesheet-approval",
   },
   {
     id: "manage-session-audit-risk",

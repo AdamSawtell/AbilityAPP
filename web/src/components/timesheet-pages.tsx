@@ -52,6 +52,7 @@ function employeeLabel(employees: { id: string; searchKey: string; name: string 
 
 export function TimesheetListView() {
   const { timesheets, employees, rosterShifts, locations } = useData();
+  const { canWindow } = useAuth();
   const [statusFilter, setStatusFilter] = useState("");
   const [reconcileFilter, setReconcileFilter] = useState("");
 
@@ -83,6 +84,14 @@ export function TimesheetListView() {
         <p className="text-sm text-slate-600">
           Review worker timesheets generated from roster shifts. Approve timesheets before payroll export.
         </p>
+        {canWindow("timesheet-approval") ? (
+          <Link
+            href="/timesheet-approval"
+            className="inline-flex shrink-0 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            Timesheet approval
+          </Link>
+        ) : null}
         <Link
           href="/generate-timesheets"
           className="inline-flex shrink-0 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"

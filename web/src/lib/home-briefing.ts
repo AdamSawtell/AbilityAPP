@@ -4,6 +4,8 @@ import type { MyActionItem } from "@/lib/my-workplace/compliance-dashboard";
 import type { WorkforceReviewSummary } from "@/lib/workforce/review-queue";
 import type { TaskDashboardStats } from "@/lib/task-hub";
 
+import type { TimesheetApprovalSummary } from "@/lib/workforce/timesheet-approval-queue";
+
 export type HomeAttentionSeverity = "critical" | "warning" | "info";
 
 export type HomeAttentionItem = {
@@ -35,6 +37,7 @@ export function buildHomeBriefing(input: {
   taskStats: TaskDashboardStats | null;
   myActionItems: MyActionItem[];
   reviewSummary: WorkforceReviewSummary | null;
+  timesheetApprovalSummary: TimesheetApprovalSummary | null;
   overdueIncidents: IncidentRecord[];
 }): HomeBriefing {
   const items: HomeAttentionItem[] = [];
@@ -79,6 +82,16 @@ export function buildHomeBriefing(input: {
       title: `${input.reviewSummary.total} workforce review${input.reviewSummary.total === 1 ? "" : "s"} waiting`,
       description: `${input.reviewSummary.pendingCredentials} credential${input.reviewSummary.pendingCredentials === 1 ? "" : "s"}, ${input.reviewSummary.pendingLeave} leave request${input.reviewSummary.pendingLeave === 1 ? "" : "s"}`,
       href: "/workforce-planning#reviews",
+    });
+  }
+
+  if (input.timesheetApprovalSummary && input.timesheetApprovalSummary.total > 0) {
+    items.push({
+      id: "timesheet-approvals",
+      severity: input.timesheetApprovalSummary.blocked > 0 ? "warning" : "info",
+      title: `${input.timesheetApprovalSummary.total} timesheet${input.timesheetApprovalSummary.total === 1 ? "" : "s"} awaiting approval`,
+      description: `${input.timesheetApprovalSummary.ready} ready, ${input.timesheetApprovalSummary.review} review, ${input.timesheetApprovalSummary.blocked} blocked`,
+      href: "/timesheet-approval",
     });
   }
 

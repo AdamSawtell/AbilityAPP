@@ -22,6 +22,11 @@ import { taskDashboardStats } from "@/lib/task-hub";
 import type { MyWorkplaceSummary } from "@/lib/my-workplace/types";
 import type { MyActionItem } from "@/lib/my-workplace/compliance-dashboard";
 import type { WorkforceReviewSummary } from "@/lib/workforce/review-queue";
+import {
+  buildTimesheetApprovalSummary,
+  canApproveTimesheet,
+  seesAllTimesheetApprovals,
+} from "@/lib/workforce/timesheet-approval-queue";
 
 function attentionStyles(severity: HomeAttentionItem["severity"]) {
   if (severity === "critical") return "border-rose-200 bg-rose-50/80 hover:bg-rose-50";
@@ -186,7 +191,7 @@ function HomePromptHero({
 }
 
 export function HomeDashboard() {
-  const { enquiries, clients, employees, tasks, incidents } = useData();
+  const { enquiries, clients, employees, tasks, incidents, timesheets, rosterShifts, locations } = useData();
   const { canWindow, canProcess, canHomePanel, session, users } = useAuth();
   const { setCollapsed } = useAiChatShell();
   const router = useRouter();
@@ -202,6 +207,7 @@ export function HomeDashboard() {
   const showMyWorkplace = canWindow("my-workplace");
   const showWorkforceReviews =
     canWindow("workforce-planning") && (canProcess("review-employee-credential") || canProcess("approve-leave-request"));
+  const showTimesheetApprovals = canWindow("timesheet-approval") && canProcess("approve-timesheet");
   const openTaskCount = taskCounts ? taskCounts.assignedToMe + taskCounts.myRole : 0;
 
   const [mySummary, setMySummary] = useState<MyWorkplaceSummary | null>(null);
@@ -246,6 +252,23 @@ export function HomeDashboard() {
     [clients, enquiries, tasks, incidents]
   );
 
+  const timesheetApprovalSummary = useMemo(() => {
+    if (!showTimesheetApprovals || !session || !canApproveTimesheet(session)) return null;
+    const reviewerEmployeeId = session.employeeBpId?.trim() || users.find((u) => u.id === session.userId)?.employeeBpId?.trim() || null;
+    const scope = seesAllTimesheetApprovals(session) ? "organisation" : "direct-reports";
+    return buildTimesheetApprovalSummary(
+      {
+        timesheets,
+        employees,
+        rosterShifts,
+        locations,
+        reviewerEmployeeId,
+        seesAll: seesAllTimesheetApprovals(session),
+      },
+      scope
+    );
+  }, [showTimesheetApprovals, session, users, timesheets, employees, rosterShifts, locations]);
+
   const briefing = useMemo(
     () =>
       buildHomeBriefing({
@@ -258,6 +281,7 @@ export function HomeDashboard() {
         taskStats,
         myActionItems,
         reviewSummary,
+        timesheetApprovalSummary,
         overdueIncidents,
       }),
     [
@@ -270,6 +294,7 @@ export function HomeDashboard() {
       taskStats,
       myActionItems,
       reviewSummary,
+      timesheetApprovalSummary,
       overdueIncidents,
     ]
   );

@@ -175,6 +175,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Grant My timesheets for workers submitting draft timesheets from My workplace.",
       "Grant NDIS audit pack for quality and compliance audit evidence exports.",
       "Grant Board reporting for executives preparing monthly NDIS board report packs — board members receive read-only access to published reports.",
+      "Grant Timesheet approval for team leaders and coordinators — use approve-timesheet process with the timesheet-approval window.",
     ]
   ),
   moduleSetupArticle(
