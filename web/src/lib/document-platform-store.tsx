@@ -81,13 +81,13 @@ export function DocumentPlatformProvider({ children }: { children: ReactNode }) 
   }, [templates]);
 
   const upsertBinding = useCallback(async (record: ProcessDocumentBindingRecord) => {
+    if (isSupabaseConfigured()) {
+      await saveProcessDocumentBinding(createClient(), record);
+    }
     setBindings((prev) => {
       const exists = prev.some((b) => b.id === record.id);
       return exists ? prev.map((b) => (b.id === record.id ? record : b)) : [...prev, record];
     });
-    if (isSupabaseConfigured()) {
-      await saveProcessDocumentBinding(createClient(), record);
-    }
   }, []);
 
   const registerGeneratedDocument = useCallback(async (record: GeneratedDocumentRecord) => {

@@ -33,6 +33,7 @@ import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
 import { registerGeneratedDocument } from "@/lib/document-client";
+import { batchPrintInvoices } from "@/lib/invoice-batch-print";
 import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
 import { useOrganization } from "@/lib/organization-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
@@ -144,13 +145,92 @@ function invoiceSaveBlocked(record: InvoiceRecord): string | null {
 
 export function InvoiceListView() {
   const { invoices, clients } = useData();
+  const { organization } = useOrganization();
+  const { canProcess } = useAuth();
+  const { listTemplatesForProcess, resolveTemplate } = useDocumentPlatform();
+  const canBatchPrint = canProcess(DOCUMENT_PRINT_PROCESSES.batchPrintInvoices);
   const [statusFilter, setStatusFilter] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [templateId, setTemplateId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState("");
+  const [batchMessage, setBatchMessage] = useState("");
+  const [batchError, setBatchError] = useState("");
+
+  const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.batchPrintInvoices, "invoice");
+  const activeTemplateId =
+    templateId ||
+    resolveTemplate(DOCUMENT_PRINT_PROCESSES.batchPrintInvoices, "invoice")?.id ||
+    templateOptions[0]?.id ||
+    "";
+  const activeTemplate =
+    templateOptions.find((t) => t.id === activeTemplateId) ??
+    resolveTemplate(DOCUMENT_PRINT_PROCESSES.batchPrintInvoices, "invoice", activeTemplateId) ??
+    templateOptions[0] ??
+    null;
 
   const rows = useMemo(() => {
     let sorted = [...invoices].sort((a, b) => (b.periodStart || "").localeCompare(a.periodStart || ""));
     if (statusFilter) sorted = sorted.filter((r) => r.status === statusFilter);
     return sorted;
   }, [invoices, statusFilter]);
+
+  const allSelected = rows.length > 0 && rows.every((row) => selectedIds.has(row.id));
+
+  const toggleAll = () => {
+    setSelectedIds(allSelected ? new Set() : new Set(rows.map((row) => row.id)));
+  };
+
+  const toggleOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBatchPrint = async () => {
+    setBatchError("");
+    setBatchMessage("");
+    if (!canBatchPrint) {
+      setBatchError("You do not have permission to batch print invoices.");
+      return;
+    }
+    if (!activeTemplate) {
+      setBatchError("No active invoice template is available.");
+      return;
+    }
+    const selected = rows.filter((row) => selectedIds.has(row.id));
+    if (!selected.length) {
+      setBatchError("Select at least one invoice.");
+      return;
+    }
+    setBusy(true);
+    setProgress(`Preparing 0 of ${selected.length}…`);
+    try {
+      const result = await batchPrintInvoices({
+        invoices: selected,
+        clients,
+        organization,
+        template: activeTemplate,
+        onProgress: ({ current, total, documentNo }) => {
+          setProgress(`Generating ${current} of ${total} — ${documentNo}`);
+        },
+      });
+      if (!result.ok) {
+        setBatchError(result.message);
+        return;
+      }
+      setBatchMessage(result.message);
+      setSelectedIds(new Set());
+    } catch (err) {
+      setBatchError(err instanceof Error ? err.message : "Batch print failed.");
+    } finally {
+      setBusy(false);
+      setProgress("");
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -176,25 +256,71 @@ export function InvoiceListView() {
           Generate invoices
         </Link>
       </div>
-      <label className="text-sm text-slate-600">
-        Status{" "}
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="ml-2 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
-        >
-          <option value="">All</option>
-          {invoiceDropdowns.status.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <label className="text-sm text-slate-600">
+          Status{" "}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="ml-2 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          >
+            <option value="">All</option>
+            {invoiceDropdowns.status.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </label>
+        {canBatchPrint ? (
+          <div className="flex flex-wrap items-end gap-3">
+            {templateOptions.length > 1 ? (
+              <label className="text-sm text-slate-600">
+                Template{" "}
+                <select
+                  value={activeTemplateId}
+                  onChange={(e) => setTemplateId(e.target.value)}
+                  className="ml-2 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+                >
+                  {templateOptions.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <button
+              type="button"
+              disabled={busy || !selectedIds.size || !activeTemplate}
+              onClick={() => void handleBatchPrint()}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy ? "Generating…" : `Batch print (${selectedIds.size || 0})`}
+            </button>
+          </div>
+        ) : null}
+      </div>
+      {progress ? <p className="text-sm text-slate-600">{progress}</p> : null}
+      {batchMessage ? <p className="text-sm text-emerald-800">{batchMessage}</p> : null}
+      {batchError ? (
+        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{batchError}</p>
+      ) : null}
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
+              {canBatchPrint ? (
+                <th className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    aria-label="Select all invoices"
+                    disabled={!rows.length || busy}
+                  />
+                </th>
+              ) : null}
               <th className="px-4 py-3">Document</th>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Period</th>
@@ -208,6 +334,17 @@ export function InvoiceListView() {
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50/80">
+                {canBatchPrint ? (
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(row.id)}
+                      onChange={() => toggleOne(row.id)}
+                      aria-label={`Select ${row.documentNo}`}
+                      disabled={busy}
+                    />
+                  </td>
+                ) : null}
                 <td className="px-4 py-3">
                   <Link href={`/invoices/${row.id}`} className="font-medium text-[#b51266] hover:underline">
                     {row.documentNo}
@@ -234,7 +371,7 @@ export function InvoiceListView() {
             ))}
             {!rows.length ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={canBatchPrint ? 9 : 8} className="px-4 py-8 text-center text-slate-500">
                   No invoices yet — generate from approved timesheets for plan-managed participants.
                 </td>
               </tr>

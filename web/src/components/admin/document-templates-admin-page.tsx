@@ -8,6 +8,7 @@ import { useAdminPageAccess } from "@/lib/access/window-surface";
 import {
   DOCUMENT_CLASS_LABELS,
   DOCUMENT_PRINT_PROCESSES,
+  DEFAULT_INVOICE_TEMPLATE_ID,
   type DocumentTemplateRecord,
 } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
@@ -21,7 +22,7 @@ const inputClass =
 export function DocumentTemplatesAdminPage() {
   const { hasAnyAccess } = useAdminPageAccess("system");
   const hasPageAccess = hasAnyAccess(["admin-document-templates"]);
-  const { templates, bindings, upsertTemplate, loading } = useDocumentPlatform();
+  const { templates, bindings, upsertTemplate, upsertBinding, loading } = useDocumentPlatform();
   const { organization } = useOrganization();
   const { invoices, clients } = useData();
   const sorted = useMemo(
@@ -32,6 +33,8 @@ export function DocumentTemplatesAdminPage() {
   const [draft, setDraft] = useState<DocumentTemplateRecord | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [saveError, setSaveError] = useState("");
+  const [bindingError, setBindingError] = useState("");
+  const [bindingBusy, setBindingBusy] = useState(false);
 
   const record = draft ?? sorted.find((t) => t.id === activeId) ?? null;
   const persisted = sorted.find((t) => t.id === activeId) ?? null;
@@ -49,6 +52,41 @@ export function DocumentTemplatesAdminPage() {
     () => bindings.filter((b) => b.templateId === record?.id),
     [bindings, record?.id]
   );
+
+  const invoiceTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass.startsWith("tax-invoice")),
+    [sorted]
+  );
+
+  const invoiceProcessRows = useMemo(
+    () =>
+      [
+        { processId: DOCUMENT_PRINT_PROCESSES.printInvoice, label: "Print invoice (detail)" },
+        { processId: DOCUMENT_PRINT_PROCESSES.batchPrintInvoices, label: "Batch print invoices (list)" },
+      ] as const,
+    []
+  );
+
+  async function handleBindingChange(processId: string, templateId: string) {
+    const existing = bindings.find((b) => b.processId === processId && b.entityType === "invoice" && b.isDefault);
+    const next = {
+      id: existing?.id ?? `pdb-${processId}`,
+      processId,
+      entityType: "invoice",
+      templateId,
+      isDefault: true,
+      allowUserOverride: existing?.allowUserOverride ?? true,
+    };
+    setBindingError("");
+    setBindingBusy(true);
+    try {
+      await upsertBinding(next);
+    } catch (err) {
+      setBindingError(err instanceof Error ? err.message : "Could not save process binding");
+    } finally {
+      setBindingBusy(false);
+    }
+  }
 
   if (!hasPageAccess) {
     return (
@@ -86,6 +124,40 @@ export function DocumentTemplatesAdminPage() {
           Document registry
         </Link>
       </div>
+
+      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="text-sm font-semibold text-slate-900">Default templates by process</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Choose which active template finance users get for invoice print and batch export. Active templates are production-ready.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {invoiceProcessRows.map((row) => {
+            const binding = bindings.find(
+              (b) => b.processId === row.processId && b.entityType === "invoice" && b.isDefault
+            );
+            return (
+              <label key={row.processId} className="block text-sm">
+                <span className="mb-1 block font-medium text-slate-700">{row.label}</span>
+                <select
+                  className={inputClass}
+                  value={binding?.templateId ?? DEFAULT_INVOICE_TEMPLATE_ID}
+                  onChange={(e) => void handleBindingChange(row.processId, e.target.value)}
+                  disabled={!invoiceTemplates.length || bindingBusy}
+                >
+                  {invoiceTemplates.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            );
+          })}
+        </div>
+        {bindingError ? (
+          <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{bindingError}</p>
+        ) : null}
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">

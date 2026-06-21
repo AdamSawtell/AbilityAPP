@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** (+ Chunk D document platform in progress) |
 | **Current work package** | **Chunk D — Document platform** |
-| **Active slice** | WP-D.0–D.3 — invoice templates, registry, System admin |
-| **Next slice** | WP-D.4 batch invoice ZIP; WP-D.5 agreement pack |
-| **Last push** | 2026-06-18 — `f159297` (Chunk D document platform D0–D3) |
+| **Active slice** | WP-D.4 — batch invoice ZIP + process binding admin |
+| **Next slice** | WP-D.5 agreement pack; WP-D.6 HR contract pack |
+| **Last push** | 2026-06-18 — `3279b7d` (BUILD-PROGRESS tracker) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -26,8 +26,8 @@
 | D1 | Invoice template render + `print-invoice` / `batch-print-invoices` | ✅ Shipped |
 | D2 | System template admin (`/system/admin/document-templates`) | ✅ Shipped |
 | D3 | Document registry + `/api/documents/register` + private bucket | ✅ Shipped |
-| D4 | Batch invoice ZIP on list | ⬜ Next |
-| D5 | Service agreement printable pack | ⬜ Planned |
+| D4 | Batch invoice ZIP on list + binding admin | ✅ Shipped |
+| D5 | Service agreement printable pack | ⬜ Next |
 | D6 | HR contract pack | ⬜ Planned |
 
 **Policy:** Active template = production-ready (no separate legal sign-off gate).
@@ -42,6 +42,15 @@
 | 4 | Invoices → open invoice → Print invoice | Print preview with org header/footer |
 | 5 | Download HTML | File downloads; registry row appears in Document registry |
 | 6 | `npm run build` + `page-guides:check` | Exit 0 |
+
+### What you can test — WP-D.4
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | System → Document templates → Default templates by process | Change batch default, save, refresh persists |
+| 2 | Invoices list → select multiple rows → Batch print | ZIP downloads with one HTML per invoice |
+| 3 | System → Document registry | Each invoice has a row; batch id suffix matches across the run |
+| 4 | Role without `batch-print-invoices` | No checkboxes or batch button on list |
 
 ---
 

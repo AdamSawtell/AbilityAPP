@@ -237,12 +237,14 @@ export const deliveryArticle: HelpArticle = {
     {
       id: "document-templates",
       title: "Document templates and invoice print",
-      body: "System operators manage print templates with standard org header and footer. Finance users print or download invoices using the assigned template; generated files are stored in the document registry.",
+      body: "System operators manage print templates with standard org header and footer. Finance users print or download invoices using the assigned template; batch export creates a ZIP of HTML files. Generated files are stored in the document registry with a shared batch id.",
       steps: [
         "System → Tasks → Document templates — edit title, footer, and active flag.",
+        "On the same page, set default templates for Print invoice and Batch print invoices.",
         "System → Organisation → Document branding — set bank details and footer text.",
         "Invoices → open a record → choose template if more than one → Print invoice or Download HTML.",
-        "System → Tasks → Document registry — confirm the generated file was saved.",
+        "Invoices list → select rows → Batch print — downloads a ZIP and saves one registry row per invoice.",
+        "System → Tasks → Document registry — confirm entries; batch runs share the same batch id suffix.",
       ],
       relatedRoutes: ["/system/admin/document-templates", "/system/admin/document-registry", "/invoices", "/system/organization"],
       windowKeys: ["admin-document-templates", "invoices", "admin-organization"],
