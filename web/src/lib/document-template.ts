@@ -91,10 +91,14 @@ export const DOCUMENT_CLASS_LABELS: Record<DocumentClass, string> = {
 };
 
 export const DEFAULT_INVOICE_TEMPLATE_ID = "dtax-invoice-ndis-v1";
+export const DEFAULT_AGREEMENT_TEMPLATE_ID = "dagreement-ndis-v1";
+export const DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID = "dagreement-variation-v1";
 
 export const DOCUMENT_PRINT_PROCESSES = {
   printInvoice: "print-invoice",
   batchPrintInvoices: "batch-print-invoices",
+  printServiceAgreement: "print-service-agreement",
+  printAgreementVariation: "print-agreement-variation",
 } as const;
 
 export function defaultInvoiceTemplate(): DocumentTemplateRecord {
@@ -121,7 +125,68 @@ export function defaultInvoiceTemplate(): DocumentTemplateRecord {
   };
 }
 
-export const initialDocumentTemplates: DocumentTemplateRecord[] = [defaultInvoiceTemplate()];
+export function defaultAgreementTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_AGREEMENT_TEMPLATE_ID,
+    name: "NDIS service agreement",
+    description: "Printable service agreement with schedule of supports and signature block.",
+    documentClass: "service-agreement",
+    active: true,
+    isDefault: true,
+    titleText: "Service Agreement",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-agreement-header", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-agreement-title", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Service Agreement", sortOrder: 2, locked: false },
+      { id: "dtblk-agreement-parties", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "parties", label: "Parties", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-agreement-meta", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "metadata", label: "Agreement details", contentHtml: "", sortOrder: 4, locked: false },
+      { id: "dtblk-agreement-terms", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "rich-text", label: "Terms", contentHtml: "<p>This agreement sets out the supports the provider will deliver under the participant's NDIS plan.</p>", sortOrder: 5, locked: false },
+      { id: "dtblk-agreement-lines", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "line-table", label: "Schedule of supports", contentHtml: "", sortOrder: 6, locked: true },
+      { id: "dtblk-agreement-privacy", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "rich-text", label: "Privacy and consent", contentHtml: "<p>The participant consents to the collection and use of personal information as required to deliver NDIS supports.</p>", sortOrder: 7, locked: false },
+      { id: "dtblk-agreement-signature", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "signature", label: "Signatures", contentHtml: "", sortOrder: 8, locked: true },
+      { id: "dtblk-agreement-footer", templateId: DEFAULT_AGREEMENT_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 9, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultAgreementVariationTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
+    name: "Agreement variation",
+    description: "Variation to an existing NDIS service agreement.",
+    documentClass: "service-agreement-variation",
+    active: true,
+    isDefault: false,
+    titleText: "Agreement variation",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-variation-header", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-variation-title", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Agreement variation", sortOrder: 2, locked: false },
+      { id: "dtblk-variation-parties", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "parties", label: "Parties", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-variation-meta", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "metadata", label: "Variation details", contentHtml: "", sortOrder: 4, locked: false },
+      { id: "dtblk-variation-terms", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "rich-text", label: "Variation terms", contentHtml: "<p>This variation amends the existing service agreement between the parties.</p>", sortOrder: 5, locked: false },
+      { id: "dtblk-variation-lines", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "line-table", label: "Revised schedule", contentHtml: "", sortOrder: 6, locked: true },
+      { id: "dtblk-variation-signature", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "signature", label: "Signatures", contentHtml: "", sortOrder: 7, locked: true },
+      { id: "dtblk-variation-footer", templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 8, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+function templateFallbackForClass(documentClass: DocumentClass): DocumentTemplateRecord {
+  if (documentClass === "service-agreement-variation") return defaultAgreementVariationTemplate();
+  if (documentClass.startsWith("service-agreement")) return defaultAgreementTemplate();
+  return defaultInvoiceTemplate();
+}
+
+export const initialDocumentTemplates: DocumentTemplateRecord[] = [
+  defaultInvoiceTemplate(),
+  defaultAgreementTemplate(),
+  defaultAgreementVariationTemplate(),
+];
 
 export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
   {
@@ -140,10 +205,26 @@ export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
     isDefault: true,
     allowUserOverride: true,
   },
+  {
+    id: "pdb-print-service-agreement",
+    processId: "print-service-agreement",
+    entityType: "service-agreement",
+    templateId: DEFAULT_AGREEMENT_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-agreement-variation",
+    processId: "print-agreement-variation",
+    entityType: "service-agreement",
+    templateId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
 ];
 
 export function normalizeDocumentTemplate(record: DocumentTemplateRecord): DocumentTemplateRecord {
-  const fallback = defaultInvoiceTemplate();
+  const fallback = templateFallbackForClass(record.documentClass ?? "tax-invoice-ndis");
   return {
     ...fallback,
     ...record,
@@ -173,6 +254,15 @@ export function resolveTemplateForProcess(
     const match = active.find((t) => t.id === binding.templateId);
     if (match) return match;
   }
+  const classHint =
+    entityType === "service-agreement"
+      ? "service-agreement"
+      : entityType === "invoice"
+        ? "tax-invoice"
+        : "";
+  if (classHint) {
+    return active.find((t) => t.isDefault && t.documentClass.startsWith(classHint)) ?? active.find((t) => t.documentClass.startsWith(classHint)) ?? null;
+  }
   return active.find((t) => t.isDefault && t.documentClass.startsWith("tax-invoice")) ?? active[0] ?? null;
 }
 
@@ -193,6 +283,11 @@ export function templatesForProcess(
     bindings.filter((b) => b.processId === processId && b.entityType === entityType).map((b) => b.templateId)
   );
   if (!boundIds.size) {
+    if (entityType === "service-agreement") {
+      return templates.filter(
+        (t) => t.active && (t.documentClass === "service-agreement" || t.documentClass === "service-agreement-variation")
+      );
+    }
     return templates.filter((t) => t.active && t.documentClass.startsWith("tax-invoice"));
   }
   return templates.filter((t) => t.active && boundIds.has(t.id));

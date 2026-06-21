@@ -1,3 +1,5 @@
+import type { AgreementDocumentContext } from "@/lib/document-render-agreement";
+import { buildAgreementDocumentHtml } from "@/lib/document-render-agreement";
 import { buildInvoiceDocumentHtml, type InvoiceDocumentContext } from "@/lib/document-render-invoice";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import {
@@ -5,6 +7,8 @@ import {
   validateDocumentContext,
   type DocumentValidationIssue,
 } from "@/lib/document-validation";
+
+export type DocumentRenderContext = InvoiceDocumentContext | AgreementDocumentContext;
 
 export type DocumentRenderResult = {
   html: string;
@@ -29,13 +33,33 @@ export function renderInvoiceDocument(
   };
 }
 
+export function renderAgreementDocument(
+  template: DocumentTemplateRecord,
+  ctx: AgreementDocumentContext,
+  options?: { autoPrint?: boolean; skipValidation?: boolean }
+): DocumentRenderResult {
+  const issues = options?.skipValidation ? [] : validateDocumentContext(template, ctx);
+  const blocked = options?.skipValidation ? null : documentBlockedByValidation(issues);
+  if (blocked) {
+    return { html: "", issues, blocked };
+  }
+  return {
+    html: buildAgreementDocumentHtml(template, ctx, options),
+    issues,
+    blocked: null,
+  };
+}
+
 export function renderDocument(
   template: DocumentTemplateRecord,
-  ctx: InvoiceDocumentContext,
+  ctx: DocumentRenderContext,
   options?: { autoPrint?: boolean; skipValidation?: boolean }
 ): DocumentRenderResult {
   if (template.documentClass.startsWith("tax-invoice")) {
-    return renderInvoiceDocument(template, ctx, options);
+    return renderInvoiceDocument(template, ctx as InvoiceDocumentContext, options);
+  }
+  if (template.documentClass.startsWith("service-agreement")) {
+    return renderAgreementDocument(template, ctx as AgreementDocumentContext, options);
   }
   return {
     html: "",

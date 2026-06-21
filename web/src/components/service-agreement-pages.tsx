@@ -13,10 +13,18 @@ import {
   ServiceAgreementScheduleWizard,
 } from "@/components/service-agreement-schedule";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { exportServiceAgreementHtml, printServiceAgreement } from "@/lib/agreement-print";
+import { auditMetaFrom } from "@/lib/audit";
 import { useAuth } from "@/lib/auth-store";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { downloadDocumentHtml } from "@/lib/document-render";
 import { formatContractDate } from "@/lib/contract";
 import { newLineId } from "@/lib/client-line-tables";
 import { useReferenceData } from "@/lib/config-store";
+import { useData } from "@/lib/data-store";
+import { useOrganization } from "@/lib/organization-store";
 import {
   normalizeServiceAgreement,
   type ServiceAgreementLine,
@@ -28,8 +36,6 @@ import {
   lifecycleStatusTone,
   validateServiceAgreementLifecycle,
 } from "@/lib/service-agreement-lifecycle";
-import { useData } from "@/lib/data-store";
-import { auditMetaFrom } from "@/lib/audit";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -159,16 +165,49 @@ export function ClientServiceAgreementsPanel({
 
 export function ServiceAgreementDetailView({ id }: { id: string }) {
   const { serviceAgreements, clients, products, priceLists, upsertServiceAgreement } = useData();
+  const { organization } = useOrganization();
   const { getOptions } = useReferenceData();
-  const { canWriteWindow } = useAuth();
+  const { session, canWriteWindow, canProcess } = useAuth();
+  const { listTemplatesForProcess, resolveTemplate } = useDocumentPlatform();
   const canSaveAgreement = canWriteWindow("service-agreements");
+  const canPrintAgreement = canProcess(DOCUMENT_PRINT_PROCESSES.printServiceAgreement);
+  const canPrintVariation = canProcess(DOCUMENT_PRINT_PROCESSES.printAgreementVariation);
+  const canPrint = canPrintAgreement || canPrintVariation;
   const stored = serviceAgreements.find((r) => r.id === id);
   const [draft, setDraft] = useState<ServiceAgreementRecord | null>(null);
   const [saved, setSaved] = useState(false);
+  const [printError, setPrintError] = useState("");
+  const [templateId, setTemplateId] = useState("");
   const record = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
   const client = record ? clients.find((c) => c.id === record.clientId) : null;
   const priceList = record ? priceLists.find((pl) => pl.id === record.priceListId) : null;
+
+  const templateOptions = useMemo(() => {
+    const options = canPrintAgreement
+      ? listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printServiceAgreement, "service-agreement")
+      : [];
+    if (canPrintVariation) {
+      const variations = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printAgreementVariation, "service-agreement");
+      const ids = new Set(options.map((template) => template.id));
+      for (const template of variations) {
+        if (!ids.has(template.id)) options.push(template);
+      }
+    }
+    return options;
+  }, [canPrintAgreement, canPrintVariation, listTemplatesForProcess]);
+
+  const activeTemplateId =
+    templateId ||
+    resolveTemplate(DOCUMENT_PRINT_PROCESSES.printServiceAgreement, "service-agreement")?.id ||
+    templateOptions[0]?.id ||
+    "";
+  const activeTemplate =
+    templateOptions.find((template) => template.id === activeTemplateId) ??
+    resolveTemplate(DOCUMENT_PRINT_PROCESSES.printServiceAgreement, "service-agreement", activeTemplateId) ??
+    templateOptions[0] ??
+    null;
+
   const lifecycleIssues = useMemo(() => {
     if (!record) return [];
     return validateServiceAgreementLifecycle(record, stored?.status);
@@ -202,6 +241,55 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
     setSaved(false);
   }
 
+  async function archiveAgreementDocument(agreement: ServiceAgreementRecord, labelSuffix = "") {
+    const template =
+      activeTemplate ??
+      resolveTemplate(DOCUMENT_PRINT_PROCESSES.printServiceAgreement, "service-agreement") ??
+      templateOptions[0] ??
+      null;
+    if (!template) return;
+    const exported = exportServiceAgreementHtml({ agreement, client: client ?? undefined, organization }, template);
+    if (!exported) return;
+    await registerGeneratedDocument({
+      html: exported.html,
+      templateId: exported.templateId,
+      documentClass: template.documentClass,
+      entityType: "service-agreement",
+      entityId: agreement.id,
+      entityLabel: `${agreement.searchKey}${labelSuffix}`,
+      fileName: `${agreement.searchKey.replace(/[^\w.-]+/g, "_")}${labelSuffix}.html`,
+    });
+  }
+
+  const handlePrint = async () => {
+    setPrintError("");
+    if (!activeTemplate) {
+      setPrintError("No active agreement template is available.");
+      return;
+    }
+    const ok = printServiceAgreement({ agreement: record, client: client ?? undefined, organization }, activeTemplate);
+    if (!ok) {
+      setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      return;
+    }
+    void archiveAgreementDocument(record);
+  };
+
+  const handleDownload = async () => {
+    setPrintError("");
+    if (!activeTemplate) {
+      setPrintError("No active agreement template is available.");
+      return;
+    }
+    const exported = exportServiceAgreementHtml({ agreement: record, client: client ?? undefined, organization }, activeTemplate);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check agreement fields and organisation profile.");
+      return;
+    }
+    downloadDocumentHtml(exported.html, record.searchKey);
+    void archiveAgreementDocument(record);
+  };
+
   return (
     <>
       <AppShell
@@ -228,6 +316,55 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? record),
         }}
       >
+        {canPrint ? (
+          <div className="mb-6 space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="space-y-2">
+                <p className="text-sm text-slate-600">
+                  Print or download the agreement with schedule of supports and captured signature.
+                </p>
+                {templateOptions.length > 1 ? (
+                  <label className="block text-sm">
+                    <span className="mb-1 block font-medium text-slate-700">Template</span>
+                    <select
+                      className={inputClass}
+                      value={activeTemplateId}
+                      onChange={(e) => setTemplateId(e.target.value)}
+                    >
+                      {templateOptions.map((template) => (
+                        <option key={template.id} value={template.id}>
+                          {template.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : activeTemplate ? (
+                  <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
+                ) : null}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleDownload()}
+                  className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                >
+                  Download HTML
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handlePrint()}
+                  className="inline-flex shrink-0 items-center rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+                >
+                  Print agreement
+                </button>
+              </div>
+            </div>
+            {printError ? (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="mb-6">
           <ServiceAgreementLifecyclePanel issues={lifecycleIssues} />
         </div>
@@ -237,8 +374,15 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
             record={record}
             readOnly={!canSaveAgreement}
             onApply={(next) => {
-              setDraft(normalizeServiceAgreement({ ...next, updatedBy: "SuperUser" }));
+              const normalized = normalizeServiceAgreement({
+                ...next,
+                updatedBy: session?.displayName || "SuperUser",
+              });
+              setDraft(normalized);
               setSaved(false);
+              void archiveAgreementDocument(normalized, "-signed").catch(() => {
+                /* registry is best-effort on sign */
+              });
             }}
           />
         </div>

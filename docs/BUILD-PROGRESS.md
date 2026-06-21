@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** (+ Chunk D document platform in progress) |
 | **Current work package** | **Chunk D — Document platform** |
-| **Active slice** | WP-D.4 — batch invoice ZIP + process binding admin |
-| **Next slice** | WP-D.5 agreement pack; WP-D.6 HR contract pack |
-| **Last push** | 2026-06-18 — `f0ee36b` (Chunk D4 batch invoice ZIP + binding admin) |
+| **Active slice** | WP-D.5 — service agreement printable pack |
+| **Next slice** | WP-D.6 HR contract pack |
+| **Last push** | 2026-06-18 — `6e970ba` (D4 batch invoice ZIP) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -27,8 +27,8 @@
 | D2 | System template admin (`/system/admin/document-templates`) | ✅ Shipped |
 | D3 | Document registry + `/api/documents/register` + private bucket | ✅ Shipped |
 | D4 | Batch invoice ZIP on list + binding admin | ✅ Shipped |
-| D5 | Service agreement printable pack | ⬜ Next |
-| D6 | HR contract pack | ⬜ Planned |
+| D5 | Service agreement printable pack + e-sign registry | ✅ Shipped |
+| D6 | HR contract pack | ⬜ Next |
 
 **Policy:** Active template = production-ready (no separate legal sign-off gate).
 
@@ -51,6 +51,15 @@
 | 2 | Invoices list → select multiple rows → Batch print | ZIP downloads with one HTML per invoice |
 | 3 | System → Document registry | Each invoice has a row; batch id suffix matches across the run |
 | 4 | Role without `batch-print-invoices` | No checkboxes or batch button on list |
+
+### What you can test — WP-D.5
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | System → Tasks → Document templates | NDIS service agreement and variation templates listed |
+| 2 | Service agreements → open agreement → Print agreement | HTML preview with schedule lines and scaffold notice |
+| 3 | Apply participant e-sign | Signature appears on print; registry row with `-signed` label suffix |
+| 4 | System → Document registry | Agreement entries linked to service-agreement entity |
 
 ---
 

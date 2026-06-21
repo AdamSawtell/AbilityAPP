@@ -276,6 +276,18 @@ export const SYSTEM_HOME_LINKS: {
     description: "Rules that create or assign tasks when records change or schedules fire.",
   },
   {
+    sectionKey: "tasks",
+    href: "/system/admin/document-templates",
+    title: "Document templates",
+    description: "Print layouts for invoices and service agreements — org header, footer, and process bindings.",
+  },
+  {
+    sectionKey: "tasks",
+    href: "/system/admin/document-registry",
+    title: "Document registry",
+    description: "Generated documents from print, batch export, and e-sign — search and audit trail.",
+  },
+  {
     sectionKey: "reports",
     href: "/system/admin/reports-advance",
     title: "Reports Advance",

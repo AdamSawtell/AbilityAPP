@@ -691,6 +691,18 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "invoices",
   },
   {
+    id: "print-service-agreement",
+    label: "Print service agreement",
+    description: "Print or download a service agreement using the assigned document template",
+    parentWindowKey: "service-agreements",
+  },
+  {
+    id: "print-agreement-variation",
+    label: "Print agreement variation",
+    description: "Print or download an agreement variation document",
+    parentWindowKey: "service-agreements",
+  },
+  {
     id: "manage-session-audit-risk",
     label: "Investigate session risk",
     description: "Review flagged sessions, update risk status, and add investigation notes",

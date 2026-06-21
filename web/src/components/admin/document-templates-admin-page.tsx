@@ -8,6 +8,8 @@ import { useAdminPageAccess } from "@/lib/access/window-surface";
 import {
   DOCUMENT_CLASS_LABELS,
   DOCUMENT_PRINT_PROCESSES,
+  DEFAULT_AGREEMENT_TEMPLATE_ID,
+  DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
   DEFAULT_INVOICE_TEMPLATE_ID,
   type DocumentTemplateRecord,
 } from "@/lib/document-template";
@@ -24,7 +26,7 @@ export function DocumentTemplatesAdminPage() {
   const hasPageAccess = hasAnyAccess(["admin-document-templates"]);
   const { templates, bindings, upsertTemplate, upsertBinding, loading } = useDocumentPlatform();
   const { organization } = useOrganization();
-  const { invoices, clients } = useData();
+  const { invoices, clients, serviceAgreements } = useData();
   const sorted = useMemo(
     () => [...templates].sort((a, b) => a.name.localeCompare(b.name)),
     [templates]
@@ -41,12 +43,21 @@ export function DocumentTemplatesAdminPage() {
   const isDirty = Boolean(draft && (!persisted || JSON.stringify(draft) !== JSON.stringify(persisted)));
 
   const preview = useMemo(() => {
-    if (!record || !record.documentClass.startsWith("tax-invoice")) return null;
-    const invoice = invoices[0];
-    if (!invoice) return null;
-    const client = clients.find((c) => c.id === invoice.clientId);
-    return renderDocument(record, { invoice, client, organization }, { skipValidation: true });
-  }, [record, invoices, clients, organization]);
+    if (!record) return null;
+    if (record.documentClass.startsWith("tax-invoice")) {
+      const invoice = invoices[0];
+      if (!invoice) return null;
+      const client = clients.find((c) => c.id === invoice.clientId);
+      return renderDocument(record, { invoice, client, organization }, { skipValidation: true });
+    }
+    if (record.documentClass.startsWith("service-agreement")) {
+      const agreement = serviceAgreements[0];
+      if (!agreement) return null;
+      const client = clients.find((c) => c.id === agreement.clientId);
+      return renderDocument(record, { agreement, client, organization }, { skipValidation: true });
+    }
+    return null;
+  }, [record, invoices, serviceAgreements, clients, organization]);
 
   const processBindings = useMemo(
     () => bindings.filter((b) => b.templateId === record?.id),
@@ -58,21 +69,55 @@ export function DocumentTemplatesAdminPage() {
     [sorted]
   );
 
-  const invoiceProcessRows = useMemo(
+  const agreementTemplates = useMemo(
     () =>
-      [
-        { processId: DOCUMENT_PRINT_PROCESSES.printInvoice, label: "Print invoice (detail)" },
-        { processId: DOCUMENT_PRINT_PROCESSES.batchPrintInvoices, label: "Batch print invoices (list)" },
-      ] as const,
-    []
+      sorted.filter(
+        (t) => t.active && (t.documentClass === "service-agreement" || t.documentClass === "service-agreement-variation")
+      ),
+    [sorted]
   );
 
-  async function handleBindingChange(processId: string, templateId: string) {
-    const existing = bindings.find((b) => b.processId === processId && b.entityType === "invoice" && b.isDefault);
+  const processBindingRows = useMemo(
+    () =>
+      [
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+          entityType: "invoice",
+          label: "Print invoice (detail)",
+          templates: invoiceTemplates,
+          fallbackId: DEFAULT_INVOICE_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.batchPrintInvoices,
+          entityType: "invoice",
+          label: "Batch print invoices (list)",
+          templates: invoiceTemplates,
+          fallbackId: DEFAULT_INVOICE_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printServiceAgreement,
+          entityType: "service-agreement",
+          label: "Print service agreement",
+          templates: agreementTemplates.filter((t) => t.documentClass === "service-agreement"),
+          fallbackId: DEFAULT_AGREEMENT_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printAgreementVariation,
+          entityType: "service-agreement",
+          label: "Print agreement variation",
+          templates: agreementTemplates.filter((t) => t.documentClass === "service-agreement-variation"),
+          fallbackId: DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
+        },
+      ] as const,
+    [invoiceTemplates, agreementTemplates]
+  );
+
+  async function handleBindingChange(processId: string, entityType: string, templateId: string) {
+    const existing = bindings.find((b) => b.processId === processId && b.entityType === entityType && b.isDefault);
     const next = {
       id: existing?.id ?? `pdb-${processId}`,
       processId,
-      entityType: "invoice",
+      entityType,
       templateId,
       isDefault: true,
       allowUserOverride: existing?.allowUserOverride ?? true,
@@ -128,23 +173,23 @@ export function DocumentTemplatesAdminPage() {
       <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Default templates by process</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Choose which active template finance users get for invoice print and batch export. Active templates are production-ready.
+          Choose which active template users get for invoice and service agreement print. Active templates are production-ready.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {invoiceProcessRows.map((row) => {
+          {processBindingRows.map((row) => {
             const binding = bindings.find(
-              (b) => b.processId === row.processId && b.entityType === "invoice" && b.isDefault
+              (b) => b.processId === row.processId && b.entityType === row.entityType && b.isDefault
             );
             return (
-              <label key={row.processId} className="block text-sm">
+              <label key={`${row.processId}-${row.entityType}`} className="block text-sm">
                 <span className="mb-1 block font-medium text-slate-700">{row.label}</span>
                 <select
                   className={inputClass}
-                  value={binding?.templateId ?? DEFAULT_INVOICE_TEMPLATE_ID}
-                  onChange={(e) => void handleBindingChange(row.processId, e.target.value)}
-                  disabled={!invoiceTemplates.length || bindingBusy}
+                  value={binding?.templateId ?? row.fallbackId}
+                  onChange={(e) => void handleBindingChange(row.processId, row.entityType, e.target.value)}
+                  disabled={!row.templates.length || bindingBusy}
                 >
-                  {invoiceTemplates.map((template) => (
+                  {row.templates.map((template) => (
                     <option key={template.id} value={template.id}>
                       {template.name}
                     </option>
@@ -269,7 +314,7 @@ export function DocumentTemplatesAdminPage() {
 
             {preview?.html ? (
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="text-sm font-semibold text-slate-900">Preview (sample invoice)</h3>
+                <h3 className="text-sm font-semibold text-slate-900">Preview (sample record)</h3>
                 <iframe title="Template preview" className="mt-3 h-[480px] w-full rounded-lg border border-slate-200 bg-white" srcDoc={preview.html} />
               </section>
             ) : null}
