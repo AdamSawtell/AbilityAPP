@@ -13,7 +13,7 @@
 | **Current work package** | **Chunk D — Document platform** |
 | **Active slice** | WP-D.6 — HR employment contract pack |
 | **Next slice** | WP-D.7 extended templates (enquiry, remittance) |
-| **Last push** | 2026-06-18 — pending (D6 HR contract pack) |
+| **Last push** | 2026-06-18 — `4c67e9d` (D6 HR contract pack) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
