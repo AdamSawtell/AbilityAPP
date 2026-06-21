@@ -13,7 +13,7 @@
 | **Current work package** | Chunk 0 — Enquiry & CRM + portal |
 | **Active slice** | WP-0.5 complete — External CRM sync + cross-sell alerts |
 | **Next slice** | Chunk 0 wrap-up — live HubSpot API or portal schedule calendar |
-| **Last push** | 2026-06-20 — pending WP-0.5 commit |
+| **Last push** | 2026-06-20 — `5c64029` |
 
 ---
 
@@ -1075,6 +1075,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | f2e8826 | WP-0.2 NDIS qualification scoring |
 | 2026-06-20 | 98dcf9f | WP-0.3 participant portal MVP |
 | 2026-06-20 | c472e40 | WP-0.4 portal service request workflow stub |
+| 2026-06-20 | 5c64029 | WP-0.5 external CRM sync + cross-sell alerts |
 
 ---
 
