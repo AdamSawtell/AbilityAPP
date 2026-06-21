@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClientConsentSummary } from "@/components/client-consent-summary";
+import { ClientPlanBudgetImportPanel } from "@/components/client-plan-budget-import-panel";
 import { ClientPlanBudgetSummary } from "@/components/client-plan-budget-summary";
 import { ClientPlanBudgetWizard } from "@/components/client-plan-budget-wizard";
 import { ClientMonthlyServicePlanPanel } from "@/components/service-planning-pages";
@@ -621,6 +622,11 @@ export function ClientTabbedView({
                 <ClientPlanBudgetSummary rows={client.planBudgets ?? []} />
               </div>
             </ClientTabIntro>
+            <ClientPlanBudgetImportPanel
+              rows={client.planBudgets ?? []}
+              readOnly={!canWriteClientTab("Plan budget")}
+              onApply={(rows) => onLineItemsChange("planBudgets", rows)}
+            />
             <LineItemTable
               config={planBudgetTableConfig}
               rows={client.planBudgets ?? []}

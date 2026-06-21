@@ -74,7 +74,8 @@ export const clientsArticle: HelpArticle = {
       steps: [
         "Open the client → Plan budget (your role needs Plan budget access).",
         "Review summary cards: total allocated, claimed, and remaining.",
-        "Add rows manually or use Core supports starter / Full plan scaffold to append template lines.",
+        "Add rows manually, use Core supports starter / Full plan scaffold, or import a CSV.",
+        "For CSV import: paste or upload columns support_budget, support_category, description, ndis_line_item, allocated_amount, claimed_amount. Use Load sample template or Replace existing lines when replacing all rows.",
         "Enter Support budget, Support category, description, allocated ($), and claimed ($) per line.",
         "Save the record. Changes appear in Overview plan utilisation and in service booking compliance checks.",
       ],

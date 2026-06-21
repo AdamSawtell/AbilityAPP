@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **99%** |
-| **Current work package** | Chunk 0 — Enquiry & CRM + portal ✅ |
-| **Active slice** | WP-0.7 complete — Client portal requests on Requests tab |
-| **Next slice** | Chunk 1 gaps or Chunk 4 roster polish |
-| **Last push** | 2026-06-20 — `9cf9a3f` |
+| **Current work package** | Chunk 1 — Client & plan management |
+| **Active slice** | WP-A.6 complete — Plan budget CSV import |
+| **Next slice** | Chunk 4 roster polish or plan gateway stub |
+| **Last push** | 2026-06-20 — pending (WP-A.6) |
 
 ---
 
@@ -75,7 +75,7 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
 | 0 | Enquiry & CRM + portal | 10% | **100%** | ✅ Complete | — |
-| 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
+| 1 | Client & plan management | 12% | **65%** | 🟡 Partial | Plan import manual ✅; PDF/OCR/API later |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
 | 4 | Rostering | 22% | **95%** | 🟡 Partial | Minor roster polish |
@@ -141,6 +141,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 |------|--------|---------|
 | 1 | Client **Bern** → **Overview** | **Plan utilisation** section with totals |
 | 2 | Click **Open Plan budget** | Navigates to Plan budget tab |
+
+### WP-A.6 — Plan budget CSV import (pending)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Bern** → **Plan budget** | **Import plan budget CSV** panel visible |
+| 2 | Click **Load sample template**, then **Import CSV** | Three lines appended to table |
+| 3 | Check **Replace existing lines**, import again | Table shows only imported rows |
+| 4 | Save, refresh | Imported lines persist |
+| 5 | **Full audit trail** | Save logs plan budget line change |
 
 ### WP-B.1 — Booking compliance (`777b20e`)
 
@@ -703,6 +713,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | **Overview** + **Plan budget** as needed |
 | **Admin verify** | Totals match Plan budget tab after line edit |
 
+### WP-A.6 — Plan budget CSV import
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → **Plan budget** (CSV import steps) |
+| **User steps** | 1. **Plan budget** tab → **Import plan budget CSV**. 2. Paste CSV or load sample template. 3. Choose append or **Replace existing lines**. 4. **Import CSV**, then save the client record. |
+| **System setup** | Same as WP-A.2 — NDIS support budget and category lists for dropdown validation |
+| **Reference data** | **NDIS support budget**, **NDIS support category** |
+| **Role access** | `client-plan-budget` Write |
+| **Admin verify** | Invalid CSV shows errors; valid import updates line table after save |
+
 ### WP-B.1 — Booking compliance
 
 | | Detail |
@@ -1050,6 +1071,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | A.3 | Consent tab alignment | ✅ Done | 15% |
 | A.4 | Plan manual entry wizard | ✅ Done | 20% |
 | A.5 | Utilisation summary on Overview | ✅ Done | 20% |
+| A.6 | Plan budget CSV import | ✅ Done | — (Chunk 1 gap) |
 
 **WP-A completion:** 100%
 
@@ -1198,6 +1220,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.6) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-0.7) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.7) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-A.6) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.6) |
 
 ---
 
@@ -1242,6 +1266,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-G.0 | `/portal/services` | **Pass** | build verified; week + list view toggle |
 | 2026-06-20 | WP-0.6 | `/enquiries/1000025` CRM panel | **Pass** | build verified; live HubSpot REST adapter |
 | 2026-06-20 | WP-0.7 | `/clients/bp-bern?tab=Requests` | **Pass** | build verified; portal requests panel + list API |
+| 2026-06-20 | WP-A.6 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; CSV import panel + reference validation |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1284,6 +1309,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-G.0 | 1 Medium — fixed | **Pass** | Week calendar uses localDateIso for This week anchor |
 | 2026-06-20 | WP-0.6 | 2 High + 1 Medium — all fixed | **Pass** | HubSpot base URL allowlist; PATCH 404-only fallback; sanitized fetch errors |
 | 2026-06-20 | WP-0.7 | 1 High + 1 Medium — all fixed | **Pass** | client-requests window auth on API; abort stale fetches |
+| 2026-06-20 | WP-A.6 | 2 Medium — all fixed | **Pass** | Sample template casing; CSV validates against NDIS reference lists |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1339,6 +1365,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-G.0 | `participant-portal` — week calendar on My services | `clients-setup` — week view roster test | exit 0 — 96 routes |
 | 2026-06-20 | WP-0.6 | `core` — live HubSpot contact upsert | `enquiries-setup` — token scopes + property mapping | exit 0 — 96 routes |
 | 2026-06-20 | WP-0.7 | `clients-locations` — Requests tab portal list | `clients-setup` — portal request on Requests tab | exit 0 — 96 routes |
+| 2026-06-20 | WP-A.6 | `clients-locations` — Plan budget CSV import | `clients-setup` — CSV import on Plan budget tab | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |
