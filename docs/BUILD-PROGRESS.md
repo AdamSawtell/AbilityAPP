@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **99%** |
-| **Current work package** | Chunk 0 — Enquiry & CRM + portal |
-| **Active slice** | WP-0.6 complete — Live HubSpot contact upsert |
-| **Next slice** | Chunk 0 completion / cross-chunk polish |
-| **Last push** | 2026-06-20 — `7a5ad64` |
+| **Current work package** | Chunk 0 — Enquiry & CRM + portal ✅ |
+| **Active slice** | WP-0.7 complete — Client portal requests on Requests tab |
+| **Next slice** | Chunk 1 gaps or Chunk 4 roster polish |
+| **Last push** | 2026-06-20 — `06c6b69` |
 
 ---
 
@@ -74,11 +74,11 @@ Governance: [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §14. Every operati
 
 | Chunk | Name | Weight | Done | Status | Blockers |
 |-------|------|--------|------|--------|----------|
-| 0 | Enquiry & CRM + portal | 10% | **90%** | 🟡 Partial | Chunk 0 polish |
+| 0 | Enquiry & CRM + portal | 10% | **100%** | ✅ Complete | — |
 | 1 | Client & plan management | 12% | **55%** | 🟡 Partial | WP-A complete |
 | 2 | Service agreements | 10% | **100%** | ✅ Complete | None |
 | 3 | Service bookings compliance | 12% | **100%** | ✅ Complete | None |
-| 4 | Rostering | 22% | **95%** | 🟡 Partial | Participant portal (Chunk 0) |
+| 4 | Rostering | 22% | **95%** | 🟡 Partial | Minor roster polish |
 | 5 | Service planning | 8% | **75%** | 🟡 Partial | Multi-provider budget (later) |
 | 6 | Timesheets & payroll export | 10% | **75%** | 🟡 Partial | Chunk 7 billing |
 | 7 | Billing & claiming | 10% | **60%** | 🟡 Partial | Chunk 8 reconcile |
@@ -613,6 +613,16 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 4 | Set `HUBSPOT_DRY_RUN=true` again | Dry-run id prefix `DRY-HS-` restored |
 | 5 | Phone-only enquiry (no email) | Creates contact when token valid |
 
+### WP-0.7 — Client portal requests on Requests tab (`2026-06-20`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client **Bern** → tab **Requests** | Participant portal requests panel above tasks |
+| 2 | After Bernie submits a portal request | Request listed with status and **Open review task** link |
+| 3 | Click review task link | Task detail shows portal service request panel |
+| 4 | After approve | **View variation draft** link appears on Requests tab |
+| 5 | User without Clients read | API returns 403 |
+
 ### WP-F.2 — Payroll period close checklist (`2026-06-18`)
 
 | Step | Action | Pass if |
@@ -1020,6 +1030,17 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | **Role access** | Enquiries Write |
 | **Admin verify** | Live sync stores numeric HubSpot id; dry-run still works with `HUBSPOT_DRY_RUN=true` |
 
+### WP-0.7 — Client portal requests on Requests tab (Chunk 0 completion)
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **Clients** → Requests tab; Help → **Participant portal** → coordinator review |
+| **User steps** | 1. Open client Requests tab. 2. Review portal submissions. 3. Open linked task to approve/decline. |
+| **System setup** | `/system/setup/clients` — portal email + service agreement for variation stub |
+| **Reference data** | — |
+| **Role access** | Clients Read on Requests tab; assign-task / action-task to review |
+| **Admin verify** | Portal request visible on Bern client after Bernie@email submission |
+
 ## WP-A — Client foundation (Chunk 1) ✅ COMPLETE
 
 | Slice | Deliverable | Status | % of WP-A |
@@ -1113,6 +1134,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | 5c64029 | WP-0.5 external CRM sync + cross-sell alerts |
 | 2026-06-20 | 1f6318b | WP-G.0 participant portal week calendar |
 | 2026-06-20 | 7a5ad64 | WP-0.6 live HubSpot CRM contact upsert |
+| 2026-06-20 | pending | WP-0.7 client portal requests on Requests tab |
 
 ---
 
@@ -1174,6 +1196,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-G.0) |
 | 2026-06-20 | `npm run build` | exit 0 (WP-0.6) |
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.6) |
+| 2026-06-20 | `npm run build` | exit 0 (WP-0.7) |
+| 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-0.7) |
 
 ---
 
@@ -1217,6 +1241,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.5 | `/enquiries`, `/enquiries/1000025` | **Pass** | build verified; CRM panel + cross-sell panel compile |
 | 2026-06-20 | WP-G.0 | `/portal/services` | **Pass** | build verified; week + list view toggle |
 | 2026-06-20 | WP-0.6 | `/enquiries/1000025` CRM panel | **Pass** | build verified; live HubSpot REST adapter |
+| 2026-06-20 | WP-0.7 | `/clients/bp-bern?tab=Requests` | **Pass** | build verified; portal requests panel + list API |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1258,6 +1283,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.5 | 2 High — all fixed | **Pass** | Cross-sell gated on clients access; web-to-lead insert retry on id conflict |
 | 2026-06-20 | WP-G.0 | 1 Medium — fixed | **Pass** | Week calendar uses localDateIso for This week anchor |
 | 2026-06-20 | WP-0.6 | 2 High + 1 Medium — all fixed | **Pass** | HubSpot base URL allowlist; PATCH 404-only fallback; sanitized fetch errors |
+| 2026-06-20 | WP-0.7 | 1 High + 1 Medium — all fixed | **Pass** | client-requests window auth on API; abort stale fetches |
 | 2026-06-20 | uncommitted | 2 High + 2 Medium | **Pass** | Fixed: Draft→Signed e-sign path, blank signature, tab counts, legacy signature backfill |
 | 2026-06-18 | `e0ccb56`–`a88e1dc` | 1 High + 2 Medium — all fixed | Pass | Multi-line dates, local date, stale fields |
 | 2026-06-18 | `a88e1dc` | — | **Pass** | [Bugbot branch review](ec37fa04-ce0e-4c70-be28-88b0bcd95bc5) — no findings |
@@ -1312,6 +1338,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-0.5 | `core` — HubSpot CRM sync + cross-sell alerts | `enquiries-setup` — WEB_TO_LEAD_SECRET + HUBSPOT_DRY_RUN | exit 0 — 96 routes |
 | 2026-06-20 | WP-G.0 | `participant-portal` — week calendar on My services | `clients-setup` — week view roster test | exit 0 — 96 routes |
 | 2026-06-20 | WP-0.6 | `core` — live HubSpot contact upsert | `enquiries-setup` — token scopes + property mapping | exit 0 — 96 routes |
+| 2026-06-20 | WP-0.7 | `clients-locations` — Requests tab portal list | `clients-setup` — portal request on Requests tab | exit 0 — 96 routes |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

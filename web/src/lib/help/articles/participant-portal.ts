@@ -81,7 +81,7 @@ export const participantPortalArticle: HelpArticle = {
     {
       id: "staff-review",
       title: "How coordinators review portal requests",
-      body: "Each portal submission creates a task assigned to the Support Coordinator role and appears on the client **Requests** tab. Open the linked task to approve (creates a draft service agreement variation stub) or decline with a reason the participant can read on the portal.",
+      body: "Each portal submission creates a task assigned to the Support Coordinator role and appears on the client **Requests** tab under **Participant portal requests**. Open the linked review task to approve (creates a draft service agreement variation stub) or decline with a reason the participant can read on the portal.",
       relatedRoutes: ["/tasks", "/clients"],
     },
     {

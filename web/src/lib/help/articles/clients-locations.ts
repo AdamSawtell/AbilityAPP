@@ -169,7 +169,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "requests-tab",
       title: "Requests tab",
-      body: "Tasks linked to this client. Create and action tasks from the Requests tab or the Tasks module.",
+      body: "Participant portal service requests and tasks linked to this client. Portal submissions appear at the top with status and links to the review task or draft agreement variation. Assign and action AbilityAPP tasks below.",
       windowKeys: ["clients"],
     },
   ],

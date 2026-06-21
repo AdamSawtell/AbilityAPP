@@ -13,6 +13,7 @@ import { ClientServiceAgreementsPanel } from "@/components/service-agreement-pag
 import { ClientServiceBookingsPanel } from "@/components/service-booking-pages";
 import { ClientPlanAssessmentPanel, ClientSupportPlanPanel } from "@/components/support-plan-panels";
 import { LineItemTable } from "@/components/line-item-table";
+import { ClientPortalRequestsPanel } from "@/components/client-portal-requests-panel";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/access/catalog";
@@ -662,7 +663,10 @@ export function ClientTabbedView({
         ) : null}
 
         {activeTab === "Requests" && canClientTab("Requests") ? (
-          <RecordTasksPanel entityType="client" entityId={client.id} entityLabel={`${client.searchKey} — ${client.name}`} />
+          <div className="space-y-8">
+            <ClientPortalRequestsPanel clientId={client.id} />
+            <RecordTasksPanel entityType="client" entityId={client.id} entityLabel={`${client.searchKey} — ${client.name}`} />
+          </div>
         ) : null}
       </div>
     </div>
