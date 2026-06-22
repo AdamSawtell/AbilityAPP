@@ -31,6 +31,7 @@ import {
   rosterValidationMode,
   validateRosterShift,
   validateRosterShiftBatch,
+  buildRosterQualificationMaps,
 } from "@/lib/roster-shift-compliance";
 import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
 import type { GeoCoordinates } from "@/lib/geolocation";
@@ -1133,7 +1134,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
 
       const mode = rosterValidationMode(normalized);
-      const saveIssues = validateRosterShift(normalized, { existing: prev }, mode).filter(
+      const qualification = buildRosterQualificationMaps(clientsRef.current, employeesRef.current);
+      const saveIssues = validateRosterShift(normalized, { existing: prev }, mode, qualification, prev).filter(
         (issue) => issue.code !== "TIME_RANGE_INVALID"
       );
       if (rosterShiftSaveBlocked(saveIssues)) {
@@ -1147,7 +1149,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       void persistRemote((supabase) => saveRosterShift(supabase, stamped));
       return null;
     },
-    [persistRemote, rosterShiftsRef]
+    [persistRemote, rosterShiftsRef, clientsRef, employeesRef]
   );
 
   const claimOpenRosterShift = useCallback(
@@ -1289,7 +1291,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     (records: RosterShiftRecord[]): string | null => {
       if (!records.length) return null;
       const prev = rosterShiftsRef.current;
-      const batch = validateRosterShiftBatch(records, prev);
+      const batch = validateRosterShiftBatch(records, prev, {
+        clients: clientsRef.current,
+        employees: employeesRef.current,
+      });
       if (batch.blocked) return batch.errors[0] ?? "Cannot save shifts — resolve conflicts first.";
 
       const stamped = records.map((record) => {
@@ -1306,7 +1311,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       void persistRemote((supabase) => saveRosterShifts(supabase, stamped));
       return null;
     },
-    [persistRemote, rosterShiftsRef]
+    [persistRemote, rosterShiftsRef, clientsRef, employeesRef]
   );
 
   const upsertTimesheet = useCallback(

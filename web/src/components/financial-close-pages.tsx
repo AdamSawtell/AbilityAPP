@@ -66,7 +66,11 @@ export function FinancialCloseView() {
     <div className="space-y-4">
       <p className="text-sm text-slate-600">
         Month-end financial close checklist — confirm plan delivery, NDIS remittance, participant invoices, and payroll
-        reconciliation before you sign off the period.
+        reconciliation before you sign off the period. Follow{" "}
+        <Link href="/help?topic=delivery" className="font-medium text-[#b51266] hover:underline">
+          process 13 — Financial month close
+        </Link>{" "}
+        in your quality manual.
       </p>
 
       <div className="flex flex-wrap items-end gap-4">

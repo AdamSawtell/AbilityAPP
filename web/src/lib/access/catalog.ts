@@ -106,6 +106,14 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "complaints",
+    label: "Complaints and feedback",
+    group: "People",
+    href: "/complaints",
+    abilityErpName: "Complaints and feedback",
+    showInSidebar: true,
+  },
+  {
     key: "locations",
     label: "Locations",
     group: "Locations",

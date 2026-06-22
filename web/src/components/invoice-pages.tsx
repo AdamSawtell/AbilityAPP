@@ -35,6 +35,8 @@ import { downloadDocumentHtml } from "@/lib/document-render";
 import { registerGeneratedDocument } from "@/lib/document-client";
 import { batchPrintInvoices } from "@/lib/invoice-batch-print";
 import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
+import { InvoiceDeliveryPanel } from "@/components/invoice-delivery-panel";
+import { buildInvoiceDeliveryHandoff } from "@/lib/invoice-plan-manager-delivery";
 import { useOrganization } from "@/lib/organization-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
 
@@ -533,6 +535,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
   const [sendError, setSendError] = useState("");
   const [sendMessage, setSendMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [registryDocumentNo, setRegistryDocumentNo] = useState("");
   const [templateId, setTemplateId] = useState("");
 
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printInvoice, "invoice");
@@ -545,6 +548,19 @@ export function InvoiceDetailView({ id }: { id: string }) {
 
   const record = draft ?? stored;
   const client = data.clients.find((c) => c.id === record?.clientId);
+  const deliveryHandoff = useMemo(
+    () =>
+      record
+        ? buildInvoiceDeliveryHandoff({
+            invoice: record,
+            client,
+            businessPartners: data.businessPartners,
+            organization,
+            registryDocumentNo: registryDocumentNo || undefined,
+          })
+        : null,
+    [record, client, data.businessPartners, organization, registryDocumentNo]
+  );
 
   if (!record) {
     return (
@@ -695,6 +711,8 @@ export function InvoiceDetailView({ id }: { id: string }) {
           entityId: record.id,
           entityLabel: record.documentNo,
           fileName: `${record.documentNo}.html`,
+          recipientEmail: record.invoiceToEmail,
+          recipientName: record.invoiceTo,
         }),
       });
       const payload = (await res.json()) as {
@@ -708,6 +726,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
         return;
       }
       const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
+      if (payload.documentNo) setRegistryDocumentNo(payload.documentNo);
       setSendMessage(`${payload.message ?? "Invoice issued in-system."}${registryNote}`);
       if (canEdit && record.status !== "Sent") {
         handleMarkSent();
@@ -802,6 +821,14 @@ export function InvoiceDetailView({ id }: { id: string }) {
           ) : null}
           {sendMessage ? (
             <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">{sendMessage}</p>
+          ) : null}
+
+          {deliveryHandoff ? (
+            <InvoiceDeliveryPanel
+              handoff={deliveryHandoff}
+              registryDocumentNo={registryDocumentNo || undefined}
+              invoiceStatus={record.status}
+            />
           ) : null}
 
           <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-3">

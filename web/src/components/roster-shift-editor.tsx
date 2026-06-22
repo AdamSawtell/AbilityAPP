@@ -294,6 +294,7 @@ export function RosterShiftEditor({
           rosterShifts={rosterShifts}
           excludeShiftId={draft.id}
           onSelectWorker={(employeeId) => onChange("employeeId", employeeId)}
+          publishMode={draft.status === "Published" || draft.status === "Completed"}
         />
 
         {isNew ? (

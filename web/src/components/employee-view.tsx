@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EmployeeContractGeneratePanel } from "@/components/employee-contract-generate-panel";
 import { EmployeeOfferGeneratePanel } from "@/components/employee-offer-generate-panel";
+import { EmployeeExitPanel } from "@/components/employee-exit-panel";
 import { EmployeeSeparationGeneratePanel } from "@/components/employee-separation-generate-panel";
 import { EmployeeAddressesPanel, PrimaryAddressSummary } from "@/components/employee-addresses-panel";
 import {
@@ -429,15 +430,18 @@ export function EmployeeTabbedView({
         ) : null}
 
         {activeTab === "Employment" && canWindow("employee-employment") ? (
-          <FieldSection
-            getOptions={getOptions}
-            title="Employment"
-            description="Role, department, employment type, and key dates."
-            keys={employeeEmploymentFields}
-            employee={employee}
-            onChange={onChange}
-            readOnly={!canWriteEmployeeTab("Employment")}
-          />
+          <>
+            <FieldSection
+              getOptions={getOptions}
+              title="Employment"
+              description="Role, department, employment type, and key dates."
+              keys={employeeEmploymentFields}
+              employee={employee}
+              onChange={onChange}
+              readOnly={!canWriteEmployeeTab("Employment")}
+            />
+            <EmployeeExitPanel employee={employee} />
+          </>
         ) : null}
 
         {activeTab === "Work rights" && canWindow("employee-work-rights") ? (

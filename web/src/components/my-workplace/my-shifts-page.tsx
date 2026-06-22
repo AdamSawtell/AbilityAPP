@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ClientRecordLink } from "@/components/record-link";
@@ -26,6 +27,7 @@ import {
 } from "@/lib/roster-shift-checkin";
 import { formatShiftTimeRange } from "@/lib/roster-shift";
 import { addDaysIso, weekStartFromDate } from "@/lib/roster-shift";
+import { shiftTimesheetDeliveryStatus } from "@/lib/shift-timesheet-bridge";
 import { captureGeolocation } from "@/lib/geolocation";
 import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
 import {
@@ -57,7 +59,7 @@ const VIEW_OPTIONS: { id: MyShiftsView; label: string }[] = [
 export function MyShiftsPage() {
   const { session } = useAuth();
   const { employee } = useMyEmployee();
-  const { clients, locations, rosterShifts, checkInRosterShift, checkOutRosterShift } = useData();
+  const { clients, locations, rosterShifts, timesheets, checkInRosterShift, checkOutRosterShift } = useData();
   const timezoneCtx = useSystemTimezoneOptional();
   const timezone = timezoneCtx?.timezone ?? DEFAULT_ORGANIZATION_TIMEZONE;
   const orgToday = useMemo(() => organizationTodayIso(timezone), [timezone]);
@@ -270,6 +272,8 @@ export function MyShiftsPage() {
                       shift={shift}
                       client={clients.find((c) => c.id === shift.clientId)}
                       location={locations.find((l) => l.id === shift.locationId)}
+                      timesheets={timesheets}
+                      locations={locations}
                       employeeId={employeeId}
                       busy={busyId === shift.id}
                       notes={notesByShift[shift.id] ?? ""}
@@ -365,6 +369,8 @@ function MyShiftCard({
   shift,
   client,
   location,
+  timesheets,
+  locations,
   employeeId,
   busy,
   notes,
@@ -377,6 +383,8 @@ function MyShiftCard({
   shift: RosterShiftRecord;
   client?: ClientRecord;
   location?: LocationRecord;
+  timesheets: import("@/lib/timesheet").TimesheetRecord[];
+  locations: LocationRecord[];
   employeeId: string;
   busy: boolean;
   notes: string;
@@ -391,6 +399,7 @@ function MyShiftCard({
   const canOut = canWorkerCheckOut(shift, employeeId).ok;
   const checkInGate = canWorkerCheckIn(shift, employeeId, new Date(), anchorDate);
   const isDraft = shift.status === "Draft";
+  const delivery = shiftTimesheetDeliveryStatus({ shift, timesheets, locations });
 
   return (
     <li
@@ -437,6 +446,17 @@ function MyShiftCard({
       ) : null}
       <ShiftGeoLinks shift={shift} />
       <ShiftGeofenceAlerts alerts={shiftGeofenceAlerts(shift, location)} />
+
+      {delivery.message ? (
+        <p className="mt-3 text-sm text-slate-600">
+          {delivery.message}{" "}
+          {delivery.href ? (
+            <Link href={delivery.href} className="font-medium text-[#b51266] hover:underline">
+              View timesheet
+            </Link>
+          ) : null}
+        </p>
+      ) : null}
 
       {canOut ? (
         <label className="mt-3 block">

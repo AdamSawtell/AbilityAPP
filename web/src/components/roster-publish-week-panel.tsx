@@ -1,22 +1,25 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { previewPublishWeek } from "@/lib/roster-publish-week";
+import { buildRosterPublishNotifications } from "@/lib/roster-publish-notifications";
 
 export function RosterPublishWeekPanel({ weekStart }: { weekStart: string }) {
-  const { rosterShifts, addRecurringRosterShifts } = useData();
-  const { session, canWriteWindow } = useAuth();
+  const { rosterShifts, clients, employees, tasks, addRecurringRosterShifts, addTask } = useData();
+  const { session, canWriteWindow, users } = useAuth();
   const canPublish = canWriteWindow("rostering");
   const actor = session?.displayName || "SuperUser";
+  const actorUserId = session?.userId || "user-superuser";
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   const preview = useMemo(
-    () => previewPublishWeek(weekStart, rosterShifts, actor),
-    [weekStart, rosterShifts, actor]
+    () => previewPublishWeek(weekStart, rosterShifts, actor, { clients, employees }),
+    [weekStart, rosterShifts, actor, clients, employees]
   );
 
   if (!canPublish) return null;
@@ -28,7 +31,7 @@ export function RosterPublishWeekPanel({ weekStart }: { weekStart: string }) {
     setError("");
     setMessage("");
     if (!preview.ready.length) {
-      setError("No staffed draft shifts ready to publish — resolve conflicts or assign workers first.");
+      setError("No staffed draft shifts ready to publish — resolve conflicts, qualification, or assign workers first.");
       return;
     }
     const saveError = addRecurringRosterShifts(preview.ready);
@@ -36,11 +39,34 @@ export function RosterPublishWeekPanel({ weekStart }: { weekStart: string }) {
       setError(saveError);
       return;
     }
+
+    const notificationPlan = buildRosterPublishNotifications({
+      published: preview.ready,
+      previous: rosterShifts,
+      clients,
+      employees,
+      users,
+      existingTasks: tasks,
+      actorUserId,
+      actorName: actor,
+    });
+    for (const partial of notificationPlan.tasks) {
+      addTask(partial, {
+        assigneeDisplayName:
+          partial.assignmentType === "user"
+            ? employees.find((e) => e.id === preview.ready.find((s) => s.id === partial.entityId)?.employeeId)?.name
+            : "Support worker",
+      });
+    }
+
     const blockedNote = preview.blocked.length
-      ? ` ${preview.blocked.length} shift${preview.blocked.length === 1 ? "" : "s"} blocked by conflicts.`
+      ? ` ${preview.blocked.length} shift${preview.blocked.length === 1 ? "" : "s"} blocked by conflicts or qualification.`
+      : "";
+    const notifyNote = notificationPlan.workerCount
+      ? ` ${notificationPlan.workerCount} worker${notificationPlan.workerCount === 1 ? "" : "s"} notified via Tasks.`
       : "";
     setMessage(
-      `Published ${preview.ready.length} shift${preview.ready.length === 1 ? "" : "s"} for this week.${blockedNote}`
+      `Published ${preview.ready.length} shift${preview.ready.length === 1 ? "" : "s"} for this week.${blockedNote}${notifyNote}`
     );
   }
 
@@ -50,8 +76,8 @@ export function RosterPublishWeekPanel({ weekStart }: { weekStart: string }) {
         <div>
           <h2 className="text-sm font-semibold text-slate-900">Publish week</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Publish staffed draft shifts for this week. Worker double-booking and client overlap block publish — resolve
-            conflicts on the calendar first.
+            Publish staffed draft shifts for this week. Double-booking, client overlap, and missing or expired mandatory
+            credentials block publish. Workers receive a task in My workplace when shifts are published.
           </p>
           <p className="mt-2 text-xs text-slate-500">
             {preview.ready.length} ready · {preview.blocked.length} blocked · {preview.skippedVacant} vacant draft
@@ -86,7 +112,10 @@ export function RosterPublishWeekPanel({ weekStart }: { weekStart: string }) {
       ) : null}
       {message ? (
         <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">
-          {message}
+          {message}{" "}
+          <Link href="/my/shifts" className="font-medium underline">
+            My shifts
+          </Link>
         </p>
       ) : null}
     </section>

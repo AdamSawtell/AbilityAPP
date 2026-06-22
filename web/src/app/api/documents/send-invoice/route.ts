@@ -20,6 +20,8 @@ type IssueInvoiceBody = {
   entityId: string;
   entityLabel?: string;
   fileName?: string;
+  recipientEmail?: string;
+  recipientName?: string;
 };
 
 /** Issue an invoice in-system: save HTML to the document registry (no outbound email). */
@@ -85,8 +87,10 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    message: "Invoice saved to the document registry. Delivery stays in AbilityAPP — use Print or the registry to share.",
+    message: "Invoice saved to the document registry. Use Plan manager delivery on the invoice to save PDF and hand off.",
     documentNo: record.documentNo,
     registryId: record.id,
+    recipientEmail: body.recipientEmail?.trim() || "",
+    recipientName: body.recipientName?.trim() || "",
   });
 }

@@ -4,6 +4,13 @@ import {
   detectRecurringRosterConflicts,
   type RosterConflictContext,
 } from "@/lib/roster-shift-conflicts";
+import {
+  buildRosterQualificationMaps,
+  qualificationIssuesForShift,
+  type RosterQualificationMaps,
+} from "@/lib/roster-shift-qualification";
+import type { ClientRecord } from "@/lib/client";
+import type { EmployeeRecord } from "@/lib/employee";
 
 export type RosterShiftIssue = {
   code: string;
@@ -27,7 +34,9 @@ function timeMinutes(value: string): number | null {
 export function validateRosterShift(
   record: RosterShiftRecord,
   conflictContext?: RosterConflictContext,
-  mode: RosterValidationMode = rosterValidationMode(record)
+  mode: RosterValidationMode = rosterValidationMode(record),
+  qualification?: RosterQualificationMaps,
+  allShiftsForQualification: RosterShiftRecord[] = conflictContext?.existing ?? []
 ): RosterShiftIssue[] {
   const issues: RosterShiftIssue[] = [];
 
@@ -91,6 +100,14 @@ export function validateRosterShift(
     }
   }
 
+  if (qualification && record.employeeId?.trim()) {
+    const client = qualification.clientsById.get(record.clientId);
+    const employee = qualification.employeesById.get(record.employeeId);
+    issues.push(
+      ...qualificationIssuesForShift(record, client, employee, allShiftsForQualification, mode)
+    );
+  }
+
   return issues;
 }
 
@@ -102,13 +119,18 @@ export type RosterShiftBatchValidation = {
 /** Hard-enforcement gate for bulk save / publish paths. */
 export function validateRosterShiftBatch(
   records: RosterShiftRecord[],
-  existing: RosterShiftRecord[]
+  existing: RosterShiftRecord[],
+  qualificationInput?: { clients: ClientRecord[]; employees: EmployeeRecord[] }
 ): RosterShiftBatchValidation {
   if (!records.length) return { blocked: false, errors: [] };
 
   const batchIds = new Set(records.map((r) => r.id));
   const conflictMap = detectRecurringRosterConflicts(records, existing);
   const errors: string[] = [];
+  const qualification = qualificationInput
+    ? buildRosterQualificationMaps(qualificationInput.clients, qualificationInput.employees)
+    : undefined;
+  const combined = [...existing.filter((r) => !batchIds.has(r.id)), ...records];
 
   for (const record of records) {
     const mode = rosterValidationMode(record);
@@ -116,7 +138,13 @@ export function validateRosterShiftBatch(
       ...existing.filter((r) => r.id !== record.id && !batchIds.has(r.id)),
       ...records.filter((r) => r.id !== record.id),
     ];
-    for (const issue of validateRosterShift(record, { existing: peers, batchIds }, mode)) {
+    for (const issue of validateRosterShift(
+      record,
+      { existing: peers, batchIds },
+      mode,
+      qualification,
+      combined
+    )) {
       if (issue.code === "TIME_RANGE_INVALID") continue;
       if (issue.severity === "error") errors.push(`${record.shiftDate}: ${issue.message}`);
     }
@@ -128,6 +156,9 @@ export function validateRosterShiftBatch(
 
   return { blocked: errors.length > 0, errors: [...new Set(errors)] };
 }
+
+export { buildRosterQualificationMaps, qualificationIssuesForShift };
+export type { RosterQualificationMaps };
 
 export function rosterShiftSaveBlocked(issues: RosterShiftIssue[]): boolean {
   return issues.some((i) => i.severity === "error");

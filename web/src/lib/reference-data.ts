@@ -329,7 +329,7 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   contactActivityType: ["Phone call", "Email", "Meeting", "Visit", "Note", "Other"],
   needRuleCategory: ["Personal care", "Meals", "Mobility", "Communication", "Behaviour", "Household", "Other"],
   showAsAlert: ["No", "Yes"],
-  activityType: ["Note", "Phone call", "Email", "Meeting", "Visit", "Incident", "Other"],
+  activityType: ["Note", "Phone call", "Email", "Meeting", "Visit", "Complaint", "Feedback", "Incident", "Other"],
   addressType: ["Home", "Postal", "SIL residence", "Work", "Temporary accommodation", "Other"],
   australianState: ["SA", "NSW", "VIC", "QLD", "WA", "TAS", "NT", "ACT"],
   country: ["Australia", "New Zealand"],
@@ -564,6 +564,7 @@ export const defaultReferenceData: ReferenceDataCatalog = {
     "Behaviour",
     "Restrictive practice",
     "Property damage",
+    "Complaint",
     "Other",
   ],
   incidentServiceType: [

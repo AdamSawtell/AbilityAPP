@@ -21,6 +21,7 @@ import { buildNdisReportableIncidentsReport } from "@/lib/reports/runners/incide
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { TimesheetRecord } from "@/lib/timesheet";
+import { summarizeComplaintsFeedback, complaintsFeedbackCsv, collectComplaintsFeedback } from "@/lib/complaints-feedback";
 import { verifyTimesheet } from "@/lib/timesheet-verification";
 
 export type AuditPackSectionStatus = "pass" | "warning" | "block" | "info";
@@ -233,6 +234,7 @@ export function evaluateAuditPack(ctx: AuditPackContext, auditMonth: string): Au
     rosterShifts: ctx.rosterShifts,
   };
   const financialClose = evaluateFinancialClose(financialCtx, month);
+  const complaintsSummary = summarizeComplaintsFeedback(ctx.clients, ctx.incidents, periodStart, periodEnd);
 
   const sections: AuditPackSection[] = [
     {
@@ -307,6 +309,17 @@ export function evaluateAuditPack(ctx: AuditPackContext, auditMonth: string): Au
         : `${planRows.length} reconciliation row${planRows.length === 1 ? "" : "s"}.`,
       rowCount: planRows.length,
       href: "/plan-reconciliation",
+    },
+    {
+      code: "complaints-feedback",
+      label: "Complaints and feedback",
+      description: "Participant complaints and feedback from Activity and complaint-category incidents.",
+      status: complaintsSummary.openComplaints ? "warning" : complaintsSummary.total ? "pass" : "info",
+      message: complaintsSummary.total
+        ? `${complaintsSummary.total} entr${complaintsSummary.total === 1 ? "y" : "ies"} (${complaintsSummary.openComplaints} open complaint${complaintsSummary.openComplaints === 1 ? "" : "s"}).`
+        : "No complaints or feedback logged for this period.",
+      rowCount: complaintsSummary.total,
+      href: "/complaints",
     },
     {
       code: "financial-close",
@@ -495,6 +508,13 @@ export function auditPackSectionCsv(ctx: AuditPackContext, evaluation: AuditPack
         rosterShifts: ctx.rosterShifts,
       };
       return planVsActualCsv(buildPlanVsActualRows(planCtx, month), ctx.clients);
+    }
+    case "complaints-feedback": {
+      const rows = collectComplaintsFeedback(ctx.clients, ctx.incidents).filter((row) => {
+        const day = row.recordedAt.slice(0, 10);
+        return day >= periodStart && day <= periodEnd;
+      });
+      return complaintsFeedbackCsv(rows);
     }
     case "financial-close": {
       const financialCtx: FinancialCloseContext = {

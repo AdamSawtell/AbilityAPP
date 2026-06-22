@@ -40,6 +40,7 @@ export function StaffClientMatchHintsPanel({
   rosterShifts,
   excludeShiftId,
   onSelectWorker,
+  publishMode = false,
 }: {
   client: ClientRecord | undefined;
   employee: EmployeeRecord | undefined;
@@ -47,6 +48,7 @@ export function StaffClientMatchHintsPanel({
   rosterShifts: RosterShiftRecord[];
   excludeShiftId?: string;
   onSelectWorker?: (employeeId: string) => void;
+  publishMode?: boolean;
 }) {
   const hints = useMemo(
     () => (client ? staffClientMatchHints({ client, employee, rosterShifts, excludeShiftId }) : []),
@@ -66,7 +68,9 @@ export function StaffClientMatchHintsPanel({
     <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
       <h3 className="text-sm font-semibold text-slate-900">Staff–client matching</h3>
       <p className="mt-1 text-xs text-slate-600">
-        Advisory hints only — review before rostering. Hints do not block save.
+        {publishMode
+          ? "Missing or expired mandatory credentials block publish. Other hints are advisory."
+          : "Review before rostering. Credential gaps block publish when status is Published."}
       </p>
 
       {!employee?.id && suggestions.length ? (

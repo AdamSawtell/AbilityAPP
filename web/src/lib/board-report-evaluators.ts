@@ -9,6 +9,7 @@ import { buildPlanVsActualRows, planMonthDateRange, type PlanVsActualContext } f
 import { complianceSummary } from "@/lib/employee-compliance";
 import type { ProductRecord } from "@/lib/product";
 import type { PriceListRecord } from "@/lib/product";
+import { summarizeComplaintsFeedback } from "@/lib/complaints-feedback";
 import { verifyTimesheet } from "@/lib/timesheet-verification";
 
 export type BoardReportEvalContext = AuditPackContext &
@@ -162,12 +163,39 @@ export function evaluateBoardReportSection(
         bullets: dashboard.overdue.slice(0, 5).map((r) => `${r.documentNo}: ${r.reason}`),
       });
     }
-    case "complaints-feedback":
-      return sectionResult("none", "Complaints module not yet integrated — complete manually.", {
-        metrics: [{ label: "Complaints logged", value: "—" }],
-        tables: [],
-        bullets: ["Add complaints register summary when the module is available.", "Include participant feedback themes from quality review."],
+    case "complaints-feedback": {
+      const summary = summarizeComplaintsFeedback(ctx.clients, ctx.incidents, range.from, range.to);
+      const metrics: BoardReportMetric[] = [
+        { label: "Total entries", value: String(summary.total) },
+        {
+          label: "Open complaints",
+          value: String(summary.openComplaints),
+          trafficLight: summary.openComplaints ? "amber" : "green",
+        },
+        { label: "Feedback items", value: String(summary.feedbackCount) },
+      ];
+      return sectionResult(summary.openComplaints ? "amber" : "green", "Complaints and participant feedback register.", {
+        metrics,
+        tables: summary.openRows.length
+          ? [
+              {
+                title: "Open items",
+                headers: ["Client", "Type", "Subject", "Status"],
+                rows: summary.openRows.map((row) => [
+                  row.clientSearchKey,
+                  row.type,
+                  row.subject,
+                  row.status,
+                ]),
+              },
+            ]
+          : [],
+        bullets: [
+          "Log complaints on client Activity (type Complaint) or as incidents with category Complaint.",
+          "Export the full register from Complaints and feedback.",
+        ],
       });
+    }
     case "restrictive-practices": {
       const rpCount = activeClients.reduce((sum, c) => sum + (c.restrictivePractices?.length ?? 0), 0);
       const activeAlerts = activeClients.reduce(

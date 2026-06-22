@@ -145,6 +145,18 @@
       "entryPoints": ["web/src/components/workforce/workforce-review-queue.tsx", "web/src/app/api/workforce/reviews/route.ts"],
       "logic": ["web/src/lib/workforce/review-server.ts", "web/src/lib/task-automation/run-server.ts"],
       "tables": ["employee_leave_request", "employee_leave_entitlement", "employee_activity", "app_task"]
+    },
+    {
+      "number": 13,
+      "id": "financial-month-close",
+      "name": "Financial month close",
+      "status": "live",
+      "summary": "Finance confirms plan, claims, invoices, and payroll checks then marks a calendar month closed.",
+      "doc": "docs/processes/13-financial-month-close.md",
+      "trigger": "User marks month closed on Financial close after checklist passes",
+      "entryPoints": ["web/src/components/financial-close-pages.tsx", "web/src/components/financial-close-month-panel.tsx"],
+      "logic": ["web/src/lib/financial-close.ts", "web/src/lib/financial-close-period.ts"],
+      "tables": ["financial_closed_month"]
     }
   ]
 }

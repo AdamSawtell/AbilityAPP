@@ -246,22 +246,20 @@ Cross-check of **scope spine**, **process docs**, **access catalog**, and **BUIL
 
 | Area | Gap | Build | Suggested WP / action |
 |------|-----|-------|---------------------|
-| Rostering | Publish/notify workers not end-to-end | Partial | WP-R notification slice |
-| Rostering | Qualification/conflict rules surfacing | Partial | WP-R rules engine |
-| My shifts | Check-in/out vs timesheet parity | Partial | WP-R attendance |
-| Generate invoices | Email/PDF delivery to plan manager | Partial | Server PDF + email (BUILD-PROGRESS next slice) |
-| Financial close | UI exists; `financial-month-close` process not fully live | Partial | Align checklist to [processes/financial-month-close](../processes/) |
-| NDIS audit pack | Export completeness vs audit requirements | Partial | WP-GOV audit pack |
-| Board reporting | KPI definitions vs finance source | Partial | WP-GOV reporting |
-| Activity ↔ shift | Explicit link field on case notes | Partial | Optional FK on activity lines |
-| PRODA / NDIA | Live claim submit | N/A (stub) | External gateway; dry-run only in demo |
+| Rostering | Publish/notify workers | **Live** | Tasks created on Publish week (`roster-publish-notifications.ts`) |
+| Rostering | Qualification/conflict rules on publish | **Live** | Missing/expired credentials block publish; conflicts enforced |
+| My shifts | Check-in/out vs timesheet parity | **Live** | `shift-timesheet-bridge.ts` — link + verification message on My shifts |
+| Generate invoices | Plan manager PDF handoff | **Live** | Issue invoice + Plan manager delivery panel (registry + print/PDF steps) |
+| Financial close | Full month-close process | **Live** | Process 13 doc + checklist UI alignment |
+| NDIS audit pack | Complaints section | **Live** | `complaints-feedback` audit section + CSV export |
+| Board reporting | Complaints section depth | **Live** | `board-report-evaluators` uses live register data |
 
 ### 9.2 Planned in scope doc / processes — not in catalog or no route
 
 | Capability | Scope / process reference | Status |
 |------------|---------------------------|--------|
-| Complaints and feedback (standalone) | User requirements / ERP parity | **Planned** — no `/complaints` module; fold into incidents + client activity for now |
-| Employee exit / offboarding | HR processes | **Planned** — no dedicated exit workflow window |
+| Complaints and feedback (register) | User requirements / ERP parity | **Live** — `/complaints` hub + Activity types + incident category Complaint |
+| Employee exit / offboarding | HR processes | **Live** — Exit checklist on Employees → Employment tab |
 | SCHADS payroll calculation in-app | Out of AbilityAPP scope | **N/A** |
 | Live PRODA submission | Integration | **Planned** — stub only |
 | Financial month close (full workflow) | `processes/financial-month-close` | **Planned** — partial UI at `/financial-close` |
