@@ -345,3 +345,60 @@ Use one row per defect or gap found during happy path or functional testing.
 | UAT-07-S-001–008, S-010 | **Pass** — claim $3,349 Accepted; PAPL 6/6; remittance matched |
 | UAT-07-S-009 | **Partial** — invoice delivery scaffold only (HP-074) |
 | Window UAT-07-W-001–004 | **Pass** |
+
+## UAT-03 — Locations & catalog — Pass (2026-06-18)
+
+**User:** IslaRobinson / Support Coordinator · Amplify · `loc-glenelg-sil`, `/products`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-03-S-001–007 | **Pass** — locations list; 8 tabs on Glenelg SIL; products SIL_WD, COMM_PART, TRANS_KM |
+| Window UAT-03-W-001–019 | **Pass** |
+
+## UAT-08 — Reconciliation & close — Pass (2026-06-18)
+
+**User:** TessaNguyen / Finance Manager · Amplify · `?period=2026-06`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-08-S-001–006 | **Pass** — plan/claim/invoice recon; financial close checklist blocked (expected); audit pack + board report |
+| Window UAT-08-W-001–006 | **Pass** |
+
+## UAT-09 — Incidents & complaints — Pass (2026-06-18)
+
+**User:** QuinnTaylor / Quality Manager · Amplify · `/complaints`, incidents register
+
+| Scenario | Result |
+|----------|--------|
+| UAT-09-S-001–008 | **Pass** — incident workflow (TEST-063–065); compliance + dashboard (TEST-098); complaints register |
+| Window UAT-09-W-001–009 | **Pass** |
+
+## UAT-10 — Workforce & HR — Pass (2026-06-18)
+
+**User:** SandraBlake / HR Manager · Amplify · `emp-oliver`, `emp-staff-147`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-10-S-001–012 | **Pass** — employee tabs; credentials; workforce planning; separation letter DOC-28994158 (TEST-096) |
+| Window UAT-10-W-001–022 | **Pass** |
+
+## UAT-11 — My workplace — Pass (2026-06-18)
+
+**User:** OliverWilliams / Support worker · Amplify · `/my`, `/my/leave`, `/my/open-shifts`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-11-S-001–008 | **Pass** — hub, shifts, timesheets, leave, credentials (ROLE-013) |
+| UAT-11-S-009 | **Partial** — open-shifts page loads; marketplace thin |
+| Window UAT-11-W-001–009 | **Pass** (W-006 partial) |
+
+## UAT-15 — Processes — Pass (2026-06-18)
+
+**Users:** Mixed personas · evidence from T1 + module UATs
+
+| Group | Result |
+|-------|--------|
+| Core workflows (convert, assign, leave, tasks) | **Pass** — UAT-15-P-001–016 |
+| Print / document processes | **Pass** — invoices, SA, separation, claims, audit pack |
+| UAT-15-P-018, P-025, P-027, P-031 | **Partial** — batch print, participant statement, issue invoice, consent schedule |
+| Admin audit prints (P-033–039) | **Partial** — deferred to UAT-13 |

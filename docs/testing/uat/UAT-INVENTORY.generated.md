@@ -75,25 +75,25 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-03-W-001 | `location-overview` | Overview | tab: Overview | locations | |
-| UAT-03-W-002 | `location-activity` | Activity | tab: Activity | locations | |
-| UAT-03-W-003 | `location-contact-and-address` | Contact & address | tab: Contact & address | locations | |
-| UAT-03-W-004 | `location-alerts` | Alerts | tab: Alerts | locations | |
-| UAT-03-W-005 | `location-clients` | Clients | tab: Clients | locations | |
-| UAT-03-W-006 | `location-employees` | Employees | tab: Employees | locations | |
-| UAT-03-W-007 | `location-incidents` | Incidents | tab: Incidents | locations | |
-| UAT-03-W-008 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
-| UAT-03-W-009 | `locations` | Locations | /locations | — | |
-| UAT-03-W-010 | `business-partners` | Business partners | /business-partners | — | |
-| UAT-03-W-011 | `product-overview` | Overview | tab: Overview | products | |
-| UAT-03-W-012 | `product-pricing` | Pricing | tab: Pricing | products | |
-| UAT-03-W-013 | `products` | Products | /products | — | |
-| UAT-03-W-014 | `price-list-overview` | Overview | tab: Overview | price-lists | |
-| UAT-03-W-015 | `price-list-lines` | Lines | tab: Lines | price-lists | |
-| UAT-03-W-016 | `price-lists` | Price lists | /price-lists | — | |
-| UAT-03-W-017 | `contract-overview` | Overview | tab: Overview | contracts | |
-| UAT-03-W-018 | `contract-audit` | Audit | tab: Audit | contracts | |
-| UAT-03-W-019 | `contracts` | Contracts | /contracts | — | |
+| UAT-03-W-001 | `location-overview` | Overview | tab: Overview | locations | **Pass** |
+| UAT-03-W-002 | `location-activity` | Activity | tab: Activity | locations | **Pass** |
+| UAT-03-W-003 | `location-contact-and-address` | Contact & address | tab: Contact & address | locations | **Pass** |
+| UAT-03-W-004 | `location-alerts` | Alerts | tab: Alerts | locations | **Pass** |
+| UAT-03-W-005 | `location-clients` | Clients | tab: Clients | locations | **Pass** |
+| UAT-03-W-006 | `location-employees` | Employees | tab: Employees | locations | **Pass** |
+| UAT-03-W-007 | `location-incidents` | Incidents | tab: Incidents | locations | **Pass** |
+| UAT-03-W-008 | `location-products-and-services` | Products & services | tab: Products & services | locations | **Pass** |
+| UAT-03-W-009 | `locations` | Locations | /locations | — | **Pass** |
+| UAT-03-W-010 | `business-partners` | Business partners | /business-partners | — | **Pass** |
+| UAT-03-W-011 | `product-overview` | Overview | tab: Overview | products | **Pass** |
+| UAT-03-W-012 | `product-pricing` | Pricing | tab: Pricing | products | **Pass** |
+| UAT-03-W-013 | `products` | Products | /products | — | **Pass** |
+| UAT-03-W-014 | `price-list-overview` | Overview | tab: Overview | price-lists | **Pass** |
+| UAT-03-W-015 | `price-list-lines` | Lines | tab: Lines | price-lists | **Pass** |
+| UAT-03-W-016 | `price-lists` | Price lists | /price-lists | — | **Pass** |
+| UAT-03-W-017 | `contract-overview` | Overview | tab: Overview | contracts | **Pass** |
+| UAT-03-W-018 | `contract-audit` | Audit | tab: Audit | contracts | **Pass** |
+| UAT-03-W-019 | `contracts` | Contracts | /contracts | — | **Pass** |
 
 ## UAT-04
 
@@ -135,67 +135,67 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-08-W-001 | `plan-reconciliation` | Plan reconciliation | /plan-reconciliation | — | |
-| UAT-08-W-002 | `claim-reconciliation` | Claim reconciliation | /claim-reconciliation | — | |
-| UAT-08-W-003 | `invoice-reconciliation` | Invoice reconciliation | /invoice-reconciliation | — | |
-| UAT-08-W-004 | `financial-close` | Financial close | /financial-close | — | |
-| UAT-08-W-005 | `ndis-audit-pack` | NDIS audit pack | /ndis-audit-pack | — | |
-| UAT-08-W-006 | `board-reporting` | Board reporting | /board-reporting | — | |
+| UAT-08-W-001 | `plan-reconciliation` | Plan reconciliation | /plan-reconciliation | — | **Pass** |
+| UAT-08-W-002 | `claim-reconciliation` | Claim reconciliation | /claim-reconciliation | — | **Pass** |
+| UAT-08-W-003 | `invoice-reconciliation` | Invoice reconciliation | /invoice-reconciliation | — | **Pass** |
+| UAT-08-W-004 | `financial-close` | Financial close | /financial-close | — | **Pass** |
+| UAT-08-W-005 | `ndis-audit-pack` | NDIS audit pack | /ndis-audit-pack | — | **Pass** |
+| UAT-08-W-006 | `board-reporting` | Board reporting | /board-reporting | — | **Pass** |
 
 ## UAT-09
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-09-W-001 | `incidents` | Incident reports | /incidents | — | |
-| UAT-09-W-002 | `incident-overview` | Overview | tab: Overview | incidents | |
-| UAT-09-W-003 | `incident-parties-and-links` | Parties & links | tab: Parties & links | incidents | |
-| UAT-09-W-004 | `incident-investigation` | Investigation | tab: Investigation | incidents | |
-| UAT-09-W-005 | `incident-notifications` | Notifications | tab: Notifications | incidents | |
-| UAT-09-W-006 | `incidents-compliance` | NDIS compliance | /incidents/compliance | incidents | |
-| UAT-09-W-007 | `incidents-dashboard` | Dashboard & analytics | /incidents/dashboard | incidents | |
-| UAT-09-W-008 | `incident-manager-override` | Override manager review | /incidents | incidents | |
-| UAT-09-W-009 | `complaints` | Complaints and feedback | /complaints | — | |
+| UAT-09-W-001 | `incidents` | Incident reports | /incidents | — | **Pass** |
+| UAT-09-W-002 | `incident-overview` | Overview | tab: Overview | incidents | **Pass** |
+| UAT-09-W-003 | `incident-parties-and-links` | Parties & links | tab: Parties & links | incidents | **Pass** |
+| UAT-09-W-004 | `incident-investigation` | Investigation | tab: Investigation | incidents | **Pass** |
+| UAT-09-W-005 | `incident-notifications` | Notifications | tab: Notifications | incidents | **Pass** |
+| UAT-09-W-006 | `incidents-compliance` | NDIS compliance | /incidents/compliance | incidents | **Pass** |
+| UAT-09-W-007 | `incidents-dashboard` | Dashboard & analytics | /incidents/dashboard | incidents | **Pass** |
+| UAT-09-W-008 | `incident-manager-override` | Override manager review | /incidents | incidents | **Pass** |
+| UAT-09-W-009 | `complaints` | Complaints and feedback | /complaints | — | **Pass** |
 
 ## UAT-10
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-10-W-001 | `employee-overview` | Overview | tab: Overview | employees | |
-| UAT-10-W-002 | `employee-activity` | Activity | tab: Activity | employees | |
-| UAT-10-W-003 | `employee-contact` | Contact | tab: Contact | employees | |
-| UAT-10-W-004 | `employee-locations` | Address | tab: Address | employees | |
-| UAT-10-W-005 | `employee-emergency-contacts` | Emergency contacts | tab: Emergency contacts | employees | |
-| UAT-10-W-006 | `employee-employment` | Employment | tab: Employment | employees | |
-| UAT-10-W-007 | `employee-work-rights` | Work rights | tab: Work rights | employees | |
-| UAT-10-W-008 | `employee-payroll` | Payroll | tab: Payroll | employees | |
-| UAT-10-W-009 | `employee-leave` | Leave | tab: Leave | employees | |
-| UAT-10-W-010 | `employee-incidents` | Incidents | tab: Incidents | employees | |
-| UAT-10-W-011 | `employee-schedule` | Schedule | tab: Schedule | employees | |
-| UAT-10-W-012 | `employee-schedule-template` | Schedule template | tab: Schedule template | employees | |
-| UAT-10-W-013 | `employee-credentials-assigned` | Credentials Assigned | tab: Credentials Assigned | employees | |
-| UAT-10-W-014 | `employee-alerts` | Alerts | tab: Alerts | employees | |
-| UAT-10-W-015 | `employee-documents` | Documents | tab: Documents | employees | |
-| UAT-10-W-016 | `employee-skills` | Skills & languages | tab: Skills & languages | employees | |
-| UAT-10-W-017 | `employee-system-access` | System access | tab: System access | employees | |
-| UAT-10-W-018 | `workforce-planning` | Workforce planning | /workforce-planning | — | |
-| UAT-10-W-019 | `workforce-organisation` | Organisation structure | /workforce-planning/organisation | workforce-planning | |
-| UAT-10-W-020 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | |
-| UAT-10-W-021 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | |
-| UAT-10-W-022 | `employees` | Employees | /employees | — | |
+| UAT-10-W-001 | `employee-overview` | Overview | tab: Overview | employees | **Pass** |
+| UAT-10-W-002 | `employee-activity` | Activity | tab: Activity | employees | **Pass** |
+| UAT-10-W-003 | `employee-contact` | Contact | tab: Contact | employees | **Pass** |
+| UAT-10-W-004 | `employee-locations` | Address | tab: Address | employees | **Pass** |
+| UAT-10-W-005 | `employee-emergency-contacts` | Emergency contacts | tab: Emergency contacts | employees | **Pass** |
+| UAT-10-W-006 | `employee-employment` | Employment | tab: Employment | employees | **Pass** |
+| UAT-10-W-007 | `employee-work-rights` | Work rights | tab: Work rights | employees | **Pass** |
+| UAT-10-W-008 | `employee-payroll` | Payroll | tab: Payroll | employees | **Pass** |
+| UAT-10-W-009 | `employee-leave` | Leave | tab: Leave | employees | **Pass** |
+| UAT-10-W-010 | `employee-incidents` | Incidents | tab: Incidents | employees | **Pass** |
+| UAT-10-W-011 | `employee-schedule` | Schedule | tab: Schedule | employees | **Pass** |
+| UAT-10-W-012 | `employee-schedule-template` | Schedule template | tab: Schedule template | employees | **Pass** |
+| UAT-10-W-013 | `employee-credentials-assigned` | Credentials Assigned | tab: Credentials Assigned | employees | **Pass** |
+| UAT-10-W-014 | `employee-alerts` | Alerts | tab: Alerts | employees | **Pass** |
+| UAT-10-W-015 | `employee-documents` | Documents | tab: Documents | employees | **Pass** |
+| UAT-10-W-016 | `employee-skills` | Skills & languages | tab: Skills & languages | employees | **Pass** |
+| UAT-10-W-017 | `employee-system-access` | System access | tab: System access | employees | **Pass** |
+| UAT-10-W-018 | `workforce-planning` | Workforce planning | /workforce-planning | — | **Pass** |
+| UAT-10-W-019 | `workforce-organisation` | Organisation structure | /workforce-planning/organisation | workforce-planning | **Pass** |
+| UAT-10-W-020 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | **Pass** |
+| UAT-10-W-021 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | **Pass** |
+| UAT-10-W-022 | `employees` | Employees | /employees | — | **Pass** |
 
 ## UAT-11
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-11-W-001 | `my-workplace` | My workplace | /my | — | |
-| UAT-11-W-002 | `my-leave` | My leave | /my/leave | my-workplace | |
-| UAT-11-W-003 | `my-profile` | About me | /my/profile | my-workplace | |
-| UAT-11-W-004 | `my-availability` | My availability | /my/availability | my-workplace | |
-| UAT-11-W-005 | `my-contracts` | My contracts | /my/contracts | my-workplace | |
-| UAT-11-W-006 | `my-open-shifts` | Open shifts | /my/open-shifts | my-workplace | |
-| UAT-11-W-007 | `my-shifts` | My shifts | /my/shifts | my-workplace | |
-| UAT-11-W-008 | `my-timesheets` | My timesheets | /my/timesheets | my-workplace | |
-| UAT-11-W-009 | `my-credentials` | My credentials | /my/credentials | my-workplace | |
+| UAT-11-W-001 | `my-workplace` | My workplace | /my | — | **Pass** |
+| UAT-11-W-002 | `my-leave` | My leave | /my/leave | my-workplace | **Pass** |
+| UAT-11-W-003 | `my-profile` | About me | /my/profile | my-workplace | **Pass** |
+| UAT-11-W-004 | `my-availability` | My availability | /my/availability | my-workplace | **Pass** |
+| UAT-11-W-005 | `my-contracts` | My contracts | /my/contracts | my-workplace | **Pass** |
+| UAT-11-W-006 | `my-open-shifts` | Open shifts | /my/open-shifts | my-workplace | **Partial** |
+| UAT-11-W-007 | `my-shifts` | My shifts | /my/shifts | my-workplace | **Pass** |
+| UAT-11-W-008 | `my-timesheets` | My timesheets | /my/timesheets | my-workplace | **Pass** |
+| UAT-11-W-009 | `my-credentials` | My credentials | /my/credentials | my-workplace | **Pass** |
 
 ## UAT-12
 
@@ -230,45 +230,45 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Process ID | Label | Parent window | Result |
 |--------|------------|-------|---------------|--------|
-| UAT-15-P-001 | `ai-prepare-record` | AI prepare record | — | |
-| UAT-15-P-002 | `enquiry-to-client` | Enquiry → Client | — | |
-| UAT-15-P-003 | `assign-employee-credential` | Assign employee credential | employee-credentials-assigned | |
-| UAT-15-P-004 | `assign-location-client` | Assign client to location | location-clients | |
-| UAT-15-P-005 | `assign-location-employee` | Assign employee to location | location-employees | |
-| UAT-15-P-006 | `assign-location-product` | Assign product to location | location-products-and-services | |
-| UAT-15-P-007 | `report-incident` | Report incident | incidents | |
-| UAT-15-P-008 | `notify-ndis-reportable` | Notify NDIS Commission | incidents | |
-| UAT-15-P-009 | `assign-task` | Assign task | — | |
-| UAT-15-P-010 | `action-task` | Action task | — | |
-| UAT-15-P-011 | `submit-leave-request` | Submit leave request | my-leave | |
-| UAT-15-P-012 | `submit-employee-credential` | Submit credential | my-credentials | |
-| UAT-15-P-013 | `submit-leave-on-behalf` | Submit leave on behalf | workforce-planning | |
-| UAT-15-P-014 | `review-employee-credential` | Review employee credential | workforce-planning | |
-| UAT-15-P-015 | `approve-leave-request` | Approve leave request | workforce-planning | |
-| UAT-15-P-016 | `approve-timesheet` | Approve timesheet | timesheet-approval | |
-| UAT-15-P-017 | `print-invoice` | Print invoice | invoices | |
-| UAT-15-P-018 | `batch-print-invoices` | Batch print invoices | invoices | |
-| UAT-15-P-019 | `print-service-agreement` | Print service agreement | service-agreements | |
-| UAT-15-P-020 | `print-agreement-variation` | Print agreement variation | service-agreements | |
-| UAT-15-P-021 | `print-employee-contract` | Generate employee contract | employee-documents | |
-| UAT-15-P-022 | `print-employee-offer` | Generate offer of employment | employee-documents | |
-| UAT-15-P-023 | `print-enquiry-acknowledgement` | Print enquiry acknowledgement | enquiries | |
-| UAT-15-P-024 | `print-remittance-cover` | Print remittance cover | invoice-reconciliation | |
-| UAT-15-P-025 | `print-participant-statement` | Print participant statement | clients | |
-| UAT-15-P-026 | `print-board-report` | Print board report | board-reporting | |
-| UAT-15-P-027 | `send-invoice` | Issue invoice | invoices | |
-| UAT-15-P-028 | `print-claim-batch` | Print claim batch summary | claims | |
-| UAT-15-P-029 | `print-incident-notification` | Print incident notification | incidents | |
-| UAT-15-P-030 | `print-audit-pack` | Print audit pack report | ndis-audit-pack | |
-| UAT-15-P-031 | `print-consent-schedule` | Print consent schedule | clients | |
-| UAT-15-P-032 | `print-employee-separation` | Generate separation letter | employee-documents | |
-| UAT-15-P-033 | `manage-session-audit-risk` | Investigate session risk | admin-user-session-audit | |
-| UAT-15-P-034 | `view-session-sensitive-session-data` | View sensitive session data | admin-user-session-audit | |
-| UAT-15-P-035 | `manage-process-audit-risk` | Investigate process risk | admin-process-audit | |
-| UAT-15-P-036 | `view-process-audit-sensitive` | View sensitive process data | admin-process-audit | |
-| UAT-15-P-037 | `manage-ai-query-audit-risk` | Investigate AI query risk | admin-ai-query-audit | |
-| UAT-15-P-038 | `view-ai-query-audit-sensitive` | View sensitive AI query data | admin-ai-query-audit | |
-| UAT-15-P-039 | `manage-retention-settings` | Manage retention settings | admin-record-retention | |
+| UAT-15-P-001 | `ai-prepare-record` | AI prepare record | — | **Pass** |
+| UAT-15-P-002 | `enquiry-to-client` | Enquiry → Client | — | **Pass** |
+| UAT-15-P-003 | `assign-employee-credential` | Assign employee credential | employee-credentials-assigned | **Pass** |
+| UAT-15-P-004 | `assign-location-client` | Assign client to location | location-clients | **Pass** |
+| UAT-15-P-005 | `assign-location-employee` | Assign employee to location | location-employees | **Pass** |
+| UAT-15-P-006 | `assign-location-product` | Assign product to location | location-products-and-services | **Pass** |
+| UAT-15-P-007 | `report-incident` | Report incident | incidents | **Pass** |
+| UAT-15-P-008 | `notify-ndis-reportable` | Notify NDIS Commission | incidents | **Pass** |
+| UAT-15-P-009 | `assign-task` | Assign task | — | **Pass** |
+| UAT-15-P-010 | `action-task` | Action task | — | **Pass** |
+| UAT-15-P-011 | `submit-leave-request` | Submit leave request | my-leave | **Pass** |
+| UAT-15-P-012 | `submit-employee-credential` | Submit credential | my-credentials | **Pass** |
+| UAT-15-P-013 | `submit-leave-on-behalf` | Submit leave on behalf | workforce-planning | **Pass** |
+| UAT-15-P-014 | `review-employee-credential` | Review employee credential | workforce-planning | **Pass** |
+| UAT-15-P-015 | `approve-leave-request` | Approve leave request | workforce-planning | **Pass** |
+| UAT-15-P-016 | `approve-timesheet` | Approve timesheet | timesheet-approval | **Pass** |
+| UAT-15-P-017 | `print-invoice` | Print invoice | invoices | **Pass** |
+| UAT-15-P-018 | `batch-print-invoices` | Batch print invoices | invoices | **Partial** |
+| UAT-15-P-019 | `print-service-agreement` | Print service agreement | service-agreements | **Pass** |
+| UAT-15-P-020 | `print-agreement-variation` | Print agreement variation | service-agreements | **Pass** |
+| UAT-15-P-021 | `print-employee-contract` | Generate employee contract | employee-documents | **Pass** |
+| UAT-15-P-022 | `print-employee-offer` | Generate offer of employment | employee-documents | **Pass** |
+| UAT-15-P-023 | `print-enquiry-acknowledgement` | Print enquiry acknowledgement | enquiries | **Pass** |
+| UAT-15-P-024 | `print-remittance-cover` | Print remittance cover | invoice-reconciliation | **Pass** |
+| UAT-15-P-025 | `print-participant-statement` | Print participant statement | clients | **Partial** |
+| UAT-15-P-026 | `print-board-report` | Print board report | board-reporting | **Pass** |
+| UAT-15-P-027 | `send-invoice` | Issue invoice | invoices | **Partial** |
+| UAT-15-P-028 | `print-claim-batch` | Print claim batch summary | claims | **Pass** |
+| UAT-15-P-029 | `print-incident-notification` | Print incident notification | incidents | **Pass** |
+| UAT-15-P-030 | `print-audit-pack` | Print audit pack report | ndis-audit-pack | **Pass** |
+| UAT-15-P-031 | `print-consent-schedule` | Print consent schedule | clients | **Partial** |
+| UAT-15-P-032 | `print-employee-separation` | Generate separation letter | employee-documents | **Pass** |
+| UAT-15-P-033 | `manage-session-audit-risk` | Investigate session risk | admin-user-session-audit | **Partial** |
+| UAT-15-P-034 | `view-session-sensitive-session-data` | View sensitive session data | admin-user-session-audit | **Partial** |
+| UAT-15-P-035 | `manage-process-audit-risk` | Investigate process risk | admin-process-audit | **Partial** |
+| UAT-15-P-036 | `view-process-audit-sensitive` | View sensitive process data | admin-process-audit | **Partial** |
+| UAT-15-P-037 | `manage-ai-query-audit-risk` | Investigate AI query risk | admin-ai-query-audit | **Partial** |
+| UAT-15-P-038 | `view-ai-query-audit-sensitive` | View sensitive AI query data | admin-ai-query-audit | **Partial** |
+| UAT-15-P-039 | `manage-retention-settings` | Manage retention settings | admin-record-retention | **Partial** |
 
 ## Reports (UAT-12)
 
