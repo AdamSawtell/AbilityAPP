@@ -147,6 +147,15 @@
 
 See [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §8 for file paths and checklist format.
 
+### E2E testing matrix
+
+| Doc | Status |
+|-----|--------|
+| [testing/HAPPY-PATH-E2E-MATRIX.md](./testing/HAPPY-PATH-E2E-MATRIX.md) | **v0.2** — §4–5 (flows 4–5: SA → roster → timesheets → claims/invoices) + §9 missing-functions review |
+| [testing/ISSUE-LOG-TEMPLATE.md](./testing/ISSUE-LOG-TEMPLATE.md) | Issue log template for testers / AI browser |
+
+Sections 1–3, 6–7, and flows 1–3 / 6–11 are planned follow-ups.
+
 ---
 
 Slices through **WP-B.1** were verified with **Tier 1 only** (build + migrations). **Tier 2 browser** and **Tier 3 Bugbot** were not run on those pushes — backlog below. **All future slices use all tiers.**
