@@ -36,12 +36,12 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-01-W-001 | `enquiries` | Enquiries | /enquiries | — | |
-| UAT-01-W-002 | `enquiry-enquiry-details` | Enquiry details | tab: Enquiry details | enquiries | |
-| UAT-01-W-003 | `enquiry-qualification` | Qualification | tab: Qualification | enquiries | |
-| UAT-01-W-004 | `enquiry-activity` | Activity | tab: Activity | enquiries | |
-| UAT-01-W-005 | `enquiry-participant` | Participant | tab: Participant | enquiries | |
-| UAT-01-W-006 | `enquiry-support-needs` | Support needs | tab: Support needs | enquiries | |
+| UAT-01-W-001 | `enquiries` | Enquiries | /enquiries | — | Pass |
+| UAT-01-W-002 | `enquiry-enquiry-details` | Enquiry details | tab: Enquiry details | enquiries | Pass |
+| UAT-01-W-003 | `enquiry-qualification` | Qualification | tab: Qualification | enquiries | Pass |
+| UAT-01-W-004 | `enquiry-activity` | Activity | tab: Activity | enquiries | Pass |
+| UAT-01-W-005 | `enquiry-participant` | Participant | tab: Participant | enquiries | Pass |
+| UAT-01-W-006 | `enquiry-support-needs` | Support needs | tab: Support needs | enquiries | Pass |
 
 ## UAT-02
 

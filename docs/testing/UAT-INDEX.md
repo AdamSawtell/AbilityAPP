@@ -1,7 +1,7 @@
 # AbilityAPP — Full UAT index
 
 **Version:** 1.0  
-**Last updated:** 2026-06-18  
+**Last updated:** 2026-06-22  
 **Companion docs:** [Happy path (quick smoke)](./HAPPY-PATH-E2E-MATRIX.md) · [Test runbooks](./TEST-RUNBOOKS.md) · [Sign-off](./UAT-SIGNOFF.md) · [Issue log](./ISSUE-LOG-TEMPLATE.md)
 
 ## Purpose
@@ -32,7 +32,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 | Pack | Document | Priority | Owner role | Est. time | Status | HP overlap |
 |------|----------|----------|------------|-----------|--------|------------|
 | UAT-00 | [UAT-00-core-home-tasks.md](./uat/UAT-00-core-home-tasks.md) | P2 | All | 1 h | Not started | — |
-| UAT-01 | [UAT-01-enquiries-crm.md](./uat/UAT-01-enquiries-crm.md) | P0 | Intake | 2 h | Not started | Flow 1–2 |
+| UAT-01 | [UAT-01-enquiries-crm.md](./uat/UAT-01-enquiries-crm.md) | P0 | Intake | 2 h | **Pass** | Flow 1–2 |
 | UAT-02 | [UAT-02-clients.md](./uat/UAT-02-clients.md) | P0 | Coordinator | 4 h | Not started | Flow 3, 7 |
 | UAT-03 | [UAT-03-locations-catalog.md](./uat/UAT-03-locations-catalog.md) | P1 | Admin / Coordinator | 2 h | Not started | Partial |
 | UAT-04 | [UAT-04-agreements-bookings.md](./uat/UAT-04-agreements-bookings.md) | P0 | Coordinator | 3 h | Not started | Flow 4 |
@@ -47,7 +47,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 | UAT-13 | [UAT-13-admin-system.md](./uat/UAT-13-admin-system.md) | P2 | SuperUser / ICT | 4 h | Not started | — |
 | UAT-14 | [UAT-14-portal.md](./uat/UAT-14-portal.md) | P3 | Portal (if release) | 1 h | Not started | Planned |
 | UAT-15 | [UAT-15-processes.md](./uat/UAT-15-processes.md) | P1 | Mixed | 3 h | Not started | Cross-flow |
-| UAT-ROLE | [UAT-ROLE-MATRIX.md](./uat/UAT-ROLE-MATRIX.md) | P0 | All personas | 2 h | **Partial** (011–016) | 010, 017–019 |
+| UAT-ROLE | [UAT-ROLE-MATRIX.md](./uat/UAT-ROLE-MATRIX.md) | P0 | All personas | 2 h | **Pass** | 010–019 |
 
 **Generated checklist:** [uat/UAT-INVENTORY.generated.md](./uat/UAT-INVENTORY.generated.md) — run `npm run uat:inventory` after catalog changes.
 

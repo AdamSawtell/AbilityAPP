@@ -38,6 +38,8 @@ Use one row per defect or gap found during happy path or functional testing.
 | ISSUE-008 | TEST-060 | Rostering seed | Medium | `rs-e2e-smoke-today` uses `current_date` (22 Jun on Amplify), not June 9 week; Oliver shift shows overlap warning with GabW 10:00–18:00 | **Fixed** — pinned to `2026-06-12` in June test week |
 | ISSUE-009 | ROLE-014 | Access / Finance | High | `role-finance-officer` missing billing windows — no Claims/Invoices in sidebar; pages only via direct URL | **Fixed** — `FINANCE_OFFICER_BILLING_WINDOWS` in `seed.ts` + `seed-access.sql` (re-applied remote) |
 | ISSUE-010 | TEST-020 | Enquiries / convert | Doc | Runbook said Support Coordinator converts; `role-coordinator` has no `enquiry-to-client` — convert button only on Intake role | **Fixed** — TEST-RUNBOOKS.md updated; use Intake Coordinator for convert |
+| ISSUE-011 | TEST-096 | HR / Access | High | HR Manager missing `print-employee-separation` — exit panel / generate letter not granted | **Fixed** — `HR_DOCUMENT_PRINT_PROCESSES` in `role-access-templates.ts` + `seed-access.sql` |
+| ISSUE-012 | TEST-096 | HR / Org | Doc | Auto-generate separation letter fails without org ABN on Amplify seed | **Open** — workaround: manual Documents line named "Separation letter" |
 
 ## Amplify deep pass — 2026-06-22
 
@@ -261,3 +263,28 @@ Use one row per defect or gap found during happy path or functional testing.
 | SuperUser → `/ndis-audit-pack?period=2026-06` | 10 sections; Export manifest + CSV actions |
 | SuperUser → `/board-reporting` | Monthly Board Report — June 2026 listed |
 | QuinnTaylor → audit pack / board | Access denied (role-gated — SuperUser path per runbook) |
+
+### TEST-096 — Flow 8 employee exit — Pass
+
+| Step | Result |
+|------|--------|
+| SandraBlake → `/employees/emp-staff-147?tab=Employment` | Exit workflow panel visible (after ISSUE-011 seed fix) |
+| Separation letter | Auto-generate blocked (ISSUE-012 — no org ABN); manual HR doc line **Separation letter** saved |
+| End date `2026-06-30` + status **Terminated** | Saved; checklist **Exit checklist complete** |
+| Export checklist | CSV export clicked |
+| Refresh | Terminated + end date persist; audit trail updated |
+
+## UAT-01 — Enquiries & CRM — 2026-06-22
+
+**User:** GabrielaWilson / welcome · Amplify
+
+| Scenario | Result |
+|----------|--------|
+| UAT-01-S-001 — `/enquiries` list | **Pass** — 27 enquiries; module audit |
+| UAT-01-S-002 — New enquiry | **Pass** — New enquiry action available |
+| UAT-01-S-003 — Pipeline `1000025` | **Pass** — Proposal stage |
+| UAT-01-S-004–008 | **Pass** — prior TEST-010/011 + HubSpot panel |
+| UAT-01-S-009 — Lost `1000014` | **Pass** — `5_Lost` + No response from enquirer |
+| UAT-01-S-010 — Convert guard | **Pass** — Convert disabled when unsaved |
+| UAT-01-S-011 — All tabs | **Pass** — tabs render; audit footer on record |
+| Window checklist UAT-01-W-001–006 | **Pass** — enquiries + all enquiry tabs on `1000025` |

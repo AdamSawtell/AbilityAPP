@@ -109,6 +109,51 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-091 — Flow 6 employee hire (extended)
+
+| | |
+|--|--|
+| **User** | SandraBlake / welcome (HR Manager) |
+| **DATA** | `emp-oliver` or new hire record |
+| **Pass if** | Location, employment type, credential workflow accessible |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Employee → Address / site assignment | Location line saves |
+| 2 | Employment tab — type + department | Employment fields save |
+| 3 | My workplace → Credentials (worker) + HR review | Submit / approve path loads |
+
+---
+
+## TEST-092 — Flow 6 worker + roster eligibility
+
+| | |
+|--|--|
+| **User** | OliverWilliams / welcome; RileyShaw for roster |
+| **DATA** | `?week=2026-06-09` |
+| **Pass if** | Worker my-workplace links; roster shows credential hints |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Oliver `/my/shifts`, `/my/timesheets` | Both load (not blocked) |
+| 2 | Riley `/rostering` — assign / publish panel | Credential warnings when creds missing |
+
+---
+
+## TEST-093 — Flow 6 leave + credential audit
+
+| | |
+|--|--|
+| **User** | OliverWilliams / welcome; SuperUser for audit |
+| **Pass if** | Self-service leave/availability loads; credential save audited |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/my/leave`, `/my/availability` | Forms load |
+| 2 | Credential save → Full audit trail | Field-level event logged |
+
+---
+
 ## TEST-095 — Flow 7 participant exit
 
 | | |
@@ -122,6 +167,24 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 1 | Open `/clients/bp-e2e-exit` | Active lifecycle |
 | 2 | Activity — exit handover note | Saves |
 | 3 | Full profile — lifecycle **exit** + reason | Persists after refresh |
+
+---
+
+## TEST-096 — Flow 8 employee exit
+
+| | |
+|--|--|
+| **User** | SandraBlake / welcome |
+| **DATA** | `emp-staff-147` (Naomi Singh — DATA-019 disposable) |
+| **Pass if** | Exit checklist complete; status **Terminated**; CSV export |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/employees/emp-staff-147?tab=Employment` | Exit workflow panel visible |
+| 2 | Separation letter on HR file | Manual doc line OK if auto-generate blocked (org ABN) |
+| 3 | End date `2026-06-30` + Overview status **Terminated** | Save; checklist 0 blockers |
+| 4 | Export checklist | CSV download |
+| 5 | Refresh | Terminated + end date persist |
 
 ---
 
@@ -139,11 +202,26 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-098 — Flow 10 governance
+
+| | |
+|--|--|
+| **User** | QuinnTaylor / welcome (Quality Manager) |
+| **Pass if** | Complaints register + incident dashboard load |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/complaints` | List + audit module label |
+| 2 | `/incidents/dashboard` | Stats render |
+| 3 | `/tasks?scope=assigned-to-me` | Task hub scopes load |
+
+---
+
 ## TEST-099 — Flow 11 reporting wrap
 
 | | |
 |--|--|
-| **User** | SuperUser or Quality manager |
+| **User** | SuperUser only (`flamingo`) — Quality Manager denied audit pack |
 | **Pass if** | Audit pack + board report render |
 
 | Step | Action | Pass if |

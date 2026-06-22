@@ -2087,6 +2087,9 @@ values
   ('role-ceo', 'submit-leave-on-behalf'),
   ('role-ceo', 'review-employee-credential'),
   ('role-ceo', 'approve-leave-request'),
+  ('role-ceo', 'print-employee-contract'),
+  ('role-ceo', 'print-employee-offer'),
+  ('role-ceo', 'print-employee-separation'),
   ('role-exec-operations', 'assign-location-client'),
   ('role-exec-operations', 'assign-location-employee'),
   ('role-exec-operations', 'assign-location-product'),
@@ -2109,6 +2112,9 @@ values
   ('role-exec-hr', 'submit-leave-on-behalf'),
   ('role-exec-hr', 'review-employee-credential'),
   ('role-exec-hr', 'approve-leave-request'),
+  ('role-exec-hr', 'print-employee-contract'),
+  ('role-exec-hr', 'print-employee-offer'),
+  ('role-exec-hr', 'print-employee-separation'),
   ('role-exec-finance', 'assign-location-client'),
   ('role-exec-finance', 'assign-location-employee'),
   ('role-exec-finance', 'assign-location-product'),
@@ -2151,6 +2157,9 @@ values
   ('role-hr-manager', 'submit-leave-on-behalf'),
   ('role-hr-manager', 'review-employee-credential'),
   ('role-hr-manager', 'approve-leave-request'),
+  ('role-hr-manager', 'print-employee-contract'),
+  ('role-hr-manager', 'print-employee-offer'),
+  ('role-hr-manager', 'print-employee-separation'),
   ('role-hr-officer', 'assign-task'),
   ('role-hr-officer', 'action-task'),
   ('role-hr-officer', 'report-incident'),
@@ -2159,6 +2168,9 @@ values
   ('role-hr-officer', 'submit-leave-on-behalf'),
   ('role-hr-officer', 'review-employee-credential'),
   ('role-hr-officer', 'approve-leave-request'),
+  ('role-hr-officer', 'print-employee-contract'),
+  ('role-hr-officer', 'print-employee-offer'),
+  ('role-hr-officer', 'print-employee-separation'),
   ('role-ict-manager', 'assign-location-client'),
   ('role-ict-manager', 'assign-location-employee'),
   ('role-ict-manager', 'assign-location-product'),
@@ -2489,40 +2501,40 @@ on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;
 
 -- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)
-update public.app_user set password = '$2b$10$BU/7EdstjGLgH9GGvWZNq.Qzc5YhXX33msgH6ggTc2sC.OWrBkYlC' where username = 'SuperUser';
-update public.app_user set password = '$2b$10$RDnY.GcxMzi/8mhNQck9KeWVU8pm.R6twAuGXr7SnXI6YoB5EMzcy' where username = 'PatriciaChen';
-update public.app_user set password = '$2b$10$QhLnu/j3X/5Cq8VFHWortOPi5NCfWxCrM6Vgf38mV1b1S6ipBVKGW' where username = 'MichaelSmith';
-update public.app_user set password = '$2b$10$v1dsEtBEciQVEw//VISEqu1UoXXbotwFua9dtaH7FedoxDcEGjJh6' where username = 'PiperCollins';
-update public.app_user set password = '$2b$10$L9SXIugaoCeqT5LN5ELV6OQhC4E0Hj0s0H5BxUuccGefboO9Y5iY6' where username = 'IslaRobinson';
-update public.app_user set password = '$2b$10$VDOD3qbVkXJyx3nZlVebBOgETwAnZRtmPZAaHFEDn55hanMhIqt.O' where username = 'GabrielaWilson';
-update public.app_user set password = '$2b$10$yDa561R1a9Li8capV1.R/OQBqd2vfTnD8xyM.0UGSJ0YmykTn.xDW' where username = 'DianeFoster';
-update public.app_user set password = '$2b$10$9fV0p4s7xxCjeiXHXSsfA.hmnwSRP1bBT2R600b.fNKHusjG1xHsm' where username = 'JamesWhitford';
-update public.app_user set password = '$2b$10$/A8zOd62l3BNMl5eDgwj0OT7ktmVmtSEVxFbhn0Oh7KHuEVAjIwCq' where username = 'SamRivera';
-update public.app_user set password = '$2b$10$gBjTzA6XTHaxI0L1R55AIOR3NPCyhYddi5VnuTRQQ9ocJfsPRd.yO' where username = 'MargaretHolt';
-update public.app_user set password = '$2b$10$tFHfe3/n/9RsVJfYbfKL9.uXGHmrZHKCYwxk0P2DOu8i.eh9xqoMO' where username = 'RileyShaw';
-update public.app_user set password = '$2b$10$y70CnASXvXYXOxoTnGPUU.nrg/ICQzFze0OGFjwjJbrEAOhGKv70W' where username = 'EleanorWright';
-update public.app_user set password = '$2b$10$r.93fk.DmzRCbyLcYhPfsO4b6ynAm25oC7GKIFtXcBKmREgGEXUk2' where username = 'MarcusOBrien';
-update public.app_user set password = '$2b$10$cwJWYMXX13E8uBXF8ZfPfOAAMwAIygX5OfZxMZ19pv3HZU7Mh4u1K' where username = 'HelenTran';
-update public.app_user set password = '$2b$10$/7kyqroVuEVZid1UGWaOM.FtcJVgprKEsN2AyMRr8Ej3YY3BL4XVe' where username = 'DavidOkonkwo';
-update public.app_user set password = '$2b$10$H8aR7q3lFUEK7oO2GzY7fublVXuNACai6i7TR.tHSkfHuL43TWYiC' where username = 'SandraBlake';
-update public.app_user set password = '$2b$10$6h74rH0On3vAO6yMNTQw6OI8aCpOKqc.Wy26yJAscAbuWgZAIYX3C' where username = 'CalebMurphy';
-update public.app_user set password = '$2b$10$Pck1PTD.MYQvFEDfI721X.TcsrFWfcvxAv18Ao5HEtn3cwEzTDdE6' where username = 'AlexKim';
-update public.app_user set password = '$2b$10$tGGXH9xZvGxI7P2lATjUou9RpAhr.YzlUwj0IRYq4wmSfVYVSeHyK' where username = 'JordanLee';
-update public.app_user set password = '$2b$10$iBQMiAkSUv4c9pJgqquOsO2IkVbeY07HlVI28d.dKxKC7zKrC241i' where username = 'QuinnTaylor';
-update public.app_user set password = '$2b$10$cJght9kqYYL2UqC9V/iAQOZYOcu8u0zwgMvMi.0EYp0SwGhtaH0Ne' where username = 'AudreyPatel';
-update public.app_user set password = '$2b$10$rS9HIYhv7UZT7xyz7sZ7SOVt4yTp9WbI.SD6mJz5.WQ2OG3ETTcv6' where username = 'MorganBlake';
-update public.app_user set password = '$2b$10$Y21.x/lAq2n0NBG96PPvAe.irkXEV2fT/a8DyUF5macrp0pBEyceq' where username = 'TessaNguyen';
-update public.app_user set password = '$2b$10$YfoWLATUXpHuFj/gma2WzufkyZfTXCrZpAKTpasw1ZXkzZqT7ompC' where username = 'JessicaHancock';
-update public.app_user set password = '$2b$10$C7mQBxkMotJ4RY2aO2eXmeOyXMr0u1joTV3SW2ym5OOuO4QtkiLuG' where username = 'NaomiSingh';
-update public.app_user set password = '$2b$10$1vffbUhH7rUAVmfs85NUU.py0ApgGX/0g0bGVwlV3DEqlRMTtHMBO' where username = 'RoseDash';
-update public.app_user set password = '$2b$10$R1R6noYw5jy5aRI9urKdc.lBUw9q/DByW.il1qEJJKnKselkG4wdK' where username = 'OliverWilliams';
-update public.app_user set password = '$2b$10$aIDVNAeRXp4Jr/cAyeXY.O0Z2d6V6go27yCwLftYO6VS/RGER7xCe' where username = 'AvaThomas';
-update public.app_user set password = '$2b$10$zgG1FapvGa5IcEbnxtabX.q5VZCqQG1wPHr291epR.lt.wcJBMXcK' where username = 'NoahJackson';
-update public.app_user set password = '$2b$10$LbvFDVjKfsbexAXuPLPlyO1Z9O7RwX2XRAQOCeC2FvZr2hDEedRJW' where username = 'MiaWhite';
-update public.app_user set password = '$2b$10$MJhSS3ydBaBGWKgBGfYs7u67l10RR7E/lwjR412c3kKABiep4ZUGG' where username = 'LiamHarris';
-update public.app_user set password = '$2b$10$xe3IRoXfFxXcaeckNJMV5uPVRPr1WQqnPhik3StFmFtXQDZOPFMdm' where username = 'ZoeMartin';
-update public.app_user set password = '$2b$10$3wyTSQiB1FPTv8NTMHRd/Opz7fwzXXQS83tNbKNlQp/Jj2hOv.8vC' where username = 'EthanThompson';
-update public.app_user set password = '$2b$10$BpBJeCwpXlN8m1QhojiuGeeZGAYSUDc2sQPQ5kaBlj9f3rrJFi5fK' where username = 'ChloeGarcia';
-update public.app_user set password = '$2b$10$MrMmwDEEeQHYAnorclC4v.IJlSqLzkyYiNYOpUs1.AiLBZ60Mx952' where username = 'MasonRobinson';
-update public.app_user set password = '$2b$10$6aVkz0pflQoptUO4IZe94u9NH7hp5fHN5r/5ENGEZyUSpOG9rDFta' where username = 'RubyClark';
-update public.app_user set password = '$2b$10$y56AK3E42W69zHTv3V8TCeNAAHBLBO2GBktC.rEWX23xpqFeQUf9S' where username = 'LucasLewis';
+update public.app_user set password = '$2b$10$.bPd9udhuuaoOlkTprmlaeuXJ7aArr/mETe1NJtZ9tzwc.IsO4uy6' where username = 'SuperUser';
+update public.app_user set password = '$2b$10$yHmSDC/7O6AI6RqMNYWvXuil796CEINVsdrENnSDp9nJVX35j88EW' where username = 'PatriciaChen';
+update public.app_user set password = '$2b$10$Gg37M2rx5TmvdvSHf.oJBeSEnl2ixPktxaJyhpDaGCjRf.JvlK71O' where username = 'MichaelSmith';
+update public.app_user set password = '$2b$10$zHEEasdjPYGIe5kkD/tHrOzLISau.vgfLYPZd0xSRfmfPwUR7A0Cq' where username = 'PiperCollins';
+update public.app_user set password = '$2b$10$9UmjEKyX.hDmEm7UAuIIPuMq07rqGPotOKlrcrjAmdAwITQg03phq' where username = 'IslaRobinson';
+update public.app_user set password = '$2b$10$ry.rFQXbEu1RWqU15GFhg..HqdtUizdUDxII41UnUYQCaBLaspvG2' where username = 'GabrielaWilson';
+update public.app_user set password = '$2b$10$TZus37W1gvgHduGP7Sd4kuyqn2SpReyrprx4jhIEL8mIPR9dXAUY2' where username = 'DianeFoster';
+update public.app_user set password = '$2b$10$t5XYlHWaQSQv/tM7E7FGs.GLnKYVmPMmrtP9ICHKe7iRB4xF/nRO.' where username = 'JamesWhitford';
+update public.app_user set password = '$2b$10$vQcupBr1TdzHgwWpqG/9Z.ZFASiJpa/bfllL2.66jKqD2RMfeOvr6' where username = 'SamRivera';
+update public.app_user set password = '$2b$10$jBLmzGKN5H3x9b5PDbe4T.0.GD.lrhsvCxLSu/q5i4shpGiOGdXxm' where username = 'MargaretHolt';
+update public.app_user set password = '$2b$10$UQqreQzhSNqmX/J76G8o6O.lpokAuZEB2H9cUpqndslpS42HZcoDq' where username = 'RileyShaw';
+update public.app_user set password = '$2b$10$iNVuGHSgRkNEk.G0wAq25eUkRjavf2z66owkCUeUKWc2mJe1l.A42' where username = 'EleanorWright';
+update public.app_user set password = '$2b$10$rKlOSu49LItzul7xpgGZR.p4ISnprHE/Y.CnnFpWvSUO9GPAcTRMa' where username = 'MarcusOBrien';
+update public.app_user set password = '$2b$10$6uDI6NbP3hZP.KOliLGLC.0PtDebnkcM36QiruxwMec27Y4fgEqTy' where username = 'HelenTran';
+update public.app_user set password = '$2b$10$g4vCOJfPliy7pfwAEyajZOTs4tjnD4jav1ODooqXwcSDxe6fbRxK2' where username = 'DavidOkonkwo';
+update public.app_user set password = '$2b$10$8oTo7AxZ2R.5F88oTniHbu1QgK3Re4KzeLRcxnbN9/Gth24crZb8a' where username = 'SandraBlake';
+update public.app_user set password = '$2b$10$S9hNag5H/4QXOL5EhFZgFOTYyoI/A59MOSaQryz1DNrAm9gbSXWR2' where username = 'CalebMurphy';
+update public.app_user set password = '$2b$10$aTsVmz7Icej8TbN2WwCfZe999.wJ/3cVWfNmyOAKy2raNHHoSUQGa' where username = 'AlexKim';
+update public.app_user set password = '$2b$10$z7vE21rmMqZ/2b8.hSvXWesOMPj7M2AwoVipsCC9qnLZmDXSeNJIW' where username = 'JordanLee';
+update public.app_user set password = '$2b$10$hu/brPB82T1s4m1s4DKhx.oFR0wSTOT6W.4uTAd6VC3KCnBSgGg1u' where username = 'QuinnTaylor';
+update public.app_user set password = '$2b$10$7mZbqr/enLwVMRRZuP0M.OE6d02Qt0rOk3sIoiJwBfMsR3UoMZQSi' where username = 'AudreyPatel';
+update public.app_user set password = '$2b$10$ttxs2X1SjTcuwAkMWQNs/u17L045FixeL7p3a/cddjh/wSL9YxgRq' where username = 'MorganBlake';
+update public.app_user set password = '$2b$10$xNV718.1hbH91jQ1lpz41.2oGgwoOcySVVvvMToqXnMkf/bulcWR2' where username = 'TessaNguyen';
+update public.app_user set password = '$2b$10$HyqBHFjME3Oj/oB/akCrwOYMbOc9l7K2Wq/23eX3RgshDzCrgOgSa' where username = 'JessicaHancock';
+update public.app_user set password = '$2b$10$ZSyy.BeOa5sxwWCaTcz0fu.sMrIpHPo1vYKeoG1Txg2GfG2fw/i/6' where username = 'NaomiSingh';
+update public.app_user set password = '$2b$10$BATgC3bLA3o12kJmrGwojeVW7v9QFlZ1vr0Y5UCTIctIgNk6tgVue' where username = 'RoseDash';
+update public.app_user set password = '$2b$10$Ljr0crfvKp20D/C8suIpUOrdEtpX4Ohf5SY81fhP6Rgz2ksFpeYDe' where username = 'OliverWilliams';
+update public.app_user set password = '$2b$10$oLcm5vwZoB3WVyqZzqDu7OGzFhwLop9tElu.KVBja3tLBAerw5Gye' where username = 'AvaThomas';
+update public.app_user set password = '$2b$10$OfFNZtWy7RdgDEi08Uca7u9Skjxzhpf0WLJpz.W5Kh0Zw5Nvp3lsa' where username = 'NoahJackson';
+update public.app_user set password = '$2b$10$DagnmTvK6rNVDF7WqoUG3.H.2/hDSB.hQAM.1EihrhLQzqNUf8gnu' where username = 'MiaWhite';
+update public.app_user set password = '$2b$10$RuYgq3Ije5GTsZtooZcr7uFOR3r31xUn0e1F4d39da8omc.BqC8kq' where username = 'LiamHarris';
+update public.app_user set password = '$2b$10$q8Z7BmgtsV8hoBPBkDYYAOdSNXV5jwc3JAfkTcN5IvKd27aoEBFCK' where username = 'ZoeMartin';
+update public.app_user set password = '$2b$10$EJ3RLU/lfCCOxrGqKp5M6OTl3fDRHwuzZISkbNH75cVYVfCzIEOoK' where username = 'EthanThompson';
+update public.app_user set password = '$2b$10$kc1.gptlH8Wc72E0P7pql.s/6ig6Xw4zsXI5P8uHUmhZyXT.h0IlS' where username = 'ChloeGarcia';
+update public.app_user set password = '$2b$10$flJUQ67S2sI/CL0akD0QoeTPt61goJalDBccgX07i0AjJvT7.Ma/6' where username = 'MasonRobinson';
+update public.app_user set password = '$2b$10$AaRdxwQ85I.Mc2XL.N/CMuZKa1YlrHbrcIAwY5MwXFkVzdTXCYmze' where username = 'RubyClark';
+update public.app_user set password = '$2b$10$3GPgM.iUDoyXiJx42uJvt.WBoBTsvoJ8iqIbBjcOy1wzQf2a6vkNa' where username = 'LucasLewis';

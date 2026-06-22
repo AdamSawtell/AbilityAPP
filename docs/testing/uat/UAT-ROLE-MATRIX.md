@@ -19,6 +19,8 @@ Verify each persona sees the correct sidebar, can open granted routes, and is bl
 | ROLE-015 | TessaNguyen | welcome | `role-finance-manager` |
 | ROLE-016 | GabrielaWilson | welcome | `role-intake` |
 | ROLE-017 | PiperCollins | welcome | `role-team-leader` |
+| ROLE-018 | SandraBlake | welcome | `role-hr-officer` |
+| ROLE-019 | QuinnTaylor | welcome | `role-quality-manager` |
 
 ## Scenarios
 
@@ -37,7 +39,9 @@ Verify each persona sees the correct sidebar, can open granted routes, and is bl
 | UAT-ROLE-011 | JessicaHancock | Sidebar — billing | Claims, invoices, generate-* | |
 | UAT-ROLE-012 | JessicaHancock | `/generate-claims` — June 2026 | Preview loads; generate enabled if write | |
 | UAT-ROLE-013 | TessaNguyen | Reconciliation + close | All three reconciliation routes + financial close | |
-| UAT-ROLE-014 | PiperHall | Timesheets | Timesheet approval + generate timesheets | |
+| UAT-ROLE-014 | PiperCollins | Timesheets | Timesheet approval (generate-timesheets not in seed) | Pass |
+| UAT-ROLE-016 | SandraBlake | HR | People menu + workforce reviews | Pass |
+| UAT-ROLE-017 | QuinnTaylor | Quality | Incident reports; audit pack denied | Pass |
 | UAT-ROLE-015 | Any non-admin | Direct `/admin/roles` | Blocked or read-only | |
 
 ## Full window inventory

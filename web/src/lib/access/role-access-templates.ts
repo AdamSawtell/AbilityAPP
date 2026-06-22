@@ -78,6 +78,13 @@ export const WORKFORCE_ON_BEHALF_PROCESSES = ["submit-leave-on-behalf"] as const
 /** HR credential sign-off — not granted to coordinators or general executives. */
 export const HR_CREDENTIAL_REVIEW_PROCESSES = ["review-employee-credential"] as const;
 
+/** HR employment document generation — contracts, offers, separation letters. */
+export const HR_DOCUMENT_PRINT_PROCESSES = [
+  "print-employee-contract",
+  "print-employee-offer",
+  "print-employee-separation",
+] as const;
+
 /** Manager leave inbox — direct reports only unless paired with HR credential review. */
 export const MANAGER_LEAVE_APPROVAL_PROCESSES = ["approve-leave-request"] as const;
 
@@ -127,6 +134,7 @@ export function workforceHrReviewAccess(): Pick<AppRoleRecord, "processIds"> {
       ...executiveAccess().processIds,
       ...HR_CREDENTIAL_REVIEW_PROCESSES,
       ...MANAGER_LEAVE_APPROVAL_PROCESSES,
+      ...HR_DOCUMENT_PRINT_PROCESSES,
     ],
   };
 }

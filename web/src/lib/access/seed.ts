@@ -11,6 +11,7 @@ import {
   executiveAccess,
   EXEC_PROCESSES,
   HR_CREDENTIAL_REVIEW_PROCESSES,
+  HR_DOCUMENT_PRINT_PROCESSES,
   isAdminRole,
   MANAGER_LEAVE_APPROVAL_PROCESSES,
   managerAccess,
@@ -183,6 +184,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
         ...officerAccess(["employees", "employee-overview", "employee-credentials-assigned"]).processIds,
         ...HR_CREDENTIAL_REVIEW_PROCESSES,
         ...MANAGER_LEAVE_APPROVAL_PROCESSES,
+        ...HR_DOCUMENT_PRINT_PROCESSES,
       ],
     }
   ),

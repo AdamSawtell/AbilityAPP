@@ -17,8 +17,8 @@ Record completion of full UAT before production or major demo release.
 | Tier | Requirement | Pass? | Date | Notes |
 |------|-------------|-------|------|-------|
 | T0 | `npm run build` + `page-guides:check` exit 0 | Yes | 2026-06-18 | CI / local |
-| T1 | Happy path TEST-010 → TEST-099 (see TEST-RUNBOOKS) | **Pass** | 2026-06-22 | Flows 1–7, 9–11 pass on Amplify; TEST-096 (employee exit) not executed |
-| T2 | All P0 module packs | No | | Structure only — execution not started |
+| T1 | Happy path TEST-010 → TEST-099 (see TEST-RUNBOOKS) | **Pass** | 2026-06-22 | All 11 flows pass on Amplify (TEST-096 manual separation letter) |
+| T2 | All P0 module packs | Partial | 2026-06-22 | UAT-01 pass; UAT-02–07 not started |
 | T2 | All P1 module packs (or documented deferrals) | No | | |
 | T3 | UAT-ROLE matrix | **Pass** | 2026-06-22 | ROLE-010–019 pass on Amplify (ROLE-017 partial — timesheet approval only) |
 | T3 | UAT-15 processes | No | | |
@@ -29,7 +29,7 @@ Record completion of full UAT before production or major demo release.
 | Pack | Priority | Tester | Started | Completed | Pass | Open issues |
 |------|----------|--------|---------|-----------|------|-------------|
 | UAT-00 Core / home / tasks | P2 | | | | | |
-| UAT-01 Enquiries & CRM | P0 | | | | | |
+| UAT-01 Enquiries & CRM | P0 | GabrielaWilson | 2026-06-22 | 2026-06-22 | **Pass** | |
 | UAT-02 Clients | P0 | | | | | |
 | UAT-03 Locations & catalog | P1 | | | | | |
 | UAT-04 Agreements & bookings | P0 | | | | | |
