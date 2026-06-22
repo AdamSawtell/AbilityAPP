@@ -11,7 +11,7 @@ import {
   defaultSupportPlanTemplate,
   type DocumentTemplateRecord,
 } from "@/lib/document-template";
-import { renderDocument } from "@/lib/document-render";
+import { openDocumentHtml, renderDocument } from "@/lib/document-render";
 import type {
   AuditPackDocumentContext,
   ClaimBatchDocumentContext,
@@ -59,11 +59,7 @@ export function printPhase2Document(ctx: Phase2DocumentContext, template?: Docum
     const resolved = template ?? defaultTemplateForClass(resolvePhase2Class(ctx));
     const result = renderDocument(resolved, ctx, { autoPrint: true });
     if (result.blocked || !result.html) return false;
-    const win = window.open("", "_blank", "noopener,noreferrer");
-    if (!win) return false;
-    win.document.write(result.html);
-    win.document.close();
-    return true;
+    return openDocumentHtml(result.html, { autoPrint: true });
   } catch {
     return false;
   }

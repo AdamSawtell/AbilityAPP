@@ -141,12 +141,34 @@ export function renderDocument(
   };
 }
 
-export function openDocumentHtml(html: string): boolean {
+export function openDocumentHtml(html: string, options?: { autoPrint?: boolean }): boolean {
   if (typeof window === "undefined" || !html.trim()) return false;
   const win = window.open("", "_blank", "noopener,noreferrer");
-  if (!win) return false;
-  win.document.write(html);
-  win.document.close();
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+    return true;
+  }
+
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("title", "Print preview");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  document.body.appendChild(iframe);
+  const frameWindow = iframe.contentWindow;
+  const frameDoc = iframe.contentDocument ?? frameWindow?.document;
+  if (!frameDoc || !frameWindow) {
+    iframe.remove();
+    return false;
+  }
+  frameDoc.open();
+  frameDoc.write(html);
+  frameDoc.close();
+  window.setTimeout(() => iframe.remove(), 120_000);
   return true;
 }
 
@@ -163,7 +185,9 @@ export function downloadDocumentHtml(html: string, fileName: string): void {
 
 /** User can Save as PDF from the browser print dialog on the opened document. */
 export function printDocumentHtml(html: string): boolean {
-  return openDocumentHtml(
-    html.replace("</body></html>", "<script>window.onload=()=>window.print();</script></body></html>")
+  const withPrintScript = html.replace(
+    "</body></html>",
+    "<script>window.onload=()=>window.print();</script></body></html>"
   );
+  return openDocumentHtml(withPrintScript, { autoPrint: true });
 }
