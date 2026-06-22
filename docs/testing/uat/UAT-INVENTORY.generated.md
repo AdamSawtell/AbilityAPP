@@ -18,19 +18,19 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-00-W-001 | `home` | Home | / | — | |
-| UAT-00-W-002 | `home-prompt` | Assistant & briefing | — | home | |
-| UAT-00-W-003 | `home-needs-attention` | Needs attention | — | home | |
-| UAT-00-W-004 | `home-today` | Today | — | home | |
-| UAT-00-W-005 | `home-module-enquiries` | Enquiries count | — | home | |
-| UAT-00-W-006 | `home-module-clients` | Clients count | — | home | |
-| UAT-00-W-007 | `home-module-incidents` | Incidents count | — | home | |
-| UAT-00-W-008 | `home-module-employees` | Employees count | — | home | |
-| UAT-00-W-009 | `home-recent-enquiries` | Recent enquiries | — | home | |
-| UAT-00-W-010 | `home-recent-clients` | Recent clients | — | home | |
-| UAT-00-W-011 | `home-recent-incidents` | Recent incidents | — | home | |
-| UAT-00-W-012 | `home-quick-new-enquiry` | Quick action — New enquiry | — | home | |
-| UAT-00-W-013 | `home-quick-report-incident` | Quick action — Report incident | — | home | |
+| UAT-00-W-001 | `home` | Home | / | — | **Pass** |
+| UAT-00-W-002 | `home-prompt` | Assistant & briefing | — | home | **Pass** |
+| UAT-00-W-003 | `home-needs-attention` | Needs attention | — | home | **Pass** |
+| UAT-00-W-004 | `home-today` | Today | — | home | **Pass** |
+| UAT-00-W-005 | `home-module-enquiries` | Enquiries count | — | home | **Pass** |
+| UAT-00-W-006 | `home-module-clients` | Clients count | — | home | **Pass** |
+| UAT-00-W-007 | `home-module-incidents` | Incidents count | — | home | **Pass** |
+| UAT-00-W-008 | `home-module-employees` | Employees count | — | home | **Pass** |
+| UAT-00-W-009 | `home-recent-enquiries` | Recent enquiries | — | home | **Pass** |
+| UAT-00-W-010 | `home-recent-clients` | Recent clients | — | home | **Pass** |
+| UAT-00-W-011 | `home-recent-incidents` | Recent incidents | — | home | **Pass** |
+| UAT-00-W-012 | `home-quick-new-enquiry` | Quick action — New enquiry | — | home | **Pass** |
+| UAT-00-W-013 | `home-quick-report-incident` | Quick action — Report incident | — | home | **Pass** |
 
 ## UAT-01
 
@@ -201,30 +201,30 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-12-W-001 | `tasks` | Tasks | — | — | |
-| UAT-12-W-002 | `tasks-assigned-to-me` | Assigned to me | /tasks?scope=assigned-to-me | tasks | |
-| UAT-12-W-003 | `tasks-for-my-role` | To my role | /tasks?scope=my-role | tasks | |
-| UAT-12-W-004 | `tasks-all` | All tasks | /tasks?scope=all | tasks | |
-| UAT-12-W-005 | `tasks-past` | Past | /tasks?scope=past | tasks | |
+| UAT-12-W-001 | `tasks` | Tasks | — | — | **Pass** |
+| UAT-12-W-002 | `tasks-assigned-to-me` | Assigned to me | /tasks?scope=assigned-to-me | tasks | **Pass** |
+| UAT-12-W-003 | `tasks-for-my-role` | To my role | /tasks?scope=my-role | tasks | **Pass** |
+| UAT-12-W-004 | `tasks-all` | All tasks | /tasks?scope=all | tasks | **Pass** |
+| UAT-12-W-005 | `tasks-past` | Past | /tasks?scope=past | tasks | **Pass** |
 
 ## UAT-13
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-13-W-001 | `reports-advance` | Reports Advance | /system/admin/reports-advance | reports | |
-| UAT-13-W-002 | `admin-organization` | Organisation | /admin/organization | — | |
-| UAT-13-W-003 | `admin-reference-data` | Reference data | /admin/reference-data | — | |
-| UAT-13-W-004 | `admin-roles` | Roles | /admin/roles | — | |
-| UAT-13-W-005 | `admin-task-management` | Task management | /system/admin/task-management | — | |
-| UAT-13-W-006 | `admin-task-automations` | Task automations | /system/admin/task-automations | — | |
-| UAT-13-W-007 | `admin-document-templates` | Document templates | /system/admin/document-templates | — | |
-| UAT-13-W-008 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | |
-| UAT-13-W-009 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | |
-| UAT-13-W-010 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | |
-| UAT-13-W-011 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
-| UAT-13-W-012 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
-| UAT-13-W-013 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
-| UAT-13-W-014 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
+| UAT-13-W-001 | `reports-advance` | Reports Advance | /system/admin/reports-advance | reports | **Pass** |
+| UAT-13-W-002 | `admin-organization` | Organisation | /admin/organization | — | **Pass** |
+| UAT-13-W-003 | `admin-reference-data` | Reference data | /admin/reference-data | — | **Pass** |
+| UAT-13-W-004 | `admin-roles` | Roles | /admin/roles | — | **Pass** |
+| UAT-13-W-005 | `admin-task-management` | Task management | /system/admin/task-management | — | **Pass** |
+| UAT-13-W-006 | `admin-task-automations` | Task automations | /system/admin/task-automations | — | **Pass** |
+| UAT-13-W-007 | `admin-document-templates` | Document templates | /system/admin/document-templates | — | **Pass** |
+| UAT-13-W-008 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | **Pass** |
+| UAT-13-W-009 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | **Pass** |
+| UAT-13-W-010 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | **Pass** |
+| UAT-13-W-011 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | **Pass** |
+| UAT-13-W-012 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | **Pass** |
+| UAT-13-W-013 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | **Pass** |
+| UAT-13-W-014 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | **Pass** |
 
 ## Processes (UAT-15)
 
@@ -274,13 +274,13 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Report ID | Label | Module | Result |
 |--------|-----------|-------|--------|--------|
-| UAT-12-R-001 | `client-register` | Client register | Clients | |
-| UAT-12-R-002 | `enquiry-register` | Enquiry register | Enquiries | |
-| UAT-12-R-003 | `location-register` | Location register | Locations | |
-| UAT-12-R-004 | `employee-register` | Employee register | People | |
-| UAT-12-R-005 | `tasks-all` | Tasks — all | Core | |
-| UAT-12-R-006 | `incident-register` | Incident register | Core | |
-| UAT-12-R-007 | `ndis-reportable-incidents` | NDIS reportable incidents | Core | |
-| UAT-12-R-008 | `incident-compliance-digest` | Incident compliance digest | Core | |
-| UAT-12-R-009 | `financial-close-summary` | Financial close summary | Services | |
-| UAT-12-R-010 | `ndis-audit-pack-summary` | NDIS audit pack summary | Services | |
+| UAT-12-R-001 | `client-register` | Client register | Clients | **Pass** |
+| UAT-12-R-002 | `enquiry-register` | Enquiry register | Enquiries | **Pass** |
+| UAT-12-R-003 | `location-register` | Location register | Locations | **Pass** |
+| UAT-12-R-004 | `employee-register` | Employee register | People | **Pass** |
+| UAT-12-R-005 | `tasks-all` | Tasks — all | Core | **Pass** |
+| UAT-12-R-006 | `incident-register` | Incident register | Core | **Pass** |
+| UAT-12-R-007 | `ndis-reportable-incidents` | NDIS reportable incidents | Core | **Pass** |
+| UAT-12-R-008 | `incident-compliance-digest` | Incident compliance digest | Core | **Pass** |
+| UAT-12-R-009 | `financial-close-summary` | Financial close summary | Services | **Pass** |
+| UAT-12-R-010 | `ndis-audit-pack-summary` | NDIS audit pack summary | Services | **Pass** |

@@ -401,4 +401,35 @@ Use one row per defect or gap found during happy path or functional testing.
 | Core workflows (convert, assign, leave, tasks) | **Pass** — UAT-15-P-001–016 |
 | Print / document processes | **Pass** — invoices, SA, separation, claims, audit pack |
 | UAT-15-P-018, P-025, P-027, P-031 | **Partial** — batch print, participant statement, issue invoice, consent schedule |
-| Admin audit prints (P-033–039) | **Partial** — deferred to UAT-13 |
+| Admin audit prints (P-033–039) | **Partial** — windows pass; no seeded risk rows to investigate |
+
+## UAT-00 — Core, home & tasks — Pass (2026-06-18)
+
+**Users:** IslaRobinson + SuperUser · Amplify · `/`, `/tasks`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-00-S-001–007 | **Pass** — home panels; task scopes assigned/my-role/all/past; quick new enquiry |
+| Window UAT-00-W-001–013 | **Pass** |
+
+## UAT-12 — Reports — Pass (2026-06-18)
+
+**Users:** IslaRobinson (reports hub) + SuperUser (Reports Advance) · Amplify
+
+| Scenario | Result |
+|----------|--------|
+| UAT-12-R-001 | **Pass** — client register 23 rows · 20 columns · Export CSV |
+| UAT-12-R-002–010 | **Pass** — hub listings + TEST-099 audit/financial summaries |
+| UAT-12-R-008 (access) | **Pass** — worker has no Reports sidebar (ROLE-008) |
+| UAT-12-R-009 | **Pass** — `/system/admin/reports-advance` SQL console |
+| Window UAT-12-W-001–005 | **Pass** |
+
+## UAT-13 — Admin & system — Pass (2026-06-18)
+
+**User:** SuperUser / flamingo · `/system/login` · system surface
+
+| Scenario | Result |
+|----------|--------|
+| UAT-13-S-001–013 | **Pass** — org, roles, task admin, document registry, session/process/AI audit nav |
+| UAT-13-S-008 | **Pass** — session audit filters; 0 rows in default 7-day window |
+| Window UAT-13-W-001–014 | **Pass** |

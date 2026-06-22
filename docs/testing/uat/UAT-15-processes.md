@@ -32,7 +32,7 @@ Spot-checked during module UAT — see inventory § **Processes (UAT-15)**.
 | Print separation / HR docs | **Pass** — TEST-096 |
 | Print claims / invoice / audit pack | **Pass** — UAT-07, TEST-099 |
 | Print enquiry ack | **Pass** — UAT-01 |
-| Admin session/process audit | **Partial** — UAT-13 not run |
+| Admin session/process audit | **Partial** — UAT-13 windows pass; investigate workflows need seed risk rows |
 
 ## Full process inventory
 

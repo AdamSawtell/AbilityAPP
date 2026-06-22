@@ -31,7 +31,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 
 | Pack | Document | Priority | Owner role | Est. time | Status | HP overlap |
 |------|----------|----------|------------|-----------|--------|------------|
-| UAT-00 | [UAT-00-core-home-tasks.md](./uat/UAT-00-core-home-tasks.md) | P2 | All | 1 h | Not started | — |
+| UAT-00 | [UAT-00-core-home-tasks.md](./uat/UAT-00-core-home-tasks.md) | P2 | All | 1 h | **Pass** | — |
 | UAT-01 | [UAT-01-enquiries-crm.md](./uat/UAT-01-enquiries-crm.md) | P0 | Intake | 2 h | **Pass** | Flow 1–2 |
 | UAT-02 | [UAT-02-clients.md](./uat/UAT-02-clients.md) | P0 | Coordinator | 4 h | **Pass** | Flow 3, 7 |
 | UAT-03 | [UAT-03-locations-catalog.md](./uat/UAT-03-locations-catalog.md) | P1 | Admin / Coordinator | 2 h | **Pass** | Partial |
@@ -43,8 +43,8 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 | UAT-09 | [UAT-09-incidents-complaints.md](./uat/UAT-09-incidents-complaints.md) | P1 | Manager / Quality | 2 h | **Pass** | Flow 10 |
 | UAT-10 | [UAT-10-workforce-hr.md](./uat/UAT-10-workforce-hr.md) | P1 | HR | 3 h | **Pass** | Flow 6, 8 |
 | UAT-11 | [UAT-11-my-workplace.md](./uat/UAT-11-my-workplace.md) | P1 | Support worker | 2 h | **Pass** | Flow 4–6 |
-| UAT-12 | [UAT-12-reports.md](./uat/UAT-12-reports.md) | P2 | Admin / Quality | 1.5 h | Not started | Flow 11 |
-| UAT-13 | [UAT-13-admin-system.md](./uat/UAT-13-admin-system.md) | P2 | SuperUser / ICT | 4 h | Not started | — |
+| UAT-12 | [UAT-12-reports.md](./uat/UAT-12-reports.md) | P2 | Admin / Quality | 1.5 h | **Pass** | Flow 11 |
+| UAT-13 | [UAT-13-admin-system.md](./uat/UAT-13-admin-system.md) | P2 | SuperUser / ICT | 4 h | **Pass** | — |
 | UAT-14 | [UAT-14-portal.md](./uat/UAT-14-portal.md) | P3 | Portal (if release) | 1 h | Not started | Planned |
 | UAT-15 | [UAT-15-processes.md](./uat/UAT-15-processes.md) | P1 | Mixed | 3 h | **Pass** | Cross-flow |
 | UAT-ROLE | [UAT-ROLE-MATRIX.md](./uat/UAT-ROLE-MATRIX.md) | P0 | All personas | 2 h | **Pass** | 010–019 |

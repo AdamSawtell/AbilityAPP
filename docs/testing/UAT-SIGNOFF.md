@@ -6,11 +6,11 @@ Record completion of full UAT before production or major demo release.
 
 | Field | Value |
 |-------|--------|
-| **Release / milestone** | E2E smoke RC — P0 + P1 UAT complete |
+| **Release / milestone** | E2E smoke RC — P0–P2 UAT complete |
 | **Environment** | Amplify (`main.d3vim3geq5td01.amplifyapp.com`) |
-| **Build / commit** | `9ac85f4` on `main` (P1 docs pending commit) |
+| **Build / commit** | `0af0dac` on `main` (P2 docs pending commit) |
 | **UAT lead** | Engineering / AI-browser |
-| **Sign-off date** | *Not signed — T1 + P0 + P1 packs complete; P2+ open* |
+| **Sign-off date** | *Not signed — T1 + P0–P2 packs complete; P3 portal open* |
 
 ## Tier gates
 
@@ -21,14 +21,15 @@ Record completion of full UAT before production or major demo release.
 | T2 | All P0 module packs | **Pass** | 2026-06-22 | UAT-01, 02, 04, 05, 06, 07 pass on Amplify |
 | T2 | All P1 module packs (or documented deferrals) | **Pass** | 2026-06-18 | UAT-03, 08–11, 15 pass on Amplify (UAT-11 S-009 partial) |
 | T3 | UAT-ROLE matrix | **Pass** | 2026-06-22 | ROLE-010–019 pass on Amplify (ROLE-017 partial — timesheet approval only) |
-| T3 | UAT-15 processes | **Pass** | 2026-06-18 | Core + print processes pass; admin audit prints **Partial** (UAT-13 deferred) |
+| T3 | UAT-15 processes | **Pass** | 2026-06-18 | Core + print processes pass; admin audit investigate **Partial** |
+| T2 | All P2 module packs (or documented deferrals) | **Pass** | 2026-06-18 | UAT-00, 12, 13 pass on Amplify |
 | T4 | Playwright smokes (if enabled) | N/A | | |
 
 ## Module pack sign-off
 
 | Pack | Priority | Tester | Started | Completed | Pass | Open issues |
 |------|----------|--------|---------|-----------|------|-------------|
-| UAT-00 Core / home / tasks | P2 | | | | | |
+| UAT-00 Core / home / tasks | P2 | IslaRobinson + SuperUser | 2026-06-18 | 2026-06-18 | **Pass** | |
 | UAT-01 Enquiries & CRM | P0 | GabrielaWilson | 2026-06-22 | 2026-06-22 | **Pass** | |
 | UAT-02 Clients | P0 | IslaRobinson | 2026-06-22 | 2026-06-22 | **Pass** | |
 | UAT-03 Locations & catalog | P1 | IslaRobinson | 2026-06-18 | 2026-06-18 | **Pass** | |
@@ -40,8 +41,8 @@ Record completion of full UAT before production or major demo release.
 | UAT-09 Incidents & complaints | P1 | QuinnTaylor | 2026-06-18 | 2026-06-18 | **Pass** | |
 | UAT-10 Workforce & HR | P1 | SandraBlake | 2026-06-18 | 2026-06-18 | **Pass** | |
 | UAT-11 My workplace | P1 | OliverWilliams | 2026-06-18 | 2026-06-18 | **Pass** | S-009 partial |
-| UAT-12 Reports | P2 | | | | | |
-| UAT-13 Admin & system | P2 | | | | | |
+| UAT-12 Reports | P2 | IslaRobinson + SuperUser | 2026-06-18 | 2026-06-18 | **Pass** | |
+| UAT-13 Admin & system | P2 | SuperUser (system login) | 2026-06-18 | 2026-06-18 | **Pass** | Audit investigate processes partial |
 | UAT-14 Portal | P3 | | | | | |
 | UAT-15 Processes | P1 | Mixed | 2026-06-18 | 2026-06-18 | **Pass** | Admin audit prints partial |
 | UAT-ROLE Matrix | P0 | AI-browser | 2026-06-18 | 2026-06-22 | **Pass** | ROLE-017 partial (no generate-timesheets) |

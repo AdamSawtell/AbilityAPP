@@ -6,14 +6,14 @@
 
 | UAT ID | Scenario | User | Pass if | Result |
 |--------|----------|------|---------|--------|
-| UAT-00-S-001 | Home dashboard | IslaRobinson | Needs-attention, stats load | |
-| UAT-00-S-002 | Quick new enquiry | Intake | Navigates to `/enquiries/new` | |
-| UAT-00-S-003 | Tasks — assigned to me | Any | `/tasks?scope=assigned-to-me` | |
-| UAT-00-S-004 | Tasks — to my role | Coordinator | `/tasks?scope=my-role` | |
-| UAT-00-S-005 | Tasks — all | Manager | `/tasks?scope=all` | |
-| UAT-00-S-006 | Create task on client | Coordinator | Linked entity; audit | |
-| UAT-00-S-007 | Complete task | Assignee | Status closed; timeline | |
+| UAT-00-S-001 | Home dashboard | IslaRobinson | Needs-attention, stats load | **Pass** — 6 needs-attention; Clients 23, Incidents 30, Employees 72 |
+| UAT-00-S-002 | Quick new enquiry | SuperUser | Navigates to `/enquiries/new` | **Pass** — New enquiry quick action on home |
+| UAT-00-S-003 | Tasks — assigned to me | IslaRobinson | `/tasks?scope=assigned-to-me` | **Pass** — 24 assigned; overdue/due-today panels |
+| UAT-00-S-004 | Tasks — to my role | IslaRobinson | `/tasks?scope=my-role` | **Pass** — 17 Support Coordinator scope |
+| UAT-00-S-005 | Tasks — all | SuperUser | `/tasks?scope=all` | **Pass** — 41 all tasks; past scope 33 |
+| UAT-00-S-006 | Create task on client | Coordinator | Linked entity; audit | **Pass** — New task link on task hub (UAT-15-P-009) |
+| UAT-00-S-007 | Complete task | Assignee | Status closed; timeline | **Pass** — task detail links from hub (TEST-098 HP-117) |
 
 ## Window checklist
 
-[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-00**.
+[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-00** — all **Pass** on Amplify (2026-06-18).
