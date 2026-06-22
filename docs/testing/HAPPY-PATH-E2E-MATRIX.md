@@ -98,12 +98,12 @@ Aligned with [scope/README.md](../scope/README.md) and chunk map in [BUILD-PROGR
 | **3** | Client ready for service | DATA-003 or Bern | Flow 2 | Lifecycle **active**; plan budget + billing set | TEST-030 | **Amplify pass** — `bp-samu` lifecycle active |
 | **4** | SA → roster → timesheets | DATA-010–016 | Flow 3 | Approved timesheet from rostered shift | TEST-060 | **Amplify pass** |
 | **5** | Delivery → claims → billing | DATA-010, 015–017 | Flow 4 | Claim + rollup; reconciliation loads | TEST-085 | **Amplify pass** |
-| **6** | Employee hire → roster eligibility | DATA-013, emp-oliver | Parallel | WWCC + NDIS screening on file | TEST-090 | Seeded; partial pass |
-| **7** | Participant exit | DATA-018 | Flow 5 optional | Lifecycle **exit**; bookings wound down | TEST-095 | Documented + seeded |
-| **8** | Employee exit | DATA-019 | Flow 6 | Exit checklist complete; terminated | TEST-096 | Documented |
-| **9** | Financial month close | Org calendar | Flow 5 | Close checklist reviewed | TEST-097 | Documented |
-| **10** | Governance | Incidents / complaints | — | Register + workflow accessible | TEST-098 | Documented |
-| **11** | Reporting / audit wrap | Bern or org | Flow 5 / 7 | Audit pack + board report render | TEST-099 | Documented |
+| **6** | Employee hire → roster eligibility | DATA-013, emp-oliver | Parallel | WWCC + NDIS screening on file | TEST-090 | **Amplify pass** — WWCC + NDIS Current |
+| **7** | Participant exit | DATA-018 | Flow 5 optional | Lifecycle **exit**; bookings wound down | TEST-095 | **Amplify pass** — activity note + lifecycle exit saved |
+| **8** | Employee exit | DATA-019 | Flow 6 | Exit checklist complete; terminated | TEST-096 | Documented — not executed this pass |
+| **9** | Financial month close | Org calendar | Flow 5 | Close checklist reviewed | TEST-097 | **Amplify pass** — checklist loads; close blocked (expected) |
+| **10** | Governance | Incidents / complaints | — | Register + workflow accessible | TEST-098 | **Amplify pass** — complaints + incident dashboard |
+| **11** | Reporting / audit wrap | Bern or org | Flow 5 / 7 | Audit pack + board report render | TEST-099 | **Amplify pass** — SuperUser audit pack + board report |
 
 ```mermaid
 flowchart LR

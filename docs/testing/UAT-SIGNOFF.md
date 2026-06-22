@@ -8,16 +8,16 @@ Record completion of full UAT before production or major demo release.
 |-------|--------|
 | **Release / milestone** | E2E smoke RC — pre full UAT |
 | **Environment** | Amplify (`main.d3vim3geq5td01.amplifyapp.com`) |
-| **Build / commit** | `4997627` + UAT docs (see latest on `main`) |
+| **Build / commit** | `a4cf479` on `main` |
 | **UAT lead** | Engineering / AI-browser |
-| **Sign-off date** | *Not signed — T1 partial only* |
+| **Sign-off date** | *Not signed — T1 happy path complete; T2 packs open* |
 
 ## Tier gates
 
 | Tier | Requirement | Pass? | Date | Notes |
 |------|-------------|-------|------|-------|
 | T0 | `npm run build` + `page-guides:check` exit 0 | Yes | 2026-06-18 | CI / local |
-| T1 | Happy path TEST-010 → TEST-085 (see TEST-RUNBOOKS) | **Pass** | 2026-06-22 | TEST-010–030 + 060/085 pass on Amplify |
+| T1 | Happy path TEST-010 → TEST-099 (see TEST-RUNBOOKS) | **Pass** | 2026-06-22 | Flows 1–7, 9–11 pass on Amplify; TEST-096 (employee exit) not executed |
 | T2 | All P0 module packs | No | | Structure only — execution not started |
 | T2 | All P1 module packs (or documented deferrals) | No | | |
 | T3 | UAT-ROLE matrix | **Pass** | 2026-06-22 | ROLE-010–019 pass on Amplify (ROLE-017 partial — timesheet approval only) |
@@ -44,7 +44,7 @@ Record completion of full UAT before production or major demo release.
 | UAT-13 Admin & system | P2 | | | | | |
 | UAT-14 Portal | P3 | | | | | |
 | UAT-15 Processes | P1 | | | | | |
-| UAT-ROLE Matrix | P0 | AI-browser | 2026-06-18 | 2026-06-18 | **Partial** | 010, 016–019 open |
+| UAT-ROLE Matrix | P0 | AI-browser | 2026-06-18 | 2026-06-22 | **Pass** | ROLE-017 partial (no generate-timesheets) |
 
 ## Deferred / N/A (with approval)
 

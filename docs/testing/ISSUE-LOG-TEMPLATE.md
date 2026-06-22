@@ -220,4 +220,44 @@ Use one row per defect or gap found during happy path or functional testing.
 | Step | Result |
 |------|--------|
 | Incident reports sidebar | **Pass** — list loads from home |
-| `/ndis-audit-pack` | **Pass** — page loads (direct URL spot-check) |
+| `/ndis-audit-pack` | Access denied for Quality Manager (expected — use SuperUser for TEST-099) |
+
+## Amplify flows 6–11 — 2026-06-22
+
+**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · Remote seeds re-applied (`seed-access.sql`, intake, amplify)
+
+### TEST-090 — Flow 6 employee credentials — Pass
+
+| Step | Result |
+|------|--------|
+| `/employees/emp-oliver` → Credentials Assigned | WWCC **Current**; NDIS Worker Screening **Current** (First Aid expiring soon — non-blocking) |
+
+### TEST-095 — Flow 7 participant exit — Pass
+
+| Step | Result |
+|------|--------|
+| IslaRobinson / coordinator → `bp-e2e-exit` | Lifecycle **active** after intake seed |
+| Activity — exit handover note | Saved; audit footer updated |
+| Full profile — lifecycle **exit** + reason + inactive status | Saved; persists on page (re-run intake seed resets to active) |
+
+### TEST-097 — Flow 9 financial close — Pass
+
+| Step | Result |
+|------|--------|
+| TessaNguyen → `/financial-close?period=2026-06` | Checklist renders; Mark month closed disabled |
+| Blockers | Plan variance, overdue invoice, 2 timesheets not exported (expected) |
+
+### TEST-098 — Flow 10 governance — Pass
+
+| Step | Result |
+|------|--------|
+| QuinnTaylor → `/complaints` | Register loads; audit module label |
+| QuinnTaylor → `/incidents/dashboard` | 9 incidents in range; overdue investigations alert |
+
+### TEST-099 — Flow 11 reporting wrap — Pass
+
+| Step | Result |
+|------|--------|
+| SuperUser → `/ndis-audit-pack?period=2026-06` | 10 sections; Export manifest + CSV actions |
+| SuperUser → `/board-reporting` | Monthly Board Report — June 2026 listed |
+| QuinnTaylor → audit pack / board | Access denied (role-gated — SuperUser path per runbook) |
