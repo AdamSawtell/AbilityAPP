@@ -42,6 +42,8 @@ In Amplify → **Environment variables**, add:
 | `AUTH_SESSION_SECRET` | Yes | Long random string you generate — signs login cookies |
 | `SUPABASE_SERVICE_ROLE_KEY` | Optional | Reports Advance SQL |
 | `OPENAI_API_KEY` | Yes (for AI) | Home and workspace assistants |
+| `NODE_OPTIONS` | Recommended (PDF) | `--max-old-space-size=768` — Node heap on Amplify compute (~1024 MB Lambda). Redeploy after change. See [AMPLIFY-PDF.md](./AMPLIFY-PDF.md). |
+| `CHROMIUM_PACK_URL` | Optional (PDF) | Override Sparticuz Chromium pack URL; default is v147 x64 GitHub release. |
 
 **Save**, then **redeploy** the app. `NEXT_PUBLIC_*` values are baked in at build time; `AUTH_SESSION_SECRET` must be present before session creation works on production.
 

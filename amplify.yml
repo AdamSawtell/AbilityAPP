@@ -25,6 +25,9 @@ applications:
         build:
           commands:
             - npm run build
+            # Shrink compute bundle — frees memory for Chromium PDF at runtime (Amplify SSR limit ~220 MB).
+            - rm -f node_modules/@swc/core-linux-x64-gnu/swc.linux-x64-gnu.node || true
+            - rm -f node_modules/@swc/core-linux-x64-musl/swc.linux-x64-musl.node || true
       artifacts:
         baseDirectory: .next
         files:

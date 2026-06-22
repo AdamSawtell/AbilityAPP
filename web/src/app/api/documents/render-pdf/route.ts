@@ -71,44 +71,49 @@ async function persistPdfDocument(
 }
 
 export async function POST(request: Request) {
-  const session = await getAuthSessionFromRequest();
-  if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
-  let body: RenderPdfBody;
   try {
-    body = (await request.json()) as RenderPdfBody;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+    const session = await getAuthSessionFromRequest();
+    if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  if (!body.html?.trim() || !body.templateId?.trim() || !body.entityType?.trim() || !body.entityId?.trim()) {
-    return NextResponse.json({ error: "html, templateId, entityType, and entityId are required" }, { status: 400 });
-  }
+    let body: RenderPdfBody;
+    try {
+      body = (await request.json()) as RenderPdfBody;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
 
-  let pdfBytes: Buffer;
-  try {
-    pdfBytes = await htmlToPdfBuffer(body.html);
+    if (!body.html?.trim() || !body.templateId?.trim() || !body.entityType?.trim() || !body.entityId?.trim()) {
+      return NextResponse.json({ error: "html, templateId, entityType, and entityId are required" }, { status: 400 });
+    }
+
+    let pdfBytes: Buffer;
+    try {
+      pdfBytes = await htmlToPdfBuffer(body.html);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "PDF generation failed";
+      return NextResponse.json(
+        {
+          error: `Could not generate PDF on the server. Use Print and Save as PDF, or Download HTML. (${message})`,
+        },
+        { status: 503 }
+      );
+    }
+
+    const pdfBase64 = pdfBytes.toString("base64");
+
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ ok: true, localOnly: true, pdfBase64 });
+    }
+
+    try {
+      const { record, downloadUrl } = await persistPdfDocument(body, pdfBytes, session.displayName);
+      return NextResponse.json({ record, downloadUrl, pdfBase64 });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not save PDF";
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
   } catch (err) {
-    const message = err instanceof Error ? err.message : "PDF generation failed";
-    return NextResponse.json(
-      {
-        error: `Could not generate PDF on the server. Use Print and Save as PDF, or Download HTML. (${message})`,
-      },
-      { status: 503 }
-    );
-  }
-
-  const pdfBase64 = pdfBytes.toString("base64");
-
-  if (!isSupabaseConfigured()) {
-    return NextResponse.json({ ok: true, localOnly: true, pdfBase64 });
-  }
-
-  try {
-    const { record, downloadUrl } = await persistPdfDocument(body, pdfBytes, session.displayName);
-    return NextResponse.json({ record, downloadUrl, pdfBase64 });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not save PDF";
+    const message = err instanceof Error ? err.message : "PDF route failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

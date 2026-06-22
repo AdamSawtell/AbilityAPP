@@ -12,7 +12,7 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Business partners & client billing prefs — complete** |
 | **Active slice** | — |
-| **Next slice** | Amplify Lambda memory for Chromium PDF API; UAT-14 portal (P3) |
+| **Next slice** | UAT-14 portal (P3); set `NODE_OPTIONS` on Amplify console per [AMPLIFY-PDF.md](./AMPLIFY-PDF.md) |
 | **Last push** | 2026-06-18 — server PDF on all document print surfaces |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
