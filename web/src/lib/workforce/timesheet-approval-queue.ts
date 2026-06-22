@@ -39,15 +39,19 @@ export type TimesheetApprovalItem = {
   locationLabels: string[];
 };
 
-export type TimesheetApprovalSummary = {
+export type TimesheetApprovalCounts = {
   ready: number;
   review: number;
   blocked: number;
   total: number;
 };
 
+export type TimesheetApprovalSummary = TimesheetApprovalCounts & {
+  href: string;
+};
+
 export type TimesheetApprovalQueue = {
-  summary: TimesheetApprovalSummary;
+  summary: TimesheetApprovalCounts;
   items: TimesheetApprovalItem[];
   scopes: TimesheetApprovalScopeOption[];
   locations: { id: string; label: string }[];
@@ -70,6 +74,23 @@ export function canApproveTimesheet(session: Pick<AuthSession, "processIds">): b
 
 export function seesAllTimesheetApprovals(session: Pick<AuthSession, "windowKeys">): boolean {
   return session.windowKeys.includes("timesheets");
+}
+
+export function defaultTimesheetApprovalScope(
+  session: Pick<AuthSession, "windowKeys">,
+  reviewerEmployeeId: string | null
+): TimesheetApprovalScopeKind {
+  if (seesAllTimesheetApprovals(session)) return "organisation";
+  if (reviewerEmployeeId) return "management-line";
+  return "direct-reports";
+}
+
+export function timesheetApprovalHref(
+  session: Pick<AuthSession, "windowKeys">,
+  reviewerEmployeeId: string | null
+): string {
+  const scope = defaultTimesheetApprovalScope(session, reviewerEmployeeId);
+  return `/timesheet-approval?scope=${encodeURIComponent(scope)}`;
 }
 
 export function reviewerLocationIds(
@@ -234,7 +255,7 @@ export function buildTimesheetApprovalQueue(
     return (b.periodStart || "").localeCompare(a.periodStart || "");
   });
 
-  const summary: TimesheetApprovalSummary = {
+  const summary: TimesheetApprovalCounts = {
     ready: items.filter((i) => i.bucket === "ready").length,
     review: items.filter((i) => i.bucket === "review").length,
     blocked: items.filter((i) => i.bucket === "blocked").length,
@@ -255,7 +276,7 @@ export function buildTimesheetApprovalSummary(
   ctx: TimesheetApprovalContext,
   scope: TimesheetApprovalScopeKind,
   locationId = ""
-): TimesheetApprovalSummary {
+): TimesheetApprovalCounts {
   return buildTimesheetApprovalQueue(ctx, scope, locationId).summary;
 }
 

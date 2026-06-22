@@ -160,3 +160,13 @@ export function formatClaimPeriod(record: Pick<ClaimRecord, "periodStart" | "per
   if (record.periodStart === record.periodEnd) return record.periodStart;
   return `${record.periodStart} – ${record.periodEnd}`;
 }
+
+/** Match a /claims/[id] route param (internal id or document number). */
+export function findClaimByRouteId(claims: ClaimRecord[], routeId: string): ClaimRecord | undefined {
+  const key = decodeURIComponent(routeId.trim());
+  if (!key) return undefined;
+  const lower = key.toLowerCase();
+  return claims.find(
+    (claim) => claim.id === key || claim.id.toLowerCase() === lower || claim.documentNo.toLowerCase() === lower
+  );
+}

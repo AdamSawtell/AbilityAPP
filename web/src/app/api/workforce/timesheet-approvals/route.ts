@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest, sessionHasWindow } from "@/lib/auth/session.server";
+import type { AuthSession } from "@/lib/access/types";
 import {
   applyTimesheetApprovals,
   loadTimesheetApprovalQueue,
   type TimesheetApprovalAction,
 } from "@/lib/workforce/timesheet-approval-server";
-import { canApproveTimesheet, type TimesheetApprovalScopeKind } from "@/lib/workforce/timesheet-approval-queue";
+import { canApproveTimesheet, seesAllTimesheetApprovals, type TimesheetApprovalScopeKind } from "@/lib/workforce/timesheet-approval-queue";
 import { recordProcessExecution } from "@/lib/process-audit/server";
 
-function parseScope(value: string | null): TimesheetApprovalScopeKind {
+function parseScope(value: string | null, session: AuthSession): TimesheetApprovalScopeKind {
   if (
     value === "management-line" ||
     value === "direct-reports" ||
@@ -18,6 +19,7 @@ function parseScope(value: string | null): TimesheetApprovalScopeKind {
   ) {
     return value;
   }
+  if (seesAllTimesheetApprovals(session)) return "organisation";
   return "management-line";
 }
 
@@ -32,7 +34,7 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const scope = parseScope(url.searchParams.get("scope"));
+  const scope = parseScope(url.searchParams.get("scope"), session);
   const locationId = url.searchParams.get("locationId") ?? "";
 
   try {
@@ -65,7 +67,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "timesheetIds is required" }, { status: 400 });
   }
 
-  const scope = parseScope(body.scope ?? null);
+  const scope = parseScope(body.scope ?? null, session);
   const locationId = body.locationId ?? "";
 
   try {

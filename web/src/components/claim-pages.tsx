@@ -31,6 +31,7 @@ import {
 } from "@/lib/cancellation-claim-generation";
 import {
   claimDropdowns,
+  findClaimByRouteId,
   formatClaimPeriod,
   normalizeClaim,
   sumClaimLineAmount,
@@ -432,7 +433,7 @@ export function ClaimDetailView({ id }: { id: string }) {
   const { resolveTemplate } = useDocumentPlatform();
   const canPrintClaim = canProcess(DOCUMENT_PRINT_PROCESSES.printClaimBatch);
   const canEdit = canWriteWindow("claims");
-  const stored = data.claims.find((c) => c.id === id);
+  const stored = findClaimByRouteId(data.claims, id);
   const [draft, setDraft] = useState<ClaimRecord | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");

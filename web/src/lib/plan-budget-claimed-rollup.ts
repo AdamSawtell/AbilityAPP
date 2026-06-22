@@ -112,7 +112,9 @@ export function applyBillingClaimedRollup(
   return rows.map((row) => {
     const key = categoryKey(row.supportCategory);
     const billingTotal = byCategory[key] ?? 0;
-    if (billingTotal <= 0) return row;
+    if (billingTotal <= 0) {
+      return { ...row, claimedAmount: 0 };
+    }
 
     const categoryAllocated = allocatedByCategory.get(key) ?? 0;
     const rowAllocated = Number(row.allocatedAmount) || 0;

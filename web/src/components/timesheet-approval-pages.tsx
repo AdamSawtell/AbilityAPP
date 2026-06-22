@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { EmployeeRecordLink } from "@/components/record-link";
@@ -10,6 +11,7 @@ import type { TimesheetRecord } from "@/lib/timesheet";
 import {
   buildTimesheetApprovalQueue,
   canApproveTimesheet,
+  defaultTimesheetApprovalScope,
   seesAllTimesheetApprovals,
   type TimesheetApprovalBucket,
   type TimesheetApprovalQueue,
@@ -30,6 +32,7 @@ const bucketLabel: Record<TimesheetApprovalBucket, string> = {
 
 function defaultScope(scopes: TimesheetApprovalQueue["scopes"]): TimesheetApprovalScopeKind {
   return (
+    scopes.find((s) => s.kind === "organisation")?.kind ??
     scopes.find((s) => s.kind === "management-line")?.kind ??
     scopes.find((s) => s.kind === "direct-reports")?.kind ??
     scopes[0]?.kind ??
@@ -37,13 +40,32 @@ function defaultScope(scopes: TimesheetApprovalQueue["scopes"]): TimesheetApprov
   );
 }
 
+function parseScopeParam(value: string | null): TimesheetApprovalScopeKind | null {
+  if (
+    value === "management-line" ||
+    value === "direct-reports" ||
+    value === "my-locations" ||
+    value === "location" ||
+    value === "organisation"
+  ) {
+    return value;
+  }
+  return null;
+}
+
 export function TimesheetApprovalView() {
   const { session, canWindow, canProcess } = useAuth();
   const { timesheets, employees, rosterShifts, locations, upsertTimesheet } = useData();
   const canView = canWindow("timesheet-approval");
   const canApprove = canProcess("approve-timesheet");
+  const searchParams = useSearchParams();
 
-  const [scope, setScope] = useState<TimesheetApprovalScopeKind>("management-line");
+  const reviewerEmployeeId = session?.employeeBpId?.trim() || null;
+  const initialScope =
+    parseScopeParam(searchParams.get("scope")) ??
+    (session ? defaultTimesheetApprovalScope(session, reviewerEmployeeId) : "management-line");
+
+  const [scope, setScope] = useState<TimesheetApprovalScopeKind>(initialScope);
   const [locationId, setLocationId] = useState("");
   const [activeBucket, setActiveBucket] = useState<TimesheetApprovalBucket | "all">("ready");
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -91,9 +113,11 @@ export function TimesheetApprovalView() {
   }, [canApprove, scope, locationId]);
 
   useEffect(() => {
-    if (!canApprove) return;
-    void loadRemote();
-  }, [canApprove, loadRemote]);
+    const fromUrl = parseScopeParam(searchParams.get("scope"));
+    if (fromUrl && fromUrl !== scope) {
+      setScope(fromUrl);
+    }
+  }, [searchParams, scope]);
 
   useEffect(() => {
     if (!queue?.scopes.length) return;

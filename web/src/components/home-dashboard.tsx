@@ -25,7 +25,9 @@ import type { WorkforceReviewSummary } from "@/lib/workforce/review-queue";
 import {
   buildTimesheetApprovalSummary,
   canApproveTimesheet,
+  defaultTimesheetApprovalScope,
   seesAllTimesheetApprovals,
+  timesheetApprovalHref,
 } from "@/lib/workforce/timesheet-approval-queue";
 
 function attentionStyles(severity: HomeAttentionItem["severity"]) {
@@ -254,13 +256,10 @@ export function HomeDashboard() {
 
   const timesheetApprovalSummary = useMemo(() => {
     if (!showTimesheetApprovals || !session || !canApproveTimesheet(session)) return null;
-    const reviewerEmployeeId = session.employeeBpId?.trim() || users.find((u) => u.id === session.userId)?.employeeBpId?.trim() || null;
-    const scope = seesAllTimesheetApprovals(session)
-      ? "organisation"
-      : reviewerEmployeeId
-        ? "management-line"
-        : "direct-reports";
-    return buildTimesheetApprovalSummary(
+    const reviewerEmployeeId =
+      session.employeeBpId?.trim() || users.find((u) => u.id === session.userId)?.employeeBpId?.trim() || null;
+    const scope = defaultTimesheetApprovalScope(session, reviewerEmployeeId);
+    const counts = buildTimesheetApprovalSummary(
       {
         timesheets,
         employees,
@@ -271,6 +270,10 @@ export function HomeDashboard() {
       },
       scope
     );
+    return {
+      ...counts,
+      href: timesheetApprovalHref(session, reviewerEmployeeId),
+    };
   }, [showTimesheetApprovals, session, users, timesheets, employees, rosterShifts, locations]);
 
   const briefing = useMemo(

@@ -91,7 +91,7 @@ export function buildHomeBriefing(input: {
       severity: input.timesheetApprovalSummary.blocked > 0 ? "warning" : "info",
       title: `${input.timesheetApprovalSummary.total} timesheet${input.timesheetApprovalSummary.total === 1 ? "" : "s"} awaiting approval`,
       description: `${input.timesheetApprovalSummary.ready} ready, ${input.timesheetApprovalSummary.review} review, ${input.timesheetApprovalSummary.blocked} blocked`,
-      href: "/timesheet-approval",
+      href: input.timesheetApprovalSummary.href,
     });
   }
 
