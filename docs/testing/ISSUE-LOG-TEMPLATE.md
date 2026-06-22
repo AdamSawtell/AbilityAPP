@@ -269,7 +269,7 @@ Use one row per defect or gap found during happy path or functional testing.
 | Step | Result |
 |------|--------|
 | SandraBlake → `/employees/emp-staff-147?tab=Employment` | Exit workflow panel visible (after ISSUE-011 seed fix) |
-| Separation letter | Auto-generate blocked (ISSUE-012 — no org ABN); manual HR doc line **Separation letter** saved |
+| Separation letter | **Pass** — auto-generate **DOC-28994158** on Documents tab (ISSUE-011 + ISSUE-012 fixed); prior manual line also present |
 | End date `2026-06-30` + status **Terminated** | Saved; checklist **Exit checklist complete** |
 | Export checklist | CSV export clicked |
 | Refresh | Terminated + end date persist; audit trail updated |
@@ -300,9 +300,10 @@ Use one row per defect or gap found during happy path or functional testing.
 | UAT-02-S-004 | **Pass** — `bp-e2e-exit` lifecycle **exit** + Voluntary withdrawal saved |
 | Window checklist UAT-02-W-001–023 | **Pass** |
 
-## ISSUE-012 retest — Org ABN — Fixed
+## ISSUE-011 / ISSUE-012 retest — Separation auto-generate — Pass (2026-06-22)
 
 | Step | Result |
 |------|--------|
-| `npm run supabase:seed-e2e-amplify` | Updates `app_organization.abn` = `12 345 678 901` on remote DB |
-| Separation auto-generate | Unblocks `validateEmployeeDocument` ABN check (retest after Amplify deploy + HR re-login for ISSUE-011) |
+| Push `3506136` + SandraBlake re-login | HR Manager sees **Generate separation letter** on Documents tab |
+| `emp-staff-147` → Generate separation letter | **Pass** — DOC-28994158 generated; saved to HR file (2 document rows) |
+| Download HTML / Print preview | Enabled after generate |
