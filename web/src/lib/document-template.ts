@@ -18,6 +18,7 @@ export type DocumentClass =
   | "incident-notification-letter"
   | "audit-pack-report"
   | "consent-schedule"
+  | "support-plan"
   | "hr-letter-separation";
 
 export type DocumentTemplateBlockType =
@@ -99,6 +100,7 @@ export const DOCUMENT_CLASS_LABELS: Record<DocumentClass, string> = {
   "incident-notification-letter": "Incident notification letter",
   "audit-pack-report": "NDIS audit pack report",
   "consent-schedule": "Consent and information sharing schedule",
+  "support-plan": "Participant support plan",
   "hr-letter-separation": "Separation letter",
 };
 
@@ -116,6 +118,7 @@ export const DEFAULT_CLAIM_BATCH_TEMPLATE_ID = "dclaim-batch-v1";
 export const DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID = "dincident-notification-v1";
 export const DEFAULT_AUDIT_PACK_TEMPLATE_ID = "daudit-pack-v1";
 export const DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID = "dconsent-schedule-v1";
+export const DEFAULT_SUPPORT_PLAN_TEMPLATE_ID = "dsupport-plan-v1";
 export const DEFAULT_HR_SEPARATION_TEMPLATE_ID = "dhr-letter-separation-v1";
 
 export const DOCUMENT_PRINT_PROCESSES = {
@@ -133,6 +136,7 @@ export const DOCUMENT_PRINT_PROCESSES = {
   printIncidentNotification: "print-incident-notification",
   printAuditPack: "print-audit-pack",
   printConsentSchedule: "print-consent-schedule",
+  printSupportPlan: "print-support-plan",
   printEmployeeSeparation: "print-employee-separation",
   sendInvoice: "send-invoice",
 } as const;
@@ -226,6 +230,7 @@ function templateFallbackForClass(documentClass: DocumentClass): DocumentTemplat
   if (documentClass === "incident-notification-letter") return defaultIncidentNotificationTemplate();
   if (documentClass === "audit-pack-report") return defaultAuditPackTemplate();
   if (documentClass === "consent-schedule") return defaultConsentScheduleTemplate();
+  if (documentClass === "support-plan") return defaultSupportPlanTemplate();
   if (documentClass === "hr-letter-separation") return defaultHrSeparationTemplate();
   return defaultInvoiceTemplate();
 }
@@ -474,6 +479,28 @@ export function defaultConsentScheduleTemplate(): DocumentTemplateRecord {
   };
 }
 
+export function defaultSupportPlanTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID,
+    name: "Participant support plan",
+    description: "Printable NDIS support plan combining profile, plan tabs, goals, risks, and service schedule.",
+    documentClass: "support-plan",
+    active: true,
+    isDefault: true,
+    titleText: "Participant support plan",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-sp-header", templateId: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-sp-title", templateId: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Participant support plan", sortOrder: 2, locked: false },
+      { id: "dtblk-sp-parties", templateId: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID, blockType: "parties", label: "Participant", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-sp-body", templateId: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID, blockType: "rich-text", label: "Support plan sections", contentHtml: "", sortOrder: 4, locked: true },
+      { id: "dtblk-sp-footer", templateId: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 5, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
 export function defaultHrSeparationTemplate(): DocumentTemplateRecord {
   return {
     id: DEFAULT_HR_SEPARATION_TEMPLATE_ID,
@@ -512,6 +539,7 @@ export const initialDocumentTemplates: DocumentTemplateRecord[] = [
   defaultIncidentNotificationTemplate(),
   defaultAuditPackTemplate(),
   defaultConsentScheduleTemplate(),
+  defaultSupportPlanTemplate(),
   defaultHrSeparationTemplate(),
 ];
 
@@ -629,6 +657,14 @@ export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
     allowUserOverride: true,
   },
   {
+    id: "pdb-print-support-plan",
+    processId: "print-support-plan",
+    entityType: "client",
+    templateId: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
     id: "pdb-print-employee-separation",
     processId: "print-employee-separation",
     entityType: "employee",
@@ -684,6 +720,7 @@ function documentClassHintForProcess(processId: string, entityType: string): str
   if (processId === DOCUMENT_PRINT_PROCESSES.printIncidentNotification) return "incident-notification-letter";
   if (processId === DOCUMENT_PRINT_PROCESSES.printAuditPack) return "audit-pack-report";
   if (processId === DOCUMENT_PRINT_PROCESSES.printConsentSchedule) return "consent-schedule";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printSupportPlan) return "support-plan";
   if (processId === DOCUMENT_PRINT_PROCESSES.printParticipantStatement) return "participant-statement";
   if (entityType === "service-agreement") return "service-agreement";
   if (entityType === "employee") return "hr-contract";
@@ -734,6 +771,9 @@ export function templatesForProcess(
     if (entityType === "client") {
       if (processId === DOCUMENT_PRINT_PROCESSES.printConsentSchedule) {
         return templates.filter((t) => t.active && t.documentClass === "consent-schedule");
+      }
+      if (processId === DOCUMENT_PRINT_PROCESSES.printSupportPlan) {
+        return templates.filter((t) => t.active && t.documentClass === "support-plan");
       }
       return templates.filter((t) => t.active && t.documentClass === "participant-statement");
     }

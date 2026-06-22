@@ -280,6 +280,12 @@ export const initialClients: ClientRecord[] = [
         showAsAlert: "Yes",
         name: "Allergy to peanuts",
         description: "Anaphylaxis risk. EpiPen in kitchen drawer. Avoid all nut products.",
+        likelihood: "Medium",
+        consequence: "Critical",
+        controls: "No nuts on site. Check food labels. EpiPen accessible in kitchen drawer.",
+        emergencyResponse: "Administer EpiPen if prescribed and call 000 immediately.",
+        escalationProcess: "Notify management and document incident within 24 hours.",
+        reviewDate: "2026-01-05",
         validFrom: "2021-01-05",
         validTo: "",
       },
@@ -576,6 +582,12 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
   const risks = (client.risks ?? []).map((row, index) => ({
     ...row,
     lineNo: row.lineNo ?? index + 1,
+    likelihood: row.likelihood ?? "",
+    consequence: row.consequence ?? "",
+    controls: row.controls ?? "",
+    emergencyResponse: row.emergencyResponse ?? "",
+    escalationProcess: row.escalationProcess ?? "",
+    reviewDate: row.reviewDate ?? "",
   }));
   const bpAssociations = (client.bpAssociations ?? []).map((row, index) => ({
     ...row,

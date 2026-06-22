@@ -55,8 +55,20 @@ export function DocumentPlatformProvider({ children }: { children: ReactNode }) 
     try {
       const supabase = createClient();
       const data = await fetchDocumentPlatform(supabase);
-      if (data.templates.length) setTemplates(data.templates.map(normalizeDocumentTemplate));
-      if (data.bindings.length) setBindings(data.bindings);
+      if (data.templates.length) {
+        const merged = new Map(data.templates.map((t) => [t.id, normalizeDocumentTemplate(t)]));
+        for (const fallback of initialDocumentTemplates) {
+          if (!merged.has(fallback.id)) merged.set(fallback.id, fallback);
+        }
+        setTemplates([...merged.values()]);
+      }
+      if (data.bindings.length) {
+        const mergedBindings = new Map(data.bindings.map((b) => [b.id, b]));
+        for (const fallback of initialProcessDocumentBindings) {
+          if (!mergedBindings.has(fallback.id)) mergedBindings.set(fallback.id, fallback);
+        }
+        setBindings([...mergedBindings.values()]);
+      }
       setGeneratedDocuments(data.generatedDocuments);
     } finally {
       setLoading(false);

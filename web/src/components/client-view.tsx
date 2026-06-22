@@ -624,7 +624,7 @@ export function ClientTabbedView({
           />
         ) : null}
 
-        {activeTab === "Support Plan" && canClientTab("Support Plan") ? <ClientSupportPlanPanel clientId={client.id} /> : null}
+        {activeTab === "Support Plan" && canClientTab("Support Plan") ? <ClientSupportPlanPanel client={client} /> : null}
 
         {activeTab === "Goals" && canClientTab("Goals") ? (
           <>

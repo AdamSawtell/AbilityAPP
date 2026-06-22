@@ -3,15 +3,38 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
+import { useAuth } from "@/lib/auth-store";
+import type { ClientRecord } from "@/lib/client";
 import { useReferenceData } from "@/lib/config-store";
 import { formatContractDate } from "@/lib/contract";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { DOCUMENT_PRINT_PROCESSES, defaultSupportPlanTemplate } from "@/lib/document-template";
 import { newLineId } from "@/lib/client-line-tables";
 import { useData } from "@/lib/data-store";
+import { useOrganization } from "@/lib/organization-store";
+import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
+import type { SupportPlanDocumentContext } from "@/lib/support-plan-print";
+import {
+  assistiveTechnologyTableConfig,
+  diagnosisTableConfig,
+  healthPlanTableConfig,
+  medicationTableConfig,
+  supportRequirementTableConfig,
+} from "@/lib/support-plan-line-tables";
 import {
   supportPlanSections,
   type SupportPlanGoalLine,
   type SupportPlanRecord,
 } from "@/lib/support-plan";
+
+const lineTableSections = [
+  { id: "health-records", label: "Health records" },
+  { id: "support-requirements", label: "Support requirements" },
+  { id: "assistive-technology", label: "Assistive technology" },
+  { id: "goals", label: "Goals" },
+] as const;
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -24,7 +47,10 @@ const goalTableConfig: GenericTableConfig<SupportPlanGoalLine> = {
     { key: "goalTerm", label: "Goal term", type: "select", optionsKey: "goalTerm" },
     { key: "goalType", label: "Goal type", type: "select", optionsKey: "goalType" },
     { key: "goal", label: "Goal", type: "textarea", className: "min-w-[180px]" },
-    { key: "supportRequired", label: "Support required", type: "textarea", className: "min-w-[180px]" },
+    { key: "ndisCategory", label: "NDIS category", type: "select", optionsKey: "ndisGoalCategory" },
+    { key: "whyItMatters", label: "Why it matters", type: "textarea", className: "min-w-[160px]" },
+    { key: "supportRequired", label: "Support activities", type: "textarea", className: "min-w-[180px]" },
+    { key: "successMeasures", label: "Success measures", type: "textarea", className: "min-w-[160px]" },
     { key: "startDate", label: "Start", type: "date" },
     { key: "endDate", label: "End", type: "date" },
   ],
@@ -36,7 +62,10 @@ const goalTableConfig: GenericTableConfig<SupportPlanGoalLine> = {
     goalTerm: "",
     goalType: "NDIS Goal",
     goal: "",
+    ndisCategory: "",
+    whyItMatters: "",
     supportRequired: "",
+    successMeasures: "",
     startDate: "",
     endDate: "",
   }),
@@ -117,13 +146,34 @@ function SupportPlanField({
 }
 
 export function ClientSupportPlanPanel({
-  clientId,
+  client,
   onDirty,
 }: {
-  clientId: string;
+  client: ClientRecord;
   onDirty?: (dirty: boolean) => void;
 }) {
-  const { getSupportPlanByClientId, upsertSupportPlan } = useData();
+  const clientId = client.id;
+  const { organization } = useOrganization();
+  const { canProcess } = useAuth();
+  const { listTemplatesForProcess, resolveTemplate } = useDocumentPlatform();
+  const {
+    getSupportPlanByClientId,
+    upsertSupportPlan,
+    getServiceBookingsByClientId,
+    getPlanDocumentsByClientId,
+    rosterShifts,
+    businessPartners,
+    getEmployeeById,
+  } = useData();
+  const canPrint = canProcess(DOCUMENT_PRINT_PROCESSES.printSupportPlan);
+  const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printSupportPlan, "client");
+  const activeTemplate =
+    resolveTemplate(DOCUMENT_PRINT_PROCESSES.printSupportPlan, "client") ??
+    templateOptions[0] ??
+    defaultSupportPlanTemplate();
   const { getOptions } = useReferenceData();
   const stored = getSupportPlanByClientId(clientId);
   const [draft, setDraft] = useState<SupportPlanRecord | null>(null);
@@ -136,9 +186,100 @@ export function ClientSupportPlanPanel({
       goalNumber: getOptions("goalNumber"),
       goalTerm: getOptions("goalTerm"),
       goalType: getOptions("goalType"),
+      ndisGoalCategory: getOptions("ndisGoalCategory"),
+      healthPlanType: getOptions("healthPlanType"),
+      supportRequirementArea: getOptions("supportRequirementArea"),
+      supportAssistanceLevel: getOptions("supportAssistanceLevel"),
+      supportFrequency: getOptions("supportFrequency"),
     }),
     [getOptions]
   );
+
+  const printContext = useMemo((): SupportPlanDocumentContext | null => {
+    if (!plan) return null;
+    return {
+      client,
+      plan,
+      organization,
+      serviceBookings: getServiceBookingsByClientId(clientId),
+      rosterShifts: rosterShifts.filter((shift) => shift.clientId === clientId),
+      planDocuments: getPlanDocumentsByClientId(clientId),
+      resolvePartnerName: (partnerId) => businessPartners.find((bp) => bp.id === partnerId)?.name,
+      resolveEmployeeName: (employeeId) => getEmployeeById(employeeId)?.name,
+    };
+  }, [
+    businessPartners,
+    client,
+    clientId,
+    getEmployeeById,
+    getPlanDocumentsByClientId,
+    getServiceBookingsByClientId,
+    organization,
+    plan,
+    rosterShifts,
+  ]);
+
+  async function handlePrintSupportPlan() {
+    setPrintError("");
+    setPrintMessage("");
+    if (!printContext || !activeTemplate) {
+      setPrintError("No active support plan template is available.");
+      return;
+    }
+    const ok = printPhase2Document(printContext, activeTemplate);
+    if (!ok) {
+      setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      return;
+    }
+    const exported = exportPhase2DocumentHtml(printContext, activeTemplate);
+    if (exported) {
+      try {
+        await registerGeneratedDocument({
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: exported.documentClass,
+          entityType: "client",
+          entityId: client.id,
+          entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
+          fileName: `${client.searchKey.replace(/[^\w.-]+/g, "_")}-support-plan.html`,
+        });
+        setPrintMessage("Support plan saved to the document registry.");
+      } catch (err) {
+        setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+      }
+    }
+  }
+
+  async function handleDownloadSupportPlanPdf() {
+    setPrintError("");
+    setPrintMessage("");
+    if (!printContext || !activeTemplate) {
+      setPrintError("No active support plan template is available.");
+      return;
+    }
+    const exported = exportPhase2DocumentHtml(printContext, activeTemplate);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check the support plan and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
+        fileName: pdfFileName(`${client.searchKey}-support-plan-${plan?.documentNo ?? "plan"}`),
+      });
+      setPrintMessage("Support plan PDF saved to the document registry.");
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  }
 
   if (!plan) {
     return (
@@ -218,17 +359,20 @@ export function ClientSupportPlanPanel({
               {s.label}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => setSection("goals")}
-            className={`rounded-lg px-3 py-2 text-left text-sm transition ${
-              section === "goals"
-                ? "bg-white font-medium text-[#b51266] shadow-sm ring-1 ring-[#f9a8d4]/60"
-                : "text-slate-600 hover:bg-white/80"
-            }`}
-          >
-            Goals
-          </button>
+          {lineTableSections.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setSection(s.id)}
+              className={`rounded-lg px-3 py-2 text-left text-sm transition ${
+                section === s.id
+                  ? "bg-white font-medium text-[#b51266] shadow-sm ring-1 ring-[#f9a8d4]/60"
+                  : "text-slate-600 hover:bg-white/80"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
         </nav>
 
         <div className="min-w-0 flex-1">
@@ -239,6 +383,47 @@ export function ClientSupportPlanPanel({
               dropdowns={referenceDropdowns}
               onChange={(rows) => onChange("goals", rows)}
             />
+          ) : section === "health-records" ? (
+            <div className="space-y-6 rounded-xl border border-slate-200 bg-white p-5">
+              <div>
+                <h4 className="mb-3 text-sm font-semibold text-slate-900">Medications</h4>
+                <LineItemTable
+                  config={medicationTableConfig}
+                  rows={plan.medications ?? []}
+                  onChange={(rows) => onChange("medications", rows)}
+                />
+              </div>
+              <div>
+                <h4 className="mb-3 text-sm font-semibold text-slate-900">Diagnoses</h4>
+                <LineItemTable
+                  config={diagnosisTableConfig}
+                  rows={plan.diagnoses ?? []}
+                  onChange={(rows) => onChange("diagnoses", rows)}
+                />
+              </div>
+              <div>
+                <h4 className="mb-3 text-sm font-semibold text-slate-900">Health plans</h4>
+                <LineItemTable
+                  config={healthPlanTableConfig}
+                  rows={plan.healthPlans ?? []}
+                  dropdowns={referenceDropdowns}
+                  onChange={(rows) => onChange("healthPlans", rows)}
+                />
+              </div>
+            </div>
+          ) : section === "support-requirements" ? (
+            <LineItemTable
+              config={supportRequirementTableConfig}
+              rows={plan.supportRequirements ?? []}
+              dropdowns={referenceDropdowns}
+              onChange={(rows) => onChange("supportRequirements", rows)}
+            />
+          ) : section === "assistive-technology" ? (
+            <LineItemTable
+              config={assistiveTechnologyTableConfig}
+              rows={plan.assistiveTechnology ?? []}
+              onChange={(rows) => onChange("assistiveTechnology", rows)}
+            />
           ) : (
             <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2">
               {activeSection?.fields.map((field) => (
@@ -248,6 +433,38 @@ export function ClientSupportPlanPanel({
           )}
         </div>
       </div>
+
+      {canPrint ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h4 className="text-sm font-semibold text-slate-900">Printable support plan</h4>
+              <p className="mt-1 text-sm text-slate-500">
+                Generate the full 14-section care plan from profile, support plan tabs, goals, risks, consents, bookings, and roster.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void handlePrintSupportPlan()}
+                className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+              >
+                Print support plan
+              </button>
+              <button
+                type="button"
+                disabled={pdfBusy}
+                onClick={() => void handleDownloadSupportPlanPdf()}
+                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {pdfBusy ? "Generating PDF…" : "Download PDF"}
+              </button>
+            </div>
+          </div>
+          {printError ? <p className="mt-3 text-sm text-rose-700">{printError}</p> : null}
+          {printMessage ? <p className="mt-3 text-sm text-emerald-700">{printMessage}</p> : null}
+        </div>
+      ) : null}
     </div>
   );
 }

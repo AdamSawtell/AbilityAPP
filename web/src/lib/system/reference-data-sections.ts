@@ -123,6 +123,13 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   assessmentType: "clients",
   progressReviewType: "clients",
   goalProgress: "clients",
+  ndisGoalCategory: "clients",
+  riskLikelihood: "clients",
+  riskConsequence: "clients",
+  healthPlanType: "clients",
+  supportRequirementArea: "clients",
+  supportAssistanceLevel: "clients",
+  supportFrequency: "clients",
 
   // Locations
   locationType: "locations",

@@ -134,6 +134,11 @@ import {
   type SupportPlanGoalRow,
   type SupportPlanProgressReviewRowDb,
   type SupportPlanRow,
+  type SupportPlanMedicationRowDb,
+  type SupportPlanDiagnosisRowDb,
+  type SupportPlanHealthPlanRowDb,
+  type SupportPlanSupportRequirementRowDb,
+  type SupportPlanAssistiveTechnologyRowDb,
 } from "@/lib/supabase/mappers";
 import {
   locationFromRow,
@@ -283,6 +288,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     goalsRes,
     progressReviewsRes,
     planDocsRes,
+    planMedicationsRes,
+    planDiagnosesRes,
+    planHealthPlansRes,
+    planSupportRequirementsRes,
+    planAssistiveTechnologyRes,
     employeesRes,
     employeeCredsRes,
     employeeLocsRes,
@@ -347,6 +357,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("support_plan_goal").select("*").order("line_no"),
     supabase.from("support_plan_goal_progress_review").select("*").order("line_no"),
     supabase.from("plan_assessment_document").select("*").order("document_no"),
+    supabase.from("support_plan_medication").select("*").order("line_no"),
+    supabase.from("support_plan_diagnosis").select("*").order("line_no"),
+    supabase.from("support_plan_health_plan").select("*").order("line_no"),
+    supabase.from("support_plan_support_requirement").select("*").order("line_no"),
+    supabase.from("support_plan_assistive_technology").select("*").order("line_no"),
     supabase.from("employee").select("*").order("last_name").order("first_name"),
     supabase.from("employee_credential").select("*").order("line_no"),
     supabase.from("employee_location").select("*").order("line_no"),
@@ -413,6 +428,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     goalsRes.error ??
     progressReviewsRes.error ??
     planDocsRes.error ??
+    planMedicationsRes.error ??
+    planDiagnosesRes.error ??
+    planHealthPlansRes.error ??
+    planSupportRequirementsRes.error ??
+    planAssistiveTechnologyRes.error ??
     employeesRes.error ??
     employeeCredsRes.error ??
     employeeLocsRes.error ??
@@ -476,6 +496,17 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const progressReviewsByGoal = groupBy(
     progressReviewsRes.data as SupportPlanProgressReviewRowDb[],
     "goal_id"
+  );
+  const medicationsByPlan = groupBy(planMedicationsRes.data as SupportPlanMedicationRowDb[], "support_plan_id");
+  const diagnosesByPlan = groupBy(planDiagnosesRes.data as SupportPlanDiagnosisRowDb[], "support_plan_id");
+  const healthPlansByPlan = groupBy(planHealthPlansRes.data as SupportPlanHealthPlanRowDb[], "support_plan_id");
+  const supportRequirementsByPlan = groupBy(
+    planSupportRequirementsRes.data as SupportPlanSupportRequirementRowDb[],
+    "support_plan_id"
+  );
+  const assistiveTechnologyByPlan = groupBy(
+    planAssistiveTechnologyRes.data as SupportPlanAssistiveTechnologyRowDb[],
+    "support_plan_id"
   );
   const credsByEmployee = groupBy(employeeCredsRes.data as EmployeeCredentialRowDb[], "employee_id");
   const locsByEmployee = groupBy(employeeLocsRes.data as EmployeeLocationRowDb[], "employee_id");
@@ -571,7 +602,18 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supportPlans: ((supportPlansRes.data ?? []) as SupportPlanRow[]).map((row) => {
       const goals = goalsByPlan.get(row.id) ?? [];
       const progressReviews = goals.flatMap((goal) => progressReviewsByGoal.get(goal.id) ?? []);
-      return normalizeSupportPlan(supportPlanFromRow(row, goals, progressReviews));
+      return normalizeSupportPlan(
+        supportPlanFromRow(
+          row,
+          goals,
+          progressReviews,
+          medicationsByPlan.get(row.id) ?? [],
+          diagnosesByPlan.get(row.id) ?? [],
+          healthPlansByPlan.get(row.id) ?? [],
+          supportRequirementsByPlan.get(row.id) ?? [],
+          assistiveTechnologyByPlan.get(row.id) ?? []
+        )
+      );
     }),
     planDocuments: ((planDocsRes.data ?? []) as PlanAssessmentDocumentRow[]).map(planDocumentFromRow),
     employees: ((employeesRes.data ?? []) as EmployeeRow[]).map((row) =>
@@ -874,6 +916,12 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
         show_as_alert: r.showAsAlert,
         name: r.name,
         description: r.description,
+        likelihood: r.likelihood || "",
+        consequence: r.consequence || "",
+        controls: r.controls || "",
+        emergency_response: r.emergencyResponse || "",
+        escalation_process: r.escalationProcess || "",
+        review_date: r.reviewDate || null,
         valid_from: r.validFrom || null,
         valid_to: r.validTo || null,
       }))
@@ -1201,11 +1249,99 @@ export async function saveSupportPlan(supabase: SupabaseClient, record: SupportP
         goal_type: g.goalType,
         goal: g.goal,
         support_required: g.supportRequired,
+        ndis_category: g.ndisCategory,
+        why_it_matters: g.whyItMatters,
+        success_measures: g.successMeasures,
         start_date: g.startDate || null,
         end_date: g.endDate || null,
       }))
     );
     if (goalError) throw goalError;
+  }
+
+  for (const child of [
+    ["support_plan_medication", plan.medications ?? []] as const,
+    ["support_plan_diagnosis", plan.diagnoses ?? []] as const,
+    ["support_plan_health_plan", plan.healthPlans ?? []] as const,
+    ["support_plan_support_requirement", plan.supportRequirements ?? []] as const,
+    ["support_plan_assistive_technology", plan.assistiveTechnology ?? []] as const,
+  ]) {
+    await replaceChildRows(supabase, child[0], "support_plan_id", plan.id);
+  }
+
+  if (plan.medications?.length) {
+    const { error: medError } = await supabase.from("support_plan_medication").insert(
+      plan.medications.map((m) => ({
+        id: m.id,
+        support_plan_id: plan.id,
+        line_no: m.lineNo,
+        medication_name: m.medicationName,
+        dosage: m.dosage,
+        purpose: m.purpose,
+        administration_requirements: m.administrationRequirements,
+      }))
+    );
+    if (medError) throw medError;
+  }
+
+  if (plan.diagnoses?.length) {
+    const { error: dxError } = await supabase.from("support_plan_diagnosis").insert(
+      plan.diagnoses.map((d) => ({
+        id: d.id,
+        support_plan_id: plan.id,
+        line_no: d.lineNo,
+        diagnosis: d.diagnosis,
+        condition: d.condition,
+        treating_practitioner: d.treatingPractitioner,
+        impact_on_daily_living: d.impactOnDailyLiving,
+      }))
+    );
+    if (dxError) throw dxError;
+  }
+
+  if (plan.healthPlans?.length) {
+    const { error: hpError } = await supabase.from("support_plan_health_plan").insert(
+      plan.healthPlans.map((h) => ({
+        id: h.id,
+        support_plan_id: plan.id,
+        line_no: h.lineNo,
+        plan_type: h.planType,
+        attachment_reference: h.attachmentReference,
+        notes: h.notes,
+      }))
+    );
+    if (hpError) throw hpError;
+  }
+
+  if (plan.supportRequirements?.length) {
+    const { error: reqError } = await supabase.from("support_plan_support_requirement").insert(
+      plan.supportRequirements.map((r) => ({
+        id: r.id,
+        support_plan_id: plan.id,
+        line_no: r.lineNo,
+        support_area: r.supportArea,
+        support_requirement: r.supportRequirement,
+        level_of_assistance: r.levelOfAssistance,
+        frequency: r.frequency,
+        special_instructions: r.specialInstructions,
+      }))
+    );
+    if (reqError) throw reqError;
+  }
+
+  if (plan.assistiveTechnology?.length) {
+    const { error: atError } = await supabase.from("support_plan_assistive_technology").insert(
+      plan.assistiveTechnology.map((a) => ({
+        id: a.id,
+        support_plan_id: plan.id,
+        line_no: a.lineNo,
+        equipment: a.equipment,
+        serial_number: a.serialNumber,
+        maintenance_schedule: a.maintenanceSchedule,
+        training_required: a.trainingRequired,
+      }))
+    );
+    if (atError) throw atError;
   }
 
   const goalIds = new Set(plan.goals.map((g) => g.id));

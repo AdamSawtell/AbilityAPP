@@ -12,6 +12,7 @@ import type {
   ConsentScheduleDocumentContext,
   IncidentNotificationDocumentContext,
 } from "@/lib/document-render-phase2";
+import type { SupportPlanDocumentContext } from "@/lib/support-plan-print";
 import type { ClientRecord } from "@/lib/client";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import type { InvoiceRecord } from "@/lib/invoice";
@@ -35,7 +36,8 @@ export type DocumentRenderContext =
   | ClaimBatchDocumentContext
   | IncidentNotificationDocumentContext
   | AuditPackDocumentContext
-  | ConsentScheduleDocumentContext;
+  | ConsentScheduleDocumentContext
+  | SupportPlanDocumentContext;
 
 export type DocumentValidationIssue = {
   severity: "error" | "warning";
@@ -215,6 +217,20 @@ export function validateConsentScheduleDocument(ctx: ConsentScheduleDocumentCont
   return issues;
 }
 
+export function validateSupportPlanDocument(ctx: SupportPlanDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.client.name?.trim()) {
+    issues.push({ severity: "error", field: "client.name", message: "Participant name is required." });
+  }
+  if (!ctx.plan.documentNo?.trim()) {
+    issues.push({ severity: "error", field: "plan.documentNo", message: "Support plan document number is required." });
+  }
+  if (!ctx.plan.goals?.length) {
+    issues.push({ severity: "warning", field: "plan.goals", message: "No goals recorded on this support plan." });
+  }
+  return issues;
+}
+
 export function documentBlockedByValidation(issues: DocumentValidationIssue[]): string | null {
   const error = issues.find((i) => i.severity === "error");
   return error?.message ?? null;
@@ -256,6 +272,9 @@ export function validateDocumentContext(
   }
   if (template.documentClass === "consent-schedule") {
     return validateConsentScheduleDocument(ctx as ConsentScheduleDocumentContext);
+  }
+  if (template.documentClass === "support-plan") {
+    return validateSupportPlanDocument(ctx as SupportPlanDocumentContext);
   }
   return [];
 }

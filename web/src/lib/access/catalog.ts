@@ -786,6 +786,12 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "clients",
   },
   {
+    id: "print-support-plan",
+    label: "Print support plan",
+    description: "Print the participant support plan for workers, coordinators, and audits",
+    parentWindowKey: "clients",
+  },
+  {
     id: "print-employee-separation",
     label: "Generate separation letter",
     description: "Generate an employment separation letter and HR file line",

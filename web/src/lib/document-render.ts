@@ -22,6 +22,7 @@ import {
   type ConsentScheduleDocumentContext,
   type IncidentNotificationDocumentContext,
 } from "@/lib/document-render-phase2";
+import { buildSupportPlanDocumentHtml, type SupportPlanDocumentContext } from "@/lib/support-plan-print";
 import { buildInvoiceDocumentHtml, type InvoiceDocumentContext } from "@/lib/document-render-invoice";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import {
@@ -41,7 +42,8 @@ export type DocumentRenderContext =
   | ClaimBatchDocumentContext
   | IncidentNotificationDocumentContext
   | AuditPackDocumentContext
-  | ConsentScheduleDocumentContext;
+  | ConsentScheduleDocumentContext
+  | SupportPlanDocumentContext;
 
 export type DocumentRenderResult = {
   html: string;
@@ -128,6 +130,9 @@ export function renderDocument(
   }
   if (template.documentClass === "consent-schedule") {
     return renderWithValidation(template, ctx as ConsentScheduleDocumentContext, buildConsentScheduleDocumentHtml, options);
+  }
+  if (template.documentClass === "support-plan") {
+    return renderWithValidation(template, ctx as SupportPlanDocumentContext, buildSupportPlanDocumentHtml, options);
   }
   return {
     html: "",

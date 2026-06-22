@@ -14,6 +14,7 @@ import {
   DEFAULT_BOARD_REPORT_TEMPLATE_ID,
   DEFAULT_CLAIM_BATCH_TEMPLATE_ID,
   DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID,
+  DEFAULT_SUPPORT_PLAN_TEMPLATE_ID,
   DEFAULT_AUDIT_PACK_TEMPLATE_ID,
   DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID,
   DEFAULT_HR_SEPARATION_TEMPLATE_ID,
@@ -169,6 +170,11 @@ export function DocumentTemplatesAdminPage() {
     [sorted]
   );
 
+  const supportPlanTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "support-plan"),
+    [sorted]
+  );
+
   const hrSeparationTemplates = useMemo(
     () => sorted.filter((t) => t.active && t.documentClass === "hr-letter-separation"),
     [sorted]
@@ -276,6 +282,13 @@ export function DocumentTemplatesAdminPage() {
           fallbackId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID,
         },
         {
+          processId: DOCUMENT_PRINT_PROCESSES.printSupportPlan,
+          entityType: "client",
+          label: "Print support plan",
+          templates: supportPlanTemplates,
+          fallbackId: DEFAULT_SUPPORT_PLAN_TEMPLATE_ID,
+        },
+        {
           processId: DOCUMENT_PRINT_PROCESSES.printEmployeeSeparation,
           entityType: "employee",
           label: "Generate separation letter",
@@ -283,7 +296,7 @@ export function DocumentTemplatesAdminPage() {
           fallbackId: DEFAULT_HR_SEPARATION_TEMPLATE_ID,
         },
       ] as const,
-    [invoiceTemplates, agreementTemplates, hrTemplates, hrOfferTemplates, enquiryTemplates, remittanceTemplates, statementTemplates, boardReportTemplates, claimBatchTemplates, incidentNotificationTemplates, auditPackTemplates, consentScheduleTemplates, hrSeparationTemplates]
+    [invoiceTemplates, agreementTemplates, hrTemplates, hrOfferTemplates, enquiryTemplates, remittanceTemplates, statementTemplates, boardReportTemplates, claimBatchTemplates, incidentNotificationTemplates, auditPackTemplates, consentScheduleTemplates, supportPlanTemplates, hrSeparationTemplates]
   );
 
   async function handleBindingChange(processId: string, entityType: string, templateId: string) {

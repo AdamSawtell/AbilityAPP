@@ -67,6 +67,12 @@ export type ClientRiskRow = {
   showAsAlert: string;
   name: string;
   description: string;
+  likelihood: string;
+  consequence: string;
+  controls: string;
+  emergencyResponse: string;
+  escalationProcess: string;
+  reviewDate: string;
   validFrom: string;
   validTo: string;
 };
@@ -291,6 +297,12 @@ export const riskTableConfig: ClientTabTableConfig<ClientRiskRow> = {
     { key: "showAsAlert", label: "Show as alert", type: "select", optionsKey: "showAsAlert" },
     { key: "name", label: "Name", type: "text", required: true },
     { key: "description", label: "Description", type: "textarea", className: "min-w-[200px]" },
+    { key: "likelihood", label: "Likelihood", type: "select", optionsKey: "riskLikelihood" },
+    { key: "consequence", label: "Consequence", type: "select", optionsKey: "riskConsequence" },
+    { key: "controls", label: "Controls", type: "textarea", className: "min-w-[180px]" },
+    { key: "emergencyResponse", label: "Emergency response", type: "textarea", className: "min-w-[160px]" },
+    { key: "escalationProcess", label: "Escalation process", type: "textarea", className: "min-w-[160px]" },
+    { key: "reviewDate", label: "Review date", type: "date" },
     { key: "validFrom", label: "Valid from", type: "date" },
     { key: "validTo", label: "Valid to", type: "date" },
   ],
@@ -301,6 +313,12 @@ export const riskTableConfig: ClientTabTableConfig<ClientRiskRow> = {
     showAsAlert: "Yes",
     name: "",
     description: "",
+    likelihood: "",
+    consequence: "",
+    controls: "",
+    emergencyResponse: "",
+    escalationProcess: "",
+    reviewDate: "",
     validFrom: new Date().toISOString().slice(0, 10),
     validTo: "",
   }),

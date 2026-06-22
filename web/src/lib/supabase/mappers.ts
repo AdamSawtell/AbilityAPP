@@ -310,6 +310,12 @@ export type ClientRiskRowDb = {
   show_as_alert: string;
   name: string;
   description: string;
+  likelihood: string;
+  consequence: string;
+  controls: string;
+  emergency_response: string;
+  escalation_process: string;
+  review_date: string | null;
   valid_from: string | null;
   valid_to: string | null;
 };
@@ -547,6 +553,12 @@ export function clientFromRow(
       showAsAlert: r.show_as_alert,
       name: r.name,
       description: r.description,
+      likelihood: r.likelihood ?? "",
+      consequence: r.consequence ?? "",
+      controls: r.controls ?? "",
+      emergencyResponse: r.emergency_response ?? "",
+      escalationProcess: r.escalation_process ?? "",
+      reviewDate: strDate(r.review_date),
       validFrom: strDate(r.valid_from),
       validTo: strDate(r.valid_to),
     })),
@@ -1142,25 +1154,53 @@ export type SupportPlanRow = {
   provided_to_receiver: string | null;
   execution_date: string | null;
   active: boolean;
+  my_story: string;
   important_to_me: string;
+  important_for_me: string;
   how_supported: string;
   hobbies: string;
   cultural_needs: string;
+  religious_requirements: string;
+  family_information: string;
+  pets: string;
+  strengths: string;
+  skills: string;
+  aspirations: string;
   likes: string;
   dislikes: string;
   about_other: string;
   primary_language: string;
   interpreter_required: string;
   communication_method: string;
+  verbal_communication_level: string;
+  non_verbal_communication: string;
+  communication_aids: string;
+  communication_triggers: string;
+  calming_strategies: string;
+  worker_guidance: string;
   medication_required: string;
   medication_details: string;
   known_allergies: string;
   medical_history: string;
   behaviour_support_required: string;
+  behaviour_practitioner: string;
+  behaviour_authorisations: string;
   behaviour_description: string;
   strategies: string;
   relaxation: string;
   stress_cause: string;
+  emergency_medical_procedure: string;
+  emergency_missing_person_procedure: string;
+  emergency_behavioural_crisis_procedure: string;
+  emergency_fire_evacuation_procedure: string;
+  what_works_best: string;
+  worker_approaches: string;
+  environmental_considerations: string;
+  avoid_list: string;
+  unsafe_practices: string;
+  shift_arrival_process: string;
+  shift_departure_process: string;
+  documentation_requirements: string;
   morning: string;
   daytime: string;
   afternoon: string;
@@ -1210,8 +1250,61 @@ export type SupportPlanGoalRow = {
   goal_type: string;
   goal: string;
   support_required: string;
+  ndis_category: string;
+  why_it_matters: string;
+  success_measures: string;
   start_date: string | null;
   end_date: string | null;
+};
+
+export type SupportPlanMedicationRowDb = {
+  id: string;
+  support_plan_id: string;
+  line_no: number;
+  medication_name: string;
+  dosage: string;
+  purpose: string;
+  administration_requirements: string;
+};
+
+export type SupportPlanDiagnosisRowDb = {
+  id: string;
+  support_plan_id: string;
+  line_no: number;
+  diagnosis: string;
+  condition: string;
+  treating_practitioner: string;
+  impact_on_daily_living: string;
+};
+
+export type SupportPlanHealthPlanRowDb = {
+  id: string;
+  support_plan_id: string;
+  line_no: number;
+  plan_type: string;
+  attachment_reference: string;
+  notes: string;
+};
+
+export type SupportPlanSupportRequirementRowDb = {
+  id: string;
+  support_plan_id: string;
+  line_no: number;
+  support_area: string;
+  support_requirement: string;
+  level_of_assistance: string;
+  frequency: string;
+  special_instructions: string;
+};
+
+export type SupportPlanAssistiveTechnologyRowDb = {
+  id: string;
+  support_plan_id: string;
+  line_no: number;
+  equipment: string;
+  serial_number: string;
+  maintenance_schedule: string;
+  training_required: string;
 };
 
 export type SupportPlanProgressReviewRowDb = {
@@ -1245,7 +1338,12 @@ export type PlanAssessmentDocumentRow = {
 export function supportPlanFromRow(
   row: SupportPlanRow,
   goals: SupportPlanGoalRow[],
-  progressReviews: SupportPlanProgressReviewRowDb[] = []
+  progressReviews: SupportPlanProgressReviewRowDb[] = [],
+  medications: SupportPlanMedicationRowDb[] = [],
+  diagnoses: SupportPlanDiagnosisRowDb[] = [],
+  healthPlans: SupportPlanHealthPlanRowDb[] = [],
+  supportRequirements: SupportPlanSupportRequirementRowDb[] = [],
+  assistiveTechnology: SupportPlanAssistiveTechnologyRowDb[] = []
 ): SupportPlanRecord {
   const goalNameById = Object.fromEntries(goals.map((g) => [g.id, g.name || g.goal]));
   return {
@@ -1256,25 +1354,53 @@ export function supportPlanFromRow(
     providedToReceiver: strDate(row.provided_to_receiver),
     executionDate: strDate(row.execution_date),
     active: row.active,
+    myStory: row.my_story ?? "",
     importantToMe: row.important_to_me,
+    importantForMe: row.important_for_me ?? "",
     howSupported: row.how_supported,
     hobbies: row.hobbies,
     culturalNeeds: row.cultural_needs,
+    religiousRequirements: row.religious_requirements ?? "",
+    familyInformation: row.family_information ?? "",
+    pets: row.pets ?? "",
+    strengths: row.strengths ?? "",
+    skills: row.skills ?? "",
+    aspirations: row.aspirations ?? "",
     likes: row.likes,
     dislikes: row.dislikes,
     aboutOther: row.about_other,
     primaryLanguage: row.primary_language,
     interpreterRequired: row.interpreter_required,
     communicationMethod: row.communication_method,
+    verbalCommunicationLevel: row.verbal_communication_level ?? "",
+    nonVerbalCommunication: row.non_verbal_communication ?? "",
+    communicationAids: row.communication_aids ?? "",
+    communicationTriggers: row.communication_triggers ?? "",
+    calmingStrategies: row.calming_strategies ?? "",
+    workerGuidance: row.worker_guidance ?? "",
     medicationRequired: row.medication_required,
     medicationDetails: row.medication_details,
     knownAllergies: row.known_allergies,
     medicalHistory: row.medical_history,
     behaviourSupportRequired: row.behaviour_support_required,
+    behaviourPractitioner: row.behaviour_practitioner ?? "",
+    behaviourAuthorisations: row.behaviour_authorisations ?? "",
     behaviourDescription: row.behaviour_description,
     strategies: row.strategies,
     relaxation: row.relaxation,
     stressCause: row.stress_cause,
+    emergencyMedicalProcedure: row.emergency_medical_procedure ?? "",
+    emergencyMissingPersonProcedure: row.emergency_missing_person_procedure ?? "",
+    emergencyBehaviouralCrisisProcedure: row.emergency_behavioural_crisis_procedure ?? "",
+    emergencyFireEvacuationProcedure: row.emergency_fire_evacuation_procedure ?? "",
+    whatWorksBest: row.what_works_best ?? "",
+    workerApproaches: row.worker_approaches ?? "",
+    environmentalConsiderations: row.environmental_considerations ?? "",
+    avoidList: row.avoid_list ?? "",
+    unsafePractices: row.unsafe_practices ?? "",
+    shiftArrivalProcess: row.shift_arrival_process ?? "",
+    shiftDepartureProcess: row.shift_departure_process ?? "",
+    documentationRequirements: row.documentation_requirements ?? "",
     morning: row.morning,
     daytime: row.daytime,
     afternoon: row.afternoon,
@@ -1322,10 +1448,53 @@ export function supportPlanFromRow(
         goalType: g.goal_type,
         goal: g.goal,
         supportRequired: g.support_required,
+        ndisCategory: g.ndis_category ?? "",
+        whyItMatters: g.why_it_matters ?? "",
+        successMeasures: g.success_measures ?? "",
         startDate: strDate(g.start_date),
         endDate: strDate(g.end_date),
       })
     ),
+    medications: medications.map((m) => ({
+      id: m.id,
+      lineNo: m.line_no,
+      medicationName: m.medication_name,
+      dosage: m.dosage,
+      purpose: m.purpose,
+      administrationRequirements: m.administration_requirements,
+    })),
+    diagnoses: diagnoses.map((d) => ({
+      id: d.id,
+      lineNo: d.line_no,
+      diagnosis: d.diagnosis,
+      condition: d.condition,
+      treatingPractitioner: d.treating_practitioner,
+      impactOnDailyLiving: d.impact_on_daily_living,
+    })),
+    healthPlans: healthPlans.map((h) => ({
+      id: h.id,
+      lineNo: h.line_no,
+      planType: h.plan_type,
+      attachmentReference: h.attachment_reference,
+      notes: h.notes,
+    })),
+    supportRequirements: supportRequirements.map((r) => ({
+      id: r.id,
+      lineNo: r.line_no,
+      supportArea: r.support_area,
+      supportRequirement: r.support_requirement,
+      levelOfAssistance: r.level_of_assistance,
+      frequency: r.frequency,
+      specialInstructions: r.special_instructions,
+    })),
+    assistiveTechnology: assistiveTechnology.map((a) => ({
+      id: a.id,
+      lineNo: a.line_no,
+      equipment: a.equipment,
+      serialNumber: a.serial_number,
+      maintenanceSchedule: a.maintenance_schedule,
+      trainingRequired: a.training_required,
+    })),
     progressReviews: progressReviews.map((r) => ({
       id: r.id,
       lineNo: r.line_no,
@@ -1352,25 +1521,53 @@ export function supportPlanToRow(record: SupportPlanRecord): SupportPlanRow {
     provided_to_receiver: toDate(record.providedToReceiver),
     execution_date: toDate(record.executionDate),
     active: record.active,
+    my_story: record.myStory,
     important_to_me: record.importantToMe,
+    important_for_me: record.importantForMe,
     how_supported: record.howSupported,
     hobbies: record.hobbies,
     cultural_needs: record.culturalNeeds,
+    religious_requirements: record.religiousRequirements,
+    family_information: record.familyInformation,
+    pets: record.pets,
+    strengths: record.strengths,
+    skills: record.skills,
+    aspirations: record.aspirations,
     likes: record.likes,
     dislikes: record.dislikes,
     about_other: record.aboutOther,
     primary_language: record.primaryLanguage,
     interpreter_required: record.interpreterRequired,
     communication_method: record.communicationMethod,
+    verbal_communication_level: record.verbalCommunicationLevel,
+    non_verbal_communication: record.nonVerbalCommunication,
+    communication_aids: record.communicationAids,
+    communication_triggers: record.communicationTriggers,
+    calming_strategies: record.calmingStrategies,
+    worker_guidance: record.workerGuidance,
     medication_required: record.medicationRequired,
     medication_details: record.medicationDetails,
     known_allergies: record.knownAllergies,
     medical_history: record.medicalHistory,
     behaviour_support_required: record.behaviourSupportRequired,
+    behaviour_practitioner: record.behaviourPractitioner,
+    behaviour_authorisations: record.behaviourAuthorisations,
     behaviour_description: record.behaviourDescription,
     strategies: record.strategies,
     relaxation: record.relaxation,
     stress_cause: record.stressCause,
+    emergency_medical_procedure: record.emergencyMedicalProcedure,
+    emergency_missing_person_procedure: record.emergencyMissingPersonProcedure,
+    emergency_behavioural_crisis_procedure: record.emergencyBehaviouralCrisisProcedure,
+    emergency_fire_evacuation_procedure: record.emergencyFireEvacuationProcedure,
+    what_works_best: record.whatWorksBest,
+    worker_approaches: record.workerApproaches,
+    environmental_considerations: record.environmentalConsiderations,
+    avoid_list: record.avoidList,
+    unsafe_practices: record.unsafePractices,
+    shift_arrival_process: record.shiftArrivalProcess,
+    shift_departure_process: record.shiftDepartureProcess,
+    documentation_requirements: record.documentationRequirements,
     morning: record.morning,
     daytime: record.daytime,
     afternoon: record.afternoon,
