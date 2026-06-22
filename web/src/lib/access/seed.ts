@@ -109,6 +109,16 @@ const COORDINATOR_ACCESS = {
   taskTypePermissions: managerAccess().taskTypePermissions,
 };
 
+const ROSTERING_DELIVERY_WINDOWS = [
+  "service-bookings",
+  "service-planning",
+  "multi-provider-budget",
+  "rostering",
+  "timesheets",
+  "timesheet-approval",
+  "generate-timesheets",
+] as const;
+
 const TEAM_LEADER_ACCESS = {
   windowKeys: [
     "home",
@@ -179,11 +189,11 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", managerAccess(["incidents-compliance", "incidents-dashboard"])),
   defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", officerAccess(["incidents-compliance"])),
   defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", {
-    ...managerAccess(["workforce-organisation", "timesheet-approval", "timesheets"]),
+    ...managerAccess(["workforce-organisation", ...ROSTERING_DELIVERY_WINDOWS]),
     ...workforceManagerLeaveAccess(),
     processIds: [...workforceManagerLeaveAccess().processIds, "approve-timesheet"],
   }),
-  defineRole("role-rostering-officer", "Rostering_Officer", "Rostering Officer", "Roster administration", officerAccess(["workforce-planning"])),
+  defineRole("role-rostering-officer", "Rostering_Officer", "Rostering Officer", "Roster administration", officerAccess([...ROSTERING_DELIVERY_WINDOWS])),
   defineRole("role-intake", "Intake_Coordinator", "Intake Coordinator", "Enquiries and convert-to-client process", INTAKE_ACCESS),
   defineRole("role-coordinator", "Support_Coordinator", "Support Coordinator", "Client records and service catalog", COORDINATOR_ACCESS),
   defineRole("role-team-leader", "Team_Leader", "Team Leader", "Site or team leadership — org structure and frontline oversight", TEAM_LEADER_ACCESS),

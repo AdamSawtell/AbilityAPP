@@ -82,7 +82,7 @@ on conflict (id) do update set
   hours = excluded.hours,
   roster_shift_id = excluded.roster_shift_id;
 
--- Draft shift for publish-week smoke (Oliver — avoids Gabriela double-book on same day)
+-- Draft shift for publish-week smoke (Oliver — fixed June test week, no GabW conflict on Thu 12 Jun)
 insert into public.roster_shift (
   id, shift_ref, client_id, employee_id, location_id, service_booking_id,
   shift_date, start_time, end_time, shift_type, status, notes,
@@ -90,13 +90,40 @@ insert into public.roster_shift (
 )
 values (
   'rs-e2e-smoke-today', 'E2E-SMOKE-TODAY', 'bp-bern', 'emp-oliver', 'loc-glenelg-sil', 'sb-jun26-50150',
-  current_date, '09:00', '12:00', 'Standard', 'Draft', 'E2E Amplify publish smoke — safe to delete',
+  '2026-06-12', '09:00', '12:00', 'Standard', 'Draft', 'E2E Amplify publish smoke — safe to delete',
   'E2E smoke', 'E2E smoke'
 )
 on conflict (id) do update set
   shift_date = excluded.shift_date,
   status = 'Draft',
   employee_id = excluded.employee_id,
+  updated_by = excluded.updated_by;
+
+-- Oliver needs WWCC on file for publish-week qualification checks
+insert into public.employee_credential (
+  id, employee_id, line_no, credential_type, credential_number, issuing_body, issue_date, expiry_date, status, document_ref, notes, created_by, updated_by
+)
+values (
+  'cred-oliver-wwcc-e2e', 'emp-oliver', 2, 'Working with Children Check', 'WWCC-E2E-OLIV',
+  'DHS Screening', '2024-01-15', '2028-06-30', 'Current', '', 'E2E publish smoke',
+  'E2E smoke', 'E2E smoke'
+)
+on conflict (id) do update set
+  expiry_date = excluded.expiry_date,
+  status = excluded.status,
+  updated_by = excluded.updated_by;
+
+insert into public.employee_credential (
+  id, employee_id, line_no, credential_type, credential_number, issuing_body, issue_date, expiry_date, status, document_ref, notes, created_by, updated_by
+)
+values (
+  'cred-oliver-ndis-e2e', 'emp-oliver', 3, 'NDIS Worker Screening', 'NDIS-WS-E2E-OLIV',
+  'NDIS Worker Screening Unit', '2024-01-15', '2028-06-30', 'Current', '', 'E2E publish smoke',
+  'E2E smoke', 'E2E smoke'
+)
+on conflict (id) do update set
+  expiry_date = excluded.expiry_date,
+  status = excluded.status,
   updated_by = excluded.updated_by;
 
 -- E2E browser user (full admin) — password: flamingo (same bcrypt as SuperUser)

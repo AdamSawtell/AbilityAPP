@@ -151,10 +151,10 @@ See [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §8 for file paths and chec
 
 | Doc | Status |
 |-----|--------|
-| [testing/HAPPY-PATH-E2E-MATRIX.md](./testing/HAPPY-PATH-E2E-MATRIX.md) | **v0.2** — §4–5 (flows 4–5: SA → roster → timesheets → claims/invoices) + §9 missing-functions review |
+| [testing/HAPPY-PATH-E2E-MATRIX.md](./testing/HAPPY-PATH-E2E-MATRIX.md) | **v1.0** — full spine enquiry → exit (flows 1–11) + FUNC matrix + E2E seeds |
 | [testing/ISSUE-LOG-TEMPLATE.md](./testing/ISSUE-LOG-TEMPLATE.md) | Issue log template for testers / AI browser |
 
-Sections 1–3, 6–7, and flows 1–3 / 6–11 are planned follow-ups.
+Sections 1–3, 6–7, and flows 1–3 / 6–11 are documented in matrix **v1.0** (2026-06-18).
 
 ---
 

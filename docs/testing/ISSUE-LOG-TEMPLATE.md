@@ -34,6 +34,8 @@ Use one row per defect or gap found during happy path or functional testing.
 | ISSUE-004 | TEST-079 | Plan budget | Low | After billing rollup, claimed total $5,149 vs billing panel $3,349 (support-coord line unchanged) | **Fixed** — rollup clears categories with no billing so totals align |
 | ISSUE-005 | TEST-085 | Invoices | Doc | Bern set plan-managed post-seed; June lines show “already billed” via agency claim — invoice path needs fresh seed window | **Fixed** — Bern agency; `bp-bulk-04` plan-managed + `ts-e2e-pm-jun` invoice smoke |
 | ISSUE-006 | ROLE-013 | My workplace | High | Support worker `/my/shifts` and `/my/timesheets` blocked — `seed-access.sql` grants `my-shifts`/`my-timesheets` only to `role-admin` | **Fixed** — frontline roles get my-shifts/timesheets in `seed-access.sql` |
+| ISSUE-007 | ROLE-012 | Access / Rostering | High | `role-rostering-manager` missing `rostering`, `service-planning`, `service-delivery` windows — read-only week view, no Publish week panel or shift editor | **Fixed** — `ROSTERING_DELIVERY_WINDOWS` in `seed.ts` + remote `seed-access.sql` |
+| ISSUE-008 | TEST-060 | Rostering seed | Medium | `rs-e2e-smoke-today` uses `current_date` (22 Jun on Amplify), not June 9 week; Oliver shift shows overlap warning with GabW 10:00–18:00 | **Fixed** — pinned to `2026-06-12` in June test week |
 
 ## Amplify deep pass — 2026-06-22
 
@@ -73,14 +75,52 @@ Use one row per defect or gap found during happy path or functional testing.
 | Generate claims | Page loads; 0 eligible (Oct default period) |
 | Financial close (2026-06) | Checklist loads; close blocked (variance + payroll — expected) |
 
-### ROLE-013 — Support Worker (OliverWilliams / welcome, role-support-worker) — Partial
+### ROLE-013 — Support Worker (OliverWilliams / welcome, role-support-worker) — Pass (retest 2026-06-18)
 
 | Step | Result |
 |------|--------|
 | Login | Auto-opens Support Worker workspace |
 | Home | Loads; no Tasks link (expected); incidents in needs-attention |
 | My workplace hub (`/my`) | Dashboard loads; shows My shifts card |
-| My shifts (`/my/shifts`) | **Blocked** — “Your role does not include this self-service area” (ISSUE-006) |
-| My timesheets (`/my/timesheets`) | **Blocked** — same message (ISSUE-006) |
+| My shifts (`/my/shifts`) | **Pass** — Today tab; 1 draft shift (Bern) |
+| My timesheets (`/my/timesheets`) | **Pass** — TS-E2E-PM-JUN + TS-MAY26-OLIV listed |
 | Bern client Activity | Tab loads; 3 activity rows; Add activity available |
 | Generate claims (direct URL) | Page renders; Generate button disabled (no window write) — sidebar link hidden |
+
+## Fix retest — 2026-06-18 (Amplify, post `d5cbf38`)
+
+**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · seeds re-applied · fresh login for OliverWilliams
+
+| ISSUE | Retest | Result |
+|-------|--------|--------|
+| ISSUE-002 | `/claims/CL-JUN26-BERN` (display ref) | **Pass** — claim detail loads; $3,349, Accepted |
+| ISSUE-003 | Home “2 awaiting approval” → `/timesheet-approval?scope=organisation` | **Pass** — All (2), Ready (1), Blocked (1) |
+| ISSUE-004 | Bern Plan budget → Apply billing rollup | **Pass** — claimed $3,349 matches billing panel |
+| ISSUE-005 | Generate invoices June 2026 | **Pass** — 1 eligible (plan-managed); 6 agency skipped; 0 already billed |
+| ISSUE-006 | Oliver `/my/shifts`, `/my/timesheets` after re-login | **Pass** — both pages load |
+
+## Amplify role pass — 2026-06-18 (continued)
+
+**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · June 2026 test window seed
+
+### ROLE-012 — Rostering Manager (RileyShaw / welcome) — Pass
+
+| Step | Result |
+|------|--------|
+| Login + role picker | Rostering Manager selected; home loads |
+| Sidebar Service delivery | **Rostering**, Service planning, Service bookings, Generate timesheets visible |
+| Rostering `?week=2026-06-09` | Week 8–14 June; `rs-e2e-smoke-today` on Fri 12 Jun (OlvW / Draft → Published) |
+| Publish week panel | **1 ready · 0 blocked** after Oliver WWCC + NDIS screening in e2e seed |
+| Publish 1 shift | **Pass** — shift status Published; publish panel clears |
+
+### TEST-060 — Rostering publish smoke — Pass
+
+| Step | Result |
+|------|--------|
+| `?week=2026-06-09` | Smoke shift Fri 12 June — no overlap warning |
+| Publish week (RileyShaw) | **Pass** — mandatory credentials seeded for `emp-oliver` |
+| Oliver `/my/shifts` | Published shift is in the past vs org “today”; week calendar `?week=2026-06-09` is the worker check |
+
+### ROLE-014 / ROLE-015 — Not run this pass
+
+Finance roles (`JessicaHancock` billing clerk, `TessaNguyen` finance manager) queued next. Seed review: `role-finance-manager` has claims/invoices/reconciliation windows; `role-finance-officer` billing windows need browser confirmation.

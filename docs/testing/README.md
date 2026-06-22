@@ -7,4 +7,4 @@
 
 **Related:** [BUILD-PROGRESS.md](../BUILD-PROGRESS.md) (slice smoke tests), [processes/](../processes/), [scope/README.md](../scope/README.md).
 
-**Status:** Sections 4–5 (delivery flows 4–5) shipped 2026-06-22. Sections 1–3, 6–9 and flows 1–3, 6–11 are planned follow-ups.
+**Status:** **v1.0** — full enquiry → exit spine (§1–7, flows 1–11). Amplify delivery pass documented in [ISSUE-LOG-TEMPLATE.md](./ISSUE-LOG-TEMPLATE.md).
