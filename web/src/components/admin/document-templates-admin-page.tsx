@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { SystemShell } from "@/components/system/system-shell";
+import { DocumentTemplateBlocksPanel } from "@/components/admin/document-template-blocks-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAdminPageAccess } from "@/lib/access/window-surface";
 import {
@@ -350,7 +351,7 @@ export function DocumentTemplatesAdminPage() {
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
-          Active templates are used when users print invoices and other documents. Edit title and footer text; layout blocks are managed by the template class.
+          Active templates are used when users print invoices and other documents. Edit title, footer, and rich-text clause blocks; layout blocks stay fixed per document class.
         </p>
         <Link href="/system/admin/document-registry" className="text-sm font-medium text-[#b51266] hover:underline">
           Document registry
@@ -479,6 +480,11 @@ export function DocumentTemplatesAdminPage() {
                   />
                 </label>
               </div>
+
+              <DocumentTemplateBlocksPanel
+                blocks={(draft ?? record).blocks}
+                onChange={(blocks) => setDraft({ ...(draft ?? record), blocks })}
+              />
 
               {saveError ? (
                 <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{saveError}</p>

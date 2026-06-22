@@ -190,6 +190,15 @@ export function buildInvoiceDocumentHtml(
   const dueDate = formatPrintDate(invoice.dueDate);
   const period = formatInvoicePeriod(invoice);
   const notes = invoice.notes?.trim();
+  const richTextBlocks = [...template.blocks]
+    .filter((block) => block.blockType === "rich-text" && block.contentHtml.trim())
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const richTextHtml = richTextBlocks
+    .map(
+      (block) =>
+        `<div class="footer-notes"><p><strong>${escapeDocumentHtml(block.label || "Notes")}</strong></p>${block.contentHtml}</div>`
+    )
+    .join("");
   const paymentRef = invoice.paymentReference?.trim() || invoice.documentNo;
   const paid = invoice.paidAmount > 0 ? formatMoney(invoice.paidAmount) : "";
   const balance =
@@ -252,7 +261,8 @@ export function buildInvoiceDocumentHtml(
   ${
     notes
       ? `<div class="footer-notes"><p><strong>Notes</strong></p><p>${escapeDocumentHtml(notes).replace(/\n/g, "<br/>")}</p></div>`
-      : `<div class="footer-notes"><p>Thank you for your business.</p></div>`
+      : richTextHtml ||
+        `<div class="footer-notes"><p>Thank you for your business.</p></div>`
   }`;
 
   return wrapDocumentHtml({

@@ -34,7 +34,7 @@ export const documentTemplatesArticle: HelpArticle = {
     {
       id: "what-templates-are",
       title: "What document templates are",
-      body: "Document templates control the look of printable documents — invoices, agreements, HR letters, enquiry acknowledgements, and more. Every template shares the same org header and footer from your organisation profile.\n\nAbilityAPP stores generated HTML in the document registry. Users print or download in the workspace; use Save as PDF from the browser print dialog when you need a file. Delivery stays in-system — there is no outbound email for invoices or documents.",
+      body: "Document templates control the look of printable documents — invoices, agreements, HR letters, enquiry acknowledgements, and more. Every template shares the same org header and footer from your organisation profile.\n\nAbilityAPP stores generated files in the document registry. On invoices, use Download PDF for a server-generated file, or Print invoice / Download HTML. Delivery stays in-system — there is no outbound email for invoices or documents.",
       relatedRoutes: ["/system/admin/document-templates", "/system/admin/document-registry"],
       windowKeys: ["admin-document-templates"],
     },
@@ -75,7 +75,7 @@ export const documentTemplatesArticle: HelpArticle = {
       ],
       steps: [
         "Select a template from the list.",
-        "Edit Document title, Description, or Footer override.",
+        "Edit Document title, Description, Footer override, or rich-text blocks in Template blocks.",
         "Tick or untick Active as needed.",
         "Confirm changes in Preview (sample record) at the bottom.",
         "Click Save on the unsaved-changes bar.",
@@ -86,11 +86,10 @@ export const documentTemplatesArticle: HelpArticle = {
     {
       id: "what-you-cannot-edit",
       title: "What you cannot edit in the UI yet",
-      body: "The template editor does not yet include a clause or block editor. These are fixed by the document class (invoice, service agreement, HR letter, etc.):",
+      body: "The block editor covers rich-text clauses and titles on unlocked blocks. These stay fixed per document class:",
       bullets: [
         "Template name in the list — use Duplicate to create a copy named \"… (copy)\".",
-        "Legal clause / body HTML — rich-text blocks are seeded with scaffold wording.",
-        "Line tables, signatures, and layout structure — driven by the document class render engine.",
+        "Line tables, signatures, and core layout structure — driven by the document class render engine.",
         "Creating a wholly new document type — requires a development change and database migration.",
       ],
       relatedRoutes: ["/system/admin/document-templates"],
@@ -160,7 +159,7 @@ export const documentTemplatesArticle: HelpArticle = {
       title: "Where users print or generate documents",
       body: "After templates and bindings are set, workspace users run these actions (when their role includes the process):",
       bullets: [
-        "Invoices → Print invoice, Download HTML, Issue invoice; list → Batch print.",
+        "Invoices → Download PDF, Print invoice, Download HTML, Issue invoice; list → Batch print.",
         "Enquiries → Print acknowledgement.",
         "Invoice reconciliation → Print remittance cover.",
         "Clients → Overview → Print statement or Print consent schedule.",
@@ -192,7 +191,7 @@ export const documentTemplatesArticle: HelpArticle = {
         "Why can't I see Duplicate or Save? — You need admin-document-templates write access in System.",
         "Why can't finance print? — Grant the print process (for example print-invoice) on their role under Admin → Roles.",
         "Can we email invoices? — No. Issue invoice saves to the registry and marks Sent; hand off via print or registry view.",
-        "How do we get PDF? — Print opens HTML; choose Save as PDF in the browser print dialog.",
+        "How do we get PDF? — Use Download PDF on the invoice (server render). Print invoice still works for browser Save as PDF.",
         "Can we edit legal clauses? — Not in the UI yet; duplicate and change title/footer today, or request a block editor slice.",
         "Server PDF / email later? — Deferred until a PDF host is decided; HTML print is the current production path.",
         "Why did localhost stop responding? — Dev server may restart after memory pressure; use http://localhost:3000 and wait for Ready.",

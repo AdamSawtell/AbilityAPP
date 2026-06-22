@@ -32,7 +32,7 @@ import { useData } from "@/lib/data-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { registerGeneratedDocument, renderAndRegisterPdf } from "@/lib/document-client";
 import { batchPrintInvoices } from "@/lib/invoice-batch-print";
 import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
 import { InvoiceDeliveryPanel } from "@/components/invoice-delivery-panel";
@@ -535,6 +535,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
   const [sendError, setSendError] = useState("");
   const [sendMessage, setSendMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
   const [registryDocumentNo, setRegistryDocumentNo] = useState("");
   const [templateId, setTemplateId] = useState("");
 
@@ -687,6 +688,39 @@ export function InvoiceDetailView({ id }: { id: string }) {
     });
   };
 
+  const handleDownloadPdf = async () => {
+    setPrintError("");
+    if (!activeTemplate) {
+      setPrintError("No active invoice template is available.");
+      return;
+    }
+    const exported = exportClientInvoiceHtml({ invoice: record, client, organization }, activeTemplate);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check invoice fields and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      const registered = await renderAndRegisterPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: activeTemplate.documentClass,
+        entityType: "invoice",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        fileName: `${record.documentNo}.pdf`,
+      });
+      if (registered?.downloadUrl) {
+        window.open(registered.downloadUrl, "_blank", "noopener,noreferrer");
+        setRegistryDocumentNo(registered.documentNo);
+      }
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   const handleIssue = async () => {
     setSendError("");
     setSendMessage("");
@@ -783,6 +817,14 @@ export function InvoiceDetailView({ id }: { id: string }) {
               <div className="flex flex-wrap gap-2">
                 {canPrint ? (
                   <>
+                    <button
+                      type="button"
+                      disabled={pdfBusy}
+                      onClick={() => void handleDownloadPdf()}
+                      className="inline-flex shrink-0 items-center rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {pdfBusy ? "Generating PDF…" : "Download PDF"}
+                    </button>
                     <button
                       type="button"
                       onClick={() => void handleDownload()}
