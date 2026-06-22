@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
@@ -12,12 +13,14 @@ import { RosterRocPanel } from "@/components/roster-roc-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
+import { localDateIso } from "@/lib/booking-cancellation";
 import { useData } from "@/lib/data-store";
 import {
   addDaysIso,
   formatDayHeading,
   formatShiftTimeRange,
   normalizeRosterShift,
+  resolveRosterWeekStart,
   shiftsForWeek,
   weekStartFromDate,
 } from "@/lib/roster-shift";
@@ -40,13 +43,29 @@ import {
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function RosteringWeekView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { clients, employees, locations, serviceBookings, rosterShifts, upsertRosterShift } = useData();
   const { canWriteWindow } = useAuth();
   const canEditRoster = canWriteWindow("rostering");
   const dragStartedRef = useRef(false);
   const [view, setView] = useState<"week" | "forward" | "gaps" | "open" | "roc" | "capacity">("week");
   const [forwardWeeks, setForwardWeeks] = useState(8);
-  const [weekStart, setWeekStart] = useState(() => weekStartFromDate("2025-10-06"));
+  const [weekStart, setWeekStartState] = useState(() =>
+    resolveRosterWeekStart(searchParams.get("week"), localDateIso())
+  );
+
+  function setWeekStart(next: string) {
+    setWeekStartState(next);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("week", next);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  function goToCurrentWeek() {
+    setWeekStart(weekStartFromDate(localDateIso()));
+  }
   const [editorShift, setEditorShift] = useState<ReturnType<typeof normalizeRosterShift> | null | "new">(null);
   const [newShiftDate, setNewShiftDate] = useState("");
   const [editorPrefill, setEditorPrefill] = useState<{ clientId?: string; serviceBookingId?: string } | null>(null);
@@ -343,6 +362,13 @@ export function RosteringWeekView() {
             className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
           >
             Next week
+          </button>
+          <button
+            type="button"
+            onClick={goToCurrentWeek}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Today
           </button>
           <button
             type="button"

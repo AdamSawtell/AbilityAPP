@@ -256,6 +256,18 @@ export function weekStartFromDate(isoDate: string): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** Week start from `?week=YYYY-MM-DD` or a fallback date (typically today). */
+export function resolveRosterWeekStart(
+  weekParam: string | null | undefined,
+  fallbackIsoDate: string
+): string {
+  const raw = weekParam?.trim().slice(0, 10) ?? "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return weekStartFromDate(raw);
+  }
+  return weekStartFromDate(fallbackIsoDate);
+}
+
 export function addDaysIso(isoDate: string, days: number): string {
   const d = new Date(`${isoDate.slice(0, 10)}T12:00:00`);
   d.setDate(d.getDate() + days);
