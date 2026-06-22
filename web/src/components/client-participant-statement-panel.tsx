@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { exportExtendedDocumentHtml, printExtendedDocument } from "@/lib/extended-document-print";
@@ -32,6 +33,7 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
   const [periodMonth, setPeriodMonth] = useState("");
   const [printError, setPrintError] = useState("");
   const [message, setMessage] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printParticipantStatement, "client");
   const activeTemplate =
@@ -102,6 +104,40 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
     }
   }
 
+  async function handleDownloadPdf() {
+    setPrintError("");
+    setMessage("");
+    if (!activeTemplate) {
+      setPrintError("No active participant statement template is available.");
+      return;
+    }
+    const exported = exportExtendedDocumentHtml(
+      { client, invoices: periodInvoices, periodLabel, organization },
+      activeTemplate
+    );
+    if (!exported) {
+      setPrintError("Could not generate the document. Check invoice data and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel: `${client.searchKey} — ${periodLabel}`,
+        fileName: pdfFileName(`${client.searchKey}-statement`),
+      });
+      setMessage("Statement PDF saved to the document registry.");
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
   if (!canPrint) return null;
 
   return (
@@ -110,7 +146,7 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
         <div>
           <h4 className="text-sm font-semibold text-slate-900">Participant service statement</h4>
           <p className="mt-1 text-sm text-slate-500">
-            Print a summary of invoices for this participant. Use Save as PDF from the browser print dialog.
+            Print or download a summary of invoices for this participant.
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
@@ -131,6 +167,14 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
             className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
           >
             Print statement
+          </button>
+          <button
+            type="button"
+            disabled={pdfBusy}
+            onClick={() => void handleDownloadPdf()}
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pdfBusy ? "Generating PDF…" : "Download PDF"}
           </button>
         </div>
       </div>

@@ -39,6 +39,7 @@ import {
 } from "@/lib/claim";
 import { remittanceStatusClass } from "@/lib/claim-remittance";
 import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
@@ -438,6 +439,7 @@ export function ClaimDetailView({ id }: { id: string }) {
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [printError, setPrintError] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const record = draft ?? stored;
   const client = data.clients.find((c) => c.id === record?.clientId);
@@ -521,6 +523,38 @@ export function ClaimDetailView({ id }: { id: string }) {
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
+    }
+  }
+
+  async function handleDownloadPdf() {
+    if (!record) return;
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printClaimBatch, "claim");
+    if (!template) {
+      setPrintError("No active claim batch template is available.");
+      return;
+    }
+    const printCtx = { claim: record, client, organization };
+    const exported = exportPhase2DocumentHtml(printCtx, template);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check claim fields and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "claim",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        fileName: pdfFileName(`${record.documentNo}-claim-batch`),
+      });
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
     }
   }
 
@@ -638,6 +672,14 @@ export function ClaimDetailView({ id }: { id: string }) {
                 className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
               >
                 Print claim batch
+              </button>
+              <button
+                type="button"
+                disabled={pdfBusy}
+                onClick={() => void handleDownloadPdf()}
+                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {pdfBusy ? "Generating PDF…" : "Download PDF"}
               </button>
             </div>
           ) : null}

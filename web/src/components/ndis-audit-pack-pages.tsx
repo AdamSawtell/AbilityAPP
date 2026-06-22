@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
@@ -47,6 +48,7 @@ export function NdisAuditPackView() {
 
   const [auditMonth, setAuditMonth] = useState(currentPlanMonthIso());
   const [printError, setPrintError] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const ctx = useMemo(() => buildContext(data), [data]);
   const evaluation = useMemo(() => evaluateAuditPack(ctx, auditMonth), [ctx, auditMonth]);
@@ -110,6 +112,37 @@ export function NdisAuditPackView() {
     }
   };
 
+  async function handleDownloadPdf() {
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printAuditPack, "audit-pack");
+    if (!template) {
+      setPrintError("No active audit pack template is available.");
+      return;
+    }
+    const printCtx = { evaluation, organization };
+    const exported = exportPhase2DocumentHtml(printCtx, template);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check audit pack data and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "audit-pack",
+        entityId: `audit-${auditMonth}`,
+        entityLabel: `Audit pack ${auditMonth}`,
+        fileName: pdfFileName(`ndis-audit-pack-${auditMonth}`),
+      });
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-600">
@@ -153,13 +186,23 @@ export function NdisAuditPackView() {
           </button>
         ) : null}
         {canPrint ? (
-          <button
-            type="button"
-            onClick={() => void handlePrintAuditPack()}
-            className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-          >
-            Print audit pack
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => void handlePrintAuditPack()}
+              className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+            >
+              Print audit pack
+            </button>
+            <button
+              type="button"
+              disabled={pdfBusy}
+              onClick={() => void handleDownloadPdf()}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {pdfBusy ? "Generating PDF…" : "Download PDF"}
+            </button>
+          </>
         ) : null}
         <Link
           href="/financial-close"

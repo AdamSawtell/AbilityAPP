@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { ClientRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
 import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useData } from "@/lib/data-store";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
@@ -31,6 +32,7 @@ export function InvoiceReconciliationView() {
   const [periodMonth, setPeriodMonth] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [printError, setPrintError] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const rows = useMemo(() => buildInvoiceReconcileRows(invoices, periodMonth), [invoices, periodMonth]);
   const digest = useMemo(() => summarizeInvoiceReconciliation(rows), [rows]);
@@ -89,6 +91,41 @@ export function InvoiceReconciliationView() {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printRemittanceCover, "invoice");
+    if (!template) {
+      setPrintError("No active remittance cover template is available.");
+      return;
+    }
+    const rows = filteredRows.filter((row) => row.invoicedAmount > 0);
+    if (!rows.length) {
+      setPrintError("No invoiced rows in scope for this period.");
+      return;
+    }
+    const exported = exportExtendedDocumentHtml({ rows, periodLabel, organization }, template);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check reconciliation data and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "invoice",
+        entityId: periodMonth || "all-periods",
+        entityLabel: `Remittance — ${periodLabel}`,
+        fileName: pdfFileName(`remittance-${periodMonth || "all"}`),
+      });
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-600">
@@ -138,14 +175,24 @@ export function InvoiceReconciliationView() {
           </button>
         ) : null}
         {canPrintRemittance ? (
-          <button
-            type="button"
-            onClick={() => void handlePrintRemittance()}
-            disabled={!filteredRows.length}
-            className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Print remittance cover
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => void handlePrintRemittance()}
+              disabled={!filteredRows.length}
+              className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Print remittance cover
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleDownloadPdf()}
+              disabled={!filteredRows.length || pdfBusy}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {pdfBusy ? "Generating PDF…" : "Download PDF"}
+            </button>
+          </>
         ) : null}
       </div>
 

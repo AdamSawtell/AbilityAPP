@@ -23,6 +23,7 @@ import {
 import { printBoardReportPack } from "@/lib/board-report-print";
 import { boardReportRegistryLabel } from "@/lib/document-render-extended";
 import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { exportExtendedDocumentHtml } from "@/lib/extended-document-print";
@@ -225,6 +226,7 @@ export function BoardReportingDetailView({ id }: { id: string }) {
   const [previewMode, setPreviewMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("overview");
   const [printError, setPrintError] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const record = draft ?? stored;
   const locked = boardReportPackIsLocked(stored ?? record) || (isBoardViewer && record?.status !== "Published");
@@ -338,6 +340,36 @@ export function BoardReportingDetailView({ id }: { id: string }) {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printBoardReport, "board-report");
+    if (!template) {
+      setPrintError("No active board report template is available.");
+      return;
+    }
+    const exported = exportExtendedDocumentHtml({ pack: record, organization }, template);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check report fields and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "board-report",
+        entityId: record.id,
+        entityLabel: boardReportRegistryLabel(record),
+        fileName: pdfFileName(`${record.title}-board-report`),
+      });
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   const navItems = [
     { id: "overview", label: "Overview" },
     ...record.sections
@@ -383,6 +415,14 @@ export function BoardReportingDetailView({ id }: { id: string }) {
             ) : null}
             <button type="button" onClick={() => void handlePrint()} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
               Print / export
+            </button>
+            <button
+              type="button"
+              disabled={pdfBusy}
+              onClick={() => void handleDownloadPdf()}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {pdfBusy ? "Generating PDF…" : "Download PDF"}
             </button>
           </div>
         }

@@ -12,6 +12,7 @@ import { useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
@@ -54,6 +55,7 @@ export function IncidentDetailView({ id }: { id: string }) {
   const [draft, setDraft] = useState<IncidentRecord | null>(null);
   const [saved, setSaved] = useState(false);
   const [printError, setPrintError] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const record = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
@@ -164,6 +166,38 @@ export function IncidentDetailView({ id }: { id: string }) {
     }
   }
 
+  async function handleDownloadPdf() {
+    if (!record) return;
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printIncidentNotification, "incident");
+    if (!template) {
+      setPrintError("No active incident notification template is available.");
+      return;
+    }
+    const ctx = { incident: record, client: primaryClient, organization };
+    const exported = exportPhase2DocumentHtml(ctx, template);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check incident fields and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "incident",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        fileName: pdfFileName(`${record.documentNo}-notification`),
+      });
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
   const tone = statusTone(record.status);
 
   return (
@@ -179,13 +213,23 @@ export function IncidentDetailView({ id }: { id: string }) {
         actions={
           <>
             {canPrintNotification ? (
-              <button
-                type="button"
-                onClick={() => void handlePrintNotification()}
-                className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-              >
-                Print notification
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => void handlePrintNotification()}
+                  className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+                >
+                  Print notification
+                </button>
+                <button
+                  type="button"
+                  disabled={pdfBusy}
+                  onClick={() => void handleDownloadPdf()}
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {pdfBusy ? "Generating PDF…" : "Download PDF"}
+                </button>
+              </>
             ) : null}
             <Link
               href="/incidents"
