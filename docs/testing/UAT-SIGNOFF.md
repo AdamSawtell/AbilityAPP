@@ -8,9 +8,9 @@ Record completion of full UAT before production or major demo release.
 |-------|--------|
 | **Release / milestone** | E2E smoke RC — pre full UAT |
 | **Environment** | Amplify (`main.d3vim3geq5td01.amplifyapp.com`) |
-| **Build / commit** | `a4cf479` on `main` |
+| **Build / commit** | `1468037` on `main` |
 | **UAT lead** | Engineering / AI-browser |
-| **Sign-off date** | *Not signed — T1 happy path complete; T2 packs open* |
+| **Sign-off date** | *Not signed — T1 + P0 UAT packs complete; P1+ open* |
 
 ## Tier gates
 
@@ -18,7 +18,7 @@ Record completion of full UAT before production or major demo release.
 |------|-------------|-------|------|-------|
 | T0 | `npm run build` + `page-guides:check` exit 0 | Yes | 2026-06-18 | CI / local |
 | T1 | Happy path TEST-010 → TEST-099 (see TEST-RUNBOOKS) | **Pass** | 2026-06-22 | All 11 flows pass on Amplify (TEST-096 manual separation letter) |
-| T2 | All P0 module packs | Partial | 2026-06-22 | UAT-01 + UAT-02 pass; UAT-04–07 not started |
+| T2 | All P0 module packs | **Pass** | 2026-06-22 | UAT-01, 02, 04, 05, 06, 07 pass on Amplify |
 | T2 | All P1 module packs (or documented deferrals) | No | | |
 | T3 | UAT-ROLE matrix | **Pass** | 2026-06-22 | ROLE-010–019 pass on Amplify (ROLE-017 partial — timesheet approval only) |
 | T3 | UAT-15 processes | No | | |
@@ -32,10 +32,10 @@ Record completion of full UAT before production or major demo release.
 | UAT-01 Enquiries & CRM | P0 | GabrielaWilson | 2026-06-22 | 2026-06-22 | **Pass** | |
 | UAT-02 Clients | P0 | IslaRobinson | 2026-06-22 | 2026-06-22 | **Pass** | |
 | UAT-03 Locations & catalog | P1 | | | | | |
-| UAT-04 Agreements & bookings | P0 | | | | | |
-| UAT-05 Planning & rostering | P0 | | | | | |
-| UAT-06 Timesheets | P0 | | | | | |
-| UAT-07 Billing & claims | P0 | | | | | |
+| UAT-04 Agreements & bookings | P0 | IslaRobinson | 2026-06-22 | 2026-06-22 | **Pass** | |
+| UAT-05 Planning & rostering | P0 | RileyShaw | 2026-06-22 | 2026-06-22 | **Pass** | |
+| UAT-06 Timesheets | P0 | PiperCollins | 2026-06-22 | 2026-06-22 | **Pass** | S-007 partial |
+| UAT-07 Billing & claims | P0 | JessicaHancock | 2026-06-22 | 2026-06-22 | **Pass** | S-009 partial |
 | UAT-08 Reconciliation & close | P1 | | | | | |
 | UAT-09 Incidents & complaints | P1 | | | | | |
 | UAT-10 Workforce & HR | P1 | | | | | |

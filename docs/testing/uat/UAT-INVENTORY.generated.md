@@ -99,37 +99,37 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-04-W-001 | `service-agreement-overview` | Overview | tab: Overview | service-agreements | |
-| UAT-04-W-002 | `service-agreement-lines` | Lines | tab: Lines | service-agreements | |
-| UAT-04-W-003 | `service-agreements` | Service agreements | /service-agreements | — | |
-| UAT-04-W-004 | `service-bookings` | Service bookings | /service-bookings | — | |
-| UAT-04-W-005 | `service-booking-overview` | Overview | tab: Overview | service-bookings | |
-| UAT-04-W-006 | `service-booking-lines` | Lines | tab: Lines | service-bookings | |
+| UAT-04-W-001 | `service-agreement-overview` | Overview | tab: Overview | service-agreements | **Pass** |
+| UAT-04-W-002 | `service-agreement-lines` | Lines | tab: Lines | service-agreements | **Pass** |
+| UAT-04-W-003 | `service-agreements` | Service agreements | /service-agreements | — | **Pass** |
+| UAT-04-W-004 | `service-bookings` | Service bookings | /service-bookings | — | **Pass** |
+| UAT-04-W-005 | `service-booking-overview` | Overview | tab: Overview | service-bookings | **Pass** |
+| UAT-04-W-006 | `service-booking-lines` | Lines | tab: Lines | service-bookings | **Pass** |
 
 ## UAT-05
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-05-W-001 | `service-planning` | Service planning | /service-planning | — | |
-| UAT-05-W-002 | `multi-provider-budget` | Multi-provider budget | /multi-provider-budget | service-planning | |
-| UAT-05-W-003 | `rostering` | Rostering | /rostering | — | |
+| UAT-05-W-001 | `service-planning` | Service planning | /service-planning | — | **Pass** |
+| UAT-05-W-002 | `multi-provider-budget` | Multi-provider budget | /multi-provider-budget | service-planning | **Pass** |
+| UAT-05-W-003 | `rostering` | Rostering | /rostering | — | **Pass** |
 
 ## UAT-06
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-06-W-001 | `timesheets` | Timesheets | /timesheets | — | |
-| UAT-06-W-002 | `timesheet-approval` | Timesheet approval | /timesheet-approval | — | |
-| UAT-06-W-003 | `generate-timesheets` | Generate timesheets | /generate-timesheets | — | |
+| UAT-06-W-001 | `timesheets` | Timesheets | /timesheets | — | **Pass** |
+| UAT-06-W-002 | `timesheet-approval` | Timesheet approval | /timesheet-approval | — | **Pass** |
+| UAT-06-W-003 | `generate-timesheets` | Generate timesheets | /generate-timesheets | — | **Pass** |
 
 ## UAT-07
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-07-W-001 | `claims` | Claims | /claims | — | |
-| UAT-07-W-002 | `generate-claims` | Generate claims | /generate-claims | — | |
-| UAT-07-W-003 | `invoices` | Invoices | /invoices | — | |
-| UAT-07-W-004 | `generate-invoices` | Generate invoices | /generate-invoices | — | |
+| UAT-07-W-001 | `claims` | Claims | /claims | — | **Pass** |
+| UAT-07-W-002 | `generate-claims` | Generate claims | /generate-claims | — | **Pass** |
+| UAT-07-W-003 | `invoices` | Invoices | /invoices | — | **Pass** |
+| UAT-07-W-004 | `generate-invoices` | Generate invoices | /generate-invoices | — | **Pass** |
 
 ## UAT-08
 

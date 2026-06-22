@@ -307,3 +307,41 @@ Use one row per defect or gap found during happy path or functional testing.
 | Push `3506136` + SandraBlake re-login | HR Manager sees **Generate separation letter** on Documents tab |
 | `emp-staff-147` → Generate separation letter | **Pass** — DOC-28994158 generated; saved to HR file (2 document rows) |
 | Download HTML / Print preview | Enabled after generate |
+
+## UAT-04 — Agreements & bookings — Pass (2026-06-22)
+
+**User:** IslaRobinson / Support Coordinator · Amplify · `sa-rose-ni`, `sb-50145`, `bp-e2e-exit`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-04-S-001–007 | **Pass** — SA active + lines; booking create; E2EXIT exit warning; cancelled 50151 |
+| Window UAT-04-W-001–006 | **Pass** |
+
+## UAT-05 — Planning & rostering — Pass (2026-06-22)
+
+**User:** IslaRobinson + RileyShaw (prior TEST-060) · `?week=2026-06-09`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-05-S-001–008 | **Pass** — service planning, roster grid, publish panel, open shifts 23 |
+| Window UAT-05-W-001–003 | **Pass** |
+
+## UAT-06 — Timesheets — Pass (2026-06-22)
+
+**Users:** IslaRobinson / PiperCollins path; OliverWilliams (ROLE-013)
+
+| Scenario | Result |
+|----------|--------|
+| UAT-06-S-001–006 | **Pass** — approval hub Blocked (1); worker my/shifts + my/timesheets |
+| UAT-06-S-007 | **Partial** — payroll export fields not re-run |
+| Window UAT-06-W-001–003 | **Pass** |
+
+## UAT-07 — Billing & claims — Pass (2026-06-22)
+
+**User:** IslaRobinson + JessicaHancock (ROLE-014) · `cl-jun26-bern`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-07-S-001–008, S-010 | **Pass** — claim $3,349 Accepted; PAPL 6/6; remittance matched |
+| UAT-07-S-009 | **Partial** — invoice delivery scaffold only (HP-074) |
+| Window UAT-07-W-001–004 | **Pass** |
