@@ -39,7 +39,7 @@ Use one row per defect or gap found during happy path or functional testing.
 | ISSUE-009 | ROLE-014 | Access / Finance | High | `role-finance-officer` missing billing windows — no Claims/Invoices in sidebar; pages only via direct URL | **Fixed** — `FINANCE_OFFICER_BILLING_WINDOWS` in `seed.ts` + `seed-access.sql` (re-applied remote) |
 | ISSUE-010 | TEST-020 | Enquiries / convert | Doc | Runbook said Support Coordinator converts; `role-coordinator` has no `enquiry-to-client` — convert button only on Intake role | **Fixed** — TEST-RUNBOOKS.md updated; use Intake Coordinator for convert |
 | ISSUE-011 | TEST-096 | HR / Access | High | HR Manager missing `print-employee-separation` — exit panel / generate letter not granted | **Fixed** — `HR_DOCUMENT_PRINT_PROCESSES` in `role-access-templates.ts` + `seed-access.sql` |
-| ISSUE-012 | TEST-096 | HR / Org | Doc | Auto-generate separation letter fails without org ABN on Amplify seed | **Open** — workaround: manual Documents line named "Separation letter" |
+| ISSUE-012 | TEST-096 | HR / Org | Doc | Auto-generate separation letter fails without org ABN on Amplify seed | **Fixed** — `app_organization.abn` in `seed-e2e-amplify-smoke.sql` + `defaultOrganization()` |
 
 ## Amplify deep pass — 2026-06-22
 
@@ -288,3 +288,21 @@ Use one row per defect or gap found during happy path or functional testing.
 | UAT-01-S-010 — Convert guard | **Pass** — Convert disabled when unsaved |
 | UAT-01-S-011 — All tabs | **Pass** — tabs render; audit footer on record |
 | Window checklist UAT-01-W-001–006 | **Pass** — enquiries + all enquiry tabs on `1000025` |
+
+## UAT-02 — Clients — 2026-06-22
+
+**User:** IslaRobinson / Support Coordinator · Amplify · `bp-bern`, `bp-e2e-exit`
+
+| Scenario | Result |
+|----------|--------|
+| UAT-02-T-001–023 | **Pass** — all client tabs visible/load on Bern; Plan budget + Full profile deep-checked |
+| UAT-02-S-001–003 | **Pass** — prior TEST-020 / process demos |
+| UAT-02-S-004 | **Pass** — `bp-e2e-exit` lifecycle **exit** + Voluntary withdrawal saved |
+| Window checklist UAT-02-W-001–023 | **Pass** |
+
+## ISSUE-012 retest — Org ABN — Fixed
+
+| Step | Result |
+|------|--------|
+| `npm run supabase:seed-e2e-amplify` | Updates `app_organization.abn` = `12 345 678 901` on remote DB |
+| Separation auto-generate | Unblocks `validateEmployeeDocument` ABN check (retest after Amplify deploy + HR re-login for ISSUE-011) |

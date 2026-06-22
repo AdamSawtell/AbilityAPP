@@ -33,7 +33,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 |------|----------|----------|------------|-----------|--------|------------|
 | UAT-00 | [UAT-00-core-home-tasks.md](./uat/UAT-00-core-home-tasks.md) | P2 | All | 1 h | Not started | — |
 | UAT-01 | [UAT-01-enquiries-crm.md](./uat/UAT-01-enquiries-crm.md) | P0 | Intake | 2 h | **Pass** | Flow 1–2 |
-| UAT-02 | [UAT-02-clients.md](./uat/UAT-02-clients.md) | P0 | Coordinator | 4 h | Not started | Flow 3, 7 |
+| UAT-02 | [UAT-02-clients.md](./uat/UAT-02-clients.md) | P0 | Coordinator | 4 h | **Pass** | Flow 3, 7 |
 | UAT-03 | [UAT-03-locations-catalog.md](./uat/UAT-03-locations-catalog.md) | P1 | Admin / Coordinator | 2 h | Not started | Partial |
 | UAT-04 | [UAT-04-agreements-bookings.md](./uat/UAT-04-agreements-bookings.md) | P0 | Coordinator | 3 h | Not started | Flow 4 |
 | UAT-05 | [UAT-05-planning-rostering.md](./uat/UAT-05-planning-rostering.md) | P0 | Roster admin | 3 h | Not started | Flow 4 |

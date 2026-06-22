@@ -2,6 +2,15 @@
 -- Run: npm run supabase:seed-e2e-amplify
 -- Safe to re-run (fixed ids).
 
+-- Organisation ABN required for HR separation letter / employment document auto-generate (ISSUE-012)
+update public.app_organization
+set
+  abn = '12 345 678 901',
+  ndis_registration_number = '4050012345',
+  updated_at = now(),
+  updated_by = 'E2E smoke seed'
+where id = 'org-default';
+
 -- Bern stays agency-managed so June claim cl-jun26-bern remains valid (TEST-085)
 update public.client
 set

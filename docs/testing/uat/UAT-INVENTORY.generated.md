@@ -47,29 +47,29 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-02-W-001 | `clients` | Clients | /clients | — | |
-| UAT-02-W-002 | `client-overview` | Overview | tab: Overview | clients | |
-| UAT-02-W-003 | `client-alerts` | Alerts | tab: Alerts | clients | |
-| UAT-02-W-004 | `client-activity` | Activity | tab: Activity | clients | |
-| UAT-02-W-005 | `client-full-profile` | Full profile | tab: Full profile | clients | |
-| UAT-02-W-006 | `client-bp-associations` | BP Associations | tab: BP Associations | clients | |
-| UAT-02-W-007 | `client-locations` | Locations | tab: Locations | clients | |
-| UAT-02-W-008 | `client-incidents` | Incidents | tab: Incidents | clients | |
-| UAT-02-W-009 | `client-requests` | Requests | tab: Requests | clients | |
-| UAT-02-W-010 | `client-restrictive-practices` | Restrictive Practices | tab: Restrictive Practices | clients | |
-| UAT-02-W-011 | `client-consents-and-legal-orders` | Consents and Legal Orders | tab: Consents and Legal Orders | clients | |
-| UAT-02-W-012 | `client-plan-budget` | Plan budget | tab: Plan budget | clients | |
-| UAT-02-W-013 | `client-monthly-service-plan` | Monthly service plan | tab: Monthly service plan | clients | |
-| UAT-02-W-014 | `client-plan-and-assessment` | Plan & Assessment | tab: Plan & Assessment | clients | |
-| UAT-02-W-015 | `client-support-plan` | Support Plan | tab: Support Plan | clients | |
-| UAT-02-W-016 | `client-goals` | Goals | tab: Goals | clients | |
-| UAT-02-W-017 | `client-progress-review` | Progress Review | tab: Progress Review | clients | |
-| UAT-02-W-018 | `client-contact-activity` | Contact Activity | tab: Contact Activity | clients | |
-| UAT-02-W-019 | `client-risks` | Risks | tab: Risks | clients | |
-| UAT-02-W-020 | `client-service-agreements` | Service agreements | tab: Service agreements | clients | |
-| UAT-02-W-021 | `client-service-bookings` | Service bookings | tab: Service bookings | clients | |
-| UAT-02-W-022 | `client-roster-of-care` | Roster of care | tab: Roster of care | clients | |
-| UAT-02-W-023 | `client-support-receiver-needs-and-rules` | Support Receiver Needs and Rules | tab: Support Receiver Needs and Rules | clients | |
+| UAT-02-W-001 | `clients` | Clients | /clients | — | Pass |
+| UAT-02-W-002 | `client-overview` | Overview | tab: Overview | clients | Pass |
+| UAT-02-W-003 | `client-alerts` | Alerts | tab: Alerts | clients | Pass |
+| UAT-02-W-004 | `client-activity` | Activity | tab: Activity | clients | Pass |
+| UAT-02-W-005 | `client-full-profile` | Full profile | tab: Full profile | clients | Pass |
+| UAT-02-W-006 | `client-bp-associations` | BP Associations | tab: BP Associations | clients | Pass |
+| UAT-02-W-007 | `client-locations` | Locations | tab: Locations | clients | Pass |
+| UAT-02-W-008 | `client-incidents` | Incidents | tab: Incidents | clients | Pass |
+| UAT-02-W-009 | `client-requests` | Requests | tab: Requests | clients | Pass |
+| UAT-02-W-010 | `client-restrictive-practices` | Restrictive Practices | tab: Restrictive Practices | clients | Pass |
+| UAT-02-W-011 | `client-consents-and-legal-orders` | Consents and Legal Orders | tab: Consents and Legal Orders | clients | Pass |
+| UAT-02-W-012 | `client-plan-budget` | Plan budget | tab: Plan budget | clients | Pass |
+| UAT-02-W-013 | `client-monthly-service-plan` | Monthly service plan | tab: Monthly service plan | clients | Pass |
+| UAT-02-W-014 | `client-plan-and-assessment` | Plan & Assessment | tab: Plan & Assessment | clients | Pass |
+| UAT-02-W-015 | `client-support-plan` | Support Plan | tab: Support Plan | clients | Pass |
+| UAT-02-W-016 | `client-goals` | Goals | tab: Goals | clients | Pass |
+| UAT-02-W-017 | `client-progress-review` | Progress Review | tab: Progress Review | clients | Pass |
+| UAT-02-W-018 | `client-contact-activity` | Contact Activity | tab: Contact Activity | clients | Pass |
+| UAT-02-W-019 | `client-risks` | Risks | tab: Risks | clients | Pass |
+| UAT-02-W-020 | `client-service-agreements` | Service agreements | tab: Service agreements | clients | Pass |
+| UAT-02-W-021 | `client-service-bookings` | Service bookings | tab: Service bookings | clients | Pass |
+| UAT-02-W-022 | `client-roster-of-care` | Roster of care | tab: Roster of care | clients | Pass |
+| UAT-02-W-023 | `client-support-receiver-needs-and-rules` | Support Receiver Needs and Rules | tab: Support Receiver Needs and Rules | clients | Pass |
 
 ## UAT-03
 
