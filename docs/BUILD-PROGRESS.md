@@ -13,7 +13,7 @@
 | **Current work package** | **Document platform — complete** |
 | **Active slice** | — |
 | **Next slice** | Server PDF when host decided |
-| **Last push** | 2026-06-18 — `d0567d9` (D8 HR offer letter) |
+| **Last push** | 2026-06-22 — D9 phase 2 templates + operator guides |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -31,6 +31,7 @@
 | D6 | HR contract pack + My workplace delivery | ✅ Shipped |
 | D7 | Extended templates (enquiry, remittance, statement, board report, issue invoice, clone) | ✅ Shipped |
 | D8 | HR offer of employment letter | ✅ Shipped |
+| D9 | Phase 2 templates (claim batch, incident notification, audit pack, consent schedule, separation letter) | ✅ Shipped |
 
 **Chunk D (document platform): complete** — HTML print + registry; server PDF deferred until host decision. **Delivery: in-system only** (registry, print, portal) — no outbound email.
 
@@ -96,6 +97,23 @@
 | 3 | System → Document registry | Employee entity row with offer label |
 | 4 | My workplace → Contracts | Offer visible after save when staff-visible |
 | 5 | Print preview | Offer layout with acceptance block (no contract signatures) |
+
+### What you can test — WP-D.9
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | System → Document templates | Claim batch, incident notification, audit pack, consent schedule, and separation letter templates listed |
+| 2 | Claims → open batch → Print claim batch | Print preview opens; registry row for claim entity |
+| 3 | Incidents → open incident → Print notification | Print preview opens; registry row for incident entity |
+| 4 | NDIS audit pack → Print audit pack | Print preview opens; registry row for audit month |
+| 5 | Clients → Overview → Print consent schedule | Consent table renders; registry row for client entity |
+| 6 | Employees → HR file → Documents → Generate separation letter | HR file line added; save persists |
+| 7 | `npx tsx scripts/document-render-smoke.mjs` | 13/13 pass |
+| 8 | `npm run build` + `page-guides:check` | Exit 0 |
+| 9 | System → Document templates → How-to guide | Opens `/system/guides/document-templates` (not Task automations) |
+| 10 | Edit template title → Save → refresh | Changes persist |
+| 11 | Duplicate template | Copy with "(copy)" in list and process dropdown |
+| 12 | System → Organisation → Document branding | Bank/footer/GST fields visible; links to template guide from org article |
 
 ---
 
@@ -1568,6 +1586,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-A.7 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; plan gateway panel + sync API |
 | 2026-06-20 | WP-D.22 | `/rostering` Week tab | **Pass** | build verified; Export week CSV button |
 | 2026-06-20 | WP-A.8 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; PDF paste import panel |
+| 2026-06-22 | Chunk D9 | `/system/admin/document-templates`, `/system/admin/document-registry`, `/system/guides/document-templates`, `/system/organization` | **Pass** | 16 templates (15 + duplicate); edit title → Save → refresh persists; Duplicate adds "(copy)" to list and process dropdown; How-to guide links to `document-templates` article |
+| 2026-06-22 | Chunk D9 workspace | `/claims/cl-jun26-bern`, `/ndis-audit-pack`, `/incidents/inc-1000001`, `/clients/bp-bern`, `/employees/emp-isla` | **Partial** | Print actions render; claim print handler runs (popup blocked in automation); audit pack Print button visible; Bugbot High fixes (consent description column, D9 template resolver) |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1702,6 +1722,9 @@ Maps each new/updated library surface to required handoff artifacts. **Todo** = 
 | 2026-06-21 | WP-I.5 | `delivery` — plan-budget-claimed-rollup | `clients-setup` — rollup verify | exit 0 |
 | 2026-06-21 | WP-I.6 | `delivery` — cancellation-claims | `services-setup` — cancellation lists | exit 0 |
 | 2026-06-21 | WP-J.5–J.7 | `delivery` + `service-planning` — financial close lock, invoice recon, plan recon v2 | `services-setup` — migrations 25360000/25361000 | exit 0 |
+| 2026-06-22 | Chunk D9 | `document-templates` — edit, duplicate, process bindings, registry, FAQ | `system-setup` — Document branding; `delivery` + `module-setup-guides` cross-links | exit 0 — 105 routes |
+| 2026-06-22 | `npm run build` | exit 0 (Chunk D9 guides) |
+| 2026-06-22 | `npm run page-guides:check` | exit 0 — 105 routes (Chunk D9 guides) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

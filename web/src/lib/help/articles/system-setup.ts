@@ -179,6 +179,21 @@ export const systemOrganisationArticle: HelpArticle = {
       relatedRoutes: ["/system/settings/time-and-date", "/system/guides/time-and-date"],
     },
     {
+      id: "document-branding",
+      title: "Document branding",
+      body: "System → Organisation → Document branding sets bank details, remittance email, default document footer, and GST registration used on all print templates.\n\nPer-template footer overrides are on System → Tasks → Document templates. See [Document templates](/system/guides/document-templates) for edit, duplicate, and process binding steps.",
+      steps: [
+        "Open System → Organisation.",
+        "Select the Document branding section.",
+        "Enter bank BSB, account number, account name, and remittance email for invoices.",
+        "Set document footer text (privacy and payment terms).",
+        "Tick GST registered if your org charges GST on applicable lines.",
+        "Save. Preview any template under Document templates to confirm header and footer.",
+      ],
+      relatedRoutes: ["/system/organization", "/system/admin/document-templates"],
+      windowKeys: ["admin-organization", "admin-document-templates"],
+    },
+    {
       id: "org-chart-tiers",
       title: "Org chart tiers",
       body: "System → Organisation → Org chart tiers defines the band labels and sort order on the workforce organisation chart (for example Executive, Management, Frontline).\n\nAssigning people to positions stays in Workforce planning → Organisation structure in the workspace.",

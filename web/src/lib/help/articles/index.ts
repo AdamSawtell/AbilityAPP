@@ -2,6 +2,7 @@ import { deliveryArticle, servicePlanningArticle } from "@/lib/help/articles/del
 import { SYSTEM_SETUP_ARTICLES } from "@/lib/help/articles/system-setup";
 import { quickTaskArticles } from "@/lib/help/articles/quick-tasks";
 import { taskAutomationsArticle } from "@/lib/help/articles/task-automations";
+import { documentTemplatesArticle } from "@/lib/help/articles/document-templates";
 import { adminArticle, maintainingGuideArticle, reportsArticle, servicesArticle } from "@/lib/help/articles/services-admin";
 import { clientsArticle, locationsArticle } from "@/lib/help/articles/clients-locations";
 import { enquiriesArticle, tasksArticle } from "@/lib/help/articles/core";
@@ -36,6 +37,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   reportsArticle,
   adminArticle,
   taskAutomationsArticle,
+  documentTemplatesArticle,
   userSessionAuditArticle,
   processAuditArticle,
   aiQueryAuditArticle,

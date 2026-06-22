@@ -130,7 +130,8 @@ export function buildEmployeeDocumentHtml(
 ): string {
   const { employee, managerName, organization } = ctx;
   const isOffer = template.documentClass === "hr-letter-offer";
-  const titleBlock = template.titleText?.trim() || (isOffer ? "Offer of Employment" : "Employment Agreement");
+  const isSeparation = template.documentClass === "hr-letter-separation";
+  const titleBlock = template.titleText?.trim() || (isOffer ? "Offer of Employment" : isSeparation ? "Separation letter" : "Employment Agreement");
   const titleUpper = titleBlock.toUpperCase();
   const offerDate = formatPrintDate(new Date().toISOString().slice(0, 10));
 
@@ -139,25 +140,28 @@ export function buildEmployeeDocumentHtml(
     <p class="doc-no">${escapeDocumentHtml(employee.searchKey)}</p>
     <p><span class="label">Employee no.</span> ${escapeDocumentHtml(employee.employeeNumber || "—")}</p>
     ${isOffer ? `<p><span class="label">Offer date</span> ${escapeDocumentHtml(offerDate)}</p>` : ""}
+    ${isSeparation && employee.endDate?.trim() ? `<p><span class="label">Last day of employment</span> ${escapeDocumentHtml(formatPrintDate(employee.endDate))}</p>` : ""}
   </div>`;
 
   const notice = isOffer
     ? "Offer letter scaffold — customise terms in System → Document templates before issuing to candidates."
-    : "Template scaffold — customise employment terms in System → Document templates before relying on this document for compliance.";
+    : isSeparation
+      ? "Separation letter scaffold — customise terms in System → Document templates before issuing to employees."
+      : "Template scaffold — customise employment terms in System → Document templates before relying on this document for compliance.";
 
   const bodyHtml = `<style>${employeeBodyStyles()}</style>
   <div class="scaffold-notice">${escapeDocumentHtml(notice)}</div>
-  ${isOffer ? `<div class="panel" style="margin-bottom:20px"><p class="party-name">${escapeDocumentHtml(employeeDisplayName(employee))}</p>${employee.email?.trim() ? `<p>${escapeDocumentHtml(employee.email.trim())}</p>` : ""}</div>` : partiesBlock(ctx)}
+  ${isOffer || isSeparation ? `<div class="panel" style="margin-bottom:20px"><p class="party-name">${escapeDocumentHtml(employeeDisplayName(employee))}</p>${employee.email?.trim() ? `<p>${escapeDocumentHtml(employee.email.trim())}</p>` : ""}</div>` : partiesBlock(ctx)}
   <div class="meta-grid">
     <p><span class="label">Job title</span> ${escapeDocumentHtml(employee.jobTitle || "—")}</p>
     <p><span class="label">Employment type</span> ${escapeDocumentHtml(employee.employmentType || "—")}</p>
-    <p><span class="label">${isOffer ? "Proposed start date" : "Commencement date"}</span> ${escapeDocumentHtml(formatPrintDate(employee.startDate))}</p>
+    <p><span class="label">${isOffer ? "Proposed start date" : isSeparation ? "Commencement date" : "Commencement date"}</span> ${escapeDocumentHtml(formatPrintDate(employee.startDate))}</p>
     <p><span class="label">Department</span> ${escapeDocumentHtml(employee.department || "—")}</p>
     <p><span class="label">Reports to</span> ${escapeDocumentHtml(managerName || "—")}</p>
-    ${isOffer ? "" : `<p><span class="label">Standard hours / week</span> ${escapeDocumentHtml(employee.standardHoursPerWeek || "—")}</p>`}
+    ${isOffer || isSeparation ? "" : `<p><span class="label">Standard hours / week</span> ${escapeDocumentHtml(employee.standardHoursPerWeek || "—")}</p>`}
   </div>
   ${richTextBlocks(template, organization)}
-  ${isOffer ? acceptanceBlock() : signatureBlock()}`;
+  ${isOffer ? acceptanceBlock() : isSeparation ? "" : signatureBlock()}`;
 
   return wrapDocumentHtml({
     title: `${employee.searchKey} — ${titleBlock}`,

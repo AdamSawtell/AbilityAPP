@@ -12,6 +12,16 @@ import {
   type ParticipantStatementContext,
   type RemittanceDocumentContext,
 } from "@/lib/document-render-extended";
+import {
+  buildAuditPackDocumentHtml,
+  buildClaimBatchDocumentHtml,
+  buildConsentScheduleDocumentHtml,
+  buildIncidentNotificationDocumentHtml,
+  type AuditPackDocumentContext,
+  type ClaimBatchDocumentContext,
+  type ConsentScheduleDocumentContext,
+  type IncidentNotificationDocumentContext,
+} from "@/lib/document-render-phase2";
 import { buildInvoiceDocumentHtml, type InvoiceDocumentContext } from "@/lib/document-render-invoice";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import {
@@ -27,7 +37,11 @@ export type DocumentRenderContext =
   | EnquiryDocumentContext
   | RemittanceDocumentContext
   | ParticipantStatementContext
-  | BoardReportDocumentContext;
+  | BoardReportDocumentContext
+  | ClaimBatchDocumentContext
+  | IncidentNotificationDocumentContext
+  | AuditPackDocumentContext
+  | ConsentScheduleDocumentContext;
 
 export type DocumentRenderResult = {
   html: string;
@@ -88,7 +102,7 @@ export function renderDocument(
   if (template.documentClass.startsWith("service-agreement")) {
     return renderAgreementDocument(template, ctx as AgreementDocumentContext, options);
   }
-  if (template.documentClass.startsWith("hr-contract") || template.documentClass === "hr-letter-offer") {
+  if (template.documentClass.startsWith("hr-contract") || template.documentClass === "hr-letter-offer" || template.documentClass === "hr-letter-separation") {
     return renderEmployeeDocument(template, ctx as EmployeeDocumentContext, options);
   }
   if (template.documentClass === "enquiry-letter") {
@@ -102,6 +116,18 @@ export function renderDocument(
   }
   if (template.documentClass === "board-report") {
     return renderWithValidation(template, ctx as BoardReportDocumentContext, buildBoardReportDocumentHtml, options);
+  }
+  if (template.documentClass === "claim-batch-summary") {
+    return renderWithValidation(template, ctx as ClaimBatchDocumentContext, buildClaimBatchDocumentHtml, options);
+  }
+  if (template.documentClass === "incident-notification-letter") {
+    return renderWithValidation(template, ctx as IncidentNotificationDocumentContext, buildIncidentNotificationDocumentHtml, options);
+  }
+  if (template.documentClass === "audit-pack-report") {
+    return renderWithValidation(template, ctx as AuditPackDocumentContext, buildAuditPackDocumentHtml, options);
+  }
+  if (template.documentClass === "consent-schedule") {
+    return renderWithValidation(template, ctx as ConsentScheduleDocumentContext, buildConsentScheduleDocumentHtml, options);
   }
   return {
     html: "",

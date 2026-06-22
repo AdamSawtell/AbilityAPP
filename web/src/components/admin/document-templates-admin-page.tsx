@@ -11,6 +11,11 @@ import {
   DEFAULT_AGREEMENT_TEMPLATE_ID,
   DEFAULT_AGREEMENT_VARIATION_TEMPLATE_ID,
   DEFAULT_BOARD_REPORT_TEMPLATE_ID,
+  DEFAULT_CLAIM_BATCH_TEMPLATE_ID,
+  DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID,
+  DEFAULT_AUDIT_PACK_TEMPLATE_ID,
+  DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID,
+  DEFAULT_HR_SEPARATION_TEMPLATE_ID,
   DEFAULT_ENQUIRY_ACK_TEMPLATE_ID,
   DEFAULT_HR_CONTRACT_CASUAL_TEMPLATE_ID,
   DEFAULT_HR_OFFER_TEMPLATE_ID,
@@ -143,6 +148,31 @@ export function DocumentTemplatesAdminPage() {
     [sorted]
   );
 
+  const claimBatchTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "claim-batch-summary"),
+    [sorted]
+  );
+
+  const incidentNotificationTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "incident-notification-letter"),
+    [sorted]
+  );
+
+  const auditPackTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "audit-pack-report"),
+    [sorted]
+  );
+
+  const consentScheduleTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "consent-schedule"),
+    [sorted]
+  );
+
+  const hrSeparationTemplates = useMemo(
+    () => sorted.filter((t) => t.active && t.documentClass === "hr-letter-separation"),
+    [sorted]
+  );
+
   const processBindingRows = useMemo(
     () =>
       [
@@ -216,8 +246,43 @@ export function DocumentTemplatesAdminPage() {
           templates: boardReportTemplates,
           fallbackId: DEFAULT_BOARD_REPORT_TEMPLATE_ID,
         },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printClaimBatch,
+          entityType: "claim",
+          label: "Print claim batch summary",
+          templates: claimBatchTemplates,
+          fallbackId: DEFAULT_CLAIM_BATCH_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printIncidentNotification,
+          entityType: "incident",
+          label: "Print incident notification",
+          templates: incidentNotificationTemplates,
+          fallbackId: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printAuditPack,
+          entityType: "audit-pack",
+          label: "Print audit pack report",
+          templates: auditPackTemplates,
+          fallbackId: DEFAULT_AUDIT_PACK_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printConsentSchedule,
+          entityType: "client",
+          label: "Print consent schedule",
+          templates: consentScheduleTemplates,
+          fallbackId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID,
+        },
+        {
+          processId: DOCUMENT_PRINT_PROCESSES.printEmployeeSeparation,
+          entityType: "employee",
+          label: "Generate separation letter",
+          templates: hrSeparationTemplates,
+          fallbackId: DEFAULT_HR_SEPARATION_TEMPLATE_ID,
+        },
       ] as const,
-    [invoiceTemplates, agreementTemplates, hrTemplates, hrOfferTemplates, enquiryTemplates, remittanceTemplates, statementTemplates, boardReportTemplates]
+    [invoiceTemplates, agreementTemplates, hrTemplates, hrOfferTemplates, enquiryTemplates, remittanceTemplates, statementTemplates, boardReportTemplates, claimBatchTemplates, incidentNotificationTemplates, auditPackTemplates, consentScheduleTemplates, hrSeparationTemplates]
   );
 
   async function handleBindingChange(processId: string, entityType: string, templateId: string) {

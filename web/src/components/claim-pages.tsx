@@ -37,6 +37,11 @@ import {
   type ClaimRecord,
 } from "@/lib/claim";
 import { remittanceStatusClass } from "@/lib/claim-remittance";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
+import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
+import { useOrganization } from "@/lib/organization-store";
 import { useData } from "@/lib/data-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
 
@@ -422,12 +427,16 @@ function CancellationClaimsPanel() {
 
 export function ClaimDetailView({ id }: { id: string }) {
   const data = useData();
-  const { session, canWriteWindow } = useAuth();
+  const { session, canWriteWindow, canProcess } = useAuth();
+  const { organization } = useOrganization();
+  const { resolveTemplate } = useDocumentPlatform();
+  const canPrintClaim = canProcess(DOCUMENT_PRINT_PROCESSES.printClaimBatch);
   const canEdit = canWriteWindow("claims");
   const stored = data.claims.find((c) => c.id === id);
   const [draft, setDraft] = useState<ClaimRecord | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [printError, setPrintError] = useState("");
 
   const record = draft ?? stored;
   const client = data.clients.find((c) => c.id === record?.clientId);
@@ -481,6 +490,38 @@ export function ClaimDetailView({ id }: { id: string }) {
 
   const locked = claimRecordIsLocked(stored ?? record);
   const ctx = validationContext(data);
+
+  async function handlePrintClaimBatch() {
+    if (!record) return;
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printClaimBatch, "claim");
+    if (!template) {
+      setPrintError("No active claim batch template is available.");
+      return;
+    }
+    const printCtx = { claim: record, client, organization };
+    const ok = printPhase2Document(printCtx, template);
+    if (!ok) {
+      setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      return;
+    }
+    const exported = exportPhase2DocumentHtml(printCtx, template);
+    if (exported) {
+      try {
+        await registerGeneratedDocument({
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: exported.documentClass,
+          entityType: "claim",
+          entityId: record.id,
+          entityLabel: record.documentNo,
+          fileName: `${record.documentNo.replace(/[^\w.-]+/g, "_")}-claim-batch.html`,
+        });
+      } catch (err) {
+        setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+      }
+    }
+  }
 
   return (
     <>
@@ -583,6 +624,25 @@ export function ClaimDetailView({ id }: { id: string }) {
               />
             </label>
           </div>
+
+          {canPrintClaim ? (
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-sm font-semibold text-slate-900">Claim batch summary</h2>
+                <p className="mt-1 text-sm text-slate-500">Print a cover sheet and line summary for this claim batch.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void handlePrintClaimBatch()}
+                className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+              >
+                Print claim batch
+              </button>
+            </div>
+          ) : null}
+          {printError ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
+          ) : null}
 
           <ClaimValidationPanel lines={record.lines} claimStatus={record.status} />
 

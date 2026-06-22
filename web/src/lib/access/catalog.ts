@@ -745,6 +745,36 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "invoices",
   },
   {
+    id: "print-claim-batch",
+    label: "Print claim batch summary",
+    description: "Print a claim batch cover sheet and line summary",
+    parentWindowKey: "claims",
+  },
+  {
+    id: "print-incident-notification",
+    label: "Print incident notification",
+    description: "Print a formal incident notification letter",
+    parentWindowKey: "incidents",
+  },
+  {
+    id: "print-audit-pack",
+    label: "Print audit pack report",
+    description: "Print the NDIS audit readiness report for a selected month",
+    parentWindowKey: "ndis-audit-pack",
+  },
+  {
+    id: "print-consent-schedule",
+    label: "Print consent schedule",
+    description: "Print participant consent and information sharing schedule",
+    parentWindowKey: "clients",
+  },
+  {
+    id: "print-employee-separation",
+    label: "Generate separation letter",
+    description: "Generate an employment separation letter and HR file line",
+    parentWindowKey: "employee-documents",
+  },
+  {
     id: "manage-session-audit-risk",
     label: "Investigate session risk",
     description: "Review flagged sessions, update risk status, and add investigation notes",

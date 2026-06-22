@@ -6,6 +6,12 @@ import type {
   ParticipantStatementContext,
   RemittanceDocumentContext,
 } from "@/lib/document-render-extended";
+import type {
+  AuditPackDocumentContext,
+  ClaimBatchDocumentContext,
+  ConsentScheduleDocumentContext,
+  IncidentNotificationDocumentContext,
+} from "@/lib/document-render-phase2";
 import type { ClientRecord } from "@/lib/client";
 import type { DocumentTemplateRecord } from "@/lib/document-template";
 import type { InvoiceRecord } from "@/lib/invoice";
@@ -25,7 +31,11 @@ export type DocumentRenderContext =
   | EnquiryDocumentContext
   | RemittanceDocumentContext
   | ParticipantStatementContext
-  | BoardReportDocumentContext;
+  | BoardReportDocumentContext
+  | ClaimBatchDocumentContext
+  | IncidentNotificationDocumentContext
+  | AuditPackDocumentContext
+  | ConsentScheduleDocumentContext;
 
 export type DocumentValidationIssue = {
   severity: "error" | "warning";
@@ -164,6 +174,47 @@ export function validateBoardReportDocument(ctx: BoardReportDocumentContext): Do
   return issues;
 }
 
+export function validateClaimBatchDocument(ctx: ClaimBatchDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.claim.documentNo?.trim()) {
+    issues.push({ severity: "error", field: "claim.documentNo", message: "Claim batch number is required." });
+  }
+  if (!ctx.claim.lines.length) {
+    issues.push({ severity: "warning", field: "claim.lines", message: "Claim batch has no lines." });
+  }
+  return issues;
+}
+
+export function validateIncidentNotificationDocument(ctx: IncidentNotificationDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.incident.documentNo?.trim()) {
+    issues.push({ severity: "error", field: "incident.documentNo", message: "Incident reference is required." });
+  }
+  if (!ctx.organization.abn?.trim()) {
+    issues.push({ severity: "warning", field: "org.abn", message: "Organisation ABN is not set." });
+  }
+  return issues;
+}
+
+export function validateAuditPackDocument(ctx: AuditPackDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.evaluation.auditMonth?.trim()) {
+    issues.push({ severity: "error", field: "evaluation.auditMonth", message: "Audit month is required." });
+  }
+  return issues;
+}
+
+export function validateConsentScheduleDocument(ctx: ConsentScheduleDocumentContext): DocumentValidationIssue[] {
+  const issues: DocumentValidationIssue[] = [];
+  if (!ctx.client.name?.trim()) {
+    issues.push({ severity: "error", field: "client.name", message: "Participant name is required." });
+  }
+  if (!ctx.client.consents?.length) {
+    issues.push({ severity: "warning", field: "client.consents", message: "No consent lines recorded for this participant." });
+  }
+  return issues;
+}
+
 export function documentBlockedByValidation(issues: DocumentValidationIssue[]): string | null {
   const error = issues.find((i) => i.severity === "error");
   return error?.message ?? null;
@@ -179,7 +230,7 @@ export function validateDocumentContext(
   if (template.documentClass.startsWith("service-agreement")) {
     return validateAgreementDocument(ctx as AgreementDocumentContext);
   }
-  if (template.documentClass.startsWith("hr-contract") || template.documentClass === "hr-letter-offer") {
+  if (template.documentClass.startsWith("hr-contract") || template.documentClass === "hr-letter-offer" || template.documentClass === "hr-letter-separation") {
     return validateEmployeeDocument(ctx as EmployeeDocumentContext);
   }
   if (template.documentClass === "enquiry-letter") {
@@ -193,6 +244,18 @@ export function validateDocumentContext(
   }
   if (template.documentClass === "board-report") {
     return validateBoardReportDocument(ctx as BoardReportDocumentContext);
+  }
+  if (template.documentClass === "claim-batch-summary") {
+    return validateClaimBatchDocument(ctx as ClaimBatchDocumentContext);
+  }
+  if (template.documentClass === "incident-notification-letter") {
+    return validateIncidentNotificationDocument(ctx as IncidentNotificationDocumentContext);
+  }
+  if (template.documentClass === "audit-pack-report") {
+    return validateAuditPackDocument(ctx as AuditPackDocumentContext);
+  }
+  if (template.documentClass === "consent-schedule") {
+    return validateConsentScheduleDocument(ctx as ConsentScheduleDocumentContext);
   }
   return [];
 }

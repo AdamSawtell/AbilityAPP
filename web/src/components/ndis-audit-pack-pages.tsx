@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
+import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
 import { formatPlanMonthLabel, currentPlanMonthIso } from "@/lib/monthly-service-plan";
 import {
   auditPackManifestCsv,
@@ -13,6 +17,7 @@ import {
   type AuditPackContext,
 } from "@/lib/ndis-audit-pack";
 import { downloadCsv } from "@/lib/reports/export";
+import { useOrganization } from "@/lib/organization-store";
 
 function buildContext(data: ReturnType<typeof useData>): AuditPackContext {
   return {
@@ -33,11 +38,15 @@ function buildContext(data: ReturnType<typeof useData>): AuditPackContext {
 
 export function NdisAuditPackView() {
   const data = useData();
-  const { canWindow, canWriteWindow } = useAuth();
+  const { canWindow, canWriteWindow, canProcess } = useAuth();
+  const { organization } = useOrganization();
+  const { resolveTemplate } = useDocumentPlatform();
   const canView = canWindow("ndis-audit-pack");
   const canExport = canWriteWindow("ndis-audit-pack");
+  const canPrint = canProcess(DOCUMENT_PRINT_PROCESSES.printAuditPack);
 
   const [auditMonth, setAuditMonth] = useState(currentPlanMonthIso());
+  const [printError, setPrintError] = useState("");
 
   const ctx = useMemo(() => buildContext(data), [data]);
   const evaluation = useMemo(() => evaluateAuditPack(ctx, auditMonth), [ctx, auditMonth]);
@@ -68,6 +77,37 @@ export function NdisAuditPackView() {
     if (!content) return;
     const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     downloadCsv(`ndis-audit-pack-${slug}-${auditMonth}.csv`, content);
+  };
+
+  async function handlePrintAuditPack() {
+    setPrintError("");
+    const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printAuditPack, "audit-pack");
+    if (!template) {
+      setPrintError("No active audit pack template is available.");
+      return;
+    }
+    const printCtx = { evaluation, organization };
+    const ok = printPhase2Document(printCtx, template);
+    if (!ok) {
+      setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      return;
+    }
+    const exported = exportPhase2DocumentHtml(printCtx, template);
+    if (exported) {
+      try {
+        await registerGeneratedDocument({
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: exported.documentClass,
+          entityType: "audit-pack",
+          entityId: `audit-${auditMonth}`,
+          entityLabel: `Audit pack ${auditMonth}`,
+          fileName: `ndis-audit-pack-${auditMonth}.html`,
+        });
+      } catch (err) {
+        setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+      }
+    }
   };
 
   return (
@@ -112,6 +152,15 @@ export function NdisAuditPackView() {
             Export manifest
           </button>
         ) : null}
+        {canPrint ? (
+          <button
+            type="button"
+            onClick={() => void handlePrintAuditPack()}
+            className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+          >
+            Print audit pack
+          </button>
+        ) : null}
         <Link
           href="/financial-close"
           className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -119,6 +168,9 @@ export function NdisAuditPackView() {
           Financial close
         </Link>
       </div>
+      {printError ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
+      ) : null}
 
       <div
         className={`rounded-xl border px-4 py-3 ${

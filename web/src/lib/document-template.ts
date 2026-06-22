@@ -13,7 +13,12 @@ export type DocumentClass =
   | "participant-statement"
   | "enquiry-letter"
   | "remittance-cover"
-  | "board-report";
+  | "board-report"
+  | "claim-batch-summary"
+  | "incident-notification-letter"
+  | "audit-pack-report"
+  | "consent-schedule"
+  | "hr-letter-separation";
 
 export type DocumentTemplateBlockType =
   | "org-header"
@@ -90,6 +95,11 @@ export const DOCUMENT_CLASS_LABELS: Record<DocumentClass, string> = {
   "enquiry-letter": "Enquiry acknowledgement",
   "remittance-cover": "Remittance cover sheet",
   "board-report": "Board report pack",
+  "claim-batch-summary": "Claim batch summary",
+  "incident-notification-letter": "Incident notification letter",
+  "audit-pack-report": "NDIS audit pack report",
+  "consent-schedule": "Consent and information sharing schedule",
+  "hr-letter-separation": "Separation letter",
 };
 
 export const DEFAULT_INVOICE_TEMPLATE_ID = "dtax-invoice-ndis-v1";
@@ -102,6 +112,11 @@ export const DEFAULT_ENQUIRY_ACK_TEMPLATE_ID = "denquiry-ack-v1";
 export const DEFAULT_REMITTANCE_COVER_TEMPLATE_ID = "dremittance-cover-v1";
 export const DEFAULT_PARTICIPANT_STATEMENT_TEMPLATE_ID = "dparticipant-statement-v1";
 export const DEFAULT_BOARD_REPORT_TEMPLATE_ID = "dboard-report-v1";
+export const DEFAULT_CLAIM_BATCH_TEMPLATE_ID = "dclaim-batch-v1";
+export const DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID = "dincident-notification-v1";
+export const DEFAULT_AUDIT_PACK_TEMPLATE_ID = "daudit-pack-v1";
+export const DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID = "dconsent-schedule-v1";
+export const DEFAULT_HR_SEPARATION_TEMPLATE_ID = "dhr-letter-separation-v1";
 
 export const DOCUMENT_PRINT_PROCESSES = {
   printInvoice: "print-invoice",
@@ -114,6 +129,11 @@ export const DOCUMENT_PRINT_PROCESSES = {
   printRemittanceCover: "print-remittance-cover",
   printParticipantStatement: "print-participant-statement",
   printBoardReport: "print-board-report",
+  printClaimBatch: "print-claim-batch",
+  printIncidentNotification: "print-incident-notification",
+  printAuditPack: "print-audit-pack",
+  printConsentSchedule: "print-consent-schedule",
+  printEmployeeSeparation: "print-employee-separation",
   sendInvoice: "send-invoice",
 } as const;
 
@@ -202,6 +222,11 @@ function templateFallbackForClass(documentClass: DocumentClass): DocumentTemplat
   if (documentClass === "remittance-cover") return defaultRemittanceCoverTemplate();
   if (documentClass === "participant-statement") return defaultParticipantStatementTemplate();
   if (documentClass === "board-report") return defaultBoardReportTemplate();
+  if (documentClass === "claim-batch-summary") return defaultClaimBatchTemplate();
+  if (documentClass === "incident-notification-letter") return defaultIncidentNotificationTemplate();
+  if (documentClass === "audit-pack-report") return defaultAuditPackTemplate();
+  if (documentClass === "consent-schedule") return defaultConsentScheduleTemplate();
+  if (documentClass === "hr-letter-separation") return defaultHrSeparationTemplate();
   return defaultInvoiceTemplate();
 }
 
@@ -362,6 +387,116 @@ export function defaultHrOfferTemplate(): DocumentTemplateRecord {
   };
 }
 
+export function defaultClaimBatchTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_CLAIM_BATCH_TEMPLATE_ID,
+    name: "NDIS claim batch summary",
+    description: "Cover sheet and line summary for an NDIS claim batch.",
+    documentClass: "claim-batch-summary",
+    active: true,
+    isDefault: true,
+    titleText: "Claim batch summary",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-claim-header", templateId: DEFAULT_CLAIM_BATCH_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-claim-title", templateId: DEFAULT_CLAIM_BATCH_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Claim batch summary", sortOrder: 2, locked: false },
+      { id: "dtblk-claim-meta", templateId: DEFAULT_CLAIM_BATCH_TEMPLATE_ID, blockType: "metadata", label: "Batch details", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-claim-lines", templateId: DEFAULT_CLAIM_BATCH_TEMPLATE_ID, blockType: "line-table", label: "Claim lines", contentHtml: "", sortOrder: 4, locked: true },
+      { id: "dtblk-claim-footer", templateId: DEFAULT_CLAIM_BATCH_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 5, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultIncidentNotificationTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID,
+    name: "Incident notification letter",
+    description: "Formal notification letter for incident stakeholders.",
+    documentClass: "incident-notification-letter",
+    active: true,
+    isDefault: true,
+    titleText: "Incident notification",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-incident-header", templateId: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-incident-title", templateId: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Incident notification", sortOrder: 2, locked: false },
+      { id: "dtblk-incident-parties", templateId: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID, blockType: "parties", label: "Recipient", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-incident-body", templateId: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID, blockType: "rich-text", label: "Notification", contentHtml: "<p>This letter confirms notification regarding the incident referenced below.</p>", sortOrder: 4, locked: false },
+      { id: "dtblk-incident-footer", templateId: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 5, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultAuditPackTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_AUDIT_PACK_TEMPLATE_ID,
+    name: "NDIS audit pack report",
+    description: "Printable compliance readiness report for an audit month.",
+    documentClass: "audit-pack-report",
+    active: true,
+    isDefault: true,
+    titleText: "NDIS audit pack",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-audit-header", templateId: DEFAULT_AUDIT_PACK_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-audit-title", templateId: DEFAULT_AUDIT_PACK_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "NDIS audit pack", sortOrder: 2, locked: false },
+      { id: "dtblk-audit-body", templateId: DEFAULT_AUDIT_PACK_TEMPLATE_ID, blockType: "rich-text", label: "Readiness summary", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-audit-footer", templateId: DEFAULT_AUDIT_PACK_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 4, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultConsentScheduleTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID,
+    name: "Consent and information sharing schedule",
+    description: "Schedule of participant consents and information sharing permissions.",
+    documentClass: "consent-schedule",
+    active: true,
+    isDefault: true,
+    titleText: "Consent and information sharing schedule",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-consent-header", templateId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-consent-title", templateId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Consent and information sharing schedule", sortOrder: 2, locked: false },
+      { id: "dtblk-consent-parties", templateId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID, blockType: "parties", label: "Participant", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-consent-lines", templateId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID, blockType: "line-table", label: "Consent lines", contentHtml: "", sortOrder: 4, locked: true },
+      { id: "dtblk-consent-footer", templateId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 5, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
+export function defaultHrSeparationTemplate(): DocumentTemplateRecord {
+  return {
+    id: DEFAULT_HR_SEPARATION_TEMPLATE_ID,
+    name: "Separation letter",
+    description: "Letter confirming employment separation and final obligations.",
+    documentClass: "hr-letter-separation",
+    active: true,
+    isDefault: true,
+    titleText: "Separation letter",
+    footerText: "",
+    blocks: [
+      { id: "dtblk-hr-sep-header", templateId: DEFAULT_HR_SEPARATION_TEMPLATE_ID, blockType: "org-header", label: "Organisation header", contentHtml: "", sortOrder: 1, locked: true },
+      { id: "dtblk-hr-sep-title", templateId: DEFAULT_HR_SEPARATION_TEMPLATE_ID, blockType: "title", label: "Document title", contentHtml: "Separation letter", sortOrder: 2, locked: false },
+      { id: "dtblk-hr-sep-parties", templateId: DEFAULT_HR_SEPARATION_TEMPLATE_ID, blockType: "parties", label: "Recipient", contentHtml: "", sortOrder: 3, locked: false },
+      { id: "dtblk-hr-sep-meta", templateId: DEFAULT_HR_SEPARATION_TEMPLATE_ID, blockType: "metadata", label: "Separation details", contentHtml: "", sortOrder: 4, locked: false },
+      { id: "dtblk-hr-sep-body", templateId: DEFAULT_HR_SEPARATION_TEMPLATE_ID, blockType: "rich-text", label: "Separation terms", contentHtml: "<p>This letter confirms the end of your employment with {{org.tradingName}}.</p>", sortOrder: 5, locked: false },
+      { id: "dtblk-hr-sep-footer", templateId: DEFAULT_HR_SEPARATION_TEMPLATE_ID, blockType: "org-footer", label: "Organisation footer", contentHtml: "", sortOrder: 6, locked: true },
+    ],
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  };
+}
+
 export const initialDocumentTemplates: DocumentTemplateRecord[] = [
   defaultInvoiceTemplate(),
   defaultAgreementTemplate(),
@@ -373,6 +508,11 @@ export const initialDocumentTemplates: DocumentTemplateRecord[] = [
   defaultRemittanceCoverTemplate(),
   defaultParticipantStatementTemplate(),
   defaultBoardReportTemplate(),
+  defaultClaimBatchTemplate(),
+  defaultIncidentNotificationTemplate(),
+  defaultAuditPackTemplate(),
+  defaultConsentScheduleTemplate(),
+  defaultHrSeparationTemplate(),
 ];
 
 export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
@@ -456,6 +596,46 @@ export const initialProcessDocumentBindings: ProcessDocumentBindingRecord[] = [
     isDefault: true,
     allowUserOverride: true,
   },
+  {
+    id: "pdb-print-claim-batch",
+    processId: "print-claim-batch",
+    entityType: "claim",
+    templateId: DEFAULT_CLAIM_BATCH_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-incident-notification",
+    processId: "print-incident-notification",
+    entityType: "incident",
+    templateId: DEFAULT_INCIDENT_NOTIFICATION_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-audit-pack",
+    processId: "print-audit-pack",
+    entityType: "audit-pack",
+    templateId: DEFAULT_AUDIT_PACK_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-consent-schedule",
+    processId: "print-consent-schedule",
+    entityType: "client",
+    templateId: DEFAULT_CONSENT_SCHEDULE_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
+  {
+    id: "pdb-print-employee-separation",
+    processId: "print-employee-separation",
+    entityType: "employee",
+    templateId: DEFAULT_HR_SEPARATION_TEMPLATE_ID,
+    isDefault: true,
+    allowUserOverride: true,
+  },
 ];
 
 export function normalizeDocumentTemplate(record: DocumentTemplateRecord): DocumentTemplateRecord {
@@ -489,28 +669,32 @@ export function resolveTemplateForProcess(
     const match = active.find((t) => t.id === binding.templateId);
     if (match) return match;
   }
-  const classHint =
-    processId === DOCUMENT_PRINT_PROCESSES.printRemittanceCover
-      ? "remittance-cover"
-      : processId === DOCUMENT_PRINT_PROCESSES.printEmployeeOffer
-        ? "hr-letter-offer"
-        : entityType === "service-agreement"
-        ? "service-agreement"
-        : entityType === "employee"
-          ? "hr-contract"
-          : entityType === "enquiry"
-            ? "enquiry-letter"
-            : entityType === "client"
-              ? "participant-statement"
-              : entityType === "board-report"
-                ? "board-report"
-                : entityType === "invoice"
-                  ? "tax-invoice"
-                  : "";
+  const classHint = documentClassHintForProcess(processId, entityType);
   if (classHint) {
     return active.find((t) => t.isDefault && t.documentClass.startsWith(classHint)) ?? active.find((t) => t.documentClass.startsWith(classHint)) ?? null;
   }
   return active.find((t) => t.isDefault && t.documentClass.startsWith("tax-invoice")) ?? active[0] ?? null;
+}
+
+function documentClassHintForProcess(processId: string, entityType: string): string {
+  if (processId === DOCUMENT_PRINT_PROCESSES.printRemittanceCover) return "remittance-cover";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printEmployeeOffer) return "hr-letter-offer";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printEmployeeSeparation) return "hr-letter-separation";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printClaimBatch) return "claim-batch-summary";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printIncidentNotification) return "incident-notification-letter";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printAuditPack) return "audit-pack-report";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printConsentSchedule) return "consent-schedule";
+  if (processId === DOCUMENT_PRINT_PROCESSES.printParticipantStatement) return "participant-statement";
+  if (entityType === "service-agreement") return "service-agreement";
+  if (entityType === "employee") return "hr-contract";
+  if (entityType === "enquiry") return "enquiry-letter";
+  if (entityType === "client") return "participant-statement";
+  if (entityType === "board-report") return "board-report";
+  if (entityType === "claim") return "claim-batch-summary";
+  if (entityType === "incident") return "incident-notification-letter";
+  if (entityType === "audit-pack") return "audit-pack-report";
+  if (entityType === "invoice") return "tax-invoice";
+  return "";
 }
 
 export function templatesForClass(
@@ -539,16 +723,31 @@ export function templatesForProcess(
       if (processId === DOCUMENT_PRINT_PROCESSES.printEmployeeOffer) {
         return templates.filter((t) => t.active && t.documentClass === "hr-letter-offer");
       }
+      if (processId === DOCUMENT_PRINT_PROCESSES.printEmployeeSeparation) {
+        return templates.filter((t) => t.active && t.documentClass === "hr-letter-separation");
+      }
       return templates.filter((t) => t.active && t.documentClass.startsWith("hr-contract"));
     }
     if (entityType === "enquiry") {
       return templates.filter((t) => t.active && t.documentClass === "enquiry-letter");
     }
     if (entityType === "client") {
+      if (processId === DOCUMENT_PRINT_PROCESSES.printConsentSchedule) {
+        return templates.filter((t) => t.active && t.documentClass === "consent-schedule");
+      }
       return templates.filter((t) => t.active && t.documentClass === "participant-statement");
     }
     if (entityType === "board-report") {
       return templates.filter((t) => t.active && t.documentClass === "board-report");
+    }
+    if (entityType === "claim") {
+      return templates.filter((t) => t.active && t.documentClass === "claim-batch-summary");
+    }
+    if (entityType === "incident") {
+      return templates.filter((t) => t.active && t.documentClass === "incident-notification-letter");
+    }
+    if (entityType === "audit-pack") {
+      return templates.filter((t) => t.active && t.documentClass === "audit-pack-report");
     }
     if (processId === DOCUMENT_PRINT_PROCESSES.printRemittanceCover) {
       return templates.filter((t) => t.active && t.documentClass === "remittance-cover");
