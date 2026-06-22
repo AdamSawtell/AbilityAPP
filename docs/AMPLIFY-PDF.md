@@ -31,6 +31,8 @@ Leave ~256 MB headroom for Chromium’s native memory outside the V8 heap.
 
 `@sparticuz/chromium-min` downloads the Sparticuz pack (~65 MB) to `/tmp` on first PDF request. Default pack URL is set in code; override with `CHROMIUM_PACK_URL` if needed. First request after a cold start may take 15–25 seconds — stay within Amplify’s **30s** API timeout.
 
+Production builds use `next build --webpack` (not Turbopack) so Chromium externals resolve on Amplify compute — see `web/package.json`.
+
 ## Tune via AWS CLI (when credentials configured)
 
 ```powershell
