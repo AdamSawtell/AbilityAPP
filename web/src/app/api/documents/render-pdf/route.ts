@@ -1,3 +1,5 @@
+import "server-only";
+
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
 import { htmlToPdfBuffer } from "@/lib/document-pdf.server";
@@ -8,7 +10,7 @@ import { saveGeneratedDocument } from "@/lib/supabase/data-api";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 function serviceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -27,6 +29,46 @@ type RenderPdfBody = {
   fileName?: string;
   batchId?: string;
 };
+
+async function persistPdfDocument(
+  body: RenderPdfBody,
+  pdfBytes: Buffer,
+  generatedBy: string
+): Promise<{ record: GeneratedDocumentRecord; downloadUrl: string | null }> {
+  const id = newLineId("docgen");
+  const documentNo = `DOC-${Date.now().toString().slice(-8)}`;
+  const baseName = body.fileName?.trim().replace(/\.(html|pdf)$/i, "") || documentNo;
+  const fileName = `${baseName}.pdf`;
+  const storagePath = `generated/${body.entityType}/${body.entityId}/${Date.now()}-${fileName}`;
+  const supabase = serviceClient();
+
+  const { error: uploadError } = await supabase.storage
+    .from("org-documents")
+    .upload(storagePath, pdfBytes, { contentType: "application/pdf", upsert: true });
+  if (uploadError) throw new Error(uploadError.message);
+
+  const record: GeneratedDocumentRecord = {
+    id,
+    documentNo,
+    templateId: body.templateId,
+    documentClass: body.documentClass,
+    entityType: body.entityType,
+    entityId: body.entityId,
+    entityLabel: body.entityLabel ?? "",
+    batchId: body.batchId ?? "",
+    storagePath,
+    fileName,
+    mimeType: "application/pdf",
+    byteSize: pdfBytes.byteLength,
+    status: "final",
+    generatedBy,
+    generatedAt: new Date().toISOString(),
+  };
+
+  await saveGeneratedDocument(supabase, record);
+  const { data: signed } = await supabase.storage.from("org-documents").createSignedUrl(storagePath, 3600);
+  return { record, downloadUrl: signed?.signedUrl ?? null };
+}
 
 export async function POST(request: Request) {
   const session = await getAuthSessionFromRequest();
@@ -50,55 +92,23 @@ export async function POST(request: Request) {
     const message = err instanceof Error ? err.message : "PDF generation failed";
     return NextResponse.json(
       {
-        error: `Could not generate PDF on the server. Use Print invoice and Save as PDF, or Download HTML. (${message})`,
+        error: `Could not generate PDF on the server. Use Print and Save as PDF, or Download HTML. (${message})`,
       },
       { status: 503 }
     );
   }
 
+  const pdfBase64 = pdfBytes.toString("base64");
+
   if (!isSupabaseConfigured()) {
-    return NextResponse.json({
-      ok: true,
-      localOnly: true,
-      pdfBase64: pdfBytes.toString("base64"),
-    });
+    return NextResponse.json({ ok: true, localOnly: true, pdfBase64 });
   }
 
-  const id = newLineId("docgen");
-  const documentNo = `DOC-${Date.now().toString().slice(-8)}`;
-  const baseName = body.fileName?.trim().replace(/\.(html|pdf)$/i, "") || documentNo;
-  const fileName = `${baseName}.pdf`;
-  const storagePath = `generated/${body.entityType}/${body.entityId}/${Date.now()}-${fileName}`;
-  const supabase = serviceClient();
-
-  const { error: uploadError } = await supabase.storage
-    .from("org-documents")
-    .upload(storagePath, pdfBytes, { contentType: "application/pdf", upsert: true });
-  if (uploadError) {
-    return NextResponse.json({ error: uploadError.message }, { status: 500 });
+  try {
+    const { record, downloadUrl } = await persistPdfDocument(body, pdfBytes, session.displayName);
+    return NextResponse.json({ record, downloadUrl, pdfBase64 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not save PDF";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const record: GeneratedDocumentRecord = {
-    id,
-    documentNo,
-    templateId: body.templateId,
-    documentClass: body.documentClass,
-    entityType: body.entityType,
-    entityId: body.entityId,
-    entityLabel: body.entityLabel ?? "",
-    batchId: body.batchId ?? "",
-    storagePath,
-    fileName,
-    mimeType: "application/pdf",
-    byteSize: pdfBytes.byteLength,
-    status: "final",
-    generatedBy: session.displayName,
-    generatedAt: new Date().toISOString(),
-  };
-
-  await saveGeneratedDocument(supabase, record);
-
-  const { data: signed } = await supabase.storage.from("org-documents").createSignedUrl(storagePath, 3600);
-
-  return NextResponse.json({ record, downloadUrl: signed?.signedUrl ?? null });
 }

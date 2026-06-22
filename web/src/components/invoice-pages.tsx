@@ -32,7 +32,8 @@ import { useData } from "@/lib/data-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
-import { registerGeneratedDocument, renderAndRegisterPdf } from "@/lib/document-client";
+import { registerGeneratedDocument } from "@/lib/document-client";
+import { downloadDocumentPdf } from "@/lib/document-pdf.client";
 import { batchPrintInvoices } from "@/lib/invoice-batch-print";
 import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
 import { InvoiceDeliveryPanel } from "@/components/invoice-delivery-panel";
@@ -193,7 +194,7 @@ export function InvoiceListView() {
     });
   };
 
-  const handleBatchPrint = async () => {
+  const handleBatchPrint = async (format: "html" | "pdf" = "html") => {
     setBatchError("");
     setBatchMessage("");
     if (!canBatchPrint) {
@@ -217,6 +218,7 @@ export function InvoiceListView() {
         clients,
         organization,
         template: activeTemplate,
+        format,
         onProgress: ({ current, total, documentNo }) => {
           setProgress(`Generating ${current} of ${total} — ${documentNo}`);
         },
@@ -296,10 +298,18 @@ export function InvoiceListView() {
             <button
               type="button"
               disabled={busy || !selectedIds.size || !activeTemplate}
-              onClick={() => void handleBatchPrint()}
+              onClick={() => void handleBatchPrint("pdf")}
+              className="rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy ? "Generating…" : `Batch PDF (${selectedIds.size || 0})`}
+            </button>
+            <button
+              type="button"
+              disabled={busy || !selectedIds.size || !activeTemplate}
+              onClick={() => void handleBatchPrint("html")}
               className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {busy ? "Generating…" : `Batch print (${selectedIds.size || 0})`}
+              {busy ? "Generating…" : `Batch HTML (${selectedIds.size || 0})`}
             </button>
           </div>
         ) : null}
@@ -701,7 +711,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
     }
     setPdfBusy(true);
     try {
-      const registered = await renderAndRegisterPdf({
+      const registered = await downloadDocumentPdf({
         html: exported.html,
         templateId: exported.templateId,
         documentClass: activeTemplate.documentClass,
@@ -710,10 +720,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
         entityLabel: record.documentNo,
         fileName: `${record.documentNo}.pdf`,
       });
-      if (registered?.downloadUrl) {
-        window.open(registered.downloadUrl, "_blank", "noopener,noreferrer");
-        setRegistryDocumentNo(registered.documentNo);
-      }
+      if (registered?.documentNo) setRegistryDocumentNo(registered.documentNo);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {

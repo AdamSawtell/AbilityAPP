@@ -4,6 +4,7 @@ export type RegisteredDocument = {
   id: string;
   documentNo: string;
   downloadUrl: string | null;
+  pdfBase64?: string;
 };
 
 export async function registerGeneratedDocument(input: {
@@ -92,6 +93,7 @@ export async function renderAndRegisterPdf(input: {
       id: payload.record.id,
       documentNo: payload.record.documentNo,
       downloadUrl: payload.downloadUrl ?? null,
+      pdfBase64: payload.pdfBase64,
     };
   } catch {
     return null;

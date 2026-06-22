@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import {
   exportEmployeeSeparationHtml,
   generateEmployeeSeparation,
@@ -34,6 +35,7 @@ export function EmployeeSeparationGeneratePanel({
   const canGenerate = canProcess(DOCUMENT_PRINT_PROCESSES.printEmployeeSeparation);
   const [templateId, setTemplateId] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -101,6 +103,35 @@ export function EmployeeSeparationGeneratePanel({
     downloadDocumentHtml(exported.html, `${employee.searchKey}-separation`);
   }
 
+  async function handleDownloadPdf() {
+    setError("");
+    if (!activeTemplate) {
+      setError("No active separation letter template is available.");
+      return;
+    }
+    const exported = exportEmployeeSeparationHtml(ctx, activeTemplate);
+    if (!exported) {
+      setError("Could not generate the document. Check employee and organisation fields.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: activeTemplate.documentClass,
+        entityType: "employee",
+        entityId: employee.id,
+        entityLabel: employee.searchKey,
+        fileName: pdfFileName(`${employee.searchKey}-separation`),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
   return (
     <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <h3 className="text-sm font-semibold text-slate-900">Generate separation letter</h3>
@@ -136,7 +167,15 @@ export function EmployeeSeparationGeneratePanel({
         </button>
         <button
           type="button"
-          disabled={busy || !activeTemplate}
+          disabled={busy || pdfBusy || !activeTemplate}
+          onClick={() => void handleDownloadPdf()}
+          className="rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:opacity-50"
+        >
+          {pdfBusy ? "Generating PDF…" : "Download PDF"}
+        </button>
+        <button
+          type="button"
+          disabled={busy || pdfBusy || !activeTemplate}
           onClick={handleDownload}
           className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
         >

@@ -20,6 +20,7 @@ import { registerGeneratedDocument } from "@/lib/document-client";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
+import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { formatContractDate } from "@/lib/contract";
 import { newLineId } from "@/lib/client-line-tables";
 import { useReferenceData } from "@/lib/config-store";
@@ -177,6 +178,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
   const [draft, setDraft] = useState<ServiceAgreementRecord | null>(null);
   const [saved, setSaved] = useState(false);
   const [printError, setPrintError] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
   const [templateId, setTemplateId] = useState("");
   const record = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
@@ -290,6 +292,36 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
     void archiveAgreementDocument(record);
   };
 
+  const handleDownloadPdf = async () => {
+    setPrintError("");
+    if (!activeTemplate) {
+      setPrintError("No active agreement template is available.");
+      return;
+    }
+    const exported = exportServiceAgreementHtml({ agreement: record, client: client ?? undefined, organization }, activeTemplate);
+    if (!exported) {
+      setPrintError("Could not generate the document. Check agreement fields and organisation profile.");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      await downloadDocumentPdf({
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: activeTemplate.documentClass,
+        entityType: "service-agreement",
+        entityId: record.id,
+        entityLabel: record.searchKey,
+        fileName: pdfFileName(record.searchKey),
+      });
+      void archiveAgreementDocument(record);
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
   return (
     <>
       <AppShell
@@ -343,6 +375,14 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
                 ) : null}
               </div>
               <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={pdfBusy}
+                  onClick={() => void handleDownloadPdf()}
+                  className="inline-flex shrink-0 items-center rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:opacity-50"
+                >
+                  {pdfBusy ? "Generating PDF…" : "Download PDF"}
+                </button>
                 <button
                   type="button"
                   onClick={() => void handleDownload()}

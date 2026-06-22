@@ -12,7 +12,7 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Business partners & client billing prefs — complete** |
 | **Active slice** | — |
-| **Next slice** | Batch invoice PDF (ZIP); extend PDF to other document classes |
+| **Next slice** | PDF on remaining print surfaces (enquiry, remittance, claims); Amplify Lambda memory for Chromium |
 | **Last push** | 2026-06-22 — WP-BP.1 business partners registry + client billing prefs |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
