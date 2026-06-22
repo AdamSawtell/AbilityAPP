@@ -3,7 +3,15 @@
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
-import { ACCESS_PROCESSES, appChildWindows, appRoleWindows } from "@/lib/access/catalog";
+import { appChildWindows, appRoleWindows } from "@/lib/access/catalog";
+import {
+  documentActionKind,
+  documentActionLabel,
+  documentProcessesForModule,
+  processesForWindowKey,
+  stripDocumentProcessesForWindows,
+  workflowProcesses,
+} from "@/lib/access/process-access";
 import { HOME_PANEL_KEYS, homePanelsForRoleEditor } from "@/lib/access/home-panels";
 import { ensureAdminRoleAccess, isAdminRole } from "@/lib/access/role-access-templates";
 import { ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
@@ -115,7 +123,7 @@ function ModuleAccessCard({
       {active && children ? (
         <div className="border-t border-slate-200/80 bg-white/60 px-3 py-2.5">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tabs & sub-functions</p>
-          <div className="flex flex-wrap gap-2">{children}</div>
+          <div className="space-y-3">{children}</div>
         </div>
       ) : null}
     </article>
@@ -151,6 +159,160 @@ function TabAccessChip({
         disabled={disabled}
         onChange={onChange}
       />
+    </div>
+  );
+}
+
+function DocumentProcessToggle({
+  processId,
+  label,
+  description,
+  checked,
+  disabled,
+  onToggle,
+}: {
+  processId: string;
+  label: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onToggle: () => void;
+}) {
+  const kind = documentActionKind(processId);
+  return (
+    <label
+      className={`flex cursor-pointer items-start gap-2 rounded-md border px-2 py-1.5 text-left ${
+        checked ? "border-[#d4147a]/40 bg-[#fdf2f8]" : "border-slate-200 bg-white"
+      } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
+    >
+      <input
+        type="checkbox"
+        className="mt-0.5"
+        checked={checked}
+        disabled={disabled}
+        onChange={onToggle}
+      />
+      <span className="min-w-0">
+        <span className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            {documentActionLabel(kind)}
+          </span>
+          <span className="text-xs font-medium text-slate-900">{label}</span>
+        </span>
+        <span className="mt-0.5 block text-[11px] leading-snug text-slate-500">{description}</span>
+      </span>
+    </label>
+  );
+}
+
+function TabAccessPanel({
+  windowKey,
+  label,
+  level,
+  disabled,
+  processIds,
+  onLevelChange,
+  onToggleProcess,
+}: {
+  windowKey: string;
+  label: string;
+  level: WindowAccessLevel | null;
+  disabled?: boolean;
+  processIds: string[];
+  onLevelChange: (level: WindowAccessLevel | null) => void;
+  onToggleProcess: (id: string) => void;
+}) {
+  const documentProcs = processesForWindowKey(windowKey);
+  const canGrantDocs = level === "write" && !disabled;
+  return (
+    <div
+      className={`min-w-[11rem] max-w-[16rem] flex-1 rounded-lg border px-2 py-2 ${
+        level === "write"
+          ? "border-[#f9a8d4]/70 bg-[#fdf2f8]/50"
+          : level === "read"
+            ? "border-indigo-200 bg-indigo-50/40"
+            : "border-slate-200 bg-slate-50"
+      } ${disabled ? "opacity-40" : ""}`}
+    >
+      <TabAccessChip label={label} level={level} disabled={disabled} onChange={onLevelChange} />
+      {documentProcs.length > 0 ? (
+        <div className="mt-2 space-y-1.5 border-t border-slate-200/80 pt-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Print &amp; send</p>
+          {documentProcs.map((proc) => (
+            <DocumentProcessToggle
+              key={proc.id}
+              processId={proc.id}
+              label={proc.label}
+              description={proc.description}
+              checked={processIds.includes(proc.id)}
+              disabled={!canGrantDocs}
+              onToggle={() => onToggleProcess(proc.id)}
+            />
+          ))}
+          {!canGrantDocs ? (
+            <p className="text-[10px] text-slate-500">Set tab to Write to allow print or send.</p>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ModuleDocumentActions({
+  moduleKey,
+  moduleWrite,
+  processIds,
+  onToggleProcess,
+  onSetAll,
+}: {
+  moduleKey: string;
+  moduleWrite: boolean;
+  processIds: string[];
+  onToggleProcess: (id: string) => void;
+  onSetAll: (ids: string[], enabled: boolean) => void;
+}) {
+  const moduleProcs = documentProcessesForModule(moduleKey);
+  if (!moduleProcs.length) return null;
+  const allIds = moduleProcs.map((p) => p.id);
+  return (
+    <div className="mt-3 space-y-2 border-t border-slate-200/80 pt-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Module documents</p>
+        <div className="flex gap-2 text-[10px] font-medium">
+          <button
+            type="button"
+            disabled={!moduleWrite}
+            className="text-[#b51266] hover:underline disabled:opacity-40"
+            onClick={() => onSetAll(allIds, true)}
+          >
+            Grant all
+          </button>
+          <button
+            type="button"
+            disabled={!moduleWrite}
+            className="text-slate-600 hover:underline disabled:opacity-40"
+            onClick={() => onSetAll(allIds, false)}
+          >
+            Clear all
+          </button>
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        {moduleProcs.map((proc) => (
+          <DocumentProcessToggle
+            key={proc.id}
+            processId={proc.id}
+            label={proc.label}
+            description={proc.description}
+            checked={processIds.includes(proc.id)}
+            disabled={!moduleWrite}
+            onToggle={() => onToggleProcess(proc.id)}
+          />
+        ))}
+      </div>
+      {!moduleWrite ? (
+        <p className="text-[10px] text-slate-500">Set module to Write to allow document actions.</p>
+      ) : null}
     </div>
   );
 }
@@ -251,7 +413,18 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
 
   function setWindowLevel(key: string, level: WindowAccessLevel | null) {
     if (!record) return;
-    applyWindowAccess(setWindowAccessLevel(record.windowAccess, key, level));
+    const access = setWindowAccessLevel(record.windowAccess, key, level);
+    const affectedKeys =
+      level === null
+        ? [key, ...appChildWindows(key).map((child) => child.key)]
+        : level === "read"
+          ? [key]
+          : [];
+    const processIds =
+      affectedKeys.length > 0
+        ? stripDocumentProcessesForWindows(record.processIds, affectedKeys)
+        : record.processIds;
+    setDraft(normalizeRoleWindowAccess({ ...record, windowAccess: access, processIds }));
   }
 
   function toggleProcess(id: string) {
@@ -261,6 +434,16 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
       ...record,
       processIds: has ? record.processIds.filter((p) => p !== id) : [...record.processIds, id],
     });
+  }
+
+  function setProcessGrants(ids: string[], enabled: boolean) {
+    if (!record) return;
+    const set = new Set(record.processIds);
+    for (const id of ids) {
+      if (enabled) set.add(id);
+      else set.delete(id);
+    }
+    setDraft({ ...record, processIds: [...set] });
   }
 
   function toggleReport(id: string) {
@@ -284,7 +467,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
   return (
     <Shell
       title="Roles"
-      subtitle="Roles control which windows and processes a user can see when signed in with that role. Set Read or Write per window or tab."
+      subtitle="Roles control windows, print/send permissions, and workflow actions. Document permissions sit under each module tab; workflow actions are listed separately."
       breadcrumbs={
         variant === "system"
           ? [{ label: "System", href: "/system" }, { label: "Admin", href: "/system/admin/roles" }, { label: "Roles" }]
@@ -361,8 +544,9 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 className="mb-1 text-sm font-semibold text-slate-900">Windows / functions</h2>
                 <p className="mb-4 text-xs text-slate-500">
-                  Pick access per module tile. Tabs appear inside the card when the module is on. Read is view-only;
-                  Write allows saves and edits.
+                  Pick access per module tile. Tabs appear inside the card when the module is on. Print and send
+                  permissions are under each tab (requires Write on that tab). Module-level documents appear at the
+                  bottom of the card.
                 </p>
                 <div className="mb-4 flex flex-wrap gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] text-slate-600">
                   <span className="inline-flex items-center gap-1.5">
@@ -393,15 +577,27 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                               level={parentLevel}
                               onChange={(level) => setWindowLevel(w.key, level)}
                             >
-                              {childWindows.map((child) => (
-                                <TabAccessChip
-                                  key={child.key}
-                                  label={child.label}
-                                  disabled={!record.windowAccess[w.key]}
-                                  level={windowAccessLevel(record.windowAccess, child.key)}
-                                  onChange={(level) => setWindowLevel(child.key, level)}
-                                />
-                              ))}
+                              <div className="flex w-full flex-wrap gap-2">
+                                {childWindows.map((child) => (
+                                  <TabAccessPanel
+                                    key={child.key}
+                                    windowKey={child.key}
+                                    label={child.label}
+                                    disabled={!record.windowAccess[w.key]}
+                                    level={windowAccessLevel(record.windowAccess, child.key)}
+                                    processIds={record.processIds}
+                                    onLevelChange={(level) => setWindowLevel(child.key, level)}
+                                    onToggleProcess={toggleProcess}
+                                  />
+                                ))}
+                              </div>
+                              <ModuleDocumentActions
+                                moduleKey={w.key}
+                                moduleWrite={parentLevel === "write"}
+                                processIds={record.processIds}
+                                onToggleProcess={toggleProcess}
+                                onSetAll={setProcessGrants}
+                              />
                             </ModuleAccessCard>
                           );
                         })}
@@ -441,13 +637,13 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
               ) : null}
 
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h2 className="mb-3 text-sm font-semibold text-slate-900">Processes</h2>
+                <h2 className="mb-3 text-sm font-semibold text-slate-900">Workflow actions</h2>
                 <p className="mb-4 text-xs text-slate-500">
-                  Assigned processes are available as actions (e.g. Convert to client) for this role only. Requires
-                  write access on the related module.
+                  Non-document processes (convert, assign, approve, tasks). Print and send permissions are configured
+                  under each module tab above.
                 </p>
                 <div className="space-y-2">
-                  {ACCESS_PROCESSES.map((p) => (
+                  {workflowProcesses().map((p) => (
                     <label
                       key={p.id}
                       className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2 ${

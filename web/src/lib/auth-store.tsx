@@ -4,7 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { usePathname, useRouter } from "next/navigation";
 import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/types";
 import { userInitials } from "@/lib/access/types";
-import { canAccessWindow, processById } from "@/lib/access/catalog";
+import { canAccessWindow } from "@/lib/access/catalog";
+import { canRunProcess } from "@/lib/access/process-access";
 import { canHomePanel } from "@/lib/access/home-panels";
 import { canSaveModuleRecord, canWriteWindowSession } from "@/lib/access/window-access";
 import { canAccessReport } from "@/lib/reports/catalog";
@@ -214,13 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [session]
   );
   const canProcess = useCallback(
-    (processId: string) => {
-      if (!session?.processIds.includes(processId)) return false;
-      const proc = processById(processId);
-      if (proc?.parentWindowKey && !canAccessWindow(session.windowKeys, proc.parentWindowKey)) return false;
-      if (proc?.parentWindowKey && !canWriteWindowSession(session, proc.parentWindowKey)) return false;
-      return true;
-    },
+    (processId: string) => (session ? canRunProcess(session, processId) : false),
     [session]
   );
 

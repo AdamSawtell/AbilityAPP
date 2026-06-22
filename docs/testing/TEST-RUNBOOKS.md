@@ -234,6 +234,24 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-032 — Role document print permissions
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo or Admin role |
+| **Route** | `/admin/roles` |
+| **Pass if** | Print/send toggles under tabs; tab Read clears document grants |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/admin/roles`; select Support Coordinator (or Team Leader) | Clients module card shows tabs with Print & send section on Support Plan |
+| 2 | Support Plan tab Write + Print support plan on; Save | Role saves |
+| 3 | Sign in as coordinator; open `bp-bern` → Support Plan | Print and Send buttons visible |
+| 4 | Back to Roles; Support Plan tab → Read; Save | Print/send grants cleared for that tab |
+| 5 | Coordinator refresh Support Plan | Print/Send hidden (edit may still be blocked by tab read) |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

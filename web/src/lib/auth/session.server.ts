@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { AuthSession } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
 import { canAccessWindow, sanitizeAppWindowKeys } from "@/lib/access/catalog";
+import { canRunProcess } from "@/lib/access/process-access";
 import { normalizeRoleWindowAccess, canWriteWindowSession } from "@/lib/access/window-access";
 import { agentIdsForRole } from "@/lib/ai/seed";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess, ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
@@ -196,4 +197,8 @@ export function sessionHasWindow(session: AuthSession, windowKey: string): boole
 
 export function sessionCanWriteWindow(session: AuthSession, windowKey: string): boolean {
   return canWriteWindowSession(session, windowKey);
+}
+
+export function sessionCanRunProcess(session: AuthSession, processId: string): boolean {
+  return canRunProcess(session, processId);
 }

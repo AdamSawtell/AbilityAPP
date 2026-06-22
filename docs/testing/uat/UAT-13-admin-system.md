@@ -10,7 +10,7 @@
 |--------|------|-------|----------|--------|
 | UAT-13-S-001 | Organization | `/admin/organization` → system | Org settings save | **Pass** — redirects to system; org under `/system/organization` |
 | UAT-13-S-002 | Reference data | `/admin/reference-data` | List edit | **Pass** — system nav Reference data link |
-| UAT-13-S-003 | Roles | `/admin/roles` | Grant window to role | **Pass** — ROLE-010 Admin → Roles in workspace sidebar |
+| UAT-13-S-003 | Roles | `/admin/roles` | Grant window + tab print/send | **Pass** — document permissions under module tabs (2026-06-23) |
 | UAT-13-S-004 | Task management | `/system/admin/task-management` | Queue config | **Pass** — system Admin → Tasks menu |
 | UAT-13-S-005 | Task automations | `/system/admin/task-automations` | List + edit | **Pass** — system surface catalog |
 | UAT-13-S-006 | Document templates | `/system/admin/document-templates` | List + blocks | **Pass** — separation letter templates (TEST-096) |

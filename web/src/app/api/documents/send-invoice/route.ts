@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
+import { getAuthSessionFromRequest, sessionCanRunProcess } from "@/lib/auth/session.server";
 import { newLineId } from "@/lib/client-line-tables";
 import type { DocumentClass, GeneratedDocumentRecord } from "@/lib/document-template";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
@@ -28,7 +28,7 @@ type IssueInvoiceBody = {
 export async function POST(request: Request) {
   const session = await getAuthSessionFromRequest();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  if (!session.processIds.includes("send-invoice")) {
+  if (!sessionCanRunProcess(session, "send-invoice")) {
     return NextResponse.json({ error: "You do not have permission to issue invoices." }, { status: 403 });
   }
 

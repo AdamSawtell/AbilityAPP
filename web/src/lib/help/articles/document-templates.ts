@@ -190,7 +190,7 @@ export const documentTemplatesArticle: HelpArticle = {
       bullets: [
         "Why doesn't my edit appear on print? — Did you Save the template? Is it Active? Is the correct template selected in Default templates by process?",
         "Why can't I see Duplicate or Save? — You need admin-document-templates write access in System.",
-        "Why can't finance print? — Grant the print process (for example print-invoice) on their role under Admin → Roles.",
+        "Why can't finance print? — Grant the print process under Admin → Roles on the Invoices module (requires Write).",
         "Can we email invoices? — No outbound SMTP. Issue invoice or Send support plan saves to the registry; use Open email draft or print/PDF handoff.",
         "Can we email a support plan? — Same as invoices: Send support plan registers HTML; Open email draft pre-fills mailto to the client email.",
         "How do we get PDF? — Use Download PDF on the invoice (server render). Print invoice still works for browser Save as PDF.",

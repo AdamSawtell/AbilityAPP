@@ -423,6 +423,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-128 | Client | Exit lifecycle | Full profile | Coordinator+ | Live | HP-100, TEST-095 |
 | FUNC-129 | Locations | Site registry | `/locations` | Admin+ | Live | — |
 | FUNC-130 | Business partners | Registry | `/business-partners` | Admin+ | Live | HP-034 |
+| FUNC-131 | Admin | Role document print/send | `/admin/roles` | Admin | Live | UAT-13-S-003 |
 
 ### 5.2 Services — agreements and bookings
 

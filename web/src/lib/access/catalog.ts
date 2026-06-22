@@ -746,8 +746,8 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
   {
     id: "print-participant-statement",
     label: "Print participant statement",
-    description: "Print a participant service statement from the client record",
-    parentWindowKey: "clients",
+    description: "Print a participant service statement from the client Overview tab",
+    parentWindowKey: "client-overview",
   },
   {
     id: "print-board-report",
@@ -782,20 +782,20 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
   {
     id: "print-consent-schedule",
     label: "Print consent schedule",
-    description: "Print participant consent and information sharing schedule",
-    parentWindowKey: "clients",
+    description: "Print participant consent and information sharing schedule from Overview",
+    parentWindowKey: "client-overview",
   },
   {
     id: "print-support-plan",
     label: "Print support plan",
     description: "Print the participant support plan for workers, coordinators, and audits",
-    parentWindowKey: "clients",
+    parentWindowKey: "client-support-plan",
   },
   {
     id: "send-support-plan",
     label: "Send support plan",
     description: "Save the support plan to the document registry for email handoff (in-system delivery only)",
-    parentWindowKey: "clients",
+    parentWindowKey: "client-support-plan",
   },
   {
     id: "print-employee-separation",
