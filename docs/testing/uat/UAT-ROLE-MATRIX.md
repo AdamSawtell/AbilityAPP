@@ -18,15 +18,15 @@ Verify each persona sees the correct sidebar, can open granted routes, and is bl
 | ROLE-014 | JessicaHancock | welcome | `role-finance-officer` |
 | ROLE-015 | TessaNguyen | welcome | `role-finance-manager` |
 | ROLE-016 | GabrielaWilson | welcome | `role-intake` |
-| ROLE-017 | PiperHall | welcome | `role-team-leader` |
+| ROLE-017 | PiperCollins | welcome | `role-team-leader` |
 
 ## Scenarios
 
 | UAT ID | Role | Check | Pass if | Result |
 |--------|------|-------|---------|--------|
 | UAT-ROLE-001 | SuperUser | Sidebar — all app groups | Enquiries, Clients, Delivery, Finance visible | |
-| UAT-ROLE-002 | GabrielaWilson | Sidebar — intake | Enquiries; no Generate claims write | |
-| UAT-ROLE-003 | GabrielaWilson | `/enquiries/new` | Can create enquiry | |
+| UAT-ROLE-002 | GabrielaWilson | Sidebar — intake | Enquiries; no Generate claims write | Pass |
+| UAT-ROLE-003 | GabrielaWilson | `/enquiries/new` | Can create enquiry | Pass (list + `1000025`) |
 | UAT-ROLE-004 | IslaRobinson | Sidebar — coordinator | Clients, SA, bookings; rostering per grant | |
 | UAT-ROLE-005 | IslaRobinson | `/clients/bp-bern` — all granted tabs | Tabs render; denied tabs hidden | |
 | UAT-ROLE-006 | RileyShaw | Sidebar — delivery | Rostering, Service planning, Generate timesheets | |
@@ -50,3 +50,4 @@ For every `app_role_window` row: use [UAT-INVENTORY.generated.md](./UAT-INVENTOR
 |-------|---------|-----|
 | ISSUE-006 | Worker blocked from `/my/shifts` | Frontline my-shifts grants in seed-access |
 | ISSUE-007 | Riley no rostering write | `ROSTERING_DELIVERY_WINDOWS` in seed.ts |
+| ISSUE-009 | Jessica no billing sidebar | `FINANCE_OFFICER_BILLING_WINDOWS` in seed.ts |

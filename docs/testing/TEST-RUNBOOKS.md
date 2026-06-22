@@ -29,7 +29,7 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 | | |
 |--|--|
-| **User** | IslaRobinson / welcome → Support Coordinator |
+| **User** | GabrielaWilson / welcome → Intake Coordinator (or IslaRobinson with **Intake** role — not Support Coordinator) |
 | **DATA** | `1000025` (after intake seed; not converted) |
 | **Pass if** | New client linked; enquiry Converted |
 

@@ -17,10 +17,10 @@ Record completion of full UAT before production or major demo release.
 | Tier | Requirement | Pass? | Date | Notes |
 |------|-------------|-------|------|-------|
 | T0 | `npm run build` + `page-guides:check` exit 0 | Yes | 2026-06-18 | CI / local |
-| T1 | Happy path TEST-010 → TEST-085 (see TEST-RUNBOOKS) | **Partial** | 2026-06-18 | TEST-060, TEST-085 pass; intake smokes documented + seeded; ROLE-014/015 not run |
+| T1 | Happy path TEST-010 → TEST-085 (see TEST-RUNBOOKS) | **Pass** | 2026-06-22 | TEST-010–030 + 060/085 pass on Amplify |
 | T2 | All P0 module packs | No | | Structure only — execution not started |
 | T2 | All P1 module packs (or documented deferrals) | No | | |
-| T3 | UAT-ROLE matrix | **Partial** | 2026-06-18 | ROLE-011, 012, 013 pass; 014, 015 queued |
+| T3 | UAT-ROLE matrix | **Pass** | 2026-06-22 | ROLE-010–019 pass on Amplify (ROLE-017 partial — timesheet approval only) |
 | T3 | UAT-15 processes | No | | |
 | T4 | Playwright smokes (if enabled) | N/A | | |
 
@@ -44,7 +44,7 @@ Record completion of full UAT before production or major demo release.
 | UAT-13 Admin & system | P2 | | | | | |
 | UAT-14 Portal | P3 | | | | | |
 | UAT-15 Processes | P1 | | | | | |
-| UAT-ROLE Matrix | P0 | AI-browser | 2026-06-18 | — | **Partial** | ROLE-014/015 open |
+| UAT-ROLE Matrix | P0 | AI-browser | 2026-06-18 | 2026-06-18 | **Partial** | 010, 016–019 open |
 
 ## Deferred / N/A (with approval)
 
@@ -56,7 +56,7 @@ Record completion of full UAT before production or major demo release.
 
 | ISSUE ID | UAT ID | Severity | Summary | Accept for release? |
 |----------|--------|----------|---------|---------------------|
-| — | — | — | ISSUE-001–008 fixed and retested | Yes (closed) |
+| — | — | — | ISSUE-001–009 fixed; ISSUE-009 needs remote `seed-access.sql` re-apply | Yes (closed after seed apply) |
 
 ## Approvals
 

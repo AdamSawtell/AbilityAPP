@@ -36,6 +36,8 @@ Use one row per defect or gap found during happy path or functional testing.
 | ISSUE-006 | ROLE-013 | My workplace | High | Support worker `/my/shifts` and `/my/timesheets` blocked — `seed-access.sql` grants `my-shifts`/`my-timesheets` only to `role-admin` | **Fixed** — frontline roles get my-shifts/timesheets in `seed-access.sql` |
 | ISSUE-007 | ROLE-012 | Access / Rostering | High | `role-rostering-manager` missing `rostering`, `service-planning`, `service-delivery` windows — read-only week view, no Publish week panel or shift editor | **Fixed** — `ROSTERING_DELIVERY_WINDOWS` in `seed.ts` + remote `seed-access.sql` |
 | ISSUE-008 | TEST-060 | Rostering seed | Medium | `rs-e2e-smoke-today` uses `current_date` (22 Jun on Amplify), not June 9 week; Oliver shift shows overlap warning with GabW 10:00–18:00 | **Fixed** — pinned to `2026-06-12` in June test week |
+| ISSUE-009 | ROLE-014 | Access / Finance | High | `role-finance-officer` missing billing windows — no Claims/Invoices in sidebar; pages only via direct URL | **Fixed** — `FINANCE_OFFICER_BILLING_WINDOWS` in `seed.ts` + `seed-access.sql` (re-applied remote) |
+| ISSUE-010 | TEST-020 | Enquiries / convert | Doc | Runbook said Support Coordinator converts; `role-coordinator` has no `enquiry-to-client` — convert button only on Intake role | **Fixed** — TEST-RUNBOOKS.md updated; use Intake Coordinator for convert |
 
 ## Amplify deep pass — 2026-06-22
 
@@ -121,6 +123,101 @@ Use one row per defect or gap found during happy path or functional testing.
 | Publish week (RileyShaw) | **Pass** — mandatory credentials seeded for `emp-oliver` |
 | Oliver `/my/shifts` | Published shift is in the past vs org “today”; week calendar `?week=2026-06-09` is the worker check |
 
-### ROLE-014 / ROLE-015 — Not run this pass
+### ROLE-014 / ROLE-015 — Amplify pass — 2026-06-18
 
-Finance roles (`JessicaHancock` billing clerk, `TessaNguyen` finance manager) queued next. Seed review: `role-finance-manager` has claims/invoices/reconciliation windows; `role-finance-officer` billing windows need browser confirmation.
+**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · June 2026 test window seed
+
+### ROLE-014 — Finance Officer (JessicaHancock / welcome) — Pass (after ISSUE-009 seed fix)
+
+| Step | Result |
+|------|--------|
+| Login + role picker | Finance Officer selected; home loads |
+| Sidebar — billing | **Fail pre-fix** — no Finance nav on home; **fixed** in `FINANCE_OFFICER_BILLING_WINDOWS` |
+| `/generate-claims` — June 2026 | **Pass** — preview loads; 0 eligible, 6 already claimed, 1 plan-managed skipped |
+| `/claims` | **Pass** — list loads; CL-JUN26-BERN visible |
+| `/invoices` | **Pass** — list loads; June invoices visible |
+
+### ROLE-015 — Finance Manager (TessaNguyen / welcome) — Pass
+
+| Step | Result |
+|------|--------|
+| Login + role picker | Finance Manager selected; home loads |
+| Sidebar — Service delivery | Plan / claim / invoice reconciliation + financial close + audit pack visible |
+| `/plan-reconciliation?period=2026-06` | **Pass** — Bern row; 3 participants, billed $3,349 |
+| `/financial-close?period=2026-06` | **Pass** — checklist loads; close blocked (payroll + plan variance — expected) |
+
+## Intake chain pass — 2026-06-22
+
+**Seeds:** `seed-access.sql` + `seed-e2e-intake` re-applied · Amplify
+
+### ROLE-016 — GabrielaWilson (Intake) — Pass
+
+| Step | Result |
+|------|--------|
+| Sidebar | Enquiries visible; no billing / generate-claims |
+| `/enquiries` | List loads; Samuel in active pipeline |
+| `/enquiries/1000025` | Proposal status; pipeline + audit footer |
+
+### TEST-010 — Pass
+
+| Step | Result |
+|------|--------|
+| Enquiry `1000025` at Proposal | **Pass** — seeded qualification complete |
+| Activity tab | 1 row from intake seed |
+| Audit footer | Visible |
+
+### TEST-020 — Pass (intake role)
+
+| Step | Result |
+|------|--------|
+| Isla as **Support Coordinator** on `1000025` | No Convert button (ISSUE-010) |
+| Isla switched to **Intake Coordinator** | Convert to client **Pass** |
+| New client | `bp-samu` · enquiry link `1000025` · activity carried forward |
+
+### TEST-030 — Pass (2026-06-22)
+
+| Step | Result |
+|------|--------|
+| `bp-samu` Full profile (Isla / coordinator) | **Pass** — lifecycle **active**; status Active receiving support |
+| Plan manager + invoice delivery | **Pass** — MyPlan Manager; Email |
+| Audit footer | Updated by Isla Robinson on save |
+
+### ISSUE-009 retest — Jessica billing sidebar — Pass
+
+| Step | Result |
+|------|--------|
+| JessicaHancock re-login after `seed-access.sql` | **Pass** — Service delivery → Claims, Generate claims, Invoices, Generate invoices |
+
+## Amplify role pass — 2026-06-22 (continued)
+
+**Seeds:** `seed-access.sql` + `seed-e2e-amplify` re-applied
+
+### ROLE-010 — SuperUser — Pass
+
+| Step | Result |
+|------|--------|
+| Sidebar | Enquiries, Clients, Service delivery (full), Admin → Roles |
+| Service delivery submenu | Rostering through Board reporting |
+
+### ROLE-017 — PiperCollins (Team Leader) — Pass (partial)
+
+| Step | Result |
+|------|--------|
+| Login | `PiperCollins` / welcome — doc listed `PiperHall` (incorrect username) |
+| Sidebar | Timesheet approval under Service delivery |
+| `/timesheet-approval` | **Pass** — scope picker; Ready/Review/Blocked tabs |
+| Generate timesheets | Not granted to `role-team-leader` in seed (expected) |
+
+### ROLE-018 — SandraBlake (HR Manager) — Pass
+
+| Step | Result |
+|------|--------|
+| People menu | **Pass** — Employees, Workforce planning |
+| Home workforce reviews | 9 leave requests in needs-attention |
+
+### ROLE-019 — QuinnTaylor (Quality Manager) — Pass
+
+| Step | Result |
+|------|--------|
+| Incident reports sidebar | **Pass** — list loads from home |
+| `/ndis-audit-pack` | **Pass** — page loads (direct URL spot-check) |

@@ -47,7 +47,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 | UAT-13 | [UAT-13-admin-system.md](./uat/UAT-13-admin-system.md) | P2 | SuperUser / ICT | 4 h | Not started | — |
 | UAT-14 | [UAT-14-portal.md](./uat/UAT-14-portal.md) | P3 | Portal (if release) | 1 h | Not started | Planned |
 | UAT-15 | [UAT-15-processes.md](./uat/UAT-15-processes.md) | P1 | Mixed | 3 h | Not started | Cross-flow |
-| UAT-ROLE | [UAT-ROLE-MATRIX.md](./uat/UAT-ROLE-MATRIX.md) | P0 | All personas | 2 h | **Partial** (011–013) | ROLE-010–019 |
+| UAT-ROLE | [UAT-ROLE-MATRIX.md](./uat/UAT-ROLE-MATRIX.md) | P0 | All personas | 2 h | **Partial** (011–016) | 010, 017–019 |
 
 **Generated checklist:** [uat/UAT-INVENTORY.generated.md](./uat/UAT-INVENTORY.generated.md) — run `npm run uat:inventory` after catalog changes.
 

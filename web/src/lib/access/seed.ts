@@ -119,6 +119,14 @@ const ROSTERING_DELIVERY_WINDOWS = [
   "generate-timesheets",
 ] as const;
 
+/** Finance Officer — claims and invoice processing (ROLE-014 / HP flow 5). */
+const FINANCE_OFFICER_BILLING_WINDOWS = [
+  "claims",
+  "generate-claims",
+  "invoices",
+  "generate-invoices",
+] as const;
+
 const TEAM_LEADER_ACCESS = {
   windowKeys: [
     "home",
@@ -185,7 +193,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
       windowKeys: [...managerAccess().windowKeys, "financial-close", "plan-reconciliation", "claim-reconciliation", "invoice-reconciliation", "multi-provider-budget", "ndis-audit-pack", "board-reporting"],
     reportIds: [...managerAccess().reportIds, "financial-close-summary", "ndis-audit-pack-summary"],
   }),
-  defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess()),
+  defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess([...FINANCE_OFFICER_BILLING_WINDOWS])),
   defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", managerAccess(["incidents-compliance", "incidents-dashboard"])),
   defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", officerAccess(["incidents-compliance"])),
   defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", {

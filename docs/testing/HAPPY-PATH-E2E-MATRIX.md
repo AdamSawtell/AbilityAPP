@@ -81,7 +81,7 @@ This matrix is the **demo-grade E2E contract** for AbilityAPP: a single spine fr
 | OliverWilliams | welcome | ROLE-013 | Support worker |
 | JessicaHancock | welcome | ROLE-014 | Finance officer / billing |
 | TessaNguyen | welcome | ROLE-015 | Finance manager |
-| PiperHall | welcome | ROLE-017 | Team leader |
+| PiperCollins | welcome | ROLE-017 | Team leader |
 
 **Note:** Sign out and back in after `seed-access.sql` changes so window grants reload.
 
@@ -93,9 +93,9 @@ Aligned with [scope/README.md](../scope/README.md) and chunk map in [BUILD-PROGR
 
 | Flow | Name | Primary DATA | Depends on | Exit criteria | Smoke TEST | Verification |
 |------|------|--------------|------------|---------------|------------|----------------|
-| **1** | Enquiry intake | DATA-001, DATA-002 | — | Enquiry at Proposal; qualification scored | TEST-010 | Documented + seeded |
-| **2** | Convert → client | DATA-002 → new client | Flow 1 | Client linked to enquiry; lifecycle intake/onboarding | TEST-020 | Documented + seeded |
-| **3** | Client ready for service | DATA-003 or Bern | Flow 2 | Lifecycle **active**; plan budget + billing set | TEST-030 | Documented |
+| **1** | Enquiry intake | DATA-001, DATA-002 | — | Enquiry at Proposal; qualification scored | TEST-010 | **Amplify pass** |
+| **2** | Convert → client | DATA-002 → new client | Flow 1 | Client linked to enquiry; lifecycle intake/onboarding | TEST-020 | **Amplify pass** (intake role) |
+| **3** | Client ready for service | DATA-003 or Bern | Flow 2 | Lifecycle **active**; plan budget + billing set | TEST-030 | **Amplify pass** — `bp-samu` lifecycle active |
 | **4** | SA → roster → timesheets | DATA-010–016 | Flow 3 | Approved timesheet from rostered shift | TEST-060 | **Amplify pass** |
 | **5** | Delivery → claims → billing | DATA-010, 015–017 | Flow 4 | Claim + rollup; reconciliation loads | TEST-085 | **Amplify pass** |
 | **6** | Employee hire → roster eligibility | DATA-013, emp-oliver | Parallel | WWCC + NDIS screening on file | TEST-090 | Seeded; partial pass |
@@ -566,7 +566,7 @@ Representative suites — full window list lives in `supabase/seed-access.sql` (
 | ROLE-014 | JessicaHancock | `role-finance-officer` | 5 | claims, invoices, generate-claims, generate-invoices |
 | ROLE-015 | TessaNguyen | `role-finance-manager` | 5, 9 | reconciliation-*, financial-close |
 | ROLE-016 | GabrielaWilson | `role-intake` | 1–2 | enquiries + dependent tabs, convert |
-| ROLE-017 | PiperHall | `role-team-leader` | 4 | timesheet-approval, generate-timesheets, timesheets |
+| ROLE-017 | PiperCollins | `role-team-leader` | 4 | timesheet-approval (generate-timesheets not in seed) |
 | ROLE-018 | HR manager user | `role-hr-manager` | 6, 8 | employees, workforce-planning |
 | ROLE-019 | Quality manager user | `role-quality-manager` | 10–11 | incidents, complaints, ndis-audit-pack |
 
@@ -621,9 +621,9 @@ Cross-check of **scope spine**, **process docs**, **access catalog**, and **BUIL
 | `npm run page-guides:check` | exit 0 (108 routes) |
 | `npm run supabase:seed-e2e-intake` | exit 0 |
 | `npm run supabase:seed-e2e-amplify` | exit 0 |
-| TEST-010 → TEST-030 | Pass after intake seed |
+| TEST-010 → TEST-030 | Pass on Amplify |
 | TEST-060 + TEST-085 | Pass on Amplify (see issue log) |
-| ROLE-014 / ROLE-015 | Queued — finance browser pass |
+| ROLE-014 / ROLE-015 | Pass on Amplify (ISSUE-009 finance-officer billing windows) |
 
 ---
 
