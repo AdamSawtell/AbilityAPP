@@ -28,6 +28,9 @@
 7. [Role permission matrix](#7-role-permission-matrix)
 8. [Issue log](#8-issue-log)
 9. [Missing functions and gaps review](#9-missing-functions-and-gaps-review)
+10. [Full UAT programme](#10-full-uat-programme)
+
+**Full catalogue testing:** [UAT-INDEX.md](./UAT-INDEX.md) (all windows, processes, reports).
 
 ---
 
@@ -88,19 +91,19 @@ This matrix is the **demo-grade E2E contract** for AbilityAPP: a single spine fr
 
 Aligned with [scope/README.md](../scope/README.md) and chunk map in [BUILD-PROGRESS.md](../BUILD-PROGRESS.md).
 
-| Flow | Name | Primary DATA | Depends on | Exit criteria | Smoke TEST |
-|------|------|--------------|------------|---------------|------------|
-| **1** | Enquiry intake | DATA-001, DATA-002 | — | Enquiry at Proposal; qualification scored | TEST-010 |
-| **2** | Convert → client | DATA-002 → new client | Flow 1 | Client linked to enquiry; lifecycle intake/onboarding | TEST-020 |
-| **3** | Client ready for service | DATA-003 or Bern | Flow 2 | Lifecycle **active**; plan budget + billing set | TEST-030 |
-| **4** | SA → roster → timesheets | DATA-010–016 | Flow 3 | Approved timesheet from rostered shift | TEST-060 |
-| **5** | Delivery → claims → billing | DATA-010, 015–017 | Flow 4 | Claim + rollup; reconciliation loads | TEST-085 |
-| **6** | Employee hire → roster eligibility | DATA-013, emp-oliver | Parallel | WWCC + NDIS screening on file | TEST-090 |
-| **7** | Participant exit | DATA-018 | Flow 5 optional | Lifecycle **exit**; bookings wound down | TEST-095 |
-| **8** | Employee exit | DATA-019 | Flow 6 | Exit checklist complete; terminated | TEST-096 |
-| **9** | Financial month close | Org calendar | Flow 5 | Close checklist reviewed | TEST-097 |
-| **10** | Governance | Incidents / complaints | — | Register + workflow accessible | TEST-098 |
-| **11** | Reporting / audit wrap | Bern or org | Flow 5 / 7 | Audit pack + board report render | TEST-099 |
+| Flow | Name | Primary DATA | Depends on | Exit criteria | Smoke TEST | Verification |
+|------|------|--------------|------------|---------------|------------|----------------|
+| **1** | Enquiry intake | DATA-001, DATA-002 | — | Enquiry at Proposal; qualification scored | TEST-010 | Documented + seeded |
+| **2** | Convert → client | DATA-002 → new client | Flow 1 | Client linked to enquiry; lifecycle intake/onboarding | TEST-020 | Documented + seeded |
+| **3** | Client ready for service | DATA-003 or Bern | Flow 2 | Lifecycle **active**; plan budget + billing set | TEST-030 | Documented |
+| **4** | SA → roster → timesheets | DATA-010–016 | Flow 3 | Approved timesheet from rostered shift | TEST-060 | **Amplify pass** |
+| **5** | Delivery → claims → billing | DATA-010, 015–017 | Flow 4 | Claim + rollup; reconciliation loads | TEST-085 | **Amplify pass** |
+| **6** | Employee hire → roster eligibility | DATA-013, emp-oliver | Parallel | WWCC + NDIS screening on file | TEST-090 | Seeded; partial pass |
+| **7** | Participant exit | DATA-018 | Flow 5 optional | Lifecycle **exit**; bookings wound down | TEST-095 | Documented + seeded |
+| **8** | Employee exit | DATA-019 | Flow 6 | Exit checklist complete; terminated | TEST-096 | Documented |
+| **9** | Financial month close | Org calendar | Flow 5 | Close checklist reviewed | TEST-097 | Documented |
+| **10** | Governance | Incidents / complaints | — | Register + workflow accessible | TEST-098 | Documented |
+| **11** | Reporting / audit wrap | Bern or org | Flow 5 / 7 | Audit pack + board report render | TEST-099 | Documented |
 
 ```mermaid
 flowchart LR
@@ -621,6 +624,22 @@ Cross-check of **scope spine**, **process docs**, **access catalog**, and **BUIL
 | TEST-010 → TEST-030 | Pass after intake seed |
 | TEST-060 + TEST-085 | Pass on Amplify (see issue log) |
 | ROLE-014 / ROLE-015 | Queued — finance browser pass |
+
+---
+
+## 10. Full UAT programme
+
+The happy path is **Tier 1** smoke only. Full user acceptance testing uses:
+
+| Artefact | Purpose |
+|----------|---------|
+| [UAT-INDEX.md](./UAT-INDEX.md) | Master schedule — 16 module packs, tiers, execution order |
+| [uat/](./uat/) | Per-module scenario packs (UAT-00 … UAT-15, UAT-ROLE) |
+| [UAT-INVENTORY.generated.md](./uat/UAT-INVENTORY.generated.md) | Auto-generated checklist of every window, process, report |
+| [UAT-SIGNOFF.md](./UAT-SIGNOFF.md) | Release gate when all P0–P2 packs complete |
+| [TEST-RUNBOOKS.md](./TEST-RUNBOOKS.md) | Step-by-step happy path smokes |
+
+Regenerate inventory after catalog changes: `npm run uat:inventory`.
 
 ---
 

@@ -152,9 +152,14 @@ See [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md) §8 for file paths and chec
 | Doc | Status |
 |-----|--------|
 | [testing/HAPPY-PATH-E2E-MATRIX.md](./testing/HAPPY-PATH-E2E-MATRIX.md) | **v1.0** — full spine enquiry → exit (flows 1–11) + FUNC matrix + E2E seeds |
-| [testing/ISSUE-LOG-TEMPLATE.md](./testing/ISSUE-LOG-TEMPLATE.md) | Issue log template for testers / AI browser |
+| [testing/UAT-INDEX.md](./testing/UAT-INDEX.md) | **v1.0** — full UAT programme (16 module packs + role matrix + generated inventory) |
+| [testing/TEST-RUNBOOKS.md](./testing/TEST-RUNBOOKS.md) | Executable smoke steps TEST-010 … TEST-099 |
+| [testing/UAT-SIGNOFF.md](./testing/UAT-SIGNOFF.md) | Release sign-off template |
+| [testing/ISSUE-LOG-TEMPLATE.md](./testing/ISSUE-LOG-TEMPLATE.md) | Issue log + Amplify pass evidence |
 
-Sections 1–3, 6–7, and flows 1–3 / 6–11 are documented in matrix **v1.0** (2026-06-18).
+Sections 1–3, 6–7, and flows 1–3 / 6–11 are documented in matrix **v1.0** (2026-06-18). **Amplify smoke:** flows 4–5 pass (TEST-060, TEST-085); ROLE-011/012/013 pass; ISSUE-001–008 fixed. **UAT execution:** structure complete; module packs not yet run.
+
+Regenerate catalogue inventory: `npm run uat:inventory` → [uat/UAT-INVENTORY.generated.md](./testing/uat/UAT-INVENTORY.generated.md).
 
 ---
 
