@@ -107,6 +107,9 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   consentStatus: "clients",
   riskType: "clients",
   bpAssociationType: "clients",
+  planManagementType: "clients",
+  invoiceDeliveryMethod: "clients",
+  statementDeliveryMethod: "clients",
   contactActivityType: "clients",
   needRuleCategory: "clients",
   activityType: "clients",
@@ -143,6 +146,9 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   credentialStatus: "people",
   department: "people",
   employmentStatus: "people",
+  businessPartnerType: "people",
+  businessPartnerStatus: "people",
+  paymentTerms: "people",
 
   // Tasks
   taskPriority: "tasks",

@@ -1,3 +1,5 @@
+import type { BusinessPartnerRecord } from "@/lib/business-partner";
+import { findBusinessPartnerById } from "@/lib/business-partner";
 import type { ClientRecord } from "@/lib/client";
 import type { ClaimRecord } from "@/lib/claim";
 import type { InvoiceRecord } from "@/lib/invoice";
@@ -5,6 +7,10 @@ import type { InvoiceRecord } from "@/lib/invoice";
 export type PlanManagementType = "Agency managed" | "Plan managed" | "Self managed";
 
 export function planManagementForClient(client: ClientRecord | undefined): PlanManagementType {
+  const explicit = client?.planManagementType?.trim();
+  if (explicit === "Agency managed" || explicit === "Plan managed" || explicit === "Self managed") {
+    return explicit;
+  }
   const funding = client?.fundingBody?.trim().toLowerCase() ?? "";
   if (funding.includes("self")) return "Self managed";
   if (funding.includes("plan")) return "Plan managed";
@@ -40,7 +46,8 @@ export function billingLinkedTimesheetLineIds(
 
 export function defaultInvoiceRecipient(
   client: ClientRecord | undefined,
-  planType: PlanManagementType
+  planType: PlanManagementType,
+  partners: BusinessPartnerRecord[] = []
 ): { invoiceTo: string; invoiceToEmail: string } {
   if (!client) return { invoiceTo: "", invoiceToEmail: "" };
   if (planType === "Self managed") {
@@ -48,6 +55,15 @@ export function defaultInvoiceRecipient(
       invoiceTo: client.name?.trim() || client.searchKey,
       invoiceToEmail: client.email?.trim() ?? "",
     };
+  }
+  if (planType === "Plan managed") {
+    const planManager = findBusinessPartnerById(partners, client.planManagerPartnerId);
+    if (planManager) {
+      return {
+        invoiceTo: planManager.name?.trim() || planManager.searchKey,
+        invoiceToEmail: planManager.remittanceEmail?.trim() || planManager.email?.trim() || "",
+      };
+    }
   }
   return {
     invoiceTo: `Plan manager — ${client.name?.trim() || client.searchKey}`,

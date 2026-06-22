@@ -19,6 +19,12 @@ const peopleLinks = [
     windowKey: "employees",
     match: (path: string) => path.startsWith("/employees"),
   },
+  {
+    href: "/business-partners",
+    label: "Business partners",
+    windowKey: "business-partners",
+    match: (path: string) => path.startsWith("/business-partners"),
+  },
 ];
 
 const myWorkplaceLinks = [

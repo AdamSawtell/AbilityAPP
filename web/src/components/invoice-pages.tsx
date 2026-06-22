@@ -61,6 +61,7 @@ function buildInvoiceContext(data: ReturnType<typeof useData>): InvoiceGeneratio
     rosterShifts: data.rosterShifts,
     locations: data.locations,
     clients: data.clients,
+    businessPartners: data.businessPartners,
     serviceBookings: data.serviceBookings,
     products: data.products,
     priceLists: data.priceLists,

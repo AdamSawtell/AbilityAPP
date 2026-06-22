@@ -142,9 +142,15 @@ export const clientsArticle: HelpArticle = {
       windowKeys: ["client-risks"],
     },
     {
+      id: "billing-communication",
+      title: "Billing & communication (Overview)",
+      body: "Set preferred communication, plan management type, default plan manager from the business partner directory, and invoice or statement delivery method. Invoice generation uses the plan manager remittance email when plan-managed.",
+      windowKeys: ["clients"],
+    },
+    {
       id: "bp-associations",
       title: "BP Associations tab",
-      body: "Link guardians, family, referrers, and other contacts. Record relationship, contact details, and primary contact flag.",
+      body: "Link guardians, family, referrers, plan managers, and vendors. Use Directory partner to pick from Business partners, or enter a free-text name. Record relationship, contact details, and primary contact flag.",
       windowKeys: ["client-bp-associations"],
     },
     {

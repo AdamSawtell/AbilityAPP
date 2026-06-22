@@ -54,12 +54,15 @@ function CellInput<TRow extends RowBase, TColumn extends { key: keyof TRow & str
   const disabledClass = readOnly ? " bg-slate-50 text-slate-600" : "";
 
   if (readOnly) {
+    const raw = String(value ?? "").trim();
     const display =
       column.type === "checkbox"
         ? Boolean(value)
           ? "Yes"
           : "No"
-        : String(value ?? "").trim() || "—";
+        : column.type === "select" && raw && optionLabels?.[raw]
+          ? optionLabels[raw]
+          : raw || "—";
     return <span className="block px-1 py-1.5 text-sm text-slate-700">{display}</span>;
   }
 

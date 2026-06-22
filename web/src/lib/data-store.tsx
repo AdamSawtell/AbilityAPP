@@ -7,6 +7,13 @@ import { enquiryPipelineBlocked, validateEnquiryPipeline } from "@/lib/enquiry-p
 import { initialClients as seedClients, normalizeClient, type ClientRecord } from "@/lib/client";
 import { createContract, initialContracts as seedContracts, normalizeContract, type ContractRecord } from "@/lib/contract";
 import {
+  createBusinessPartner,
+  initialBusinessPartners as seedBusinessPartners,
+  normalizeBusinessPartner,
+  assertUniqueBusinessPartnerSearchKey,
+  type BusinessPartnerRecord,
+} from "@/lib/business-partner";
+import {
   initialServiceAgreements as seedServiceAgreements,
   normalizeServiceAgreement,
   type ServiceAgreementRecord,
@@ -148,6 +155,7 @@ import {
   fetchTasks,
   saveClient,
   saveContract,
+  saveBusinessPartner,
   saveEmployee,
   saveEnquiry,
   saveIncident,
@@ -182,6 +190,7 @@ type DataStore = {
   enquiries: EnquiryRecord[];
   incidents: IncidentRecord[];
   clients: ClientRecord[];
+  businessPartners: BusinessPartnerRecord[];
   contracts: ContractRecord[];
   products: ProductRecord[];
   priceLists: PriceListRecord[];
@@ -212,6 +221,8 @@ type DataStore = {
   addIncident: (record: IncidentRecord) => IncidentRecord;
   updateIncident: (record: IncidentRecord, audit?: AuditLogOptions) => void;
   upsertClient: (client: ClientRecord, audit?: AuditLogOptions) => void;
+  addBusinessPartner: (partial: BusinessPartnerRecord) => BusinessPartnerRecord;
+  upsertBusinessPartner: (record: BusinessPartnerRecord) => void;
   addContract: (record: ContractRecord) => ContractRecord;
   upsertContract: (contract: ContractRecord) => void;
   upsertProduct: (product: ProductRecord) => void;
@@ -317,6 +328,7 @@ type Persisted = {
   enquiries: EnquiryRecord[];
   incidents?: IncidentRecord[];
   clients: ClientRecord[];
+  businessPartners?: BusinessPartnerRecord[];
   contracts?: ContractRecord[];
   products?: ProductRecord[];
   priceLists?: PriceListRecord[];
@@ -345,6 +357,7 @@ function seedData(): Required<Persisted> {
     enquiries: seedEnquiries,
     incidents: seedIncidents,
     clients: seedClients,
+    businessPartners: seedBusinessPartners.map(normalizeBusinessPartner),
     contracts: seedContracts,
     products: seedProducts,
     priceLists: seedPriceLists.map(normalizePriceList),
@@ -374,6 +387,7 @@ function portalEmptyData(): Required<Persisted> {
     enquiries: [],
     incidents: [],
     clients: [],
+    businessPartners: [],
     contracts: [],
     products: [],
     priceLists: [],
@@ -419,6 +433,7 @@ function loadLocal(): Required<Persisted> {
       enquiries: parsed.enquiries.map(normalizeEnquiry),
       incidents: (parsed.incidents ?? seedIncidents).map(normalizeIncident),
       clients: parsed.clients.map(normalizeClient),
+      businessPartners: (parsed.businessPartners ?? seedBusinessPartners).map(normalizeBusinessPartner),
       contracts: (parsed.contracts ?? seedContracts).map(normalizeContract),
       products: parsed.products ?? seedProducts,
       priceLists: (parsed.priceLists ?? seedPriceLists).map(normalizePriceList),
@@ -465,6 +480,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(defaults.enquiries);
   const [incidents, setIncidents] = useState<IncidentRecord[]>(defaults.incidents);
   const [clients, setClients] = useState<ClientRecord[]>(defaults.clients);
+  const [businessPartners, setBusinessPartners] = useState<BusinessPartnerRecord[]>(defaults.businessPartners);
   const [contracts, setContracts] = useState<ContractRecord[]>(defaults.contracts);
   const [products, setProducts] = useState<ProductRecord[]>(defaults.products);
   const [priceLists, setPriceLists] = useState<PriceListRecord[]>(defaults.priceLists);
@@ -501,6 +517,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const enquiriesRef = useSyncRef(enquiries);
   const incidentsRef = useSyncRef(incidents);
   const clientsRef = useSyncRef(clients);
+  const businessPartnersRef = useSyncRef(businessPartners);
   const contractsRef = useSyncRef(contracts);
   const productsRef = useSyncRef(products);
   const priceListsRef = useSyncRef(priceLists);
@@ -543,6 +560,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setEnquiries(data.enquiries);
       setIncidents(data.incidents);
       setClients(data.clients);
+      setBusinessPartners(data.businessPartners ?? seedBusinessPartners.map(normalizeBusinessPartner));
       setContracts(data.contracts);
       setProducts(data.products);
       setPriceLists(data.priceLists);
@@ -609,6 +627,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setEnquiries(data.enquiries);
             setIncidents(data.incidents);
             setClients(data.clients);
+            setBusinessPartners(data.businessPartners ?? seedBusinessPartners.map(normalizeBusinessPartner));
             setContracts(data.contracts);
             setProducts(data.products);
             setPriceLists(data.priceLists);
@@ -652,6 +671,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setEnquiries(data.enquiries);
         setIncidents(data.incidents);
         setClients(data.clients);
+        setBusinessPartners(data.businessPartners ?? seedBusinessPartners.map(normalizeBusinessPartner));
         setContracts(data.contracts);
         setProducts(data.products);
         setPriceLists(data.priceLists);
@@ -692,6 +712,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       enquiries,
       incidents,
       clients,
+      businessPartners,
       contracts,
       products,
       priceLists,
@@ -718,6 +739,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     enquiries,
     incidents,
     clients,
+    businessPartners,
     contracts,
     products,
     priceLists,
@@ -959,6 +981,34 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       runAutomationEvents(clientEventsFromSave(stamped, before));
     },
     [persistRemote, clientsRef, runAutomationEvents]
+  );
+
+  const addBusinessPartner = useCallback(
+    (partial: BusinessPartnerRecord) => {
+      const prev = businessPartnersRef.current;
+      const next = createBusinessPartner(partial, prev);
+      const created = persistRecordAudit("business-partner", next, true);
+      setBusinessPartners((current) => [...current, created]);
+      void persistRemote((supabase) => saveBusinessPartner(supabase, created));
+      return created;
+    },
+    [persistRemote, businessPartnersRef]
+  );
+
+  const upsertBusinessPartner = useCallback(
+    (record: BusinessPartnerRecord) => {
+      const prev = businessPartnersRef.current;
+      const normalized = normalizeBusinessPartner(record);
+      assertUniqueBusinessPartnerSearchKey(normalized, prev);
+      const before = prev.find((p) => p.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("business-partner", normalized, !exists, before);
+      setBusinessPartners((current) =>
+        exists ? current.map((p) => (p.id === stamped.id ? stamped : p)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveBusinessPartner(supabase, stamped));
+    },
+    [persistRemote, businessPartnersRef]
   );
 
   const addContract = useCallback(
@@ -1753,6 +1803,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       enquiries,
       incidents,
       clients,
+      businessPartners,
       contracts,
       products,
       priceLists,
@@ -1783,6 +1834,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addIncident,
       updateIncident,
       upsertClient,
+      addBusinessPartner,
+      upsertBusinessPartner,
       addContract,
       upsertContract,
       upsertProduct,
@@ -1838,6 +1891,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       enquiries,
       incidents,
       clients,
+      businessPartners,
       contracts,
       products,
       priceLists,
@@ -1868,6 +1922,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addIncident,
       updateIncident,
       upsertClient,
+      addBusinessPartner,
+      upsertBusinessPartner,
       addContract,
       upsertContract,
       upsertProduct,

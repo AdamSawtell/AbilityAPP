@@ -71,6 +71,11 @@ export type ClientRecord = {
   culturalAffiliation: string;
   disability: string;
   additionalDisabilityInformation: string;
+  preferredCommunicationMethod: string;
+  planManagementType: string;
+  planManagerPartnerId: string;
+  invoiceDeliveryMethod: string;
+  statementDeliveryMethod: string;
   pictureUrl?: string;
   createdBy: string;
   updatedBy: string;
@@ -148,6 +153,11 @@ export const initialClients: ClientRecord[] = [
     disability: "PD - Spinal Cord Injury",
     additionalDisabilityInformation:
       "Acquired physical disabilities as a result of car accident in 2004. Bernie lost her right leg from the knee down and has a spinal cord injury limiting movement of her left leg. She is in a wheelchair.",
+    preferredCommunicationMethod: "Email",
+    planManagementType: "Plan managed",
+    planManagerPartnerId: "bp-myplan-manager",
+    invoiceDeliveryMethod: "Email",
+    statementDeliveryMethod: "Email",
     createdBy: "Isla Robinson",
     updatedBy: "SuperUser",
     alerts: [
@@ -278,6 +288,7 @@ export const initialClients: ClientRecord[] = [
       {
         id: "bpa-harry",
         lineNo: 1,
+        partnerId: "",
         associatedBpName: "Harry",
         associationType: "Family / friend",
         relationship: "Friend",
@@ -394,6 +405,16 @@ export const profileFields: ClientFieldDef[] = [
   { key: "culturalAffiliation", label: "Cultural affiliation", type: "select", optionsKey: "culturalAffiliation" },
   { key: "disability", label: "Disability", type: "select", optionsKey: "disability" },
   { key: "additionalDisabilityInformation", label: "Additional disability information", type: "textarea" },
+  {
+    key: "preferredCommunicationMethod",
+    label: "Preferred communication",
+    type: "select",
+    optionsKey: "preferredCommunicationMethod",
+  },
+  { key: "planManagementType", label: "Plan management", type: "select", optionsKey: "planManagementType" },
+  { key: "planManagerPartnerId", label: "Plan manager", type: "select", optionsKey: "businessPartnerDirectory" },
+  { key: "invoiceDeliveryMethod", label: "Invoice delivery", type: "select", optionsKey: "invoiceDeliveryMethod" },
+  { key: "statementDeliveryMethod", label: "Statement delivery", type: "select", optionsKey: "statementDeliveryMethod" },
   { key: "createdBy", label: "Created by", type: "text", readOnly: true },
   { key: "updatedBy", label: "Updated by", type: "text", readOnly: true },
 ];
@@ -450,6 +471,18 @@ export const profileSections: ClientFieldSection[] = [
         "lgbtiqa",
         "aboriginalTorresStraitIslander",
         "culturalAffiliation",
+      ].includes(f.key)
+    ),
+  },
+  {
+    title: "Billing & communication",
+    fields: profileFields.filter((f) =>
+      [
+        "preferredCommunicationMethod",
+        "planManagementType",
+        "planManagerPartnerId",
+        "invoiceDeliveryMethod",
+        "statementDeliveryMethod",
       ].includes(f.key)
     ),
   },
@@ -586,6 +619,11 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
     planBudgets,
     consentAlertList,
     riskAlerts,
+    preferredCommunicationMethod: client.preferredCommunicationMethod ?? "",
+    planManagementType: client.planManagementType ?? "",
+    planManagerPartnerId: client.planManagerPartnerId ?? "",
+    invoiceDeliveryMethod: client.invoiceDeliveryMethod ?? "",
+    statementDeliveryMethod: client.statementDeliveryMethod ?? "",
   };
 }
 
@@ -659,6 +697,11 @@ export function emptyClientRecord(
     culturalAffiliation: "",
     disability: partial.disability?.trim() ?? "",
     additionalDisabilityInformation: "",
+    preferredCommunicationMethod: "",
+    planManagementType: "",
+    planManagerPartnerId: "",
+    invoiceDeliveryMethod: "",
+    statementDeliveryMethod: "",
     pictureUrl: "",
     createdBy,
     updatedBy: createdBy,
@@ -711,6 +754,11 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
     culturalAffiliation: "",
     disability: enquiry.disability,
     additionalDisabilityInformation: enquiry.additionalDisabilityInformation,
+    preferredCommunicationMethod: enquiry.preferredCommunicationMethod ?? "",
+    planManagementType: enquiry.planManagementType ?? "",
+    planManagerPartnerId: "",
+    invoiceDeliveryMethod: "",
+    statementDeliveryMethod: "",
     createdBy: enquiry.createdBy || "SuperUser",
     updatedBy: "SuperUser",
     alerts: enquiry.description

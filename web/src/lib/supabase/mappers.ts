@@ -3,6 +3,7 @@
 import type { ClaimLine, ClaimRecord } from "@/lib/claim";
 import type { ClaimRemittanceLine, ClaimRemittanceRecord } from "@/lib/claim-remittance";
 import type { InvoiceLine, InvoiceRecord } from "@/lib/invoice";
+import type { BusinessPartnerRecord } from "@/lib/business-partner";
 import type { ClientRecord } from "@/lib/client";
 import type { ClientPlanBudgetRow } from "@/lib/client-line-tables";
 import type { ContractRecord } from "@/lib/contract";
@@ -254,6 +255,11 @@ export type ClientRow = {
   cultural_affiliation: string;
   disability: string;
   additional_disability_information: string;
+  preferred_communication_method: string;
+  plan_management_type: string;
+  plan_manager_partner_id: string | null;
+  invoice_delivery_method: string;
+  statement_delivery_method: string;
   picture_url: string;
   created_by: string;
   updated_by: string;
@@ -322,6 +328,7 @@ export type ClientBpAssociationRowDb = {
   valid_from: string | null;
   valid_to: string | null;
   notes: string;
+  partner_id: string | null;
 };
 
 export type ClientContactActivityRowDb = {
@@ -460,6 +467,11 @@ export function clientFromRow(
     culturalAffiliation: row.cultural_affiliation,
     disability: row.disability,
     additionalDisabilityInformation: row.additional_disability_information,
+    preferredCommunicationMethod: row.preferred_communication_method ?? "",
+    planManagementType: row.plan_management_type ?? "",
+    planManagerPartnerId: row.plan_manager_partner_id ?? "",
+    invoiceDeliveryMethod: row.invoice_delivery_method ?? "",
+    statementDeliveryMethod: row.statement_delivery_method ?? "",
     pictureUrl: row.picture_url ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
@@ -551,6 +563,7 @@ export function clientFromRow(
       validFrom: strDate(b.valid_from),
       validTo: strDate(b.valid_to),
       notes: b.notes,
+      partnerId: b.partner_id ?? "",
     })),
     contactActivity: contactActivity.map((a) => ({
       id: a.id,
@@ -612,6 +625,11 @@ export function clientToRow(record: ClientRecord): ClientRow {
     cultural_affiliation: record.culturalAffiliation,
     disability: record.disability,
     additional_disability_information: record.additionalDisabilityInformation,
+    preferred_communication_method: record.preferredCommunicationMethod ?? "",
+    plan_management_type: record.planManagementType ?? "",
+    plan_manager_partner_id: record.planManagerPartnerId?.trim() ? record.planManagerPartnerId : null,
+    invoice_delivery_method: record.invoiceDeliveryMethod ?? "",
+    statement_delivery_method: record.statementDeliveryMethod ?? "",
     picture_url: record.pictureUrl ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
@@ -2772,6 +2790,99 @@ export function portalServiceRequestToRow(
     decline_reason: record.declineReason,
     created_at: record.createdAt,
     updated_at: record.updatedAt,
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+// --- Business partner (external orgs) ---
+
+export type BusinessPartnerRow = {
+  id: string;
+  search_key: string;
+  name: string;
+  partner_type: string;
+  status: string;
+  email: string;
+  phone: string;
+  mobile: string;
+  abn: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  preferred_communication_method: string;
+  invoice_delivery_method: string;
+  statement_delivery_method: string;
+  payment_terms: string;
+  bank_bsb: string;
+  bank_account_number: string;
+  bank_account_name: string;
+  remittance_email: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function businessPartnerFromRow(row: BusinessPartnerRow): BusinessPartnerRecord {
+  return {
+    id: row.id,
+    searchKey: row.search_key,
+    name: row.name,
+    partnerType: row.partner_type,
+    status: row.status,
+    email: row.email,
+    phone: row.phone,
+    mobile: row.mobile,
+    abn: row.abn,
+    address1: row.address1,
+    address2: row.address2,
+    city: row.city,
+    state: row.state,
+    postcode: row.postcode,
+    country: row.country,
+    preferredCommunicationMethod: row.preferred_communication_method,
+    invoiceDeliveryMethod: row.invoice_delivery_method,
+    statementDeliveryMethod: row.statement_delivery_method,
+    paymentTerms: row.payment_terms,
+    bankBsb: row.bank_bsb,
+    bankAccountNumber: row.bank_account_number,
+    bankAccountName: row.bank_account_name,
+    remittanceEmail: row.remittance_email,
+    notes: row.notes,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  };
+}
+
+export function businessPartnerToRow(record: BusinessPartnerRecord): BusinessPartnerRow {
+  return {
+    id: record.id,
+    search_key: record.searchKey,
+    name: record.name,
+    partner_type: record.partnerType,
+    status: record.status,
+    email: record.email,
+    phone: record.phone,
+    mobile: record.mobile,
+    abn: record.abn,
+    address1: record.address1,
+    address2: record.address2,
+    city: record.city,
+    state: record.state,
+    postcode: record.postcode,
+    country: record.country,
+    preferred_communication_method: record.preferredCommunicationMethod,
+    invoice_delivery_method: record.invoiceDeliveryMethod,
+    statement_delivery_method: record.statementDeliveryMethod,
+    payment_terms: record.paymentTerms,
+    bank_bsb: record.bankBsb,
+    bank_account_number: record.bankAccountNumber,
+    bank_account_name: record.bankAccountName,
+    remittance_email: record.remittanceEmail,
+    notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

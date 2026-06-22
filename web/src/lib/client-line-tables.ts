@@ -74,6 +74,7 @@ export type ClientRiskRow = {
 export type ClientBpAssociationRow = {
   id: string;
   lineNo: number;
+  partnerId: string;
   associatedBpName: string;
   associationType: string;
   relationship: string;
@@ -311,6 +312,7 @@ export const bpAssociationTableConfig: ClientTabTableConfig<ClientBpAssociationR
   emptyMessage: "No business partner associations. Link guardians, referrers, and other contacts here.",
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "partnerId", label: "Directory partner", type: "select", optionsKey: "businessPartnerDirectory" },
     { key: "associatedBpName", label: "Name", type: "text", required: true },
     { key: "associationType", label: "Association type", type: "select", optionsKey: "bpAssociationType", required: true },
     { key: "relationship", label: "Relationship", type: "select", optionsKey: "contactRelationship" },
@@ -325,6 +327,7 @@ export const bpAssociationTableConfig: ClientTabTableConfig<ClientBpAssociationR
   emptyRow: (lineNo) => ({
     id: newLineId("bpa"),
     lineNo,
+    partnerId: "",
     associatedBpName: "",
     associationType: "",
     relationship: "",

@@ -7,6 +7,8 @@ import type { InvoiceRecord } from "@/lib/invoice";
 import { normalizeInvoice } from "@/lib/invoice";
 import type { ClientRecord } from "@/lib/client";
 import { normalizeClient } from "@/lib/client";
+import type { BusinessPartnerRecord } from "@/lib/business-partner";
+import { normalizeBusinessPartner } from "@/lib/business-partner";
 import type { ContractRecord } from "@/lib/contract";
 import { normalizeContract } from "@/lib/contract";
 import type { EnquiryRecord } from "@/lib/enquiry";
@@ -45,6 +47,9 @@ import {
   planBudgetFromRow,
   contractFromRow,
   contractToRow,
+  businessPartnerFromRow,
+  businessPartnerToRow,
+  type BusinessPartnerRow,
   employeeFromRow,
   employeeToRow,
   enquiryFromRow,
@@ -202,6 +207,7 @@ export type AppData = {
   enquiries: EnquiryRecord[];
   incidents: IncidentRecord[];
   clients: ClientRecord[];
+  businessPartners: BusinessPartnerRecord[];
   contracts: ContractRecord[];
   products: ProductRecord[];
   priceLists: PriceListRecord[];
@@ -244,6 +250,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     incidentNotificationsRes,
     incidentEvidenceRes,
     clientsRes,
+    businessPartnersRes,
     alertsRes,
     activityRes,
     locationsRes,
@@ -307,6 +314,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("incident_notification").select("*").order("line_no"),
     supabase.from("incident_evidence").select("*").order("line_no"),
     supabase.from("client").select("*").order("search_key"),
+    supabase.from("business_partner").select("*").order("search_key"),
     supabase.from("client_alert").select("*").order("line_no"),
     supabase.from("client_activity").select("*").order("line_no"),
     supabase.from("client_location").select("*").order("line_no"),
@@ -372,6 +380,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     incidentNotificationsRes.error ??
     incidentEvidenceRes.error ??
     clientsRes.error ??
+    businessPartnersRes.error ??
     alertsRes.error ??
     activityRes.error ??
     locationsRes.error ??
@@ -513,6 +522,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
         ),
         planBudgets: (planBudgetsByClient.get(row.id) ?? []).map(planBudgetFromRow),
       })
+    ),
+    businessPartners: ((businessPartnersRes.data ?? []) as BusinessPartnerRow[]).map((row) =>
+      normalizeBusinessPartner(businessPartnerFromRow(row))
     ),
     products: ((productsRes.data ?? []) as ProductRow[]).map(productFromRow),
     priceLists: ((priceListsRes.data ?? []) as PriceListRow[]).map((row) =>
@@ -885,6 +897,7 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
         valid_from: b.validFrom || null,
         valid_to: b.validTo || null,
         notes: b.notes,
+        partner_id: b.partnerId?.trim() ? b.partnerId : null,
       }))
     );
     if (bpaError) throw bpaError;
@@ -1162,6 +1175,12 @@ export async function saveContract(supabase: SupabaseClient, record: ContractRec
     );
     if (auditError) throw auditError;
   }
+}
+
+export async function saveBusinessPartner(supabase: SupabaseClient, record: BusinessPartnerRecord) {
+  const partner = normalizeBusinessPartner(record);
+  const { error } = await supabase.from("business_partner").upsert(businessPartnerToRow(partner));
+  if (error) throw error;
 }
 
 export async function saveSupportPlan(supabase: SupabaseClient, record: SupportPlanRecord) {

@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **100%** |
-| **Current work package** | **Document platform — complete** |
+| **Current work package** | **Business partners & client billing prefs — complete** |
 | **Active slice** | — |
 | **Next slice** | Server PDF when host decided |
-| **Last push** | 2026-06-22 — D9 phase 2 templates + operator guides |
+| **Last push** | 2026-06-22 — WP-BP.1 business partners registry + client billing prefs |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -114,6 +114,17 @@
 | 10 | Edit template title → Save → refresh | Changes persist |
 | 11 | Duplicate template | Copy with "(copy)" in list and process dropdown |
 | 12 | System → Organisation → Document branding | Bank/footer/GST fields visible; links to template guide from org article |
+
+### What you can test — WP-BP.1 (business partners)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **People → Business partners** | MyPlan Manager, NDIS Hub SA, Adelaide Clean Co listed |
+| 2 | Open **MyPlan Manager** → edit remittance email → Save → refresh | Persists; audit footer + Full audit trail event |
+| 3 | **Clients → Bern** → **Full profile** | Billing & communication section: plan managed, plan manager = MyPlan Manager |
+| 4 | **BP Associations** tab | Directory partner column; Harry row still shows free-text name |
+| 5 | **How-to guide** on list | Opens `/help/business-partners` article |
+| 6 | `npm run build` + `page-guides:check` | Exit 0 — 108 routes |
 
 ---
 
@@ -1588,6 +1599,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | WP-A.8 | `/clients/bp-bern?tab=Plan budget` | **Pass** | build verified; PDF paste import panel |
 | 2026-06-22 | Chunk D9 | `/system/admin/document-templates`, `/system/admin/document-registry`, `/system/guides/document-templates`, `/system/organization` | **Pass** | 16 templates (15 + duplicate); edit title → Save → refresh persists; Duplicate adds "(copy)" to list and process dropdown; How-to guide links to `document-templates` article |
 | 2026-06-22 | Chunk D9 workspace | `/claims/cl-jun26-bern`, `/ndis-audit-pack`, `/incidents/inc-1000001`, `/clients/bp-bern`, `/employees/emp-isla` | **Partial** | Print actions render; claim print handler runs (popup blocked in automation); audit pack Print button visible; Bugbot High fixes (consent description column, D9 template resolver) |
+| 2026-06-22 | WP-BP.1 | `/business-partners`, `/business-partners/bp-myplan-manager`, `/clients/bp-bern?tab=Full profile`, `/clients/bp-bern?tab=BP Associations` | **Pass** | localhost:3000 SuperUser; 3 seed partners on list; detail audit footer; plan manager + plan managed on Bern full profile; BP associations tab loads |
 | — | WP-A.1–B.1 | — | **Not run** | Backlog |
 
 ---
@@ -1596,6 +1608,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-22 | WP-BP.1 pre-push | 1 High + 3 Medium | **Pass** | Fixed: ACCESS_WINDOWS index shift (reports restored); duplicate search key on upsert; inactive plan manager in directory options; read-only line table option labels |
 | 2026-06-20 | WP-D.5–D.7 follow-up | 3 High + 2 Medium + 1 Low | **Pass** | Fixed: coverage gap booking filter, atomic open-shift claim, timesheet IDs/overnight hours/permissions/locked period/audit |
 | 2026-06-20 | WP-D.8 | 3 High + 1 Medium | **Pass** | Fixed: local-date check-in, server API binding, preserve check-in on roster save, useMyEmployee |
 | 2026-06-20 | WP-D.9 | 1 High | **Pass** | Fixed: only block approval transition, not saves on already-approved timesheets |
@@ -1725,6 +1738,13 @@ Maps each new/updated library surface to required handoff artifacts. **Todo** = 
 | 2026-06-22 | Chunk D9 | `document-templates` — edit, duplicate, process bindings, registry, FAQ | `system-setup` — Document branding; `delivery` + `module-setup-guides` cross-links | exit 0 — 105 routes |
 | 2026-06-22 | `npm run build` | exit 0 (Chunk D9 guides) |
 | 2026-06-22 | `npm run page-guides:check` | exit 0 — 105 routes (Chunk D9 guides) |
+| 2026-06-19 | WP-BP.1 | `people` — business partners registry; `clients-locations` — billing & communication prefs + BP directory link | `clients-setup` + finance/intake roles | exit 0 — 108 routes |
+| 2026-06-19 | `npm run build` | exit 0 (WP-BP.1) |
+| 2026-06-19 | `npm run page-guides:check` | exit 0 — 108 routes (WP-BP.1) |
+| 2026-06-22 | `npm run supabase:push-remote` | `20260625500000_business_partners_preferences.sql` |
+| 2026-06-22 | `npm run supabase:seed-demo-once` | seed-access (business-partners window grants) |
+| 2026-06-22 | `npm run build` | exit 0 (WP-BP.1 Bugbot fixes) |
+| 2026-06-22 | `npm run page-guides:check` | exit 0 — 108 routes (WP-BP.1) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625270000` payroll_closed_period table |
 | 2026-06-18 | `npm run build` | exit 0 (WP-F.1) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 82 routes (WP-F.1) |

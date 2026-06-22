@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClientParticipantStatementPanel } from "@/components/client-participant-statement-panel";
 import { ClientConsentSchedulePanel } from "@/components/client-consent-schedule-panel";
@@ -25,6 +25,11 @@ import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import {
+  businessPartnerDirectoryOptions,
+  businessPartnerOptionLabels,
+  findBusinessPartnerById,
+} from "@/lib/business-partner";
 import {
   activityTableConfig,
   alertTableConfig,
@@ -58,6 +63,7 @@ function Field({
   highlightFields?: Set<string>;
 }) {
   const { getOptions } = useReferenceData();
+  const { businessPartners } = useData();
   const base =
     "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20 disabled:bg-slate-50 disabled:text-slate-500";
   const fieldClass = withDraftHighlight(base, String(field.key), highlightFields);
@@ -77,12 +83,16 @@ function Field({
   }
 
   if (field.type === "select" && field.optionsKey) {
+    const partnerLabels =
+      field.optionsKey === "businessPartnerDirectory" ? businessPartnerOptionLabels(businessPartners) : undefined;
     const options =
-      getOptions(field.optionsKey) ??
-      (field.optionsKey in clientDropdowns
-        ? clientDropdowns[field.optionsKey as keyof typeof clientDropdowns]
-        : []) ??
-      [];
+      field.optionsKey === "businessPartnerDirectory"
+        ? businessPartnerDirectoryOptions(businessPartners, [String(value ?? "")])
+        : getOptions(field.optionsKey) ??
+          (field.optionsKey in clientDropdowns
+            ? clientDropdowns[field.optionsKey as keyof typeof clientDropdowns]
+            : []) ??
+          [];
     return (
       <select
         className={fieldClass}
@@ -92,7 +102,7 @@ function Field({
         <option value="">Select…</option>
         {options.map((o) => (
           <option key={o} value={o}>
-            {o}
+            {partnerLabels?.[o] ?? o}
           </option>
         ))}
       </select>
@@ -139,6 +149,7 @@ function ReadOnlyFieldGrid({
   fields: ClientFieldDef[];
   client: ClientRecord;
 }) {
+  const { businessPartners } = useData();
   return (
     <dl className="grid gap-4 sm:grid-cols-2">
       {fields.map((field) => (
@@ -149,7 +160,12 @@ function ReadOnlyFieldGrid({
               const raw = client[field.key] as string | boolean;
               if (typeof raw === "boolean") return raw ? "Yes" : "No";
               const text = String(raw ?? "").trim();
-              return text || "—";
+              if (!text) return "—";
+              if (field.key === "planManagerPartnerId") {
+                const partner = findBusinessPartnerById(businessPartners, text);
+                return partner ? `${partner.searchKey} — ${partner.partnerType}` : text;
+              }
+              return text;
             })()}
           </dd>
         </div>
@@ -273,7 +289,21 @@ export function ClientTabbedView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { session, canWindow, canWriteWindow } = useAuth();
-  const { getIncidentsForClient, monthlyServicePlans, rosterOfCares } = useData();
+  const { getIncidentsForClient, monthlyServicePlans, rosterOfCares, businessPartners } = useData();
+  const bpAssociationDropdowns = useMemo(
+    () => ({
+      ...clientDropdowns,
+      businessPartnerDirectory: businessPartnerDirectoryOptions(
+        businessPartners,
+        (client.bpAssociations ?? []).map((row) => row.partnerId)
+      ),
+    }),
+    [businessPartners, client.bpAssociations]
+  );
+  const bpAssociationOptionLabels = useMemo(
+    () => businessPartnerOptionLabels(businessPartners),
+    [businessPartners]
+  );
 
   const allowedTabs = allowedDetailTabsFromGroups("clients", clientTabGroups, session?.windowKeys ?? []);
   const incidentCount = getIncidentsForClient(client.id).length;
@@ -537,12 +567,14 @@ export function ClientTabbedView({
           <>
             <ClientTabIntro
               title="BP associations"
-              description="Link guardians, family, referrers, and other contacts associated with this support receiver."
+              description="Link guardians, family, referrers, plan managers, and vendors. Pick from the business partner directory or enter a free-text name."
             />
             <LineItemTable
               config={bpAssociationTableConfig}
               rows={client.bpAssociations ?? []}
               readOnly={!canWriteClientTab("BP Associations")}
+              dropdowns={bpAssociationDropdowns}
+              optionLabels={bpAssociationOptionLabels}
               onChange={(rows) => onLineItemsChange("bpAssociations", rows)}
             />
           </>

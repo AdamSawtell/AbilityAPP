@@ -95,3 +95,43 @@ export const employeesArticle: HelpArticle = {
     },
   ],
 };
+
+export const businessPartnersArticle: HelpArticle = {
+  id: "article-business-partners",
+  slug: "business-partners",
+  title: "Business partners",
+  summary: "External organisations — plan managers, vendors, referrers, and NDIS partners — with communication and payment preferences.",
+  category: "People",
+  keywords: ["business partner", "plan manager", "vendor", "referrer", "invoice delivery", "payment terms"],
+  relatedRoutes: ["/business-partners", "/business-partners/new"],
+  windowKeys: ["business-partners"],
+  lastUpdated: "2026-06-19",
+  sections: [
+    {
+      id: "partner-list",
+      title: "Business partners list",
+      body: "People → Business partners lists plan managers, vendors, referrers, and other external organisations. Open a row to edit contact, communication, and payment details.",
+      relatedRoutes: ["/business-partners"],
+    },
+    {
+      id: "create-partner",
+      title: "Create a business partner",
+      steps: [
+        "Open People → Business partners.",
+        "Click New business partner.",
+        "Enter search key, legal name, and partner type.",
+        "Set communication and invoice delivery preferences.",
+        "Add payment terms and remittance email for finance handoff.",
+        "Save the record.",
+      ],
+      relatedRoutes: ["/business-partners/new"],
+    },
+    {
+      id: "client-link",
+      title: "Link to clients",
+      body: "On a client Overview tab, use Billing & communication to set plan management type and default plan manager. On BP Associations, pick Directory partner to link a registry record or keep a free-text contact name for guardians and family.",
+      relatedRoutes: ["/clients"],
+      windowKeys: ["clients", "client-bp-associations"],
+    },
+  ],
+};

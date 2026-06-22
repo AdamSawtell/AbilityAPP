@@ -5,6 +5,7 @@ export type AuditEntityType =
   | "client"
   | "location"
   | "employee"
+  | "business-partner"
   | "contract"
   | "product"
   | "price-list"
@@ -73,6 +74,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   client: "Client",
   location: "Location",
   employee: "Employee",
+  "business-partner": "Business partner",
   contract: "Contract",
   product: "Product",
   "price-list": "Price list",

@@ -61,6 +61,7 @@ export type InvoiceGenerationContext = {
   rosterShifts: RosterShiftRecord[];
   locations: LocationRecord[];
   clients: ClientRecord[];
+  businessPartners: import("@/lib/business-partner").BusinessPartnerRecord[];
   serviceBookings: ServiceBookingRecord[];
   products: ProductRecord[];
   priceLists: PriceListRecord[];
@@ -344,7 +345,7 @@ export function generateInvoicesFromTimesheets(
   for (const [clientId, sourceLines] of byClient) {
     const client = ctx.clients.find((c) => c.id === clientId);
     const planType = planManagementForClient(client);
-    const recipient = defaultInvoiceRecipient(client, planType);
+    const recipient = defaultInvoiceRecipient(client, planType, ctx.businessPartners);
     const existingDraft = findDraftInvoice(working, clientId, periodStart, periodEnd);
 
     sourceLines.sort((a, b) =>
