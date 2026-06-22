@@ -1,0 +1,27 @@
+---
+description: Always push completed work and run verification tests before handoff
+alwaysApply: true
+---
+
+# Push and test — always
+
+When you finish a task that changes the repo, **do not hand off without pushing and testing**. Do not ask the user for permission to push or test unless they explicitly said "don't push" or "don't commit" in that turn.
+
+## Required sequence
+
+1. **Verify** — run Tier 1 from `.cursor/commands/test-before-handoff.md` (`npm run build`, `npm run page-guides:check`; `npx tsc --noEmit` when types changed). Apply Supabase migrations when schema or seeds changed.
+2. **Smoke test** — for UI changes, test on **localhost** (Tier 2): open the affected route, exercise the feature, confirm no error banners and audit footer where applicable. Log pass/fail.
+3. **Review** — run Bugbot on uncommitted changes before push to `main` (see `bugbot-commit.mdc`).
+4. **Commit and push** — follow `.cursor/rules/commit-and-push.mdc`; push to the current branch after a successful commit.
+5. **Handoff** — end with a **Verification** block listing commands (with exit codes) and browser smoke result.
+
+## Never
+
+- Stop after implementation without push and test.
+- Ask "Should I push?" or "Want me to test?" when this rule applies.
+- Mark work done with only "you can test locally" and no agent-run verification.
+
+## Exceptions
+
+- User explicitly says not to push or not to commit in that message.
+- Pure question/review tasks with no repo changes.

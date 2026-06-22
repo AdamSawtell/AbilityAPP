@@ -792,6 +792,12 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     parentWindowKey: "clients",
   },
   {
+    id: "send-support-plan",
+    label: "Send support plan",
+    description: "Save the support plan to the document registry for email handoff (in-system delivery only)",
+    parentWindowKey: "clients",
+  },
+  {
     id: "print-employee-separation",
     label: "Generate separation letter",
     description: "Generate an employment separation letter and HR file line",
