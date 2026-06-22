@@ -37,6 +37,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `service_booking` / `service_booking_line` | Service bookings (document + lines) |
 | `contract` / `contract_audit` | Legacy contracts module |
 | `support_plan` / `support_plan_goal` | Support plans |
+| `support_plan_medication` / `support_plan_diagnosis` / `support_plan_health_plan` / `support_plan_support_requirement` / `support_plan_assistive_technology` | Support plan line tables (care plan printable) |
 | `plan_assessment_document` | Plan & assessment documents |
 | `app_user` | Application login users |
 | `app_role` | Security roles |

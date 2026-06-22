@@ -399,8 +399,9 @@ Use one row per defect or gap found during happy path or functional testing.
 | Group | Result |
 |-------|--------|
 | Core workflows (convert, assign, leave, tasks) | **Pass** — UAT-15-P-001–016 |
-| Print / document processes | **Pass** — invoices, SA, separation, claims, audit pack |
+| Print / document processes | **Pass** — invoices, SA, separation, claims, audit pack, support plan print/send |
 | UAT-15-P-018, P-025, P-027, P-031 | **Partial** — batch print, participant statement, issue invoice, consent schedule |
+| UAT-15-P-040, P-041 | **Pass** — print-support-plan, send-support-plan (Bern localhost 2026-06-23) |
 | Admin audit prints (P-033–039) | **Partial** — windows pass; no seeded risk rows to investigate |
 
 ## UAT-00 — Core, home & tasks — Pass (2026-06-18)

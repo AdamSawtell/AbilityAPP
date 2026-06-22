@@ -24,7 +24,7 @@
 | UAT-02-T-011 | Plan budget | Lines + rollup panel | HP-041, HP-079 | **Pass** — 3 lines; rollup $3,349 billing |
 | UAT-02-T-012 | Monthly service plan | Edit plan | Persists | **Pass** — tab loads |
 | UAT-02-T-013 | Plan & Assessment | Edit section | Persists | **Pass** — tab loads |
-| UAT-02-T-014 | Support Plan | Edit section | HP-033 | **Pass** — tab loads |
+| UAT-02-T-014 | Support Plan | Edit section; print; send | HP-033, HP-033P, HP-033S | **Pass** — Bern care plan fields; print + send registry (2026-06-23) |
 | UAT-02-T-015 | Goals | Add goal line | Persists | **Pass** — 3 goals on Bern |
 | UAT-02-T-016 | Progress Review | Add review | Persists | **Pass** — tab loads |
 | UAT-02-T-017 | Contact Activity | Add contact row | Persists | **Pass** — tab loads |
@@ -42,7 +42,9 @@
 | UAT-02-S-001 | Convert from enquiry | Client + enquiry link | TEST-020 | **Pass** — prior Amplify pass |
 | UAT-02-S-002 | Print participant statement | Document registry | process | **Pass** — prior process demo |
 | UAT-02-S-003 | Print consent schedule | Document registry | process | **Pass** — prior process demo |
-| UAT-02-S-004 | Participant exit | `bp-e2e-exit` lifecycle exit | TEST-095 | **Pass** — lifecycle exit saved this pass |
+| UAT-02-S-004 | Print support plan | Document registry | `print-support-plan` | **Pass** — Bern localhost 2026-06-23 |
+| UAT-02-S-005 | Send support plan | Registry + mailto draft | `send-support-plan` | **Pass** — Bern DOC ref + Open email draft |
+| UAT-02-S-006 | Participant exit | `bp-e2e-exit` lifecycle exit | TEST-095 | **Pass** — lifecycle exit saved this pass |
 
 ## Window checklist
 

@@ -54,11 +54,12 @@ Enquiry → Client → Service Agreement → Service Booking → Service Plannin
 6. Process doc + `processes.json` if new workflow  
 7. **User how-to** — article section(s) in `web/src/lib/help/articles/` with steps for the new behaviour  
 8. **System setup** — checklist items in `module-setup-guides.ts` + reference data / role grants documented  
-9. **Tier 1:** `npm run build` + `page-guides:check` (exit 0)  
-10. **Tier 2:** Browser smoke — steps in BUILD-PROGRESS for this slice  
-11. **Tier 3:** Bugbot review before push; log in BUILD-PROGRESS  
-12. Update [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) (status + test steps + user/setup guides for new slice)  
-13. Update [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) when chunk status changes  
+9. **Testing docs** — `.cursor/rules/docs-and-testing.mdc`: HP matrix, TEST-RUNBOOKS, UAT pack(s), `npm run uat:inventory` when processes/windows change  
+10. **Tier 1:** `npm run build` + `page-guides:check` (exit 0)  
+11. **Tier 2:** Browser smoke — steps in BUILD-PROGRESS for this slice  
+12. **Tier 3:** Bugbot review before push; log in BUILD-PROGRESS  
+13. Update [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) (status + test steps + user/setup guides for new slice)  
+14. Update [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) when chunk status changes  
 
 ## Key paths
 

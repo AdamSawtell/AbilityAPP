@@ -68,6 +68,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Set Plan provider on budget lines when participants use external plan managers — required for Multi-provider budget reporting.",
       "Set Consent status options and consent, alert, risk, and activity types.",
       "Review support plan lists (goals, documents, assessments).",
+      "Grant print-support-plan and send-support-plan on coordinator, intake, quality, and team leader roles (seeded on admin).",
+      "Complete a test support plan on a demo client; print and send to confirm document registry rows.",
       "Under Admin → Roles, grant Clients module, Plan budget tab (client-plan-budget), Service agreements (client-service-agreements), and Service bookings (client-service-bookings) at Read or Write for each role that needs them.",
       "Create a test client: set lifecycle, add plan budget lines (manual, wizard, CSV import, PDF paste, or gateway pull on Plan budget tab), record core consents, then save and verify Overview summaries.",
       "On Plan budget tab: set Plan provider on a line, save, refresh — confirm Multi-provider budget lists the provider.",

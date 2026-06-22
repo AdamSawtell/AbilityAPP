@@ -45,3 +45,5 @@
 **Related:** [BUILD-PROGRESS.md](../BUILD-PROGRESS.md), [processes/](../processes/), [scope/README.md](../scope/README.md).
 
 **Status:** Happy path v1.0 + **UAT programme v1.0** (structure complete; execution not started).
+
+**Agent rule:** Every feature slice must update help articles and testing docs per `.cursor/rules/docs-and-testing.mdc` before push.

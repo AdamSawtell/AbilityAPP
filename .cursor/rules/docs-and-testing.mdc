@@ -1,0 +1,63 @@
+---
+description: HARD — update how-to guides and testing docs on every feature slice; block handoff if skipped
+alwaysApply: true
+---
+
+# Docs and testing — mandatory every slice
+
+**Do not hand off feature work until user-facing docs and testing artefacts match the code.** This is as mandatory as audit footers and push-and-test.
+
+## When this applies
+
+Any slice that adds or changes user-visible behaviour, routes, processes, windows, seeds, or printable/send flows.
+
+## Required updates (complete all that apply)
+
+### How-to guides (in-app)
+
+| Change type | Update |
+|-------------|--------|
+| New/changed workspace behaviour | Section(s) in `web/src/lib/help/articles/` (e.g. `clients-locations.ts`, `document-templates.ts`) |
+| New module or setup step | `web/src/lib/help/articles/module-setup-guides.ts` |
+| New route | `web/src/lib/help/page-guides.ts` if needed; run `npm run page-guides:check` |
+
+Set `lastUpdated` on touched help articles.
+
+### Testing documentation (`docs/testing/`)
+
+| Change type | Update |
+|-------------|--------|
+| Happy-path step | [HAPPY-PATH-E2E-MATRIX.md](../docs/testing/HAPPY-PATH-E2E-MATRIX.md) — HP row + FUNC catalogue row |
+| Executable smoke | [TEST-RUNBOOKS.md](../docs/testing/TEST-RUNBOOKS.md) — steps under the matching TEST ID |
+| Module UAT | Relevant `docs/testing/uat/UAT-*.md` pack (scenario row + result when tested) |
+| New process in `access/catalog.ts` | Run `npm run uat:inventory`; update [UAT-15-processes.md](../docs/testing/uat/UAT-15-processes.md) |
+| New window | Run `npm run uat:inventory`; add scenario to module pack |
+| Defects found | [ISSUE-LOG-TEMPLATE.md](../docs/testing/ISSUE-LOG-TEMPLATE.md) |
+
+### Other docs (when applicable)
+
+- [docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) — new tables/columns
+- [dev-core/AGENT-PLAYBOOK.md](../dev-core/AGENT-PLAYBOOK.md) handoff checklist — already references guides; follow it
+- [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) — **What you can test** for the slice
+
+## Order (with push-and-test)
+
+1. Implement code
+2. **Update docs** (this rule)
+3. Tier 1 verify (`build`, `page-guides:check`)
+4. Tier 2 browser smoke
+5. Bugbot
+6. Commit **code + docs together**
+7. Push
+8. Handoff **Verification** block must list doc files updated
+
+## Never
+
+- Ship UI/process features with stale help articles or missing TEST/UAT rows.
+- Say "docs can be updated later."
+- Hand off without naming which help articles and testing files were touched.
+
+## Exceptions
+
+- Pure refactors with no user-visible or test-surface change.
+- User explicitly says docs-only or no-docs for that turn.

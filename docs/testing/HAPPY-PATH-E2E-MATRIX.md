@@ -178,7 +178,9 @@ flowchart LR
 |------|-------|-------|--------|-----------------|------------------|-------|---------|
 | 3.1 | HP-031 | Coordinator | Plan budget lines | Client → Plan budget | Categories + allocated amounts | Live | TEST-030 |
 | 3.2 | HP-032 | Coordinator | Billing + comms prefs | Client → Billing and communication | Plan manager BP when plan-managed | Live | TEST-030 |
-| 3.3 | HP-033 | Coordinator | Support plan / needs | Client → Support plan | Sections save; audit | Live | TEST-030 |
+| 3.3 | HP-033 | Coordinator | Support plan sections | Client → Support plan | Sections + line tables save; audit | Live | TEST-030 |
+| 3.3a | HP-033P | Coordinator | Print support plan | Client → Support plan | Print dialog or iframe fallback; registry row | Live | TEST-030 |
+| 3.3b | HP-033S | Coordinator | Send support plan | Client → Support plan | Registry ref; Open email draft when client email set | Live | TEST-030 |
 | 3.4 | HP-034 | Coordinator | BP associations (plan manager) | Client → Business partners | Plan manager linked | Live | TEST-030 |
 | 3.5 | HP-035 | Admin | Product / price list catalog | `/products`, `/price-lists` | SIL / CP products for SA lines | Live | TEST-030 |
 | 3.6 | HP-036 | Coordinator | Lifecycle → **active** | Client → Full profile | Filter on Clients list works | Live | TEST-030 |
@@ -413,12 +415,14 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-120 | Client | Full profile + lifecycle | Client → Full profile | Coordinator+ | Live | HP-024, HP-036, HP-100 |
 | FUNC-121 | Client | Plan budget | Plan budget tab | Coordinator+ | Live | HP-031, HP-041 |
 | FUNC-122 | Client | Billing + comms | Billing tab | Coordinator+ | Live | HP-032, HP-042 |
-| FUNC-123 | Client | Support plan | Support plan tab | Coordinator+ | Live | HP-033 |
-| FUNC-124 | Client | Location assignment | Locations tab | Coordinator+ | Live | HP-025 |
-| FUNC-125 | Client | Activity lines | Activity tab | Worker+ | Live | HP-061 |
-| FUNC-126 | Client | Exit lifecycle | Full profile | Coordinator+ | Live | HP-100, TEST-095 |
-| FUNC-127 | Locations | Site registry | `/locations` | Admin+ | Live | — |
-| FUNC-128 | Business partners | Registry | `/business-partners` | Admin+ | Live | HP-034 |
+| FUNC-123 | Client | Support plan sections | Support plan tab | Coordinator+ | Live | HP-033 |
+| FUNC-124 | Client | Print support plan | Support plan tab | Coordinator+ | Live | HP-033P |
+| FUNC-125 | Client | Send support plan | Support plan tab | Coordinator+ | Live | HP-033S |
+| FUNC-126 | Client | Location assignment | Locations tab | Coordinator+ | Live | HP-025 |
+| FUNC-127 | Client | Activity lines | Activity tab | Worker+ | Live | HP-061 |
+| FUNC-128 | Client | Exit lifecycle | Full profile | Coordinator+ | Live | HP-100, TEST-095 |
+| FUNC-129 | Locations | Site registry | `/locations` | Admin+ | Live | — |
+| FUNC-130 | Business partners | Registry | `/business-partners` | Admin+ | Live | HP-034 |
 
 ### 5.2 Services — agreements and bookings
 

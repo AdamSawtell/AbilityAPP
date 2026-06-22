@@ -82,6 +82,6 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 | Change | Action |
 |--------|--------|
 | New window in `catalog.ts` | `npm run uat:inventory` → add scenario row to module pack |
-| New process in `ACCESS_PROCESSES` | Update UAT-15 |
+| New process in `ACCESS_PROCESSES` | Update UAT-15; run `npm run uat:inventory` |
 | New report | Update UAT-12 + `reports.json` |
 | Happy path slice ships | Update TEST-RUNBOOKS + HP refs in pack |

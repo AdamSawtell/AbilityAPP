@@ -17,7 +17,7 @@ export const clientsArticle: HelpArticle = {
   ],
   relatedRoutes: ["/clients", "/service-agreements"],
   windowKeys: ["clients"],
-  lastUpdated: "2026-06-18",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "client-list",
@@ -134,6 +134,33 @@ export const clientsArticle: HelpArticle = {
       body: "Lists service bookings linked to this client. Open a card to edit lines and compliance, or use New service booking to create one with the client pre-selected.",
       relatedRoutes: ["/service-bookings"],
       windowKeys: ["client-service-bookings", "service-bookings"],
+    },
+    {
+      id: "support-plan-tab",
+      title: "Support Plan tab",
+      body: "The Support Plan tab holds the participant care plan: About me, communication, health, behaviour, daily living sections, goals, health records, support requirements, assistive technology, emergency procedures, and worker instructions. Use the sidebar to switch sections. Save support plan after edits — changes audit on the client record.",
+      steps: [
+        "Open the client → Support Plan.",
+        "Pick a section from the sidebar (About me, Communication and language, Health records, Goals, and so on).",
+        "Edit fields or line tables; click Save support plan when the unsaved bar appears.",
+        "Open Full audit trail on the client to confirm field-level changes.",
+      ],
+      windowKeys: ["client-support-plan"],
+    },
+    {
+      id: "support-plan-print-send",
+      title: "Print and send the support plan",
+      body: "At the bottom of Support Plan, Printable support plan generates the full 14-section care plan (profile, plan tabs, goals, risks, consents, bookings, roster). Print opens the browser print dialog (or uses an iframe fallback when pop-ups are blocked). Download PDF uses server rendering when configured. Send support plan saves HTML to the document registry — AbilityAPP does not send outbound email; use Open email draft to hand off via your organisation's mail client.",
+      steps: [
+        "Open the client → Support Plan; confirm sections are complete.",
+        "Optional: set participant email on Full profile — required for Open email draft.",
+        "Click Print support plan — confirm print dialog or registry success message.",
+        "Click Send support plan — confirm registry reference appears.",
+        "In Support plan delivery, click Open email draft; attach PDF from Print or Download PDF.",
+        "Find the file in System → Document registry if needed.",
+      ],
+      relatedRoutes: ["/clients", "/system/admin/document-registry"],
+      windowKeys: ["client-support-plan"],
     },
     {
       id: "risks-tab",

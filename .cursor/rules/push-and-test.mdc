@@ -10,10 +10,11 @@ When you finish a task that changes the repo, **do not hand off without pushing 
 ## Required sequence
 
 1. **Verify** — run Tier 1 from `.cursor/commands/test-before-handoff.md` (`npm run build`, `npm run page-guides:check`; `npx tsc --noEmit` when types changed). Apply Supabase migrations when schema or seeds changed.
-2. **Smoke test** — for UI changes, test on **localhost** (Tier 2): open the affected route, exercise the feature, confirm no error banners and audit footer where applicable. Log pass/fail.
-3. **Review** — run Bugbot on uncommitted changes before push to `main` (see `bugbot-commit.mdc`).
-4. **Commit and push** — follow `.cursor/rules/commit-and-push.mdc`; push to the current branch after a successful commit.
-5. **Handoff** — end with a **Verification** block listing commands (with exit codes) and browser smoke result.
+2. **Docs** — follow `.cursor/rules/docs-and-testing.mdc` (help articles + testing docs updated before commit).
+3. **Smoke test** — for UI changes, test on **localhost** (Tier 2): open the affected route, exercise the feature, confirm no error banners and audit footer where applicable. Log pass/fail.
+4. **Review** — run Bugbot on uncommitted changes before push to `main` (see `bugbot-commit.mdc`).
+5. **Commit and push** — follow `.cursor/rules/commit-and-push.mdc`; push to the current branch after a successful commit.
+6. **Handoff** — end with a **Verification** block listing commands (with exit codes), browser smoke result, and **docs updated**.
 
 ## Never
 
