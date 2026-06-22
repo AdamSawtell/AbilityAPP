@@ -1,0 +1,16 @@
+---
+description: Commit and push completed work without asking for permission
+alwaysApply: true
+---
+
+# Commit and push when work is done
+
+When you finish a task that changes the repo:
+
+1. **Commit and push automatically** — do not ask "should I commit?" or wait for confirmation.
+2. **Scope** — only files for the completed task; never commit secrets (`.env`, credentials).
+3. **Message** — 1–2 sentences, focus on why; match recent repo style.
+4. **Hooks** — never skip hooks (`--no-verify`). If a hook fails, fix and create a **new** commit (no amend unless hook-only fix rules apply).
+5. **Push** — push to the current branch after a successful commit unless the user said not to push.
+
+Exception: user explicitly says "don't commit" or "don't push" in that turn.
