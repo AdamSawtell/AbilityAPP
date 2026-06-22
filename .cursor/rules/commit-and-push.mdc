@@ -7,7 +7,8 @@ alwaysApply: true
 
 When you finish a task that changes the repo:
 
-1. **Commit and push automatically** — do not ask "should I commit?" or wait for confirmation.
+1. **Verify and test** — follow `.cursor/rules/push-and-test.mdc` (build, smoke test for UI, Bugbot before push to `main`).
+2. **Commit and push automatically** — do not ask "should I commit?" or wait for confirmation.
 2. **Scope** — only files for the completed task; never commit secrets (`.env`, credentials).
 3. **Message** — 1–2 sentences, focus on why; match recent repo style.
 4. **Hooks** — never skip hooks (`--no-verify`). If a hook fails, fix and create a **new** commit (no amend unless hook-only fix rules apply).
