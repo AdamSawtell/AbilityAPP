@@ -87,6 +87,20 @@ For each shipped slice, add rows to **User guides & system setup** in [BUILD-PRO
 
 Run `npm run page-guides:check` after help changes (Tier 1).
 
+## 8.1 Record documents (print, PDF, send)
+
+Every record tab or detail view with print/PDF/send actions:
+
+| Requirement | Location |
+|-------------|----------|
+| Shared UI at bottom of record content | `web/src/components/record-documents-section.tsx` |
+| Process audit on print/send | `web/src/lib/document-print-audit.ts` |
+| Help link map | `web/src/lib/record-document-help.ts` |
+| Entity file + print history API | `web/src/app/api/documents/entity-history/route.ts` |
+| Dev rule | `.cursor/rules/record-documents.mdc` |
+
+Do **not** add loud print buttons to `AppShell` actions or inline delivery instruction panels. Link to how-to guides instead.
+
 ## 9. Payroll & NDIS boundaries (from scope)
 
 | Responsibility | Owner |

@@ -1,0 +1,66 @@
+---
+description: HARD — consistent print/PDF/send UI on record pages with registry history and print audit
+alwaysApply: true
+---
+
+# Record documents — print, PDF, and send
+
+Every record page that offers **print**, **PDF**, or **send/issue** document actions must use the shared pattern below.
+
+## UI pattern (mandatory)
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Placement | Bottom of the record tab or detail view — **after** main content, before tasks footer if present |
+| Component | `RecordDocumentsSection` from `web/src/components/record-documents-section.tsx` |
+| Styling | Subtle — small uppercase "Documents" label, ghost buttons; **no** loud primary/pink header buttons |
+| Instructions | Link **How to print and send** to the help article section — **no** inline step lists or delivery panels |
+| Send handoff | `mailtoUrl` + `Open email draft` on the section only after issue/send succeeds |
+
+```tsx
+<RecordDocumentsSection
+  entityType="invoice"
+  entityId={record.id}
+  refreshKey={historyRefresh}
+  error={printError || sendError}
+  message={printMessage || sendMessage}
+  mailtoUrl={handoff?.mailtoUrl}
+  mailtoReady={issued}
+  extras={/* optional template picker, period filter */}
+  actions={[
+    { processId: DOCUMENT_PRINT_PROCESSES.printInvoice, label: "Print", onClick: handlePrint },
+    { processId: DOCUMENT_PRINT_PROCESSES.printInvoice, label: "PDF", onClick: handlePdf, busy: pdfBusy },
+    { processId: DOCUMENT_PRINT_PROCESSES.sendInvoice, label: "Issue", onClick: handleIssue, variant: "primary" },
+  ]}
+/>
+```
+
+Bump `historyRefresh` after every successful print, PDF, or send so **Saved files** and **Print log** reload.
+
+## Audit and registry (mandatory)
+
+| Action | Call |
+|--------|------|
+| Print / PDF that registers HTML | `registerDocumentWithAudit()` from `web/src/lib/document-print-audit.ts` |
+| Print-only (popup blocked) | `auditDocumentProcess({ outcome: "failed", failureReason: "Print window blocked" })` |
+| PDF via `downloadDocumentPdf` | `auditDocumentProcess({ detail: "PDF download" })` after success |
+| Send/issue API | `auditDocumentProcess()` on success with registry document no |
+
+Do **not** call raw `registerGeneratedDocument` without process audit on record pages.
+
+## Help links
+
+Map process ids in `web/src/lib/record-document-help.ts`. Add new print/send processes there when introduced.
+
+## Permissions
+
+Document actions still require `canProcess(processId)` (via `canRunProcess` — tab write + process grant). Hide the whole section when the user has no document actions.
+
+## Handoff checklist
+
+- [ ] Uses `RecordDocumentsSection` at bottom of record view
+- [ ] No duplicate print buttons in `AppShell` actions or loud inline instruction blocks
+- [ ] Help link resolves (`record-document-help.ts` + help article section)
+- [ ] Saved files list opens stored documents via `/api/documents/view`
+- [ ] Print log shows who printed/sent and when
+- [ ] Help + TEST/UAT docs updated per `docs-and-testing.mdc`

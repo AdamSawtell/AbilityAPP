@@ -151,6 +151,7 @@ export async function listProcessAudits(filters: ProcessAuditFilters) {
   if (filters.status) query = query.eq("status", filters.status);
   if (filters.riskLevel && filters.riskLevel !== "none") query = query.eq("risk_level", filters.riskLevel);
   if (filters.entityType) query = query.eq("entity_type", filters.entityType);
+  if (filters.entityId) query = query.eq("entity_id", filters.entityId);
   if (filters.search?.trim()) {
     const s = `%${filters.search.trim()}%`;
     query = query.or(`user_name.ilike.${s},process_label.ilike.${s},entity_label.ilike.${s},detail.ilike.${s}`);

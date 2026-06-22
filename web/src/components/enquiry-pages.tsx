@@ -18,7 +18,8 @@ import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { EnquiryActivityRow, EnquiryRecord } from "@/lib/enquiry";
 import { normalizeEnquiry } from "@/lib/enquiry";
 import { auditMetaFrom } from "@/lib/audit";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
@@ -43,7 +44,9 @@ export function EnquiryDetailView({ id }: { id: string }) {
   const { resolveTemplate } = useDocumentPlatform();
   const canPrintAck = canProcess(DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement);
   const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
   const canSaveEnquiry = useModuleSaveAccess("enquiries", "enquiry");
   const canSyncCrm = canWriteWindow("enquiries");
   const { openEnquiry, setTabDirty } = useWorkspace();
@@ -136,6 +139,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
   async function handlePrintAcknowledgement() {
     if (!record) return;
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement, "enquiry");
     if (!template) {
       setPrintError("No active enquiry acknowledgement template is available.");
@@ -144,12 +148,21 @@ export function EnquiryDetailView({ id }: { id: string }) {
     const ok = printExtendedDocument({ enquiry: record, organization }, template);
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement,
+        entityType: "enquiry",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
     const exported = exportExtendedDocumentHtml({ enquiry: record, organization }, template);
     if (exported) {
       try {
-        await registerGeneratedDocument({
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement,
           html: exported.html,
           templateId: exported.templateId,
           documentClass: exported.documentClass,
@@ -158,6 +171,8 @@ export function EnquiryDetailView({ id }: { id: string }) {
           entityLabel: record.documentNo,
           fileName: `${record.documentNo.replace(/[^\w.-]+/g, "_")}-ack.html`,
         });
+        setPrintMessage("Acknowledgement saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
@@ -167,6 +182,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
   async function handleDownloadPdf() {
     if (!record) return;
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement, "enquiry");
     if (!template) {
       setPrintError("No active enquiry acknowledgement template is available.");
@@ -188,6 +204,15 @@ export function EnquiryDetailView({ id }: { id: string }) {
         entityLabel: record.documentNo,
         fileName: pdfFileName(`${record.documentNo}-ack`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement,
+        entityType: "enquiry",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        detail: "PDF download",
+      });
+      setPrintMessage("Acknowledgement PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -233,25 +258,6 @@ export function EnquiryDetailView({ id }: { id: string }) {
                 {isConverted ? "Converted" : converting ? "Converting…" : "Convert to client"}
               </button>
             ) : null}
-            {canPrintAck ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => void handlePrintAcknowledgement()}
-                  className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-                >
-                  Print acknowledgement
-                </button>
-                <button
-                  type="button"
-                  disabled={pdfBusy}
-                  onClick={() => void handleDownloadPdf()}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {pdfBusy ? "Generating PDF…" : "Download PDF"}
-                </button>
-              </>
-            ) : null}
           </>
         }
         audit={{
@@ -267,9 +273,6 @@ export function EnquiryDetailView({ id }: { id: string }) {
           saved={saved && !hasUnsavedChanges}
         />
 
-        {printError ? (
-          <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-        ) : null}
 
         <div className="mb-6">
           <EnquiryPipelinePanel status={record.status} issues={pipelineIssues} />
@@ -297,6 +300,29 @@ export function EnquiryDetailView({ id }: { id: string }) {
             onActivityChange={onActivityChange}
           />
         </Suspense>
+
+        {canPrintAck ? (
+          <RecordDocumentsSection
+            entityType="enquiry"
+            entityId={record.id}
+            refreshKey={historyRefresh}
+            error={printError || undefined}
+            message={printMessage || undefined}
+            actions={[
+              {
+                processId: DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement,
+                label: "Print",
+                onClick: () => void handlePrintAcknowledgement(),
+              },
+              {
+                processId: DOCUMENT_PRINT_PROCESSES.printEnquiryAcknowledgement,
+                label: "PDF",
+                onClick: () => void handleDownloadPdf(),
+                busy: pdfBusy,
+              },
+            ]}
+          />
+        ) : null}
       </AppShell>
 
       <UnsavedChangesBar

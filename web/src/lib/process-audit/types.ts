@@ -42,6 +42,7 @@ export type ProcessAuditFilters = {
   status?: ProcessStatus;
   riskLevel?: string;
   entityType?: string;
+  entityId?: string;
   search?: string;
   cursor?: string;
   offset?: number;

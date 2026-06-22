@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-store";
 import type { ClientRecord } from "@/lib/client";
 import { useReferenceData } from "@/lib/config-store";
 import { formatContractDate } from "@/lib/contract";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES, defaultSupportPlanTemplate } from "@/lib/document-template";
@@ -15,7 +15,7 @@ import { newLineId } from "@/lib/client-line-tables";
 import { useData } from "@/lib/data-store";
 import { useOrganization } from "@/lib/organization-store";
 import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
-import { SupportPlanDeliveryPanel } from "@/components/support-plan-delivery-panel";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { buildSupportPlanDeliveryHandoff } from "@/lib/support-plan-delivery";
 import type { SupportPlanDocumentContext } from "@/lib/support-plan-print";
 import {
@@ -176,6 +176,7 @@ export function ClientSupportPlanPanel({
   const [sending, setSending] = useState(false);
   const [registryDocumentNo, setRegistryDocumentNo] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printSupportPlan, "client");
   const activeTemplate =
     resolveTemplate(DOCUMENT_PRINT_PROCESSES.printSupportPlan, "client") ??
@@ -243,24 +244,35 @@ export function ClientSupportPlanPanel({
       setPrintError("No active support plan template is available.");
       return;
     }
+    const entityLabel = `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim();
     const ok = printPhase2Document(printContext, activeTemplate);
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printSupportPlan,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
     const exported = exportPhase2DocumentHtml(printContext, activeTemplate);
     if (exported) {
       try {
-        await registerGeneratedDocument({
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printSupportPlan,
           html: exported.html,
           templateId: exported.templateId,
           documentClass: exported.documentClass,
           entityType: "client",
           entityId: client.id,
-          entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
+          entityLabel,
           fileName: `${client.searchKey.replace(/[^\w.-]+/g, "_")}-support-plan.html`,
         });
         setPrintMessage("Support plan saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
@@ -290,7 +302,15 @@ export function ClientSupportPlanPanel({
         entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
         fileName: pdfFileName(`${client.searchKey}-support-plan-${plan?.documentNo ?? "plan"}`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printSupportPlan,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
+        detail: "PDF download",
+      });
       setPrintMessage("Support plan PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -340,6 +360,14 @@ export function ClientSupportPlanPanel({
       if (payload.documentNo) setRegistryDocumentNo(payload.documentNo);
       const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
       setSendMessage(`${payload.message ?? "Support plan sent in-system."}${registryNote}`);
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.sendSupportPlan,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
+        detail: payload.documentNo ? `Registry ${payload.documentNo}` : undefined,
+      });
+      setHistoryRefresh((n) => n + 1);
     } catch {
       setSendError("Could not send the support plan. Try again.");
     } finally {
@@ -501,62 +529,43 @@ export function ClientSupportPlanPanel({
       </div>
 
       {canPrint || canSend ? (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h4 className="text-sm font-semibold text-slate-900">Printable support plan</h4>
-                <p className="mt-1 text-sm text-slate-500">
-                  Generate the full 14-section care plan from profile, support plan tabs, goals, risks, consents,
-                  bookings, and roster. Sending saves to the document registry — delivery stays in AbilityAPP, not email.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {canPrint ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => void handlePrintSupportPlan()}
-                      className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-                    >
-                      Print support plan
-                    </button>
-                    <button
-                      type="button"
-                      disabled={pdfBusy}
-                      onClick={() => void handleDownloadSupportPlanPdf()}
-                      className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {pdfBusy ? "Generating PDF…" : "Download PDF"}
-                    </button>
-                  </>
-                ) : null}
-                {canSend ? (
-                  <button
-                    type="button"
-                    disabled={sending}
-                    onClick={() => void handleSendSupportPlan()}
-                    className="rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {sending ? "Sending…" : "Send support plan"}
-                  </button>
-                ) : null}
-              </div>
-            </div>
-            {printError ? <p className="mt-3 text-sm text-rose-700">{printError}</p> : null}
-            {printMessage ? <p className="mt-3 text-sm text-emerald-700">{printMessage}</p> : null}
-            {sendError ? <p className="mt-3 text-sm text-rose-700">{sendError}</p> : null}
-            {sendMessage ? <p className="mt-3 text-sm text-emerald-700">{sendMessage}</p> : null}
-          </div>
-
-          {canSend && deliveryHandoff ? (
-            <SupportPlanDeliveryPanel
-              handoff={deliveryHandoff}
-              registryDocumentNo={registryDocumentNo || undefined}
-              issued={Boolean(registryDocumentNo)}
-            />
-          ) : null}
-        </div>
+        <RecordDocumentsSection
+          entityType="client"
+          entityId={client.id}
+          refreshKey={historyRefresh}
+          error={printError || sendError || undefined}
+          message={printMessage || sendMessage || undefined}
+          mailtoUrl={deliveryHandoff?.mailtoUrl}
+          mailtoReady={Boolean(registryDocumentNo)}
+          actions={[
+            ...(canPrint
+              ? [
+                  {
+                    processId: DOCUMENT_PRINT_PROCESSES.printSupportPlan,
+                    label: "Print",
+                    onClick: () => void handlePrintSupportPlan(),
+                  },
+                  {
+                    processId: DOCUMENT_PRINT_PROCESSES.printSupportPlan,
+                    label: "PDF",
+                    onClick: () => void handleDownloadSupportPlanPdf(),
+                    busy: pdfBusy,
+                  },
+                ]
+              : []),
+            ...(canSend
+              ? [
+                  {
+                    processId: DOCUMENT_PRINT_PROCESSES.sendSupportPlan,
+                    label: "Send",
+                    onClick: () => void handleSendSupportPlan(),
+                    busy: sending,
+                    variant: "primary" as const,
+                  },
+                ]
+              : []),
+          ]}
+        />
       ) : null}
     </div>
   );

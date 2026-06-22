@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
@@ -34,6 +35,7 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
   const [printError, setPrintError] = useState("");
   const [message, setMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printParticipantStatement, "client");
   const activeTemplate =
@@ -62,24 +64,7 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
   );
 
   const periodLabel = periodMonth || "All periods";
-
-  async function archiveStatement() {
-    if (!activeTemplate) return;
-    const exported = exportExtendedDocumentHtml(
-      { client, invoices: periodInvoices, periodLabel, organization },
-      activeTemplate
-    );
-    if (!exported) return;
-    await registerGeneratedDocument({
-      html: exported.html,
-      templateId: exported.templateId,
-      documentClass: exported.documentClass,
-      entityType: "client",
-      entityId: client.id,
-      entityLabel: `${client.searchKey} — ${periodLabel}`,
-      fileName: `${client.searchKey.replace(/[^\w.-]+/g, "_")}-statement.html`,
-    });
-  }
+  const entityLabel = `${client.searchKey} — ${periodLabel}`;
 
   async function handlePrint() {
     setPrintError("");
@@ -94,11 +79,34 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
     );
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printParticipantStatement,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
+    const exported = exportExtendedDocumentHtml(
+      { client, invoices: periodInvoices, periodLabel, organization },
+      activeTemplate
+    );
+    if (!exported) return;
     try {
-      await archiveStatement();
+      await registerDocumentWithAudit({
+        processId: DOCUMENT_PRINT_PROCESSES.printParticipantStatement,
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: exported.documentClass,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel,
+        fileName: `${client.searchKey.replace(/[^\w.-]+/g, "_")}-statement.html`,
+      });
       setMessage("Statement saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
     }
@@ -127,10 +135,18 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
         documentClass: exported.documentClass,
         entityType: "client",
         entityId: client.id,
-        entityLabel: `${client.searchKey} — ${periodLabel}`,
+        entityLabel,
         fileName: pdfFileName(`${client.searchKey}-statement`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printParticipantStatement,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel,
+        detail: "PDF download",
+      });
       setMessage("Statement PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -141,53 +157,46 @@ export function ClientParticipantStatementPanel({ client }: { client: ClientReco
   if (!canPrint) return null;
 
   return (
-    <div className="mt-6 border-t border-slate-100 pt-5">
-      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h4 className="text-sm font-semibold text-slate-900">Participant service statement</h4>
-          <p className="mt-1 text-sm text-slate-500">
-            Print or download a summary of invoices for this participant.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-end gap-2">
-          <label className="text-sm">
-            <span className="mb-1 block text-xs font-medium text-slate-600">Period</span>
-            <select className={inputClass} value={periodMonth} onChange={(e) => setPeriodMonth(e.target.value)}>
-              <option value="">All periods</option>
-              {monthOptions.map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            onClick={() => void handlePrint()}
-            className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-          >
-            Print statement
-          </button>
-          <button
-            type="button"
-            disabled={pdfBusy}
-            onClick={() => void handleDownloadPdf()}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {pdfBusy ? "Generating PDF…" : "Download PDF"}
-          </button>
-        </div>
-      </div>
-      <p className="text-xs text-slate-500">
-        {periodInvoices.length} invoice{periodInvoices.length === 1 ? "" : "s"} in scope
-        {activeTemplate ? ` · Template: ${activeTemplate.name}` : ""}
-      </p>
-      {printError ? (
-        <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-      ) : null}
-      {message ? (
-        <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">{message}</p>
-      ) : null}
-    </div>
+    <>
+      <RecordDocumentsSection
+        entityType="client"
+        entityId={client.id}
+        refreshKey={historyRefresh}
+        error={printError || undefined}
+        message={message || undefined}
+        extras={
+          <div className="flex flex-wrap items-end gap-3 text-sm">
+            <label>
+              <span className="mb-1 block text-xs font-medium text-slate-600">Period</span>
+              <select className={inputClass} value={periodMonth} onChange={(e) => setPeriodMonth(e.target.value)}>
+                <option value="">All periods</option>
+                {monthOptions.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="text-xs text-slate-500">
+              {periodInvoices.length} invoice{periodInvoices.length === 1 ? "" : "s"} in scope
+              {activeTemplate ? ` · ${activeTemplate.name}` : ""}
+            </p>
+          </div>
+        }
+        actions={[
+          {
+            processId: DOCUMENT_PRINT_PROCESSES.printParticipantStatement,
+            label: "Print",
+            onClick: () => void handlePrint(),
+          },
+          {
+            processId: DOCUMENT_PRINT_PROCESSES.printParticipantStatement,
+            label: "PDF",
+            onClick: () => void handleDownloadPdf(),
+            busy: pdfBusy,
+          },
+        ]}
+      />
+    </>
   );
 }

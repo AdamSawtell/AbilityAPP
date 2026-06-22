@@ -32,11 +32,11 @@ import { useData } from "@/lib/data-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf } from "@/lib/document-pdf.client";
 import { batchPrintInvoices } from "@/lib/invoice-batch-print";
 import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
-import { InvoiceDeliveryPanel } from "@/components/invoice-delivery-panel";
 import { buildInvoiceDeliveryHandoff } from "@/lib/invoice-plan-manager-delivery";
 import { useOrganization } from "@/lib/organization-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
@@ -542,11 +542,13 @@ export function InvoiceDetailView({ id }: { id: string }) {
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
   const [sendError, setSendError] = useState("");
   const [sendMessage, setSendMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [registryDocumentNo, setRegistryDocumentNo] = useState("");
+  const [historyRefresh, setHistoryRefresh] = useState(0);
   const [templateId, setTemplateId] = useState("");
 
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printInvoice, "invoice");
@@ -645,6 +647,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
 
   const handlePrint = async () => {
     setPrintError("");
+    setPrintMessage("");
     if (!activeTemplate) {
       setPrintError("No active invoice template is available.");
       return;
@@ -659,24 +662,40 @@ export function InvoiceDetailView({ id }: { id: string }) {
     );
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+        entityType: "invoice",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
     const exported = exportClientInvoiceHtml({ invoice: record, client, organization }, activeTemplate);
     if (exported) {
-      void registerGeneratedDocument({
-        html: exported.html,
-        templateId: exported.templateId,
-        documentClass: activeTemplate.documentClass,
-        entityType: "invoice",
-        entityId: record.id,
-        entityLabel: record.documentNo,
-        fileName: `${record.documentNo}.html`,
-      });
+      try {
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+          html: exported.html,
+          templateId: exported.templateId,
+          documentClass: activeTemplate.documentClass,
+          entityType: "invoice",
+          entityId: record.id,
+          entityLabel: record.documentNo,
+          fileName: `${record.documentNo}.html`,
+        });
+        setPrintMessage("Invoice saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
+      } catch (err) {
+        setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+      }
     }
   };
 
   const handleDownload = async () => {
     setPrintError("");
+    setPrintMessage("");
     if (!activeTemplate) {
       setPrintError("No active invoice template is available.");
       return;
@@ -687,19 +706,27 @@ export function InvoiceDetailView({ id }: { id: string }) {
       return;
     }
     downloadDocumentHtml(exported.html, record.documentNo);
-    void registerGeneratedDocument({
-      html: exported.html,
-      templateId: exported.templateId,
-      documentClass: activeTemplate.documentClass,
-      entityType: "invoice",
-      entityId: record.id,
-      entityLabel: record.documentNo,
-      fileName: `${record.documentNo}.html`,
-    });
+    try {
+      await registerDocumentWithAudit({
+        processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: activeTemplate.documentClass,
+        entityType: "invoice",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        fileName: `${record.documentNo}.html`,
+      });
+      setPrintMessage("Invoice HTML saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+    }
   };
 
   const handleDownloadPdf = async () => {
     setPrintError("");
+    setPrintMessage("");
     if (!activeTemplate) {
       setPrintError("No active invoice template is available.");
       return;
@@ -721,6 +748,15 @@ export function InvoiceDetailView({ id }: { id: string }) {
         fileName: `${record.documentNo}.pdf`,
       });
       if (registered?.documentNo) setRegistryDocumentNo(registered.documentNo);
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+        entityType: "invoice",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        detail: registered?.documentNo ? `PDF ${registered.documentNo}` : "PDF download",
+      });
+      setPrintMessage("Invoice PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -769,6 +805,14 @@ export function InvoiceDetailView({ id }: { id: string }) {
       const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
       if (payload.documentNo) setRegistryDocumentNo(payload.documentNo);
       setSendMessage(`${payload.message ?? "Invoice issued in-system."}${registryNote}`);
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.sendInvoice,
+        entityType: "invoice",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        detail: payload.documentNo ? `Registry ${payload.documentNo}` : undefined,
+      });
+      setHistoryRefresh((n) => n + 1);
       if (canEdit && record.status !== "Sent") {
         handleMarkSent();
       }
@@ -796,90 +840,6 @@ export function InvoiceDetailView({ id }: { id: string }) {
         }}
       >
         <div className="space-y-6">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div className="space-y-2">
-              <p className="text-sm text-slate-600">
-                Print, download, or issue using the assigned document template. Issuing saves to the document registry and marks the invoice sent — delivery stays in AbilityAPP, not email. Save any edits before printing or issuing.
-              </p>
-              {templateOptions.length > 1 ? (
-                <label className="block text-sm">
-                  <span className="mb-1 block font-medium text-slate-700">Template</span>
-                  <select
-                    className={inputClass}
-                    value={activeTemplateId}
-                    onChange={(e) => setTemplateId(e.target.value)}
-                  >
-                    {templateOptions.map((template) => (
-                      <option key={template.id} value={template.id}>
-                        {template.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : activeTemplate ? (
-                <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
-              ) : null}
-            </div>
-            {canPrint || canSend ? (
-              <div className="flex flex-wrap gap-2">
-                {canPrint ? (
-                  <>
-                    <button
-                      type="button"
-                      disabled={pdfBusy}
-                      onClick={() => void handleDownloadPdf()}
-                      className="inline-flex shrink-0 items-center rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {pdfBusy ? "Generating PDF…" : "Download PDF"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handleDownload()}
-                      className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                    >
-                      Download HTML
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handlePrint()}
-                      className="inline-flex shrink-0 items-center rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-                    >
-                      Print invoice
-                    </button>
-                  </>
-                ) : null}
-                {canSend ? (
-                  <button
-                    type="button"
-                    disabled={sending}
-                    onClick={() => void handleIssue()}
-                    className="inline-flex shrink-0 items-center rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {sending ? "Issuing…" : "Issue invoice"}
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          {printError ? (
-            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-          ) : null}
-          {sendError ? (
-            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{sendError}</p>
-          ) : null}
-          {sendMessage ? (
-            <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">{sendMessage}</p>
-          ) : null}
-
-          {deliveryHandoff ? (
-            <InvoiceDeliveryPanel
-              handoff={deliveryHandoff}
-              registryDocumentNo={registryDocumentNo || undefined}
-              invoiceStatus={record.status}
-            />
-          ) : null}
-
           <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-3">
             <label className="block text-sm">
               <span className="mb-1 block font-medium text-slate-700">Client</span>
@@ -1021,6 +981,71 @@ export function InvoiceDetailView({ id }: { id: string }) {
 
           {saveError ? (
             <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{saveError}</p>
+          ) : null}
+
+          {canPrint || canSend ? (
+            <RecordDocumentsSection
+              entityType="invoice"
+              entityId={record.id}
+              refreshKey={historyRefresh}
+              error={printError || sendError || undefined}
+              message={printMessage || sendMessage || undefined}
+              mailtoUrl={deliveryHandoff?.mailtoUrl}
+              mailtoReady={record.status === "Sent" && Boolean(registryDocumentNo || deliveryHandoff?.mailtoUrl)}
+              extras={
+                templateOptions.length > 1 ? (
+                  <label className="block text-sm">
+                    <span className="mb-1 block text-xs font-medium text-slate-600">Template</span>
+                    <select
+                      className={inputClass}
+                      value={activeTemplateId}
+                      onChange={(e) => setTemplateId(e.target.value)}
+                    >
+                      {templateOptions.map((template) => (
+                        <option key={template.id} value={template.id}>
+                          {template.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : activeTemplate ? (
+                  <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
+                ) : null
+              }
+              actions={[
+                ...(canPrint
+                  ? [
+                      {
+                        processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+                        label: "Print",
+                        onClick: () => void handlePrint(),
+                      },
+                      {
+                        processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+                        label: "PDF",
+                        onClick: () => void handleDownloadPdf(),
+                        busy: pdfBusy,
+                      },
+                      {
+                        processId: DOCUMENT_PRINT_PROCESSES.printInvoice,
+                        label: "HTML",
+                        onClick: () => void handleDownload(),
+                      },
+                    ]
+                  : []),
+                ...(canSend
+                  ? [
+                      {
+                        processId: DOCUMENT_PRINT_PROCESSES.sendInvoice,
+                        label: "Issue",
+                        onClick: () => void handleIssue(),
+                        busy: sending,
+                        variant: "primary" as const,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           ) : null}
         </div>
       </AppShell>

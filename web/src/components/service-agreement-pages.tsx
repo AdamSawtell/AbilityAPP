@@ -16,7 +16,8 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { exportServiceAgreementHtml, printServiceAgreement } from "@/lib/agreement-print";
 import { auditMetaFrom } from "@/lib/audit";
 import { useAuth } from "@/lib/auth-store";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
@@ -178,7 +179,9 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
   const [draft, setDraft] = useState<ServiceAgreementRecord | null>(null);
   const [saved, setSaved] = useState(false);
   const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
   const [templateId, setTemplateId] = useState("");
   const record = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
@@ -252,7 +255,8 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
     if (!template) return;
     const exported = exportServiceAgreementHtml({ agreement, client: client ?? undefined, organization }, template);
     if (!exported) return;
-    await registerGeneratedDocument({
+    await registerDocumentWithAudit({
+      processId: DOCUMENT_PRINT_PROCESSES.printServiceAgreement,
       html: exported.html,
       templateId: exported.templateId,
       documentClass: template.documentClass,
@@ -261,10 +265,12 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
       entityLabel: `${agreement.searchKey}${labelSuffix}`,
       fileName: `${agreement.searchKey.replace(/[^\w.-]+/g, "_")}${labelSuffix}.html`,
     });
+    setHistoryRefresh((n) => n + 1);
   }
 
   const handlePrint = async () => {
     setPrintError("");
+    setPrintMessage("");
     if (!activeTemplate) {
       setPrintError("No active agreement template is available.");
       return;
@@ -272,13 +278,27 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
     const ok = printServiceAgreement({ agreement: record, client: client ?? undefined, organization }, activeTemplate);
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printServiceAgreement,
+        entityType: "service-agreement",
+        entityId: record.id,
+        entityLabel: record.searchKey,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
-    void archiveAgreementDocument(record);
+    try {
+      await archiveAgreementDocument(record);
+      setPrintMessage("Agreement saved to the document registry.");
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+    }
   };
 
   const handleDownload = async () => {
     setPrintError("");
+    setPrintMessage("");
     if (!activeTemplate) {
       setPrintError("No active agreement template is available.");
       return;
@@ -289,11 +309,17 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
       return;
     }
     downloadDocumentHtml(exported.html, record.searchKey);
-    void archiveAgreementDocument(record);
+    try {
+      await archiveAgreementDocument(record);
+      setPrintMessage("Agreement HTML saved to the document registry.");
+    } catch (err) {
+      setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
+    }
   };
 
   const handleDownloadPdf = async () => {
     setPrintError("");
+    setPrintMessage("");
     if (!activeTemplate) {
       setPrintError("No active agreement template is available.");
       return;
@@ -314,7 +340,15 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
         entityLabel: record.searchKey,
         fileName: pdfFileName(record.searchKey),
       });
-      void archiveAgreementDocument(record);
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printServiceAgreement,
+        entityType: "service-agreement",
+        entityId: record.id,
+        entityLabel: record.searchKey,
+        detail: "PDF download",
+      });
+      setPrintMessage("Agreement PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -348,63 +382,6 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? record),
         }}
       >
-        {canPrint ? (
-          <div className="mb-6 space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div className="space-y-2">
-                <p className="text-sm text-slate-600">
-                  Print or download the agreement with schedule of supports and captured signature.
-                </p>
-                {templateOptions.length > 1 ? (
-                  <label className="block text-sm">
-                    <span className="mb-1 block font-medium text-slate-700">Template</span>
-                    <select
-                      className={inputClass}
-                      value={activeTemplateId}
-                      onChange={(e) => setTemplateId(e.target.value)}
-                    >
-                      {templateOptions.map((template) => (
-                        <option key={template.id} value={template.id}>
-                          {template.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : activeTemplate ? (
-                  <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
-                ) : null}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={pdfBusy}
-                  onClick={() => void handleDownloadPdf()}
-                  className="inline-flex shrink-0 items-center rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:opacity-50"
-                >
-                  {pdfBusy ? "Generating PDF…" : "Download PDF"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handleDownload()}
-                  className="inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-                >
-                  Download HTML
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handlePrint()}
-                  className="inline-flex shrink-0 items-center rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-                >
-                  Print agreement
-                </button>
-              </div>
-            </div>
-            {printError ? (
-              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-            ) : null}
-          </div>
-        ) : null}
-
         <div className="mb-6">
           <ServiceAgreementLifecyclePanel issues={lifecycleIssues} />
         </div>
@@ -524,6 +501,54 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           readOnly={!canSaveAgreement}
         />
         {saved && !hasUnsavedChanges ? <p className="mt-4 text-sm text-emerald-700">Saved</p> : null}
+
+        {canPrint ? (
+          <RecordDocumentsSection
+            entityType="service-agreement"
+            entityId={record.id}
+            refreshKey={historyRefresh}
+            error={printError || undefined}
+            message={printMessage || undefined}
+            extras={
+              templateOptions.length > 1 ? (
+                <label className="block text-sm">
+                  <span className="mb-1 block text-xs font-medium text-slate-600">Template</span>
+                  <select
+                    className={inputClass}
+                    value={activeTemplateId}
+                    onChange={(e) => setTemplateId(e.target.value)}
+                  >
+                    {templateOptions.map((template) => (
+                      <option key={template.id} value={template.id}>
+                        {template.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : activeTemplate ? (
+                <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
+              ) : null
+            }
+            actions={[
+              {
+                processId: DOCUMENT_PRINT_PROCESSES.printServiceAgreement,
+                label: "Print",
+                onClick: () => void handlePrint(),
+              },
+              {
+                processId: DOCUMENT_PRINT_PROCESSES.printServiceAgreement,
+                label: "PDF",
+                onClick: () => void handleDownloadPdf(),
+                busy: pdfBusy,
+              },
+              {
+                processId: DOCUMENT_PRINT_PROCESSES.printServiceAgreement,
+                label: "HTML",
+                onClick: () => void handleDownload(),
+              },
+            ]}
+          />
+        ) : null}
 
         <div className="mt-8 border-t border-slate-200 pt-8">
           <RecordTasksPanel

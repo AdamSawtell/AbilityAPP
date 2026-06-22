@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { useAuth } from "@/lib/auth-store";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
@@ -18,12 +19,14 @@ export function ClientConsentSchedulePanel({ client }: { client: ClientRecord })
   const [printError, setPrintError] = useState("");
   const [message, setMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printConsentSchedule, "client");
   const activeTemplate =
     resolveTemplate(DOCUMENT_PRINT_PROCESSES.printConsentSchedule, "client") ?? templateOptions[0] ?? null;
 
   const consentCount = useMemo(() => client.consents?.length ?? 0, [client.consents]);
+  const entityLabel = `${client.searchKey} — Consent schedule`;
 
   async function handlePrint() {
     setPrintError("");
@@ -36,21 +39,31 @@ export function ClientConsentSchedulePanel({ client }: { client: ClientRecord })
     const ok = printPhase2Document(ctx, activeTemplate);
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printConsentSchedule,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
     const exported = exportPhase2DocumentHtml(ctx, activeTemplate);
     if (exported) {
       try {
-        await registerGeneratedDocument({
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printConsentSchedule,
           html: exported.html,
           templateId: exported.templateId,
           documentClass: exported.documentClass,
           entityType: "client",
           entityId: client.id,
-          entityLabel: `${client.searchKey} — Consent schedule`,
+          entityLabel,
           fileName: `${client.searchKey.replace(/[^\w.-]+/g, "_")}-consent-schedule.html`,
         });
         setMessage("Consent schedule saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
@@ -78,10 +91,18 @@ export function ClientConsentSchedulePanel({ client }: { client: ClientRecord })
         documentClass: exported.documentClass,
         entityType: "client",
         entityId: client.id,
-        entityLabel: `${client.searchKey} — Consent schedule`,
+        entityLabel,
         fileName: pdfFileName(`${client.searchKey}-consent-schedule`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printConsentSchedule,
+        entityType: "client",
+        entityId: client.id,
+        entityLabel,
+        detail: "PDF download",
+      });
       setMessage("Consent schedule PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -92,42 +113,31 @@ export function ClientConsentSchedulePanel({ client }: { client: ClientRecord })
   if (!canPrint) return null;
 
   return (
-    <div className="mt-6 border-t border-slate-100 pt-5">
-      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h4 className="text-sm font-semibold text-slate-900">Consent and information sharing schedule</h4>
-          <p className="mt-1 text-sm text-slate-500">
-            Print the participant consent schedule for audits, intake, or plan reviews.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => void handlePrint()}
-            className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-          >
-            Print consent schedule
-          </button>
-          <button
-            type="button"
-            disabled={pdfBusy}
-            onClick={() => void handleDownloadPdf()}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {pdfBusy ? "Generating PDF…" : "Download PDF"}
-          </button>
-        </div>
-      </div>
-      <p className="text-xs text-slate-500">
+    <>
+      <p className="mt-4 text-xs text-slate-500">
         {consentCount} consent line{consentCount === 1 ? "" : "s"}
         {activeTemplate ? ` · Template: ${activeTemplate.name}` : ""}
       </p>
-      {printError ? (
-        <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-      ) : null}
-      {message ? (
-        <p className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">{message}</p>
-      ) : null}
-    </div>
+      <RecordDocumentsSection
+        entityType="client"
+        entityId={client.id}
+        refreshKey={historyRefresh}
+        error={printError || undefined}
+        message={message || undefined}
+        actions={[
+          {
+            processId: DOCUMENT_PRINT_PROCESSES.printConsentSchedule,
+            label: "Print",
+            onClick: () => void handlePrint(),
+          },
+          {
+            processId: DOCUMENT_PRINT_PROCESSES.printConsentSchedule,
+            label: "PDF",
+            onClick: () => void handleDownloadPdf(),
+            busy: pdfBusy,
+          },
+        ]}
+      />
+    </>
   );
 }
