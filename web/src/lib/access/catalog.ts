@@ -766,8 +766,8 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
   },
   {
     id: "send-invoice",
-    label: "Issue invoice",
-    description: "Save the invoice document to the registry and mark it sent (in-system delivery only)",
+    label: "Send invoice via email",
+    description: "Generate invoice PDF, save to the registry, and hand off via Send via Email",
     parentWindowKey: "invoices",
   },
   {
@@ -802,8 +802,8 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
   },
   {
     id: "send-support-plan",
-    label: "Send support plan",
-    description: "Save the support plan to the document registry for email handoff (in-system delivery only)",
+    label: "Send support plan via email",
+    description: "Generate support plan PDF, save to the registry, and hand off via Send via Email",
     parentWindowKey: "client-support-plan",
   },
   {

@@ -48,10 +48,10 @@ function pushMigrations() {
   const ref = process.env.SUPABASE_PROJECT_REF?.trim() || "yonkaaylolrdsjfgpvyp";
 
   if (dbUrl) {
-    run("npx", ["supabase", "db", "push", "--yes", "--db-url", dbUrl]);
+    run("npx", ["supabase", "db", "push", "--yes", "--include-all", "--db-url", dbUrl]);
   } else if (process.env.SUPABASE_DB_PASSWORD?.trim()) {
     run("npx", ["supabase", "link", "--project-ref", ref, "--password", process.env.SUPABASE_DB_PASSWORD.trim(), "--yes"]);
-    run("npx", ["supabase", "db", "push", "--yes"]);
+    run("npx", ["supabase", "db", "push", "--yes", "--include-all"]);
   } else {
     console.error("Set SUPABASE_DB_URL or SUPABASE_DB_PASSWORD in web/.env.local.");
     process.exit(1);

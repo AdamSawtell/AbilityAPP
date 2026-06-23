@@ -37,6 +37,7 @@ import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-
 import { downloadDocumentPdf } from "@/lib/document-pdf.client";
 import { batchPrintInvoices } from "@/lib/invoice-batch-print";
 import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
+import { DOCUMENT_SEND_VIA_EMAIL_LABEL } from "@/lib/document-email-template";
 import { emailHandoffMessage, launchEmailWithPdfAttachment } from "@/lib/document-email-handoff";
 import { organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
@@ -1066,7 +1067,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
                   ? [
                       {
                         processId: DOCUMENT_PRINT_PROCESSES.sendInvoice,
-                        label: "Issue",
+                        label: DOCUMENT_SEND_VIA_EMAIL_LABEL,
                         onClick: () => void handleIssue(),
                         busy: sending,
                         variant: "primary" as const,

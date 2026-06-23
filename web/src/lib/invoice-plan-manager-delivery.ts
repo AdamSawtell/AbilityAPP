@@ -58,13 +58,13 @@ export function buildInvoiceDeliveryHandoff(params: {
     : null;
 
   const instructions = [
-    "Issue invoice saves HTML to the document registry and marks the invoice Sent.",
+    "Send via Email saves HTML and PDF to the document registry and marks the invoice Sent.",
     recipientEmail
       ? `Hand off to ${recipientName} at ${recipientEmail} using your organisation's secure email or portal.`
       : "Add an invoice recipient email on the client Billing and communication tab or on this invoice.",
     registryDocumentNo
       ? `Registry reference ${registryDocumentNo} — open System → Document registry to view the file.`
-      : "Click Issue invoice to register the document before handoff.",
+      : "Click Send via Email to register the document before handoff.",
   ];
 
   const printPdfSteps = [

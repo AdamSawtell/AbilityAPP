@@ -56,7 +56,7 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 2 | Billing and communication — plan manager if plan-managed | Saves |
 | 3 | Support Plan — edit About me field; save | Persists; audit |
 | 4 | Support Plan — Print support plan | Print opens or registry message; no error banner |
-| 5 | Support Plan — Send support plan on `bp-bern` | Registry reference; email draft opens (PDF attached when server render succeeds) |
+| 5 | Support Plan — Send via Email on `bp-bern` | Registry reference; email draft opens (PDF attached when server render succeeds) |
 | 6 | Full profile — lifecycle **active** | Filter on Clients list |
 | 7 | New service booking — compliance hint if intake/exit | Warning only when applicable |
 
@@ -265,8 +265,8 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 1 | Open Bern → Support Plan; scroll to bottom | **Documents** section with subtle Print/PDF/Send; **How to print and send** link |
 | 2 | Click Print | Success message; expand **Saved files** — row with date/time and Open |
 | 3 | Expand **Print log** | Row shows user name and timestamp |
-| 4 | Open invoice detail; scroll to Documents | Same layout at bottom (Print, PDF, Issue) |
-| 5 | Open invoice detail; scroll to Documents | Same layout at bottom (Print, PDF, Issue) |
+| 4 | Open invoice detail; scroll to Documents | Same layout at bottom (Print, PDF, Send via Email) |
+| 5 | Open invoice detail; scroll to Documents | Same layout at bottom (Print, PDF, Send via Email) |
 | 6 | Claim detail, NDIS audit pack, board report, invoice reconciliation, employee Documents tab | Documents section at bottom on each |
 
 ---

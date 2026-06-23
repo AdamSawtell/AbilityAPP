@@ -242,7 +242,7 @@ export const deliveryArticle: HelpArticle = {
         "System → Tasks → Document templates — edit title, footer, and active; duplicate to create a copy; set default templates per print process.",
         "System → Organisation → Document branding — bank details and default footer (see Organisation setup guide).",
         "System → Tasks → Document registry — view generated documents.",
-        "Invoices → Issue invoice — saves to registry and marks Sent (in-system only, no outbound email).",
+        "Invoices → Send via Email — saves to registry, generates PDF, and opens your email app.",
         "Invoices → Print invoice or Batch print; Enquiries → Print acknowledgement; Clients → Print statement or consent schedule.",
         "Claims → Print claim batch; Incidents → Print notification; NDIS audit pack → Print audit pack.",
         "Employees → Documents → Generate contract, offer letter, or separation letter.",

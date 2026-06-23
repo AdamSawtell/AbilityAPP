@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ClientParticipantStatementPanel } from "@/components/client-participant-statement-panel";
-import { ClientConsentSchedulePanel } from "@/components/client-consent-schedule-panel";
+import { ClientOverviewDocumentsPanel } from "@/components/client-overview-documents-panel";
 import { ClientConsentSummary } from "@/components/client-consent-summary";
 import { ClientPlanBudgetTextImportPanel } from "@/components/client-plan-budget-text-import-panel";
 import { ClientPlanBudgetImportPanel } from "@/components/client-plan-budget-import-panel";
@@ -434,8 +433,6 @@ export function ClientTabbedView({
               ) : null}
             </div>
             <ReadOnlyFieldGrid fields={coreOverviewFields} client={client} />
-            <ClientParticipantStatementPanel client={client} />
-            <ClientConsentSchedulePanel client={client} />
             {(client.planBudgets?.length ?? 0) > 0 && canClientTab("Plan budget") ? (
               <div className="mt-6 border-t border-slate-100 pt-5">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -466,6 +463,7 @@ export function ClientTabbedView({
                 <ClientConsentSummary consents={client.consents ?? []} />
               </div>
             ) : null}
+            <ClientOverviewDocumentsPanel client={client} />
           </div>
         ) : null}
 

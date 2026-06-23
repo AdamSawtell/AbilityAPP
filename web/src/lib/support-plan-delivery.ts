@@ -47,13 +47,13 @@ export function buildSupportPlanDeliveryHandoff(params: {
     : null;
 
   const instructions = [
-    "Send support plan saves HTML to the document registry.",
+    "Send via Email saves HTML and PDF to the document registry.",
     recipientEmail
       ? `Hand off to ${recipientName} at ${recipientEmail} using your organisation's secure email.`
       : "Add an email address on the client Full profile tab before sending.",
     registryDocumentNo
       ? `Registry reference ${registryDocumentNo} — open System → Document registry to view the file.`
-      : "Click Send support plan to register the document before handoff.",
+      : "Click Send via Email to register the document before handoff.",
   ];
 
   const printPdfSteps = [

@@ -577,6 +577,13 @@ export function EmployeeTabbedView({
 
         {activeTab === "Documents" && canWindow("employee-documents") ? (
           <div className="space-y-4">
+            <LineItemTable
+              config={employeeDocumentTableConfig}
+              rows={employee.documents}
+              onChange={onDocumentsChange}
+              dropdowns={employeeDropdowns}
+              readOnly={!canWriteEmployeeTab("Documents")}
+            />
             <EmployeeOfferGeneratePanel
               employee={employee}
               managerName={managerName(employee, allEmployees)}
@@ -594,13 +601,6 @@ export function EmployeeTabbedView({
               managerName={managerName(employee, allEmployees)}
               existingDocuments={employee.documents}
               onDocumentsChange={onDocumentsChange}
-            />
-            <LineItemTable
-              config={employeeDocumentTableConfig}
-              rows={employee.documents}
-              onChange={onDocumentsChange}
-              dropdowns={employeeDropdowns}
-              readOnly={!canWriteEmployeeTab("Documents")}
             />
           </div>
         ) : null}

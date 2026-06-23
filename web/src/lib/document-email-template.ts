@@ -1,3 +1,10 @@
+/** Primary button on record Documents sections for every outbound email handoff process. */
+export const DOCUMENT_SEND_VIA_EMAIL_LABEL = "Send via Email";
+
+export const DOCUMENT_EMAIL_SEND_PROCESS_IDS = ["send-support-plan", "send-invoice"] as const;
+
+export type DocumentEmailSendProcessId = (typeof DOCUMENT_EMAIL_SEND_PROCESS_IDS)[number];
+
 export type DocumentEmailTemplateRecord = {
   id: string;
   processId: string;
@@ -26,7 +33,7 @@ export const initialDocumentEmailTemplates: DocumentEmailTemplateRecord[] = [
   {
     id: "email-send-support-plan",
     processId: "send-support-plan",
-    label: "Send support plan",
+    label: "Support plan email",
     subject: "{{orgName}} — Support plan {{planDocumentNo}}",
     body: [
       "Dear {{recipientName}},",
@@ -44,7 +51,7 @@ export const initialDocumentEmailTemplates: DocumentEmailTemplateRecord[] = [
   {
     id: "email-send-invoice",
     processId: "send-invoice",
-    label: "Issue invoice",
+    label: "Invoice email",
     subject: "{{orgName}} — Invoice {{invoiceDocumentNo}}",
     body: [
       "Dear {{recipientName}},",

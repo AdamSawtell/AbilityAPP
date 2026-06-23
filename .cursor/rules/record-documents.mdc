@@ -30,7 +30,7 @@ Every record page that offers **print**, **PDF**, or **send/issue** document act
   actions={[
     { processId: DOCUMENT_PRINT_PROCESSES.printInvoice, label: "Print", onClick: handlePrint },
     { processId: DOCUMENT_PRINT_PROCESSES.printInvoice, label: "PDF", onClick: handlePdf, busy: pdfBusy },
-    { processId: DOCUMENT_PRINT_PROCESSES.sendInvoice, label: "Issue", onClick: handleIssue, variant: "primary" },
+    { processId: DOCUMENT_PRINT_PROCESSES.sendInvoice, label: "Send via Email", onClick: handleIssue, variant: "primary" },
   ]}
 />
 ```

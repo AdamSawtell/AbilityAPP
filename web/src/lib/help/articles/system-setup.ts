@@ -224,7 +224,7 @@ export const systemRolesAccessArticle: HelpArticle = {
       body: "Admin → Roles in the workspace is where you maintain security roles. Each role bundles:",
       bullets: [
         "Windows — sidebar items, record tabs, and admin screens (Off, Read, or Write per module and tab)",
-        "Print and send — under each module tab; requires Write on that tab (for example Support Plan → Print support plan, Send support plan)",
+        "Print and send — under each module tab; requires Write on that tab (for example Support Plan → Print support plan, Send via Email)",
         "Workflow actions — convert, assign, approve, tasks (listed separately from documents)",
         "Reports — which exports appear in the catalog",
         "Task types — see, select, and create rights per task type (also configured on Task management)",
@@ -246,7 +246,7 @@ export const systemRolesAccessArticle: HelpArticle = {
       steps: [
         "Open Admin → Roles and select the role.",
         "Expand Clients → set Support Plan tab to Write.",
-        "Under Support Plan, tick Print support plan and/or Send support plan.",
+        "Under Support Plan, tick Print support plan and/or Send support plan via email.",
         "Leave Send unchecked for roles that may print internally but must not email handoff.",
         "Save and sign in as a test user with that role to confirm buttons show or hide.",
       ],

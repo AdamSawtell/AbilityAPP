@@ -16,6 +16,7 @@ import { useData } from "@/lib/data-store";
 import { useOrganization } from "@/lib/organization-store";
 import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { DOCUMENT_SEND_VIA_EMAIL_LABEL } from "@/lib/document-email-template";
 import { emailHandoffMessage, launchEmailWithPdfAttachment } from "@/lib/document-email-handoff";
 import { organizationDisplayName } from "@/lib/organization";
 import type { SupportPlanDocumentContext } from "@/lib/support-plan-print";
@@ -575,7 +576,7 @@ export function ClientSupportPlanPanel({
               ? [
                   {
                     processId: DOCUMENT_PRINT_PROCESSES.sendSupportPlan,
-                    label: "Send",
+                    label: DOCUMENT_SEND_VIA_EMAIL_LABEL,
                     onClick: () => void handleSendSupportPlan(),
                     busy: sending,
                     variant: "primary" as const,

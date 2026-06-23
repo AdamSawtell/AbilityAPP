@@ -114,8 +114,8 @@ export function DocumentEmailAdminPage() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-sm text-slate-600">
-              Edit subject and body text used when staff send support plans or issue invoices. Placeholders are replaced
-              when someone clicks Send.
+              Edit subject and body text used when staff click Send via Email on support plans or invoices. Placeholders
+              are replaced when someone sends.
             </p>
             <p className="mt-1 text-xs text-slate-500">
               Layout and branding stay on{" "}
