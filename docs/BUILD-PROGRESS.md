@@ -1636,6 +1636,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-23 | Incident SLA + sidebar branding pre-push | 1 Medium | **Pass** | Fixed: org profile save preserves SLA from incident management page |
 | 2026-06-23 | List dashboards pre-push | 1 Medium + 1 Low | **Pass** | Fixed: due-soon window ±7 days only; in-progress card excludes Drafted |
 | 2026-06-22 | WP-BP.1 pre-push | 1 High + 3 Medium | **Pass** | Fixed: ACCESS_WINDOWS index shift (reports restored); duplicate search key on upsert; inactive plan manager in directory options; read-only line table option labels |
 | 2026-06-20 | WP-D.5–D.7 follow-up | 3 High + 2 Medium + 1 Low | **Pass** | Fixed: coverage gap booking filter, atomic open-shift claim, timesheet IDs/overnight hours/permissions/locked period/audit |
