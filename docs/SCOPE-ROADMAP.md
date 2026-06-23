@@ -381,24 +381,8 @@ After WP-A/B/C, begin **Chunk 4a** (roster data model + read-only calendar).
 
 ---
 
-## Backlog (not scoped / planned)
-
-Items captured as ideas for future consideration — no build commitment until scoped.
-
-| # | Function | Area | Description | Priority |
-|---|----------|------|-------------|----------|
-| B1 | NDIS Price Guide Importer | System | System process to ingest updated NDIS price guides (products, rates, support categories) when NDIS publishes annual updates. Parses CSV/PDF → upserts product catalogue + price lists with `effective_from` dates. | Future |
-| B2 | Price Dependant Updater | System | Cascade price/rate changes from B1 to all active dependants (service agreements, plan budgets, bookings) from the new price's effective date. Change preview before commit. | Future |
-| B3 | SCHADS Award Rate Updater | System | Same pattern as B1 for SCHADS award wage rate updates — separate data source, separate affected records (employee costs vs participant prices). | Future |
-| B4 | Non-NDIS Products (fee-for-service / therapy) | System | Manual product/price management for org-defined services not governed by NDIS price guides. No external mandate trigger — manual setup only. | Backlog only |
-
-See also: Legacy backlog stored in `docs/_scope-extract.txt`.
-
----
-
 ## Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-06-18 | Initial roadmap from scope doc review; baseline inventory |
-| 2026-06-23 | Added Backlog section (NDIS Price Guide Importer, Price Dependant Updater, SCHADS Award Rate Updater, Non-NDIS Products) |
