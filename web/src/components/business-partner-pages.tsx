@@ -14,6 +14,7 @@ import {
   type BusinessPartnerRecord,
 } from "@/lib/business-partner";
 import { useReferenceData } from "@/lib/config-store";
+import { BusinessPartnerList } from "@/components/business-partner-list";
 import { useData } from "@/lib/data-store";
 
 function PartnerField({
@@ -104,53 +105,7 @@ function PartnerForm({
 
 export function BusinessPartnerListView() {
   const { businessPartners } = useData();
-  const { canWriteWindow } = useAuth();
-  const canCreate = canWriteWindow("business-partners");
-
-  return (
-    <div className="space-y-4">
-      {canCreate ? (
-        <div className="flex justify-end">
-          <Link
-            href="/business-partners/new"
-            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-          >
-            New business partner
-          </Link>
-        </div>
-      ) : null}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Search key</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Payment terms</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {businessPartners.map((p) => (
-              <tr key={p.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-medium">
-                  <Link href={`/business-partners/${p.id}`} className="text-[#b51266] hover:underline">
-                    {p.searchKey}
-                  </Link>
-                </td>
-                <td className="max-w-[240px] truncate px-4 py-3">{p.name}</td>
-                <td className="px-4 py-3 text-slate-600">{p.partnerType || "—"}</td>
-                <td className="px-4 py-3 text-slate-600">{p.status || "—"}</td>
-                <td className="px-4 py-3 text-slate-600">{p.email || "—"}</td>
-                <td className="px-4 py-3 text-slate-600">{p.paymentTerms || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return <BusinessPartnerList records={businessPartners} />;
 }
 
 export function BusinessPartnerDetailView({ id }: { id: string }) {

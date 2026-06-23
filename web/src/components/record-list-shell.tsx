@@ -12,8 +12,16 @@ export function RecordListSection({ children }: { children: ReactNode }) {
   return <div className="space-y-4">{children}</div>;
 }
 
-export function RecordListDashboard({ children }: { children: ReactNode }) {
-  return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{children}</div>;
+export function RecordListDashboard({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={className ?? "grid gap-3 sm:grid-cols-2 lg:grid-cols-3"}>{children}</div>
+  );
 }
 
 export function RecordListStatCard({

@@ -127,6 +127,15 @@
 | 5 | **How-to guide** on list | Opens `/help/business-partners` article |
 | 6 | `npm run build` + `page-guides:check` | Exit 0 — 108 routes |
 
+### What you can test — list dashboards (service agreements, business partners, service bookings)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | **Service agreements** list | Four stat cards: All, Active, Active value, Due in 30 days; click filters table |
+| 2 | **Business partners** list | Four stat cards: All, Active, Plan managers, Inactive |
+| 3 | **Service bookings** list | Four stat cards: All, In progress, Completed, Due soon (±7 days) |
+| 4 | Each list | Search + status/type filters work; audit footer visible |
+
 ---
 
 ## Verification pipeline (every slice)
@@ -1627,6 +1636,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-23 | List dashboards pre-push | 1 Medium + 1 Low | **Pass** | Fixed: due-soon window ±7 days only; in-progress card excludes Drafted |
 | 2026-06-22 | WP-BP.1 pre-push | 1 High + 3 Medium | **Pass** | Fixed: ACCESS_WINDOWS index shift (reports restored); duplicate search key on upsert; inactive plan manager in directory options; read-only line table option labels |
 | 2026-06-20 | WP-D.5–D.7 follow-up | 3 High + 2 Medium + 1 Low | **Pass** | Fixed: coverage gap booking filter, atomic open-shift claim, timesheet IDs/overnight hours/permissions/locked period/audit |
 | 2026-06-20 | WP-D.8 | 3 High + 1 Medium | **Pass** | Fixed: local-date check-in, server API binding, preserve check-in on roster save, useMyEmployee |

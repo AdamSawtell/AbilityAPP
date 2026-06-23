@@ -12,6 +12,7 @@ import {
   ServiceAgreementScheduleSummary,
   ServiceAgreementScheduleWizard,
 } from "@/components/service-agreement-schedule";
+import { ServiceAgreementList } from "@/components/service-agreement-list";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { exportServiceAgreementHtml, printServiceAgreement } from "@/lib/agreement-print";
 import { auditMetaFrom } from "@/lib/audit";
@@ -70,56 +71,7 @@ const lineConfig: GenericTableConfig<ServiceAgreementLine> = {
 
 export function ServiceAgreementListView() {
   const { serviceAgreements, clients } = useData();
-
-  return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <table className="min-w-full text-left text-sm">
-        <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-          <tr>
-            <th className="px-4 py-3">Search key</th>
-            <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">Client</th>
-            <th className="px-4 py-3">Contract date</th>
-            <th className="px-4 py-3">Finish</th>
-            <th className="px-4 py-3">Planned amount</th>
-            <th className="px-4 py-3">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {serviceAgreements.map((sa) => {
-            const client = clients.find((c) => c.id === sa.clientId);
-            return (
-              <tr key={sa.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-medium">
-                  <Link href={`/service-agreements/${sa.id}`} className="text-[#b51266] hover:underline">
-                    {sa.searchKey}
-                  </Link>
-                </td>
-                <td className="px-4 py-3">{sa.name}</td>
-                <td className="px-4 py-3">
-                  {client ? (
-                    <ClientRecordLink id={client.id} searchKey={client.searchKey} name={client.name} className="text-slate-700 hover:underline" />
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td className="px-4 py-3">{formatContractDate(sa.contractDate)}</td>
-                <td className="px-4 py-3">{formatContractDate(sa.finishDate)}</td>
-                <td className="px-4 py-3">${sa.totalPlannedAmount}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${lifecycleStatusTone(sa.status)}`}
-                  >
-                    {sa.status}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
+  return <ServiceAgreementList records={serviceAgreements} clients={clients} />;
 }
 
 export function ClientServiceAgreementsPanel({

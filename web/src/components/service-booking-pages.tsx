@@ -6,6 +6,7 @@ import { useMemo, useState, useEffect } from "react";
 import { AppShell } from "@/components/app-shell";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
 import { ClientRecordLink, ProductRecordLink } from "@/components/record-link";
+import { ServiceBookingList } from "@/components/service-booking-list";
 import { BookingCompliancePanel } from "@/components/booking-compliance-panel";
 import { BookingCancellationPanel } from "@/components/booking-cancellation-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
@@ -134,108 +135,7 @@ export function ClientServiceBookingsPanel({
 
 export function ServiceBookingListView() {
   const { serviceBookings, clients } = useData();
-  const { canWriteWindow } = useAuth();
-  const canCreateBooking = canWriteWindow("service-bookings");
-  const [statusFilter, setStatusFilter] = useState("");
-
-  const rows = useMemo(() => {
-    const sorted = [...serviceBookings].sort((a, b) => (b.datePromised || "").localeCompare(a.datePromised || ""));
-    if (!statusFilter) return sorted;
-    return sorted.filter((r) => r.documentStatus === statusFilter);
-  }, [serviceBookings, statusFilter]);
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="text-sm text-slate-600">
-          Document status{" "}
-          <select
-            className="ml-2 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All</option>
-            {serviceBookingDropdowns.documentStatus.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-        {canCreateBooking ? (
-          <Link
-            href="/service-bookings/new"
-            className="ml-auto inline-flex rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-          >
-            New service booking
-          </Link>
-        ) : null}
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Document no.</th>
-              <th className="px-4 py-3">Description</th>
-              <th className="px-4 py-3">Business partner</th>
-              <th className="px-4 py-3">Date promised</th>
-              <th className="px-4 py-3">Period</th>
-              <th className="px-4 py-3">Lines</th>
-              <th className="px-4 py-3">Grand total</th>
-              <th className="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {rows.map((booking) => {
-              const client = clients.find((c) => c.id === booking.clientId);
-              return (
-                <tr key={booking.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium">
-                    <Link href={`/service-bookings/${booking.id}`} className="text-[#b51266] hover:underline">
-                      {booking.documentNo}
-                    </Link>
-                    {booking.bookingGeneratorRef ? (
-                      <p className="text-xs font-normal text-slate-500">{booking.bookingGeneratorRef}</p>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3">{booking.description || "—"}</td>
-                  <td className="px-4 py-3">
-                    {client ? (
-                      <ClientRecordLink
-                        id={client.id}
-                        searchKey={client.searchKey}
-                        name={client.name}
-                        className="text-slate-700 hover:underline"
-                      />
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="px-4 py-3">{formatServiceBookingDate(booking.datePromised)}</td>
-                  <td className="px-4 py-3">
-                    {formatServiceBookingDate(booking.startDate)} – {formatServiceBookingDate(booking.endDate)}
-                  </td>
-                  <td className="px-4 py-3">{booking.lines.length}</td>
-                  <td className="px-4 py-3">${booking.grandTotal}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusTone[booking.documentStatus] ?? "bg-slate-100 text-slate-700"}`}
-                    >
-                      {booking.documentStatus}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {rows.length === 0 ? (
-          <p className="px-4 py-10 text-center text-sm text-slate-500">No service bookings match this filter.</p>
-        ) : null}
-      </div>
-    </div>
-  );
+  return <ServiceBookingList records={serviceBookings} clients={clients} />;
 }
 
 export function ServiceBookingDetailView({ id }: { id: string }) {
