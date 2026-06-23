@@ -33,9 +33,12 @@ export const ENTITY_DOCUMENT_WINDOW: Record<string, string> = {
   client: "clients",
   enquiry: "enquiries",
   invoice: "invoices",
+  "invoice-reconciliation": "invoice-reconciliation",
   "service-agreement": "service-agreements",
   incident: "incidents",
   employee: "employees",
   claim: "claims",
+  "audit-pack": "ndis-audit-pack",
+  "board-report": "board-reporting",
   "board-report-pack": "board-reporting",
 };

@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { ClientRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useData } from "@/lib/data-store";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
@@ -32,7 +33,9 @@ export function InvoiceReconciliationView() {
   const [periodMonth, setPeriodMonth] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const rows = useMemo(() => buildInvoiceReconcileRows(invoices, periodMonth), [invoices, periodMonth]);
   const digest = useMemo(() => summarizeInvoiceReconciliation(rows), [rows]);
@@ -59,32 +62,46 @@ export function InvoiceReconciliationView() {
   };
 
   const periodLabel = periodMonth || "All periods";
+  const remittanceEntityId = periodMonth || "all-periods";
+  const remittanceEntityLabel = `Remittance — ${periodLabel}`;
 
   const handlePrintRemittance = async () => {
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printRemittanceCover, "invoice");
     if (!template) {
       setPrintError("No active remittance cover template is available.");
       return;
     }
-    const rows = filteredRows.filter((row) => row.invoicedAmount > 0);
-    const ok = printExtendedDocument({ rows, periodLabel, organization }, template);
+    const scopeRows = filteredRows.filter((row) => row.invoicedAmount > 0);
+    const ok = printExtendedDocument({ rows: scopeRows, periodLabel, organization }, template);
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printRemittanceCover,
+        entityType: "invoice-reconciliation",
+        entityId: remittanceEntityId,
+        entityLabel: remittanceEntityLabel,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
-    const exported = exportExtendedDocumentHtml({ rows, periodLabel, organization }, template);
+    const exported = exportExtendedDocumentHtml({ rows: scopeRows, periodLabel, organization }, template);
     if (exported) {
       try {
-        await registerGeneratedDocument({
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printRemittanceCover,
           html: exported.html,
           templateId: exported.templateId,
           documentClass: exported.documentClass,
-          entityType: "invoice",
-          entityId: periodMonth || "all-periods",
-          entityLabel: `Remittance — ${periodLabel}`,
+          entityType: "invoice-reconciliation",
+          entityId: remittanceEntityId,
+          entityLabel: remittanceEntityLabel,
           fileName: `remittance-${(periodMonth || "all").replace(/[^\w.-]+/g, "_")}.html`,
         });
+        setPrintMessage("Remittance cover saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
@@ -93,17 +110,18 @@ export function InvoiceReconciliationView() {
 
   const handleDownloadPdf = async () => {
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printRemittanceCover, "invoice");
     if (!template) {
       setPrintError("No active remittance cover template is available.");
       return;
     }
-    const rows = filteredRows.filter((row) => row.invoicedAmount > 0);
-    if (!rows.length) {
+    const scopeRows = filteredRows.filter((row) => row.invoicedAmount > 0);
+    if (!scopeRows.length) {
       setPrintError("No invoiced rows in scope for this period.");
       return;
     }
-    const exported = exportExtendedDocumentHtml({ rows, periodLabel, organization }, template);
+    const exported = exportExtendedDocumentHtml({ rows: scopeRows, periodLabel, organization }, template);
     if (!exported) {
       setPrintError("Could not generate the document. Check reconciliation data and organisation profile.");
       return;
@@ -114,11 +132,20 @@ export function InvoiceReconciliationView() {
         html: exported.html,
         templateId: exported.templateId,
         documentClass: exported.documentClass,
-        entityType: "invoice",
-        entityId: periodMonth || "all-periods",
-        entityLabel: `Remittance — ${periodLabel}`,
+        entityType: "invoice-reconciliation",
+        entityId: remittanceEntityId,
+        entityLabel: remittanceEntityLabel,
         fileName: pdfFileName(`remittance-${periodMonth || "all"}`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printRemittanceCover,
+        entityType: "invoice-reconciliation",
+        entityId: remittanceEntityId,
+        entityLabel: remittanceEntityLabel,
+        detail: "PDF download",
+      });
+      setPrintMessage("Remittance PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -174,31 +201,7 @@ export function InvoiceReconciliationView() {
             Export CSV
           </button>
         ) : null}
-        {canPrintRemittance ? (
-          <>
-            <button
-              type="button"
-              onClick={() => void handlePrintRemittance()}
-              disabled={!filteredRows.length}
-              className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Print remittance cover
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleDownloadPdf()}
-              disabled={!filteredRows.length || pdfBusy}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {pdfBusy ? "Generating PDF…" : "Download PDF"}
-            </button>
-          </>
-        ) : null}
       </div>
-
-      {printError ? (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">
@@ -241,34 +244,34 @@ export function InvoiceReconciliationView() {
               filteredRows.map((row) => {
                 const client = clients.find((c) => c.id === row.clientId);
                 return (
-                <tr key={row.invoiceId} className="border-b border-slate-100">
-                  <td className="px-4 py-3">
-                    <Link href={`/invoices/${row.invoiceId}`} className="font-medium text-[#b51266] hover:underline">
-                      {row.documentNo}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    {client ? (
-                      <ClientRecordLink id={client.id} searchKey={client.searchKey} name={client.name} />
-                    ) : (
-                      row.clientId
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600">
-                    {row.periodStart} – {row.periodEnd}
-                  </td>
-                  <td className="px-4 py-3">${row.invoicedAmount.toFixed(2)}</td>
-                  <td className="px-4 py-3">${row.paidAmount.toFixed(2)}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${invoiceReconcileStatusClass(row.reconcileStatus)}`}
-                    >
-                      {row.reconcileStatus}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-600">{row.reconcileMessage}</td>
-                </tr>
-              );
+                  <tr key={row.invoiceId} className="border-b border-slate-100">
+                    <td className="px-4 py-3">
+                      <Link href={`/invoices/${row.invoiceId}`} className="font-medium text-[#b51266] hover:underline">
+                        {row.documentNo}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      {client ? (
+                        <ClientRecordLink id={client.id} searchKey={client.searchKey} name={client.name} />
+                      ) : (
+                        row.clientId
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {row.periodStart} – {row.periodEnd}
+                    </td>
+                    <td className="px-4 py-3">${row.invoicedAmount.toFixed(2)}</td>
+                    <td className="px-4 py-3">${row.paidAmount.toFixed(2)}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${invoiceReconcileStatusClass(row.reconcileStatus)}`}
+                      >
+                        {row.reconcileStatus}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">{row.reconcileMessage}</td>
+                  </tr>
+                );
               })
             ) : (
               <tr>
@@ -280,6 +283,31 @@ export function InvoiceReconciliationView() {
           </tbody>
         </table>
       </div>
+
+      {canPrintRemittance ? (
+        <RecordDocumentsSection
+          entityType="invoice-reconciliation"
+          entityId={remittanceEntityId}
+          refreshKey={historyRefresh}
+          error={printError || undefined}
+          message={printMessage || undefined}
+          actions={[
+            {
+              processId: DOCUMENT_PRINT_PROCESSES.printRemittanceCover,
+              label: "Print",
+              onClick: () => void handlePrintRemittance(),
+              disabled: !filteredRows.length,
+            },
+            {
+              processId: DOCUMENT_PRINT_PROCESSES.printRemittanceCover,
+              label: "PDF",
+              onClick: () => void handleDownloadPdf(),
+              busy: pdfBusy,
+              disabled: !filteredRows.length,
+            },
+          ]}
+        />
+      ) : null}
     </div>
   );
 }

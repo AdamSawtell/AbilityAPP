@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { useAuth } from "@/lib/auth-store";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { downloadDocumentHtml } from "@/lib/document-render";
@@ -38,6 +40,7 @@ export function EmployeeContractGeneratePanel({
   const [pdfBusy, setPdfBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const templateOptions = listTemplatesForProcess(DOCUMENT_PRINT_PROCESSES.printEmployeeContract, "employee");
   const activeTemplate = useMemo(
@@ -51,6 +54,8 @@ export function EmployeeContractGeneratePanel({
   if (!canGenerate) return null;
 
   const ctx = { employee, managerName, organization };
+  const entityLabel = `${employee.searchKey} — Employment contract`;
+  const processId = DOCUMENT_PRINT_PROCESSES.printEmployeeContract;
 
   async function handleGenerate() {
     setError("");
@@ -67,11 +72,19 @@ export function EmployeeContractGeneratePanel({
         existingDocuments,
       });
       onDocumentsChange([...existingDocuments, result.documentRow]);
+      auditDocumentProcess({
+        processId,
+        entityType: "employee",
+        entityId: employee.id,
+        entityLabel,
+        detail: result.registry?.documentNo ? `Generated ${result.registry.documentNo}` : "Generated contract",
+      });
       setMessage(
         result.registry
-          ? `Contract ${result.registry.documentNo} generated and added to HR file. Save the employee record, then the staff member can view it in My workplace.`
-          : "Contract generated and added to HR file. Save the employee record."
+          ? `Contract ${result.registry.documentNo} generated. Save the employee record to keep the HR file line.`
+          : "Contract generated. Save the employee record."
       );
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not generate contract.");
     } finally {
@@ -79,18 +92,49 @@ export function EmployeeContractGeneratePanel({
     }
   }
 
-  function handlePrint() {
+  async function handlePrint() {
     setError("");
+    setMessage("");
     if (!activeTemplate) {
       setError("No active employment contract template is available.");
       return;
     }
     const ok = printEmployeeContract(ctx, activeTemplate);
-    if (!ok) setError("Could not open the print window. Allow pop-ups and try again.");
+    if (!ok) {
+      setError("Could not open the print window. Allow pop-ups and try again.");
+      auditDocumentProcess({
+        processId,
+        entityType: "employee",
+        entityId: employee.id,
+        entityLabel,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
+      return;
+    }
+    const exported = exportEmployeeContractHtml(ctx, activeTemplate);
+    if (!exported) return;
+    try {
+      await registerDocumentWithAudit({
+        processId,
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: activeTemplate.documentClass,
+        entityType: "employee",
+        entityId: employee.id,
+        entityLabel,
+        fileName: `${employee.searchKey.replace(/[^\w.-]+/g, "_")}-contract.html`,
+      });
+      setMessage("Contract saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save to the document registry.");
+    }
   }
 
-  function handleDownload() {
+  async function handleDownload() {
     setError("");
+    setMessage("");
     if (!activeTemplate) {
       setError("No active employment contract template is available.");
       return;
@@ -101,10 +145,27 @@ export function EmployeeContractGeneratePanel({
       return;
     }
     downloadDocumentHtml(exported.html, `${employee.searchKey}-contract`);
+    try {
+      await registerDocumentWithAudit({
+        processId,
+        html: exported.html,
+        templateId: exported.templateId,
+        documentClass: activeTemplate.documentClass,
+        entityType: "employee",
+        entityId: employee.id,
+        entityLabel,
+        fileName: `${employee.searchKey.replace(/[^\w.-]+/g, "_")}-contract.html`,
+      });
+      setMessage("Contract HTML saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save to the document registry.");
+    }
   }
 
   async function handleDownloadPdf() {
     setError("");
+    setMessage("");
     if (!activeTemplate) {
       setError("No active employment contract template is available.");
       return;
@@ -125,6 +186,15 @@ export function EmployeeContractGeneratePanel({
         entityLabel: employee.searchKey,
         fileName: pdfFileName(`${employee.searchKey}-contract`),
       });
+      auditDocumentProcess({
+        processId,
+        entityType: "employee",
+        entityId: employee.id,
+        entityLabel,
+        detail: "PDF download",
+      });
+      setMessage("Contract PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -133,17 +203,18 @@ export function EmployeeContractGeneratePanel({
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-      <h3 className="text-sm font-semibold text-slate-900">Generate employment contract</h3>
-      <p className="mt-1 text-sm text-slate-600">
-        Creates a printable contract, saves it to the document registry, and adds an HR file line visible in My workplace.
-      </p>
-      <div className="mt-3 flex flex-wrap items-end gap-3">
-        {templateOptions.length > 1 ? (
-          <label className="text-sm text-slate-600">
-            Template{" "}
+    <RecordDocumentsSection
+      entityType="employee"
+      entityId={employee.id}
+      refreshKey={historyRefresh}
+      error={error || undefined}
+      message={message || undefined}
+      extras={
+        templateOptions.length > 1 ? (
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium text-slate-600">Template</span>
             <select
-              className={`${inputClass} ml-2`}
+              className={inputClass}
               value={templateId || activeTemplate?.id || ""}
               onChange={(e) => setTemplateId(e.target.value)}
             >
@@ -156,44 +227,37 @@ export function EmployeeContractGeneratePanel({
           </label>
         ) : activeTemplate ? (
           <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
-        ) : null}
-        <button
-          type="button"
-          disabled={busy || !activeTemplate}
-          onClick={() => void handleGenerate()}
-          className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266] disabled:opacity-50"
-        >
-          {busy ? "Generating…" : "Generate contract"}
-        </button>
-        <button
-          type="button"
-          disabled={busy || pdfBusy || !activeTemplate}
-          onClick={() => void handleDownloadPdf()}
-          className="rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:opacity-50"
-        >
-          {pdfBusy ? "Generating PDF…" : "Download PDF"}
-        </button>
-        <button
-          type="button"
-          disabled={busy || pdfBusy || !activeTemplate}
-          onClick={handleDownload}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
-        >
-          Download HTML
-        </button>
-        <button
-          type="button"
-          disabled={busy || !activeTemplate}
-          onClick={handlePrint}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
-        >
-          Print preview
-        </button>
-      </div>
-      {message ? <p className="mt-3 text-sm text-emerald-800">{message}</p> : null}
-      {error ? (
-        <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{error}</p>
-      ) : null}
-    </div>
+        ) : null
+      }
+      actions={[
+        {
+          processId,
+          label: "Generate",
+          onClick: () => void handleGenerate(),
+          busy: busy,
+          variant: "primary",
+          disabled: !activeTemplate,
+        },
+        {
+          processId,
+          label: "Print",
+          onClick: () => void handlePrint(),
+          disabled: busy || pdfBusy || !activeTemplate,
+        },
+        {
+          processId,
+          label: "PDF",
+          onClick: () => void handleDownloadPdf(),
+          busy: pdfBusy,
+          disabled: busy || !activeTemplate,
+        },
+        {
+          processId,
+          label: "HTML",
+          onClick: () => void handleDownload(),
+          disabled: busy || pdfBusy || !activeTemplate,
+        },
+      ]}
+    />
   );
 }

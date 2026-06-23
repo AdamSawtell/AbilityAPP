@@ -22,7 +22,8 @@ import {
 } from "@/lib/board-report-pack";
 import { printBoardReportPack } from "@/lib/board-report-print";
 import { boardReportRegistryLabel } from "@/lib/document-render-extended";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
@@ -226,7 +227,9 @@ export function BoardReportingDetailView({ id }: { id: string }) {
   const [previewMode, setPreviewMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("overview");
   const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const record = draft ?? stored;
   const locked = boardReportPackIsLocked(stored ?? record) || (isBoardViewer && record?.status !== "Published");
@@ -312,6 +315,7 @@ export function BoardReportingDetailView({ id }: { id: string }) {
 
   const handlePrint = async () => {
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printBoardReport, "board-report");
     if (!template) {
       setPrintError("No active board report template is available.");
@@ -320,12 +324,21 @@ export function BoardReportingDetailView({ id }: { id: string }) {
     const ok = printBoardReportPack({ pack: record, organization });
     if (!ok) {
       setPrintError("Could not open print window. Allow pop-ups and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printBoardReport,
+        entityType: "board-report",
+        entityId: record.id,
+        entityLabel: boardReportRegistryLabel(record),
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
     const exported = exportExtendedDocumentHtml({ pack: record, organization }, template);
     if (exported && canPrintReport) {
       try {
-        await registerGeneratedDocument({
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printBoardReport,
           html: exported.html,
           templateId: exported.templateId,
           documentClass: exported.documentClass,
@@ -334,6 +347,8 @@ export function BoardReportingDetailView({ id }: { id: string }) {
           entityLabel: boardReportRegistryLabel(record),
           fileName: `${record.title.replace(/[^\w.-]+/g, "_")}-board-report.html`,
         });
+        setPrintMessage("Board report saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
@@ -342,6 +357,7 @@ export function BoardReportingDetailView({ id }: { id: string }) {
 
   const handleDownloadPdf = async () => {
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printBoardReport, "board-report");
     if (!template) {
       setPrintError("No active board report template is available.");
@@ -363,6 +379,15 @@ export function BoardReportingDetailView({ id }: { id: string }) {
         entityLabel: boardReportRegistryLabel(record),
         fileName: pdfFileName(`${record.title}-board-report`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printBoardReport,
+        entityType: "board-report",
+        entityId: record.id,
+        entityLabel: boardReportRegistryLabel(record),
+        detail: "PDF download",
+      });
+      setPrintMessage("Board report PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -413,22 +438,9 @@ export function BoardReportingDetailView({ id }: { id: string }) {
                 ) : null}
               </>
             ) : null}
-            <button type="button" onClick={() => void handlePrint()} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-              Print / export
-            </button>
-            <button
-              type="button"
-              disabled={pdfBusy}
-              onClick={() => void handleDownloadPdf()}
-              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {pdfBusy ? "Generating PDF…" : "Download PDF"}
-            </button>
           </div>
         }
       >
-        {printError ? <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p> : null}
-
         <div className="flex flex-col gap-6 lg:flex-row">
           <aside className="lg:w-56 shrink-0">
             <nav className="sticky top-4 space-y-1 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
@@ -570,6 +582,29 @@ export function BoardReportingDetailView({ id }: { id: string }) {
             ) : null}
           </div>
         </div>
+
+        {canPrintReport ? (
+          <RecordDocumentsSection
+            entityType="board-report"
+            entityId={record.id}
+            refreshKey={historyRefresh}
+            error={printError || undefined}
+            message={printMessage || undefined}
+            actions={[
+              {
+                processId: DOCUMENT_PRINT_PROCESSES.printBoardReport,
+                label: "Print",
+                onClick: () => void handlePrint(),
+              },
+              {
+                processId: DOCUMENT_PRINT_PROCESSES.printBoardReport,
+                label: "PDF",
+                onClick: () => void handleDownloadPdf(),
+                busy: pdfBusy,
+              },
+            ]}
+          />
+        ) : null}
       </AppShell>
       <UnsavedChangesBar visible={dirty && canEdit} onSave={handleSave} onDiscard={handleDiscard} />
     </>

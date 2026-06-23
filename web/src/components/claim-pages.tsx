@@ -38,7 +38,8 @@ import {
   type ClaimRecord,
 } from "@/lib/claim";
 import { remittanceStatusClass } from "@/lib/claim-remittance";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
@@ -439,7 +440,9 @@ export function ClaimDetailView({ id }: { id: string }) {
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const record = draft ?? stored;
   const client = data.clients.find((c) => c.id === record?.clientId);
@@ -497,6 +500,7 @@ export function ClaimDetailView({ id }: { id: string }) {
   async function handlePrintClaimBatch() {
     if (!record) return;
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printClaimBatch, "claim");
     if (!template) {
       setPrintError("No active claim batch template is available.");
@@ -506,12 +510,21 @@ export function ClaimDetailView({ id }: { id: string }) {
     const ok = printPhase2Document(printCtx, template);
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printClaimBatch,
+        entityType: "claim",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
     const exported = exportPhase2DocumentHtml(printCtx, template);
     if (exported) {
       try {
-        await registerGeneratedDocument({
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printClaimBatch,
           html: exported.html,
           templateId: exported.templateId,
           documentClass: exported.documentClass,
@@ -520,6 +533,8 @@ export function ClaimDetailView({ id }: { id: string }) {
           entityLabel: record.documentNo,
           fileName: `${record.documentNo.replace(/[^\w.-]+/g, "_")}-claim-batch.html`,
         });
+        setPrintMessage("Claim batch saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
@@ -529,6 +544,7 @@ export function ClaimDetailView({ id }: { id: string }) {
   async function handleDownloadPdf() {
     if (!record) return;
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printClaimBatch, "claim");
     if (!template) {
       setPrintError("No active claim batch template is available.");
@@ -551,6 +567,15 @@ export function ClaimDetailView({ id }: { id: string }) {
         entityLabel: record.documentNo,
         fileName: pdfFileName(`${record.documentNo}-claim-batch`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printClaimBatch,
+        entityType: "claim",
+        entityId: record.id,
+        entityLabel: record.documentNo,
+        detail: "PDF download",
+      });
+      setPrintMessage("Claim batch PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -660,33 +685,6 @@ export function ClaimDetailView({ id }: { id: string }) {
             </label>
           </div>
 
-          {canPrintClaim ? (
-            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="min-w-0 flex-1">
-                <h2 className="text-sm font-semibold text-slate-900">Claim batch summary</h2>
-                <p className="mt-1 text-sm text-slate-500">Print a cover sheet and line summary for this claim batch.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void handlePrintClaimBatch()}
-                className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-              >
-                Print claim batch
-              </button>
-              <button
-                type="button"
-                disabled={pdfBusy}
-                onClick={() => void handleDownloadPdf()}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {pdfBusy ? "Generating PDF…" : "Download PDF"}
-              </button>
-            </div>
-          ) : null}
-          {printError ? (
-            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-          ) : null}
-
           <ClaimValidationPanel lines={record.lines} claimStatus={record.status} />
 
           <ClaimGatewayPanel
@@ -715,6 +713,29 @@ export function ClaimDetailView({ id }: { id: string }) {
               />
             </div>
           </div>
+
+          {canPrintClaim ? (
+            <RecordDocumentsSection
+              entityType="claim"
+              entityId={record.id}
+              refreshKey={historyRefresh}
+              error={printError || undefined}
+              message={printMessage || undefined}
+              actions={[
+                {
+                  processId: DOCUMENT_PRINT_PROCESSES.printClaimBatch,
+                  label: "Print",
+                  onClick: () => void handlePrintClaimBatch(),
+                },
+                {
+                  processId: DOCUMENT_PRINT_PROCESSES.printClaimBatch,
+                  label: "PDF",
+                  onClick: () => void handleDownloadPdf(),
+                  busy: pdfBusy,
+                },
+              ]}
+            />
+          ) : null}
 
           {saveError ? (
             <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{saveError}</p>

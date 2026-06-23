@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
-import { registerGeneratedDocument } from "@/lib/document-client";
+import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
@@ -48,7 +49,9 @@ export function NdisAuditPackView() {
 
   const [auditMonth, setAuditMonth] = useState(currentPlanMonthIso());
   const [printError, setPrintError] = useState("");
+  const [printMessage, setPrintMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
 
   const ctx = useMemo(() => buildContext(data), [data]);
   const evaluation = useMemo(() => evaluateAuditPack(ctx, auditMonth), [ctx, auditMonth]);
@@ -83,6 +86,7 @@ export function NdisAuditPackView() {
 
   async function handlePrintAuditPack() {
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printAuditPack, "audit-pack");
     if (!template) {
       setPrintError("No active audit pack template is available.");
@@ -92,12 +96,21 @@ export function NdisAuditPackView() {
     const ok = printPhase2Document(printCtx, template);
     if (!ok) {
       setPrintError("Could not open the print window. Allow pop-ups for this site and try again.");
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printAuditPack,
+        entityType: "audit-pack",
+        entityId: `audit-${auditMonth}`,
+        entityLabel: `Audit pack ${auditMonth}`,
+        outcome: "failed",
+        failureReason: "Print window blocked",
+      });
       return;
     }
     const exported = exportPhase2DocumentHtml(printCtx, template);
     if (exported) {
       try {
-        await registerGeneratedDocument({
+        await registerDocumentWithAudit({
+          processId: DOCUMENT_PRINT_PROCESSES.printAuditPack,
           html: exported.html,
           templateId: exported.templateId,
           documentClass: exported.documentClass,
@@ -106,14 +119,17 @@ export function NdisAuditPackView() {
           entityLabel: `Audit pack ${auditMonth}`,
           fileName: `ndis-audit-pack-${auditMonth}.html`,
         });
+        setPrintMessage("Audit pack saved to the document registry.");
+        setHistoryRefresh((n) => n + 1);
       } catch (err) {
         setPrintError(err instanceof Error ? err.message : "Could not save to the document registry.");
       }
     }
-  };
+  }
 
   async function handleDownloadPdf() {
     setPrintError("");
+    setPrintMessage("");
     const template = resolveTemplate(DOCUMENT_PRINT_PROCESSES.printAuditPack, "audit-pack");
     if (!template) {
       setPrintError("No active audit pack template is available.");
@@ -136,6 +152,15 @@ export function NdisAuditPackView() {
         entityLabel: `Audit pack ${auditMonth}`,
         fileName: pdfFileName(`ndis-audit-pack-${auditMonth}`),
       });
+      auditDocumentProcess({
+        processId: DOCUMENT_PRINT_PROCESSES.printAuditPack,
+        entityType: "audit-pack",
+        entityId: `audit-${auditMonth}`,
+        entityLabel: `Audit pack ${auditMonth}`,
+        detail: "PDF download",
+      });
+      setPrintMessage("Audit pack PDF saved to the document registry.");
+      setHistoryRefresh((n) => n + 1);
     } catch (err) {
       setPrintError(err instanceof Error ? err.message : "PDF generation failed.");
     } finally {
@@ -185,25 +210,6 @@ export function NdisAuditPackView() {
             Export manifest
           </button>
         ) : null}
-        {canPrint ? (
-          <>
-            <button
-              type="button"
-              onClick={() => void handlePrintAuditPack()}
-              className="rounded-lg border border-[#d4147a] bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
-            >
-              Print audit pack
-            </button>
-            <button
-              type="button"
-              disabled={pdfBusy}
-              onClick={() => void handleDownloadPdf()}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {pdfBusy ? "Generating PDF…" : "Download PDF"}
-            </button>
-          </>
-        ) : null}
         <Link
           href="/financial-close"
           className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -211,9 +217,6 @@ export function NdisAuditPackView() {
           Financial close
         </Link>
       </div>
-      {printError ? (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{printError}</p>
-      ) : null}
 
       <div
         className={`rounded-xl border px-4 py-3 ${
@@ -284,6 +287,29 @@ export function NdisAuditPackView() {
           </div>
         ))}
       </div>
+
+      {canPrint ? (
+        <RecordDocumentsSection
+          entityType="audit-pack"
+          entityId={`audit-${auditMonth}`}
+          refreshKey={historyRefresh}
+          error={printError || undefined}
+          message={printMessage || undefined}
+          actions={[
+            {
+              processId: DOCUMENT_PRINT_PROCESSES.printAuditPack,
+              label: "Print",
+              onClick: () => void handlePrintAuditPack(),
+            },
+            {
+              processId: DOCUMENT_PRINT_PROCESSES.printAuditPack,
+              label: "PDF",
+              onClick: () => void handleDownloadPdf(),
+              busy: pdfBusy,
+            },
+          ]}
+        />
+      ) : null}
     </div>
   );
 }

@@ -266,7 +266,8 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 2 | Click Print | Success message; expand **Saved files** — row with date/time and Open |
 | 3 | Expand **Print log** | Row shows user name and timestamp |
 | 4 | Open invoice detail; scroll to Documents | Same layout at bottom (Print, PDF, Issue) |
-| 5 | No loud pink print buttons in page header on enquiry or incident detail | Actions only in Documents section |
+| 5 | Open invoice detail; scroll to Documents | Same layout at bottom (Print, PDF, Issue) |
+| 6 | Claim detail, NDIS audit pack, board report, invoice reconciliation, employee Documents tab | Documents section at bottom on each |
 
 ---
 
