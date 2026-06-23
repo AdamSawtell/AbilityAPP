@@ -56,7 +56,7 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 2 | Billing and communication — plan manager if plan-managed | Saves |
 | 3 | Support Plan — edit About me field; save | Persists; audit |
 | 4 | Support Plan — Print support plan | Print opens or registry message; no error banner |
-| 5 | Support Plan — Send support plan on `bp-bern` | Registry reference; Open email draft when email set |
+| 5 | Support Plan — Send support plan on `bp-bern` | Registry reference; email draft opens (PDF attached when server render succeeds) |
 | 6 | Full profile — lifecycle **active** | Filter on Clients list |
 | 7 | New service booking — compliance hint if intake/exit | Warning only when applicable |
 

@@ -829,6 +829,9 @@ export function InvoiceDetailView({ id }: { id: string }) {
           body: payload.body ?? "",
         });
         setSendMessage(`${payload.message ?? "Invoice issued."} ${emailHandoffMessage(handoff)}`);
+      } else if (payload.mailtoUrl) {
+        window.location.href = payload.mailtoUrl;
+        setSendMessage(payload.message ?? "Invoice saved — email draft opened.");
       } else {
         const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
         setSendMessage(`${payload.message ?? "Invoice issued in-system."}${registryNote}`);

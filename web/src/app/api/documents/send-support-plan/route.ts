@@ -6,6 +6,9 @@ import { loadDocumentEmailTemplate, registerAndSendDocument } from "@/lib/docume
 import { htmlToPdfBuffer } from "@/lib/document-pdf.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
 type SendSupportPlanBody = {
   html: string;
   templateId: string;
@@ -18,6 +21,14 @@ type SendSupportPlanBody = {
   recipientName?: string;
   emailPlaceholders?: Record<string, string>;
 };
+
+function sendSuccessMessage(hasPdf: boolean, pdfWarning?: string): string {
+  if (hasPdf) return "Support plan saved with PDF. Your email app should open with the attachment.";
+  if (pdfWarning) {
+    return `Support plan saved to the registry. PDF could not be generated (${pdfWarning}). Open email draft and attach from Print → PDF.`;
+  }
+  return "Support plan saved to the document registry.";
+}
 
 /** Send a support plan: registry HTML + PDF, email handoff payload. */
 export async function POST(request: Request) {
@@ -49,13 +60,22 @@ export async function POST(request: Request) {
   const mailtoUrl = buildMailtoUrl(recipientEmail, subject, emailBody);
 
   if (!isSupabaseConfigured()) {
-    const pdfBytes = await htmlToPdfBuffer(body.html);
+    let pdfBase64: string | undefined;
+    let pdfWarning: string | undefined;
+    try {
+      pdfBase64 = (await htmlToPdfBuffer(body.html)).toString("base64");
+    } catch (err) {
+      pdfWarning = err instanceof Error ? err.message : "PDF generation failed";
+    }
     return NextResponse.json({
       ok: true,
       localOnly: true,
-      message: "Support plan prepared locally. Connect Supabase to persist in the document registry.",
-      pdfBase64: pdfBytes.toString("base64"),
-      attachmentFileName: body.pdfFileName?.trim() || body.fileName?.replace(/\.html$/i, ".pdf") || "support-plan.pdf",
+      message: sendSuccessMessage(Boolean(pdfBase64), pdfWarning),
+      pdfBase64,
+      pdfWarning,
+      attachmentFileName: pdfBase64
+        ? body.pdfFileName?.trim() || body.fileName?.replace(/\.html$/i, ".pdf") || "support-plan.pdf"
+        : undefined,
       mailtoUrl,
       subject,
       body: emailBody,
@@ -83,12 +103,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      message: "Support plan saved with PDF. Your email app should open with the attachment.",
+      message: sendSuccessMessage(Boolean(result.pdfBase64), result.pdfWarning),
       documentNo: result.documentNo,
       registryId: result.registryId,
       pdfDocumentNo: result.pdfDocumentNo,
       pdfRegistryId: result.pdfRegistryId,
       pdfBase64: result.pdfBase64,
+      pdfWarning: result.pdfWarning,
       attachmentFileName: result.attachmentFileName,
       mailtoUrl: result.mailtoUrl,
       subject: result.subject,

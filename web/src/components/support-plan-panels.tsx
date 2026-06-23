@@ -373,6 +373,9 @@ export function ClientSupportPlanPanel({
           body: payload.body ?? "",
         });
         setSendMessage(`${payload.message ?? "Support plan sent."} ${emailHandoffMessage(handoff)}`);
+      } else if (payload.mailtoUrl) {
+        window.location.href = payload.mailtoUrl;
+        setSendMessage(payload.message ?? "Support plan saved — email draft opened.");
       } else {
         const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
         setSendMessage(`${payload.message ?? "Support plan sent in-system."}${registryNote}`);

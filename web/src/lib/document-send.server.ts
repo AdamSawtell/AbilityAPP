@@ -25,13 +25,13 @@ export async function loadDocumentEmailTemplate(processId: string): Promise<Docu
   const fallback = initialDocumentEmailTemplates.find((t) => t.processId === processId && t.active) ?? null;
   if (!isSupabaseConfigured()) return fallback;
   const supabase = serviceClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("app_document_email_template")
     .select("*")
     .eq("process_id", processId)
     .eq("active", true)
     .maybeSingle();
-  if (!data) return fallback;
+  if (error || !data) return fallback;
   return normalizeDocumentEmailTemplate({
     id: String(data.id),
     processId: String(data.process_id),
@@ -63,10 +63,11 @@ export type SendDocumentInput = {
 export type SendDocumentResult = {
   documentNo: string;
   registryId: string;
-  pdfDocumentNo: string;
-  pdfRegistryId: string;
-  pdfBase64: string;
-  attachmentFileName: string;
+  pdfDocumentNo?: string;
+  pdfRegistryId?: string;
+  pdfBase64?: string;
+  attachmentFileName?: string;
+  pdfWarning?: string;
   mailtoUrl: string | null;
   subject: string;
   body: string;
@@ -115,8 +116,6 @@ export async function registerAndSendDocument(input: SendDocumentInput): Promise
   const mailtoUrl = buildMailtoUrl(recipientEmail, subject, body);
 
   const htmlBytes = new TextEncoder().encode(input.html);
-  const pdfBytes = await htmlToPdfBuffer(input.html);
-
   const htmlFileName = input.htmlFileName?.trim() || `${htmlDocumentNo}.html`;
   const pdfFileName = input.pdfFileName?.trim() || htmlFileName.replace(/\.html$/i, ".pdf");
   const basePath = `generated/${input.entityType}/${input.entityId}/${Date.now()}`;
@@ -141,33 +140,48 @@ export async function registerAndSendDocument(input: SendDocumentInput): Promise
     },
   });
 
-  const pdfRecord = await persistRegistryFile({
-    htmlOrPdf: pdfBytes,
-    mimeType: "application/pdf",
-    fileName: pdfFileName,
-    storagePath: `${basePath}-${pdfFileName}`,
-    record: {
-      id: newLineId("docgen"),
-      documentNo: pdfDocumentNo,
-      templateId: input.templateId,
-      documentClass: input.documentClass,
-      entityType: input.entityType,
-      entityId: input.entityId,
-      entityLabel: input.entityLabel ?? "",
-      batchId: htmlRecord.id,
-      status: "final",
-      generatedBy: input.generatedBy,
-      generatedAt: new Date().toISOString(),
-    },
-  });
+  let pdfBytes: Buffer | null = null;
+  let pdfWarning: string | undefined;
+  try {
+    pdfBytes = await htmlToPdfBuffer(input.html);
+  } catch (err) {
+    pdfWarning =
+      err instanceof Error
+        ? err.message
+        : "PDF generation failed — use Print or PDF on the record, then attach manually.";
+  }
+
+  let pdfRecord: GeneratedDocumentRecord | null = null;
+  if (pdfBytes) {
+    pdfRecord = await persistRegistryFile({
+      htmlOrPdf: pdfBytes,
+      mimeType: "application/pdf",
+      fileName: pdfFileName,
+      storagePath: `${basePath}-${pdfFileName}`,
+      record: {
+        id: newLineId("docgen"),
+        documentNo: pdfDocumentNo,
+        templateId: input.templateId,
+        documentClass: input.documentClass,
+        entityType: input.entityType,
+        entityId: input.entityId,
+        entityLabel: input.entityLabel ?? "",
+        batchId: htmlRecord.id,
+        status: "final",
+        generatedBy: input.generatedBy,
+        generatedAt: new Date().toISOString(),
+      },
+    });
+  }
 
   return {
     documentNo: htmlRecord.documentNo,
     registryId: htmlRecord.id,
-    pdfDocumentNo: pdfRecord.documentNo,
-    pdfRegistryId: pdfRecord.id,
-    pdfBase64: pdfBytes.toString("base64"),
-    attachmentFileName: pdfFileName,
+    pdfDocumentNo: pdfRecord?.documentNo,
+    pdfRegistryId: pdfRecord?.id,
+    pdfBase64: pdfBytes?.toString("base64"),
+    attachmentFileName: pdfBytes ? pdfFileName : undefined,
+    pdfWarning,
     mailtoUrl,
     subject,
     body,
