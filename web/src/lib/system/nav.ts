@@ -169,7 +169,13 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "incidents",
     label: "Incident reports",
     icon: "incident",
-    links: withModuleNav("incidents", []),
+    links: withModuleNav("incidents", [
+      {
+        href: "/system/settings/incident-management",
+        label: "Incident management",
+        match: (p) => p.startsWith("/system/settings/incident-management"),
+      },
+    ]),
   },
   {
     key: "services",
@@ -327,6 +333,12 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/admin/ai-query-audit",
     title: "AI Query Audit",
     description: "AI assistant usage, query risk detection, investigation, and compliance export.",
+  },
+  {
+    sectionKey: "incidents",
+    href: "/system/settings/incident-management",
+    title: "Incident management",
+    description: "Investigation SLA days for the incident dashboard and task automations.",
   },
   {
     sectionKey: "system-settings",

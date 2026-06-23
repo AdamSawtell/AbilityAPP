@@ -1,6 +1,7 @@
 /** Organisation profile — provider identity used across NDIS documents and branding. */
 
 import type { AuditStampable } from "@/lib/audit";
+import { normalizeInvestigationSlaDays } from "@/lib/incident-management-settings";
 
 export type OrganizationRecord = AuditStampable & {
   id: string;
@@ -125,19 +126,6 @@ export const organizationSections: OrganizationSection[] = [
     ],
   },
   {
-    title: "Incident management",
-    description: "Defaults used by the incident dashboard and investigation SLA alerts.",
-    fields: [
-      {
-        key: "incidentInvestigationSlaDays",
-        label: "Investigation SLA (days)",
-        type: "number",
-        placeholder: "14",
-        hint: "Open investigations beyond this many days trigger an overdue alert on the dashboard.",
-      },
-    ],
-  },
-  {
     title: "Notes",
     fields: [
       { key: "notes", label: "Internal notes", type: "textarea", placeholder: "Optional context for administrators" },
@@ -192,7 +180,7 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     ...record,
     id: ORGANIZATION_ID,
     registrationGroups: (record.registrationGroups ?? "").trim(),
-    incidentInvestigationSlaDays: Number.isFinite(sla) && sla > 0 ? Math.round(sla) : 14,
+    incidentInvestigationSlaDays: normalizeInvestigationSlaDays(sla),
     gstRegistered: Boolean(record.gstRegistered),
     bankBsb: (record.bankBsb ?? "").trim(),
     bankAccount: (record.bankAccount ?? "").trim(),

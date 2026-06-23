@@ -31,7 +31,7 @@ export const coreSystemSetupArticle: HelpArticle = {
     "/system/ai/assistants",
   ],
   windowKeys: [],
-  lastUpdated: "2026-06-17",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "open-system",
@@ -49,7 +49,7 @@ export const coreSystemSetupArticle: HelpArticle = {
       title: "Recommended setup order",
       body: "Follow this order for a clean go-live. You can revisit any step later.",
       steps: [
-        "Organisation profile — legal name, branding, NDIS registration, incident SLA defaults.",
+        "Organisation profile — legal name, branding, and NDIS registration.",
         "Time & date — organisation timezone for the sidebar clock, My shifts, and roster dates.",
         "Admin → Reference data — shared lists (gender, states, Yes/No, show as alert, relationships, and similar).",
         "Per-module Reference data — statuses and types for enquiries, clients, locations, people, incidents, and services.",
@@ -95,7 +95,7 @@ export const systemReferenceDataArticle: HelpArticle = {
   keywords: ["reference data", "dropdown", "options", "shared lists", "admin reference data", "system"],
   relatedRoutes: ["/system/reference-data/admin", "/system/reference-data/enquiries", "/system/reference-data/clients"],
   windowKeys: ["admin-reference-data"],
-  lastUpdated: "2026-06-17",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "where-to-open",
@@ -148,21 +148,20 @@ export const systemOrganisationArticle: HelpArticle = {
   id: "article-system-organisation",
   slug: "organisation-setup",
   title: "Organisation profile, time & date, and org chart tiers",
-  summary: "Set provider branding, organisation timezone, NDIS details, incident defaults, and chart tier labels before workforce setup.",
+  summary: "Set provider branding, organisation timezone, NDIS details, and chart tier labels before workforce setup.",
   category: "System setup",
-  keywords: ["organisation", "logo", "NDIS", "provider", "org chart tiers", "branding", "SLA"],
+  keywords: ["organisation", "logo", "NDIS", "provider", "org chart tiers", "branding"],
   relatedRoutes: ["/system/organization", "/system/org-chart-tiers", "/system/settings/time-and-date"],
   windowKeys: ["admin-organization", "workforce-org-chart-tier"],
-  lastUpdated: "2026-06-17",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "organisation-profile",
       title: "Organisation profile",
-      body: "System → Organisation → Organisation profile holds the legal and display name, logo URL, contact details, and NDIS registration fields shown on sign-in and used in templates.\n\nIncident investigation SLA days on this record feed task automations for overdue investigations.",
+      body: "System → Organisation → Organisation profile holds the legal and display name, logo URL, contact details, and NDIS registration fields shown on sign-in and used in templates.",
       steps: [
         "Open System → Organisation → Organisation profile.",
         "Complete Provider details and Contact sections.",
-        "Set Incident investigation SLA days if you use investigation automations.",
         "Save. The audit footer records the change.",
       ],
       relatedRoutes: ["/system/organization"],
@@ -282,7 +281,7 @@ export const systemTasksSetupArticle: HelpArticle = {
     "/system/guides/task-automations",
   ],
   windowKeys: ["admin-task-management", "admin-task-automations"],
-  lastUpdated: "2026-06-17",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "task-types",
@@ -314,7 +313,7 @@ export const systemAiSetupArticle: HelpArticle = {
   keywords: ["AI", "assistant", "chatbot", "home chat", "tools", "prompt"],
   relatedRoutes: ["/system/ai/assistants"],
   windowKeys: ["admin-ai-agents"],
-  lastUpdated: "2026-06-17",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "open-assistants",

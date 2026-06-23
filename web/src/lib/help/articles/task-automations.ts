@@ -29,7 +29,7 @@ export const taskAutomationsArticle: HelpArticle = {
     "/tasks/my-role",
   ],
   windowKeys: ["admin-task-automations", "admin-task-management"],
-  lastUpdated: "2026-06-19",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "what-are-task-automations",
@@ -178,7 +178,7 @@ export const taskAutomationsArticle: HelpArticle = {
       body: "These are checked when a user opens the app (at most once per 24 hours per browser session). They catch situations that become true over time without another save.",
       bullets: [
         "NDIS notification overdue: reportable incident, NDIS not yet recorded as notified, and past the report deadline.",
-        "Investigation SLA breached: open incident past the organisation investigation SLA days (set under System → Organisation → Organisation profile).",
+        "Investigation SLA breached: open incident past the organisation investigation SLA days (set under System → Incident reports → Incident management).",
       ],
       relatedRoutes: ["/system/organization", "/incidents/dashboard"],
       windowKeys: ["admin-organization", "incidents-dashboard"],
@@ -251,7 +251,7 @@ export const taskAutomationsArticle: HelpArticle = {
       id: "walkthrough-ndis-overdue",
       title: "Walkthrough: NDIS notification overdue",
       steps: [
-        "Confirm investigation and NDIS settings under System → Organisation → Organisation profile.",
+        "Confirm investigation and NDIS settings under System → Incident reports → Incident management.",
         "Edit or create a rule with Trigger NDIS notification overdue.",
         "Use task type Check and High priority; due today (Due in days = 0).",
         "Assign to the role responsible for Commission notification.",
@@ -263,7 +263,7 @@ export const taskAutomationsArticle: HelpArticle = {
     {
       id: "walkthrough-investigation-sla",
       title: "Walkthrough: investigation SLA breached",
-      body: "Set System → Organisation → Organisation profile → Investigation SLA (days) to match your policy (default 14). Create or edit a rule with Trigger Investigation SLA breached. Assign to your coordinator or quality role. The task description can reference {{incident.daysOpen}} and {{org.investigationSlaDays}} so the assignee sees how far over SLA the incident is.",
+      body: "Set System → Incident reports → Incident management → Investigation SLA (days) to match your policy (default 14). Create or edit a rule with Trigger Investigation SLA breached. Assign to your coordinator or quality role. The task description can reference {{incident.daysOpen}} and {{org.investigationSlaDays}} so the assignee sees how far over SLA the incident is.",
       relatedRoutes: ["/system/organization", "/incidents/dashboard"],
     },
     {
@@ -300,7 +300,7 @@ export const taskAutomationsArticle: HelpArticle = {
       bullets: [
         "System → Admin → Task management: define task types (Review, Check, Approve) and which roles can create them.",
         "System → Admin → Roles: grant task windows and the Task automations window.",
-        "System → Organisation → Organisation profile: investigation SLA days for incident dashboard and automation.",
+        "System → Incident reports → Incident management: investigation SLA days for incident dashboard and automation.",
         "Tasks hub: where assignees work automated and manual tasks.",
       ],
       relatedRoutes: [

@@ -558,6 +558,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "system-incident-management",
+    label: "Incident management",
+    group: "Admin",
+    surface: "system",
+    href: "/system/settings/incident-management",
+    abilityErpName: "Incident management",
+    showInSidebar: false,
+  },
+  {
     key: "admin-record-retention",
     label: "Record retention settings",
     group: "Admin",

@@ -96,10 +96,7 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
       ...base,
       updatedBy: session?.displayName ?? session?.username ?? "System",
     };
-    if (key === "incidentInvestigationSlaDays") {
-      const n = Number.parseInt(value, 10);
-      next.incidentInvestigationSlaDays = Number.isFinite(n) && n > 0 ? n : 14;
-    } else if (key === "gstRegistered") {
+    if (key === "gstRegistered") {
       next.gstRegistered = value === "true";
     } else {
       (next as Record<string, unknown>)[key] = value;
@@ -110,7 +107,10 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
 
   function onSave() {
     if (!record) return;
-    updateOrganization(record);
+    updateOrganization({
+      ...record,
+      incidentInvestigationSlaDays: organization.incidentInvestigationSlaDays,
+    });
     setDraft(null);
     setSaved(true);
   }
@@ -202,11 +202,9 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
                     <OrgField
                       field={field}
                       value={
-                        field.key === "incidentInvestigationSlaDays"
-                          ? String(record.incidentInvestigationSlaDays)
-                          : field.key === "gstRegistered"
-                            ? String(record.gstRegistered)
-                            : String(record[field.key] ?? "")
+                        field.key === "gstRegistered"
+                          ? String(record.gstRegistered)
+                          : String(record[field.key] ?? "")
                       }
                       onChange={onChange}
                     />

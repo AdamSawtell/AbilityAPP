@@ -12,6 +12,7 @@ import { RecordAuditFooter } from "@/components/record-audit-footer";
 import type { AppShellAuditProps } from "@/lib/audit";
 import type { Breadcrumb } from "@/components/app-shell";
 import Link from "next/link";
+import { OrgLogo } from "@/components/organization-landing";
 import { SystemClock } from "@/components/system-clock";
 import { organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
@@ -102,23 +103,10 @@ export function WorkspaceChrome({
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
         <div className="shrink-0 border-b border-slate-100 px-5 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-2.5" title={orgName}>
-            {organization.logoUrl?.trim() ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={organization.logoUrl}
-                alt=""
-                className="h-9 w-9 shrink-0 rounded-xl object-contain ring-1 ring-slate-200"
-              />
-            ) : (
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4147a] to-[#b51266] text-sm font-bold text-white shadow-sm">
-                a
-              </span>
-            )}
-            <span className="truncate text-lg font-semibold tracking-tight">
-              Ability<span className="text-[#d4147a]">APP</span>
-            </span>
+            <OrgLogo organization={organization} size="sm" />
+            <span className="truncate text-base font-semibold tracking-tight text-slate-900">{orgName}</span>
           </Link>
-          <SystemClock className="mt-1.5 pl-[2.625rem]" />
+          <SystemClock className="mt-1.5 pl-[3.375rem]" />
         </div>
         <div className="flex min-h-0 flex-1 flex-col py-4">
           <SidebarNav />

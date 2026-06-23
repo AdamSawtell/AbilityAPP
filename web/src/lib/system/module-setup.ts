@@ -30,7 +30,7 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
     title: "Organisation setup",
     summary: "Legal identity, branding, NDIS registration, and org chart tier labels.",
     checklist: [
-      "Set organisation profile and incident investigation SLA.",
+      "Set organisation profile and org chart tier labels.",
       "Define org chart tier bands before assigning positions in Workforce planning.",
     ],
     setupLinks: [
@@ -153,10 +153,16 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
     summary: "Statuses, severity, parties, and NDIS reportable types.",
     checklist: [
       "Align incident status and severity with your quality framework.",
+      "Set investigation SLA days for the dashboard and automations.",
       "Set party types and NDIS reportable categories.",
       "Configure task automations for reportable and SLA workflows.",
     ],
     setupLinks: [
+      {
+        href: "/system/settings/incident-management",
+        label: "Incident management",
+        description: "Investigation SLA for dashboard alerts and automations.",
+      },
       refDataLink("incidents"),
       { href: "/system/admin/task-automations", label: "Task automations", description: "Incident task rules." },
     ],

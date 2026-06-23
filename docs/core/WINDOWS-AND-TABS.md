@@ -442,6 +442,7 @@ System routes use **System** sign-in (`/system/...`). Navigation: `web/src/lib/s
 |---------------|-------|------------------|
 | Organisation profile | `/system/organization` | Organisation |
 | Time & date | `/system/settings/time-and-date` | Organisation |
+| Incident management | `/system/settings/incident-management` | Incident reports |
 | Org chart tiers | `/system/org-chart-tiers` | Organisation |
 | Reference data | `/system/reference-data` | Reference data |
 | Task management | `/system/admin/task-management` | Tasks |

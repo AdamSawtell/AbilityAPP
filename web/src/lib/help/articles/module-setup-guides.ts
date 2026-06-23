@@ -123,6 +123,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
     "incidents",
     [
       "Align incident status and severity with your quality framework.",
+      "Set investigation SLA days under System → Incident reports → Incident management.",
       "Set party and NDIS reportable types.",
       "Configure task automations for reportable and SLA workflows.",
     ]
