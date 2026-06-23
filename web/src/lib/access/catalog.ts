@@ -504,6 +504,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "admin-document-email",
+    label: "Email content",
+    group: "Admin",
+    surface: "system",
+    href: "/system/admin/document-email",
+    abilityErpName: "Document email content",
+    showInSidebar: true,
+  },
+  {
     key: "admin-document-registry",
     label: "Document registry",
     group: "Admin",

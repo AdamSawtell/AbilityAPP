@@ -1,17 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest, sessionCanRunProcess } from "@/lib/auth/session.server";
-import { newLineId } from "@/lib/client-line-tables";
-import type { DocumentClass, GeneratedDocumentRecord } from "@/lib/document-template";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { saveGeneratedDocument } from "@/lib/supabase/data-api";
+import type { DocumentClass } from "@/lib/document-template";
+import { buildMailtoUrl, renderDocumentEmailTemplate } from "@/lib/document-email-template";
+import { loadDocumentEmailTemplate, registerAndSendDocument } from "@/lib/document-send.server";
+import { htmlToPdfBuffer } from "@/lib/document-pdf.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
-
-function serviceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url?.trim() || !key?.trim()) throw new Error("Supabase not configured");
-  return createSupabaseClient(url, key, { auth: { persistSession: false } });
-}
 
 type SendSupportPlanBody = {
   html: string;
@@ -20,11 +13,13 @@ type SendSupportPlanBody = {
   entityId: string;
   entityLabel?: string;
   fileName?: string;
+  pdfFileName?: string;
   recipientEmail?: string;
   recipientName?: string;
+  emailPlaceholders?: Record<string, string>;
 };
 
-/** Send a support plan in-system: save HTML to the document registry (no outbound email). */
+/** Send a support plan: registry HTML + PDF, email handoff payload. */
 export async function POST(request: Request) {
   const session = await getAuthSessionFromRequest();
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -43,54 +38,68 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "html, templateId, and entityId are required" }, { status: 400 });
   }
 
+  const placeholders = body.emailPlaceholders ?? {};
+  const emailTemplate = await loadDocumentEmailTemplate("send-support-plan");
+  if (!emailTemplate) {
+    return NextResponse.json({ error: "No email template configured for send support plan." }, { status: 500 });
+  }
+  const { subject, body: emailBody } = renderDocumentEmailTemplate(emailTemplate, placeholders);
+  const recipientEmail = body.recipientEmail?.trim() || placeholders.recipientEmail?.trim() || "";
+  const recipientName = body.recipientName?.trim() || placeholders.recipientName?.trim() || "";
+  const mailtoUrl = buildMailtoUrl(recipientEmail, subject, emailBody);
+
   if (!isSupabaseConfigured()) {
+    const pdfBytes = await htmlToPdfBuffer(body.html);
     return NextResponse.json({
       ok: true,
-      message: "Support plan sent locally. Connect Supabase to persist in the document registry.",
       localOnly: true,
+      message: "Support plan prepared locally. Connect Supabase to persist in the document registry.",
+      pdfBase64: pdfBytes.toString("base64"),
+      attachmentFileName: body.pdfFileName?.trim() || body.fileName?.replace(/\.html$/i, ".pdf") || "support-plan.pdf",
+      mailtoUrl,
+      subject,
+      body: emailBody,
+      recipientEmail,
+      recipientName,
     });
   }
 
-  const id = newLineId("docgen");
-  const documentNo = `DOC-${Date.now().toString().slice(-8)}`;
-  const fileName = body.fileName?.trim() || `${documentNo}.html`;
-  const storagePath = `generated/support-plan/${body.entityId}/${Date.now()}-${fileName}`;
-  const bytes = new TextEncoder().encode(body.html);
-  const supabase = serviceClient();
+  try {
+    const result = await registerAndSendDocument({
+      processId: "send-support-plan",
+      html: body.html,
+      templateId: body.templateId,
+      documentClass: body.documentClass,
+      entityType: "client",
+      entityId: body.entityId,
+      entityLabel: body.entityLabel,
+      htmlFileName: body.fileName,
+      pdfFileName: body.pdfFileName,
+      recipientEmail,
+      recipientName,
+      emailPlaceholders: placeholders,
+      generatedBy: session.displayName,
+    });
 
-  const { error: uploadError } = await supabase.storage
-    .from("org-documents")
-    .upload(storagePath, bytes, { contentType: "text/html;charset=utf-8", upsert: true });
-  if (uploadError) {
-    return NextResponse.json({ error: uploadError.message }, { status: 500 });
+    return NextResponse.json({
+      ok: true,
+      message: "Support plan saved with PDF. Your email app should open with the attachment.",
+      documentNo: result.documentNo,
+      registryId: result.registryId,
+      pdfDocumentNo: result.pdfDocumentNo,
+      pdfRegistryId: result.pdfRegistryId,
+      pdfBase64: result.pdfBase64,
+      attachmentFileName: result.attachmentFileName,
+      mailtoUrl: result.mailtoUrl,
+      subject: result.subject,
+      body: result.body,
+      recipientEmail: result.recipientEmail,
+      recipientName: result.recipientName,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Could not send the support plan." },
+      { status: 500 }
+    );
   }
-
-  const record: GeneratedDocumentRecord = {
-    id,
-    documentNo,
-    templateId: body.templateId,
-    documentClass: body.documentClass,
-    entityType: "client",
-    entityId: body.entityId,
-    entityLabel: body.entityLabel ?? "",
-    batchId: "",
-    storagePath,
-    fileName,
-    mimeType: "text/html",
-    byteSize: bytes.byteLength,
-    status: "final",
-    generatedBy: session.displayName,
-    generatedAt: new Date().toISOString(),
-  };
-
-  await saveGeneratedDocument(supabase, record);
-
-  return NextResponse.json({
-    ok: true,
-    message: "Support plan saved to the document registry. Use Support plan delivery to save PDF and hand off.",
-    documentNo: record.documentNo,
-    registryId: record.id,
-    recipientEmail: body.recipientEmail?.trim() || "",
-    recipientName: body.recipientName?.trim() || "",
-  });
 }

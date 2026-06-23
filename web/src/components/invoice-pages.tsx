@@ -37,7 +37,8 @@ import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-
 import { downloadDocumentPdf } from "@/lib/document-pdf.client";
 import { batchPrintInvoices } from "@/lib/invoice-batch-print";
 import { exportClientInvoiceHtml, printClientInvoice } from "@/lib/invoice-print";
-import { buildInvoiceDeliveryHandoff } from "@/lib/invoice-plan-manager-delivery";
+import { emailHandoffMessage, launchEmailWithPdfAttachment } from "@/lib/document-email-handoff";
+import { organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
 import { weekStartFromDate } from "@/lib/roster-shift";
 
@@ -277,48 +278,8 @@ export function InvoiceListView() {
             ))}
           </select>
         </label>
-        {canBatchPrint ? (
-          <div className="flex flex-wrap items-end gap-3">
-            {templateOptions.length > 1 ? (
-              <label className="text-sm text-slate-600">
-                Template{" "}
-                <select
-                  value={activeTemplateId}
-                  onChange={(e) => setTemplateId(e.target.value)}
-                  className="ml-2 rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
-                >
-                  {templateOptions.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-            <button
-              type="button"
-              disabled={busy || !selectedIds.size || !activeTemplate}
-              onClick={() => void handleBatchPrint("pdf")}
-              className="rounded-lg border border-slate-800 bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {busy ? "Generating…" : `Batch PDF (${selectedIds.size || 0})`}
-            </button>
-            <button
-              type="button"
-              disabled={busy || !selectedIds.size || !activeTemplate}
-              onClick={() => void handleBatchPrint("html")}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {busy ? "Generating…" : `Batch HTML (${selectedIds.size || 0})`}
-            </button>
-          </div>
-        ) : null}
       </div>
       {progress ? <p className="text-sm text-slate-600">{progress}</p> : null}
-      {batchMessage ? <p className="text-sm text-emerald-800">{batchMessage}</p> : null}
-      {batchError ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{batchError}</p>
-      ) : null}
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -392,6 +353,57 @@ export function InvoiceListView() {
           </tbody>
         </table>
       </div>
+
+      {canBatchPrint ? (
+        <RecordDocumentsSection
+          entityType="invoice"
+          entityId="batch"
+          error={batchError || undefined}
+          message={batchMessage || undefined}
+          extras={
+            <div className="space-y-2">
+              <p className="text-sm text-slate-600">
+                Select invoices in the table above, then batch print or save PDFs. {selectedIds.size} selected.
+              </p>
+              {templateOptions.length > 1 ? (
+                <label className="block text-sm">
+                  <span className="mb-1 block text-xs font-medium text-slate-600">Template</span>
+                  <select
+                    className={inputClass}
+                    value={activeTemplateId}
+                    onChange={(e) => setTemplateId(e.target.value)}
+                  >
+                    {templateOptions.map((template) => (
+                      <option key={template.id} value={template.id}>
+                        {template.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : activeTemplate ? (
+                <p className="text-xs text-slate-500">Template: {activeTemplate.name}</p>
+              ) : null}
+            </div>
+          }
+          actions={[
+            {
+              processId: DOCUMENT_PRINT_PROCESSES.batchPrintInvoices,
+              label: "Batch PDF",
+              onClick: () => void handleBatchPrint("pdf"),
+              disabled: !selectedIds.size || !activeTemplate,
+              busy,
+              variant: "primary",
+            },
+            {
+              processId: DOCUMENT_PRINT_PROCESSES.batchPrintInvoices,
+              label: "Batch HTML",
+              onClick: () => void handleBatchPrint("html"),
+              disabled: !selectedIds.size || !activeTemplate,
+              busy,
+            },
+          ]}
+        />
+      ) : null}
     </div>
   );
 }
@@ -561,19 +573,6 @@ export function InvoiceDetailView({ id }: { id: string }) {
 
   const record = draft ?? stored;
   const client = data.clients.find((c) => c.id === record?.clientId);
-  const deliveryHandoff = useMemo(
-    () =>
-      record
-        ? buildInvoiceDeliveryHandoff({
-            invoice: record,
-            client,
-            businessPartners: data.businessPartners,
-            organization,
-            registryDocumentNo: registryDocumentNo || undefined,
-          })
-        : null,
-    [record, client, data.businessPartners, organization, registryDocumentNo]
-  );
 
   if (!record) {
     return (
@@ -778,6 +777,7 @@ export function InvoiceDetailView({ id }: { id: string }) {
     }
     setSending(true);
     try {
+      const orgName = organizationDisplayName(organization);
       const res = await fetch("/api/documents/send-invoice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -788,8 +788,20 @@ export function InvoiceDetailView({ id }: { id: string }) {
           entityId: record.id,
           entityLabel: record.documentNo,
           fileName: `${record.documentNo}.html`,
+          pdfFileName: `${record.documentNo}.pdf`,
           recipientEmail: record.invoiceToEmail,
           recipientName: record.invoiceTo,
+          emailPlaceholders: {
+            orgName,
+            recipientName: record.invoiceTo?.trim() || "Plan manager",
+            recipientEmail: record.invoiceToEmail?.trim() || "",
+            invoiceDocumentNo: record.documentNo,
+            documentNo: registryDocumentNo || record.documentNo,
+            entityLabel: record.documentNo,
+            periodStart: record.periodStart,
+            periodEnd: record.periodEnd,
+            amount: `$${record.totalAmount.toFixed(2)}`,
+          },
         }),
       });
       const payload = (await res.json()) as {
@@ -797,14 +809,30 @@ export function InvoiceDetailView({ id }: { id: string }) {
         message?: string;
         documentNo?: string;
         registryId?: string;
+        pdfBase64?: string;
+        attachmentFileName?: string;
+        mailtoUrl?: string | null;
+        subject?: string;
+        body?: string;
       };
       if (!res.ok) {
         setSendError(payload.error ?? "Could not issue the invoice.");
         return;
       }
-      const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
       if (payload.documentNo) setRegistryDocumentNo(payload.documentNo);
-      setSendMessage(`${payload.message ?? "Invoice issued in-system."}${registryNote}`);
+      if (payload.pdfBase64 && payload.attachmentFileName) {
+        const handoff = await launchEmailWithPdfAttachment({
+          pdfBase64: payload.pdfBase64,
+          fileName: payload.attachmentFileName,
+          mailtoUrl: payload.mailtoUrl ?? null,
+          subject: payload.subject ?? "",
+          body: payload.body ?? "",
+        });
+        setSendMessage(`${payload.message ?? "Invoice issued."} ${emailHandoffMessage(handoff)}`);
+      } else {
+        const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
+        setSendMessage(`${payload.message ?? "Invoice issued in-system."}${registryNote}`);
+      }
       auditDocumentProcess({
         processId: DOCUMENT_PRINT_PROCESSES.sendInvoice,
         entityType: "invoice",
@@ -990,8 +1018,6 @@ export function InvoiceDetailView({ id }: { id: string }) {
               refreshKey={historyRefresh}
               error={printError || sendError || undefined}
               message={printMessage || sendMessage || undefined}
-              mailtoUrl={deliveryHandoff?.mailtoUrl}
-              mailtoReady={record.status === "Sent" && Boolean(registryDocumentNo || deliveryHandoff?.mailtoUrl)}
               extras={
                 templateOptions.length > 1 ? (
                   <label className="block text-sm">

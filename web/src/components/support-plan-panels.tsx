@@ -16,7 +16,8 @@ import { useData } from "@/lib/data-store";
 import { useOrganization } from "@/lib/organization-store";
 import { exportPhase2DocumentHtml, printPhase2Document } from "@/lib/phase2-document-print";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
-import { buildSupportPlanDeliveryHandoff } from "@/lib/support-plan-delivery";
+import { emailHandoffMessage, launchEmailWithPdfAttachment } from "@/lib/document-email-handoff";
+import { organizationDisplayName } from "@/lib/organization";
 import type { SupportPlanDocumentContext } from "@/lib/support-plan-print";
 import {
   assistiveTechnologyTableConfig,
@@ -227,16 +228,6 @@ export function ClientSupportPlanPanel({
     rosterShifts,
   ]);
 
-  const deliveryHandoff = useMemo(() => {
-    if (!plan) return null;
-    return buildSupportPlanDeliveryHandoff({
-      client,
-      plan,
-      organization,
-      registryDocumentNo: registryDocumentNo || undefined,
-    });
-  }, [client, organization, plan, registryDocumentNo]);
-
   async function handlePrintSupportPlan() {
     setPrintError("");
     setPrintMessage("");
@@ -332,6 +323,8 @@ export function ClientSupportPlanPanel({
       return;
     }
     const recipientName = client.preferredName?.trim() || client.name?.trim() || client.searchKey;
+    const orgName = organizationDisplayName(organization);
+    const pdfName = pdfFileName(`${client.searchKey}-support-plan-${plan?.documentNo ?? "plan"}`);
     setSending(true);
     try {
       const res = await fetch("/api/documents/send-support-plan", {
@@ -344,22 +337,46 @@ export function ClientSupportPlanPanel({
           entityId: client.id,
           entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
           fileName: `${client.searchKey.replace(/[^\w.-]+/g, "_")}-support-plan.html`,
+          pdfFileName: pdfName,
           recipientEmail: client.email,
           recipientName,
+          emailPlaceholders: {
+            orgName,
+            recipientName,
+            recipientEmail: client.email?.trim() || "",
+            planDocumentNo: plan?.documentNo ?? "",
+            entityLabel: `${client.searchKey} — Support plan ${plan?.documentNo ?? ""}`.trim(),
+          },
         }),
       });
       const payload = (await res.json()) as {
         error?: string;
         message?: string;
         documentNo?: string;
+        pdfBase64?: string;
+        attachmentFileName?: string;
+        mailtoUrl?: string | null;
+        subject?: string;
+        body?: string;
       };
       if (!res.ok) {
         setSendError(payload.error ?? "Could not send the support plan.");
         return;
       }
       if (payload.documentNo) setRegistryDocumentNo(payload.documentNo);
-      const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
-      setSendMessage(`${payload.message ?? "Support plan sent in-system."}${registryNote}`);
+      if (payload.pdfBase64 && payload.attachmentFileName) {
+        const handoff = await launchEmailWithPdfAttachment({
+          pdfBase64: payload.pdfBase64,
+          fileName: payload.attachmentFileName,
+          mailtoUrl: payload.mailtoUrl ?? null,
+          subject: payload.subject ?? "",
+          body: payload.body ?? "",
+        });
+        setSendMessage(`${payload.message ?? "Support plan sent."} ${emailHandoffMessage(handoff)}`);
+      } else {
+        const registryNote = payload.documentNo ? ` Registry reference ${payload.documentNo}.` : "";
+        setSendMessage(`${payload.message ?? "Support plan sent in-system."}${registryNote}`);
+      }
       auditDocumentProcess({
         processId: DOCUMENT_PRINT_PROCESSES.sendSupportPlan,
         entityType: "client",
@@ -535,8 +552,6 @@ export function ClientSupportPlanPanel({
           refreshKey={historyRefresh}
           error={printError || sendError || undefined}
           message={printMessage || sendMessage || undefined}
-          mailtoUrl={deliveryHandoff?.mailtoUrl}
-          mailtoReady={Boolean(registryDocumentNo)}
           actions={[
             ...(canPrint
               ? [

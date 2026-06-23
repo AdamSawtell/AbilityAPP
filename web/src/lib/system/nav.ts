@@ -124,6 +124,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         match: (p) => p.startsWith("/system/admin/document-templates"),
       },
       {
+        href: "/system/admin/document-email",
+        label: "Email content",
+        match: (p) => p.startsWith("/system/admin/document-email"),
+      },
+      {
         href: "/system/admin/document-registry",
         label: "Document registry",
         match: (p) => p.startsWith("/system/admin/document-registry"),
@@ -280,6 +285,12 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/admin/document-templates",
     title: "Document templates",
     description: "Print layouts for invoices and service agreements — org header, footer, and process bindings.",
+  },
+  {
+    sectionKey: "tasks",
+    href: "/system/admin/document-email",
+    title: "Email content",
+    description: "Subject and body text for support plan and invoice send actions — placeholders replaced at send time.",
   },
   {
     sectionKey: "tasks",
