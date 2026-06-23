@@ -113,7 +113,7 @@ export function IncidentManagementSettingsView() {
         visible={hasUnsavedChanges}
         onSave={onSave}
         onDiscard={onDiscard}
-        saveLabel="Save incident settings"
+        message="Unsaved incident settings"
       />
     </>
   );
