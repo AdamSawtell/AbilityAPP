@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **100%** |
-| **Current work package** | **Business partners & client billing prefs — complete** |
+| **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
-| **Next slice** | UAT-14 portal (P3); set `NODE_OPTIONS` on Amplify console per [AMPLIFY-PDF.md](./AMPLIFY-PDF.md) |
-| **Last push** | 2026-06-22 — Amplify PDF fixes (Chromium pack + webpack build); smoke pass on invoice + enquiry |
+| **Next slice** | Feature backlog — catalogue/pricing tools, compliance depth, or portal production hardening (see [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md)) |
+| **Last push** | 2026-06-18 — Amplify `NODE_OPTIONS` via start script; UAT-14 portal pass; doc sync |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -1774,6 +1774,20 @@ Maps each new/updated library surface to required handoff artifacts. **Todo** = 
 | 2026-06-18 | `npm run build` | exit 0 (WP-D.13) |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 — 79 routes (WP-D.13) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625240000` roster_of_care tables |
+| 2026-06-18 | Release hardening | `npm run build` + `page-guides:check` | exit 0 — 110 routes |
+| 2026-06-18 | UAT-14 portal | localhost — S-001–S-005 | **Pass** |
+| 2026-06-18 | Amplify PDF heap | `package.json` start `--max-old-space-size=768`; `amplify.yml` NODE_OPTIONS | pending Amplify deploy smoke |
+
+---
+
+### Release hardening — Amplify PDF + UAT-14 (`2026-06-18`)
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `npm run build` + `page-guides:check` | Exit 0 |
+| 2 | `/portal/login` → Bernie@email → demo link | Hub loads as Bernie |
+| 3 | Portal services / budget / requests | Pages load; request submits |
+| 4 | Amplify → invoice → **Send via Email** or **Download PDF** | No amber error; PDF or mailto handoff |
 
 ---
 

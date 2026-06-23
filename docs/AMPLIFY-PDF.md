@@ -14,9 +14,11 @@ Server PDF uses `POST /api/documents/render-pdf` with `@sparticuz/chromium-min` 
 | Response body | **5.72 MB** max | Large batch PDFs use per-file download or ZIP client-side |
 | Compute bundle | **220 MB** uncompressed | `amplify.yml` strips unused `@swc` binaries after build |
 
-## Tune runtime memory (console)
+## Tune runtime memory
 
-Amplify does **not** expose Lambda memory size in the repo. You **can** raise the Node.js heap so Chromium + Node share the 1024 MB budget more predictably:
+**Repo default (shipped):** `web/package.json` `start` runs Node with `--max-old-space-size=768`. `amplify.yml` also writes `NODE_OPTIONS` into `.env.production` when the console variable is unset.
+
+Amplify does **not** expose Lambda memory size in the repo. You **can** override the Node.js heap so Chromium + Node share the 1024 MB budget more predictably:
 
 1. Amplify console → **AbilityAPP** → **Hosting** → **Environment variables**
 2. Add or update:

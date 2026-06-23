@@ -6,11 +6,11 @@ Record completion of full UAT before production or major demo release.
 
 | Field | Value |
 |-------|--------|
-| **Release / milestone** | E2E smoke RC — P0–P2 UAT complete |
-| **Environment** | Amplify (`main.d3vim3geq5td01.amplifyapp.com`) |
-| **Build / commit** | `0af0dac` on `main` (P2 docs pending commit) |
+| **Release / milestone** | E2E smoke RC — P0–P3 UAT complete (portal MVP) |
+| **Environment** | Amplify (`main.d3vim3geq5td01.amplifyapp.com`) + localhost portal UAT |
+| **Build / commit** | Release-hardening slice on `main` |
 | **UAT lead** | Engineering / AI-browser |
-| **Sign-off date** | *Not signed — T1 + P0–P2 packs complete; P3 portal open* |
+| **Sign-off date** | *Engineering complete 2026-06-18 — awaiting product/ops approval rows* |
 
 ## Tier gates
 
@@ -22,6 +22,7 @@ Record completion of full UAT before production or major demo release.
 | T2 | All P1 module packs (or documented deferrals) | **Pass** | 2026-06-18 | UAT-03, 08–11, 15 pass on Amplify (UAT-11 S-009 partial) |
 | T3 | UAT-ROLE matrix | **Pass** | 2026-06-22 | ROLE-010–019 pass on Amplify (ROLE-017 partial — timesheet approval only) |
 | T3 | UAT-15 processes | **Pass** | 2026-06-18 | Core + print processes pass; admin audit investigate **Partial** |
+| T3 | UAT-14 portal (MVP) | **Pass** | 2026-06-18 | Localhost smoke; Amplify retest after `PORTAL_DEMO_EXPOSE_LINK` deploy |
 | T2 | All P2 module packs (or documented deferrals) | **Pass** | 2026-06-18 | UAT-00, 12, 13 pass on Amplify |
 | T4 | Playwright smokes (if enabled) | N/A | | |
 
@@ -43,7 +44,7 @@ Record completion of full UAT before production or major demo release.
 | UAT-11 My workplace | P1 | OliverWilliams | 2026-06-18 | 2026-06-18 | **Pass** | S-009 partial |
 | UAT-12 Reports | P2 | IslaRobinson + SuperUser | 2026-06-18 | 2026-06-18 | **Pass** | |
 | UAT-13 Admin & system | P2 | SuperUser (system login) | 2026-06-18 | 2026-06-18 | **Pass** | Audit investigate processes partial |
-| UAT-14 Portal | P3 | | | | | |
+| UAT-14 Portal | P3 | AI-browser | 2026-06-18 | 2026-06-18 | **Pass** | MVP; magic link demo on Amplify |
 | UAT-15 Processes | P1 | Mixed | 2026-06-18 | 2026-06-18 | **Pass** | Admin audit prints partial |
 | UAT-ROLE Matrix | P0 | AI-browser | 2026-06-18 | 2026-06-22 | **Pass** | ROLE-017 partial (no generate-timesheets) |
 

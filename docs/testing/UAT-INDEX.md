@@ -45,7 +45,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 | UAT-11 | [UAT-11-my-workplace.md](./uat/UAT-11-my-workplace.md) | P1 | Support worker | 2 h | **Pass** | Flow 4–6 |
 | UAT-12 | [UAT-12-reports.md](./uat/UAT-12-reports.md) | P2 | Admin / Quality | 1.5 h | **Pass** | Flow 11 |
 | UAT-13 | [UAT-13-admin-system.md](./uat/UAT-13-admin-system.md) | P2 | SuperUser / ICT | 4 h | **Pass** | — |
-| UAT-14 | [UAT-14-portal.md](./uat/UAT-14-portal.md) | P3 | Portal (if release) | 1 h | Not started | Planned |
+| UAT-14 | [UAT-14-portal.md](./uat/UAT-14-portal.md) | P3 | Portal (MVP) | 1 h | **Pass** | WP-0.3–0.4 |
 | UAT-15 | [UAT-15-processes.md](./uat/UAT-15-processes.md) | P1 | Mixed | 3 h | **Pass** | Cross-flow |
 | UAT-ROLE | [UAT-ROLE-MATRIX.md](./uat/UAT-ROLE-MATRIX.md) | P0 | All personas | 2 h | **Pass** | 010–019 |
 
@@ -69,7 +69,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 | SCHADS payroll calculation in-app | Architecture — export only |
 | Live PRODA claim submission | Integration not approved |
 | Full mobile / offline GPS | Planned |
-| Participant portal (production) | UAT-14 until release decision |
+| Participant portal (production) | UAT-14 MVP pass; outbound magic-link email not wired |
 
 ## Defects and evidence
 

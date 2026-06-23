@@ -32,23 +32,27 @@ The largest greenfield work is **Chunk 4 (Rostering)**. Upstream modules must be
 | Area | Status | Notes |
 |------|--------|-------|
 | Auth, org, roles | ✅ Live | Off / Read / Write per window |
-| Enquiries | 🟡 Partial | Records + tabs; pipeline stages basic; Process 01 live |
-| Clients | 🟡 Partial | Rich tabs; plan import/budget tracking incomplete |
-| Employees | 🟡 Partial | Credentials, leave, My workplace |
+| Enquiries | ✅ Live | Pipeline, qualification, convert, HubSpot sync |
+| Clients | ✅ Live | Full tabs, plan budget import, lifecycle, portal email |
+| Employees | ✅ Live | Credentials, leave, My workplace, HR documents |
 | Locations, incidents, tasks | ✅ Live | Core CRUD + line tables |
-| Service agreements | 🟡 Partial | Records exist; e-sign / PAPL lifecycle not complete |
-| Products, price lists, contracts | 🟡 Partial | Reference + linking |
-| Service bookings | 🟡 Partial | DB + UI; compliance engine not complete |
-| Workforce planning | 🟡 Placeholder | Review queue exists |
-| Rostering | ⬜ Placeholder | `/rostering` module placeholder |
-| Timesheets | ⬜ Placeholder | `/timesheets`, `/generate-timesheets` placeholders |
-| Billing / claims | ⬜ Not started | Requires PRODA/gateway path |
-| Payroll integration | ⬜ Not started | Export-only architecture per scope |
-| Reconciliation | ⬜ Not started | Reports foundation only |
-| Client portal | ⬜ Not started | Chunk 0 differentiator |
+| Business partners | ✅ Live | Registry + client billing prefs |
+| Service agreements | ✅ Live | E-sign, print pack, lifecycle states |
+| Products, price lists, contracts | ✅ Live | Reference + agreement linking |
+| Service bookings | ✅ Live | Compliance on save, client reverse nav |
+| Rostering | ✅ Live | Week grid, publish, open shifts, RoC publish |
+| Service planning | ✅ Live | Monthly plans, multi-provider budget, utilisation |
+| Timesheets | ✅ Live | Generate, submit, approve, check-in verification |
+| Billing / claims | ✅ Live | PAPL validation; PRODA submission not live |
+| Payroll integration | ✅ Live | CSV / KeyPay export — no in-app SCHADS engine |
+| Reconciliation & close | ✅ Live | Plan / claim / invoice recon, financial close, audit pack |
+| Document platform | ✅ Live | Print, PDF, registry, Send via Email |
+| Client portal | 🟡 MVP | Magic link, services, budget, service requests — UAT-14 pass |
 | AI home + chat | ✅ Live | Write-gated per window |
 
-Legend: ✅ Live · 🟡 Partial · ⬜ Not started · 🔵 In progress
+Legend: ✅ Live · 🟡 Partial / MVP · ⬜ Not started · 🔵 In progress
+
+**Integrations not live:** outbound SMTP, live PRODA submission, production portal email (magic link exposed on demo via `PORTAL_DEMO_EXPOSE_LINK`).
 
 ---
 

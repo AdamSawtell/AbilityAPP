@@ -616,7 +616,7 @@ Cross-check of **scope spine**, **process docs**, **access catalog**, and **BUIL
 | SCHADS payroll in-app | **N/A** |
 | Live PRODA submission | **Planned** — stub |
 | Progress notes module separate from Activity | **Partial** |
-| Participant portal / SA e-sign | **Planned** |
+| Participant portal / SA e-sign | **Live (MVP)** — portal UAT-14 pass; SA e-sign live on agreements |
 | Client exit guided workflow | **Partial** — lifecycle fields only (unlike employee exit panel) |
 
 ### 9.4 Verification commands

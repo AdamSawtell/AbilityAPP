@@ -30,8 +30,11 @@ export async function POST(request: Request) {
     // Outbound email provider not wired yet — ops can retrieve link from server logs until SES/Resend is configured.
   }
 
+  const exposeDemoLink =
+    process.env.NODE_ENV !== "production" || process.env.PORTAL_DEMO_EXPOSE_LINK === "true";
+
   return NextResponse.json({
     ...generic,
-    signInLink: process.env.NODE_ENV !== "production" ? signInLink : undefined,
+    signInLink: exposeDemoLink ? signInLink : undefined,
   });
 }
