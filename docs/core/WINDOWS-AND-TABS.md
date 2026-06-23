@@ -1,7 +1,7 @@
 # AbilityAPP — windows and tabs reference
 
 **Audience:** Developers, business analysts, access administrators, and reviewers who need to know *where* each function lives in the UI.  
-**Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (what it does and outcomes).  
+**Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (grants).  
 **Version:** 1.0  
 **Last updated:** 23 June 2026
 

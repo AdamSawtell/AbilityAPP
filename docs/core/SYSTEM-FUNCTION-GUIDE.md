@@ -1,6 +1,7 @@
 ﻿# AbilityAPP ÔÇö system function guide
 
 **Audience:** External reviewers, auditors, board members, implementation partners, and senior stakeholders evaluating what the platform does today.  
+**Pair with:** [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (where), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (how), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (data links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (who).  
 **Version:** 1.0  
 **Last updated:** 23 June 2026  
 **Demo environment:** `https://main.d3vim3geq5td01.amplifyapp.com` (staff password `welcome`; SuperUser `flamingo`)

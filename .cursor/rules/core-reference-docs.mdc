@@ -1,5 +1,5 @@
 ---
-description: HARD — keep docs/core reference guides aligned with catalog windows, tabs, and shipped functions
+description: HARD — keep docs/core reference guides aligned with catalog windows, tabs, processes, entities, and access
 alwaysApply: true
 ---
 
@@ -13,6 +13,9 @@ AbilityAPP maintains **canonical reference docs** in `docs/core/`. Treat them li
 |------|-------------|
 | [docs/core/SYSTEM-FUNCTION-GUIDE.md](../../docs/core/SYSTEM-FUNCTION-GUIDE.md) | User-visible **function**, outcome, or build status changes |
 | [docs/core/WINDOWS-AND-TABS.md](../../docs/core/WINDOWS-AND-TABS.md) | **Window**, **tab**, **route**, sidebar, or process placement changes |
+| [docs/core/PROCESSES-AND-WORKFLOWS.md](../../docs/core/PROCESSES-AND-WORKFLOWS.md) | **Process** added/changed, workflow steps, save validation, send/print side effects |
+| [docs/core/ENTITY-AND-DATA-MODEL.md](../../docs/core/ENTITY-AND-DATA-MODEL.md) | **FK/child table**, line collection, entity link, reverse nav, compliance-on-save rules |
+| [docs/core/ROLES-AND-ACCESS.md](../../docs/core/ROLES-AND-ACCESS.md) | **Role**, default grant, persona, or function-area access changes |
 | [docs/core/README.md](../../docs/core/README.md) | New core doc added or source-of-truth paths change |
 
 Read [docs/core/README.md](../../docs/core/README.md) for the index.
@@ -38,10 +41,36 @@ Read [docs/core/README.md](../../docs/core/README.md) for the index.
 | Send/print/document behaviour | §18 Documents + affected module § |
 | Integration or explicit non-goal | §21 Integrations |
 
+## Code triggers (must update PROCESSES-AND-WORKFLOWS)
+
+| You change | Update PROCESSES-AND-WORKFLOWS |
+|------------|--------------------------------|
+| `ACCESS_PROCESSES` / new `process_id` | Matching § process table row |
+| `docs/processes/*.md` or `processes.json` | Numbered process steps and preconditions |
+| `document-print-audit.ts`, `document-email-handoff.ts` | Document process behaviour |
+| `*-compliance.ts`, `*-lifecycle.ts` save blocks | Save workflow section |
+
+## Code triggers (must update ENTITY-AND-DATA-MODEL)
+
+| You change | Update ENTITY-AND-DATA-MODEL |
+|------------|------------------------------|
+| New migration with FK or child table | Spine diagram, entity table, link matrix |
+| `mappers.ts` / `data-api.ts` line collections | Child data / line tables section |
+| New reverse tab (parent → child list) | Reverse UI table |
+| `booking-compliance.ts`, `roster-shift-compliance.ts`, etc. | Save compliance column |
+
+## Code triggers (must update ROLES-AND-ACCESS)
+
+| You change | Update ROLES-AND-ACCESS |
+|------------|-------------------------|
+| `supabase/seed-access.sql` grants | §3 function-area table for affected roles |
+| New role or persona in seed | §2 demo roles table |
+| Process limited to specific roles | §4 windows vs processes examples if non-obvious |
+
 ## Handoff checklist (add to every feature slice)
 
-1. Implement code + `catalog.ts` / tabs as needed  
-2. **Update `docs/core/WINDOWS-AND-TABS.md`** (and SYSTEM-FUNCTION-GUIDE if behaviour/outcomes changed)  
+1. Implement code + `catalog.ts` / tabs / mappers as needed  
+2. **Update matching `docs/core/*` files** (see tables above — not only WINDOWS-AND-TABS)  
 3. Update help articles and testing docs per `docs-and-testing.mdc`  
 4. Run `npm run uat:inventory` when windows or processes change  
 5. Commit **code + core docs together**  
@@ -51,10 +80,19 @@ Read [docs/core/README.md](../../docs/core/README.md) for the index.
 
 - Ship a new window, tab, or sidebar module without a WINDOWS-AND-TABS row.  
 - Ship a user-facing function without a SYSTEM-FUNCTION-GUIDE row (or status update).  
+- Ship a new process without PROCESSES-AND-WORKFLOWS row and `processes.json` when numbered.  
+- Add FK/child data without ENTITY-AND-DATA-MODEL link matrix update.  
+- Change default role grants without ROLES-AND-ACCESS update.  
 - Say "we'll update the core docs later."  
 
 ## Pairing
 
-- **SYSTEM-FUNCTION-GUIDE** = *what* and *why* (outcomes).  
-- **WINDOWS-AND-TABS** = *where* (routes, keys, tabs).  
-- Keep section numbers and module names aligned between the two files.
+| Doc | Answers |
+|-----|---------|
+| **SYSTEM-FUNCTION-GUIDE** | *What* and *why* (outcomes) |
+| **WINDOWS-AND-TABS** | *Where* (routes, keys, tabs) |
+| **PROCESSES-AND-WORKFLOWS** | *How* (steps, preconditions, side effects) |
+| **ENTITY-AND-DATA-MODEL** | *What connects to what* (FKs, lines, spine) |
+| **ROLES-AND-ACCESS** | *Who* (personas, grants by function area) |
+
+Keep section numbers and module names aligned across all five guides.

@@ -36,8 +36,13 @@ Set `lastUpdated` on touched help articles.
 
 ### Other docs (when applicable)
 
+- [docs/core/README.md](../docs/core/README.md) — index of all core guides
 - [docs/core/SYSTEM-FUNCTION-GUIDE.md](../docs/core/SYSTEM-FUNCTION-GUIDE.md) — function outcomes (reviewers)
-- [docs/core/WINDOWS-AND-TABS.md](../docs/core/WINDOWS-AND-TABS.md) — routes, window keys, tabs (see `core-reference-docs.mdc`)
+- [docs/core/WINDOWS-AND-TABS.md](../docs/core/WINDOWS-AND-TABS.md) — routes, window keys, tabs
+- [docs/core/PROCESSES-AND-WORKFLOWS.md](../docs/core/PROCESSES-AND-WORKFLOWS.md) — process steps and save workflows
+- [docs/core/ENTITY-AND-DATA-MODEL.md](../docs/core/ENTITY-AND-DATA-MODEL.md) — record links and child tables
+- [docs/core/ROLES-AND-ACCESS.md](../docs/core/ROLES-AND-ACCESS.md) — personas and grants by function
+- See `core-reference-docs.mdc` for mandatory update triggers
 - [docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) — new tables/columns
 - [dev-core/AGENT-PLAYBOOK.md](../dev-core/AGENT-PLAYBOOK.md) handoff checklist — already references guides; follow it
 - [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) — **What you can test** for the slice
