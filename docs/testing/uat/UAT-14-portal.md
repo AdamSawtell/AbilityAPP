@@ -1,8 +1,8 @@
 # UAT-14 — Participant portal
 
 **Pack:** UAT-14 | **Priority:** P3 | **Owner:** Product  
-**Environment:** `http://localhost:3000` (dev) + Amplify after `PORTAL_DEMO_EXPOSE_LINK` deploy  
-**Tester:** AI-browser | **Completed:** 2026-06-18 | **Result:** **Pass**
+**Environment:** localhost + [Amplify demo](https://main.d3vim3geq5td01.amplifyapp.com)  
+**Tester:** AI-browser | **Completed:** 2026-06-18 / 2026-06-23 Amplify re-check | **Result:** **Pass**
 
 **Demo participant:** `Bernie@email` (Bernadette Rose / `bp-bern`)
 

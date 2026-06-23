@@ -2,8 +2,8 @@
 
 **Audience:** External reviewers, auditors, board members, implementation partners, and senior stakeholders evaluating what the platform does today.  
 **Pair with:** [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (where), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (how), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (data links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (who).  
-**Version:** 1.0  
-**Last updated:** 23 June 2026  
+**Version:** 1.1  
+**Last updated:** 23 June 2026 (portal MVP, Amplify PDF)  
 **Demo environment:** `https://main.d3vim3geq5td01.amplifyapp.com` (staff password `welcome`; SuperUser `flamingo`)
 
 ---
@@ -107,8 +107,9 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Service agreements (client tab)** ÔÇö agreements for this participant | Coordinators+ | Jump to agreement records | Live |
 | **Service bookings (client tab)** ÔÇö bookings for this participant | Coordinators+ | Jump to booking records | Live |
 | **Incidents (client tab)** ÔÇö incidents involving participant | Managers+ | Safeguarding context on client | Live |
-| **Requests / tasks** ÔÇö portal requests and linked tasks | Coordinators+ | Intake of participant-initiated requests | Live |
-| **Documents (Overview)** ÔÇö participant statement + consent schedule print/PDF | Coordinators+ | One Documents section at bottom of Overview | Live |
+| **Requests / tasks** — portal requests and linked tasks | Coordinators+ | Intake of participant-initiated requests | Live |
+| **Documents (Overview)** — participant statement + consent schedule print/PDF | Coordinators+ | One Documents section at bottom of Overview | Live |
+| **Participant portal (MVP)** — magic link; services, budget, service requests | Participant (email on file) | Self-service read + request intake; UAT-14 pass | Live (MVP) |
 | **Participant exit** ÔÇö lifecycle exit, wind-down bookings, final activity | Coordinators+ | Participant closed operationally | Live (field-based; no guided wizard like employee exit) |
 
 ---
@@ -348,7 +349,8 @@ AI does **not** auto-save records. Staff review drafts and click Save.
 | Live PRODA claim submission | Planned | Validation and batch build are Live; submission is stub until gateway credentials |
 | Outbound SMTP / server email | Not in scope | Send via Email uses device handoff |
 | SCHADS payroll calculation | Not in scope | Export verified timesheets to payroll system |
-| Participant self-service portal | Planned | Chunk 0; read-only portal MVP on roadmap |
+| Participant self-service portal | **Live (MVP)** | Magic link, services, budget, service requests — UAT-14 pass; outbound email not wired |
+| Server PDF on Amplify | **Live** | `NODE_OPTIONS` / start script heap; cold start ~15–25s — see [AMPLIFY-PDF.md](../AMPLIFY-PDF.md) |
 | Live NDIS plan API pull | Planned | Manual import and gateway stub are Live |
 | HubSpot live sync | Partial | Dry-run and UI Live; needs production token |
 

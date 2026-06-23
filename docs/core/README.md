@@ -37,7 +37,8 @@ When the docs and code disagree, **fix both** in the same change:
 | Role grants (demo) | `supabase/seed-access.sql` |
 | Entity mappers and child tables | `web/src/lib/supabase/mappers.ts`, `data-api.ts` |
 | Numbered processes | `docs/processes/processes.json`, `docs/processes/*.md` |
-| Save compliance | `web/src/lib/*-compliance.ts`, `*-lifecycle.ts` |
+| Participant portal | `web/src/lib/portal/*`, `web/src/app/portal/*` |
+| Amplify PDF runtime | `web/package.json` `start`, `amplify.yml`, [AMPLIFY-PDF.md](../AMPLIFY-PDF.md) |
 
 ## Related docs (not in this folder)
 

@@ -2,8 +2,8 @@
 
 **Audience:** Reviewers, BAs, developers, and access admins who need to know what happens when a user runs an action — not just where the button is.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (routes), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (who can run).  
-**Version:** 1.0  
-**Last updated:** 23 June 2026
+**Version:** 1.1  
+**Last updated:** 23 June 2026 (portal flows, Amplify PDF)
 
 ---
 
@@ -51,6 +51,16 @@
 | `print-participant-statement` | Print statement on Overview | Write on `client-overview` | Period filter → registry | Statement on file |
 | `print-consent-schedule` | Print consent on Overview | Write on `client-overview` | Consent lines → registry | Consent schedule on file |
 | `assign-task` | Assign task on Requests tab | Write on `client-requests` | Creates `app_task` linked to client | Task in assignee queue |
+
+**Participant portal (no workspace process grants):**
+
+| Flow | Trigger | Preconditions | Side effects | Outcome |
+|------|---------|---------------|--------------|---------|
+| Magic-link sign-in | `/portal/login` → email | `client.email` matches | Cookie session 7 days; demo link when `PORTAL_DEMO_EXPOSE_LINK=true` | Participant hub |
+| Service request | `/portal/requests` → Submit | Valid portal session | `portal_service_request` row; coordinator task on client **Requests** | Request **Submitted** |
+| Coordinator approve | Staff task / API | Write on client requests | May create draft agreement variation | Request **Approved** |
+
+**Code:** `web/src/app/api/portal/*`, `web/src/lib/portal/service-request.server.ts`
 
 **Save workflows (no separate process):**
 
@@ -231,6 +241,8 @@ All document processes follow the same pattern:
 3. `registerDocumentWithAudit` or PDF API saves to **document registry**
 4. `auditDocumentProcess` logs who ran the process
 5. Send via Email: `launchEmailWithPdfAttachment` — share sheet or download + mailto
+
+**Server PDF (Amplify):** `POST /api/documents/render-pdf` uses Chromium on compute. Node heap via `package.json` `start` (`--max-old-space-size=768`) and `NODE_OPTIONS` in `amplify.yml`. First request after cold start may take 15–25s — see [AMPLIFY-PDF.md](../AMPLIFY-PDF.md).
 
 **Email subject/body:** From System → Email content (`send-invoice`, `send-support-plan` templates).
 

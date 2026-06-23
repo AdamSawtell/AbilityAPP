@@ -2,8 +2,8 @@
 
 **Audience:** Developers, business analysts, access administrators, and reviewers who need to know *where* each function lives in the UI.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (grants).  
-**Version:** 1.0  
-**Last updated:** 23 June 2026
+**Version:** 1.1  
+**Last updated:** 23 June 2026 (participant portal routes; Amplify PDF heap)
 
 ---
 
@@ -16,6 +16,19 @@
 | **Workspace** | Workspace login | Left sidebar modules | `app_role_window` — Off / Read / Write per window |
 | **System** | System login | System nav groups | Any signed-in System operator (no role grant) |
 | **My workplace** | Workspace login | My workplace hub + sub-pages | Sub-windows under `my-workplace` |
+| **Participant portal** | Magic link (`/portal/login`) | Top nav on `/portal/*` | No workspace roles — email must match `client.email`; demo exposes link when `PORTAL_DEMO_EXPOSE_LINK=true` |
+
+### Participant portal routes
+
+| Function | Route | Notes |
+|----------|-------|-------|
+| Sign in | `/portal/login` | Request magic link; demo shows **Open portal** link |
+| Hub | `/portal` | Dashboard — My services, My funding, Request a service |
+| My services | `/portal/services` | Week + list of rostered supports |
+| My funding | `/portal/budget` | Read-only plan budget lines |
+| Request a service | `/portal/requests` | Submit request → coordinator task on client **Requests** tab |
+
+**Code:** `web/src/components/portal/*`, `web/src/lib/portal/*`, `web/src/app/portal/*`
 
 ### Windows vs tabs
 

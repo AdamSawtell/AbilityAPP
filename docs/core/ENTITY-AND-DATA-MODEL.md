@@ -2,8 +2,8 @@
 
 **Audience:** Reviewers, BAs, and developers who need to understand how records connect across the operational spine.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (functions), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (where to view/edit).  
-**Version:** 1.0  
-**Last updated:** 23 June 2026
+**Version:** 1.1  
+**Last updated:** 23 June 2026 (portal entities)
 
 ---
 
@@ -264,7 +264,20 @@ Source: `web/src/lib/client-lifecycle.ts`, reference data `clientLifecycleStatus
 
 ---
 
-## 15. Identifier conventions
+## 15. Participant portal (data)
+
+| Record | Table | Links | Staff reverse UI |
+|--------|-------|-------|------------------|
+| Portal session | Cookie (`abilityapp_portal_session`) | `clientId`, email | — |
+| Portal service request | `portal_service_request` | `clientId` | Client → **Requests** tab |
+| Portal roster view | Read-only from `roster_shift` | `clientId` | Rostering module |
+| Portal budget view | Read-only from `client.planBudgets` | `clientId` | Client → Plan budget tab |
+
+**Auth:** Participant email must match `client.email`. Magic token via `web/src/lib/portal/session.server.ts`.
+
+---
+
+## 16. Identifier conventions
 
 | Field | Example | Use |
 |-------|---------|-----|
@@ -277,7 +290,7 @@ Source: `web/src/lib/client-lifecycle.ts`, reference data `clientLifecycleStatus
 
 ---
 
-## 16. Maintenance checklist
+## 17. Maintenance checklist
 
 Update this file when you:
 
@@ -291,8 +304,9 @@ Update `mappers.ts` / `data-api.ts` in the **same slice** as schema changes.
 
 ---
 
-## 17. Document control
+## 18. Document control
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2026-06-23 | Participant portal entities |
 | 1.0 | 2026-06-23 | Initial entity and data model reference |

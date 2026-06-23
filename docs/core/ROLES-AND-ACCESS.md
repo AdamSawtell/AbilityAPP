@@ -2,8 +2,8 @@
 
 **Audience:** Access administrators, reviewers, and BAs configuring who can use which functions — without reading every window key in seed SQL.  
 **Pair with:** [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (full window key list), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (what processes do), [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (function outcomes).  
-**Version:** 1.0  
-**Last updated:** 23 June 2026
+**Version:** 1.1  
+**Last updated:** 23 June 2026 (participant portal access)
 
 **Demo environment:** Staff password `welcome`; SuperUser `flamingo` on [Amplify demo](https://main.d3vim3geq5td01.amplifyapp.com).
 
@@ -188,7 +188,23 @@ Sign out and back in after `seed-access.sql` changes so session reloads window k
 
 ---
 
-## 6. System access (not workspace roles)
+## 6. Participant portal (not workspace roles)
+
+| Function | Who | Access model |
+|----------|-----|--------------|
+| Portal sign-in | Participant | Email on `client` record — magic link |
+| My services / funding | Participant | Portal session cookie only |
+| Submit service request | Participant | Portal session |
+| Review portal request | Coordinator+ | Workspace `clients` + **Requests** tab (write) |
+| Approve → variation draft | Coordinator+ | Task panel + `approve` API |
+
+Portal routes (`/portal/*`) are **not** in `app_role_window`. Staff never use portal for their own work — they use workspace.
+
+**Demo:** `Bernie@email` on [Amplify](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) with `PORTAL_DEMO_EXPOSE_LINK=true`.
+
+---
+
+## 7. System access (not workspace roles)
 
 | Area | Who |
 |------|-----|
@@ -201,7 +217,7 @@ Workspace **Admin → Roles** does not grant System routes.
 
 ---
 
-## 7. Configuring a new function (checklist)
+## 8. Configuring a new function (checklist)
 
 When shipping a new user-facing function:
 
@@ -214,7 +230,7 @@ When shipping a new user-facing function:
 
 ---
 
-## 8. Maintenance checklist
+## 9. Maintenance checklist
 
 Update this file when you:
 
@@ -227,7 +243,7 @@ Full grant matrix: `supabase/seed-access.sql` (authoritative detail).
 
 ---
 
-## 9. Document control
+## 10. Document control
 
 | Version | Date | Changes |
 |---------|------|---------|
