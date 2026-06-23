@@ -36,6 +36,8 @@ Set `lastUpdated` on touched help articles.
 
 ### Other docs (when applicable)
 
+- [docs/core/SYSTEM-FUNCTION-GUIDE.md](../docs/core/SYSTEM-FUNCTION-GUIDE.md) — function outcomes (reviewers)
+- [docs/core/WINDOWS-AND-TABS.md](../docs/core/WINDOWS-AND-TABS.md) — routes, window keys, tabs (see `core-reference-docs.mdc`)
 - [docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) — new tables/columns
 - [dev-core/AGENT-PLAYBOOK.md](../dev-core/AGENT-PLAYBOOK.md) handoff checklist — already references guides; follow it
 - [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) — **What you can test** for the slice

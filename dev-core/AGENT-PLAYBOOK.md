@@ -11,7 +11,8 @@
 | 3 | [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) | Every feature — which phase/chunk, dependencies |
 | 4 | [docs/scope/README.md](../docs/scope/README.md) | Deep requirements for the operational lifecycle |
 | 5 | [web/AGENTS.md](../web/AGENTS.md) | App-specific paths (catalog, System nav, help guides) |
-| 6 | [docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) | Any field, entity, tab, or table change |
+| 6 | [docs/core/README.md](../docs/core/README.md) | Core reference docs — functions + windows/tabs |
+| 7 | [docs/DATABASE-CHANGES.md](../docs/DATABASE-CHANGES.md) | Any field, entity, tab, or table change |
 
 ## Scope authority
 
@@ -55,12 +56,13 @@ Enquiry → Client → Service Agreement → Service Booking → Service Plannin
 7. **User how-to** — article section(s) in `web/src/lib/help/articles/` with steps for the new behaviour  
 8. **Record documents** — if print/PDF/send: `RecordDocumentsSection` + `document-print-audit.ts` per `.cursor/rules/record-documents.mdc`  
 9. **System setup** — checklist items in `module-setup-guides.ts` + reference data / role grants documented  
-10. **Testing docs** — `.cursor/rules/docs-and-testing.mdc`: HP matrix, TEST-RUNBOOKS, UAT pack(s), `npm run uat:inventory` when processes/windows change  
-11. **Tier 1:** `npm run build` + `page-guides:check` (exit 0)  
-12. **Tier 2:** Browser smoke — steps in BUILD-PROGRESS for this slice  
-13. **Tier 3:** Bugbot review before push; log in BUILD-PROGRESS  
-14. Update [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) (status + test steps + user/setup guides for new slice)  
-15. Update [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) when chunk status changes  
+10. **Core reference** — `docs/core/WINDOWS-AND-TABS.md` (+ `SYSTEM-FUNCTION-GUIDE.md` if outcomes changed) per `core-reference-docs.mdc`  
+11. **Testing docs** — `.cursor/rules/docs-and-testing.mdc`: HP matrix, TEST-RUNBOOKS, UAT pack(s), `npm run uat:inventory` when processes/windows change  
+12. **Tier 1:** `npm run build` + `page-guides:check` (exit 0)  
+13. **Tier 2:** Browser smoke — steps in BUILD-PROGRESS for this slice  
+14. **Tier 3:** Bugbot review before push; log in BUILD-PROGRESS  
+15. Update [docs/BUILD-PROGRESS.md](../docs/BUILD-PROGRESS.md) (status + test steps + user/setup guides for new slice)  
+16. Update [docs/SCOPE-ROADMAP.md](../docs/SCOPE-ROADMAP.md) when chunk status changes  
 
 ## Key paths
 

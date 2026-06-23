@@ -1,0 +1,60 @@
+---
+description: HARD — keep docs/core reference guides aligned with catalog windows, tabs, and shipped functions
+alwaysApply: true
+---
+
+# Core reference documents — mandatory upkeep
+
+AbilityAPP maintains **canonical reference docs** in `docs/core/`. Treat them like code: update in the **same slice** as the behaviour they describe.
+
+## Documents
+
+| File | Update when |
+|------|-------------|
+| [docs/core/SYSTEM-FUNCTION-GUIDE.md](../../docs/core/SYSTEM-FUNCTION-GUIDE.md) | User-visible **function**, outcome, or build status changes |
+| [docs/core/WINDOWS-AND-TABS.md](../../docs/core/WINDOWS-AND-TABS.md) | **Window**, **tab**, **route**, sidebar, or process placement changes |
+| [docs/core/README.md](../../docs/core/README.md) | New core doc added or source-of-truth paths change |
+
+Read [docs/core/README.md](../../docs/core/README.md) for the index.
+
+## Code triggers (must update WINDOWS-AND-TABS)
+
+| You change | Update WINDOWS-AND-TABS |
+|------------|-------------------------|
+| `web/src/lib/access/catalog.ts` | Window keys, routes, sidebar, processes |
+| `web/src/lib/access/detail-windows.ts` | Tab → window key mapping |
+| `web/src/lib/client.ts` (`clientTabGroups`, `clientTabs`) | Client tabs section |
+| `web/src/lib/employee.ts` (`employeeTabGroups`) | Employee tabs section |
+| `web/src/lib/enquiry.ts`, `incident.ts`, `location.ts` tabs | Matching record tab tables |
+| `web/src/lib/system/nav.ts` | System setup section |
+| New `AppShell` module or record tab UI | Matching function section |
+
+## Code triggers (must update SYSTEM-FUNCTION-GUIDE)
+
+| You change | Update SYSTEM-FUNCTION-GUIDE |
+|------------|------------------------------|
+| New module or major workflow | New row in the matching § function table |
+| Feature reaches Live / Partial / Planned | Status column |
+| Send/print/document behaviour | §18 Documents + affected module § |
+| Integration or explicit non-goal | §21 Integrations |
+
+## Handoff checklist (add to every feature slice)
+
+1. Implement code + `catalog.ts` / tabs as needed  
+2. **Update `docs/core/WINDOWS-AND-TABS.md`** (and SYSTEM-FUNCTION-GUIDE if behaviour/outcomes changed)  
+3. Update help articles and testing docs per `docs-and-testing.mdc`  
+4. Run `npm run uat:inventory` when windows or processes change  
+5. Commit **code + core docs together**  
+6. Name updated core docs in the Verification block  
+
+## Never
+
+- Ship a new window, tab, or sidebar module without a WINDOWS-AND-TABS row.  
+- Ship a user-facing function without a SYSTEM-FUNCTION-GUIDE row (or status update).  
+- Say "we'll update the core docs later."  
+
+## Pairing
+
+- **SYSTEM-FUNCTION-GUIDE** = *what* and *why* (outcomes).  
+- **WINDOWS-AND-TABS** = *where* (routes, keys, tabs).  
+- Keep section numbers and module names aligned between the two files.
