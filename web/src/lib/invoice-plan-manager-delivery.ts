@@ -47,8 +47,8 @@ export function buildInvoiceDeliveryHandoff(params: {
     `Period: ${invoice.periodStart} to ${invoice.periodEnd}.`,
     `Amount: $${invoice.totalAmount.toFixed(2)}.`,
     registryDocumentNo
-      ? `Document registry reference: ${registryDocumentNo}. Open the registry in AbilityAPP to view or print the HTML invoice and save as PDF from your browser.`
-      : "Issue the invoice in AbilityAPP first to save a copy to the document registry, then print or save as PDF.",
+      ? `Document registry reference: ${registryDocumentNo}. Open the registry in AbilityVua to view or print the HTML invoice and save as PDF from your browser.`
+      : "Issue the invoice in AbilityVua first to save a copy to the document registry, then print or save as PDF.",
     "",
     `${orgName}`,
   ];

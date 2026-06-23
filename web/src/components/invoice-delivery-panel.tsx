@@ -16,8 +16,8 @@ export function InvoiceDeliveryPanel({
     <section className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
       <h2 className="text-sm font-semibold text-slate-900">Plan manager delivery</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Issue invoice registers HTML in AbilityAPP. Save as PDF from print, then hand off to the plan manager using your
-        organisation&apos;s secure channel — AbilityAPP does not send outbound email.
+        Issue invoice registers HTML in AbilityVua. Save as PDF from print, then hand off to the plan manager using your
+        organisation&apos;s secure channel — AbilityVua does not send outbound email.
       </p>
 
       <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">

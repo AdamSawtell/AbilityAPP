@@ -78,6 +78,6 @@ where r.role_key in (
   'Rostering_Manager',
   'Operations_Executive',
   'Chief_Executive_Officer',
-  'AbilityAPP_Admin'
+  'AbilityVua_Admin'
 )
 on conflict do nothing;

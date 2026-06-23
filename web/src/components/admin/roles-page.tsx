@@ -536,7 +536,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
 
               {record && isAdminRole(record) ? (
                 <p className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-950">
-                  AbilityAPP Admin always receives Write on every window, process, and report in the catalog — including
+                  AbilityVua Admin always receives Write on every window, process, and report in the catalog — including
                   modules added in app updates. Saving this role refreshes the full access list.
                 </p>
               ) : null}

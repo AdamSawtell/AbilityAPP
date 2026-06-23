@@ -50,7 +50,7 @@ export function IncidentNdisChecklist({
           <div>
             <h3 className="text-sm font-semibold text-slate-900">NDIS submission checklist</h3>
             <p className="text-xs text-slate-600">
-              Evidence-based steps for audit and Commission reporting. Portal submission is outside AbilityAPP.
+              Evidence-based steps for audit and Commission reporting. Portal submission is outside AbilityVua.
             </p>
           </div>
           <span

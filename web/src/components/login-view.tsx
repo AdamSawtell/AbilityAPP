@@ -210,7 +210,7 @@ export function LoginView() {
       </div>
 
       <p className="mt-8 text-center text-xs text-white/40">
-        Powered by <span className="font-medium text-white/55">AbilityAPP</span>
+        Powered by <span className="font-medium text-white/55">AbilityVua</span>
       </p>
     </LoginBackdrop>
   );

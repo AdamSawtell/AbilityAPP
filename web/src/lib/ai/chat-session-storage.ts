@@ -1,7 +1,7 @@
 import type { ChatMessage, ChatThreadState } from "@/lib/ai/types";
 
-const NOTICE_PREFIX = "abilityapp-ai-chat-notice";
-const PROMPT_PREFIX = "abilityapp-ai-chat-prompt";
+const NOTICE_PREFIX = "abilityvua-ai-chat-notice";
+const PROMPT_PREFIX = "abilityvua-ai-chat-prompt";
 
 export type PendingChatNotice = {
   message: string;
@@ -26,7 +26,7 @@ export function queueChatNotice(userId: string, roleId: string, message: string)
       JSON.stringify({ message, at: new Date().toISOString() } satisfies PendingChatNotice)
     );
     window.dispatchEvent(
-      new CustomEvent("abilityapp-chat-notice", { detail: { userId, roleId } })
+      new CustomEvent("abilityvua-chat-notice", { detail: { userId, roleId } })
     );
   } catch {
     // ignore
@@ -51,7 +51,7 @@ export function queueChatPrompt(
       JSON.stringify({ text, autoSend, at: new Date().toISOString() } satisfies PendingChatPrompt)
     );
     window.dispatchEvent(
-      new CustomEvent("abilityapp-chat-prompt", { detail: { userId, roleId } })
+      new CustomEvent("abilityvua-chat-prompt", { detail: { userId, roleId } })
     );
   } catch {
     // ignore
@@ -86,7 +86,7 @@ export function consumeChatNotice(userId: string, roleId: string): PendingChatNo
   }
 }
 
-const STORAGE_PREFIX = "abilityapp-ai-chat";
+const STORAGE_PREFIX = "abilityvua-ai-chat";
 
 export type PersistedHomeChat = {
   agentId: string;

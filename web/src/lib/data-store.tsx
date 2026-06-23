@@ -299,7 +299,7 @@ type DataStore = {
   getTaskById: (id: string) => TaskRecord | undefined;
 };
 
-const ORGANIZATION_STORAGE_KEY = "abilityapp-organization";
+const ORGANIZATION_STORAGE_KEY = "abilityvua-organization";
 
 function readInvestigationSlaDays(): number {
   if (typeof window === "undefined") return defaultOrganization().incidentInvestigationSlaDays;

@@ -1,4 +1,4 @@
-# AbilityAPP — entity and data model reference
+# AbilityVua — entity and data model reference
 
 **Audience:** Reviewers, BAs, and developers who need to understand how records connect across the operational spine.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (functions), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (where to view/edit).  
@@ -268,14 +268,14 @@ Source: `web/src/lib/client-lifecycle.ts`, reference data `clientLifecycleStatus
 
 | Record | Table | Links | Staff reverse UI |
 |--------|-------|-------|------------------|
-| Portal session | Cookie (`abilityapp_portal_session`) | `clientId`, email | — |
+| Portal session | Cookie (`abilityvua_portal_session`) | `clientId`, email | — |
 | Portal service request | `portal_service_request` | `clientId` | Client → **Requests** tab |
 | Portal roster view | Read-only from `roster_shift` | `clientId` | Rostering module |
 | Portal budget view | Read-only from `client.planBudgets` | `clientId` | Client → Plan budget tab |
 
 **Auth:** Participant email must match `client.email`. Magic token via `web/src/lib/portal/session.server.ts`.
 
-**Sign-in URLs (not in staff sidebar):** [Amplify demo](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) · local `http://localhost:3000/portal/login` · demo email `Bernie@email`
+**Sign-in URLs (not in staff sidebar):** [Amplify demo](https://app.abilityvua.com/portal/login) · local `http://localhost:3000/portal/login` · demo email `Bernie@email`
 
 ---
 

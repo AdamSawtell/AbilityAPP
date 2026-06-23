@@ -150,7 +150,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "support-plan-print-send",
       title: "Print and send the support plan",
-      body: "At the bottom of Support Plan, the Documents section holds Print, PDF, and Send. Expand Saved files to open registry copies with date and time. Expand Print log to see who printed or sent and when. Use How to print and send for full steps — AbilityAPP does not send outbound email; use Open email draft after Send.",
+      body: "At the bottom of Support Plan, the Documents section holds Print, PDF, and Send. Expand Saved files to open registry copies with date and time. Expand Print log to see who printed or sent and when. Use How to print and send for full steps — AbilityVua does not send outbound email; use Open email draft after Send.",
       steps: [
         "Open the client → Support Plan; confirm sections are complete.",
         "Scroll to Documents at the bottom of the tab.",
@@ -206,7 +206,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "requests-tab",
       title: "Requests tab",
-      body: "Participant portal service requests and tasks linked to this client. Portal submissions appear at the top with status and links to the review task or draft agreement variation. Assign and action AbilityAPP tasks below.",
+      body: "Participant portal service requests and tasks linked to this client. Portal submissions appear at the top with status and links to the review task or draft agreement variation. Assign and action AbilityVua tasks below.",
       windowKeys: ["clients"],
     },
   ],

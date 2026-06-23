@@ -7,7 +7,7 @@ import { fullTaskTypePermissions, mergeTaskTypePermissions, permissionsForTypes 
 import { normalizeRoleWindowAccess, windowAccessFromKeys } from "@/lib/access/window-access";
 
 export const ADMIN_ROLE_ID = "role-admin";
-export const ADMIN_ROLE_KEY = "AbilityAPP_Admin";
+export const ADMIN_ROLE_KEY = "AbilityVua_Admin";
 
 export function isAdminRole(role: Pick<AppRoleRecord, "id" | "roleKey"> | string): boolean {
   if (typeof role === "string") {
@@ -240,8 +240,8 @@ export function adminRole(allTaskTypeIds: string[]): AppRoleRecord {
   const windowKeys = [...APP_WINDOW_KEYS];
   return normalizeRoleWindowAccess({
     id: "role-admin",
-    roleKey: "AbilityAPP_Admin",
-    name: "AbilityAPP Admin",
+    roleKey: "AbilityVua_Admin",
+    name: "AbilityVua Admin",
     description: "Full system access — all windows and processes",
     active: true,
     windowKeys,

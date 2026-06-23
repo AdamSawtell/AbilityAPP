@@ -36,8 +36,8 @@ export function buildSupportPlanDeliveryHandoff(params: {
     `Please find the support plan (${plan.documentNo}) for ${recipientName}.`,
     ...(plan.description?.trim() ? [plan.description.trim()] : []),
     registryDocumentNo
-      ? `Document registry reference: ${registryDocumentNo}. Open the registry in AbilityAPP to view or print the HTML support plan and save as PDF from your browser.`
-      : "Send the support plan in AbilityAPP first to save a copy to the document registry, then print or save as PDF.",
+      ? `Document registry reference: ${registryDocumentNo}. Open the registry in AbilityVua to view or print the HTML support plan and save as PDF from your browser.`
+      : "Send the support plan in AbilityVua first to save a copy to the document registry, then print or save as PDF.",
     "",
     orgName,
   ];

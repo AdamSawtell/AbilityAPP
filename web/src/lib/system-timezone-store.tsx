@@ -21,7 +21,7 @@ type SystemTimezoneContextValue = {
 
 const SystemTimezoneContext = createContext<SystemTimezoneContextValue | null>(null);
 
-const LOCAL_TIMEZONE_KEY = "abilityapp-organization-timezone";
+const LOCAL_TIMEZONE_KEY = "abilityvua-organization-timezone";
 
 function loadLocalTimezone(): string {
   if (typeof window === "undefined") return DEFAULT_ORGANIZATION_TIMEZONE;
@@ -73,10 +73,10 @@ export function SystemTimezoneProvider({ children }: { children: ReactNode }) {
     const onTimezoneChanged = () => {
       void refresh();
     };
-    window.addEventListener("abilityapp-timezone-changed", onTimezoneChanged);
+    window.addEventListener("abilityvua-timezone-changed", onTimezoneChanged);
     return () => {
       cancelled = true;
-      window.removeEventListener("abilityapp-timezone-changed", onTimezoneChanged);
+      window.removeEventListener("abilityvua-timezone-changed", onTimezoneChanged);
     };
   }, [refresh]);
 

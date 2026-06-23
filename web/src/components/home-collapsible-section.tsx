@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 
-const STORAGE_PREFIX = "abilityapp-home-section:";
+const STORAGE_PREFIX = "abilityvua-home-section:";
 
 export function HomeCollapsibleSection({
   sectionId,

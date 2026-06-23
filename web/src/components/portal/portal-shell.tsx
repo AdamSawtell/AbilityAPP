@@ -23,7 +23,7 @@ export function PortalShell({
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#b51266]">
-              {organization.tradingName || "AbilityAPP"}
+              {organization.tradingName || "AbilityVua"}
             </p>
             <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
             {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}

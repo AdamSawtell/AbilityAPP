@@ -43,7 +43,7 @@ where arw.window_key = 'my-workplace'
       and existing.window_key = w.window_key
   );
 
--- AbilityAPP Admin — ensure write access to catalog windows added after initial seed.
+-- AbilityVua Admin — ensure write access to catalog windows added after initial seed.
 insert into public.app_role_window (role_id, window_key, access_level)
 select 'role-admin', w.window_key, 'write'
 from (

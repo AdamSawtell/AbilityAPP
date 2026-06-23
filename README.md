@@ -1,6 +1,6 @@
-# AbilityERP Clone
+# AbilityVua
 
-A modern Next.js NDIS provider platform: enquiries, clients, service agreements, bookings, workforce, and operational workflows. Data persists in Supabase; hosted on AWS Amplify.
+A modern Next.js NDIS provider platform: enquiries, clients, service agreements, bookings, workforce, and operational workflows. Data persists in Supabase; hosted on AWS Amplify at [app.abilityvua.com](https://app.abilityvua.com).
 
 ## Development governance
 
@@ -45,9 +45,13 @@ localStorage.removeItem('abilityerp-reference-data')
 
 ## Deploy on AWS Amplify
 
+**Production:** [https://app.abilityvua.com](https://app.abilityvua.com)
+
 1. Connect this repository in the Amplify console.
 2. Set **app root** to `web`.
 3. Amplify reads `amplify.yml` at the repo root for build settings (Next.js SSR).
+4. Map custom domain **app.abilityvua.com** under Amplify → **Hosting** → **Custom domains**.
+5. Set `NEXT_PUBLIC_APP_URL=https://app.abilityvua.com` in Amplify environment variables (optional — `amplify.yml` defaults to this).
 
 ## Modules
 

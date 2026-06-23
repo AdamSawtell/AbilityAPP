@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
-export const PORTAL_SESSION_COOKIE = "abilityapp_portal_session";
+export const PORTAL_SESSION_COOKIE = "abilityvua_portal_session";
 const PORTAL_MAGIC_MAX_AGE_SEC = 60 * 15;
 const PORTAL_SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
 

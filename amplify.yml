@@ -15,8 +15,10 @@ applications:
               fi
               NODE_OPTIONS_VAL="${NODE_OPTIONS:---max-old-space-size=768}"
               PORTAL_DEMO_VAL="${PORTAL_DEMO_EXPOSE_LINK:-true}"
+              APP_URL_VAL="${NEXT_PUBLIC_APP_URL:-https://app.abilityvua.com}"
               cat > .env.production <<EOF
               AUTH_SESSION_SECRET=${AUTH_SESSION_SECRET}
+              NEXT_PUBLIC_APP_URL=${APP_URL_VAL}
               NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
               NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
               SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}

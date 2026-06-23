@@ -2,12 +2,12 @@
 
 ## Master reference
 
-**Title:** AbilityAPP — Complete Operational Workflow & Requirements Scope  
+**Title:** AbilityVua — Complete Operational Workflow & Requirements Scope  
 **Date:** 19 June 2026  
 **Author:** Riley, Head of Research  
 
 **Original file (user machine):**  
-`AbilityAPP _ Complete Operational Workflow _ Requirements Scope.docx`
+`AbilityVua _ Complete Operational Workflow _ Requirements Scope.docx`
 
 Keep the `.docx` as the legal/product authority. This repo holds structured extracts and the [implementation roadmap](../SCOPE-ROADMAP.md).
 
@@ -22,7 +22,7 @@ Keep the `.docx` as the legal/product authority. This repo holds structured extr
 To refresh the extract from the docx (Windows, with Word installed):
 
 ```powershell
-$doc = "C:\Users\AdamSawtell\Downloads\AbilityAPP _ Complete Operational Workflow _ Requirements Scope.docx"
+$doc = "C:\Users\AdamSawtell\Downloads\AbilityVua _ Complete Operational Workflow _ Requirements Scope.docx"
 $word = New-Object -ComObject Word.Application
 $word.Visible = $false
 $d = $word.Documents.Open($doc)
@@ -56,7 +56,7 @@ Full detail: scope doc Sections STAGE 0–11 and "Prioritised Development Chunks
 
 ## Architecture decisions (do not reverse without approval)
 
-1. **No SCHADS payroll engine in AbilityAPP** — export verified timesheets; Keypay / EH / Xero interprets award.
+1. **No SCHADS payroll engine in AbilityVua** — export verified timesheets; Keypay / EH / Xero interprets award.
 2. **SCHADS-aware cost prediction only** — for quoting, planning, roster cost views.
 3. **NDIS claims via PRODA or approved gateway** — not direct until Digital Partnership approved.
 4. **Worker screening** — manual verification + expiry tracking (no public NDIS API).

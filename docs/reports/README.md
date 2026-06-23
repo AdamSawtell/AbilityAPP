@@ -1,6 +1,6 @@
 # Core reports
 
-Data export and review reports implemented in AbilityAPP. Each report has a numbered doc in this folder.
+Data export and review reports implemented in AbilityVua. Each report has a numbered doc in this folder.
 
 **Ask anytime:** "Tell me the reports" or "What does report X export?"  
 Start here, then open the linked doc for full detail.

@@ -236,7 +236,7 @@ export function AiAgentsAdminView({ variant = "workspace" }: { variant?: "worksp
       agentKey: "",
       name: "",
       description: "",
-      systemPrompt: "You are an AbilityAPP assistant. Be concise and helpful.",
+      systemPrompt: "You are an AbilityVua assistant. Be concise and helpful.",
       model: "gpt-4o-mini",
       active: true,
       capabilities: [{ type: "tool", key: "help_search" }],

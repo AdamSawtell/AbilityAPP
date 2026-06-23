@@ -1,14 +1,14 @@
 # UAT-14 — Participant portal
 
 **Pack:** UAT-14 | **Priority:** P3 | **Owner:** Product  
-**Environment:** localhost + [Amplify demo](https://main.d3vim3geq5td01.amplifyapp.com)  
+**Environment:** localhost + [Amplify demo](https://app.abilityvua.com)  
 **Tester:** AI-browser | **Completed:** 2026-06-18 / 2026-06-23 Amplify re-check | **Result:** **Pass**
 
 ## How to access (not in staff sidebar)
 
 | Step | Action |
 |------|--------|
-| 1 | Open **[Amplify portal login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login)** or `http://localhost:3000/portal/login` locally |
+| 1 | Open **[Amplify portal login](https://app.abilityvua.com/portal/login)** or `http://localhost:3000/portal/login` locally |
 | 2 | Do **not** use staff `/login` — portal is a separate surface |
 | 3 | Enter **`Bernie@email`** (must match client **Email** on `/clients/bp-bern`) |
 | 4 | **Email me a sign-in link** → click **Open portal** under the demo link |
@@ -28,7 +28,7 @@
 
 ## Steps (reference)
 
-1. Open [portal login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) (Amplify) or `http://localhost:3000/portal/login` (local) — no staff session required.
+1. Open [portal login](https://app.abilityvua.com/portal/login) (Amplify) or `http://localhost:3000/portal/login` (local) — no staff session required.
 2. Enter `Bernie@email` → **Email me a sign-in link** → open **Demo sign-in link** (dev and Amplify demo with `PORTAL_DEMO_EXPOSE_LINK=true`).
 3. Hub → **My services** — week view shows rostered shifts.
 4. **My funding** — budget summary or empty-state message.

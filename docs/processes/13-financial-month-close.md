@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Confirm plan delivery, NDIS remittance, participant invoices, and payroll reconciliation before signing off a calendar month. Aligns with the Financial close screen checklist in AbilityAPP.
+Confirm plan delivery, NDIS remittance, participant invoices, and payroll reconciliation before signing off a calendar month. Aligns with the Financial close screen checklist in AbilityVua.
 
 ## Preconditions
 
@@ -26,7 +26,7 @@ Confirm plan delivery, NDIS remittance, participant invoices, and payroll reconc
 | 8 | Export CSV evidence | Financial close → Export CSV | File downloads with checklist snapshot |
 | 9 | Mark month closed | Financial close → Mark month closed | Month appears in closed months; audit logged |
 
-## Checklist mapping (AbilityAPP codes)
+## Checklist mapping (AbilityVua codes)
 
 | Process step | `evaluateFinancialClose` code |
 |--------------|-------------------------------|

@@ -305,7 +305,7 @@ export const deliveryArticle: HelpArticle = {
     {
       id: "board-reporting",
       title: "NDIS board reporting",
-      body: "Generate monthly board report packs with configurable sections, data-driven metrics from AbilityAPP, executive commentary, and a printable board-ready export.",
+      body: "Generate monthly board report packs with configurable sections, data-driven metrics from AbilityVua, executive commentary, and a printable board-ready export.",
       steps: [
         "Open Board reporting from Reports or the sidebar.",
         "Create a new report and choose the reporting period (for example June 2026).",

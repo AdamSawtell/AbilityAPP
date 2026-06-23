@@ -1,6 +1,6 @@
 # Process 8: Submit leave request
 
-Staff submit leave through **My workplace → Leave**. Managers and HR approve in **Workforce planning → Review queue** or via **Approve** tasks. AbilityAPP does not email assignees.
+Staff submit leave through **My workplace → Leave**. Managers and HR approve in **Workforce planning → Review queue** or via **Approve** tasks. AbilityVua does not email assignees.
 
 ## Trigger
 

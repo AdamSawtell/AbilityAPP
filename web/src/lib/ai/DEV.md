@@ -14,7 +14,7 @@ cd web
 npm run dev
 ```
 
-3. Open http://localhost:3000 and sign in as **SuperUser** (AbilityAPP Admin role).
+3. Open http://localhost:3000 and sign in as **SuperUser** (AbilityVua Admin role).
 
 ## Define assistants and tools
 

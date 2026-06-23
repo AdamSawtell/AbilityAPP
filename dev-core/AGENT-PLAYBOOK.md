@@ -1,4 +1,4 @@
-# AbilityAPP — agent playbook
+# AbilityVua — agent playbook
 
 **Read this first.** Then open the docs linked below before any feature work, schema change, or new page.
 

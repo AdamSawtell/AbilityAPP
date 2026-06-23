@@ -73,7 +73,7 @@ export const quickTaskArticles: HelpArticle[] = [
           "Complete Contact, Address, and Employment tabs.",
           "Click Save on the unsaved changes bar.",
           "Open Credentials Assigned and Documents to add compliance lines.",
-          "Use System access if this person needs an AbilityAPP login.",
+          "Use System access if this person needs an AbilityVua login.",
         ],
         relatedRoutes: ["/employees/new"],
       },

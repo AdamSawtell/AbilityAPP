@@ -1,4 +1,4 @@
-# AbilityAPP — build progress log
+# AbilityVua — build progress log
 
 **Always read this before starting work.** Update after every shipped slice.  
 **Roadmap:** [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md) · **Standards:** [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md)
@@ -14,7 +14,7 @@
 | **Active slice** | — |
 | **Next slice** | Feature backlog — catalogue/pricing tools, compliance depth, or portal production hardening (see [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md)) |
 | **Last push** | 2026-06-23 — core docs portal access URLs; help article |
-| **Participant portal** | [Amplify sign-in](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
+| **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
@@ -819,7 +819,7 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 | 2 | Click **Sync to HubSpot** | Success message with DRY-HS contact id; activity logged |
 | 3 | **Full audit trail** | CRM provider, contact id, and sync date logged |
 | 4 | **Enquiries** list | Cross-sell panel shows Bern (underserviced) when plan utilisation is low |
-| 5 | POST `/api/public/web-to-lead` with `x-abilityapp-webhook-secret` | 201 + new enquiry with source Website form |
+| 5 | POST `/api/public/web-to-lead` with `x-abilityvua-webhook-secret` | 201 + new enquiry with source Website form |
 
 ### WP-G.0 — Participant portal week calendar (`2026-06-20`)
 
@@ -1557,6 +1557,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 | 2026-06-20 | `npm run page-guides:check` | exit 0 — 96 routes (WP-A.8) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625360000` financial_closed_month (renamed from 25280000 — claim version conflict) |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625361000` client_plan_budget plan_provider column |
+| 2026-06-23 | `npm run build` | exit 0 (AbilityVua rebrand) |
+| 2026-06-23 | `npm run page-guides:check` | exit 0 — 110 routes |
+| 2026-06-23 | `seed-rebrand-abilityvua.sql` | Applied on remote Supabase |
 
 ---
 
@@ -1564,6 +1567,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-23 | AbilityVua rebrand | `app.abilityvua.com` `/login`, `/`, `/clients`, `/help`, `/portal/login` | **Partial** | Staff login, session, DB org/role **Pass**; portal demo link was localhost pre-deploy; UI branding ships with this commit |
 | 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
 | 2026-06-20 | WP-D.5 | `/rostering` Gaps + Forward plan tabs | **Pass** | Gaps tab loads; forward plan shows coverage gaps card |
 | 2026-06-20 | WP-D.6 | `/rostering` Open shifts tab | **Pass** | Vacant shifts listed |

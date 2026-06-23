@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Machine-readable index of AbilityAPP core reports. Human summary: docs/reports/README.md",
+  "description": "Machine-readable index of AbilityVua core reports. Human summary: docs/reports/README.md",
   "reports": [
     {
       "number": 1,

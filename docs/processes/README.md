@@ -1,6 +1,6 @@
 # Core processes
 
-Business processes implemented in AbilityAPP. Each process has a numbered doc in this folder.
+Business processes implemented in AbilityVua. Each process has a numbered doc in this folder.
 
 **Ask anytime:** "Tell me the processes" or "What does process X do?"  
 Start here, then open the linked doc for full detail.

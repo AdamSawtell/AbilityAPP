@@ -2,7 +2,7 @@
 
 ## Problem statement
 
-NDIS providers produce a high volume of regulated documents: tax invoices, service agreements, employee contracts, incident letters, and batch outputs at month-end. Today AbilityAPP:
+NDIS providers produce a high volume of regulated documents: tax invoices, service agreements, employee contracts, incident letters, and batch outputs at month-end. Today AbilityVua:
 
 - Hard-codes invoice layout in TypeScript (`invoice-print.ts`)
 - Has no printable service agreement output (e-sign captures signature only)

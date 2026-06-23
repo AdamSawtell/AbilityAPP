@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 export async function DELETE() {
   const res = NextResponse.json({ ok: true });
   res.cookies.set({
-    name: "abilityapp_system_session",
+    name: "abilityvua_system_session",
     value: "",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

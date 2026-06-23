@@ -140,7 +140,7 @@ insert into public.app_user (
   id, username, email, first_name, last_name, phone, active, employee_bp_id, notes
 )
 values (
-  'user-e2e-amplify', 'E2EAmplify', 'e2e.amplify@abilityapp.local', 'E2E', 'Amplify', '', true, null,
+  'user-e2e-amplify', 'E2EAmplify', 'e2e.amplify@abilityvua.local', 'E2E', 'Amplify', '', true, null,
   'Automated Amplify smoke tests'
 )
 on conflict (id) do update set active = true, username = excluded.username;

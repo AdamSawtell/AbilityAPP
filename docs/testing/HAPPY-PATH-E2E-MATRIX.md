@@ -1,8 +1,8 @@
-# AbilityAPP Happy Path and End-to-End Testing Matrix
+# AbilityVua Happy Path and End-to-End Testing Matrix
 
 **Version:** 1.0 (enquiry → exit spine)  
 **Last updated:** 2026-06-18  
-**Environment:** Amplify demo (`https://main.d3vim3geq5td01.amplifyapp.com`) or localhost (`npm run dev`) with Supabase remote + demo seed unless noted.
+**Environment:** Amplify demo (`https://app.abilityvua.com`) or localhost (`npm run dev`) with Supabase remote + demo seed unless noted.
 
 ## ID scheme
 
@@ -15,7 +15,7 @@
 | ROLE | 010–019 | Role-based browser suites |
 | ISSUE | — | See [ISSUE-LOG-TEMPLATE.md](./ISSUE-LOG-TEMPLATE.md) |
 
-**Build status legend:** **Live** = shippable in demo; **Partial** = UI or logic exists but incomplete vs scope; **Planned** = in roadmap / process doc only; **N/A** = out of AbilityAPP scope.
+**Build status legend:** **Live** = shippable in demo; **Partial** = UI or logic exists but incomplete vs scope; **Planned** = in roadmap / process doc only; **N/A** = out of AbilityVua scope.
 
 ## Table of contents
 
@@ -36,7 +36,7 @@
 
 ## 1. Purpose and scope
 
-This matrix is the **demo-grade E2E contract** for AbilityAPP: a single spine from **enquiry intake** through **service delivery and billing** to **participant and employee exit**, with linked FUNC rows, seed data IDs, and smoke TEST cases.
+This matrix is the **demo-grade E2E contract** for AbilityVua: a single spine from **enquiry intake** through **service delivery and billing** to **participant and employee exit**, with linked FUNC rows, seed data IDs, and smoke TEST cases.
 
 **In scope:** Routes in `web/src/lib/access/catalog.ts` (~108 app routes), Supabase-persisted records, audit footer + Full audit trail on saves, line tables on records.
 
@@ -55,7 +55,7 @@ This matrix is the **demo-grade E2E contract** for AbilityAPP: a single spine fr
 
 | Item | Value |
 |------|--------|
-| **Amplify URL** | `https://main.d3vim3geq5td01.amplifyapp.com` |
+| **Amplify URL** | `https://app.abilityvua.com` |
 | **Local** | `cd web && npm run dev` → `http://localhost:3000` |
 | **DB** | Remote Supabase via `SUPABASE_DB_URL` |
 | **Demo password** | `welcome` (staff); SuperUser uses `flamingo` |

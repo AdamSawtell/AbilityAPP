@@ -29,7 +29,8 @@ export function validateWebToLeadAuth(request: Request): boolean {
   const secret = webToLeadSecret();
   if (!secret) return false;
 
-  const header = request.headers.get("x-abilityapp-webhook-secret")?.trim()
+  const header = request.headers.get("x-abilityvua-webhook-secret")?.trim()
+    ?? request.headers.get("x-abilityapp-webhook-secret")?.trim()
     ?? request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim()
     ?? "";
 

@@ -85,7 +85,7 @@ Most disability support services are **GST-free**; template must still show ABN 
 - Missing ABN or bank details
 - GST shown incorrectly on GST-free supports
 
-### AbilityAPP mapping
+### AbilityVua mapping
 
 Merge from: `invoice`, `invoice_line`, `client`, `organization`, product/NDIS code on lines.
 
@@ -182,7 +182,7 @@ Shorter document referencing original agreement number, describing changes (sche
 
 ### Compliance notes
 
-- AbilityAPP **does not** calculate SCHADS pay — contract references Award + Fair Work, consistent with architecture decision in scope
+- AbilityVua **does not** calculate SCHADS pay — contract references Award + Fair Work, consistent with architecture decision in scope
 - Generated contract PDF stored in registry **and** `employee_document` line reference
 - **7-year** retention for employment records
 

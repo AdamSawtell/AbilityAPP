@@ -18,7 +18,7 @@ type OrganizationStore = {
 };
 
 const OrganizationContext = createContext<OrganizationStore | null>(null);
-const STORAGE_KEY = "abilityapp-organization";
+const STORAGE_KEY = "abilityvua-organization";
 
 function loadLocal(): OrganizationRecord {
   if (typeof window === "undefined") return defaultOrganization();

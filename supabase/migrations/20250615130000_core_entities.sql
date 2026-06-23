@@ -1,4 +1,4 @@
--- Core AbilityAPP entities (enquiries through support plans)
+-- Core AbilityVua entities (enquiries through support plans)
 
 -- ---------------------------------------------------------------------------
 -- Enquiries

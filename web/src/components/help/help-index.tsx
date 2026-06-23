@@ -30,7 +30,7 @@ export function HelpIndex({
   return (
     <div className="mx-auto max-w-4xl">
       <header className="mb-10">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">AbilityAPP how-to guide</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">AbilityVua how-to guide</h1>
         <p className="mt-3 max-w-2xl text-base text-slate-600">
           Step-by-step help for every window, tab, and workflow. Use the sidebar to browse or search. This
           content also powers the future in-app AI assistant.
@@ -38,7 +38,7 @@ export function HelpIndex({
       </header>
 
       <div className="mb-10 rounded-xl border border-[#f9a8d4]/40 bg-[#fdf2f8]/50 p-5">
-        <p className="text-sm font-medium text-[#b51266]">New to AbilityAPP?</p>
+        <p className="text-sm font-medium text-[#b51266]">New to AbilityVua?</p>
         <p className="mt-1 text-sm text-slate-600">
           Start with{" "}
           <Link href="/help/getting-started" className="font-medium text-[#b51266] hover:underline">

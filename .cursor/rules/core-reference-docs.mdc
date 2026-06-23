@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Core reference documents — mandatory upkeep
 
-AbilityAPP maintains **canonical reference docs** in `docs/core/`. Treat them like code: update in the **same slice** as the behaviour they describe.
+AbilityVua maintains **canonical reference docs** in `docs/core/`. Treat them like code: update in the **same slice** as the behaviour they describe.
 
 ## Documents
 

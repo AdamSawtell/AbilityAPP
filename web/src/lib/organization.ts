@@ -51,16 +51,16 @@ export type OrganizationSection = {
 };
 
 export const ORGANIZATION_ID = "org-default";
-export const ORGANIZATION_STORAGE_KEY = "abilityapp-organization";
+export const ORGANIZATION_STORAGE_KEY = "abilityvua-organization";
 
 export const organizationSections: OrganizationSection[] = [
   {
     title: "Identity",
     description: "How your organisation appears on the sign-in page, documents, agreements, and in the app header.",
     fields: [
-      { key: "tradingName", label: "Trading name", type: "text", placeholder: "AbilityAPP Community Services" },
-      { key: "legalName", label: "Legal name", type: "text", placeholder: "AbilityAPP Pty Ltd" },
-      { key: "searchKey", label: "Short code", type: "text", placeholder: "AbilityAPP", hint: "Used as a quick reference in lists and reports." },
+      { key: "tradingName", label: "Trading name", type: "text", placeholder: "AbilityVua Community Services" },
+      { key: "legalName", label: "Legal name", type: "text", placeholder: "AbilityVua Pty Ltd" },
+      { key: "searchKey", label: "Short code", type: "text", placeholder: "AbilityVua", hint: "Used as a quick reference in lists and reports." },
       { key: "logoUrl", label: "Logo URL", type: "url", placeholder: "https://…/logo.png", hint: "Shown on the sign-in page and app header." },
     ],
   },
@@ -148,13 +148,13 @@ export const organizationSections: OrganizationSection[] = [
 export function defaultOrganization(): OrganizationRecord {
   return {
     id: ORGANIZATION_ID,
-    tradingName: "AbilityAPP Community Services",
-    legalName: "AbilityAPP Pty Ltd",
-    searchKey: "AbilityAPP",
+    tradingName: "AbilityVua Community Services",
+    legalName: "AbilityVua Pty Ltd",
+    searchKey: "AbilityVua",
     abn: "12 345 678 901",
     ndisRegistrationNumber: "4050012345",
     ndisProviderOutcomeId: "",
-    email: "admin@abilityapp.local",
+    email: "admin@abilityvua.local",
     phone: "08 8294 1100",
     website: "",
     logoUrl: "",
@@ -165,7 +165,7 @@ export function defaultOrganization(): OrganizationRecord {
     postcode: "5000",
     country: "Australia",
     primaryContactName: "Super User",
-    primaryContactEmail: "superuser@abilityapp.local",
+    primaryContactEmail: "superuser@abilityvua.local",
     primaryContactPhone: "",
     registrationGroups: [
       "Assistance With Daily Life Tasks In A Group Or Shared Living",
@@ -217,7 +217,7 @@ export function readStoredOrganization(): OrganizationRecord {
 }
 
 export function organizationDisplayName(record: OrganizationRecord) {
-  return record.tradingName.trim() || record.legalName.trim() || record.searchKey.trim() || "AbilityAPP";
+  return record.tradingName.trim() || record.legalName.trim() || record.searchKey.trim() || "AbilityVua";
 }
 
 export function formatOrganizationAddress(record: OrganizationRecord): string {

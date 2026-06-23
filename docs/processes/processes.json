@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Machine-readable index of AbilityAPP core processes. Human summary: docs/processes/README.md",
+  "description": "Machine-readable index of AbilityVua core processes. Human summary: docs/processes/README.md",
   "processes": [
     {
       "number": 1,

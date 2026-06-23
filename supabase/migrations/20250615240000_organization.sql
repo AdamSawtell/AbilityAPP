@@ -48,12 +48,12 @@ insert into public.app_organization (
 )
 values (
   'org-default',
-  'AbilityAPP Community Services',
-  'AbilityAPP Pty Ltd',
-  'AbilityAPP',
+  'AbilityVua Community Services',
+  'AbilityVua Pty Ltd',
+  'AbilityVua',
   '12 345 678 901',
   '4050012345',
-  'admin@abilityapp.local',
+  'admin@abilityvua.local',
   '08 8294 1100',
   '',
   '100 King William Street',
@@ -62,7 +62,7 @@ values (
   '5000',
   'Australia',
   'Super User',
-  'superuser@abilityapp.local',
+  'superuser@abilityvua.local',
   E'Assistance With Daily Life Tasks In A Group Or Shared Living\nParticipation In Community And Social And Civic Activities\nSupport Coordination',
   'SuperUser',
   'SuperUser'

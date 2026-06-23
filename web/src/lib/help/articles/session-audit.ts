@@ -50,7 +50,7 @@ export const timeAndDateArticle: HelpArticle = {
     {
       id: "overview",
       title: "What Time & date does",
-      body: "AbilityAPP shows live date and time under the logo in the workspace and System sidebars. The clock uses the organisation timezone — not your browser’s local zone. You cannot set a manual offset; only the IANA timezone name changes how dates and times display.",
+      body: "AbilityVua shows live date and time under the logo in the workspace and System sidebars. The clock uses the organisation timezone — not your browser’s local zone. You cannot set a manual offset; only the IANA timezone name changes how dates and times display.",
     },
     {
       id: "access",
@@ -71,7 +71,7 @@ export const timeAndDateArticle: HelpArticle = {
     {
       id: "clock",
       title: "Sidebar clock",
-      body: "Staff see the live clock under the AbilityAPP logo. In System setup, clicking the clock opens Time & date. In the workspace, the clock is read-only unless you are also signed in to System.",
+      body: "Staff see the live clock under the AbilityVua logo. In System setup, clicking the clock opens Time & date. In the workspace, the clock is read-only unless you are also signed in to System.",
     },
   ],
 };

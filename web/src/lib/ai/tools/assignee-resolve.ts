@@ -40,7 +40,7 @@ export function resolveRoleId(roles: AppRoleRecord[], hint: string): string {
   const q = normalize(hint).replace(/\s+role$/, "").trim();
   if (!q) return "";
 
-  if (q === "admin" || q === "superuser" || q === "abilityapp admin") {
+  if (q === "admin" || q === "superuser" || q === "abilityvua admin") {
     const admin =
       roles.find((r) => r.id === "role-admin") ??
       roles.find((r) => normalize(r.roleKey).includes("admin"));

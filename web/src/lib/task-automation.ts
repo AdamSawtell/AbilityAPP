@@ -163,7 +163,7 @@ export type TaskAutomationRecord = {
 
 export const TASK_AUTOMATION_SCHEDULED_THROTTLE_MS = 24 * 60 * 60 * 1000;
 export const TASK_AUTOMATION_SCHEDULED_BATCH_LIMIT = 50;
-export const TASK_AUTOMATION_SCHEDULED_STORAGE_KEY = "abilityapp-task-automation-scheduled-at";
+export const TASK_AUTOMATION_SCHEDULED_STORAGE_KEY = "abilityvua-task-automation-scheduled-at";
 
 export function normalizeTaskAutomation(raw: TaskAutomationRecord): TaskAutomationRecord {
   const ruleModule = normalizeAutomationModule(raw.module);

@@ -61,7 +61,7 @@ export function RecordRetentionSettingsView() {
     });
     setMessage("System setting saved.");
     if (key === "timezone" && typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("abilityapp-timezone-changed"));
+      window.dispatchEvent(new CustomEvent("abilityvua-timezone-changed"));
     }
     await load();
     setSaving(false);

@@ -3,9 +3,9 @@ import type { HelpArticle } from "@/lib/help/types";
 export const gettingStartedArticle: HelpArticle = {
   id: "article-getting-started",
   slug: "getting-started",
-  title: "Getting started with AbilityAPP",
+  title: "Getting started with AbilityVua",
   summary:
-    "Sign in, pick your role, and learn how AbilityAPP is organised for NDIS provider teams.",
+    "Sign in, pick your role, and learn how AbilityVua is organised for NDIS provider teams.",
   category: "Foundation",
   keywords: ["login", "sign in", "role", "welcome", "overview", "introduction"],
   relatedRoutes: ["/login", "/"],
@@ -13,9 +13,9 @@ export const gettingStartedArticle: HelpArticle = {
   lastUpdated: "2025-06-15",
   sections: [
     {
-      id: "what-is-abilityapp",
-      title: "What AbilityAPP is",
-      body: "AbilityAPP is the workspace for NDIS providers. You manage enquiries, clients, locations, employees, services, tasks, and reports in one place. The layout follows AbilityERP windows and tabs so teams can move between systems with familiar names.",
+      id: "what-is-abilityvua",
+      title: "What AbilityVua is",
+      body: "AbilityVua is the workspace for NDIS providers. You manage enquiries, clients, locations, employees, services, tasks, and reports in one place. The layout follows AbilityERP windows and tabs so teams can move between systems with familiar names.",
       bullets: [
         "Core: Home, Tasks, Enquiries, Clients, Locations, Reports",
         "People: Employees, My workplace, Workforce planning",
@@ -82,7 +82,7 @@ export const navigationArticle: HelpArticle = {
     {
       id: "workspace-tabs",
       title: "Open record tabs",
-      body: "When you open a client, enquiry, employee, or location, AbilityAPP adds a tab across the top of the main area. You can keep several records open and switch between them. Close a tab with the × on the tab strip.",
+      body: "When you open a client, enquiry, employee, or location, AbilityVua adds a tab across the top of the main area. You can keep several records open and switch between them. Close a tab with the × on the tab strip.",
       bullets: [
         "Pink tabs: enquiries",
         "Green tabs: clients",

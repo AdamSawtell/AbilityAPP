@@ -1,4 +1,4 @@
-# Supabase setup — AbilityAPP
+# Supabase setup — AbilityVua
 
 Project: [yonkaaylolrdsjfgpvyp](https://supabase.com/dashboard/project/yonkaaylolrdsjfgpvyp)
 
@@ -44,6 +44,9 @@ In Amplify → **Environment variables**, add:
 | `OPENAI_API_KEY` | Yes (for AI) | Home and workspace assistants |
 | `NODE_OPTIONS` | Recommended (PDF) | `--max-old-space-size=768` — Node heap on Amplify compute (~1024 MB Lambda). Redeploy after change. See [AMPLIFY-PDF.md](./AMPLIFY-PDF.md). |
 | `CHROMIUM_PACK_URL` | Optional (PDF) | Override Sparticuz Chromium pack URL; default is v147 x64 GitHub release. |
+| `NEXT_PUBLIC_APP_URL` | Optional | Production URL for links and callbacks — defaults to `https://app.abilityvua.com` in `amplify.yml` |
+
+**Production URL:** [https://app.abilityvua.com](https://app.abilityvua.com) (Amplify custom domain).
 
 **Save**, then **redeploy** the app. `NEXT_PUBLIC_*` values are baked in at build time; `AUTH_SESSION_SECRET` must be present before session creation works on production.
 
@@ -53,7 +56,7 @@ If `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` is missing at b
 
 ## GitHub secrets (for auto-migrate)
 
-Repo → **[Settings → Secrets and variables → Actions](https://github.com/AdamSawtell/AbilityAPP/settings/secrets/actions)** → **Secrets** tab (not Variables) → **New repository secret**.
+Repo → **[Settings → Secrets and variables → Actions](https://github.com/AdamSawtell/AbilityVua/settings/secrets/actions)** → **Secrets** tab (not Variables) → **New repository secret**.
 
 ### Option A — one secret (recommended)
 

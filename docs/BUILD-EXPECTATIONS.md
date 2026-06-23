@@ -1,4 +1,4 @@
-# AbilityAPP — system build expectations
+# AbilityVua — system build expectations
 
 Governance for all development. Agents and developers must follow this before starting work.
 
@@ -105,13 +105,13 @@ Do **not** add loud print buttons to `AppShell` actions or inline delivery instr
 
 | Responsibility | Owner |
 |----------------|--------|
-| Shift data, verification, timesheet approval | AbilityAPP |
+| Shift data, verification, timesheet approval | AbilityVua |
 | SCHADS award interpretation, pay, STP, super | Keypay / Employment Hero / Xero (integration) |
-| SCHADS **cost estimates** for planning/roster quotes | AbilityAPP (estimate loadings only) |
-| NDIS claims submission | AbilityAPP + PRODA/gateway partner |
+| SCHADS **cost estimates** for planning/roster quotes | AbilityVua (estimate loadings only) |
+| NDIS claims submission | AbilityVua + PRODA/gateway partner |
 | Worker screening verification | Manual + expiry tracking (no public NDIS API) |
 
-Do not implement full payroll engine in AbilityAPP.
+Do not implement full payroll engine in AbilityVua.
 
 ## 10. Integration pattern
 

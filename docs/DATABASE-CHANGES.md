@@ -1,6 +1,6 @@
 # Database changes — required for every feature
 
-AbilityAPP uses **Supabase Postgres**. Schema is version-controlled in `supabase/migrations/`. GitHub Actions applies migrations on push to `main`.
+AbilityVua uses **Supabase Postgres**. Schema is version-controlled in `supabase/migrations/`. GitHub Actions applies migrations on push to `main`.
 
 ## Rule
 
@@ -16,11 +16,12 @@ When you add or change app behaviour, also:
    - Entities: `npm run supabase:seed-entities`
    - Users/roles: `npm run supabase:seed-access`
    - Employees: `npm run supabase:seed-employees`
-5. Add new **windows** to `web/src/lib/access/catalog.ts` when shipping a new module.
+5. **One-off rebrand / data fix** (existing remote DB): `node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-rebrand-abilityvua.sql`
+6. Add new **windows** to `web/src/lib/access/catalog.ts` when shipping a new module.
 
 Do **not** rely on the Supabase SQL editor for routine schema work. Migrations in Git are the source of truth.
 
-6. Push to `main` — CI runs `supabase db push` and reapplies seeds.
+7. Push to `main` — CI runs `supabase db push` and reapplies seeds.
 
 ## Current schema
 

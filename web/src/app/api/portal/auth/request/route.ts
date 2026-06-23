@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requestPublicOrigin } from "@/lib/app-origin";
 import { createPortalMagicToken } from "@/lib/portal/session.server";
 import { findPortalClientByEmail } from "@/lib/portal/server";
 
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
   if (!client) return NextResponse.json(generic);
 
   const token = createPortalMagicToken(client.id, email);
-  const origin = new URL(request.url).origin;
+  const origin = requestPublicOrigin(request);
   const signInLink = `${origin}/api/portal/auth/verify?token=${encodeURIComponent(token)}`;
 
   if (process.env.NODE_ENV === "production") {

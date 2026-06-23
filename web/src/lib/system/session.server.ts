@@ -8,7 +8,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { fetchUsers } from "@/lib/supabase/access-api";
 
-export const SYSTEM_SESSION_COOKIE = "abilityapp_system_session";
+export const SYSTEM_SESSION_COOKIE = "abilityvua_system_session";
 const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
 
 export type { SystemSession } from "@/lib/system/types";

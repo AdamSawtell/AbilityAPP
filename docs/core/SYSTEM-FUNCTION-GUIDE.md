@@ -1,18 +1,18 @@
-﻿# AbilityAPP ÔÇö system function guide
+﻿# AbilityVua ÔÇö system function guide
 
 **Audience:** External reviewers, auditors, board members, implementation partners, and senior stakeholders evaluating what the platform does today.  
 **Pair with:** [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (where), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (how), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (data links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (who).  
 **Version:** 1.1  
 **Last updated:** 23 June 2026 (portal MVP, Amplify PDF)  
-**Demo environment:** `https://main.d3vim3geq5td01.amplifyapp.com` (staff password `welcome`; SuperUser `flamingo`)
+**Demo environment:** `https://app.abilityvua.com` (staff password `welcome`; SuperUser `flamingo`)
 
-**Participant portal (separate from staff login):** [https://main.d3vim3geq5td01.amplifyapp.com/portal/login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) — demo email `Bernie@email`, then **Open portal** on the demo sign-in link.
+**Participant portal (separate from staff login):** [https://app.abilityvua.com/portal/login](https://app.abilityvua.com/portal/login) — demo email `Bernie@email`, then **Open portal** on the demo sign-in link.
 
 ---
 
-## 1. What AbilityAPP is
+## 1. What AbilityVua is
 
-AbilityAPP is an operational platform for **NDIS disability service providers**. It supports the full participant and workforce lifecycle: from first enquiry through service delivery, billing, reconciliation, and exit.
+AbilityVua is an operational platform for **NDIS disability service providers**. It supports the full participant and workforce lifecycle: from first enquiry through service delivery, billing, reconciliation, and exit.
 
 The product is organised around **records** (enquiries, clients, employees, agreements, bookings, shifts, timesheets, claims, invoices, and more). Staff work in a **workspace** with role-based access. System operators configure organisation profile, templates, roles, and reference data in a separate **System** area.
 
@@ -23,7 +23,7 @@ The product is organised around **records** (enquiries, clients, employees, agre
 | Role-based access | Every screen and action is gated by **windows** (read/write) and **processes** (print, send, convert, approve). |
 | Audit by default | Record saves log who changed what. A footer on every record shows created/updated metadata; **Full audit trail** opens field-level history. |
 | Line tables on records | Repeating data (activities, alerts, agreement lines, timesheet lines, etc.) lives in structured tables on the record, not free text only. |
-| In-system document delivery | Print, PDF, and **Send via Email** save copies to a **document registry**. Email handoff opens the userÔÇÖs device mail app with PDF attached (share sheet or download + draft) ÔÇö not outbound SMTP from AbilityAPP. |
+| In-system document delivery | Print, PDF, and **Send via Email** save copies to a **document registry**. Email handoff opens the userÔÇÖs device mail app with PDF attached (share sheet or download + draft) ÔÇö not outbound SMTP from AbilityVua. |
 | No in-app payroll engine | Verified timesheets export for KeyPay, Employment Hero, or Xero; award interpretation stays in payroll software. |
 | NDIS claims via gateway | Claim batches are built and validated in-app; live PRODA submission is a planned integration slice. |
 
@@ -31,7 +31,7 @@ The product is organised around **records** (enquiries, clients, employees, agre
 
 ## 2. End-to-end operational spine
 
-AbilityAPP is built to support this flow (aligned with the master scope document, June 2026):
+AbilityVua is built to support this flow (aligned with the master scope document, June 2026):
 
 ```
 Enquiry ÔåÆ Client ÔåÆ Service agreement ÔåÆ Service booking ÔåÆ Service planning
@@ -79,7 +79,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Print acknowledgement** ÔÇö letter from document template | Intake | Branded acknowledgement saved to document registry | Live |
 | **Convert enquiry ÔåÆ client** ÔÇö one-click conversion with linked records | Coordinator+ | Client record created; enquiry marked converted; activity carried forward | Live |
 | **Web-to-lead** ÔÇö public API creates enquiries from web forms | System | Automated intake without manual entry | Live |
-| **HubSpot / CRM sync** ÔÇö push enquiry contact to HubSpot | Intake (when configured) | CRM stays aligned with AbilityAPP | Partial ÔÇö needs live API token |
+| **HubSpot / CRM sync** ÔÇö push enquiry contact to HubSpot | Intake (when configured) | CRM stays aligned with AbilityVua | Partial ÔÇö needs live API token |
 
 ---
 
@@ -397,7 +397,7 @@ A structured walkthrough for an external reviewer:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2026-06-23 | AbilityAPP build team | Initial reviewer function guide |
-| 1.1 | 2026-06-23 | AbilityAPP build team | Moved to `docs/core/`; linked windows guide |
+| 1.0 | 2026-06-23 | AbilityVua build team | Initial reviewer function guide |
+| 1.1 | 2026-06-23 | AbilityVua build team | Moved to `docs/core/`; linked windows guide |
 
 For corrections after a review session, log gaps in [testing/ISSUE-LOG-TEMPLATE.md](../testing/ISSUE-LOG-TEMPLATE.md) and update this guide when functions ship or labels change.

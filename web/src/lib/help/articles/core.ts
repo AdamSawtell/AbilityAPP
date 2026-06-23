@@ -161,7 +161,7 @@ export const enquiriesArticle: HelpArticle = {
         "Open an enquiry with email or phone filled in.",
         "Review the External CRM sync panel below the pipeline.",
         "Click Sync to HubSpot (or Re-sync after contact details change).",
-        "In live mode, AbilityAPP calls the HubSpot CRM v3 API — contacts match on email when no HubSpot id is stored yet.",
+        "In live mode, AbilityVua calls the HubSpot CRM v3 API — contacts match on email when no HubSpot id is stored yet.",
         "Check the audit trail and Activity tab for the CRM sync entry.",
       ],
       relatedRoutes: ["/enquiries"],

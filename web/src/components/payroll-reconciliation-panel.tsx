@@ -147,7 +147,7 @@ export function PayrollReconciliationPanel() {
         <div>
           <h2 className="text-sm font-semibold text-slate-900">Payroll reconciliation</h2>
           <p className="mt-1 text-sm text-slate-600">
-            After pay run in Keypay or Xero, enter paid hours and pay run reference. AbilityAPP compares exported hours
+            After pay run in Keypay or Xero, enter paid hours and pay run reference. AbilityVua compares exported hours
             to paid and flags variance for audit.
           </p>
         </div>

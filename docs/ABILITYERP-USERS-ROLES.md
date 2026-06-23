@@ -1,6 +1,6 @@
 # AbilityERP users, roles, and access (review notes)
 
-How AbilityERP handles security compared to AbilityAPP.
+How AbilityERP handles security compared to AbilityVua.
 
 ## What we saw in AbilityERP
 
@@ -19,7 +19,7 @@ User ──many──► Role ──many──► Window / Function (menu access
                   └──many──► Process (workflow permissions)
 ```
 
-| Concept | AbilityERP | AbilityAPP |
+| Concept | AbilityERP | AbilityVua |
 |---------|------------|------------|
 | User | Login identity | `app_user` |
 | Role | e.g. AbilityERP Admin | `app_role` |
@@ -28,7 +28,7 @@ User ──many──► Role ──many──► Window / Function (menu access
 | Process | Workflow action | `app_role_process` + `docs/processes/` |
 | Employee link | BP (employee) on user | `app_user.employee_bp_id` (future) |
 
-## AbilityAPP implementation
+## AbilityVua implementation
 
 - **Sign in:** `/login` — pick user, then role (like Change Role at login).
 - **Change role:** Footer user chip → switch role without signing out.

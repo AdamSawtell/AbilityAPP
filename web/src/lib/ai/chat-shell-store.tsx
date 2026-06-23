@@ -4,8 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 
 export const HOME_AI_PANEL_WIDTH = 440;
 
-const COLLAPSED_KEY = "abilityapp-ai-chat-collapsed";
-const WIDTH_KEY = "abilityapp-ai-chat-width";
+const COLLAPSED_KEY = "abilityvua-ai-chat-collapsed";
+const WIDTH_KEY = "abilityvua-ai-chat-width";
 const MIN_WIDTH = 280;
 const MAX_WIDTH = 720;
 const DEFAULT_WIDTH = 360;

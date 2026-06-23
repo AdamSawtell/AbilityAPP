@@ -89,7 +89,7 @@ export function RosterRocPanel() {
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Import roster of care (CSV)</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Use the AbilityAPP CSV template until your NDIS RoC export format is mapped. Columns:{" "}
+          Use the AbilityVua CSV template until your NDIS RoC export format is mapped. Columns:{" "}
           {ROC_CSV_HEADERS.join(", ")}.
         </p>
         {canEdit ? (

@@ -14,7 +14,7 @@ export const complaintsFeedbackArticle: HelpArticle = {
     {
       id: "overview",
       title: "How complaints are logged",
-      body: "AbilityAPP does not use a separate complaints database. Log complaints on the client Activity tab (type Complaint) or as an incident with category Complaint. Feedback uses Activity type Feedback.",
+      body: "AbilityVua does not use a separate complaints database. Log complaints on the client Activity tab (type Complaint) or as an incident with category Complaint. Feedback uses Activity type Feedback.",
       steps: [
         "Clients → open participant → Activity → Add activity → type Complaint or Feedback.",
         "Or Incidents → Report incident → category Complaint for formal complaint workflow.",

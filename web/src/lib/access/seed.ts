@@ -226,13 +226,13 @@ export const SEED_USERS: AppUserRecord[] = [
   {
     id: "user-superuser",
     username: "SuperUser",
-    email: "superuser@abilityapp.local",
+    email: "superuser@abilityvua.local",
     firstName: "Super",
     lastName: "User",
     phone: "",
     active: true,
     employeeBpId: "",
-    notes: "Full access administrator (AbilityAPP SuperUser equivalent)",
+    notes: "Full access administrator (AbilityVua SuperUser equivalent)",
     roleIds: ["role-admin"],
   },
   {
@@ -372,7 +372,7 @@ export const SEED_USERS: AppUserRecord[] = [
 
 /** Merge seed catalog access in development only (avoids over-granting in production DB). */
 export function shouldMergeSeedAccess(): boolean {
-  return process.env.NODE_ENV !== "production" || process.env.ABILITYAPP_MERGE_SEED_ACCESS === "true";
+  return process.env.NODE_ENV !== "production" || process.env.ABILITYVUA_MERGE_SEED_ACCESS === "true";
 }
 
 /** Ensure seed roles keep catalog windows when the DB or cached session predates a catalog update. */

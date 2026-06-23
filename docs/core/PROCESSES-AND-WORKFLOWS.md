@@ -1,4 +1,4 @@
-# AbilityAPP — processes and workflows reference
+# AbilityVua — processes and workflows reference
 
 **Audience:** Reviewers, BAs, developers, and access admins who need to know what happens when a user runs an action — not just where the button is.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (routes), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (who can run).  

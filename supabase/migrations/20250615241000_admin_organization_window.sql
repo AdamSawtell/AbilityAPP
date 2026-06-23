@@ -1,4 +1,4 @@
--- Ensure Organisation admin window exists for AbilityAPP Admin.
+-- Ensure Organisation admin window exists for AbilityVua Admin.
 
 insert into public.app_role_window (role_id, window_key)
 select 'role-admin', 'admin-organization'

@@ -16,8 +16,8 @@ export function SupportPlanDeliveryPanel({
     <section className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
       <h2 className="text-sm font-semibold text-slate-900">Support plan delivery</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Send support plan registers HTML in AbilityAPP. Save as PDF from print, then hand off to the participant using
-        your organisation&apos;s secure channel — AbilityAPP does not send outbound email.
+        Send support plan registers HTML in AbilityVua. Save as PDF from print, then hand off to the participant using
+        your organisation&apos;s secure channel — AbilityVua does not send outbound email.
       </p>
 
       <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">

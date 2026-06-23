@@ -6,7 +6,7 @@
 
 ## Why this pack exists
 
-AbilityAPP already generates **HTML print views** for invoices and board reports, and stores **attachments** (incident evidence, credential files) in public Supabase buckets. It does **not** yet have:
+AbilityVua already generates **HTML print views** for invoices and board reports, and stores **attachments** (incident evidence, credential files) in public Supabase buckets. It does **not** yet have:
 
 - A reusable **document template** system
 - **PDF export** suitable for email and archival

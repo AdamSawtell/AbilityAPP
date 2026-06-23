@@ -1,4 +1,4 @@
-# AbilityAPP — Full UAT index
+# AbilityVua — Full UAT index
 
 **Version:** 1.0  
 **Last updated:** 2026-06-18  
@@ -22,7 +22,7 @@ Full **User Acceptance Testing** covers every in-scope window, process, and repo
 
 | Item | Value |
 |------|--------|
-| **Amplify** | `https://main.d3vim3geq5td01.amplifyapp.com` |
+| **Amplify** | `https://app.abilityvua.com` |
 | **Local** | `cd web && npm run dev` |
 | **Passwords** | Staff `welcome`; SuperUser `flamingo` |
 | **Spine seeds** | `npm run supabase:seed-e2e-intake` + `npm run supabase:seed-e2e-amplify` |

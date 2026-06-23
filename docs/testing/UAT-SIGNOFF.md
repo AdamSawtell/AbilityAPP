@@ -7,7 +7,7 @@ Record completion of full UAT before production or major demo release.
 | Field | Value |
 |-------|--------|
 | **Release / milestone** | E2E smoke RC — P0–P3 UAT complete (portal MVP) |
-| **Environment** | Amplify (`main.d3vim3geq5td01.amplifyapp.com`) + localhost portal UAT |
+| **Environment** | Amplify (`app.abilityvua.com`) + localhost portal UAT |
 | **Build / commit** | Release-hardening slice on `main` |
 | **UAT lead** | Engineering / AI-browser |
 | **Sign-off date** | *Engineering complete 2026-06-18 — awaiting product/ops approval rows* |

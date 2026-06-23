@@ -159,8 +159,8 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         appendNoticeIfAny();
       }
     };
-    window.addEventListener("abilityapp-chat-notice", onNotice);
-    return () => window.removeEventListener("abilityapp-chat-notice", onNotice);
+    window.addEventListener("abilityvua-chat-notice", onNotice);
+    return () => window.removeEventListener("abilityvua-chat-notice", onNotice);
   }, [session, appendNoticeIfAny]);
 
   useEffect(() => {
@@ -309,8 +309,8 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         applyPromptIfAny();
       }
     };
-    window.addEventListener("abilityapp-chat-prompt", onPrompt);
-    return () => window.removeEventListener("abilityapp-chat-prompt", onPrompt);
+    window.addEventListener("abilityvua-chat-prompt", onPrompt);
+    return () => window.removeEventListener("abilityvua-chat-prompt", onPrompt);
   }, [session, applyPromptIfAny]);
 
   const resetChat = useCallback(() => {

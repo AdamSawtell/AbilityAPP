@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AbilityAPP",
+  title: "AbilityVua",
   description: "NDIS provider workspace for enquiries, clients, and service delivery",
 };
 

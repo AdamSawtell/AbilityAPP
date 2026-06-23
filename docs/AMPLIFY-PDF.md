@@ -2,7 +2,7 @@
 
 Server PDF uses `POST /api/documents/render-pdf` with `@sparticuz/chromium-min` + `puppeteer-core`.
 
-**Live app:** `https://main.d3vim3geq5td01.amplifyapp.com`  
+**Live app:** `https://app.abilityvua.com`  
 **App id:** `d3vim3geq5td01` · **Branch:** `main`
 
 ## Amplify compute limits
@@ -20,7 +20,7 @@ Server PDF uses `POST /api/documents/render-pdf` with `@sparticuz/chromium-min` 
 
 Amplify does **not** expose Lambda memory size in the repo. You **can** override the Node.js heap so Chromium + Node share the 1024 MB budget more predictably:
 
-1. Amplify console → **AbilityAPP** → **Hosting** → **Environment variables**
+1. Amplify console → **AbilityVua** → **Hosting** → **Environment variables**
 2. Add or update:
 
    | Key | Value |

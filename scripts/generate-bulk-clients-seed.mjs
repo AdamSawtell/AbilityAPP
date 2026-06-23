@@ -835,7 +835,7 @@ for (let i = 1; i <= COUNT; i++) {
     gender: pick(GENDERS, i),
     decisionMaking: pick(DECISION, i),
     livingArrangement: pick(LIVING, i),
-    salesRepresentative: "AbilityAPP",
+    salesRepresentative: "AbilityVua",
     services,
     fundingBody: funding,
     fundingBodyNumber: funding.includes("NDIS") ? ndisNum : "",

@@ -23,7 +23,7 @@ const DEMO_AGENT_PREFIX = "agent-demo-";
 
 /** Stable UUID per demo index (app_ai_chat_log.id is uuid, not text). */
 function demoChatLogId(index) {
-  const h = createHash("sha256").update(`abilityapp-ai-query-demo-${index}`).digest();
+  const h = createHash("sha256").update(`abilityvua-ai-query-demo-${index}`).digest();
   const b = Buffer.from(h.subarray(0, 16));
   b[6] = (b[6] & 0x0f) | 0x40;
   b[8] = (b[8] & 0x3f) | 0x80;

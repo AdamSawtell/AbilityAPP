@@ -6,7 +6,7 @@ drop table if exists public.service_booking;
 create table if not exists public.service_booking (
   id text primary key,
   document_no text not null default '',
-  organization text not null default 'AbilityAPP',
+  organization text not null default 'AbilityVua',
   description text not null default '',
   target_document_type text not null default 'Service Booking - Standard',
   is_template boolean not null default false,

@@ -36,7 +36,7 @@ export const coreSystemSetupArticle: HelpArticle = {
     {
       id: "open-system",
       title: "Open System setup",
-      body: "System is separate from the day-to-day workspace. Open it from the link on the workspace sign-in screen. Sign in with a user who has system access (typically the same people who hold AbilityAPP Admin in the workspace).\n\nSystem mirrors the workspace sidebar: each module has setup pages and its own Reference data submenu. Shared dropdown lists live under Admin → Reference data once and apply everywhere they are used.",
+      body: "System is separate from the day-to-day workspace. Open it from the link on the workspace sign-in screen. Sign in with a user who has system access (typically the same people who hold AbilityVua Admin in the workspace).\n\nSystem mirrors the workspace sidebar: each module has setup pages and its own Reference data submenu. Shared dropdown lists live under Admin → Reference data once and apply everywhere they are used.",
       steps: [
         "From the workspace login page, click System setup.",
         "Sign in with your system user.",

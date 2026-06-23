@@ -5,7 +5,7 @@ export const taskAutomationsArticle: HelpArticle = {
   slug: "task-automations",
   title: "Task automations: configure in-app alerts",
   summary:
-    "Create rules that automatically assign tasks when something happens in AbilityAPP. All record types are live, including org-position and accountable-manager assignment.",
+    "Create rules that automatically assign tasks when something happens in AbilityVua. All record types are live, including org-position and accountable-manager assignment.",
   category: "System setup",
   keywords: [
     "task automation",
@@ -47,7 +47,7 @@ export const taskAutomationsArticle: HelpArticle = {
     {
       id: "who-can-configure",
       title: "Who can configure automations",
-      body: "You need the Task automations window on your role. AbilityAPP Admin includes it by default. Other roles can be granted access under System → Admin → Roles by adding the Task automations window.\n\nUsers who receive automated tasks do not need the admin window. They only need task windows (for example My role) and permission to see the linked record type.",
+      body: "You need the Task automations window on your role. AbilityVua Admin includes it by default. Other roles can be granted access under System → Admin → Roles by adding the Task automations window.\n\nUsers who receive automated tasks do not need the admin window. They only need task windows (for example My role) and permission to see the linked record type.",
       relatedRoutes: ["/system/admin/roles", "/system/admin/task-automations"],
       windowKeys: ["admin-roles", "admin-task-automations"],
     },
@@ -55,7 +55,7 @@ export const taskAutomationsArticle: HelpArticle = {
       id: "open-the-admin-page",
       title: "Open the task automations page",
       steps: [
-        "Sign in to System with a user who can configure the tenant (typically the same as AbilityAPP Admin).",
+        "Sign in to System with a user who can configure the tenant (typically the same as AbilityVua Admin).",
         "Open System → Admin → Task automations.",
         "The left panel lists rules grouped by rule type: Enquiry, Client, Location, Employee, Incident.",
         "Click a rule to edit it, or click Add rule to create a new one.",
@@ -240,7 +240,7 @@ export const taskAutomationsArticle: HelpArticle = {
         "Set Trigger to Marked reportable.",
         "Under Conditions, set Reportable only to Reportable only.",
         "Set Task type to Review, Priority to High, Due in (hours) to 24.",
-        "Set Assign to role to AbilityAPP Admin or your quality manager role.",
+        "Set Assign to role to AbilityVua Admin or your quality manager role.",
         "Set Dedupe policy to One open task per record.",
         "Save rule.",
         "Test: open an incident, set Is reportable to Yes, save. Check Tasks → My role for the assigned role.",

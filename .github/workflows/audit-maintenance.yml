@@ -1,7 +1,7 @@
 # Nightly audit maintenance: risk queue processing + retention purge.
 #
 # Required repository secrets (Settings → Secrets and variables → Actions):
-#   APP_BASE_URL       — Amplify app URL, e.g. https://main.xxxxx.amplifyapp.com
+#   APP_BASE_URL       — Production app URL, e.g. https://app.abilityvua.com
 #   AUDIT_CRON_SECRET  — same value as Amplify env var AUDIT_CRON_SECRET
 name: Audit maintenance
 

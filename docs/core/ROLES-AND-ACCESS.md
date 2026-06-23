@@ -1,11 +1,11 @@
-# AbilityAPP — roles and access reference
+# AbilityVua — roles and access reference
 
 **Audience:** Access administrators, reviewers, and BAs configuring who can use which functions — without reading every window key in seed SQL.  
 **Pair with:** [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (full window key list), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (what processes do), [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (function outcomes).  
 **Version:** 1.1  
 **Last updated:** 23 June 2026 (participant portal access)
 
-**Demo environment:** Staff password `welcome`; SuperUser `flamingo` on [Amplify demo](https://main.d3vim3geq5td01.amplifyapp.com).
+**Demo environment:** Staff password `welcome`; SuperUser `flamingo` on [Amplify demo](https://app.abilityvua.com).
 
 ---
 
@@ -34,7 +34,7 @@
 
 | Role key | Label | Primary persona | Spine flows |
 |----------|-------|-----------------|-------------|
-| `role-admin` | AbilityAPP Admin | SuperUser — full access | All |
+| `role-admin` | AbilityVua Admin | SuperUser — full access | All |
 | `role-intake` | Intake Coordinator | GabrielaWilson | 1–2 Enquiry → convert |
 | `role-coordinator` | Support Coordinator | IslaRobinson | 2–5 Client, plan, agreements, bookings |
 | `role-rostering-manager` | Rostering Manager | RileyShaw | 4 Delivery, roster, timesheets |
@@ -200,7 +200,7 @@ Sign out and back in after `seed-access.sql` changes so session reloads window k
 
 Portal routes (`/portal/*`) are **not** in `app_role_window`. Staff never use portal for their own work — they use workspace.
 
-**Demo:** [Amplify portal login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) — `Bernie@email` → **Email me a sign-in link** → **Open portal** (demo link). Not linked from staff sidebar.
+**Demo:** [Amplify portal login](https://app.abilityvua.com/portal/login) — `Bernie@email` → **Email me a sign-in link** → **Open portal** (demo link). Not linked from staff sidebar.
 
 ---
 

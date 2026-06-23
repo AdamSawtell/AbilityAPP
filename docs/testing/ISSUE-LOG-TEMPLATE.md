@@ -43,7 +43,7 @@ Use one row per defect or gap found during happy path or functional testing.
 
 ## Amplify deep pass — 2026-06-22
 
-**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · SuperUser · June 2026 test window seed
+**Environment:** https://app.abilityvua.com · SuperUser · June 2026 test window seed
 
 ### TEST-060 — Pass (partial)
 
@@ -65,7 +65,7 @@ Use one row per defect or gap found during happy path or functional testing.
 
 ## Amplify role pass — 2026-06-18
 
-**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · June 2026 test window seed
+**Environment:** https://app.abilityvua.com · June 2026 test window seed
 
 ### ROLE-011 — Support Coordinator (IslaRobinson / welcome, role-coordinator) — Pass
 
@@ -93,7 +93,7 @@ Use one row per defect or gap found during happy path or functional testing.
 
 ## Fix retest — 2026-06-18 (Amplify, post `d5cbf38`)
 
-**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · seeds re-applied · fresh login for OliverWilliams
+**Environment:** https://app.abilityvua.com · seeds re-applied · fresh login for OliverWilliams
 
 | ISSUE | Retest | Result |
 |-------|--------|--------|
@@ -105,7 +105,7 @@ Use one row per defect or gap found during happy path or functional testing.
 
 ## Amplify role pass — 2026-06-18 (continued)
 
-**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · June 2026 test window seed
+**Environment:** https://app.abilityvua.com · June 2026 test window seed
 
 ### ROLE-012 — Rostering Manager (RileyShaw / welcome) — Pass
 
@@ -127,7 +127,7 @@ Use one row per defect or gap found during happy path or functional testing.
 
 ### ROLE-014 / ROLE-015 — Amplify pass — 2026-06-18
 
-**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · June 2026 test window seed
+**Environment:** https://app.abilityvua.com · June 2026 test window seed
 
 ### ROLE-014 — Finance Officer (JessicaHancock / welcome) — Pass (after ISSUE-009 seed fix)
 
@@ -226,7 +226,7 @@ Use one row per defect or gap found during happy path or functional testing.
 
 ## Amplify flows 6–11 — 2026-06-22
 
-**Environment:** https://main.d3vim3geq5td01.amplifyapp.com · Remote seeds re-applied (`seed-access.sql`, intake, amplify)
+**Environment:** https://app.abilityvua.com · Remote seeds re-applied (`seed-access.sql`, intake, amplify)
 
 ### TEST-090 — Flow 6 employee credentials — Pass
 

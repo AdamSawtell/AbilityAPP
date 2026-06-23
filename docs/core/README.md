@@ -1,6 +1,6 @@
 # Core reference documents
 
-**Keep these up to date.** They are the canonical description of what AbilityAPP does, how records connect, who can do what, and where it lives in the UI.
+**Keep these up to date.** They are the canonical description of what AbilityVua does, how records connect, who can do what, and where it lives in the UI.
 
 Agents and developers must update them in the same slice as code changes — see [.cursor/rules/core-reference-docs.mdc](../../.cursor/rules/core-reference-docs.mdc).
 
@@ -18,7 +18,7 @@ The portal is **not** in the staff sidebar. Participants (and demo testers) open
 
 | Environment | Sign-in URL | After sign-in |
 |-------------|-------------|---------------|
-| **Amplify demo** | [https://main.d3vim3geq5td01.amplifyapp.com/portal/login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) | `/portal` hub |
+| **Amplify demo** | [https://app.abilityvua.com/portal/login](https://app.abilityvua.com/portal/login) | `/portal` hub |
 | **Local dev** | `http://localhost:3000/portal/login` | `/portal` hub |
 
 **Demo sign-in (Bernadette Rose):**

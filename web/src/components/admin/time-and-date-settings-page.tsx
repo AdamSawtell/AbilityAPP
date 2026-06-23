@@ -70,7 +70,7 @@ export function TimeAndDateSettingsView() {
       setDraft(saved);
       setMessage("Organisation timezone saved. The sidebar clock and My shifts dates update immediately.");
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("abilityapp-timezone-changed"));
+        window.dispatchEvent(new CustomEvent("abilityvua-timezone-changed"));
       }
     } catch {
       setError("Could not save timezone.");
@@ -101,7 +101,7 @@ export function TimeAndDateSettingsView() {
       <section className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Live preview</h2>
         <p className="mt-1 text-sm text-slate-600">
-          This is what staff see under the AbilityAPP logo in the workspace and System sidebars.
+          This is what staff see under the AbilityVua logo in the workspace and System sidebars.
         </p>
         <div className="mt-4 inline-block rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
           <SystemClock />
@@ -112,7 +112,7 @@ export function TimeAndDateSettingsView() {
         <h2 className="text-sm font-semibold text-slate-900">Organisation timezone</h2>
         <p className="mt-1 text-sm text-slate-600">
           Use an IANA timezone name (for example <code className="text-slate-800">Australia/Adelaide</code> for South
-          Australia). AbilityAPP does not let you set a manual clock offset — the server time is always correct; only
+          Australia). AbilityVua does not let you set a manual clock offset — the server time is always correct; only
           the display timezone changes.
         </p>
 

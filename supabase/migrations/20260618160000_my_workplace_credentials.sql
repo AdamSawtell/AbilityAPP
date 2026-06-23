@@ -26,7 +26,7 @@ where r.role_key in (
   'Rostering_Manager',
   'Operations_Executive',
   'Chief_Executive_Officer',
-  'AbilityAPP_Admin'
+  'AbilityVua_Admin'
 )
 and not exists (
   select 1 from public.app_role_window arw

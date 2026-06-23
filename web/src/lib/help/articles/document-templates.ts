@@ -35,7 +35,7 @@ export const documentTemplatesArticle: HelpArticle = {
     {
       id: "what-templates-are",
       title: "What document templates are",
-      body: "Document templates control the look of printable documents — invoices, agreements, HR letters, enquiry acknowledgements, participant support plans, and more. Every template shares the same org header and footer from your organisation profile.\n\nAbilityAPP stores generated files in the document registry. Send via Email on invoices and support plans generates a PDF, saves HTML and PDF to the registry, then opens your email app with the message text and PDF attached (or downloaded for you to attach). Edit that email text under System → Tasks → Email content.",
+      body: "Document templates control the look of printable documents — invoices, agreements, HR letters, enquiry acknowledgements, participant support plans, and more. Every template shares the same org header and footer from your organisation profile.\n\nAbilityVua stores generated files in the document registry. Send via Email on invoices and support plans generates a PDF, saves HTML and PDF to the registry, then opens your email app with the message text and PDF attached (or downloaded for you to attach). Edit that email text under System → Tasks → Email content.",
       relatedRoutes: ["/system/admin/document-templates", "/system/admin/document-registry"],
       windowKeys: ["admin-document-templates"],
     },
@@ -146,7 +146,7 @@ export const documentTemplatesArticle: HelpArticle = {
     {
       id: "email-content",
       title: "Email content for send actions",
-      body: "When staff click Send via Email on a support plan or invoice, AbilityAPP fills the email subject and body from templates in System. Layout and branding stay on Document templates; email text is edited separately.",
+      body: "When staff click Send via Email on a support plan or invoice, AbilityVua fills the email subject and body from templates in System. Layout and branding stay on Document templates; email text is edited separately.",
       steps: [
         "Open System → Tasks → Email content.",
         "Select Support plan email or Invoice email.",

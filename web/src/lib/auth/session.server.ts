@@ -17,7 +17,7 @@ import {
 } from "@/lib/supabase/access-api";
 import { resolveRoleAgentIds } from "@/lib/ai/agents-api";
 
-export const SESSION_COOKIE = "abilityapp_session";
+export const SESSION_COOKIE = "abilityvua_session";
 const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
 
 export type SessionTokenPayload = {

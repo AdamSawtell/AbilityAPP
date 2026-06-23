@@ -3,7 +3,7 @@
 
 insert into public.app_role (id, role_key, name, description, active)
 values
-  ('role-admin', 'AbilityAPP_Admin', 'AbilityAPP Admin', 'Full system access — all windows and processes', true),
+  ('role-admin', 'AbilityVua_Admin', 'AbilityVua Admin', 'Full system access — all windows and processes', true),
   ('role-board', 'Board_Member', 'Board Member', 'Governance oversight — read-focused access', true),
   ('role-ceo', 'Chief_Executive_Officer', 'CEO', 'Chief executive — full operational leadership', true),
   ('role-exec-operations', 'Operations_Executive', 'Operations Executive', 'Executive lead for service delivery and rostering', true),
@@ -32,7 +32,7 @@ on conflict (id) do update set
 
 insert into public.app_user (id, username, email, first_name, last_name, phone, active, employee_bp_id, notes)
 values
-  ('user-superuser', 'SuperUser', 'superuser@abilityapp.local', 'Super', 'User', '', true, null, 'Full access administrator (AbilityAPP SuperUser equivalent)'),
+  ('user-superuser', 'SuperUser', 'superuser@abilityvua.local', 'Super', 'User', '', true, null, 'Full access administrator (AbilityVua SuperUser equivalent)'),
   ('user-ceo', 'PatriciaChen', 'patricia.chen@abilityerp.local', 'Patricia', 'Chen', '', true, 'emp-ceo', 'CEO seed login'),
   ('user-michael', 'MichaelSmith', 'michael.smith@abilityerp.local', 'Michael', 'Smith', '', true, 'emp-michael', 'Operations executive — accountable manager testing'),
   ('user-piper', 'PiperCollins', 'piper.collins@abilityerp.local', 'Piper', 'Collins', '', true, 'emp-staff-133', 'Operations manager / team leader hub'),

@@ -30,7 +30,7 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "overview",
       title: "What My workplace is",
-      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, contracts needing acknowledgement, and items awaiting HR review.\n\nAbilityAPP does not send workforce notifications by email. When you submit leave or a credential, the system creates a task for your manager or HR. You can track status on My workplace and in your Tasks list.",
+      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, contracts needing acknowledgement, and items awaiting HR review.\n\nAbilityVua does not send workforce notifications by email. When you submit leave or a credential, the system creates a task for your manager or HR. You can track status on My workplace and in your Tasks list.",
       relatedRoutes: ["/my"],
     },
     {

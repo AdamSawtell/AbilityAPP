@@ -1,4 +1,4 @@
-# AbilityAPP — scope roadmap & implementation plan
+# AbilityVua — scope roadmap & implementation plan
 
 **Authority:** Complete Operational Workflow & Requirements Scope (19 June 2026).  
 **Index:** [scope/README.md](./scope/README.md) | **Build rules:** [BUILD-EXPECTATIONS.md](./BUILD-EXPECTATIONS.md)
@@ -9,7 +9,7 @@ This document is the living backlog. Update chunk status when work ships.
 
 ## Executive summary
 
-AbilityAPP is building the full NDIS provider operational spine:
+AbilityVua is building the full NDIS provider operational spine:
 
 **Enquiry → Client → Service Agreement → Service Booking → Service Planning → Master Roster → Current Roster → Service Complete → Timesheet → Billing → Payroll (via integration) → Reconciliation**
 

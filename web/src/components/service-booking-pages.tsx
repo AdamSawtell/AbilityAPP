@@ -675,7 +675,7 @@ export function ServiceBookingNewView() {
     const created = addServiceBooking({
       id: "",
       documentNo: "",
-      organization: "AbilityAPP",
+      organization: "AbilityVua",
       description,
       targetDocumentType: "Service Booking - Standard",
       isTemplate: false,

@@ -49,12 +49,12 @@ export const incidentsArticle: HelpArticle = {
     {
       id: "ndis-reportable",
       title: "NDIS reportable incidents",
-      body: "When an incident is NDIS reportable, AbilityAPP calculates the notification deadline from the awareness time. Most types require notification within 24 hours; unauthorised restrictive practice without harm may allow five business days.",
+      body: "When an incident is NDIS reportable, AbilityVua calculates the notification deadline from the awareness time. Most types require notification within 24 hours; unauthorised restrictive practice without harm may allow five business days.",
       bullets: [
         "Six reportable types align with NDIS Quality and Safeguards rules",
         "Overdue items appear on Home and in the sidebar badge",
         "Use NDIS compliance for a compliance hub and CSV export",
-        "Portal submission to the Commission is outside AbilityAPP — record the reference here",
+        "Portal submission to the Commission is outside AbilityVua — record the reference here",
       ],
       relatedRoutes: ["/incidents/compliance"],
       windowKeys: ["incidents-compliance"],
@@ -62,7 +62,7 @@ export const incidentsArticle: HelpArticle = {
     {
       id: "client-alerts",
       title: "Client alerts from reportable incidents",
-      body: "When a reportable incident is linked to a client, AbilityAPP adds an Incident alert on the client Alerts tab with Show as alert enabled. An activity line is logged when the incident is first marked reportable. Alerts clear when the incident is closed.",
+      body: "When a reportable incident is linked to a client, AbilityVua adds an Incident alert on the client Alerts tab with Show as alert enabled. An activity line is logged when the incident is first marked reportable. Alerts clear when the incident is closed.",
       relatedRoutes: ["/clients"],
       windowKeys: ["clients", "client-alerts"],
     },

@@ -57,7 +57,7 @@ const USERS = [
 ];
 
 const ROLES = [
-  { id: "role-admin", name: "AbilityAPP Admin" },
+  { id: "role-admin", name: "AbilityVua Admin" },
   { id: "role-coordinator", name: "Support Coordinator" },
   { id: "role-intake", name: "Intake Coordinator" },
 ];

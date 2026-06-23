@@ -1,6 +1,6 @@
 # Process 9: Submit employee credential
 
-Staff submit credentials with evidence through **My workplace → Credentials**. HR reviews in **Workforce planning → Review queue** or via **Review** tasks. AbilityAPP does not email assignees.
+Staff submit credentials with evidence through **My workplace → Credentials**. HR reviews in **Workforce planning → Review queue** or via **Review** tasks. AbilityVua does not email assignees.
 
 ## Trigger
 
