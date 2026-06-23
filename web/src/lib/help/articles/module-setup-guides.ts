@@ -75,8 +75,9 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "On Plan budget tab: set Plan provider on a line, save, refresh — confirm Multi-provider budget lists the provider.",
       "Apply Billing claimed rollup on a client with submitted claims or sent invoices; save and confirm claimed amounts persist after refresh.",
       "Set NDIS_GATEWAY_DRY_RUN=true in Amplify to test plan gateway pull without live PRODA credentials.",
-      "Set a participant email on the client record — it must match the address they use at /portal/login.",
-      "Roster future shifts to the client and confirm they appear on /portal/services (week and list views) after magic-link sign-in.",
+      "Participant portal sign-in (demo): https://main.d3vim3geq5td01.amplifyapp.com/portal/login — not linked from the staff sidebar.",
+      "Set a participant email on the client record — it must match the address they use at portal login (demo: Bernie@email).",
+      "Roster future shifts to the client and confirm they appear on /portal/services after magic-link sign-in.",
       "Test a portal service request with Bernie@email — confirm a coordinator task appears and approve creates a draft agreement variation.",
     ]
   ),

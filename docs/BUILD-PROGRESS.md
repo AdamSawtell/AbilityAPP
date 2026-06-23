@@ -13,7 +13,8 @@
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
 | **Next slice** | Feature backlog — catalogue/pricing tools, compliance depth, or portal production hardening (see [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md)) |
-| **Last push** | 2026-06-18 — Amplify `NODE_OPTIONS` via start script; UAT-14 portal pass; doc sync |
+| **Last push** | 2026-06-23 — core docs portal access URLs; help article |
+| **Participant portal** | [Amplify sign-in](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---

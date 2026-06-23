@@ -200,7 +200,7 @@ Sign out and back in after `seed-access.sql` changes so session reloads window k
 
 Portal routes (`/portal/*`) are **not** in `app_role_window`. Staff never use portal for their own work — they use workspace.
 
-**Demo:** `Bernie@email` on [Amplify](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) with `PORTAL_DEMO_EXPOSE_LINK=true`.
+**Demo:** [Amplify portal login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) — `Bernie@email` → **Email me a sign-in link** → **Open portal** (demo link). Not linked from staff sidebar.
 
 ---
 

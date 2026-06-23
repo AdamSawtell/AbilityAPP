@@ -6,6 +6,8 @@
 **Last updated:** 23 June 2026 (portal MVP, Amplify PDF)  
 **Demo environment:** `https://main.d3vim3geq5td01.amplifyapp.com` (staff password `welcome`; SuperUser `flamingo`)
 
+**Participant portal (separate from staff login):** [https://main.d3vim3geq5td01.amplifyapp.com/portal/login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) — demo email `Bernie@email`, then **Open portal** on the demo sign-in link.
+
 ---
 
 ## 1. What AbilityAPP is

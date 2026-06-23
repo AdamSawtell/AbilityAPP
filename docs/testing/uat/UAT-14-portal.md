@@ -4,13 +4,23 @@
 **Environment:** localhost + [Amplify demo](https://main.d3vim3geq5td01.amplifyapp.com)  
 **Tester:** AI-browser | **Completed:** 2026-06-18 / 2026-06-23 Amplify re-check | **Result:** **Pass**
 
+## How to access (not in staff sidebar)
+
+| Step | Action |
+|------|--------|
+| 1 | Open **[Amplify portal login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login)** or `http://localhost:3000/portal/login` locally |
+| 2 | Do **not** use staff `/login` — portal is a separate surface |
+| 3 | Enter **`Bernie@email`** (must match client **Email** on `/clients/bp-bern`) |
+| 4 | **Email me a sign-in link** → click **Open portal** under the demo link |
+| 5 | Hub at `/portal` — **My services**, **My funding**, **Request a service** |
+
 **Demo participant:** `Bernie@email` (Bernadette Rose / `bp-bern`)
 
 ## Scenarios
 
 | UAT ID | Route | Expected | Result |
 |--------|-------|----------|--------|
-| UAT-14-S-001 | `/portal/login` | Sign-in form; magic link request for participant email | **Pass** — form loads; demo link returned |
+| UAT-14-S-001 | `/portal/login` | Sign-in form; magic link request for participant email | **Pass** — localhost + Amplify demo link |
 | UAT-14-S-002 | `/portal` | Dashboard hub signed in as participant | **Pass** — "Hello, Bernie" + nav cards |
 | UAT-14-S-003 | `/portal/budget` | Plan budget summary (read-only) | **Pass** — page loads; empty state when no budget lines published |
 | UAT-14-S-004 | `/portal/services` | Upcoming rostered supports (week + list) | **Pass** — 2 supports in current week calendar |
@@ -18,7 +28,7 @@
 
 ## Steps (reference)
 
-1. Open `/portal/login` — no staff session required.
+1. Open [portal login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) (Amplify) or `http://localhost:3000/portal/login` (local) — no staff session required.
 2. Enter `Bernie@email` → **Email me a sign-in link** → open **Demo sign-in link** (dev and Amplify demo with `PORTAL_DEMO_EXPOSE_LINK=true`).
 3. Hub → **My services** — week view shows rostered shifts.
 4. **My funding** — budget summary or empty-state message.

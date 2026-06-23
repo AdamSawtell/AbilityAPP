@@ -12,6 +12,27 @@ Agents and developers must update them in the same slice as code changes — see
 | [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) | Record links, child line tables, spine, compliance on save | Developers, BA, data reviewers |
 | [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) | Personas, roles, and grants by function area (not every window key) | Access admins, BA, reviewers |
 
+## Participant portal — how to access
+
+The portal is **not** in the staff sidebar. Participants (and demo testers) open it directly in the browser.
+
+| Environment | Sign-in URL | After sign-in |
+|-------------|-------------|---------------|
+| **Amplify demo** | [https://main.d3vim3geq5td01.amplifyapp.com/portal/login](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) | `/portal` hub |
+| **Local dev** | `http://localhost:3000/portal/login` | `/portal` hub |
+
+**Demo sign-in (Bernadette Rose):**
+
+1. Open the sign-in URL above (do not use staff `/login`).
+2. Enter **`Bernie@email`** — must match **Email** on the client record (`/clients/bp-bern`).
+3. Click **Email me a sign-in link**.
+4. On the demo environment, click **Open portal** under “Demo sign-in link” (production would use email; outbound SMTP is not wired yet).
+5. Use **My services**, **My funding**, or **Request a service** from the hub.
+
+**Staff review portal requests:** Workspace → **Clients** → **Bern** → **Requests** tab (not the portal URL).
+
+Help article: in-app **How-to guide** on any `/portal/*` route, or Help → **Participant portal**.
+
 ## How the guides fit together
 
 ```

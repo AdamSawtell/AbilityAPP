@@ -275,6 +275,8 @@ Source: `web/src/lib/client-lifecycle.ts`, reference data `clientLifecycleStatus
 
 **Auth:** Participant email must match `client.email`. Magic token via `web/src/lib/portal/session.server.ts`.
 
+**Sign-in URLs (not in staff sidebar):** [Amplify demo](https://main.d3vim3geq5td01.amplifyapp.com/portal/login) · local `http://localhost:3000/portal/login` · demo email `Bernie@email`
+
 ---
 
 ## 16. Identifier conventions

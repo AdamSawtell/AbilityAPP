@@ -20,13 +20,22 @@
 
 ### Participant portal routes
 
+**There is no sidebar link from the staff app.** Share the sign-in URL with participants or bookmark it for testing.
+
+| Environment | Sign-in URL |
+|-------------|-------------|
+| Amplify demo | `https://main.d3vim3geq5td01.amplifyapp.com/portal/login` |
+| Local dev | `http://localhost:3000/portal/login` |
+
 | Function | Route | Notes |
 |----------|-------|-------|
-| Sign in | `/portal/login` | Request magic link; demo shows **Open portal** link |
-| Hub | `/portal` | Dashboard — My services, My funding, Request a service |
+| Sign in | `/portal/login` | Email must match `client.email`; demo shows **Open portal** when `PORTAL_DEMO_EXPOSE_LINK=true` |
+| Hub | `/portal` | Dashboard — redirects to login if no session |
 | My services | `/portal/services` | Week + list of rostered supports |
 | My funding | `/portal/budget` | Read-only plan budget lines |
-| Request a service | `/portal/requests` | Submit request → coordinator task on client **Requests** tab |
+| Request a service | `/portal/requests` | Submit → staff see **Clients** → **Requests** tab |
+
+**Demo participant:** `Bernie@email` (client `bp-bern` / Bernadette Rose).
 
 **Code:** `web/src/components/portal/*`, `web/src/lib/portal/*`, `web/src/app/portal/*`
 

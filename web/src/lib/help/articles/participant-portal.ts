@@ -23,22 +23,22 @@ export const participantPortalArticle: HelpArticle = {
   ],
   relatedRoutes: ["/portal", "/portal/services", "/portal/budget", "/portal/requests"],
   windowKeys: [],
-  lastUpdated: "2026-06-20",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "overview",
       title: "What the participant portal is",
-      body: "The participant portal is a separate sign-in experience from the staff app. Participants use the email address stored on their client record to request a one-time sign-in link. After signing in, they can view upcoming rostered supports and a read-only summary of plan budget lines.\n\nThe portal does not replace staff workflows — coordinators still manage bookings, roster, and billing in the main app.",
+      body: "The participant portal is a separate sign-in experience from the staff app — it is not linked from the workspace sidebar. Share this URL with participants:\n\n• **Demo:** https://main.d3vim3geq5td01.amplifyapp.com/portal/login\n• **Local:** http://localhost:3000/portal/login\n\nParticipants use the email address stored on their client record to request a one-time sign-in link. On the demo environment, an **Open portal** link appears on screen after you request a sign-in link (production would use email).\n\nThe portal does not replace staff workflows — coordinators still manage bookings, roster, and billing in the main app.",
       relatedRoutes: ["/portal"],
     },
     {
       id: "sign-in",
       title: "Sign in with a magic link",
       steps: [
-        "Open /portal/login (or the link your provider shares).",
-        "Enter the email address on your participant record.",
+        "Open the participant portal sign-in page: https://main.d3vim3geq5td01.amplifyapp.com/portal/login (demo) or http://localhost:3000/portal/login (local). Do not use staff /login.",
+        "Enter the email address on your participant record (demo: Bernie@email for Bernadette Rose).",
         "Select **Email me a sign-in link**.",
-        "Open the link from your email within 15 minutes (in development, a demo link appears on screen).",
+        "On the demo environment, click **Open portal** under the demo sign-in link. In production you would open the link from email within 15 minutes.",
         "You land on the portal home page signed in for seven days, or until you sign out.",
       ],
       relatedRoutes: ["/portal/login"],
