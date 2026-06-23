@@ -1776,7 +1776,7 @@ Maps each new/updated library surface to required handoff artifacts. **Todo** = 
 | 2026-06-18 | `npm run supabase:push-remote` | `20260625240000` roster_of_care tables |
 | 2026-06-18 | Release hardening | `npm run build` + `page-guides:check` | exit 0 — 110 routes |
 | 2026-06-18 | UAT-14 portal | localhost — S-001–S-005 | **Pass** |
-| 2026-06-18 | Amplify PDF heap | `package.json` start `--max-old-space-size=768`; `amplify.yml` NODE_OPTIONS | pending Amplify deploy smoke |
+| 2026-06-18 | Amplify PDF heap | `package.json` start `--max-old-space-size=768`; `amplify.yml` NODE_OPTIONS | Amplify invoice PDF **Pass** (INV-JUN26-01) |
 
 ---
 
