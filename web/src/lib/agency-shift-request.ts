@@ -32,7 +32,27 @@ export const agencyShiftRequestDropdowns = {
   vendorInvoiceStatus: ["", "Pending", "Received", "Approved", "Paid"],
 };
 
-export const initialAgencyShiftRequests: AgencyShiftRequestRecord[] = [];
+export const initialAgencyShiftRequests: AgencyShiftRequestRecord[] = [
+  {
+    id: "asr-demo-jane-oct",
+    documentNo: "ASR-DEMO-01",
+    rosterShiftId: "rs-bern-agency-done",
+    vendorBpId: "bp-staffplus",
+    agencyWorkerId: "aw-sp-jane",
+    status: "Completed",
+    skillsRequired: "SIL, personal care",
+    clientAdvisedAt: "",
+    sentAt: "2025-10-05T09:00:00.000Z",
+    confirmedAt: "2025-10-05T10:00:00.000Z",
+    completedAt: "2025-10-08T16:00:00.000Z",
+    continuityNotes: "Bernie prefers morning routine before community access.",
+    vendorInvoiceRef: "",
+    vendorInvoiceStatus: "",
+    notes: "",
+    createdBy: "Riley Shaw",
+    updatedBy: "Riley Shaw",
+  },
+];
 
 export function normalizeAgencyShiftRequest(record: AgencyShiftRequestRecord): AgencyShiftRequestRecord {
   return {

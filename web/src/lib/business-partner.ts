@@ -24,6 +24,7 @@ export type BusinessPartnerRecord = {
   bankAccountNumber: string;
   bankAccountName: string;
   remittanceEmail: string;
+  agencyHourlyRate: number;
   notes: string;
   createdBy: string;
   updatedBy: string;
@@ -131,6 +132,7 @@ export const initialBusinessPartners: BusinessPartnerRecord[] = [
     bankAccountNumber: "",
     bankAccountName: "",
     remittanceEmail: "invoices@myplanmanager.example",
+    agencyHourlyRate: 0,
     notes: "Default plan manager for plan-managed participants.",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -159,6 +161,7 @@ export const initialBusinessPartners: BusinessPartnerRecord[] = [
     bankAccountNumber: "",
     bankAccountName: "",
     remittanceEmail: "",
+    agencyHourlyRate: 0,
     notes: "Community referral partner.",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -187,6 +190,7 @@ export const initialBusinessPartners: BusinessPartnerRecord[] = [
     bankAccountNumber: "",
     bankAccountName: "",
     remittanceEmail: "accounts@adelclean.example",
+    agencyHourlyRate: 0,
     notes: "Facility cleaning vendor.",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -215,6 +219,7 @@ export const initialBusinessPartners: BusinessPartnerRecord[] = [
     bankAccountNumber: "",
     bankAccountName: "",
     remittanceEmail: "roster@staffplus.example",
+    agencyHourlyRate: 72.5,
     notes: "Primary agency staffing partner for relief and SIL coverage.",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -229,6 +234,7 @@ export function normalizeBusinessPartner(record: BusinessPartnerRecord): Busines
     partnerType: record.partnerType || "",
     status: record.status || "Active",
     country: record.country?.trim() || "Australia",
+    agencyHourlyRate: Number.isFinite(record.agencyHourlyRate) ? record.agencyHourlyRate : 0,
   };
 }
 
@@ -265,6 +271,7 @@ export function createBusinessPartner(
     bankAccountNumber: partial.bankAccountNumber ?? "",
     bankAccountName: partial.bankAccountName ?? "",
     remittanceEmail: partial.remittanceEmail ?? "",
+    agencyHourlyRate: partial.agencyHourlyRate ?? 0,
     notes: partial.notes ?? "",
     createdBy: partial.createdBy ?? "SuperUser",
     updatedBy: partial.updatedBy ?? "SuperUser",

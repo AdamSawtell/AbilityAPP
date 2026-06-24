@@ -278,7 +278,7 @@ export const agencyWorkersArticle: HelpArticle = {
       title: "Confirm on roster and complete after delivery",
       body:
         "**Confirm agency shift** assigns the agency worker to the roster shift: coverage_source becomes agency, employee is cleared, vendor and request ids are stored. The week calendar shows the worker name with an **Agency** badge. Orientation must pass unless you override in a future admin slice.\n\n" +
-        "After the shift is delivered, **Complete agency shift** closes the request and sets shift status to **Completed** for handoff to timesheet and claiming workflows (agency timesheet and vendor invoice paths are planned in WP-AG.4–5).",
+        "After the shift is delivered, **Complete agency shift** closes the request and sets shift status to **Completed**. Then generate an **agency timesheet** for vendor cost (WP-AG.4).",
       steps: [
         "Click **Confirm agency shift** — resolve any orientation error first.",
         "Verify the week view shows the worker with the Agency badge.",
@@ -287,6 +287,21 @@ export const agencyWorkersArticle: HelpArticle = {
       ],
       relatedRoutes: ["/rostering"],
       windowKeys: ["rostering"],
+    },
+    {
+      id: "agency-timesheets",
+      title: "Agency timesheets and vendor cost",
+      body:
+        "After agency shifts are **Completed** on the roster, finance and rostering staff can generate **agency timesheets** under People → Agency timesheets. Each staffing vendor gets one draft timesheet per period; lines are created from completed agency-covered shifts with hours and vendor buy-rate cost.\n\n" +
+        "Default hourly rate comes from the vendor business partner (**Agency hourly rate** on StaffPlus demo: $72.50/hr). Edit rates on individual lines before approving. Approved timesheets are the handoff to vendor invoice entry (WP-AG.5).",
+      steps: [
+        "Complete the agency shift in the roster Gaps drawer (demo: **BERN-AGENCY-DONE** week 2025-10-06).",
+        "Open **Generate agency timesheets** — period 6–12 Oct 2025.",
+        "Review the StaffPlus draft — Jane Agency line, 6 h × rate = vendor cost.",
+        "Open the timesheet → **Approve for vendor invoice** when ready.",
+      ],
+      relatedRoutes: ["/agency-timesheets", "/generate-agency-timesheets"],
+      windowKeys: ["agency-timesheets", "generate-agency-timesheets"],
     },
     {
       id: "agency-roles-audit",
@@ -306,7 +321,7 @@ export const agencyWorkersArticle: HelpArticle = {
       id: "agency-future-slices",
       title: "Coming in later slices",
       body:
-        "WP-AG.1 delivers the register, gap request workflow, orientation check at confirm, and roster badges. **WP-AG.2** adds the **Agency workers** tab on vendor business partners. Planned next: full site orientation UI on locations (WP-AG.3), agency timesheet lines and vendor cost (WP-AG.4), and vendor invoice AP-lite (WP-AG.5).",
+        "WP-AG.1 delivers the register, gap request workflow, orientation check at confirm, and roster badges. **WP-AG.2** adds the **Agency workers** tab on vendor business partners. **WP-AG.3** ships site orientation UI. **WP-AG.4** adds agency timesheet lines and vendor cost. **WP-AG.5** (vendor invoice AP-lite) is next.",
     },
   ],
 };

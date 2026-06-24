@@ -12,8 +12,8 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
-| **Next slice** | **WP-AG.4** — agency timesheet lines + vendor cost (or WP-UX.2 employee/incident line drawers) |
-| **Last push** | 2026-06-23 — WP-AG.3 site orientation UI + confirm gate |
+| **Next slice** | **WP-AG.5** — vendor invoice AP-lite (or WP-UX.2 employee/incident line drawers) |
+| **Last push** | 2026-06-23 — WP-AG.4 agency timesheets + vendor cost |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
@@ -85,6 +85,28 @@ Full site orientation management on location and agency worker records; agency s
 1. `/locations/loc-glenelg-sil?tab=Site orientation` — Jane orientation row; add Mike orientation.
 2. `/agency-workers/aw-sp-jane` — orientations section links to Glenelg SIL.
 3. Rostering Gaps → agency drawer → confirm Jane on BERN-TUE-VAC — passes with seed orientation; Mike without orientation shows block + inline form.
+
+---
+
+## WP-AG.4 — Agency timesheets + vendor cost (2026-06-23)
+
+**Status:** ✅ Shipped
+
+Vendor buy-side timesheets generated from **Completed** agency roster shifts — hours and cost per line for AP handoff.
+
+| Area | Change |
+|------|--------|
+| `agency_timesheet` / `agency_timesheet_line` | Supabase tables + unique shift link |
+| `business_partner.agency_hourly_rate` | Default vendor buy rate (StaffPlus $72.50) |
+| `/agency-timesheets` | List + detail with line table and approve |
+| `/generate-agency-timesheets` | Bulk generate by vendor + period |
+| Demo shift | `rs-bern-agency-done` — Jane completed agency cover (week 2025-10-06) |
+
+### What you can test — WP-AG.4
+
+1. `/generate-agency-timesheets` — period 2025-10-06 to 2025-10-12 → generate StaffPlus draft.
+2. `/agency-timesheets` — open ATS document → Jane line, 6 h, vendor cost.
+3. **Approve for vendor invoice** — status Approved; audit footer on save.
 
 ---
 

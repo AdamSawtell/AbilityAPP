@@ -134,6 +134,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (typical); agency: `coverageSource`, `agencyWorkerId`, `vendorBpId`, `agencyRequestId` | Week on `/rostering?week=` |
 | Agency worker | `vendorBpId` → `business_partner` | `/agency-workers` register |
 | Agency shift request | `rosterShiftId`, `vendorBpId`, optional `agencyWorkerId` | Drawer from Gaps; not standalone route |
+| Agency timesheet | `vendorBpId`, `periodStart`/`periodEnd`, lines → `roster_shift_id` | `/agency-timesheets`; generate from Completed agency shifts |
 | Site orientation | `workerType` (agency/employee), `workerId`, `locationId`, `orientedAt` | Location **Site orientation** tab; agency worker record; gate at confirm |
 
 | Validation | Module |
@@ -218,6 +219,8 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 |--------|--------|-------|
 | `agency_worker` | `vendor_bp_id`, contact, qualifications, skills | Register at `/agency-workers`; vendor tab at `/business-partners/{id}?tab=Agency workers` |
 | `agency_shift_request` | `roster_shift_id`, `vendor_bp_id`, `agency_worker_id` | Workflow from Gaps |
+| `agency_timesheet` | `vendor_bp_id`, period | Lines link `roster_shift_id` + vendor cost |
+| `agency_timesheet_line` | `agency_timesheet_id`, `roster_shift_id` | Hours + `vendor_hourly_rate` + `vendor_cost` |
 | `site_orientation` | `worker_type`, `worker_id`, `location_id` | Checked at confirm |
 
 | Link to delivery | How |

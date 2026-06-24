@@ -352,6 +352,7 @@ export function NewBusinessPartnerView() {
       bankAccountNumber: "",
       bankAccountName: "",
       remittanceEmail: "",
+      agencyHourlyRate: 0,
       notes: "",
       createdBy: "SuperUser",
       updatedBy: "SuperUser",

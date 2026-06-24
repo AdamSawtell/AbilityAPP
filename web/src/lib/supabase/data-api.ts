@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AgencyShiftRequestRecord } from "@/lib/agency-shift-request";
 import { normalizeAgencyShiftRequest } from "@/lib/agency-shift-request";
+import type { AgencyTimesheetRecord } from "@/lib/agency-timesheet";
+import { normalizeAgencyTimesheet } from "@/lib/agency-timesheet";
 import type { AgencyWorkerRecord } from "@/lib/agency-worker";
 import { normalizeAgencyWorker } from "@/lib/agency-worker";
 import type { SiteOrientationRecord } from "@/lib/site-orientation";
@@ -83,6 +85,11 @@ import {
   agencyShiftRequestFromRow,
   agencyShiftRequestToRow,
   type AgencyShiftRequestRow,
+  agencyTimesheetFromRow,
+  agencyTimesheetLineToRow,
+  agencyTimesheetToRow,
+  type AgencyTimesheetLineRowDb,
+  type AgencyTimesheetRow,
   siteOrientationFromRow,
   siteOrientationToRow,
   type SiteOrientationRow,
@@ -237,6 +244,7 @@ export type AppData = {
   agencyWorkers: AgencyWorkerRecord[];
   agencyShiftRequests: AgencyShiftRequestRecord[];
   siteOrientations: SiteOrientationRecord[];
+  agencyTimesheets: AgencyTimesheetRecord[];
   rosterOfCares: RosterOfCareRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
@@ -295,6 +303,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     agencyWorkersRes,
     agencyShiftRequestsRes,
     siteOrientationsRes,
+    agencyTimesheetsRes,
+    agencyTimesheetLinesRes,
     timesheetsRes,
     timesheetLinesRes,
     claimsRes,
@@ -367,6 +377,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("agency_worker").select("*").order("name"),
     supabase.from("agency_shift_request").select("*").order("document_no", { ascending: false }),
     supabase.from("site_orientation").select("*").order("oriented_at", { ascending: false }),
+    supabase.from("agency_timesheet").select("*").order("period_start", { ascending: false }),
+    supabase.from("agency_timesheet_line").select("*").order("line_no"),
     supabase.from("timesheet").select("*").order("period_start", { ascending: false }),
     supabase.from("timesheet_line").select("*").order("line_no"),
     supabase.from("claim").select("*").order("period_start", { ascending: false }),
@@ -441,6 +453,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     agencyWorkersRes.error ??
     agencyShiftRequestsRes.error ??
     siteOrientationsRes.error ??
+    agencyTimesheetsRes.error ??
+    agencyTimesheetLinesRes.error ??
     timesheetsRes.error ??
     timesheetLinesRes.error ??
     claimsRes.error ??
@@ -510,6 +524,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
   const linesByTimesheet = groupBy(timesheetLinesRes.data as TimesheetLineRowDb[], "timesheet_id");
+  const linesByAgencyTimesheet = groupBy(
+    agencyTimesheetLinesRes.data as AgencyTimesheetLineRowDb[],
+    "agency_timesheet_id"
+  );
   const linesByClaim = groupBy(claimLinesRes.data as ClaimLineRowDb[], "claim_id");
   const linesByRemittance = groupBy(claimRemittanceLinesRes.data as ClaimRemittanceLineRowDb[], "remittance_id");
   const linesByInvoice = groupBy(invoiceLinesRes.data as InvoiceLineRowDb[], "invoice_id");
@@ -605,6 +623,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     siteOrientations: ((siteOrientationsRes.data ?? []) as SiteOrientationRow[]).map((row) =>
       normalizeSiteOrientation(siteOrientationFromRow(row))
+    ),
+    agencyTimesheets: ((agencyTimesheetsRes.data ?? []) as AgencyTimesheetRow[]).map((row) =>
+      normalizeAgencyTimesheet(
+        agencyTimesheetFromRow(row, linesByAgencyTimesheet.get(row.id) ?? [])
+      )
     ),
     rosterOfCares: ((rosterOfCaresRes.data ?? []) as RosterOfCareRow[]).map((row) =>
       normalizeRosterOfCare(rosterOfCareFromRow(row, linesByRosterOfCare.get(row.id) ?? []))
@@ -1181,6 +1204,26 @@ export async function saveSiteOrientation(supabase: SupabaseClient, record: Site
   const orientation = normalizeSiteOrientation(record);
   const { error } = await supabase.from("site_orientation").upsert(siteOrientationToRow(orientation));
   if (error) throw error;
+}
+
+export async function saveAgencyTimesheet(supabase: SupabaseClient, record: AgencyTimesheetRecord) {
+  const sheet = normalizeAgencyTimesheet(record);
+  const { error } = await supabase.from("agency_timesheet").upsert(agencyTimesheetToRow(sheet));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "agency_timesheet_line", "agency_timesheet_id", sheet.id);
+  if (sheet.lines.length) {
+    const { error: lineError } = await supabase
+      .from("agency_timesheet_line")
+      .insert(sheet.lines.map((line) => agencyTimesheetLineToRow(sheet.id, line)));
+    if (lineError) throw lineError;
+  }
+}
+
+export async function saveAgencyTimesheets(supabase: SupabaseClient, records: AgencyTimesheetRecord[]) {
+  for (const record of records) {
+    await saveAgencyTimesheet(supabase, record);
+  }
 }
 
 export async function saveTimesheet(supabase: SupabaseClient, record: TimesheetRecord) {

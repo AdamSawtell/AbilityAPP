@@ -59,6 +59,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `employee_leave_entitlement` | Leave entitlements / balances |
 | `agency_worker` | Agency relief workers (vendor-linked; not employees) |
 | `agency_shift_request` | Agency coverage requests linked to vacant `roster_shift` |
+| `agency_timesheet` / `agency_timesheet_line` | Vendor timesheet header + lines from completed agency shifts |
 | `site_orientation` | Site orientation per worker (agency or employee) and location |
 
 ## Not built yet (needs migration when added)

@@ -138,6 +138,22 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "agency-timesheets",
+    label: "Agency timesheets",
+    group: "People",
+    href: "/agency-timesheets",
+    abilityErpName: "Agency timesheet",
+    showInSidebar: true,
+  },
+  {
+    key: "generate-agency-timesheets",
+    label: "Generate agency timesheets",
+    group: "People",
+    href: "/generate-agency-timesheets",
+    abilityErpName: "Generate agency timesheets",
+    showInSidebar: true,
+  },
+  {
     key: "business-partners",
     label: "Business partners",
     group: "People",

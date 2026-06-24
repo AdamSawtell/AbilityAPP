@@ -351,12 +351,14 @@ Claim and invoice detail: single page with lines panel. No tab windows.
 |---------------|------------|-------|---------|
 | Employees | `employees` | `/employees` | People |
 | Agency workers | `agency-workers` | `/agency-workers` | People |
+| Agency timesheets | `agency-timesheets` | `/agency-timesheets` | People |
+| Generate agency timesheets | `generate-agency-timesheets` | `/generate-agency-timesheets` | People |
 | Workforce planning | `workforce-planning` | `/workforce-planning` | Workforce planning |
 | Organisation structure | `workforce-organisation` | `/workforce-planning/organisation` | Workforce planning |
 | Edit org structure | `workforce-org-edit` | (action grant) | — |
 | Edit org chart tiers | `workforce-org-chart-tier` | `/system/org-chart-tiers` | — |
 
-Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Single-page register (not tabbed). Coverage workflow runs from Rostering → Gaps, not from the agency record.
+Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency timesheets: `/agency-timesheets`, `/agency-timesheets/{id}`, `/generate-agency-timesheets`. Coverage workflow runs from Rostering → Gaps; timesheet generation from completed agency shifts.
 
 ### Employee record tabs
 

@@ -117,6 +117,8 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/locations", slug: "locations", surface: "app" },
   { prefix: "/employees", slug: "employees", surface: "app" },
   { prefix: "/agency-workers", slug: "agency-workers", surface: "app" },
+  { prefix: "/agency-timesheets", slug: "agency-workers", surface: "app" },
+  { prefix: "/generate-agency-timesheets", slug: "agency-workers", surface: "app" },
   { prefix: "/business-partners", slug: "business-partners", surface: "app" },
   { prefix: "/products", slug: "services", surface: "app" },
   { prefix: "/price-lists", slug: "services", surface: "app" },

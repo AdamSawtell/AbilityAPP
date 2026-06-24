@@ -129,6 +129,8 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 1b | `/business-partners/bp-staffplus?tab=Agency workers` | Same workers on vendor tab; count badge |
 | 1c | `/locations/loc-glenelg-sil?tab=Site orientation` | Jane orientation listed; add form saves |
 | 1d | `/agency-workers/aw-sp-jane` | Site orientations section shows Glenelg row |
+| 1e | `/generate-agency-timesheets` week `2025-10-06`–`2025-10-12` | StaffPlus draft; Jane 6 h vendor cost |
+| 1f | `/agency-timesheets/{id}` | Approve for vendor invoice |
 | 2 | `/rostering?week=2025-10-06` → **Gaps** | BERN-TUE-VAC vacant listed |
 | 3 | **Request agency** → vendor StaffPlus | Request drawer opens; document no assigned |
 | 4 | Propose **Jane Agency** → **Send shift pack** | Status Sent; mailto draft available |

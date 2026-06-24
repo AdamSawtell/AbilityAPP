@@ -2,6 +2,8 @@
 
 import type { AgencyShiftRequestRecord } from "@/lib/agency-shift-request";
 import { normalizeAgencyShiftRequest } from "@/lib/agency-shift-request";
+import type { AgencyTimesheetLine, AgencyTimesheetRecord } from "@/lib/agency-timesheet";
+import { normalizeAgencyTimesheet } from "@/lib/agency-timesheet";
 import type { AgencyWorkerRecord } from "@/lib/agency-worker";
 import { normalizeAgencyWorker } from "@/lib/agency-worker";
 import type { SiteOrientationRecord } from "@/lib/site-orientation";
@@ -2630,6 +2632,119 @@ export function siteOrientationToRow(record: SiteOrientationRecord): SiteOrienta
   };
 }
 
+// --- Agency timesheet ---
+
+export type AgencyTimesheetRow = {
+  id: string;
+  document_no: string;
+  vendor_bp_id: string;
+  period_start: string;
+  period_end: string;
+  status: string;
+  total_hours: number;
+  total_vendor_cost: number;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export type AgencyTimesheetLineRowDb = {
+  id: string;
+  agency_timesheet_id: string;
+  line_no: number;
+  roster_shift_id: string;
+  agency_shift_request_id: string | null;
+  agency_worker_id: string | null;
+  client_id: string | null;
+  location_id: string | null;
+  shift_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  hours: number;
+  vendor_hourly_rate: number;
+  vendor_cost: number;
+  notes: string;
+};
+
+export function agencyTimesheetFromRow(
+  row: AgencyTimesheetRow,
+  lines: AgencyTimesheetLineRowDb[]
+): AgencyTimesheetRecord {
+  return normalizeAgencyTimesheet({
+    id: row.id,
+    documentNo: row.document_no,
+    vendorBpId: row.vendor_bp_id,
+    periodStart: strDate(row.period_start),
+    periodEnd: strDate(row.period_end),
+    status: row.status,
+    totalHours: Number(row.total_hours) || 0,
+    totalVendorCost: Number(row.total_vendor_cost) || 0,
+    notes: row.notes,
+    lines: lines.map(agencyTimesheetLineFromRow),
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  });
+}
+
+function agencyTimesheetLineFromRow(row: AgencyTimesheetLineRowDb): AgencyTimesheetLine {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    rosterShiftId: row.roster_shift_id ?? "",
+    agencyShiftRequestId: row.agency_shift_request_id ?? "",
+    agencyWorkerId: row.agency_worker_id ?? "",
+    clientId: row.client_id ?? "",
+    locationId: row.location_id ?? "",
+    shiftDate: row.shift_date ? strDate(row.shift_date) : "",
+    startTime: String(row.start_time ?? "").slice(0, 5),
+    endTime: String(row.end_time ?? "").slice(0, 5),
+    hours: Number(row.hours) || 0,
+    vendorHourlyRate: Number(row.vendor_hourly_rate) || 0,
+    vendorCost: Number(row.vendor_cost) || 0,
+    notes: row.notes,
+  };
+}
+
+export function agencyTimesheetToRow(record: AgencyTimesheetRecord): AgencyTimesheetRow {
+  const normalized = normalizeAgencyTimesheet(record);
+  return {
+    id: normalized.id,
+    document_no: normalized.documentNo,
+    vendor_bp_id: normalized.vendorBpId,
+    period_start: toDate(normalized.periodStart) ?? normalized.periodStart,
+    period_end: toDate(normalized.periodEnd) ?? normalized.periodEnd,
+    status: normalized.status,
+    total_hours: normalized.totalHours,
+    total_vendor_cost: normalized.totalVendorCost,
+    notes: normalized.notes,
+    created_by: normalized.createdBy,
+    updated_by: normalized.updatedBy,
+  };
+}
+
+export function agencyTimesheetLineToRow(
+  agencyTimesheetId: string,
+  line: AgencyTimesheetLine
+): AgencyTimesheetLineRowDb {
+  return {
+    id: line.id,
+    agency_timesheet_id: agencyTimesheetId,
+    line_no: line.lineNo,
+    roster_shift_id: line.rosterShiftId,
+    agency_shift_request_id: line.agencyShiftRequestId || null,
+    agency_worker_id: line.agencyWorkerId || null,
+    client_id: line.clientId || null,
+    location_id: line.locationId || null,
+    shift_date: line.shiftDate ? toDate(line.shiftDate) ?? line.shiftDate : null,
+    start_time: line.startTime || null,
+    end_time: line.endTime || null,
+    hours: line.hours,
+    vendor_hourly_rate: line.vendorHourlyRate,
+    vendor_cost: line.vendorCost,
+    notes: line.notes,
+  };
+}
+
 // --- Timesheet ---
 
 export type TimesheetRow = {
@@ -3217,6 +3332,7 @@ export type BusinessPartnerRow = {
   bank_account_number: string;
   bank_account_name: string;
   remittance_email: string;
+  agency_hourly_rate: number | null;
   notes: string;
   created_by: string;
   updated_by: string;
@@ -3247,6 +3363,7 @@ export function businessPartnerFromRow(row: BusinessPartnerRow): BusinessPartner
     bankAccountNumber: row.bank_account_number,
     bankAccountName: row.bank_account_name,
     remittanceEmail: row.remittance_email,
+    agencyHourlyRate: row.agency_hourly_rate != null ? Number(row.agency_hourly_rate) : 0,
     notes: row.notes,
     createdBy: row.created_by,
     updatedBy: row.updated_by,
@@ -3278,6 +3395,7 @@ export function businessPartnerToRow(record: BusinessPartnerRecord): BusinessPar
     bank_account_number: record.bankAccountNumber,
     bank_account_name: record.bankAccountName,
     remittance_email: record.remittanceEmail,
+    agency_hourly_rate: record.agencyHourlyRate ?? 0,
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
