@@ -140,6 +140,8 @@ Agency vendors sign in at `/agency-portal` (magic link on vendor BP email). Staf
 
 **Upload smoke seed (2026-06-25):** **ATS-DEMO-02** (`at-demo-staffplus-upload`) added for StaffPlus so the portal invoice submit form remains testable after **ATS-DEMO-01** is invoiced. Migration `20260625680000` applied to remote and repaired into migration history.
 
+**Upload smoke pass (2026-06-25):** live Amplify `/agency-portal/invoices` showed **ATS-DEMO-02** and required **Invoice document** file picker. Submitted **VI-50002 / SP-INV-UPLOAD-338292 / $290.00** with `staffplus-upload-smoke-338292.pdf`; portal list shows the document link; portal and staff document endpoints both return signed PDF URLs; staff `/vendor-invoices/vi-1782339340758` shows the document, notes, and audit attribution to **Agency portal (roster@staffplus.example)**.
+
 ---
 
 ## WP-ACT.1 — Activity deletion governance (2026-06-23)
