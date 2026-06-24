@@ -7,6 +7,7 @@ const PROCESS_HELP_HREF: Record<string, string> = {
   "print-enquiry-acknowledgement": "/help/document-templates#print-from-workspace",
   "print-invoice": "/help/document-templates#print-from-workspace",
   "send-invoice": "/help/document-templates#print-from-workspace",
+  "send-agency-shift-pack": "/help/document-templates#print-from-workspace",
   "batch-print-invoices": "/help/document-templates#print-from-workspace",
   "print-service-agreement": "/help/document-templates#print-from-workspace",
   "print-service-agreement-variation": "/help/document-templates#print-from-workspace",

@@ -340,6 +340,7 @@ Claim and invoice detail: single page with lines panel. No tab windows.
 | Function area | Window key | Route | Sidebar |
 |---------------|------------|-------|---------|
 | Employees | `employees` | `/employees` | People |
+| Agency workers | `agency-workers` | `/agency-workers` | People |
 | Workforce planning | `workforce-planning` | `/workforce-planning` | Workforce planning |
 | Organisation structure | `workforce-organisation` | `/workforce-planning/organisation` | Workforce planning |
 | Edit org structure | `workforce-org-edit` | (action grant) | — |

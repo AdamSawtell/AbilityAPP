@@ -140,6 +140,7 @@ export const DOCUMENT_PRINT_PROCESSES = {
   printEmployeeSeparation: "print-employee-separation",
   sendInvoice: "send-invoice",
   sendSupportPlan: "send-support-plan",
+  sendAgencyShiftPack: "send-agency-shift-pack",
 } as const;
 
 export function defaultInvoiceTemplate(): DocumentTemplateRecord {

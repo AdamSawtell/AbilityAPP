@@ -9,7 +9,7 @@ import { enquiriesArticle, tasksArticle } from "@/lib/help/articles/core";
 import { incidentsArticle, reportIncidentQuickArticle } from "@/lib/help/articles/incidents";
 import { complaintsFeedbackArticle } from "@/lib/help/articles/complaints";
 import { gettingStartedArticle, homeArticle, navigationArticle } from "@/lib/help/articles/foundation";
-import { employeesArticle, businessPartnersArticle } from "@/lib/help/articles/people";
+import { employeesArticle, businessPartnersArticle, agencyWorkersArticle } from "@/lib/help/articles/people";
 import { myWorkplaceArticle } from "@/lib/help/articles/my-workplace";
 import { participantPortalArticle } from "@/lib/help/articles/participant-portal";
 import { workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
@@ -30,6 +30,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   locationsArticle,
   employeesArticle,
   businessPartnersArticle,
+  agencyWorkersArticle,
   myWorkplaceArticle,
   participantPortalArticle,
   workforceLeaveCalendarArticle,

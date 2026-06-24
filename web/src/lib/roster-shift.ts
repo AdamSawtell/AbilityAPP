@@ -20,6 +20,10 @@ export type RosterShiftRecord = {
   checkInLongitude: string;
   checkOutLatitude: string;
   checkOutLongitude: string;
+  coverageSource: "" | "internal" | "agency";
+  agencyWorkerId: string;
+  vendorBpId: string;
+  agencyRequestId: string;
   createdBy: string;
   updatedBy: string;
 };
@@ -27,7 +31,13 @@ export type RosterShiftRecord = {
 export const rosterShiftDropdowns = {
   shiftType: ["Standard", "Sleepover", "Active overnight", "Group"],
   status: ["Draft", "Published", "Completed", "Cancelled"],
+  coverageSource: ["internal", "agency"],
 };
+
+export function isAgencyCoveredShift(shift: RosterShiftRecord): boolean {
+  const n = normalizeRosterShift(shift);
+  return n.coverageSource === "agency" && Boolean(n.agencyWorkerId?.trim());
+}
 
 export const initialRosterShifts: RosterShiftRecord[] = [
   {
@@ -51,6 +61,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkInLongitude: "",
     checkOutLatitude: "",
     checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -75,6 +89,38 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkInLongitude: "",
     checkOutLatitude: "",
     checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
+    createdBy: "Isla Robinson",
+    updatedBy: "Isla Robinson",
+  },
+  {
+    id: "rs-bern-tue-vac",
+    shiftRef: "BERN-TUE-VAC",
+    clientId: "bp-bern",
+    employeeId: "",
+    locationId: "loc-glenelg-sil",
+    serviceBookingId: "sb-50145",
+    shiftDate: "2025-10-07",
+    startTime: "09:00",
+    endTime: "15:00",
+    shiftType: "Standard",
+    status: "Published",
+    notes: "Vacant — agency coverage candidate",
+    recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -99,6 +145,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkInLongitude: "",
     checkOutLatitude: "",
     checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -123,6 +173,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkInLongitude: "",
     checkOutLatitude: "",
     checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -147,6 +201,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkInLongitude: "",
     checkOutLatitude: "",
     checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -171,6 +229,10 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     checkInLongitude: "",
     checkOutLatitude: "",
     checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -198,6 +260,17 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
     checkInLongitude: record.checkInLongitude ?? "",
     checkOutLatitude: record.checkOutLatitude ?? "",
     checkOutLongitude: record.checkOutLongitude ?? "",
+    coverageSource:
+      record.coverageSource === "agency"
+        ? "agency"
+        : record.coverageSource === "internal"
+          ? "internal"
+          : record.agencyWorkerId?.trim()
+            ? "agency"
+            : "internal",
+    agencyWorkerId: record.agencyWorkerId ?? "",
+    vendorBpId: record.vendorBpId ?? "",
+    agencyRequestId: record.agencyRequestId ?? "",
   };
 }
 
@@ -229,6 +302,10 @@ export function createRosterShift(
     checkInLongitude: "",
     checkOutLatitude: "",
     checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
     ...partial,
     createdBy: partial.createdBy || "SuperUser",
     updatedBy: partial.updatedBy || "SuperUser",

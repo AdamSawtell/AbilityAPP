@@ -135,3 +135,38 @@ export const businessPartnersArticle: HelpArticle = {
     },
   ],
 };
+
+export const agencyWorkersArticle: HelpArticle = {
+  id: "article-agency-workers",
+  slug: "agency-workers",
+  title: "Agency workers",
+  summary:
+    "Register workers employed by agency vendors — flagged separately from internal employees and linked to who they work for.",
+  category: "People",
+  keywords: ["agency worker", "agency staffing", "vendor", "NDIS agency", "relief worker"],
+  relatedRoutes: ["/agency-workers", "/agency-workers/new"],
+  windowKeys: ["agency-workers", "rostering"],
+  lastUpdated: "2026-06-24",
+  sections: [
+    {
+      id: "agency-worker-register",
+      title: "Agency worker register",
+      body: "Agency workers are not full employee records. Each worker is linked to a staffing vendor business partner (NDIS agency or Vendor type).",
+      steps: [
+        "Open People → Agency workers.",
+        "Click Add agency worker.",
+        "Select Works for (agency vendor) — e.g. StaffPlus Agency.",
+        "Enter name, contact, qualifications, and skills.",
+        "Save — the worker appears in the register and can be proposed on agency shift requests.",
+      ],
+      relatedRoutes: ["/agency-workers", "/agency-workers/new"],
+    },
+    {
+      id: "agency-coverage",
+      title: "Request agency coverage on roster",
+      body: "From Rostering → Gaps, use Request agency on a vacant shift to open the agency workflow: create request, propose worker, send shift pack email, confirm (with site orientation check), and complete.",
+      relatedRoutes: ["/rostering"],
+      windowKeys: ["rostering"],
+    },
+  ],
+};

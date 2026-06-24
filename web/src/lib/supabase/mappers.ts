@@ -1,5 +1,11 @@
 /** Map between Postgres snake_case rows and app camelCase records. */
 
+import type { AgencyShiftRequestRecord } from "@/lib/agency-shift-request";
+import { normalizeAgencyShiftRequest } from "@/lib/agency-shift-request";
+import type { AgencyWorkerRecord } from "@/lib/agency-worker";
+import { normalizeAgencyWorker } from "@/lib/agency-worker";
+import type { SiteOrientationRecord } from "@/lib/site-orientation";
+import { normalizeSiteOrientation } from "@/lib/site-orientation";
 import type { ClaimLine, ClaimRecord } from "@/lib/claim";
 import type { ClaimRemittanceLine, ClaimRemittanceRecord } from "@/lib/claim-remittance";
 import type { InvoiceLine, InvoiceRecord } from "@/lib/invoice";
@@ -2362,6 +2368,10 @@ export type RosterShiftRow = {
   check_in_longitude: number | null;
   check_out_latitude: number | null;
   check_out_longitude: number | null;
+  coverage_source: string;
+  agency_worker_id: string | null;
+  vendor_bp_id: string | null;
+  agency_request_id: string | null;
   created_by: string;
   updated_by: string;
 };
@@ -2399,6 +2409,17 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     checkInLongitude: geoFromRow(row.check_in_longitude),
     checkOutLatitude: geoFromRow(row.check_out_latitude),
     checkOutLongitude: geoFromRow(row.check_out_longitude),
+    coverageSource:
+      row.coverage_source === "agency"
+        ? "agency"
+        : row.coverage_source === "internal"
+          ? "internal"
+          : row.agency_worker_id
+            ? "agency"
+            : "internal",
+    agencyWorkerId: row.agency_worker_id ?? "",
+    vendorBpId: row.vendor_bp_id ?? "",
+    agencyRequestId: row.agency_request_id ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2426,8 +2447,186 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     check_in_longitude: geoToRow(record.checkInLongitude),
     check_out_latitude: geoToRow(record.checkOutLatitude),
     check_out_longitude: geoToRow(record.checkOutLongitude),
+    coverage_source: record.coverageSource === "agency" ? "agency" : "internal",
+    agency_worker_id: record.agencyWorkerId?.trim() ? record.agencyWorkerId : null,
+    vendor_bp_id: record.vendorBpId?.trim() ? record.vendorBpId : null,
+    agency_request_id: record.agencyRequestId?.trim() ? record.agencyRequestId : null,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
+  };
+}
+
+// --- Agency worker ---
+
+export type AgencyWorkerRow = {
+  id: string;
+  search_key: string;
+  vendor_bp_id: string;
+  first_name: string;
+  last_name: string;
+  name: string;
+  email: string;
+  phone: string;
+  qualifications: string;
+  skills: string;
+  tools_notes: string;
+  active: boolean;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function agencyWorkerFromRow(row: AgencyWorkerRow): AgencyWorkerRecord {
+  return normalizeAgencyWorker({
+    id: row.id,
+    searchKey: row.search_key,
+    vendorBpId: row.vendor_bp_id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    qualifications: row.qualifications,
+    skills: row.skills,
+    toolsNotes: row.tools_notes,
+    active: row.active !== false,
+    notes: row.notes,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  });
+}
+
+export function agencyWorkerToRow(record: AgencyWorkerRecord): AgencyWorkerRow {
+  const normalized = normalizeAgencyWorker(record);
+  return {
+    id: normalized.id,
+    search_key: normalized.searchKey,
+    vendor_bp_id: normalized.vendorBpId,
+    first_name: normalized.firstName,
+    last_name: normalized.lastName,
+    name: normalized.name,
+    email: normalized.email,
+    phone: normalized.phone,
+    qualifications: normalized.qualifications,
+    skills: normalized.skills,
+    tools_notes: normalized.toolsNotes,
+    active: normalized.active,
+    notes: normalized.notes,
+    created_by: normalized.createdBy,
+    updated_by: normalized.updatedBy,
+  };
+}
+
+// --- Agency shift request ---
+
+export type AgencyShiftRequestRow = {
+  id: string;
+  document_no: string;
+  roster_shift_id: string;
+  vendor_bp_id: string;
+  agency_worker_id: string | null;
+  status: string;
+  skills_required: string;
+  client_advised_at: string | null;
+  sent_at: string | null;
+  confirmed_at: string | null;
+  completed_at: string | null;
+  continuity_notes: string;
+  vendor_invoice_ref: string;
+  vendor_invoice_status: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function agencyShiftRequestFromRow(row: AgencyShiftRequestRow): AgencyShiftRequestRecord {
+  return normalizeAgencyShiftRequest({
+    id: row.id,
+    documentNo: row.document_no,
+    rosterShiftId: row.roster_shift_id,
+    vendorBpId: row.vendor_bp_id,
+    agencyWorkerId: row.agency_worker_id ?? "",
+    status: row.status as AgencyShiftRequestRecord["status"],
+    skillsRequired: row.skills_required,
+    clientAdvisedAt: row.client_advised_at ?? "",
+    sentAt: row.sent_at ?? "",
+    confirmedAt: row.confirmed_at ?? "",
+    completedAt: row.completed_at ?? "",
+    continuityNotes: row.continuity_notes,
+    vendorInvoiceRef: row.vendor_invoice_ref,
+    vendorInvoiceStatus: row.vendor_invoice_status,
+    notes: row.notes,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  });
+}
+
+export function agencyShiftRequestToRow(record: AgencyShiftRequestRecord): AgencyShiftRequestRow {
+  const normalized = normalizeAgencyShiftRequest(record);
+  return {
+    id: normalized.id,
+    document_no: normalized.documentNo,
+    roster_shift_id: normalized.rosterShiftId,
+    vendor_bp_id: normalized.vendorBpId,
+    agency_worker_id: normalized.agencyWorkerId?.trim() ? normalized.agencyWorkerId : null,
+    status: normalized.status,
+    skills_required: normalized.skillsRequired,
+    client_advised_at: normalized.clientAdvisedAt?.trim() ? normalized.clientAdvisedAt : null,
+    sent_at: normalized.sentAt?.trim() ? normalized.sentAt : null,
+    confirmed_at: normalized.confirmedAt?.trim() ? normalized.confirmedAt : null,
+    completed_at: normalized.completedAt?.trim() ? normalized.completedAt : null,
+    continuity_notes: normalized.continuityNotes,
+    vendor_invoice_ref: normalized.vendorInvoiceRef,
+    vendor_invoice_status: normalized.vendorInvoiceStatus,
+    notes: normalized.notes,
+    created_by: normalized.createdBy,
+    updated_by: normalized.updatedBy,
+  };
+}
+
+// --- Site orientation ---
+
+export type SiteOrientationRow = {
+  id: string;
+  worker_type: string;
+  worker_id: string;
+  location_id: string;
+  oriented_at: string;
+  expires_at: string | null;
+  acknowledged_by: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function siteOrientationFromRow(row: SiteOrientationRow): SiteOrientationRecord {
+  return normalizeSiteOrientation({
+    id: row.id,
+    workerType: row.worker_type === "employee" ? "employee" : "agency",
+    workerId: row.worker_id,
+    locationId: row.location_id,
+    orientedAt: strDate(row.oriented_at),
+    expiresAt: row.expires_at ? strDate(row.expires_at) : "",
+    acknowledgedBy: row.acknowledged_by,
+    notes: row.notes,
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  });
+}
+
+export function siteOrientationToRow(record: SiteOrientationRecord): SiteOrientationRow {
+  const normalized = normalizeSiteOrientation(record);
+  return {
+    id: normalized.id,
+    worker_type: normalized.workerType,
+    worker_id: normalized.workerId,
+    location_id: normalized.locationId,
+    oriented_at: toDate(normalized.orientedAt) ?? normalized.orientedAt,
+    expires_at: normalized.expiresAt?.trim() ? toDate(normalized.expiresAt) ?? normalized.expiresAt : null,
+    acknowledged_by: normalized.acknowledgedBy,
+    notes: normalized.notes,
+    created_by: normalized.createdBy,
+    updated_by: normalized.updatedBy,
   };
 }
 

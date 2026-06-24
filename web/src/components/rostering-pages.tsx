@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { AgencyShiftRequestDrawer } from "@/components/agency-shift-request-drawer";
 import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
 import { RosterCapacityPanel } from "@/components/roster-capacity-panel";
 import { RosterForwardPanel } from "@/components/roster-forward-panel";
@@ -13,6 +14,7 @@ import { RosterRocPanel } from "@/components/roster-roc-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
+import { agencyWorkerDisplayName } from "@/lib/agency-worker";
 import { localDateIso } from "@/lib/booking-cancellation";
 import { useData } from "@/lib/data-store";
 import {
@@ -22,6 +24,7 @@ import {
   normalizeRosterShift,
   resolveRosterWeekStart,
   shiftsForWeek,
+  isAgencyCoveredShift,
   weekStartFromDate,
 } from "@/lib/roster-shift";
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
@@ -46,9 +49,10 @@ export function RosteringWeekView() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { clients, employees, locations, serviceBookings, rosterShifts, upsertRosterShift } = useData();
-  const { canWriteWindow } = useAuth();
+  const { clients, employees, locations, serviceBookings, rosterShifts, agencyWorkers, businessPartners, upsertRosterShift } = useData();
+  const { canWriteWindow, canProcess } = useAuth();
   const canEditRoster = canWriteWindow("rostering");
+  const canRequestAgency = canProcess("request-agency-coverage");
   const dragStartedRef = useRef(false);
   const [view, setView] = useState<"week" | "forward" | "gaps" | "open" | "roc" | "capacity">("week");
   const [forwardWeeks, setForwardWeeks] = useState(8);
@@ -74,6 +78,7 @@ export function RosteringWeekView() {
   const [rescheduleNotice, setRescheduleNotice] = useState<{ tone: "error" | "success"; message: string } | null>(
     null
   );
+  const [agencyShift, setAgencyShift] = useState<ReturnType<typeof normalizeRosterShift> | null>(null);
 
   const shifts = useMemo(
     () => shiftsForWeek(rosterShifts.map(normalizeRosterShift), weekStart),
@@ -132,6 +137,12 @@ export function RosteringWeekView() {
       setEditorShift("new");
       setView("week");
     }
+  }
+
+  function handleRequestAgency(gap: RosterGap) {
+    if (!gap.shiftId) return;
+    const shift = rosterShifts.find((s) => s.id === gap.shiftId);
+    if (shift) setAgencyShift(normalizeRosterShift(shift));
   }
 
   function openNewShift(date?: string) {
@@ -321,6 +332,7 @@ export function RosteringWeekView() {
             anchorWeekStart={weekStart}
             weekCount={forwardWeeks}
             onFillGap={canEditRoster ? handleFillGap : undefined}
+            onRequestAgency={canRequestAgency ? handleRequestAgency : undefined}
           />
         ) : view === "open" ? (
           <OpenShiftsMarketplacePanel
@@ -460,6 +472,8 @@ export function RosteringWeekView() {
                     {dayShifts.map((shift) => {
                       const client = clients.find((c) => c.id === shift.clientId);
                       const employee = employees.find((e) => e.id === shift.employeeId);
+                      const agencyWorker = agencyWorkers.find((w) => w.id === shift.agencyWorkerId);
+                      const agencyVendor = businessPartners.find((p) => p.id === shift.vendorBpId);
                       const location = locations.find((l) => l.id === shift.locationId);
                       const booking = serviceBookings.find((b) => b.id === shift.serviceBookingId);
                       const conflicts = conflictByShiftId.get(shift.id) ?? [];
@@ -503,6 +517,20 @@ export function RosteringWeekView() {
                               name={employee.name}
                               className="mt-0.5 block text-slate-600 hover:underline"
                             />
+                          ) : agencyWorker ? (
+                            <p className="mt-0.5 text-slate-600">
+                              <Link
+                                href={`/agency-workers/${agencyWorker.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="hover:underline"
+                              >
+                                {agencyWorkerDisplayName(agencyWorker)}
+                              </Link>
+                              <span className="text-slate-500">
+                                {" "}
+                                · Agency{agencyVendor ? ` (${agencyVendor.name})` : ""}
+                              </span>
+                            </p>
                           ) : (
                             <p className="mt-0.5 text-amber-800">Vacant — no worker</p>
                           )}
@@ -519,6 +547,11 @@ export function RosteringWeekView() {
                           {vacant ? (
                             <span className="mt-1 inline-flex rounded-full bg-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-950">
                               Vacant
+                            </span>
+                          ) : null}
+                          {isAgencyCoveredShift(shift) ? (
+                            <span className="mt-1 inline-flex rounded-full bg-sky-200 px-1.5 py-0.5 text-[10px] font-medium text-sky-950">
+                              Agency
                             </span>
                           ) : null}
                           {shift.recurrenceGroupId ? (
@@ -590,6 +623,9 @@ export function RosteringWeekView() {
             setEditorPrefill(null);
           }}
         />
+      ) : null}
+      {agencyShift ? (
+        <AgencyShiftRequestDrawer shift={agencyShift} onClose={() => setAgencyShift(null)} />
       ) : null}
     </>
   );

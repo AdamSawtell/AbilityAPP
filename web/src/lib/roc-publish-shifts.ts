@@ -147,6 +147,10 @@ export function buildShiftsFromRosterOfCare(
           checkInLongitude: prior?.checkInLongitude ?? "",
           checkOutLatitude: prior?.checkOutLatitude ?? "",
           checkOutLongitude: prior?.checkOutLongitude ?? "",
+          coverageSource: prior?.coverageSource ?? "internal",
+          agencyWorkerId: prior?.agencyWorkerId ?? "",
+          vendorBpId: prior?.vendorBpId ?? "",
+          agencyRequestId: prior?.agencyRequestId ?? "",
           createdBy: prior?.createdBy || input.actor,
           updatedBy: input.actor,
         })

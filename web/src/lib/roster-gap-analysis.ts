@@ -14,7 +14,10 @@ export type RosterGap = {
 
 export function isVacantShift(shift: RosterShiftRecord): boolean {
   const normalized = normalizeRosterShift(shift);
-  return normalized.status !== "Cancelled" && !normalized.employeeId?.trim();
+  if (normalized.status === "Cancelled") return false;
+  if (normalized.employeeId?.trim()) return false;
+  if (normalized.coverageSource === "agency" && normalized.agencyWorkerId?.trim()) return false;
+  return true;
 }
 
 export function bookingActiveInRange(

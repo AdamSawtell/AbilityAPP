@@ -20,6 +20,7 @@ export function RosterGapsPanel({
   anchorWeekStart,
   weekCount,
   onFillGap,
+  onRequestAgency,
 }: {
   rosterShifts: RosterShiftRecord[];
   serviceBookings: ServiceBookingRecord[];
@@ -27,6 +28,7 @@ export function RosterGapsPanel({
   anchorWeekStart: string;
   weekCount: number;
   onFillGap?: (gap: RosterGap) => void;
+  onRequestAgency?: (gap: RosterGap) => void;
 }) {
   const weeks = useMemo(() => forwardWeekStarts(anchorWeekStart, weekCount), [anchorWeekStart, weekCount]);
   const normalized = useMemo(() => rosterShifts.map(normalizeRosterShift), [rosterShifts]);
@@ -101,13 +103,24 @@ export function RosterGapsPanel({
                 </button>
               ) : null}
               {onFillGap && gap.code === "VACANT_SHIFT" && gap.shiftId ? (
-                <button
-                  type="button"
-                  onClick={() => onFillGap(gap)}
-                  className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                >
-                  Assign worker
-                </button>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onFillGap(gap)}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Assign worker
+                  </button>
+                  {onRequestAgency ? (
+                    <button
+                      type="button"
+                      onClick={() => onRequestAgency(gap)}
+                      className="rounded-lg border border-[#d4147a]/30 bg-[#fdf2f8] px-3 py-1.5 text-xs font-medium text-[#b51266] hover:bg-[#fce7f3]"
+                    >
+                      Request agency
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
             </li>
           );

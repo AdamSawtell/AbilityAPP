@@ -7,7 +7,7 @@ export const deliveryArticle: HelpArticle = {
   summary: "Schedule NDIS service delivery, then roster staff and generate timesheets.",
   category: "Services",
   keywords: ["service booking", "rostering", "timesheet", "NDIS", "delivery", "schedule"],
-  lastUpdated: "2026-06-21",
+  lastUpdated: "2026-06-24",
   sections: [
     {
       id: "overview",
@@ -98,6 +98,9 @@ export const deliveryArticle: HelpArticle = {
         "Switch to Forward plan to see roster hours by client across 4–12 weeks.",
         "Open Capacity to compare roster demand to active worker supply — flag weeks with unstaffed hours or workers over their weekly limit.",
         "Open Gaps to review vacant shifts and weeks where active bookings have no staffed coverage.",
+        "On a vacant shift in Gaps, click Request agency to start an agency coverage request — pick the staffing vendor, propose a registered agency worker, send the shift pack email, and confirm (site orientation is checked).",
+        "Agency-confirmed shifts show the worker name with an Agency badge on the week calendar.",
+        "Register agency workers under People → Agency workers — each must be linked to who they work for (vendor business partner).",
         "Open Open shifts to browse the marketplace — coordinators assign cover; workers claim from My workplace → Open shifts.",
         "Workers check in from My workplace → My shifts — Verified badges, GPS links, and Geofence badges appear on staffed shift cards when check-in/out is outside the site radius.",
         "Open Rostering → RoC to import weekly roster-of-care CSV or generate a draft from a service agreement.",

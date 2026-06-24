@@ -2,6 +2,22 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import {
+  createAgencyWorker,
+  initialAgencyWorkers as seedAgencyWorkers,
+  normalizeAgencyWorker,
+  type AgencyWorkerRecord,
+} from "@/lib/agency-worker";
+import {
+  initialAgencyShiftRequests as seedAgencyShiftRequests,
+  normalizeAgencyShiftRequest,
+  type AgencyShiftRequestRecord,
+} from "@/lib/agency-shift-request";
+import {
+  initialSiteOrientations as seedSiteOrientations,
+  normalizeSiteOrientation,
+  type SiteOrientationRecord,
+} from "@/lib/site-orientation";
 import { createEnquiry, initialRecords as seedEnquiries, normalizeEnquiry, type EnquiryRecord } from "@/lib/enquiry";
 import { enquiryPipelineBlocked, validateEnquiryPipeline } from "@/lib/enquiry-pipeline";
 import { initialClients as seedClients, normalizeClient, type ClientRecord } from "@/lib/client";
@@ -166,6 +182,9 @@ import {
   saveServiceAgreement,
   saveServiceBooking,
   saveRosterShift,
+  saveAgencyWorker,
+  saveAgencyShiftRequest,
+  saveSiteOrientation,
   saveRosterOfCare,
   saveRosterOfCares,
   saveMonthlyServicePlan,
@@ -198,6 +217,9 @@ type DataStore = {
   serviceAgreements: ServiceAgreementRecord[];
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
+  agencyWorkers: AgencyWorkerRecord[];
+  agencyShiftRequests: AgencyShiftRequestRecord[];
+  siteOrientations: SiteOrientationRecord[];
   rosterOfCares: RosterOfCareRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
@@ -232,6 +254,9 @@ type DataStore = {
   addServiceBooking: (partial: ServiceBookingRecord) => ServiceBookingRecord;
   upsertServiceBooking: (record: ServiceBookingRecord) => void;
   upsertRosterShift: (record: RosterShiftRecord) => string | null;
+  upsertAgencyWorker: (record: AgencyWorkerRecord) => string | null;
+  upsertAgencyShiftRequest: (record: AgencyShiftRequestRecord) => string | null;
+  upsertSiteOrientation: (record: SiteOrientationRecord) => string | null;
   claimOpenRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
   checkInRosterShift: (
     shiftId: string,
@@ -336,6 +361,9 @@ type Persisted = {
   serviceAgreements?: ServiceAgreementRecord[];
   serviceBookings?: ServiceBookingRecord[];
   rosterShifts?: RosterShiftRecord[];
+  agencyWorkers?: AgencyWorkerRecord[];
+  agencyShiftRequests?: AgencyShiftRequestRecord[];
+  siteOrientations?: SiteOrientationRecord[];
   rosterOfCares?: RosterOfCareRecord[];
   monthlyServicePlans?: MonthlyServicePlanRecord[];
   timesheets?: TimesheetRecord[];
@@ -365,6 +393,9 @@ function seedData(): Required<Persisted> {
     serviceAgreements: seedServiceAgreements.map(normalizeServiceAgreement),
     serviceBookings: seedServiceBookings.map(normalizeServiceBooking),
     rosterShifts: seedRosterShifts.map(normalizeRosterShift),
+    agencyWorkers: seedAgencyWorkers.map(normalizeAgencyWorker),
+    agencyShiftRequests: seedAgencyShiftRequests.map(normalizeAgencyShiftRequest),
+    siteOrientations: seedSiteOrientations.map(normalizeSiteOrientation),
     rosterOfCares: seedRosterOfCares.map(normalizeRosterOfCare),
     monthlyServicePlans: seedMonthlyServicePlans.map(normalizeMonthlyServicePlan),
     timesheets: seedTimesheets.map(normalizeTimesheet),
@@ -395,6 +426,9 @@ function portalEmptyData(): Required<Persisted> {
     serviceAgreements: [],
     serviceBookings: [],
     rosterShifts: [],
+    agencyWorkers: [],
+    agencyShiftRequests: [],
+    siteOrientations: [],
     rosterOfCares: [],
     monthlyServicePlans: [],
     timesheets: [],
@@ -441,6 +475,9 @@ function loadLocal(): Required<Persisted> {
       serviceAgreements: (parsed.serviceAgreements ?? seedServiceAgreements).map(normalizeServiceAgreement),
       serviceBookings: (parsed.serviceBookings ?? seedServiceBookings).map(normalizeServiceBooking),
       rosterShifts: (parsed.rosterShifts ?? seedRosterShifts).map(normalizeRosterShift),
+      agencyWorkers: (parsed.agencyWorkers ?? seedAgencyWorkers).map(normalizeAgencyWorker),
+      agencyShiftRequests: (parsed.agencyShiftRequests ?? seedAgencyShiftRequests).map(normalizeAgencyShiftRequest),
+      siteOrientations: (parsed.siteOrientations ?? seedSiteOrientations).map(normalizeSiteOrientation),
       rosterOfCares: (parsed.rosterOfCares ?? seedRosterOfCares).map(normalizeRosterOfCare),
       monthlyServicePlans: (parsed.monthlyServicePlans ?? seedMonthlyServicePlans).map(normalizeMonthlyServicePlan),
       timesheets: (parsed.timesheets ?? seedTimesheets).map(normalizeTimesheet),
@@ -488,6 +525,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [serviceAgreements, setServiceAgreements] = useState<ServiceAgreementRecord[]>(defaults.serviceAgreements);
   const [serviceBookings, setServiceBookings] = useState<ServiceBookingRecord[]>(defaults.serviceBookings);
   const [rosterShifts, setRosterShifts] = useState<RosterShiftRecord[]>(defaults.rosterShifts);
+  const [agencyWorkers, setAgencyWorkers] = useState<AgencyWorkerRecord[]>(defaults.agencyWorkers);
+  const [agencyShiftRequests, setAgencyShiftRequests] = useState<AgencyShiftRequestRecord[]>(
+    defaults.agencyShiftRequests
+  );
+  const [siteOrientations, setSiteOrientations] = useState<SiteOrientationRecord[]>(defaults.siteOrientations);
   const [rosterOfCares, setRosterOfCares] = useState<RosterOfCareRecord[]>(defaults.rosterOfCares);
   const [monthlyServicePlans, setMonthlyServicePlans] = useState<MonthlyServicePlanRecord[]>(
     defaults.monthlyServicePlans
@@ -525,6 +567,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const serviceAgreementsRef = useSyncRef(serviceAgreements);
   const serviceBookingsRef = useSyncRef(serviceBookings);
   const rosterShiftsRef = useSyncRef(rosterShifts);
+  const agencyWorkersRef = useSyncRef(agencyWorkers);
+  const agencyShiftRequestsRef = useSyncRef(agencyShiftRequests);
+  const siteOrientationsRef = useSyncRef(siteOrientations);
   const rosterOfCaresRef = useSyncRef(rosterOfCares);
   const monthlyServicePlansRef = useSyncRef(monthlyServicePlans);
   const timesheetsRef = useSyncRef(timesheets);
@@ -568,6 +613,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setServiceAgreements(data.serviceAgreements);
       setServiceBookings(data.serviceBookings);
       setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
+      setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
+      setAgencyShiftRequests(
+        data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest)
+      );
+      setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
       setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
       setMonthlyServicePlans(
         data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
@@ -635,6 +685,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setServiceAgreements(data.serviceAgreements);
             setServiceBookings(data.serviceBookings);
             setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
+            setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
+            setAgencyShiftRequests(
+              data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest)
+            );
+            setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
             setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
             setMonthlyServicePlans(
               data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
@@ -679,6 +734,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setServiceAgreements(data.serviceAgreements);
         setServiceBookings(data.serviceBookings);
         setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
+        setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
+        setAgencyShiftRequests(
+          data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest)
+        );
+        setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
         setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
         setMonthlyServicePlans(data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan));
         setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
@@ -720,6 +780,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceAgreements,
       serviceBookings,
       rosterShifts,
+      agencyWorkers,
+      agencyShiftRequests,
+      siteOrientations,
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
@@ -747,7 +810,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     serviceAgreements,
     serviceBookings,
     rosterShifts,
-      rosterOfCares,
+    agencyWorkers,
+    agencyShiftRequests,
+    siteOrientations,
+    rosterOfCares,
       monthlyServicePlans,
       timesheets,
       claims,
@@ -1150,6 +1216,54 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       return null;
     },
     [persistRemote, rosterShiftsRef, clientsRef, employeesRef]
+  );
+
+  const upsertAgencyWorker = useCallback(
+    (record: AgencyWorkerRecord): string | null => {
+      const prev = agencyWorkersRef.current;
+      const normalized = normalizeAgencyWorker(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("agency-worker", normalized, !exists, before);
+      setAgencyWorkers((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveAgencyWorker(supabase, stamped));
+      return null;
+    },
+    [persistRemote, agencyWorkersRef]
+  );
+
+  const upsertAgencyShiftRequest = useCallback(
+    (record: AgencyShiftRequestRecord): string | null => {
+      const prev = agencyShiftRequestsRef.current;
+      const normalized = normalizeAgencyShiftRequest(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("agency-shift-request", normalized, !exists, before);
+      setAgencyShiftRequests((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveAgencyShiftRequest(supabase, stamped));
+      return null;
+    },
+    [persistRemote, agencyShiftRequestsRef]
+  );
+
+  const upsertSiteOrientation = useCallback(
+    (record: SiteOrientationRecord): string | null => {
+      const prev = siteOrientationsRef.current;
+      const normalized = normalizeSiteOrientation(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("site-orientation", normalized, !exists, before);
+      setSiteOrientations((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveSiteOrientation(supabase, stamped));
+      return null;
+    },
+    [persistRemote, siteOrientationsRef]
   );
 
   const claimOpenRosterShift = useCallback(
@@ -1815,6 +1929,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceAgreements,
       serviceBookings,
       rosterShifts,
+      agencyWorkers,
+      agencyShiftRequests,
+      siteOrientations,
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
@@ -1849,6 +1966,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addServiceBooking,
       upsertServiceBooking,
       upsertRosterShift,
+      upsertAgencyWorker,
+      upsertAgencyShiftRequest,
+      upsertSiteOrientation,
       claimOpenRosterShift,
       checkInRosterShift,
       checkOutRosterShift,
@@ -1903,6 +2023,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceAgreements,
       serviceBookings,
       rosterShifts,
+      agencyWorkers,
+      agencyShiftRequests,
+      siteOrientations,
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
@@ -1937,6 +2060,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addServiceBooking,
       upsertServiceBooking,
       upsertRosterShift,
+      upsertAgencyWorker,
+      upsertAgencyShiftRequest,
+      upsertSiteOrientation,
       claimOpenRosterShift,
       checkInRosterShift,
       checkOutRosterShift,

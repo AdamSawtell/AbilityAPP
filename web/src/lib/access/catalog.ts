@@ -130,6 +130,14 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "agency-workers",
+    label: "Agency workers",
+    group: "People",
+    href: "/agency-workers",
+    abilityErpName: "Agency worker",
+    showInSidebar: true,
+  },
+  {
     key: "business-partners",
     label: "Business partners",
     group: "People",
@@ -676,6 +684,30 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     id: "request-activity-deletion",
     label: "Request activity deletion",
     description: "Ask an administrator to remove an activity line from a client, enquiry, employee, or location record",
+  },
+  {
+    id: "request-agency-coverage",
+    label: "Request agency coverage",
+    description: "Create an agency shift request for a vacant roster shift",
+    parentWindowKey: "rostering",
+  },
+  {
+    id: "send-agency-shift-pack",
+    label: "Send agency shift pack",
+    description: "Email shift details and proposed worker to the agency vendor",
+    parentWindowKey: "rostering",
+  },
+  {
+    id: "confirm-agency-shift",
+    label: "Confirm agency shift",
+    description: "Confirm agency worker on shift after orientation check",
+    parentWindowKey: "rostering",
+  },
+  {
+    id: "complete-agency-shift",
+    label: "Complete agency shift",
+    description: "Mark agency-covered shift as completed",
+    parentWindowKey: "rostering",
   },
   {
     id: "action-task",

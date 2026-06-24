@@ -19,6 +19,30 @@
 
 ---
 
+## WP-AG.1 — Agency staffing (AB-0019) (2026-06-24)
+
+**Status:** ✅ Shipped (slice 1 — register + roster workflow)
+
+Agency workers are flagged separately from employees and linked to a staffing vendor business partner. Vacant shifts can flow through agency coverage requests with site orientation gate (AB-0018 minimal).
+
+| Area | Change |
+|------|--------|
+| `agency_worker`, `agency_shift_request`, `site_orientation` | Supabase tables + seed vendor/workers |
+| `roster_shift` | `coverage_source`, `agency_worker_id`, `vendor_bp_id`, `agency_request_id` |
+| `/agency-workers` | List + record register |
+| Rostering → Gaps | **Request agency** on vacant shifts |
+| Agency shift drawer | Request → propose worker → send pack → confirm → complete |
+| Processes | `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` |
+
+### What you can test — WP-AG.1
+
+1. People → **Agency workers** — Jane Agency and Mike Relief linked to StaffPlus Agency.
+2. Rostering → **Gaps** (week of 2025-10-06) — vacant **BERN-TUE-VAC** → **Request agency**.
+3. Create request for StaffPlus, propose Jane Agency, send shift pack, confirm (orientation on file for Glenelg SIL).
+4. Week view shows agency worker with **Agency** badge.
+
+---
+
 ## WP-ACT.1 — Activity deletion governance (2026-06-23)
 
 **Status:** ✅ Shipped
