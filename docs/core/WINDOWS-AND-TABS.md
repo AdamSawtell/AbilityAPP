@@ -191,7 +191,12 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 
 **Processes:** `assign-location-client`, `assign-location-employee`, `assign-location-product`.
 
-Business partners: single-page record (no tab windows in catalog).
+Business partners: Overview tab plus **Agency workers** tab when partner type is Vendor or NDIS agency (`?tab=Agency workers`). No separate window keys — uses `business-partners` + `agency-workers` for add worker.
+
+| Tab | Route query | Notes |
+|-----|-------------|-------|
+| Overview | (default) | Contact, communication, payment |
+| Agency workers | `?tab=Agency workers` | Vendor-linked worker pool; links to `/agency-workers` |
 
 ---
 

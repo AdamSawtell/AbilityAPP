@@ -216,7 +216,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 
 | Record | Fields | Notes |
 |--------|--------|-------|
-| `agency_worker` | `vendor_bp_id`, contact, qualifications, skills | Register at `/agency-workers` |
+| `agency_worker` | `vendor_bp_id`, contact, qualifications, skills | Register at `/agency-workers`; vendor tab at `/business-partners/{id}?tab=Agency workers` |
 | `agency_shift_request` | `roster_shift_id`, `vendor_bp_id`, `agency_worker_id` | Workflow from Gaps |
 | `site_orientation` | `worker_type`, `worker_id`, `location_id` | Checked at confirm |
 

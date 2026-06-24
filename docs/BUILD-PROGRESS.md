@@ -12,8 +12,8 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
-| **Next slice** | **WP-AG.2** — agency workers tab on vendor business partner (or WP-UX.2 employee/incident line drawers) |
-| **Last push** | 2026-06-24 — WP-AG.1 docs (`6bc0629`) after code (`92408a5` / `c72ae79`) |
+| **Next slice** | **WP-AG.3** — site orientation UI (or WP-UX.2 employee/incident line drawers) |
+| **Last push** | 2026-06-24 — WP-AG.2 vendor agency workers tab |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
@@ -42,6 +42,27 @@ Agency workers are flagged separately from employees and linked to a staffing ve
 4. Week view shows agency worker with **Agency** badge.
 
 **Smoke (2026-06-24):** localhost + **Amplify pass** — `/agency-workers` (Jane/Mike → StaffPlus). `/rostering?week=2025-10-06` Gaps + **Request agency** drawer (BERN-TUE-VAC) as **RileyShaw**. Full confirm workflow optional in TEST-070. Docs: Help **How to manage agency staff**, core guides, TEST-070, process 15.
+
+---
+
+## WP-AG.2 — Agency workers on vendor business partner (2026-06-24)
+
+**Status:** ✅ Shipped
+
+Staffing vendors (Vendor / NDIS agency type) show an **Agency workers** tab on the business partner record — reverse navigation from vendor to relief worker pool.
+
+| Area | Change |
+|------|--------|
+| `/business-partners/{id}?tab=Agency workers` | Tab with worker list (Jane/Mike on StaffPlus) |
+| Add agency worker | Links to `/agency-workers/new?vendorBpId=` with vendor pre-filled |
+| Agency worker record | Link back to vendor Agency workers tab |
+| `business-partner.ts` | Tab helpers; `AgencyWorkerListView` hides vendor column on vendor tab |
+
+### What you can test — WP-AG.2
+
+1. Open `/business-partners/bp-staffplus` → **Agency workers** tab — Jane Agency + Mike Relief.
+2. Click a worker row → agency worker detail; **View vendor worker pool** link returns to tab.
+3. **Add agency worker** → vendor pre-selected on new form.
 
 ---
 

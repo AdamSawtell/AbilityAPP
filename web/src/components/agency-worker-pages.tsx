@@ -17,6 +17,7 @@ import {
   type AgencyWorkerRecord,
 } from "@/lib/agency-worker";
 import { useData } from "@/lib/data-store";
+import { businessPartnerTabHref } from "@/lib/business-partner";
 
 function AgencyWorkerForm({
   worker,
@@ -148,7 +149,13 @@ function AgencyWorkerForm({
   );
 }
 
-export function AgencyWorkerListView({ vendorBpId }: { vendorBpId?: string }) {
+export function AgencyWorkerListView({
+  vendorBpId,
+  hideVendorColumn = false,
+}: {
+  vendorBpId?: string;
+  hideVendorColumn?: boolean;
+}) {
   const { agencyWorkers, businessPartners } = useData();
   const rows = useMemo(() => {
     const list = vendorBpId
@@ -163,7 +170,7 @@ export function AgencyWorkerListView({ vendorBpId }: { vendorBpId?: string }) {
         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">Agency vendor</th>
+            {!hideVendorColumn ? <th className="px-4 py-3">Agency vendor</th> : null}
             <th className="px-4 py-3">Skills</th>
             <th className="px-4 py-3">Status</th>
           </tr>
@@ -178,15 +185,20 @@ export function AgencyWorkerListView({ vendorBpId }: { vendorBpId?: string }) {
                     {agencyWorkerDisplayName(worker)}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-slate-700">
-                  {vendor ? (
-                    <Link href={`/business-partners/${vendor.id}`} className="hover:underline">
-                      {vendor.name}
-                    </Link>
-                  ) : (
-                    "—"
-                  )}
-                </td>
+                {!hideVendorColumn ? (
+                  <td className="px-4 py-3 text-slate-700">
+                    {vendor ? (
+                      <Link
+                        href={`/business-partners/${vendor.id}?tab=${encodeURIComponent("Agency workers")}`}
+                        className="hover:underline"
+                      >
+                        {vendor.name}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                ) : null}
                 <td className="max-w-xs truncate px-4 py-3 text-slate-600">{worker.skills || "—"}</td>
                 <td className="px-4 py-3">
                   <span
@@ -202,7 +214,7 @@ export function AgencyWorkerListView({ vendorBpId }: { vendorBpId?: string }) {
           })}
           {!rows.length ? (
             <tr>
-              <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
+              <td colSpan={hideVendorColumn ? 3 : 4} className="px-4 py-8 text-center text-slate-500">
                 No agency workers yet.
               </td>
             </tr>
@@ -306,6 +318,21 @@ export function AgencyWorkerDetailView({ id }: { id: string }) {
           Agency workers are flagged separately from employees. They are linked to a staffing vendor business partner
           and can be assigned to roster shifts through the agency coverage workflow.
         </div>
+        {vendor ? (
+          <p className="mb-4 text-sm text-slate-600">
+            Works for{" "}
+            <Link
+              href={`/business-partners/${vendor.id}?tab=${encodeURIComponent("Agency workers")}`}
+              className="font-medium text-[#b51266] hover:underline"
+            >
+              {vendor.name}
+            </Link>
+            {" · "}
+            <Link href={businessPartnerTabHref(vendor.id, "Agency workers")} className="text-[#b51266] hover:underline">
+              View vendor worker pool
+            </Link>
+          </p>
+        ) : null}
         {saved && !hasUnsavedChanges ? <p className="mb-4 text-sm text-emerald-700">Saved</p> : null}
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <AgencyWorkerForm

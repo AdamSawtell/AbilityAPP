@@ -105,7 +105,7 @@ export const businessPartnersArticle: HelpArticle = {
   keywords: ["business partner", "plan manager", "vendor", "referrer", "invoice delivery", "payment terms"],
   relatedRoutes: ["/business-partners", "/business-partners/new"],
   windowKeys: ["business-partners"],
-  lastUpdated: "2026-06-19",
+  lastUpdated: "2026-06-24",
   sections: [
     {
       id: "partner-list",
@@ -133,6 +133,21 @@ export const businessPartnersArticle: HelpArticle = {
       relatedRoutes: ["/clients"],
       windowKeys: ["clients", "client-bp-associations"],
     },
+    {
+      id: "agency-workers-tab",
+      title: "Agency workers on staffing vendors",
+      body:
+        "When a business partner is type **Vendor** or **NDIS agency**, an **Agency workers** tab lists every relief worker linked to that vendor. Open StaffPlus Agency → Agency workers to see Jane Agency and Mike Relief in demo seed.\n\n" +
+        "Use **Add agency worker** on the tab to pre-fill **Works for** with this vendor. Worker rows link to the agency register; rostering still uses Rostering → Gaps for coverage requests.",
+      steps: [
+        "Open People → Business partners and open a staffing vendor (e.g. StaffPlus Agency).",
+        "Click the Agency workers tab — count badge shows linked workers.",
+        "Open a worker row to edit qualifications and skills.",
+        "Click Add agency worker to register someone new for this vendor.",
+      ],
+      relatedRoutes: ["/business-partners", "/agency-workers"],
+      windowKeys: ["business-partners", "agency-workers"],
+    },
   ],
 };
 
@@ -157,7 +172,7 @@ export const agencyWorkersArticle: HelpArticle = {
   ],
   relatedRoutes: ["/agency-workers", "/agency-workers/new", "/rostering", "/business-partners"],
   windowKeys: ["agency-workers", "rostering"],
-  lastUpdated: "2026-06-23",
+  lastUpdated: "2026-06-24",
   sections: [
     {
       id: "agency-why-separate",
@@ -178,7 +193,7 @@ export const agencyWorkersArticle: HelpArticle = {
       title: "Set up staffing vendors first",
       body:
         "Before you register workers, ensure each staffing agency exists as a **business partner** with type Vendor or NDIS agency. The vendor record supplies the legal entity name, email for shift packs, and the link every agency worker must point to.\n\n" +
-        "Demo seed includes **StaffPlus Agency Pty Ltd** (`bp-staffplus`) with email on file for shift-pack handoff. In production you maintain one business partner per agency contract.",
+        "On vendor business partners, open the **Agency workers** tab to see the worker pool for that agency and add new workers with **Works for** pre-filled.",
       steps: [
         "Open Business partners and locate or create the staffing vendor.",
         "Confirm type is appropriate (Vendor / agency) and email is correct — shift packs use mailto handoff to this address.",
@@ -290,7 +305,7 @@ export const agencyWorkersArticle: HelpArticle = {
       id: "agency-future-slices",
       title: "Coming in later slices",
       body:
-        "WP-AG.1 delivers the register, gap request workflow, orientation check at confirm, and roster badges. Planned next: agency workers tab on the vendor business partner record (WP-AG.2), full site orientation UI on locations (WP-AG.3), agency timesheet lines and vendor cost (WP-AG.4), and vendor invoice AP-lite (WP-AG.5).",
+        "WP-AG.1 delivers the register, gap request workflow, orientation check at confirm, and roster badges. **WP-AG.2** adds the **Agency workers** tab on vendor business partners. Planned next: full site orientation UI on locations (WP-AG.3), agency timesheet lines and vendor cost (WP-AG.4), and vendor invoice AP-lite (WP-AG.5).",
     },
   ],
 };

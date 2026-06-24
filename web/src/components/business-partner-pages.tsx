@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { AgencyWorkerListView } from "@/components/agency-worker-pages";
 import { AppShell } from "@/components/app-shell";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { agencyWorkersForVendor, isAgencyVendorPartner } from "@/lib/agency-worker";
 import {
   businessPartnerSections,
+  businessPartnerTabHref,
+  businessPartnerTabs,
+  resolveBusinessPartnerTab,
   type BusinessPartnerFieldDef,
   type BusinessPartnerRecord,
+  type BusinessPartnerTab,
 } from "@/lib/business-partner";
 import { useReferenceData } from "@/lib/config-store";
 import { BusinessPartnerList } from "@/components/business-partner-list";
@@ -103,13 +109,108 @@ function PartnerForm({
   );
 }
 
+function BusinessPartnerTabBar({
+  partnerId,
+  activeTab,
+  showAgencyTab,
+  agencyWorkerCount,
+}: {
+  partnerId: string;
+  activeTab: BusinessPartnerTab;
+  showAgencyTab: boolean;
+  agencyWorkerCount: number;
+}) {
+  const tabs = showAgencyTab ? businessPartnerTabs : (["Overview"] as const);
+
+  return (
+    <nav className="mb-4 flex flex-wrap gap-2 border-b border-slate-200 pb-3" aria-label="Business partner sections">
+      {tabs.map((tab) => {
+        const active = tab === activeTab;
+        const href = businessPartnerTabHref(partnerId, tab);
+        const count = tab === "Agency workers" ? agencyWorkerCount : null;
+        return (
+          <Link
+            key={tab}
+            href={href}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              active
+                ? "bg-[#fdf2f8] text-[#b51266] ring-1 ring-[#f9a8d4] ring-inset"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+            aria-current={active ? "page" : undefined}
+          >
+            {tab}
+            {count != null ? (
+              <span className="ml-1.5 rounded-full bg-slate-200/80 px-1.5 py-0.5 text-xs font-semibold text-slate-700">
+                {count}
+              </span>
+            ) : null}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+function BusinessPartnerAgencyWorkersPanel({
+  partner,
+}: {
+  partner: BusinessPartnerRecord;
+}) {
+  const { agencyWorkers } = useData();
+  const { canWriteWindow } = useAuth();
+  const canAddWorker = canWriteWindow("agency-workers");
+  const workers = useMemo(
+    () => agencyWorkersForVendor(agencyWorkers, partner.id, false),
+    [agencyWorkers, partner.id]
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 text-sm text-sky-950">
+        Workers employed by <strong>{partner.name}</strong> appear here. They are registered separately from internal
+        employees and are proposed when requesting agency coverage on roster gaps.
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-600">
+          {workers.length} agency worker{workers.length === 1 ? "" : "s"} linked to this vendor.
+        </p>
+        {canAddWorker ? (
+          <Link
+            href={`/agency-workers/new?vendorBpId=${encodeURIComponent(partner.id)}`}
+            className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#b51266]"
+          >
+            Add agency worker
+          </Link>
+        ) : null}
+      </div>
+      <AgencyWorkerListView vendorBpId={partner.id} hideVendorColumn />
+    </div>
+  );
+}
+
+function BusinessPartnerDetailFallback() {
+  return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
+}
+
 export function BusinessPartnerListView() {
   const { businessPartners } = useData();
   return <BusinessPartnerList records={businessPartners} />;
 }
 
 export function BusinessPartnerDetailView({ id }: { id: string }) {
-  const { businessPartners, upsertBusinessPartner } = useData();
+  return (
+    <Suspense fallback={<BusinessPartnerDetailFallback />}>
+      <BusinessPartnerDetailViewInner id={id} />
+    </Suspense>
+  );
+}
+
+function BusinessPartnerDetailViewInner({ id }: { id: string }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { businessPartners, agencyWorkers, upsertBusinessPartner } = useData();
   const canSave = useModuleSaveAccess("business-partners", "business-partner");
   const stored = businessPartners.find((p) => p.id === id);
   const [draft, setDraft] = useState<BusinessPartnerRecord | null>(null);
@@ -117,6 +218,19 @@ export function BusinessPartnerDetailView({ id }: { id: string }) {
 
   const partner = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
+  const showAgencyTab = Boolean(partner && isAgencyVendorPartner(partner.partnerType));
+  const activeTab = resolveBusinessPartnerTab(searchParams.get("tab"), showAgencyTab);
+  const agencyWorkerCount = useMemo(
+    () => (partner ? agencyWorkersForVendor(agencyWorkers, partner.id, false).length : 0),
+    [agencyWorkers, partner]
+  );
+
+  useEffect(() => {
+    if (!partner) return;
+    if (activeTab === "Agency workers" && !showAgencyTab) {
+      router.replace(businessPartnerTabHref(partner.id, "Overview"));
+    }
+  }, [partner, activeTab, showAgencyTab, router]);
 
   if (!partner) {
     return (
@@ -140,8 +254,15 @@ export function BusinessPartnerDetailView({ id }: { id: string }) {
   function onChange(key: keyof BusinessPartnerRecord, value: string) {
     const base = draft ?? stored;
     if (!base) return;
-    setDraft({ ...base, [key]: value, updatedBy: "SuperUser" });
+    const next = { ...base, [key]: value, updatedBy: "SuperUser" };
+    setDraft(next);
     setSaved(false);
+    if (key === "partnerType" && activeTab === "Agency workers" && !isAgencyVendorPartner(value)) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("tab");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname);
+    }
   }
 
   function onSave() {
@@ -176,12 +297,26 @@ export function BusinessPartnerDetailView({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? partner),
         }}
       >
-        {saved && !hasUnsavedChanges ? <p className="mb-4 text-sm text-emerald-700">Saved</p> : null}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <PartnerForm partner={partner} onChange={onChange} readOnly={!canSave} />
-        </div>
+        <BusinessPartnerTabBar
+          partnerId={partner.id}
+          activeTab={activeTab}
+          showAgencyTab={showAgencyTab}
+          agencyWorkerCount={agencyWorkerCount}
+        />
+        {saved && !hasUnsavedChanges && activeTab === "Overview" ? (
+          <p className="mb-4 text-sm text-emerald-700">Saved</p>
+        ) : null}
+        {activeTab === "Overview" ? (
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <PartnerForm partner={partner} onChange={onChange} readOnly={!canSave} />
+          </div>
+        ) : (
+          <BusinessPartnerAgencyWorkersPanel partner={partner} />
+        )}
       </AppShell>
-      <UnsavedChangesBar visible={hasUnsavedChanges && canSave} onSave={onSave} onDiscard={onDiscard} />
+      {activeTab === "Overview" ? (
+        <UnsavedChangesBar visible={hasUnsavedChanges && canSave} onSave={onSave} onDiscard={onDiscard} />
+      ) : null}
     </>
   );
 }

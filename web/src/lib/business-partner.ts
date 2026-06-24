@@ -302,3 +302,20 @@ export function businessPartnerDirectoryOptions(
 export function businessPartnerOptionLabels(partners: BusinessPartnerRecord[]): Record<string, string> {
   return Object.fromEntries(partners.map((p) => [p.id, `${p.searchKey} — ${p.partnerType}`]));
 }
+
+export const businessPartnerTabs = ["Overview", "Agency workers"] as const;
+export type BusinessPartnerTab = (typeof businessPartnerTabs)[number];
+
+export function resolveBusinessPartnerTab(
+  raw: string | null,
+  showAgencyTab: boolean
+): BusinessPartnerTab {
+  if (showAgencyTab && raw?.trim() === "Agency workers") return "Agency workers";
+  return "Overview";
+}
+
+export function businessPartnerTabHref(partnerId: string, tab: BusinessPartnerTab): string {
+  const base = `/business-partners/${partnerId}`;
+  if (tab === "Overview") return base;
+  return `${base}?tab=${encodeURIComponent(tab)}`;
+}
