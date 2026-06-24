@@ -53,6 +53,7 @@ const INTAKE_ACCESS = {
     "assign-location-employee",
     "assign-location-product",
     "assign-task",
+    "request-activity-deletion",
     "action-task",
     "report-incident",
     "notify-ndis-reportable",

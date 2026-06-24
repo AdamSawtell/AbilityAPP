@@ -157,6 +157,18 @@
       "entryPoints": ["web/src/components/financial-close-pages.tsx", "web/src/components/financial-close-month-panel.tsx"],
       "logic": ["web/src/lib/financial-close.ts", "web/src/lib/financial-close-period.ts"],
       "tables": ["financial_closed_month"]
+    },
+    {
+      "number": 14,
+      "id": "request-activity-deletion",
+      "name": "Request activity deletion",
+      "status": "live",
+      "summary": "Non-admin staff request removal of an activity line; creates an Activity deletion task for the Admin role.",
+      "doc": "docs/processes/14-request-activity-deletion.md",
+      "trigger": "User clicks Request deletion on an activity line in list or drawer",
+      "entryPoints": ["web/src/components/line-item-table.tsx", "web/src/components/record-activities-panel.tsx"],
+      "logic": ["web/src/lib/activity-line-policy.ts", "web/src/lib/data-store.tsx"],
+      "tables": ["app_task", "client_activity", "enquiry_activity", "employee_activity", "support_location_activity"]
     }
   ]
 }

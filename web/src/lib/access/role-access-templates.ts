@@ -61,12 +61,13 @@ export const EXEC_PROCESSES = [
   "assign-location-employee",
   "assign-location-product",
   "assign-task",
+  "request-activity-deletion",
   "action-task",
   "report-incident",
   "notify-ndis-reportable",
 ] as const;
 
-const OFFICER_PROCESSES = ["assign-task", "action-task", "report-incident"] as const;
+const OFFICER_PROCESSES = ["assign-task", "request-activity-deletion", "action-task", "report-incident"] as const;
 
 const MY_WORKPLACE_ACCESS = [...MY_WORKPLACE_WINDOW_KEYS] as const;
 
@@ -210,7 +211,7 @@ export function supportWorkerAccess(): Pick<AppRoleRecord, "windowKeys" | "proce
       ...windowKeysWithDependents("clients", "incidents", "locations"),
       ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
     ],
-    processIds: ["assign-task", "action-task", "report-incident", "assign-location-employee", "submit-leave-request", "submit-employee-credential"],
+    processIds: ["assign-task", "request-activity-deletion", "action-task", "report-incident", "assign-location-employee", "submit-leave-request", "submit-employee-credential"],
     reportIds: ["tasks-all", "location-register", "incident-register"],
     taskTypePermissions: permissionsForTypes(["tt-check", "tt-other", "tt-review"]),
   };

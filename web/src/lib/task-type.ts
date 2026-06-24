@@ -2,6 +2,8 @@
  * Configurable task types — Review, Approve, Check, etc.
  */
 
+export const ACTIVITY_DELETE_TASK_TYPE_ID = "tt-activity-delete";
+
 export type TaskTypeRecord = {
   id: string;
   name: string;
@@ -23,6 +25,13 @@ export const INITIAL_TASK_TYPES: TaskTypeRecord[] = [
   { id: "tt-check", name: "Check", description: "Verify details, documents, or compliance.", active: true, sortOrder: 30 },
   { id: "tt-develop", name: "Develop", description: "Prepare or develop plans, paperwork, or content.", active: true, sortOrder: 40 },
   { id: "tt-decide", name: "Decide", description: "Make a decision on options or next steps.", active: true, sortOrder: 50 },
+  {
+    id: ACTIVITY_DELETE_TASK_TYPE_ID,
+    name: "Activity deletion",
+    description: "Review and remove an activity line when a staff member requests deletion.",
+    active: true,
+    sortOrder: 55,
+  },
   { id: "tt-other", name: "Other", description: "General task not covered by other types.", active: true, sortOrder: 99 },
 ];
 

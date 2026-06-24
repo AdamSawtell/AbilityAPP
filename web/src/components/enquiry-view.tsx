@@ -139,6 +139,12 @@ export function EnquiryTabbedView({
               rows={record.activity}
               onChange={onActivityChange}
               readOnly={!canWriteEnquiryTab("Activity")}
+              activityDeleteContext={{
+                entityType: "enquiry",
+                entityId: record.id,
+                entityLabel: `${record.documentNo} — ${participantName}`,
+                collectionLabel: "Enquiry activity",
+              }}
             />
             <div className="border-t border-slate-200 pt-8">
               <RecordTasksPanel

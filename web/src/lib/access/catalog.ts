@@ -673,6 +673,11 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     description: "Create and assign a task on a record (user or role)",
   },
   {
+    id: "request-activity-deletion",
+    label: "Request activity deletion",
+    description: "Ask an administrator to remove an activity line from a client, enquiry, employee, or location record",
+  },
+  {
     id: "action-task",
     label: "Action task",
     description: "Start, complete or cancel tasks assigned to you or your role",

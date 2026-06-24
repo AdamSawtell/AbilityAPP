@@ -226,6 +226,7 @@
 | Process ID | Trigger | Side effects |
 |------------|---------|--------------|
 | `assign-task` | Record tasks panel or hub | New `app_task` with entity link |
+| `request-activity-deletion` | Request deletion on activity line | `app_task` type `tt-activity-delete` assigned to Admin role |
 | `action-task` | Assignee opens task | Status In progress / Complete / Cancelled |
 
 **Task automations:** System rules create tasks on leave submit, credential submit, roster publish, etc. (`/system/admin/task-automations`).
@@ -277,6 +278,7 @@ All document processes follow the same pattern:
 | 2 | `assign-employee-credential` | Assign employee credential |
 | 3–5 | `assign-location-*` | Location assignments |
 | 6–7 | `assign-task`, `action-task` | Tasks |
+| 14 | `request-activity-deletion` | Activity deletion request → admin task |
 | 8–12 | leave + credential workflows | My workplace + workforce planning |
 | 13 | `financial-month-close` | Financial month close |
 

@@ -88,7 +88,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "alerts-activity",
       title: "Alerts and Activity",
-      body: "Alerts hold incident and care flags with valid-from and valid-to dates. Activity logs phone calls, visits, and case notes. Client line tabs use a summary list — click a row to open the line drawer for full fields (descriptions, controls, notes). Save the parent record to persist.",
+      body: "Alerts hold incident and care flags with valid-from and valid-to dates. Activity logs phone calls, visits, and case notes. Client line tabs use a summary list — click a row to open the line drawer for full fields (descriptions, controls, notes). Save the parent record to persist. Activity lines can only be removed by an administrator; other roles use Request deletion to send a task to the admin team.",
       windowKeys: ["client-alerts", "client-activity"],
     },
     {
@@ -182,7 +182,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "contact-activity-tab",
       title: "Contact Activity tab",
-      body: "Log outreach with associated contacts. Separate from the core Activity tab. Uses the same summary list and line drawer pattern — click a row to edit, then Save on the client record.",
+      body: "Log outreach with associated contacts. Separate from the core Activity tab. Uses the same summary list and line drawer pattern — click a row to edit, then Save on the client record. Removal follows the same admin-only rule as Activity — use Request deletion if you are not an administrator.",
       windowKeys: ["client-contact-activity"],
     },
     {

@@ -19,6 +19,8 @@ type RecordLineDrawerProps<TRow extends RowBase> = {
   onChange: (key: keyof TRow, value: string | number | boolean) => void;
   onDuplicate?: () => void;
   onRemove?: () => void;
+  onRequestDeletion?: () => void;
+  deletionPending?: boolean;
 };
 
 export function RecordLineDrawer<TRow extends RowBase>({
@@ -34,6 +36,8 @@ export function RecordLineDrawer<TRow extends RowBase>({
   onChange,
   onDuplicate,
   onRemove,
+  onRequestDeletion,
+  deletionPending = false,
 }: RecordLineDrawerProps<TRow>) {
   useEffect(() => {
     if (!open) return;
@@ -110,6 +114,16 @@ export function RecordLineDrawer<TRow extends RowBase>({
                   className="rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
                 >
                   Remove
+                </button>
+              ) : null}
+              {onRequestDeletion ? (
+                <button
+                  type="button"
+                  onClick={onRequestDeletion}
+                  disabled={deletionPending}
+                  className="rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm font-medium text-amber-900 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {deletionPending ? "Deletion requested" : "Request deletion"}
                 </button>
               ) : null}
             </div>

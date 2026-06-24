@@ -165,6 +165,7 @@ export const employeeDocumentTableConfig: GenericTableConfig<EmployeeDocumentRow
 export const employeeActivityTableConfig: GenericTableConfig<EmployeeActivityRow> = {
   addLabel: "Add activity",
   emptyMessage: "No activity logged yet. Record onboarding, training, and HR notes.",
+  deletePolicy: "admin-only",
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "date", label: "Date", type: "date", required: true },

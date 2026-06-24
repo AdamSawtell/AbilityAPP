@@ -538,6 +538,12 @@ export function LocationTabbedView({
               onChange={onActivitiesChange}
               dropdowns={referenceDropdowns}
               readOnly={!canWriteLocationTab("Activity")}
+              activityDeleteContext={{
+                entityType: "location",
+                entityId: location.id,
+                entityLabel: `${location.searchKey} — ${location.name}`,
+                collectionLabel: "Location activity",
+              }}
             />
           </div>
         ) : null}

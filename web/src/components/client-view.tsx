@@ -490,13 +490,19 @@ export function ClientTabbedView({
           <>
             <ClientTabIntro
               title="Activity"
-              description="Log calls, visits, and notes for this support receiver. The list shows date, type, and subject — click a row to open the full editor. Activity from enquiry conversion is carried forward here."
+              description="Log calls, visits, and notes for this support receiver. The list shows date, type, and subject — click a row to open the full editor. Only administrators can remove activity lines; use Request deletion to ask the admin team. Activity from enquiry conversion is carried forward here."
             />
             <LineItemTable
               config={activityTableConfig}
               rows={client.activity}
               readOnly={!canWriteClientTab("Activity")}
               onChange={(rows) => onLineItemsChange("activity", rows)}
+              activityDeleteContext={{
+                entityType: "client",
+                entityId: client.id,
+                entityLabel: `${client.searchKey} — ${client.name}`,
+                collectionLabel: "Client activity",
+              }}
             />
           </>
         ) : null}
@@ -589,6 +595,12 @@ export function ClientTabbedView({
               rows={client.contactActivity ?? []}
               readOnly={!canWriteClientTab("Contact Activity")}
               onChange={(rows) => onLineItemsChange("contactActivity", rows)}
+              activityDeleteContext={{
+                entityType: "client",
+                entityId: client.id,
+                entityLabel: `${client.searchKey} — ${client.name}`,
+                collectionLabel: "Contact activity",
+              }}
             />
           </>
         ) : null}

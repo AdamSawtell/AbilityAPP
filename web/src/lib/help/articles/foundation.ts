@@ -66,7 +66,7 @@ export const navigationArticle: HelpArticle = {
   keywords: ["sidebar", "tabs", "workspace", "navigate", "open records", "save", "unsaved"],
   relatedRoutes: ["/"],
   windowKeys: [],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "sidebar",
@@ -97,6 +97,7 @@ export const navigationArticle: HelpArticle = {
       bullets: [
         "Overview tabs show summary fields and key compliance flags.",
         "Line-item tabs such as Alerts, Activity, and Consents use editable tables with Add row.",
+        "Activity lines (client, enquiry, employee, and location) can only be removed by an administrator. Other roles use Request deletion to create an admin task.",
         "Some tabs are placeholders while parity with AbilityERP is still in progress.",
       ],
     },

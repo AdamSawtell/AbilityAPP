@@ -107,6 +107,7 @@ export const locationProductLinkTableConfig: GenericTableConfig<LocationProductL
 export const locationActivityTableConfig: GenericTableConfig<LocationActivityRow> = {
   addLabel: "Add activity",
   emptyMessage: "No activity recorded for this location yet.",
+  deletePolicy: "admin-only",
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "date", label: "Date", type: "date", required: true },

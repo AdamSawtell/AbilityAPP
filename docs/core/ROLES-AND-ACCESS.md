@@ -148,6 +148,8 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 |----------|---------------|---------|-----------|
 | Task hub | All | `tasks`, `tasks-assigned-to-me`, etc. | `action-task` |
 | Assign on record | Coordinators, managers | Parent record tab (write) | `assign-task` |
+| Request activity line removal | Staff with activity write (non-admin) | Activity tab on client, enquiry, employee, or location | `request-activity-deletion` |
+| Remove activity line | **AbilityVua Admin only** | Same Activity tabs | — (direct Remove in line drawer) |
 
 ### §18–20 Documents, AI, admin
 

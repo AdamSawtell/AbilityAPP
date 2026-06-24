@@ -43,6 +43,24 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-062 — Activity deletion policy
+
+| | |
+|--|--|
+| **User** | GabrielaWilson / welcome → Support Coordinator (non-admin), then SuperUser / flamingo |
+| **DATA** | `bp-bern` |
+| **Pass if** | Non-admin sees Request deletion (not Remove); request creates admin task; admin sees Remove |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | As coordinator, open `/clients/bp-bern?tab=Activity` | Hint about admin-only removal |
+| 2 | Open a row in drawer | Request deletion visible; no Remove |
+| 3 | Click Request deletion | Success message with task number |
+| 4 | Switch to SuperUser (Admin) | Remove visible in drawer |
+| 5 | Tasks for Admin role | Open activity-deletion task linked to client |
+
+---
+
 ## TEST-020 — Flow 2 convert to client
 
 | | |

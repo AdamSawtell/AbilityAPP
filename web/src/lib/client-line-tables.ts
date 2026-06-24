@@ -165,6 +165,8 @@ export type ClientLineCollectionKey =
   | "needsAndRules"
   | "planBudgets";
 
+import type { LineDeletePolicy } from "@/lib/activity-line-policy";
+
 export type LineItemLayout = "table" | "list-drawer";
 
 export type ClientTabTableConfig<TRow extends { id: string }> = {
@@ -178,6 +180,8 @@ export type ClientTabTableConfig<TRow extends { id: string }> = {
   /** Summary columns for list-drawer layout (full columns stay in the drawer). */
   listColumnKeys?: (keyof TRow & string)[];
   drawerTitle?: string;
+  /** When `admin-only`, only administrators can remove lines; others request deletion. */
+  deletePolicy?: LineDeletePolicy;
 };
 
 let lineId = 0;
@@ -221,6 +225,7 @@ export const activityTableConfig: ClientTabTableConfig<ClientActivityRow> = {
   layout: "list-drawer",
   drawerTitle: "Activity",
   listColumnKeys: ["date", "activityType", "subject", "createdBy"],
+  deletePolicy: "admin-only",
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "date", label: "Date", type: "date", required: true },
@@ -391,6 +396,7 @@ export const contactActivityTableConfig: ClientTabTableConfig<ClientContactActiv
   layout: "list-drawer",
   drawerTitle: "Contact activity",
   listColumnKeys: ["date", "activityType", "contactName", "subject"],
+  deletePolicy: "admin-only",
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "date", label: "Date", type: "date", required: true },

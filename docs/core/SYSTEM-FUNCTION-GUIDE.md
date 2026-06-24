@@ -92,7 +92,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Full profile** ÔÇö extended clinical, cultural, communication, billing fields | Coordinators+ | Rich record for care and compliance | Live |
 | **Lifecycle status** ÔÇö intake ÔåÆ active ÔåÆ exit with reason and dates | Coordinators+ | Filters, badges, booking compliance checks | Live |
 | **Alerts** ÔÇö flag risks; optional header roll-up | Coordinators+ | Workers see warnings before delivering support | Live |
-| **Activity** ÔÇö case notes, calls, visits | All staff (role-gated) | Chronological participant history | Live |
+| **Activity** — case notes, calls, visits; admin-only removal; staff request deletion | All staff (role-gated) | Chronological participant history; admin removes lines or actions request task | Live |
 | **Locations** ÔÇö service and postal addresses linked to client | Coordinators+ | Rostering and correspondence addresses | Live |
 | **BP associations** ÔÇö guardians, family, referrers, plan managers | Coordinators+ | Linked business partners on the record | Live |
 | **Consents and legal orders** ÔÇö NDIS core consents + orders | Coordinators+ | Consent compliance; summary on Overview | Live |

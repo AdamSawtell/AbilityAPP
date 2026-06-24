@@ -612,6 +612,12 @@ export function EmployeeTabbedView({
             onChange={onActivitiesChange}
             dropdowns={employeeDropdowns}
             readOnly={!canWriteEmployeeTab("Activity")}
+            activityDeleteContext={{
+              entityType: "employee",
+              entityId: employee.id,
+              entityLabel: `${employee.searchKey} — ${employee.name}`,
+              collectionLabel: "Employee activity",
+            }}
           />
         ) : null}
 

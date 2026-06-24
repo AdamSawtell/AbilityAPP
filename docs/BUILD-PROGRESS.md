@@ -19,6 +19,31 @@
 
 ---
 
+## WP-ACT.1 — Activity deletion governance (2026-06-23)
+
+**Status:** ✅ Shipped
+
+Only **AbilityVua Admin** can remove activity lines. All other roles use **Request deletion**, which creates an **Activity deletion** task (`tt-activity-delete`) assigned to the admin role.
+
+| Area | Change |
+|------|--------|
+| `activity-line-policy.ts` | Admin check, task builder, dedupe |
+| `line-item-table.tsx` / `record-line-drawer.tsx` | Remove vs Request deletion UI |
+| Activity table configs | `deletePolicy: admin-only` on client, enquiry, employee, location activity |
+| `request-activity-deletion` | Process in catalog + seed grants |
+| Migration | `tt-activity-delete` task type |
+
+### What you can test — WP-ACT.1
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Non-admin on `/clients/bp-bern?tab=Activity` | Request deletion in drawer; no Remove |
+| 2 | Click Request deletion | Success message; task created |
+| 3 | SuperUser (Admin) on same tab | Remove visible |
+| 4 | Enquiry / employee / location Activity tabs | Same policy |
+
+---
+
 ## WP-UX.1 — Client line list + drawer (2026-06-24)
 
 **Status:** ✅ Shipped
@@ -1606,7 +1631,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
-| 2026-06-24 | WP-UX.1 | `localhost:3000/clients/bp-bern?tab=Activity` | **Pass** | Summary list; row click opens drawer (description, Duplicate, Remove); parent-save hint |
+| 2026-06-23 | WP-ACT.1 | `localhost:3000/clients/bp-bern?tab=Activity` | **Pass** | Admin: Remove in drawer; GabrielaWilson: Request deletion → REQ-3207 |
 | 2026-06-23 | AbilityVua rebrand | `app.abilityvua.com` `/login`, `/`, `/clients`, `/help`, `/portal/login` | **Partial** | Staff login, session, DB org/role **Pass**; portal demo link was localhost pre-deploy; UI branding ships with this commit |
 | 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
 | 2026-06-20 | WP-D.5 | `/rostering` Gaps + Forward plan tabs | **Pass** | Gaps tab loads; forward plan shows coverage gaps card |

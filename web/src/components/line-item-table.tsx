@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { formatLineCellValue, LineCellInput } from "@/components/line-cell-input";
+import { LineCellInput, formatLineCellValue } from "@/components/line-cell-input";
 import { RecordLineDrawer } from "@/components/record-line-drawer";
 import { useReferenceData } from "@/lib/config-store";
 import { clientDropdowns } from "@/lib/client";
@@ -10,6 +10,17 @@ import {
   type ClientTabTableConfig,
   type LineColumnDef,
 } from "@/lib/client-line-tables";
+import { useAuth } from "@/lib/auth-store";
+import { useData } from "@/lib/data-store";
+import {
+  buildActivityDeletionRequestTask,
+  canDeleteActivityLines,
+  findOpenActivityDeleteRequest,
+  type ActivityLineDeleteContext,
+} from "@/lib/activity-line-policy";
+import { trackProcessExecution } from "@/lib/process-audit/track.client";
+
+import type { LineDeletePolicy } from "@/lib/activity-line-policy";
 
 type RowBase = { id: string; lineNo: number };
 
@@ -24,11 +35,13 @@ type GenericTableConfig<TRow extends RowBase> = {
   emptyMessage?: string;
   listColumnKeys?: (keyof TRow & string)[];
   drawerTitle?: string;
+  /** When `admin-only`, only administrators can remove lines; others request deletion. */
+  deletePolicy?: LineDeletePolicy;
 };
 
 export type LineItemTableLayout = "table" | "list-drawer";
 
-export type { GenericTableConfig, GenericColumn };
+export type { GenericTableConfig, GenericColumn, ActivityLineDeleteContext };
 
 /** Internal row keys — kept on data for ordering/persistence but not shown in volume tables. */
 const HIDDEN_LINE_TABLE_COLUMN_KEYS = new Set(["lineNo"]);
@@ -65,6 +78,7 @@ export function LineItemTable<TRow extends RowBase>({
   optionLabels,
   readOnly = false,
   layout: layoutProp,
+  activityDeleteContext,
 }: {
   config: GenericTableConfig<TRow> | ClientTabTableConfig<TRow>;
   rows: TRow[];
@@ -74,9 +88,23 @@ export function LineItemTable<TRow extends RowBase>({
   readOnly?: boolean;
   /** Override config.layout — `list-drawer` shows summary list + side drawer. */
   layout?: LineItemTableLayout;
+  /** Required when deletePolicy is admin-only — links deletion requests to the parent record. */
+  activityDeleteContext?: ActivityLineDeleteContext;
 }) {
   const layout = layoutProp ?? ("layout" in config ? config.layout : undefined) ?? "table";
   const { catalog } = useReferenceData();
+  const { session, roles, canProcess } = useAuth();
+  const { tasks, addTask } = useData();
+  const activeRole = roles.find((role) => role.id === session?.activeRoleId) ?? session?.activeRoleId ?? null;
+  const deletePolicy = "deletePolicy" in config ? config.deletePolicy : undefined;
+  const adminOnlyDelete = deletePolicy === "admin-only";
+  const canDelete = !readOnly && canDeleteActivityLines(deletePolicy, activeRole);
+  const canRequestDeletion =
+    !readOnly &&
+    adminOnlyDelete &&
+    !canDelete &&
+    Boolean(activityDeleteContext) &&
+    canProcess("request-activity-deletion");
   const resolvedDropdowns = useMemo(() => {
     const fromCatalog = Object.fromEntries(
       Object.entries(catalog).map(([key, options]) => [key, options])
@@ -85,6 +113,7 @@ export function LineItemTable<TRow extends RowBase>({
   }, [catalog, dropdowns]);
   const [search, setSearch] = useState("");
   const [drawerRowId, setDrawerRowId] = useState<string | null>(null);
+  const [requestMessage, setRequestMessage] = useState<string | null>(null);
 
   const visibleColumns = useMemo(
     () => config.columns.filter((col) => !HIDDEN_LINE_TABLE_COLUMN_KEYS.has(col.key)),
@@ -124,8 +153,39 @@ export function LineItemTable<TRow extends RowBase>({
   }
 
   function removeRow(id: string) {
+    if (!canDelete) return;
     onChange(renumberLines(rows.filter((row) => row.id !== id)));
     if (drawerRowId === id) setDrawerRowId(null);
+  }
+
+  function requestDeletion(row: TRow) {
+    if (!canRequestDeletion || !activityDeleteContext || !session) return;
+    const existing = findOpenActivityDeleteRequest(
+      tasks,
+      activityDeleteContext.entityType,
+      activityDeleteContext.entityId,
+      row.id
+    );
+    if (existing) {
+      setRequestMessage(`Deletion already requested (${existing.documentNo}). An administrator will review it.`);
+      return;
+    }
+    const partial = buildActivityDeletionRequestTask({
+      row,
+      context: activityDeleteContext,
+      createdByUserId: session.userId,
+      createdBy: session.displayName,
+      existingTasks: tasks,
+    });
+    const created = addTask(partial, { assigneeDisplayName: "AbilityVua Admin" });
+    trackProcessExecution({
+      processId: "request-activity-deletion",
+      entityType: activityDeleteContext.entityType,
+      entityId: activityDeleteContext.entityId,
+      entityLabel: activityDeleteContext.entityLabel,
+      detail: `Requested removal of ${activityDeleteContext.collectionLabel} line ${row.lineNo} (${created.documentNo})`,
+    });
+    setRequestMessage(`Deletion request sent (${created.documentNo}). An administrator will review and remove the line if appropriate.`);
   }
 
   function duplicateRow(id: string) {
@@ -220,14 +280,25 @@ export function LineItemTable<TRow extends RowBase>({
                           >
                             Copy
                           </button>
-                          <button
-                            type="button"
-                            title="Remove row"
-                            onClick={() => removeRow(row.id)}
-                            className="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-                          >
-                            Remove
-                          </button>
+                          {canDelete ? (
+                            <button
+                              type="button"
+                              title="Remove row"
+                              onClick={() => removeRow(row.id)}
+                              className="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                            >
+                              Remove
+                            </button>
+                          ) : canRequestDeletion ? (
+                            <button
+                              type="button"
+                              title="Request administrator to remove this line"
+                              onClick={() => requestDeletion(row)}
+                              className="rounded-md px-2 py-1 text-xs text-amber-800 hover:bg-amber-50"
+                            >
+                              Request deletion
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     )}
@@ -254,6 +325,22 @@ export function LineItemTable<TRow extends RowBase>({
         {readOnly ? " · Read-only" : ` · ${footerNote}`}
       </p>
 
+      {adminOnlyDelete && !readOnly ? (
+        <p className="text-xs text-slate-500">
+          {canDelete
+            ? "As an administrator you can remove activity lines directly."
+            : canRequestDeletion
+              ? "Activity lines can only be removed by an administrator. Use Request deletion to send a task to the admin team."
+              : "Activity lines can only be removed by an administrator."}
+        </p>
+      ) : null}
+
+      {requestMessage ? (
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900" role="status">
+          {requestMessage}
+        </p>
+      ) : null}
+
       {layout === "list-drawer" ? (
         <RecordLineDrawer
           open={Boolean(drawerRow)}
@@ -277,11 +364,30 @@ export function LineItemTable<TRow extends RowBase>({
                 }
           }
           onRemove={
-            readOnly || !drawerRow
+            readOnly || !drawerRow || !canDelete
               ? undefined
               : () => {
                   removeRow(drawerRow.id);
                 }
+          }
+          onRequestDeletion={
+            readOnly || !drawerRow || !canRequestDeletion
+              ? undefined
+              : () => {
+                  requestDeletion(drawerRow);
+                }
+          }
+          deletionPending={
+            drawerRow && activityDeleteContext
+              ? Boolean(
+                  findOpenActivityDeleteRequest(
+                    tasks,
+                    activityDeleteContext.entityType,
+                    activityDeleteContext.entityId,
+                    drawerRow.id
+                  )
+                )
+              : false
           }
         />
       ) : null}
