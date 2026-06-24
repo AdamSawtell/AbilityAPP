@@ -67,6 +67,37 @@ export const initialAgencyTimesheets: AgencyTimesheetRecord[] = [
     createdBy: "Riley Shaw",
     updatedBy: "Riley Shaw",
   },
+  {
+    id: "at-demo-staffplus-upload",
+    documentNo: "ATS-DEMO-02",
+    vendorBpId: "bp-staffplus",
+    periodStart: "2025-10-13",
+    periodEnd: "2025-10-19",
+    status: "Approved",
+    totalHours: 4,
+    totalVendorCost: 290,
+    notes: "Demo approved timesheet for mandatory invoice document upload smoke test",
+    lines: [
+      {
+        id: "atl-demo-upload-smoke",
+        lineNo: 1,
+        rosterShiftId: "rs-bern-agency-upload-smoke",
+        agencyShiftRequestId: "asr-demo-upload-smoke",
+        agencyWorkerId: "aw-sp-mike",
+        clientId: "bp-bern",
+        locationId: "loc-glenelg-sil",
+        shiftDate: "2025-10-15",
+        startTime: "10:00",
+        endTime: "14:00",
+        hours: 4,
+        vendorHourlyRate: 72.5,
+        vendorCost: 290,
+        notes: "",
+      },
+    ],
+    createdBy: "Riley Shaw",
+    updatedBy: "Riley Shaw",
+  },
 ];
 
 export function emptyAgencyTimesheetLine(lineNo: number): AgencyTimesheetLine {

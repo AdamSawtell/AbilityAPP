@@ -129,7 +129,7 @@ Agency vendors sign in at `/agency-portal` (magic link on vendor BP email). Staf
 
 1. `/agency-portal/login` — `roster@staffplus.example` → **Open agency portal** → **Shift requests** → confirm **ASR-DEMO-02** (Mike or Jane).
 2. Rostering Gaps (week 2025-10-06) — **BERN-TUE-VAC** drawer: mailto pack, portal status, confirm after **Worker proposed**.
-3. `/agency-portal/invoices` — submit against **ATS-DEMO-01** (approved timesheet).
+3. `/agency-portal/invoices` — submit against **ATS-DEMO-02** (approved timesheet, reserved for invoice document upload smoke).
 4. `/vendor-invoices` — approve submitted invoice; mark paid.
 
 **Smoke (2026-06-23):** localhost portal login + hub **pass**; remote seeds require migrations `20260625650000` + `20260625660000` if `supabase:push-remote` hits duplicate-version errors.
@@ -137,6 +137,8 @@ Agency vendors sign in at `/agency-portal` (magic link on vendor BP email). Staf
 **Amplify smoke (2026-06-25):** remote migrations `20260625620000`–`20260625660000` applied via `run-all-remote-seeds.mjs --file` (push blocked by duplicate-timestamp history; reconciled with `supabase migration repair`). On `app.abilityvua.com`: agency portal magic-link sign-in (`roster@staffplus.example` demo link) → hub → **Shift requests** shows seeded **ASR-DEMO-02 (Sent)** + ASR-DEMO-01 → confirm coverage proposing **Mike Relief** → status **Worker proposed** (persisted) → **Invoices** submit against **ATS-DEMO-01** → **VI-50001 / SP-INV-1042 / $435.00 / Submitted** (persisted). Staff `/vendor-invoices` (Riley Shaw) lists **VI-50001** with audit attributed to **Agency portal (roster@staffplus.example)**; approve/mark-paid actions correctly hidden for read-only Rostering Manager (gating verified). **Fixed:** circular FK in `20260625630000` agency timesheet demo seed (roster_shift ↔ agency_shift_request) so the migration applies cleanly on a fresh remote.
 
 **Follow-up (2026-06-25):** mandatory invoice document on portal submit — PDF or image (max 10 MB), stored in `org-documents` bucket; staff and vendor can view via signed URL. Migration `20260625670000`.
+
+**Upload smoke seed (2026-06-25):** **ATS-DEMO-02** (`at-demo-staffplus-upload`) added for StaffPlus so the portal invoice submit form remains testable after **ATS-DEMO-01** is invoiced. Migration `20260625680000` applied to remote and repaired into migration history.
 
 ---
 
