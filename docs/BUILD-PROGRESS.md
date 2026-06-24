@@ -13,7 +13,7 @@
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
 | **Next slice** | Employee/incident line drawers or feature backlog (see [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md)) |
-| **Last push** | 2026-06-24 — admin-only activity deletion (`cadcf71`) |
+| **Last push** | 2026-06-24 — agency staffing WP-AG.1 (`92408a5`) |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
@@ -40,6 +40,8 @@ Agency workers are flagged separately from employees and linked to a staffing ve
 2. Rostering → **Gaps** (week of 2025-10-06) — vacant **BERN-TUE-VAC** → **Request agency**.
 3. Create request for StaffPlus, propose Jane Agency, send shift pack, confirm (orientation on file for Glenelg SIL).
 4. Week view shows agency worker with **Agency** badge.
+
+**Smoke (2026-06-24):** localhost — `/agency-workers` **Pass** (Jane/Mike + StaffPlus from Supabase). `/rostering?week=2025-10-06` Gaps tab **Pass** (BERN 2025-10-07 vacant listed). **Request agency** buttons require rostering-manager/coordinator process grant — not shown for Intake Coordinator (GabrielaWilson); retest as RileyShaw after session refresh. Remote DB: migrations `20260625600000` + `20260625610000` applied via pg runner + repair.
 
 ---
 
