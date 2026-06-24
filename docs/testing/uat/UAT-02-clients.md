@@ -13,7 +13,7 @@
 |--------|-----|-------|----------|--------|
 | UAT-02-T-001 | Overview | Open; save a field | Persists; audit | **Pass** — `bp-bern` overview + audit footer |
 | UAT-02-T-002 | Alerts | Add alert line | Line table + audit | **Pass** — tab visible; 2 alerts on Bern |
-| UAT-02-T-003 | Activity | Add case note | HP-061 pattern | **Pass** — Activity tab loads (3 lines on Bern) |
+| UAT-02-T-003 | Activity | Add case note via list + drawer | HP-061 pattern | **Pass** — Activity tab loads (3 lines on Bern); click row opens drawer |
 | UAT-02-T-004 | Full profile | Lifecycle intake → active → exit (`bp-e2e-exit`) | Filter + exit reason | **Pass** — exit + Voluntary withdrawal saved |
 | UAT-02-T-005 | BP Associations | Link plan manager BP | Saves | **Pass** — tab visible on Bern |
 | UAT-02-T-006 | Locations | Assign location line | Process 03 | **Pass** — 2 locations on Bern |

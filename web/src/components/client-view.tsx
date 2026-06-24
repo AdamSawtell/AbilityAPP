@@ -490,7 +490,7 @@ export function ClientTabbedView({
           <>
             <ClientTabIntro
               title="Activity"
-              description="Log calls, visits, and notes for this support receiver. Activity from enquiry conversion is carried forward here."
+              description="Log calls, visits, and notes for this support receiver. The list shows date, type, and subject — click a row to open the full editor. Activity from enquiry conversion is carried forward here."
             />
             <LineItemTable
               config={activityTableConfig}

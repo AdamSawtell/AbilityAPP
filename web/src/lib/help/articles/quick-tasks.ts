@@ -40,7 +40,7 @@ export const quickTaskArticles: HelpArticle[] = [
       {
         id: "after-creation",
         title: "After the client exists",
-        body: "The client keeps a link to the source enquiry. Continue setup on client tabs your role can access. For line tables such as Consents and Restrictive Practices, use Add row, edit, then Save on the record.",
+        body: "The client keeps a link to the source enquiry. Continue setup on client tabs your role can access. Line tables show a summary list — click a row to open the drawer, edit fields, then Save on the record.",
         relatedRoutes: ["/clients"],
       },
       {

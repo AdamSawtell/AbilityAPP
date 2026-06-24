@@ -93,7 +93,7 @@ export const navigationArticle: HelpArticle = {
     {
       id: "detail-tabs",
       title: "Tabs inside a record",
-      body: "Each record has its own tab menu on the left on desktop, or as chips on mobile. Tabs group related fields and line tables. The URL includes ?tab= so you can bookmark or share a specific tab.",
+      body: "Each record has its own tab menu on the left on desktop, or as chips on mobile. Tabs group related fields and line tables. Line tables on client records show a summary list; click a row to open the line drawer for full fields. Changes save with the parent record. The URL includes ?tab= so you can bookmark or share a specific tab.",
       bullets: [
         "Overview tabs show summary fields and key compliance flags.",
         "Line-item tabs such as Alerts, Activity, and Consents use editable tables with Add row.",
@@ -134,7 +134,7 @@ export const homeArticle: HelpArticle = {
   keywords: ["home", "dashboard", "calendar", "welcome", "assistant", "briefing"],
   relatedRoutes: ["/"],
   windowKeys: ["home"],
-  lastUpdated: "2026-06-22",
+  lastUpdated: "2026-06-24",
   sections: [
     {
       id: "overview",

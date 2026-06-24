@@ -12,14 +12,44 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
-| **Next slice** | Feature backlog — catalogue/pricing tools, compliance depth, or portal production hardening (see [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md)) |
-| **Last push** | 2026-06-23 — core docs portal access URLs; help article |
+| **Next slice** | Employee/incident line drawers or feature backlog (see [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md)) |
+| **Last push** | 2026-06-24 — client line list + drawer UX |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
 
-## Chunk D — Document platform (live tracker)
+## WP-UX.1 — Client line list + drawer (2026-06-24)
+
+**Status:** ✅ Shipped
+
+Summary list + side drawer for all client child line tabs. Parent record save and audit unchanged.
+
+| Area | Change |
+|------|--------|
+| `line-cell-input.tsx` | Shared field renderer |
+| `record-line-drawer.tsx` | Side drawer for one line |
+| `line-item-table.tsx` | `layout: "list-drawer"` from config or prop |
+| `client-line-tables.ts` | All client tab configs → list-drawer + summary columns |
+| Enquiry Activity | Same pattern via `activityTableConfig` |
+
+### What you can test — WP-UX.1
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/clients/bp-bern?tab=Activity` | Summary list (date, type, subject); no wide description column |
+| 2 | Click an activity row | Drawer opens with all fields including description |
+| 3 | Edit subject in drawer; Save client | Persists after refresh; audit trail |
+| 4 | Add activity | Drawer opens for new row |
+| 5 | `/enquiries/1000025?tab=Activity` | Same list + drawer pattern |
+| 6 | Alerts / Risks / Plan budget tabs | Summary list + drawer (not inline wide table) |
+| 7 | `npm run build` + `page-guides:check` | Exit 0 |
+
+**Browser smoke (2026-06-24):** localhost `/clients/bp-bern?tab=Activity` — summary list, row click opens drawer with description, Duplicate/Remove, parent-save hint — **Pass**
+
+**Docs:** `clients-locations.ts`, `core.ts`, `foundation.ts`, `quick-tasks.ts`, `BUILD-EXPECTATIONS.md`, `HAPPY-PATH-E2E-MATRIX.md`, `TEST-RUNBOOKS.md`, `UAT-02-clients.md`
+
+---
 
 | Stage | Deliverable | Status |
 |-------|-------------|--------|
@@ -1576,6 +1606,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-24 | WP-UX.1 | `localhost:3000/clients/bp-bern?tab=Activity` | **Pass** | Summary list; row click opens drawer (description, Duplicate, Remove); parent-save hint |
 | 2026-06-23 | AbilityVua rebrand | `app.abilityvua.com` `/login`, `/`, `/clients`, `/help`, `/portal/login` | **Partial** | Staff login, session, DB org/role **Pass**; portal demo link was localhost pre-deploy; UI branding ships with this commit |
 | 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
 | 2026-06-20 | WP-D.5 | `/rostering` Gaps + Forward plan tabs | **Pass** | Gaps tab loads; forward plan shows coverage gaps card |
@@ -1636,6 +1667,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-24 | WP-UX.1 uncommitted | 0 | **Pass** | List-drawer UX; no findings |
 | 2026-06-23 | Incident SLA + sidebar branding pre-push | 1 Medium | **Pass** | Fixed: org profile save preserves SLA from incident management page |
 | 2026-06-23 | List dashboards pre-push | 1 Medium + 1 Low | **Pass** | Fixed: due-soon window ±7 days only; in-progress card excludes Drafted |
 | 2026-06-22 | WP-BP.1 pre-push | 1 High + 3 Medium | **Pass** | Fixed: ACCESS_WINDOWS index shift (reports restored); duplicate search key on upsert; inactive plan manager in directory options; read-only line table option labels |

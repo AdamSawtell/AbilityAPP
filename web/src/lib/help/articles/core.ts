@@ -84,7 +84,7 @@ export const enquiriesArticle: HelpArticle = {
   keywords: ["enquiry", "intake", "participant", "convert", "client", "enquiry to client", "pipeline", "loss reason", "hubspot", "crm", "cross-sell", "web to lead"],
   relatedRoutes: ["/enquiries", "/enquiries/new"],
   windowKeys: ["enquiries"],
-  lastUpdated: "2026-06-20",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "enquiry-list",
@@ -113,7 +113,7 @@ export const enquiriesArticle: HelpArticle = {
         "Qualification: NDIS scoring fields, auto-score, and tier breakdown",
         "Participant: name, contact, demographics, and funding hints",
         "Support needs: disability, services sought, and notes",
-        "Activity: line table of calls, emails, and meetings",
+        "Activity: summary list — click a row to log calls, emails, and meetings in the drawer",
       ],
     },
     {

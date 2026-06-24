@@ -5,7 +5,7 @@ import {
   normalizeConsentType,
 } from "@/lib/client-consent";
 
-export type LineColumnType = "text" | "date" | "select" | "textarea" | "number";
+export type LineColumnType = "text" | "date" | "select" | "textarea" | "number" | "checkbox";
 
 export type LineColumnDef<TRow extends { id: string }> = {
   key: keyof TRow & string;
@@ -165,12 +165,19 @@ export type ClientLineCollectionKey =
   | "needsAndRules"
   | "planBudgets";
 
+export type LineItemLayout = "table" | "list-drawer";
+
 export type ClientTabTableConfig<TRow extends { id: string }> = {
   collectionKey: ClientLineCollectionKey;
   columns: LineColumnDef<TRow>[];
   emptyRow: (lineNo: number) => TRow;
   addLabel?: string;
   emptyMessage?: string;
+  /** Summary list + side drawer (default for client line tabs). Parent record save unchanged. */
+  layout?: LineItemLayout;
+  /** Summary columns for list-drawer layout (full columns stay in the drawer). */
+  listColumnKeys?: (keyof TRow & string)[];
+  drawerTitle?: string;
 };
 
 let lineId = 0;
@@ -183,6 +190,9 @@ export const alertTableConfig: ClientTabTableConfig<ClientAlertRow> = {
   collectionKey: "alerts",
   addLabel: "Add alert",
   emptyMessage: "No alerts yet. Add one to flag risks or incidents for this client.",
+  layout: "list-drawer",
+  drawerTitle: "Alert",
+  listColumnKeys: ["alertType", "name", "showAsAlert", "validFrom"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "alertType", label: "Alert type", type: "select", optionsKey: "alertType", required: true },
@@ -208,6 +218,9 @@ export const activityTableConfig: ClientTabTableConfig<ClientActivityRow> = {
   collectionKey: "activity",
   addLabel: "Add activity",
   emptyMessage: "No activity logged yet. Record calls, visits, and notes here.",
+  layout: "list-drawer",
+  drawerTitle: "Activity",
+  listColumnKeys: ["date", "activityType", "subject", "createdBy"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "date", label: "Date", type: "date", required: true },
@@ -232,6 +245,9 @@ export const restrictivePracticeTableConfig: ClientTabTableConfig<ClientRestrict
   addLabel: "Add restrictive practice",
   emptyMessage:
     "No restrictive practices recorded. Document any regulated restrictive practices authorised for this support receiver.",
+  layout: "list-drawer",
+  drawerTitle: "Restrictive practice",
+  listColumnKeys: ["practiceType", "name", "showAsAlert", "validFrom"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     {
@@ -264,6 +280,9 @@ export const consentTableConfig: ClientTabTableConfig<ClientConsentRow> = {
   addLabel: "Add consent or legal order",
   emptyMessage:
     "No consents or legal orders recorded. Add photo consent, information sharing agreements, guardianship orders, and similar items here.",
+  layout: "list-drawer",
+  drawerTitle: "Consent",
+  listColumnKeys: ["consentType", "consentStatus", "name", "validFrom"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "consentType", label: "Consent type", type: "select", optionsKey: "consentType", required: true },
@@ -291,6 +310,9 @@ export const riskTableConfig: ClientTabTableConfig<ClientRiskRow> = {
   collectionKey: "risks",
   addLabel: "Add risk",
   emptyMessage: "No risks recorded. Document hazards and risk controls separate from general alerts.",
+  layout: "list-drawer",
+  drawerTitle: "Risk",
+  listColumnKeys: ["riskType", "name", "likelihood", "consequence"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "riskType", label: "Risk type", type: "select", optionsKey: "riskType", required: true },
@@ -328,6 +350,9 @@ export const bpAssociationTableConfig: ClientTabTableConfig<ClientBpAssociationR
   collectionKey: "bpAssociations",
   addLabel: "Add association",
   emptyMessage: "No business partner associations. Link guardians, referrers, and other contacts here.",
+  layout: "list-drawer",
+  drawerTitle: "Association",
+  listColumnKeys: ["associatedBpName", "associationType", "relationship", "primaryContact"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "partnerId", label: "Directory partner", type: "select", optionsKey: "businessPartnerDirectory" },
@@ -363,6 +388,9 @@ export const contactActivityTableConfig: ClientTabTableConfig<ClientContactActiv
   collectionKey: "contactActivity",
   addLabel: "Add contact activity",
   emptyMessage: "No contact activity logged. Record outreach linked to guardians, family, or other contacts.",
+  layout: "list-drawer",
+  drawerTitle: "Contact activity",
+  listColumnKeys: ["date", "activityType", "contactName", "subject"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "date", label: "Date", type: "date", required: true },
@@ -388,6 +416,9 @@ export const needRuleTableConfig: ClientTabTableConfig<ClientNeedRuleRow> = {
   collectionKey: "needsAndRules",
   addLabel: "Add need or rule",
   emptyMessage: "No support needs or rules recorded. Document daily living rules and support requirements.",
+  layout: "list-drawer",
+  drawerTitle: "Need or rule",
+  listColumnKeys: ["category", "name", "showAsAlert", "validFrom"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "category", label: "Category", type: "select", optionsKey: "needRuleCategory", required: true },
@@ -414,6 +445,9 @@ export const planBudgetTableConfig: ClientTabTableConfig<ClientPlanBudgetRow> = 
   addLabel: "Add budget line",
   emptyMessage:
     "No plan budget lines recorded. Add Core, Capacity building, and Capital categories from the participant NDIS plan.",
+  layout: "list-drawer",
+  drawerTitle: "Budget line",
+  listColumnKeys: ["supportBudget", "supportCategory", "description", "allocatedAmount"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "planProvider", label: "Plan provider", type: "text" },

@@ -17,7 +17,7 @@ export function RecordActivitiesPanel({
     <div className="space-y-3">
       <div>
         <h3 className="text-sm font-semibold text-slate-900">Activities</h3>
-        <p className="text-sm text-slate-500">Log calls, visits, emails, and notes. These carry over when the enquiry is converted to a client.</p>
+        <p className="text-sm text-slate-500">Log calls, visits, emails, and notes. Click a row to open the full activity editor. Save the parent record to persist.</p>
       </div>
       <LineItemTable
         config={activityTableConfig}

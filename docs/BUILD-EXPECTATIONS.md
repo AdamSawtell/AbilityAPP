@@ -34,7 +34,7 @@ Repeating child data on records:
 - Line config in `*-line-tables.ts`
 - Child Supabase table + migration
 - Load/save in data-api + mappers
-- UI via `record-line-table.tsx` / `line-item-table.tsx` pattern
+- UI via `line-item-table.tsx` — client child tabs use **list + line drawer** (`layout: "list-drawer"` on config); billing and read-only views may stay inline `table`
 - Include line changes in audit diff
 
 ## 5. Access control

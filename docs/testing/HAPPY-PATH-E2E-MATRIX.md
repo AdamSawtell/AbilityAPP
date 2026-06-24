@@ -232,7 +232,7 @@ flowchart LR
 
 | Step | HP ID | Actor | Action | Route / surface | Expected outcome | Build | TEST ID |
 |------|-------|-------|--------|-----------------|------------------|-------|---------|
-| 5.1 | HP-061 | Support worker | Add case note / activity on client | `/clients/bp-bern?tab=Activity` | Note saved; visible in Activity line table; audit | Live | TEST-061 |
+| 5.1 | HP-061 | Support worker | Add case note / activity on client | `/clients/bp-bern?tab=Activity` | Click row → drawer; note saved in list; parent Save; audit | Live | TEST-061 |
 | 5.2 | HP-062 | Coordinator | Link activity to service date / shift | Activity line fields | Reference to delivery period where supported | Partial | TEST-062 |
 | 5.3 | HP-063 | Any reporter | Log incident (if occurred) | `/incidents` → new | Incident created; Overview + tabs; audit footer | Live | TEST-063 |
 | 5.4 | HP-064 | Manager | Progress incident workflow (review, NDIS fields) | `/incidents/{id}` | Status transitions; compliance tab available | Live | TEST-064 |
@@ -471,7 +471,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 
 | FUNC ID | Module | Function | Route | Roles | Build | Refs |
 |---------|--------|----------|-------|-------|-------|------|
-| FUNC-330 | Client Activity | Line table CRUD | Client → Activity | Worker+ | Live | HP-061, TEST-061 |
+| FUNC-330 | Client Activity | Line list + drawer CRUD | Client → Activity | Worker+ | Live | HP-061, TEST-061 |
 | FUNC-331 | Client Activity | Audit on save | Client → Activity | Worker+ | Live | HP-058 |
 | FUNC-332 | Incidents | List + create | `/incidents` | All staff | Live | HP-063 |
 | FUNC-333 | Incidents | Detail tabs + workflow | `/incidents/{id}` | Manager+ | Live | HP-064 |

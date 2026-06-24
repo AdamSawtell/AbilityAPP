@@ -20,8 +20,26 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 2 | Open `/enquiries/1000013` (or `1000025`) | Pipeline panel visible |
 | 3 | Advance to Qualification; save NDIS fields on Qualification tab | Score/tier updates |
 | 4 | Advance to Proposal | Status `3_Proposal` |
-| 5 | Add Activity line; save | Persists after refresh |
+| 5 | Activity tab → Add activity → click row → fill subject and description in drawer → Save enquiry | Line in list; persists after refresh |
 | 6 | Full audit trail | Save event with field detail |
+
+---
+
+## TEST-061 — Client activity line drawer
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **DATA** | `bp-bern` |
+| **Pass if** | Activity list + drawer; parent save persists line |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/clients/bp-bern?tab=Activity` | Summary columns visible |
+| 2 | Click a row | Line drawer opens |
+| 3 | Edit description; close drawer; Save client | Persists after refresh |
+| 4 | Add activity | Drawer opens; new row in list after close |
+| 5 | Full audit trail | Save shows line change |
 
 ---
 
