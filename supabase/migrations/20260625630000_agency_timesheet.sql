@@ -74,7 +74,7 @@ insert into public.roster_shift (
   'agency',
   'aw-sp-jane',
   'bp-staffplus',
-  'asr-demo-jane-oct',
+  null,
   'Isla Robinson',
   'Isla Robinson'
 ) on conflict (id) do update set
@@ -82,7 +82,6 @@ insert into public.roster_shift (
   coverage_source = excluded.coverage_source,
   agency_worker_id = excluded.agency_worker_id,
   vendor_bp_id = excluded.vendor_bp_id,
-  agency_request_id = excluded.agency_request_id,
   notes = excluded.notes,
   updated_by = excluded.updated_by;
 
@@ -109,3 +108,9 @@ insert into public.agency_shift_request (
   agency_worker_id = excluded.agency_worker_id,
   completed_at = excluded.completed_at,
   updated_by = excluded.updated_by;
+
+-- Link roster shift to its agency request after both rows exist (avoids circular FK on insert)
+update public.roster_shift
+set agency_request_id = 'asr-demo-jane-oct'
+where id = 'rs-bern-agency-done';
+
