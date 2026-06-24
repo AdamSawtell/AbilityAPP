@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAgencyPortalSessionFromRequest } from "@/lib/agency-portal/session.server";
 import {
+  loadAgencyPortalInvoiceDocument,
   loadAgencyPortalInvoices,
   resolveValidAgencyPortalSession,
   submitAgencyPortalInvoice,
+  validateVendorInvoiceDocument,
 } from "@/lib/agency-portal/server";
 
 export async function GET(request: Request) {
@@ -20,20 +22,33 @@ export async function POST(request: Request) {
   const session = await resolveValidAgencyPortalSession(raw);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  let body: { agencyTimesheetId?: string; invoiceNo?: string; invoiceDate?: string; amount?: number; notes?: string };
+  let formData: FormData;
   try {
-    body = (await request.json()) as typeof body;
+    formData = await request.formData();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid form data" }, { status: 400 });
   }
 
-  const agencyTimesheetId = body.agencyTimesheetId?.trim() ?? "";
-  const invoiceNo = body.invoiceNo?.trim() ?? "";
-  const invoiceDate = body.invoiceDate?.trim() ?? "";
-  const amount = Number(body.amount);
+  const agencyTimesheetId = String(formData.get("agencyTimesheetId") ?? "").trim();
+  const invoiceNo = String(formData.get("invoiceNo") ?? "").trim();
+  const invoiceDate = String(formData.get("invoiceDate") ?? "").trim();
+  const amount = Number(formData.get("amount"));
+  const notes = String(formData.get("notes") ?? "").trim();
+  const file = formData.get("file");
+
   if (!agencyTimesheetId || !invoiceNo || !invoiceDate || !Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ error: "Timesheet, invoice number, date, and a positive amount are required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Timesheet, invoice number, date, and a positive amount are required" },
+      { status: 400 }
+    );
   }
+
+  if (!(file instanceof File)) {
+    return NextResponse.json({ error: "An invoice document (PDF or image) is required." }, { status: 400 });
+  }
+
+  const docError = validateVendorInvoiceDocument(file);
+  if (docError) return NextResponse.json({ error: docError }, { status: 400 });
 
   const result = await submitAgencyPortalInvoice({
     vendorBpId: session.vendorBpId,
@@ -41,7 +56,8 @@ export async function POST(request: Request) {
     invoiceNo,
     invoiceDate,
     amount,
-    notes: body.notes,
+    notes,
+    file,
     actor: `Agency portal (${session.email})`,
   });
 

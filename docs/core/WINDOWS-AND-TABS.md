@@ -3,7 +3,7 @@
 **Audience:** Developers, business analysts, access administrators, and reviewers who need to know *where* each function lives in the UI.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (grants).  
 **Version:** 1.1  
-**Last updated:** 23 June 2026 (agency vendor portal + vendor invoices)
+**Last updated:** 25 June 2026 (vendor invoice mandatory document upload)
 
 ---
 
@@ -52,7 +52,7 @@
 | Hub | `/agency-portal` | Dashboard |
 | Shift requests | `/agency-portal/requests`, `/agency-portal/requests/{id}` | Confirm **Sent** requests → **Worker proposed** |
 | Timesheets | `/agency-portal/timesheets` | Approved agency timesheets |
-| Invoices | `/agency-portal/invoices` | Submit invoice against approved timesheet |
+| Invoices | `/agency-portal/invoices` | Submit invoice against approved timesheet (mandatory PDF/image attachment) |
 
 **Code:** `web/src/components/agency-portal/*`, `web/src/lib/agency-portal/*`, `web/src/app/agency-portal/*`
 

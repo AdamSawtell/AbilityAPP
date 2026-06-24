@@ -23,7 +23,7 @@ export const agencyVendorPortalArticle: HelpArticle = {
     "/agency-portal/invoices",
   ],
   windowKeys: [],
-  lastUpdated: "2026-06-23",
+  lastUpdated: "2026-06-25",
   sections: [
     {
       id: "overview",
@@ -58,7 +58,8 @@ export const agencyVendorPortalArticle: HelpArticle = {
       steps: [
         "After the provider approves an agency timesheet, open **Invoices**.",
         "Choose the approved timesheet, enter your invoice number, date, and amount.",
-        "Submit — finance reviews in **Vendor invoices** in the staff app.",
+        "Attach your invoice document — **PDF or image (JPEG, PNG, WebP), max 10 MB**. This is required; finance cannot process without it.",
+        "Submit — finance reviews the invoice and attached document in **Vendor invoices** in the staff app.",
       ],
       relatedRoutes: ["/agency-portal/invoices", "/vendor-invoices"],
     },

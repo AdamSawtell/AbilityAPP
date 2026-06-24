@@ -258,6 +258,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     amount: "Amount",
     status: "Status",
     notes: "Notes",
+    documentFileName: "Invoice document",
   },
   "roster-of-care": {
     name: "Name",

@@ -44,4 +44,6 @@ export type AgencyPortalInvoiceItem = {
   amount: number;
   status: string;
   submittedAt: string;
+  documentFileName: string;
+  hasDocument: boolean;
 };

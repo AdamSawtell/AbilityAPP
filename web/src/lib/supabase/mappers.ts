@@ -2762,6 +2762,10 @@ export type VendorInvoiceRow = {
   amount: number;
   status: string;
   notes: string;
+  document_storage_path?: string | null;
+  document_file_name?: string | null;
+  document_mime_type?: string | null;
+  document_byte_size?: number | null;
   submitted_at: string | null;
   approved_at: string | null;
   paid_at: string | null;
@@ -2780,6 +2784,10 @@ export function vendorInvoiceFromRow(row: VendorInvoiceRow): VendorInvoiceRecord
     amount: Number(row.amount) || 0,
     status: row.status,
     notes: row.notes,
+    documentStoragePath: row.document_storage_path ?? "",
+    documentFileName: row.document_file_name ?? "",
+    documentMimeType: row.document_mime_type ?? "",
+    documentByteSize: Number(row.document_byte_size) || 0,
     submittedAt: row.submitted_at ?? "",
     approvedAt: row.approved_at ?? "",
     paidAt: row.paid_at ?? "",
@@ -2800,6 +2808,10 @@ export function vendorInvoiceToRow(record: VendorInvoiceRecord): VendorInvoiceRo
     amount: normalized.amount,
     status: normalized.status,
     notes: normalized.notes,
+    document_storage_path: normalized.documentStoragePath?.trim() || "",
+    document_file_name: normalized.documentFileName?.trim() || "",
+    document_mime_type: normalized.documentMimeType?.trim() || "",
+    document_byte_size: normalized.documentByteSize || 0,
     submitted_at: normalized.submittedAt?.trim() ? normalized.submittedAt : null,
     approved_at: normalized.approvedAt?.trim() ? normalized.approvedAt : null,
     paid_at: normalized.paidAt?.trim() ? normalized.paidAt : null,

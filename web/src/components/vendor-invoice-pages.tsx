@@ -119,6 +119,17 @@ export function VendorInvoiceDetailView({ id }: { id: string }) {
 
   const record = invoice;
 
+  async function openInvoiceDocument() {
+    try {
+      const res = await fetch(`/api/vendor-invoices/${record.id}/document`, { credentials: "include" });
+      const data = (await res.json()) as { signedUrl?: string; error?: string };
+      if (!res.ok || !data.signedUrl) return;
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch {
+      // silent — document may be missing on legacy rows
+    }
+  }
+
   function handleApprove() {
     if (!timesheet) return;
     const result = approveVendorInvoice({
@@ -184,6 +195,20 @@ export function VendorInvoiceDetailView({ id }: { id: string }) {
               <Link href={`/agency-timesheets/${timesheet.id}`} className="text-[#b51266] hover:underline">
                 {timesheet.documentNo}
               </Link>
+            </p>
+          </div>
+        ) : null}
+        {invoice.documentStoragePath?.trim() ? (
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Invoice document</p>
+            <p className="mt-1 text-sm">
+              <button
+                type="button"
+                onClick={openInvoiceDocument}
+                className="font-medium text-[#b51266] hover:underline"
+              >
+                {invoice.documentFileName || "View invoice document"}
+              </button>
             </p>
           </div>
         ) : null}

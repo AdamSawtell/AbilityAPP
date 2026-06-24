@@ -9,6 +9,10 @@ export type VendorInvoiceRecord = {
   amount: number;
   status: string;
   notes: string;
+  documentStoragePath: string;
+  documentFileName: string;
+  documentMimeType: string;
+  documentByteSize: number;
   submittedAt: string;
   approvedAt: string;
   paidAt: string;
@@ -33,6 +37,10 @@ export function normalizeVendorInvoice(record: VendorInvoiceRecord): VendorInvoi
     amount: Number.isFinite(record.amount) ? record.amount : 0,
     status: record.status || "Submitted",
     notes: record.notes ?? "",
+    documentStoragePath: record.documentStoragePath ?? "",
+    documentFileName: record.documentFileName ?? "",
+    documentMimeType: record.documentMimeType ?? "",
+    documentByteSize: Number.isFinite(record.documentByteSize) ? record.documentByteSize : 0,
     submittedAt: record.submittedAt ?? "",
     approvedAt: record.approvedAt ?? "",
     paidAt: record.paidAt ?? "",
@@ -58,6 +66,10 @@ export function createVendorInvoice(
   return normalizeVendorInvoice({
     status: "Submitted",
     notes: "",
+    documentStoragePath: "",
+    documentFileName: "",
+    documentMimeType: "",
+    documentByteSize: 0,
     submittedAt: new Date().toISOString(),
     approvedAt: "",
     paidAt: "",

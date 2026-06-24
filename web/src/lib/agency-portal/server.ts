@@ -32,6 +32,15 @@ import {
 } from "@/lib/supabase/mappers";
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 
+const VENDOR_INVOICE_DOC_BUCKET = "org-documents";
+const VENDOR_INVOICE_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+const VENDOR_INVOICE_ALLOWED_MIME = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
 function serviceClient(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -41,6 +50,147 @@ function serviceClient(): SupabaseClient {
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
+}
+
+function sanitizeFileName(name: string): string {
+  const base = name.trim().replace(/[/\\?%*:|"<>]/g, "_");
+  return base.slice(0, 180) || "invoice.pdf";
+}
+
+function fileExtension(name: string): string {
+  const parts = name.trim().toLowerCase().split(".");
+  return parts.length > 1 ? (parts.pop() ?? "") : "";
+}
+
+function mimeFromExtension(ext: string): string | null {
+  if (ext === "pdf") return "application/pdf";
+  if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+  if (ext === "png") return "image/png";
+  if (ext === "webp") return "image/webp";
+  return null;
+}
+
+export function validateVendorInvoiceDocument(file: File): string | null {
+  if (!file || file.size <= 0) return "An invoice document (PDF or image) is required.";
+  if (file.size > VENDOR_INVOICE_MAX_BYTES) return "Invoice document must be 10 MB or smaller.";
+
+  const mime = file.type?.trim().toLowerCase() || "";
+  const ext = fileExtension(file.name);
+  const extMime = mimeFromExtension(ext);
+
+  if (VENDOR_INVOICE_ALLOWED_MIME.has(mime)) return null;
+  if (!mime || mime === "application/octet-stream") {
+    if (extMime) return null;
+  }
+  if (extMime && (mime === "" || mime === "application/octet-stream")) return null;
+
+  return "Invoice document must be a PDF or image (JPEG, PNG, or WebP).";
+}
+
+async function uploadVendorInvoiceDocument(input: {
+  vendorBpId: string;
+  invoiceId: string;
+  file: File;
+}): Promise<
+  | { ok: true; storagePath: string; fileName: string; mimeType: string; byteSize: number }
+  | { ok: false; error: string }
+> {
+  const validationError = validateVendorInvoiceDocument(input.file);
+  if (validationError) return { ok: false, error: validationError };
+
+  const fileName = sanitizeFileName(input.file.name);
+  const mimeType =
+    input.file.type?.trim() && VENDOR_INVOICE_ALLOWED_MIME.has(input.file.type.trim())
+      ? input.file.type.trim()
+      : mimeFromExtension(fileExtension(input.file.name)) ?? "application/octet-stream";
+  const bytes = new Uint8Array(await input.file.arrayBuffer());
+  const storagePath = `vendor-invoices/${input.vendorBpId}/${input.invoiceId}/${Date.now()}-${fileName}`;
+
+  if (!isSupabaseConfigured()) {
+    return {
+      ok: true,
+      storagePath: `local://${storagePath}`,
+      fileName,
+      mimeType,
+      byteSize: bytes.byteLength,
+    };
+  }
+
+  const supabase = serviceClient();
+  const { error } = await supabase.storage
+    .from(VENDOR_INVOICE_DOC_BUCKET)
+    .upload(storagePath, bytes, { contentType: mimeType, upsert: true });
+  if (error) return { ok: false, error: error.message };
+
+  return { ok: true, storagePath, fileName, mimeType, byteSize: bytes.byteLength };
+}
+
+export async function getVendorInvoiceDocumentSignedUrl(
+  storagePath: string
+): Promise<{ signedUrl: string | null; fileName: string; mimeType: string } | null> {
+  if (!storagePath?.trim() || storagePath.startsWith("local://")) return null;
+  if (!isSupabaseConfigured()) return null;
+
+  const supabase = serviceClient();
+  const { data, error } = await supabase.storage
+    .from(VENDOR_INVOICE_DOC_BUCKET)
+    .createSignedUrl(storagePath, 3600);
+  if (error || !data?.signedUrl) return null;
+
+  const fileName = storagePath.split("/").pop() ?? "invoice";
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
+  const mimeType =
+    ext === "pdf"
+      ? "application/pdf"
+      : ext === "png"
+        ? "image/png"
+        : ext === "webp"
+          ? "image/webp"
+          : "image/jpeg";
+
+  return { signedUrl: data.signedUrl, fileName, mimeType };
+}
+
+async function loadVendorInvoiceById(
+  vendorBpId: string,
+  invoiceId: string
+): Promise<VendorInvoiceRecord | null> {
+  const invoices = await loadVendorInvoices(vendorBpId);
+  return invoices.find((i) => i.id === invoiceId) ?? null;
+}
+
+export async function loadAgencyPortalInvoiceDocument(
+  vendorBpId: string,
+  invoiceId: string
+): Promise<{ signedUrl: string | null; fileName: string; mimeType: string } | null> {
+  const invoice = await loadVendorInvoiceById(vendorBpId, invoiceId);
+  if (!invoice?.documentStoragePath?.trim()) return null;
+  return getVendorInvoiceDocumentSignedUrl(invoice.documentStoragePath);
+}
+
+export async function loadStaffVendorInvoiceDocument(
+  invoiceId: string
+): Promise<{ signedUrl: string | null; fileName: string; mimeType: string } | null> {
+  if (isSupabaseConfigured()) {
+    const supabase = serviceClient();
+    const { data } = await supabase
+      .from("vendor_invoice")
+      .select("document_storage_path, document_file_name, document_mime_type")
+      .eq("id", invoiceId)
+      .maybeSingle();
+    if (!data?.document_storage_path?.trim()) return null;
+    const signed = await getVendorInvoiceDocumentSignedUrl(data.document_storage_path);
+    if (!signed) return null;
+    return {
+      signedUrl: signed.signedUrl,
+      fileName: data.document_file_name?.trim() || signed.fileName,
+      mimeType: data.document_mime_type?.trim() || signed.mimeType,
+    };
+  }
+
+  const local = initialVendorInvoices.find((i) => i.id === invoiceId);
+  if (!local?.documentStoragePath?.trim()) return null;
+  return getVendorInvoiceDocumentSignedUrl(local.documentStoragePath);
 }
 
 function participantLabel(name: string, preferredName: string): string {
@@ -367,6 +517,8 @@ export async function loadAgencyPortalInvoices(vendorBpId: string): Promise<Agen
     amount: invoice.amount,
     status: invoice.status,
     submittedAt: invoice.submittedAt,
+    documentFileName: invoice.documentFileName,
+    hasDocument: Boolean(invoice.documentStoragePath?.trim()),
   }));
 }
 
@@ -377,6 +529,7 @@ export async function submitAgencyPortalInvoice(input: {
   invoiceDate: string;
   amount: number;
   notes?: string;
+  file: File;
   actor: string;
 }): Promise<{ ok: boolean; error?: string; invoice?: AgencyPortalInvoiceItem }> {
   const timesheets = await loadVendorTimesheets(input.vendorBpId);
@@ -397,14 +550,27 @@ export async function submitAgencyPortalInvoice(input: {
     return { ok: false, error: "An invoice has already been submitted for this timesheet." };
   }
 
+  const draftId = `vi-${Date.now()}`;
+  const upload = await uploadVendorInvoiceDocument({
+    vendorBpId: input.vendorBpId,
+    invoiceId: draftId,
+    file: input.file,
+  });
+  if (!upload.ok) return { ok: false, error: upload.error };
+
   const invoice = createVendorInvoice(
     {
+      id: draftId,
       vendorBpId: input.vendorBpId,
       agencyTimesheetId: input.agencyTimesheetId,
       invoiceNo: input.invoiceNo,
       invoiceDate: input.invoiceDate,
       amount: input.amount,
       notes: input.notes ?? "",
+      documentStoragePath: upload.storagePath,
+      documentFileName: upload.fileName,
+      documentMimeType: upload.mimeType,
+      documentByteSize: upload.byteSize,
       createdBy: input.actor,
       updatedBy: input.actor,
     },
@@ -415,7 +581,12 @@ export async function submitAgencyPortalInvoice(input: {
     const supabase = serviceClient();
     const { vendorInvoiceToRow } = await import("@/lib/supabase/mappers");
     const { error } = await supabase.from("vendor_invoice").upsert(vendorInvoiceToRow(invoice));
-    if (error) return { ok: false, error: error.message };
+    if (error) {
+      if (upload.storagePath && !upload.storagePath.startsWith("local://")) {
+        await supabase.storage.from(VENDOR_INVOICE_DOC_BUCKET).remove([upload.storagePath]);
+      }
+      return { ok: false, error: error.message };
+    }
   } else {
     initialVendorInvoices.push(invoice);
   }

@@ -29,6 +29,7 @@ export function AgencyPortalInvoicesPage() {
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().slice(0, 10));
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -62,21 +63,26 @@ export function AgencyPortalInvoicesPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!invoiceFile) {
+      setError("Attach your invoice as a PDF or image before submitting.");
+      return;
+    }
     setSubmitting(true);
     setMessage(null);
     setError(null);
     try {
+      const formData = new FormData();
+      formData.set("agencyTimesheetId", agencyTimesheetId);
+      formData.set("invoiceNo", invoiceNo);
+      formData.set("invoiceDate", invoiceDate);
+      formData.set("amount", amount);
+      formData.set("notes", notes);
+      formData.set("file", invoiceFile);
+
       const res = await fetch("/api/agency-portal/invoices", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          agencyTimesheetId,
-          invoiceNo,
-          invoiceDate,
-          amount: Number(amount),
-          notes,
-        }),
+        body: formData,
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
@@ -88,11 +94,26 @@ export function AgencyPortalInvoicesPage() {
       setInvoiceNo("");
       setAmount("");
       setNotes("");
+      setInvoiceFile(null);
       await reload();
     } catch {
       setError("Could not submit invoice.");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function openInvoiceDocument(invoiceId: string) {
+    try {
+      const res = await fetch(`/api/agency-portal/invoices/${invoiceId}/document`, { credentials: "include" });
+      const data = (await res.json()) as { signedUrl?: string; error?: string };
+      if (!res.ok || !data.signedUrl) {
+        setError(data.error ?? "Could not open invoice document.");
+        return;
+      }
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch {
+      setError("Could not open invoice document.");
     }
   }
 
@@ -170,6 +191,21 @@ export function AgencyPortalInvoicesPage() {
                 />
               </label>
               <label className="block text-sm">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Invoice document <span className="text-red-600">*</span>
+                </span>
+                <input
+                  type="file"
+                  required
+                  accept=".pdf,application/pdf,image/jpeg,image/png,image/webp"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-sky-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-sky-800"
+                  onChange={(e) => setInvoiceFile(e.target.files?.[0] ?? null)}
+                />
+                <span className="mt-1 block text-xs text-slate-500">
+                  PDF or image (JPEG, PNG, WebP). Max 10 MB. Required for AP processing.
+                </span>
+              </label>
+              <label className="block text-sm">
                 <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">Notes</span>
                 <textarea
                   className="w-full rounded-lg border border-slate-200 px-3 py-2"
@@ -202,6 +238,7 @@ export function AgencyPortalInvoicesPage() {
                     <th className="px-4 py-3">Invoice no.</th>
                     <th className="px-4 py-3">Date</th>
                     <th className="px-4 py-3">Amount</th>
+                    <th className="px-4 py-3">Document</th>
                     <th className="px-4 py-3">Status</th>
                   </tr>
                 </thead>
@@ -213,6 +250,19 @@ export function AgencyPortalInvoicesPage() {
                       <td className="px-4 py-3">{row.invoiceNo}</td>
                       <td className="px-4 py-3">{formatDisplayDate(row.invoiceDate)}</td>
                       <td className="px-4 py-3">{formatMoney(row.amount)}</td>
+                      <td className="px-4 py-3">
+                        {row.hasDocument ? (
+                          <button
+                            type="button"
+                            onClick={() => openInvoiceDocument(row.id)}
+                            className="text-sm font-medium text-sky-700 hover:underline"
+                          >
+                            {row.documentFileName || "View"}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-slate-400">—</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusTone[row.status] ?? "bg-slate-100 text-slate-700"}`}

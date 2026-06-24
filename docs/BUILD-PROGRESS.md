@@ -136,6 +136,8 @@ Agency vendors sign in at `/agency-portal` (magic link on vendor BP email). Staf
 
 **Amplify smoke (2026-06-25):** remote migrations `20260625620000`–`20260625660000` applied via `run-all-remote-seeds.mjs --file` (push blocked by duplicate-timestamp history; reconciled with `supabase migration repair`). On `app.abilityvua.com`: agency portal magic-link sign-in (`roster@staffplus.example` demo link) → hub → **Shift requests** shows seeded **ASR-DEMO-02 (Sent)** + ASR-DEMO-01 → confirm coverage proposing **Mike Relief** → status **Worker proposed** (persisted) → **Invoices** submit against **ATS-DEMO-01** → **VI-50001 / SP-INV-1042 / $435.00 / Submitted** (persisted). Staff `/vendor-invoices` (Riley Shaw) lists **VI-50001** with audit attributed to **Agency portal (roster@staffplus.example)**; approve/mark-paid actions correctly hidden for read-only Rostering Manager (gating verified). **Fixed:** circular FK in `20260625630000` agency timesheet demo seed (roster_shift ↔ agency_shift_request) so the migration applies cleanly on a fresh remote.
 
+**Follow-up (2026-06-25):** mandatory invoice document on portal submit — PDF or image (max 10 MB), stored in `org-documents` bucket; staff and vendor can view via signed URL. Migration `20260625670000`.
+
 ---
 
 ## WP-ACT.1 — Activity deletion governance (2026-06-23)
