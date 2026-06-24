@@ -20,7 +20,7 @@ export const employeesArticle: HelpArticle = {
   ],
   relatedRoutes: ["/employees", "/employees/new", "/workforce-planning#reviews"],
   windowKeys: ["employees"],
-  lastUpdated: "2026-06-19",
+  lastUpdated: "2026-06-25",
   sections: [
     {
       id: "employee-list",
@@ -48,6 +48,26 @@ export const employeesArticle: HelpArticle = {
         "Compliance: Credentials Assigned, Alerts",
         "HR file: Documents, Activity, Skills and languages",
         "Organisation: System access",
+      ],
+    },
+    {
+      id: "line-drawers",
+      title: "Edit employee line tabs",
+      body: "Employee child tabs use a summary list with a side drawer. This keeps dense HR data readable while still saving changes with the parent employee record.",
+      steps: [
+        "Open an employee record and choose a line tab such as Leave, Credentials Assigned, Alerts, Documents, Activity, or Skills and languages.",
+        "Use Search rows to filter the summary list.",
+        "Click a row to open the side drawer and edit all line fields.",
+        "Use Add row to create a new line; the drawer opens immediately for the new item.",
+        "Save the employee record to persist the line changes.",
+      ],
+      windowKeys: [
+        "employee-leave",
+        "employee-credentials-assigned",
+        "employee-alerts",
+        "employee-documents",
+        "employee-activity",
+        "employee-skills",
       ],
     },
     {

@@ -3,7 +3,7 @@
 **Audience:** Developers, business analysts, access administrators, and reviewers who need to know *where* each function lives in the UI.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (grants).  
 **Version:** 1.1  
-**Last updated:** 25 June 2026 (vendor invoice mandatory document upload)
+**Last updated:** 25 June 2026 (employee/incident line drawers)
 
 ---
 
@@ -421,6 +421,8 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 
 **Documents (Documents tab, bottom):** Generate / Print / PDF / HTML — offer, contract, separation (`print-employee-offer`, `print-employee-contract`, `print-employee-separation`).
 
+**Line editor pattern:** Employee child collections (Leave entitlements/requests, Credentials Assigned, Alerts, Documents, Skills & languages, Activity) use the shared summary list + side drawer pattern. Rows open into `RecordLineDrawer`; parent employee save persists changes and writes the record audit.
+
 **Processes:** `assign-employee-credential`, `submit-leave-on-behalf`, `review-employee-credential`, `approve-leave-request`.
 
 ---
@@ -447,6 +449,8 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 | Notifications | `incident-notifications` |
 
 **Documents (bottom):** Print notification — `print-incident-notification`.
+
+**Line editor pattern:** Incident child collections (Parties & links, Investigation actions, Evidence, Notifications) use the shared summary list + side drawer pattern. Rows open into `RecordLineDrawer`; parent incident save persists changes and writes the record audit.
 
 **Processes:** `report-incident`, `notify-ndis-reportable`.
 

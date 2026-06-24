@@ -26,6 +26,8 @@ type RowBase = { id: string; lineNo: number };
 
 type DropdownMap = Record<string, string[]>;
 
+export type LineItemTableLayout = "table" | "list-drawer";
+
 type GenericColumn<TRow extends RowBase> = LineColumnDef<TRow>;
 
 type GenericTableConfig<TRow extends RowBase> = {
@@ -33,13 +35,13 @@ type GenericTableConfig<TRow extends RowBase> = {
   emptyRow: (lineNo: number) => TRow;
   addLabel?: string;
   emptyMessage?: string;
+  /** Summary list + side drawer for record child lines. */
+  layout?: LineItemTableLayout;
   listColumnKeys?: (keyof TRow & string)[];
   drawerTitle?: string;
   /** When `admin-only`, only administrators can remove lines; others request deletion. */
   deletePolicy?: LineDeletePolicy;
 };
-
-export type LineItemTableLayout = "table" | "list-drawer";
 
 export type { GenericTableConfig, GenericColumn, ActivityLineDeleteContext };
 

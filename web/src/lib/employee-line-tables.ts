@@ -62,6 +62,9 @@ export const credentialStatusOptions = defaultReferenceData.credentialStatus;
 export const credentialTableConfig: GenericTableConfig<EmployeeCredentialRow> = {
   addLabel: "Add credential",
   emptyMessage: "No credentials assigned. Add checks, licences, and qualifications for this employee.",
+  layout: "list-drawer",
+  drawerTitle: "Credential",
+  listColumnKeys: ["credentialType", "credentialNumber", "expiryDate", "status"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "credentialType", label: "Credential type", type: "select", optionsKey: "credentialType", required: true },
@@ -94,6 +97,9 @@ export const credentialTableConfig: GenericTableConfig<EmployeeCredentialRow> = 
 export const employeeAlertTableConfig: GenericTableConfig<EmployeeAlertRow> = {
   addLabel: "Add alert",
   emptyMessage: "No manual alerts. System-generated compliance alerts appear when credentials or work rights are due.",
+  layout: "list-drawer",
+  drawerTitle: "Employee alert",
+  listColumnKeys: ["alertType", "name", "showAsAlert", "validFrom"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "alertType", label: "Alert type", type: "select", optionsKey: "employeeAlertType", required: true },
@@ -119,6 +125,9 @@ export const employeeAlertTableConfig: GenericTableConfig<EmployeeAlertRow> = {
 export const employeeSkillTableConfig: GenericTableConfig<EmployeeSkillRow> = {
   addLabel: "Add skill or language",
   emptyMessage: "No skills or languages recorded. Add attributes used for roster matching.",
+  layout: "list-drawer",
+  drawerTitle: "Skill or language",
+  listColumnKeys: ["skillType", "name", "proficiency", "notes"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "skillType", label: "Type", type: "select", optionsKey: "employeeSkillType", required: true },
@@ -139,6 +148,9 @@ export const employeeSkillTableConfig: GenericTableConfig<EmployeeSkillRow> = {
 export const employeeDocumentTableConfig: GenericTableConfig<EmployeeDocumentRow> = {
   addLabel: "Add document",
   emptyMessage: "No HR documents on file. Add contracts, IDs, and signed policies.",
+  layout: "list-drawer",
+  drawerTitle: "HR document",
+  listColumnKeys: ["documentType", "name", "expiryDate", "status"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "documentType", label: "Document type", type: "select", optionsKey: "employeeDocumentType", required: true },
@@ -165,6 +177,9 @@ export const employeeDocumentTableConfig: GenericTableConfig<EmployeeDocumentRow
 export const employeeActivityTableConfig: GenericTableConfig<EmployeeActivityRow> = {
   addLabel: "Add activity",
   emptyMessage: "No activity logged yet. Record onboarding, training, and HR notes.",
+  layout: "list-drawer",
+  drawerTitle: "Employee activity",
+  listColumnKeys: ["date", "activityType", "subject", "createdBy"],
   deletePolicy: "admin-only",
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
@@ -188,6 +203,9 @@ export const employeeActivityTableConfig: GenericTableConfig<EmployeeActivityRow
 export const employeeLeaveTableConfig: GenericTableConfig<EmployeeLeaveEntitlementRow> = {
   addLabel: "Add leave type",
   emptyMessage: "No leave entitlements configured.",
+  layout: "list-drawer",
+  drawerTitle: "Leave entitlement",
+  listColumnKeys: ["leaveType", "entitlementDays", "balanceDays", "accrualNotes"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "leaveType", label: "Leave type", type: "select", optionsKey: "leaveType", required: true },
@@ -208,6 +226,9 @@ export const employeeLeaveTableConfig: GenericTableConfig<EmployeeLeaveEntitleme
 export const employeeLeaveRequestTableConfig: GenericTableConfig<EmployeeLeaveRequestRow> = {
   addLabel: "Add leave request",
   emptyMessage: "No leave requests yet. Add date-based leave to show in personal and organisation calendars.",
+  layout: "list-drawer",
+  drawerTitle: "Leave request",
+  listColumnKeys: ["leaveType", "startDate", "endDate", "status"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "leaveType", label: "Leave type", type: "select", optionsKey: "leaveType", required: true },

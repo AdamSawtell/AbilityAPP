@@ -18,7 +18,7 @@ export const incidentsArticle: HelpArticle = {
   ],
   relatedRoutes: ["/incidents", "/incidents/new", "/incidents/compliance", "/incidents/dashboard"],
   windowKeys: ["incidents"],
-  lastUpdated: "2026-06-16",
+  lastUpdated: "2026-06-25",
   sections: [
     {
       id: "overview",
@@ -65,6 +65,20 @@ export const incidentsArticle: HelpArticle = {
       body: "When a reportable incident is linked to a client, AbilityVua adds an Incident alert on the client Alerts tab with Show as alert enabled. An activity line is logged when the incident is first marked reportable. Alerts clear when the incident is closed.",
       relatedRoutes: ["/clients"],
       windowKeys: ["clients", "client-alerts"],
+    },
+    {
+      id: "record-line-drawers",
+      title: "Edit parties, actions, evidence, and notifications",
+      body: "Incident child tabs use a summary list with a side drawer. This keeps investigation detail readable while preserving the same parent-record save and audit trail.",
+      steps: [
+        "Open an incident record.",
+        "Go to Parties & links, Investigation, Evidence, or Notifications.",
+        "Click a row to open the side drawer and edit all fields for that line.",
+        "Use Add party, Add action, Add attachment, or Log notification to create a new line; the drawer opens for the new item.",
+        "Save the incident record to persist the line changes.",
+      ],
+      relatedRoutes: ["/incidents"],
+      windowKeys: ["incidents"],
     },
     {
       id: "exports",

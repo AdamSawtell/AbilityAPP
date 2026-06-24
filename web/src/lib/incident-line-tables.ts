@@ -79,6 +79,9 @@ export function emptyNotificationRow(lineNo: number): IncidentNotificationRow {
 export const incidentPartyTableConfig: GenericTableConfig<IncidentPartyRow> = {
   addLabel: "Add party",
   emptyMessage: "No parties linked. Add clients, employees, witnesses, or other people involved.",
+  layout: "list-drawer",
+  drawerTitle: "Incident party",
+  listColumnKeys: ["partyType", "partyName", "roleInIncident", "entityId"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "partyType", label: "Type", type: "select", optionsKey: "partyType", required: true },
@@ -93,6 +96,9 @@ export const incidentPartyTableConfig: GenericTableConfig<IncidentPartyRow> = {
 export const incidentActionTableConfig: GenericTableConfig<IncidentActionRow> = {
   addLabel: "Add action",
   emptyMessage: "No investigation or response steps recorded yet.",
+  layout: "list-drawer",
+  drawerTitle: "Incident action",
+  listColumnKeys: ["actionDate", "actionType", "owner", "outcome"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "actionDate", label: "Date", type: "date" },
@@ -123,12 +129,16 @@ export function emptyEvidenceRow(lineNo: number): IncidentEvidenceRow {
 export const incidentEvidenceTableConfig: GenericTableConfig<IncidentEvidenceRow> = {
   addLabel: "Add attachment",
   emptyMessage: "No evidence files attached. Upload documents or add a file URL.",
+  layout: "list-drawer",
+  drawerTitle: "Evidence",
+  listColumnKeys: ["fileName", "mimeType", "uploadedBy", "uploadedAt"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "fileName", label: "File name", type: "text", required: true },
     { key: "fileUrl", label: "File URL", type: "text", className: "min-w-[12rem]" },
     { key: "actionId", label: "Linked action ID", type: "text" },
     { key: "mimeType", label: "MIME type", type: "text" },
+    { key: "uploadedAt", label: "Uploaded at", type: "text" },
     { key: "uploadedBy", label: "Uploaded by", type: "text" },
     { key: "notes", label: "Notes", type: "text" },
   ],
@@ -138,6 +148,9 @@ export const incidentEvidenceTableConfig: GenericTableConfig<IncidentEvidenceRow
 export const incidentNotificationTableConfig: GenericTableConfig<IncidentNotificationRow> = {
   addLabel: "Log notification",
   emptyMessage: "No notifications logged. Record internal alerts and NDIS Commission submissions here.",
+  layout: "list-drawer",
+  drawerTitle: "Notification",
+  listColumnKeys: ["notifiedAt", "notifyTarget", "method", "reference"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "notifiedAt", label: "Notified at", type: "date" },

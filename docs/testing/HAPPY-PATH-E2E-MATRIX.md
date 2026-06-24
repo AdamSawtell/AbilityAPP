@@ -1,7 +1,7 @@
 # AbilityVua Happy Path and End-to-End Testing Matrix
 
 **Version:** 1.0 (enquiry → exit spine)  
-**Last updated:** 2026-06-18  
+**Last updated:** 2026-06-25  
 **Environment:** Amplify demo (`https://app.abilityvua.com`) or localhost (`npm run dev`) with Supabase remote + demo seed unless noted.
 
 ## ID scheme
@@ -482,7 +482,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-332 | Client Activity | Admin-only delete; request deletion task | Client → Activity | Worker+ / Admin | Live | HP-063, TEST-062 |
 | FUNC-331 | Client Activity | Audit on save | Client → Activity | Worker+ | Live | HP-058 |
 | FUNC-332 | Incidents | List + create | `/incidents` | All staff | Live | HP-063 |
-| FUNC-333 | Incidents | Detail tabs + workflow | `/incidents/{id}` | Manager+ | Live | HP-064 |
+| FUNC-333 | Incidents | Detail tabs + workflow + line drawers | `/incidents/{id}` | Manager+ | Live | HP-064, TEST-094 |
 | FUNC-334 | Incidents | NDIS compliance view | `/incidents/compliance` | Quality+ | Live | HP-064 |
 | FUNC-335 | Incidents | Dashboard | `/incidents/dashboard` | Manager+ | Live | HP-115 |
 | FUNC-336 | Incidents | Manager override | Access: `incident-manager-override` | Senior mgr | Live | HP-065 |
@@ -523,7 +523,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC ID | Module | Function | Route | Roles | Build | Refs |
 |---------|--------|----------|-------|-------|-------|------|
 | FUNC-450 | Employee | List + detail | `/employees` | HR+ | Live | HP-086 |
-| FUNC-451 | Employee | Credentials assigned | Credentials tab | HR+ | Live | HP-088 |
+| FUNC-451 | Employee | Credentials assigned + line drawer | Credentials tab | HR+ | Live | HP-088, TEST-094 |
 | FUNC-452 | Employee | Credential review workflow | Tasks + HR | HR+ | Live | HP-091 |
 | FUNC-453 | Employee | Exit checklist | Employment tab | HR+ | Live | HP-104–108 |
 | FUNC-454 | My workplace | Leave request | `/my/leave` | All staff | Live | HP-094 |

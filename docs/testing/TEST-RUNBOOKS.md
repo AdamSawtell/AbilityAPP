@@ -220,6 +220,25 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-094 — Employee and incident line drawers
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **DATA** | `emp-rostering-manager`, `inc-1000001` |
+| **Pass if** | Employee and incident child collections render summary rows; add/click opens side drawer; parent save/discard controls appear |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/employees/emp-rostering-manager?tab=Credentials%20Assigned` | Summary list shows Search rows + Add credential |
+| 2 | Click Add credential | `Credential` drawer opens; required fields and save/discard bar visible |
+| 3 | Discard changes | Drawer/draft clears; row count reverts |
+| 4 | `/incidents/inc-1000001?tab=Investigation` | Actions/evidence render as summary lists |
+| 5 | Click existing action row | `Incident action` drawer opens with full line fields |
+| 6 | Close drawer | No data is saved until parent record Save |
+
+---
+
 ## TEST-095 — Flow 7 participant exit
 
 | | |

@@ -11,12 +11,36 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
-| **Active slice** | — |
-| **Next slice** | **WP-UX.2** — employee/incident line drawers (or release hardening follow-ups) |
-| **Last push** | 2026-06-23 — WP-AG.5–7 agency vendor portal + vendor invoices |
+| **Active slice** | **WP-UX.2** — employee/incident line drawers |
+| **Next slice** | Release hardening follow-ups |
+| **Last push** | 2026-06-25 — agency vendor invoice upload + AP smoke |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
+
+---
+
+## WP-UX.2 — Employee and incident line drawers (2026-06-25)
+
+**Status:** ✅ Shipped
+
+Employee and incident child collections now use the shared summary list + side drawer pattern instead of dense inline table editing. This aligns them with client line tabs and keeps parent-record save/audit unchanged.
+
+| Area | Change |
+|------|--------|
+| `line-item-table.tsx` | `GenericTableConfig` now formally supports `layout: "list-drawer"` |
+| Employee lines | Leave, credentials, alerts, documents, skills, and activity use drawer summaries |
+| Incident lines | Parties, actions, evidence, and notifications use drawer summaries |
+| Help/core docs | Employee and incident help explain click-row → drawer → save parent |
+
+### What you can test — WP-UX.2
+
+1. `/employees/emp-rostering-manager?tab=Credentials%20Assigned` — summary rows show key fields; click a row or **Add credential** to open the side drawer; close with Escape; save parent to persist.
+2. `/employees/emp-rostering-manager?tab=Activity` — activity rows open in the drawer; non-admin still sees **Request deletion** for existing activity lines.
+3. `/incidents/inc-1000001?tab=Investigation` — actions/evidence render as summary rows; click/add opens drawer; save parent record.
+4. `/incidents/inc-1000001?tab=Notifications` — **Log notification** opens a drawer-backed line; save parent record.
+
+**Local smoke (2026-06-25):** `/employees/emp-rostering-manager?tab=Credentials%20Assigned` as **AbilityVua Admin** showed summary-list mode; **Add credential** opened the `Credential` drawer and unsaved bar. `/incidents/inc-1000001?tab=Investigation` showed actions/evidence summary lists; opening the existing action row displayed the `Incident action` drawer with full fields.
 
 ---
 
@@ -141,6 +165,8 @@ Agency vendors sign in at `/agency-portal` (magic link on vendor BP email). Staf
 **Upload smoke seed (2026-06-25):** **ATS-DEMO-02** (`at-demo-staffplus-upload`) added for StaffPlus so the portal invoice submit form remains testable after **ATS-DEMO-01** is invoiced. Migration `20260625680000` applied to remote and repaired into migration history.
 
 **Upload smoke pass (2026-06-25):** live Amplify `/agency-portal/invoices` showed **ATS-DEMO-02** and required **Invoice document** file picker. Submitted **VI-50002 / SP-INV-UPLOAD-338292 / $290.00** with `staffplus-upload-smoke-338292.pdf`; portal list shows the document link; portal and staff document endpoints both return signed PDF URLs; staff `/vendor-invoices/vi-1782339340758` shows the document, notes, and audit attribution to **Agency portal (roster@staffplus.example)**.
+
+**Finance AP smoke pass (2026-06-25):** switched live staff session to **Tessa Nguyen / Finance Manager** and processed **VI-50002** from **Submitted → Approved → Paid**. The invoice document link stayed visible and audit footer updated to Tessa Nguyen.
 
 ---
 
