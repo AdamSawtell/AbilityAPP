@@ -19,6 +19,11 @@ import {
   type AgencyTimesheetRecord,
 } from "@/lib/agency-timesheet";
 import {
+  initialVendorInvoices as seedVendorInvoices,
+  normalizeVendorInvoice,
+  type VendorInvoiceRecord,
+} from "@/lib/vendor-invoice";
+import {
   initialSiteOrientations as seedSiteOrientations,
   normalizeSiteOrientation,
   type SiteOrientationRecord,
@@ -192,6 +197,7 @@ import {
   saveSiteOrientation,
   saveAgencyTimesheet,
   saveAgencyTimesheets,
+  saveVendorInvoice,
   saveRosterOfCare,
   saveRosterOfCares,
   saveMonthlyServicePlan,
@@ -228,6 +234,7 @@ type DataStore = {
   agencyShiftRequests: AgencyShiftRequestRecord[];
   siteOrientations: SiteOrientationRecord[];
   agencyTimesheets: AgencyTimesheetRecord[];
+  vendorInvoices: VendorInvoiceRecord[];
   rosterOfCares: RosterOfCareRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
@@ -266,6 +273,7 @@ type DataStore = {
   upsertAgencyShiftRequest: (record: AgencyShiftRequestRecord) => string | null;
   upsertSiteOrientation: (record: SiteOrientationRecord) => string | null;
   upsertAgencyTimesheet: (record: AgencyTimesheetRecord) => void;
+  upsertVendorInvoice: (record: VendorInvoiceRecord) => void;
   bulkUpsertAgencyTimesheets: (records: AgencyTimesheetRecord[]) => void;
   claimOpenRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
   checkInRosterShift: (
@@ -375,6 +383,7 @@ type Persisted = {
   agencyShiftRequests?: AgencyShiftRequestRecord[];
   siteOrientations?: SiteOrientationRecord[];
   agencyTimesheets?: AgencyTimesheetRecord[];
+  vendorInvoices?: VendorInvoiceRecord[];
   rosterOfCares?: RosterOfCareRecord[];
   monthlyServicePlans?: MonthlyServicePlanRecord[];
   timesheets?: TimesheetRecord[];
@@ -408,6 +417,7 @@ function seedData(): Required<Persisted> {
     agencyShiftRequests: seedAgencyShiftRequests.map(normalizeAgencyShiftRequest),
     siteOrientations: seedSiteOrientations.map(normalizeSiteOrientation),
     agencyTimesheets: seedAgencyTimesheets.map(normalizeAgencyTimesheet),
+    vendorInvoices: seedVendorInvoices.map(normalizeVendorInvoice),
     rosterOfCares: seedRosterOfCares.map(normalizeRosterOfCare),
     monthlyServicePlans: seedMonthlyServicePlans.map(normalizeMonthlyServicePlan),
     timesheets: seedTimesheets.map(normalizeTimesheet),
@@ -442,6 +452,7 @@ function portalEmptyData(): Required<Persisted> {
     agencyShiftRequests: [],
     siteOrientations: [],
     agencyTimesheets: [],
+    vendorInvoices: [],
     rosterOfCares: [],
     monthlyServicePlans: [],
     timesheets: [],
@@ -492,6 +503,7 @@ function loadLocal(): Required<Persisted> {
       agencyShiftRequests: (parsed.agencyShiftRequests ?? seedAgencyShiftRequests).map(normalizeAgencyShiftRequest),
       siteOrientations: (parsed.siteOrientations ?? seedSiteOrientations).map(normalizeSiteOrientation),
       agencyTimesheets: (parsed.agencyTimesheets ?? seedAgencyTimesheets).map(normalizeAgencyTimesheet),
+      vendorInvoices: (parsed.vendorInvoices ?? seedVendorInvoices).map(normalizeVendorInvoice),
       rosterOfCares: (parsed.rosterOfCares ?? seedRosterOfCares).map(normalizeRosterOfCare),
       monthlyServicePlans: (parsed.monthlyServicePlans ?? seedMonthlyServicePlans).map(normalizeMonthlyServicePlan),
       timesheets: (parsed.timesheets ?? seedTimesheets).map(normalizeTimesheet),
@@ -545,6 +557,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
   const [siteOrientations, setSiteOrientations] = useState<SiteOrientationRecord[]>(defaults.siteOrientations);
   const [agencyTimesheets, setAgencyTimesheets] = useState<AgencyTimesheetRecord[]>(defaults.agencyTimesheets);
+  const [vendorInvoices, setVendorInvoices] = useState<VendorInvoiceRecord[]>(defaults.vendorInvoices);
   const [rosterOfCares, setRosterOfCares] = useState<RosterOfCareRecord[]>(defaults.rosterOfCares);
   const [monthlyServicePlans, setMonthlyServicePlans] = useState<MonthlyServicePlanRecord[]>(
     defaults.monthlyServicePlans
@@ -586,6 +599,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const agencyShiftRequestsRef = useSyncRef(agencyShiftRequests);
   const siteOrientationsRef = useSyncRef(siteOrientations);
   const agencyTimesheetsRef = useSyncRef(agencyTimesheets);
+  const vendorInvoicesRef = useSyncRef(vendorInvoices);
   const rosterOfCaresRef = useSyncRef(rosterOfCares);
   const monthlyServicePlansRef = useSyncRef(monthlyServicePlans);
   const timesheetsRef = useSyncRef(timesheets);
@@ -635,6 +649,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       );
       setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
       setAgencyTimesheets(data.agencyTimesheets ?? seedAgencyTimesheets.map(normalizeAgencyTimesheet));
+      setVendorInvoices(data.vendorInvoices ?? seedVendorInvoices.map(normalizeVendorInvoice));
       setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
       setMonthlyServicePlans(
         data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
@@ -708,6 +723,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             );
             setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
       setAgencyTimesheets(data.agencyTimesheets ?? seedAgencyTimesheets.map(normalizeAgencyTimesheet));
+      setVendorInvoices(data.vendorInvoices ?? seedVendorInvoices.map(normalizeVendorInvoice));
             setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
             setMonthlyServicePlans(
               data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
@@ -758,6 +774,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         );
         setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
       setAgencyTimesheets(data.agencyTimesheets ?? seedAgencyTimesheets.map(normalizeAgencyTimesheet));
+      setVendorInvoices(data.vendorInvoices ?? seedVendorInvoices.map(normalizeVendorInvoice));
         setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
         setMonthlyServicePlans(data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan));
         setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
@@ -803,6 +820,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       agencyShiftRequests,
       siteOrientations,
       agencyTimesheets,
+      vendorInvoices,
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
@@ -834,6 +852,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     agencyShiftRequests,
     siteOrientations,
     agencyTimesheets,
+    vendorInvoices,
     rosterOfCares,
       monthlyServicePlans,
       timesheets,
@@ -1300,6 +1319,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       void persistRemote((supabase) => saveAgencyTimesheet(supabase, stamped));
     },
     [persistRemote, agencyTimesheetsRef]
+  );
+
+  const upsertVendorInvoice = useCallback(
+    (record: VendorInvoiceRecord) => {
+      const prev = vendorInvoicesRef.current;
+      const normalized = normalizeVendorInvoice(record);
+      const before = prev.find((r) => r.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("vendor-invoice", normalized, !exists, before);
+      setVendorInvoices((current) =>
+        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveVendorInvoice(supabase, stamped));
+    },
+    [persistRemote, vendorInvoicesRef]
   );
 
   const bulkUpsertAgencyTimesheets = useCallback(
@@ -1989,6 +2023,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       agencyShiftRequests,
       siteOrientations,
       agencyTimesheets,
+      vendorInvoices,
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
@@ -2027,6 +2062,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertAgencyShiftRequest,
       upsertSiteOrientation,
       upsertAgencyTimesheet,
+      upsertVendorInvoice,
       bulkUpsertAgencyTimesheets,
       claimOpenRosterShift,
       checkInRosterShift,
@@ -2086,6 +2122,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       agencyShiftRequests,
       siteOrientations,
       agencyTimesheets,
+      vendorInvoices,
       rosterOfCares,
       monthlyServicePlans,
       timesheets,
@@ -2124,6 +2161,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertAgencyShiftRequest,
       upsertSiteOrientation,
       upsertAgencyTimesheet,
+      upsertVendorInvoice,
       bulkUpsertAgencyTimesheets,
       claimOpenRosterShift,
       checkInRosterShift,

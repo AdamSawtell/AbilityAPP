@@ -249,6 +249,16 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     notes: "Notes",
     lines: "Shift lines",
   },
+  "vendor-invoice": {
+    documentNo: "Document no.",
+    vendorBpId: "Agency vendor",
+    agencyTimesheetId: "Agency timesheet",
+    invoiceNo: "Invoice no.",
+    invoiceDate: "Invoice date",
+    amount: "Amount",
+    status: "Status",
+    notes: "Notes",
+  },
   "roster-of-care": {
     name: "Name",
     clientId: "Client",

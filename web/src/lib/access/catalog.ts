@@ -154,6 +154,14 @@ const MODULE_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "vendor-invoices",
+    label: "Vendor invoices",
+    group: "People",
+    href: "/vendor-invoices",
+    abilityErpName: "Vendor invoice",
+    showInSidebar: true,
+  },
+  {
     key: "business-partners",
     label: "Business partners",
     group: "People",
@@ -710,13 +718,13 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
   {
     id: "send-agency-shift-pack",
     label: "Send agency shift pack",
-    description: "Email shift details and proposed worker to the agency vendor",
+    description: "Email shift details to the agency vendor via mailto draft",
     parentWindowKey: "rostering",
   },
   {
     id: "confirm-agency-shift",
     label: "Confirm agency shift",
-    description: "Confirm agency worker on shift after orientation check",
+    description: "Confirm agency worker proposed in the portal after orientation check",
     parentWindowKey: "rostering",
   },
   {
@@ -724,6 +732,18 @@ export const ACCESS_PROCESSES: AccessProcess[] = [
     label: "Complete agency shift",
     description: "Mark agency-covered shift as completed",
     parentWindowKey: "rostering",
+  },
+  {
+    id: "approve-vendor-invoice",
+    label: "Approve vendor invoice",
+    description: "Approve agency vendor invoice submitted from the agency portal",
+    parentWindowKey: "vendor-invoices",
+  },
+  {
+    id: "mark-vendor-invoice-paid",
+    label: "Mark vendor invoice paid",
+    description: "Mark approved agency vendor invoice as paid",
+    parentWindowKey: "vendor-invoices",
   },
   {
     id: "action-task",

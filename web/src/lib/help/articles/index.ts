@@ -12,6 +12,7 @@ import { gettingStartedArticle, homeArticle, navigationArticle } from "@/lib/hel
 import { employeesArticle, businessPartnersArticle, agencyWorkersArticle } from "@/lib/help/articles/people";
 import { myWorkplaceArticle } from "@/lib/help/articles/my-workplace";
 import { participantPortalArticle } from "@/lib/help/articles/participant-portal";
+import { agencyVendorPortalArticle } from "@/lib/help/articles/agency-vendor-portal";
 import { workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
 import { recordRetentionArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle, timeAndDateArticle } from "@/lib/help/articles/session-audit";
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
@@ -33,6 +34,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   agencyWorkersArticle,
   myWorkplaceArticle,
   participantPortalArticle,
+  agencyVendorPortalArticle,
   workforceLeaveCalendarArticle,
   workforceOrganisationArticle,
   servicesArticle,

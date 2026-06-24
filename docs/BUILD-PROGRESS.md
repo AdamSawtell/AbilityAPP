@@ -12,8 +12,9 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
-| **Next slice** | **WP-AG.5** — vendor invoice AP-lite (or WP-UX.2 employee/incident line drawers) |
-| **Last push** | 2026-06-23 — WP-AG.4 agency timesheets + vendor cost |
+| **Next slice** | **WP-UX.2** — employee/incident line drawers (or release hardening follow-ups) |
+| **Last push** | 2026-06-23 — WP-AG.5–7 agency vendor portal + vendor invoices |
+| **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
@@ -107,6 +108,31 @@ Vendor buy-side timesheets generated from **Completed** agency roster shifts —
 1. `/generate-agency-timesheets` — period 2025-10-06 to 2025-10-12 → generate StaffPlus draft.
 2. `/agency-timesheets` — open ATS document → Jane line, 6 h, vendor cost.
 3. **Approve for vendor invoice** — status Approved; audit footer on save.
+
+---
+
+## WP-AG.5–7 — Agency vendor portal + vendor invoices (2026-06-23)
+
+**Status:** ✅ Shipped
+
+Agency vendors sign in at `/agency-portal` (magic link on vendor BP email). Staff keep **mailto** shift packs from roster Gaps; vendors confirm coverage and propose workers in the portal. Finance uses **Vendor invoices** (AP-lite) for approve/paid.
+
+| Area | Change |
+|------|--------|
+| `/agency-portal/*` | Magic-link auth, shift requests, timesheets, invoice submit |
+| `vendor_invoice` + `vendor_confirmed_at` | Supabase migration + demo seeds |
+| `/vendor-invoices` | Staff list + approve / mark paid |
+| Agency shift drawer | Request → mailto pack → wait for portal → confirm roster (no staff propose) |
+| Processes | `approve-vendor-invoice`, `mark-vendor-invoice-paid` |
+
+### What you can test — WP-AG.5–7
+
+1. `/agency-portal/login` — `roster@staffplus.example` → **Open agency portal** → **Shift requests** → confirm **ASR-DEMO-02** (Mike or Jane).
+2. Rostering Gaps (week 2025-10-06) — **BERN-TUE-VAC** drawer: mailto pack, portal status, confirm after **Worker proposed**.
+3. `/agency-portal/invoices` — submit against **ATS-DEMO-01** (approved timesheet).
+4. `/vendor-invoices` — approve submitted invoice; mark paid.
+
+**Smoke (2026-06-23):** localhost portal login + hub **pass**; remote seeds require migrations `20260625650000` + `20260625660000` if `supabase:push-remote` hits duplicate-version errors.
 
 ---
 

@@ -14,6 +14,7 @@ export type AuditEntityType =
   | "roster-shift"
   | "agency-worker"
   | "agency-timesheet"
+  | "vendor-invoice"
   | "agency-shift-request"
   | "site-orientation"
   | "roster-of-care"
@@ -87,6 +88,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   "roster-shift": "Roster shift",
   "agency-worker": "Agency worker",
   "agency-timesheet": "Agency timesheet",
+  "vendor-invoice": "Vendor invoice",
   "agency-shift-request": "Agency shift request",
   "site-orientation": "Site orientation",
   "roster-of-care": "Roster of care",

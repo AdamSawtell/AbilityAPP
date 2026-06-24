@@ -17,6 +17,7 @@ export type AgencyShiftRequestRecord = {
   skillsRequired: string;
   clientAdvisedAt: string;
   sentAt: string;
+  vendorConfirmedAt: string;
   confirmedAt: string;
   completedAt: string;
   continuityNotes: string;
@@ -43,9 +44,30 @@ export const initialAgencyShiftRequests: AgencyShiftRequestRecord[] = [
     skillsRequired: "SIL, personal care",
     clientAdvisedAt: "",
     sentAt: "2025-10-05T09:00:00.000Z",
+    vendorConfirmedAt: "2025-10-05T09:30:00.000Z",
     confirmedAt: "2025-10-05T10:00:00.000Z",
     completedAt: "2025-10-08T16:00:00.000Z",
     continuityNotes: "Bernie prefers morning routine before community access.",
+    vendorInvoiceRef: "",
+    vendorInvoiceStatus: "",
+    notes: "",
+    createdBy: "Riley Shaw",
+    updatedBy: "Riley Shaw",
+  },
+  {
+    id: "asr-bern-tue-vac",
+    documentNo: "ASR-DEMO-02",
+    rosterShiftId: "rs-bern-tue-vac",
+    vendorBpId: "bp-staffplus",
+    agencyWorkerId: "",
+    status: "Sent",
+    skillsRequired: "SIL, manual handling",
+    clientAdvisedAt: "",
+    sentAt: "2025-10-06T08:00:00.000Z",
+    vendorConfirmedAt: "",
+    confirmedAt: "",
+    completedAt: "",
+    continuityNotes: "",
     vendorInvoiceRef: "",
     vendorInvoiceStatus: "",
     notes: "",
@@ -65,6 +87,7 @@ export function normalizeAgencyShiftRequest(record: AgencyShiftRequestRecord): A
     skillsRequired: record.skillsRequired ?? "",
     clientAdvisedAt: record.clientAdvisedAt ?? "",
     sentAt: record.sentAt ?? "",
+    vendorConfirmedAt: record.vendorConfirmedAt ?? "",
     confirmedAt: record.confirmedAt ?? "",
     completedAt: record.completedAt ?? "",
     continuityNotes: record.continuityNotes ?? "",
@@ -91,6 +114,7 @@ export function createAgencyShiftRequest(
     skillsRequired: "",
     clientAdvisedAt: "",
     sentAt: "",
+    vendorConfirmedAt: "",
     confirmedAt: "",
     completedAt: "",
     continuityNotes: "",

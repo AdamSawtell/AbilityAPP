@@ -126,12 +126,53 @@ export function proposeAgencyWorker(input: {
   });
 }
 
+/** Vendor confirms coverage and proposes a worker in the agency portal (Sent → Worker proposed). */
+export function vendorConfirmAgencyCoverage(input: {
+  request: AgencyShiftRequestRecord;
+  agencyWorkerId: string;
+  continuityNotes?: string;
+  actor: string;
+  now?: string;
+}): { ok: boolean; error?: string; request?: AgencyShiftRequestRecord } {
+  if (input.request.status !== "Sent") {
+    return { ok: false, error: "Only sent shift requests can be confirmed in the agency portal." };
+  }
+  if (!input.agencyWorkerId?.trim()) {
+    return { ok: false, error: "Select an agency worker." };
+  }
+  const now = input.now ?? new Date().toISOString();
+  return {
+    ok: true,
+    request: normalizeAgencyShiftRequest({
+      ...input.request,
+      agencyWorkerId: input.agencyWorkerId,
+      status: "Worker proposed",
+      vendorConfirmedAt: now,
+      continuityNotes: input.continuityNotes?.trim() ? input.continuityNotes : input.request.continuityNotes,
+      updatedBy: input.actor,
+    }),
+  };
+}
+
 export function sendAgencyShiftPack(input: {
   request: AgencyShiftRequestRecord;
   actor: string;
   now?: string;
 }): AgencyShiftRequestRecord {
   const now = input.now ?? new Date().toISOString();
+  const lockedStatuses: AgencyShiftRequestRecord["status"][] = [
+    "Worker proposed",
+    "Confirmed",
+    "Completed",
+    "Cancelled",
+  ];
+  if (lockedStatuses.includes(input.request.status)) {
+    return normalizeAgencyShiftRequest({
+      ...input.request,
+      sentAt: input.request.sentAt?.trim() ? input.request.sentAt : now,
+      updatedBy: input.actor,
+    });
+  }
   return normalizeAgencyShiftRequest({
     ...input.request,
     status: "Sent",
@@ -157,6 +198,15 @@ export function confirmAgencyShift(input: {
   blockOnOrientation?: boolean;
 }): { ok: boolean; error?: string; result?: ConfirmAgencyResult } {
   const shift = normalizeRosterShift(input.shift);
+  const hasPortalProposal =
+    input.request.status === "Worker proposed" ||
+    (input.request.status === "Sent" && Boolean(input.request.agencyWorkerId?.trim()));
+  if (!hasPortalProposal) {
+    return {
+      ok: false,
+      error: "Wait for the agency vendor to propose a worker in the agency portal before confirming.",
+    };
+  }
   if (!shift.locationId?.trim()) {
     return { ok: false, error: "Shift has no location — cannot confirm agency worker." };
   }

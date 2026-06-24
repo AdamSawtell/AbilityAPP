@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AgencyShiftRequestRecord } from "@/lib/agency-shift-request";
 import { normalizeAgencyShiftRequest } from "@/lib/agency-shift-request";
 import type { AgencyTimesheetRecord } from "@/lib/agency-timesheet";
+import type { VendorInvoiceRecord } from "@/lib/vendor-invoice";
+import { normalizeVendorInvoice } from "@/lib/vendor-invoice";
 import { normalizeAgencyTimesheet } from "@/lib/agency-timesheet";
 import type { AgencyWorkerRecord } from "@/lib/agency-worker";
 import { normalizeAgencyWorker } from "@/lib/agency-worker";
@@ -90,6 +92,9 @@ import {
   agencyTimesheetToRow,
   type AgencyTimesheetLineRowDb,
   type AgencyTimesheetRow,
+  vendorInvoiceFromRow,
+  vendorInvoiceToRow,
+  type VendorInvoiceRow,
   siteOrientationFromRow,
   siteOrientationToRow,
   type SiteOrientationRow,
@@ -245,6 +250,7 @@ export type AppData = {
   agencyShiftRequests: AgencyShiftRequestRecord[];
   siteOrientations: SiteOrientationRecord[];
   agencyTimesheets: AgencyTimesheetRecord[];
+  vendorInvoices: VendorInvoiceRecord[];
   rosterOfCares: RosterOfCareRecord[];
   monthlyServicePlans: MonthlyServicePlanRecord[];
   timesheets: TimesheetRecord[];
@@ -305,6 +311,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     siteOrientationsRes,
     agencyTimesheetsRes,
     agencyTimesheetLinesRes,
+    vendorInvoicesRes,
     timesheetsRes,
     timesheetLinesRes,
     claimsRes,
@@ -379,6 +386,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("site_orientation").select("*").order("oriented_at", { ascending: false }),
     supabase.from("agency_timesheet").select("*").order("period_start", { ascending: false }),
     supabase.from("agency_timesheet_line").select("*").order("line_no"),
+    supabase.from("vendor_invoice").select("*").order("document_no", { ascending: false }),
     supabase.from("timesheet").select("*").order("period_start", { ascending: false }),
     supabase.from("timesheet_line").select("*").order("line_no"),
     supabase.from("claim").select("*").order("period_start", { ascending: false }),
@@ -455,6 +463,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     siteOrientationsRes.error ??
     agencyTimesheetsRes.error ??
     agencyTimesheetLinesRes.error ??
+    vendorInvoicesRes.error ??
     timesheetsRes.error ??
     timesheetLinesRes.error ??
     claimsRes.error ??
@@ -628,6 +637,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
       normalizeAgencyTimesheet(
         agencyTimesheetFromRow(row, linesByAgencyTimesheet.get(row.id) ?? [])
       )
+    ),
+    vendorInvoices: ((vendorInvoicesRes.data ?? []) as VendorInvoiceRow[]).map((row) =>
+      normalizeVendorInvoice(vendorInvoiceFromRow(row))
     ),
     rosterOfCares: ((rosterOfCaresRes.data ?? []) as RosterOfCareRow[]).map((row) =>
       normalizeRosterOfCare(rosterOfCareFromRow(row, linesByRosterOfCare.get(row.id) ?? []))
@@ -1224,6 +1236,12 @@ export async function saveAgencyTimesheets(supabase: SupabaseClient, records: Ag
   for (const record of records) {
     await saveAgencyTimesheet(supabase, record);
   }
+}
+
+export async function saveVendorInvoice(supabase: SupabaseClient, record: VendorInvoiceRecord) {
+  const invoice = normalizeVendorInvoice(record);
+  const { error } = await supabase.from("vendor_invoice").upsert(vendorInvoiceToRow(invoice));
+  if (error) throw error;
 }
 
 export async function saveTimesheet(supabase: SupabaseClient, record: TimesheetRecord) {

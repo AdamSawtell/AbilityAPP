@@ -9,12 +9,11 @@ import {
   completeAgencyShift,
   confirmAgencyShift,
   lastAgencyWorkedAtLocation,
-  proposeAgencyWorker,
   requestAgencyCoverage,
   sendAgencyShiftPack,
 } from "@/lib/agency-shift-workflow";
 import { openAgencyRequestForShift, type AgencyShiftRequestRecord } from "@/lib/agency-shift-request";
-import { agencyWorkerDisplayName, agencyWorkersForVendor, isAgencyVendorPartner } from "@/lib/agency-worker";
+import { agencyWorkerDisplayName, isAgencyVendorPartner } from "@/lib/agency-worker";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { formatDayHeading, formatShiftTimeRange, normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
@@ -47,8 +46,6 @@ export function AgencyShiftRequestDrawer({
   const normalizedShift = normalizeRosterShift(shift);
   const [vendorBpId, setVendorBpId] = useState("");
   const [skillsRequired, setSkillsRequired] = useState("");
-  const [agencyWorkerId, setAgencyWorkerId] = useState("");
-  const [continuityNotes, setContinuityNotes] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mailtoUrl, setMailtoUrl] = useState<string | undefined>();
@@ -71,24 +68,20 @@ export function AgencyShiftRequestDrawer({
   const client = clients.find((c) => c.id === normalizedShift.clientId);
   const location = locations.find((l) => l.id === normalizedShift.locationId);
 
-  const vendorWorkers = useMemo(
-    () => (effectiveVendorId ? agencyWorkersForVendor(agencyWorkers, effectiveVendorId) : []),
-    [agencyWorkers, effectiveVendorId]
-  );
-
   const canRequest = canProcess("request-agency-coverage");
   const canSend = canProcess("send-agency-shift-pack");
   const canConfirm = canProcess("confirm-agency-shift");
   const canComplete = canProcess("complete-agency-shift");
 
-  const selectedWorkerId = activeRequest?.agencyWorkerId || agencyWorkerId;
-  const selectedWorker = agencyWorkers.find((w) => w.id === selectedWorkerId);
+  const proposedWorker = activeRequest?.agencyWorkerId
+    ? agencyWorkers.find((w) => w.id === activeRequest.agencyWorkerId)
+    : undefined;
 
   const orientationPreview = useMemo(() => {
-    if (!selectedWorker || !normalizedShift.locationId?.trim()) return null;
+    if (!proposedWorker || !normalizedShift.locationId?.trim()) return null;
     const lastWorked = lastAgencyWorkedAtLocation(
       rosterShifts,
-      selectedWorker.id,
+      proposedWorker.id,
       normalizedShift.locationId,
       normalizedShift.shiftDate
     );
@@ -96,7 +89,7 @@ export function AgencyShiftRequestDrawer({
       check: checkSiteOrientation(
         siteOrientations,
         "agency",
-        selectedWorker.id,
+        proposedWorker.id,
         normalizedShift.locationId,
         normalizedShift.shiftDate,
         lastWorked
@@ -104,7 +97,7 @@ export function AgencyShiftRequestDrawer({
       lastWorked,
     };
   }, [
-    selectedWorker,
+    proposedWorker,
     normalizedShift.locationId,
     normalizedShift.shiftDate,
     rosterShifts,
@@ -137,29 +130,18 @@ export function AgencyShiftRequestDrawer({
     setMessage(`Agency request ${created.documentNo} created.`);
   }
 
-  function handleProposeWorker() {
-    if (!activeRequest || !agencyWorkerId) {
-      setError("Select an agency worker.");
-      return;
-    }
-    const next = proposeAgencyWorker({ request: activeRequest, agencyWorkerId, actor });
-    if (!persistRequest(next)) return;
-    setMessage("Agency worker proposed.");
-  }
-
   function handleSendPack() {
     if (!activeRequest || !vendor) {
       setError("Request or vendor missing.");
       return;
     }
-    const worker = agencyWorkers.find((w) => w.id === (activeRequest.agencyWorkerId || agencyWorkerId));
     const pack = buildAgencyShiftPack({
       request: activeRequest,
       shift: normalizedShift,
       vendor,
       client,
       location,
-      worker,
+      worker: proposedWorker,
     });
     const next = sendAgencyShiftPack({ request: activeRequest, actor });
     if (!persistRequest(next)) return;
@@ -177,10 +159,9 @@ export function AgencyShiftRequestDrawer({
 
   function handleConfirm() {
     if (!activeRequest) return;
-    const workerId = activeRequest.agencyWorkerId || agencyWorkerId;
-    const worker = agencyWorkers.find((w) => w.id === workerId);
+    const worker = proposedWorker;
     if (!worker) {
-      setError("Select and propose an agency worker before confirming.");
+      setError("The agency vendor must propose a worker in the agency portal before you can confirm.");
       return;
     }
     const result = confirmAgencyShift({
@@ -228,6 +209,9 @@ export function AgencyShiftRequestDrawer({
   }
 
   const status = activeRequest?.status ?? "Not started";
+  const awaitingPortal = status === "Sent" && !activeRequest?.agencyWorkerId?.trim();
+  const workerProposed =
+    status === "Worker proposed" || (status === "Sent" && Boolean(activeRequest?.agencyWorkerId?.trim()));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 sm:items-center">
@@ -315,7 +299,7 @@ export function AgencyShiftRequestDrawer({
           {activeRequest && status !== "Completed" && status !== "Cancelled" ? (
             <>
               <section className="space-y-3 rounded-lg border border-slate-200 p-4">
-                <h3 className="text-sm font-semibold text-slate-800">2. Propose agency worker</h3>
+                <h3 className="text-sm font-semibold text-slate-800">2. Send shift pack</h3>
                 <p className="text-sm text-slate-600">
                   Vendor:{" "}
                   {vendor ? (
@@ -326,51 +310,13 @@ export function AgencyShiftRequestDrawer({
                     "—"
                   )}
                 </p>
-                <label className="block text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Agency worker
-                  </span>
-                  <select
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2"
-                    value={agencyWorkerId || activeRequest.agencyWorkerId}
-                    onChange={(e) => setAgencyWorkerId(e.target.value)}
-                    disabled={!canConfirm && !canSend}
-                  >
-                    <option value="">Select worker…</option>
-                    {vendorWorkers.map((w) => (
-                      <option key={w.id} value={w.id}>
-                        {agencyWorkerDisplayName(w)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <Link href="/agency-workers/new" className="text-xs text-[#b51266] hover:underline">
-                  Register new agency worker
-                </Link>
-                {canConfirm ? (
-                  <button
-                    type="button"
-                    onClick={handleProposeWorker}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                  >
-                    Propose worker
-                  </button>
-                ) : null}
-              </section>
-
-              <section className="space-y-3 rounded-lg border border-slate-200 p-4">
-                <h3 className="text-sm font-semibold text-slate-800">3. Send shift pack</h3>
-                <label className="block text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    Continuity notes
-                  </span>
-                  <textarea
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2"
-                    rows={2}
-                    value={continuityNotes}
-                    onChange={(e) => setContinuityNotes(e.target.value)}
-                  />
-                </label>
+                <p className="text-sm text-slate-600">
+                  Email the shift pack to the agency. The vendor confirms coverage and proposes a worker in the{" "}
+                  <Link href="/agency-portal/login" className="text-sky-700 hover:underline">
+                    agency portal
+                  </Link>
+                  .
+                </p>
                 {canSend ? (
                   <button
                     type="button"
@@ -383,12 +329,39 @@ export function AgencyShiftRequestDrawer({
               </section>
 
               <section className="space-y-3 rounded-lg border border-slate-200 p-4">
+                <h3 className="text-sm font-semibold text-slate-800">3. Agency portal confirmation</h3>
+                {awaitingPortal ? (
+                  <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+                    Waiting for {vendor?.name ?? "the agency"} to confirm in the agency portal after receiving the shift
+                    pack email.
+                  </p>
+                ) : workerProposed && proposedWorker ? (
+                  <div className="space-y-2 text-sm text-slate-700">
+                    <p className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sky-950">
+                      Worker proposed: <strong>{agencyWorkerDisplayName(proposedWorker)}</strong>
+                      {activeRequest.vendorConfirmedAt
+                        ? ` · confirmed ${new Date(activeRequest.vendorConfirmedAt).toLocaleString()}`
+                        : ""}
+                    </p>
+                    {activeRequest.continuityNotes ? (
+                      <p>
+                        <span className="font-medium text-slate-800">Continuity notes: </span>
+                        {activeRequest.continuityNotes}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-600">No portal confirmation yet.</p>
+                )}
+              </section>
+
+              <section className="space-y-3 rounded-lg border border-slate-200 p-4">
                 <h3 className="text-sm font-semibold text-slate-800">4. Confirm and complete</h3>
                 <p className="text-sm text-slate-600">
                   Site orientation is checked before confirmation. Workers without current orientation cannot be
                   confirmed — record orientation below when blocked.
                 </p>
-                {orientationPreview && selectedWorker ? (
+                {orientationPreview && proposedWorker ? (
                   <p
                     className={`rounded-lg border px-3 py-2 text-sm ${
                       orientationPreview.check.ok
@@ -399,10 +372,10 @@ export function AgencyShiftRequestDrawer({
                     {orientationPreview.check.message}
                   </p>
                 ) : null}
-                {(!orientationPreview?.check.ok && selectedWorker) || showOrientationForm ? (
+                {(!orientationPreview?.check.ok && proposedWorker) || showOrientationForm ? (
                   <SiteOrientationPanel
                     defaultWorkerType="agency"
-                    defaultWorkerId={selectedWorkerId}
+                    defaultWorkerId={proposedWorker?.id ?? ""}
                     defaultLocationId={normalizedShift.locationId}
                     shiftDate={normalizedShift.shiftDate}
                     lastWorkedAtLocation={orientationPreview?.lastWorked}
@@ -410,7 +383,7 @@ export function AgencyShiftRequestDrawer({
                   />
                 ) : null}
                 <div className="flex flex-wrap gap-2">
-                  {canConfirm ? (
+                  {canConfirm && workerProposed ? (
                     <button
                       type="button"
                       onClick={handleConfirm}

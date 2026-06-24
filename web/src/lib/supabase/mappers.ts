@@ -8,6 +8,8 @@ import type { AgencyWorkerRecord } from "@/lib/agency-worker";
 import { normalizeAgencyWorker } from "@/lib/agency-worker";
 import type { SiteOrientationRecord } from "@/lib/site-orientation";
 import { normalizeSiteOrientation } from "@/lib/site-orientation";
+import type { VendorInvoiceRecord } from "@/lib/vendor-invoice";
+import { normalizeVendorInvoice } from "@/lib/vendor-invoice";
 import type { ClaimLine, ClaimRecord } from "@/lib/claim";
 import type { ClaimRemittanceLine, ClaimRemittanceRecord } from "@/lib/claim-remittance";
 import type { InvoiceLine, InvoiceRecord } from "@/lib/invoice";
@@ -2531,6 +2533,7 @@ export type AgencyShiftRequestRow = {
   skills_required: string;
   client_advised_at: string | null;
   sent_at: string | null;
+  vendor_confirmed_at: string | null;
   confirmed_at: string | null;
   completed_at: string | null;
   continuity_notes: string;
@@ -2552,6 +2555,7 @@ export function agencyShiftRequestFromRow(row: AgencyShiftRequestRow): AgencyShi
     skillsRequired: row.skills_required,
     clientAdvisedAt: row.client_advised_at ?? "",
     sentAt: row.sent_at ?? "",
+    vendorConfirmedAt: row.vendor_confirmed_at ?? "",
     confirmedAt: row.confirmed_at ?? "",
     completedAt: row.completed_at ?? "",
     continuityNotes: row.continuity_notes,
@@ -2575,6 +2579,7 @@ export function agencyShiftRequestToRow(record: AgencyShiftRequestRecord): Agenc
     skills_required: normalized.skillsRequired,
     client_advised_at: normalized.clientAdvisedAt?.trim() ? normalized.clientAdvisedAt : null,
     sent_at: normalized.sentAt?.trim() ? normalized.sentAt : null,
+    vendor_confirmed_at: normalized.vendorConfirmedAt?.trim() ? normalized.vendorConfirmedAt : null,
     confirmed_at: normalized.confirmedAt?.trim() ? normalized.confirmedAt : null,
     completed_at: normalized.completedAt?.trim() ? normalized.completedAt : null,
     continuity_notes: normalized.continuityNotes,
@@ -2742,6 +2747,64 @@ export function agencyTimesheetLineToRow(
     vendor_hourly_rate: line.vendorHourlyRate,
     vendor_cost: line.vendorCost,
     notes: line.notes,
+  };
+}
+
+// --- Vendor invoice ---
+
+export type VendorInvoiceRow = {
+  id: string;
+  document_no: string;
+  vendor_bp_id: string;
+  agency_timesheet_id: string;
+  invoice_no: string;
+  invoice_date: string;
+  amount: number;
+  status: string;
+  notes: string;
+  submitted_at: string | null;
+  approved_at: string | null;
+  paid_at: string | null;
+  created_by: string;
+  updated_by: string;
+};
+
+export function vendorInvoiceFromRow(row: VendorInvoiceRow): VendorInvoiceRecord {
+  return normalizeVendorInvoice({
+    id: row.id,
+    documentNo: row.document_no,
+    vendorBpId: row.vendor_bp_id,
+    agencyTimesheetId: row.agency_timesheet_id,
+    invoiceNo: row.invoice_no,
+    invoiceDate: strDate(row.invoice_date),
+    amount: Number(row.amount) || 0,
+    status: row.status,
+    notes: row.notes,
+    submittedAt: row.submitted_at ?? "",
+    approvedAt: row.approved_at ?? "",
+    paidAt: row.paid_at ?? "",
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  });
+}
+
+export function vendorInvoiceToRow(record: VendorInvoiceRecord): VendorInvoiceRow {
+  const normalized = normalizeVendorInvoice(record);
+  return {
+    id: normalized.id,
+    document_no: normalized.documentNo,
+    vendor_bp_id: normalized.vendorBpId,
+    agency_timesheet_id: normalized.agencyTimesheetId,
+    invoice_no: normalized.invoiceNo,
+    invoice_date: toDate(normalized.invoiceDate) ?? normalized.invoiceDate,
+    amount: normalized.amount,
+    status: normalized.status,
+    notes: normalized.notes,
+    submitted_at: normalized.submittedAt?.trim() ? normalized.submittedAt : null,
+    approved_at: normalized.approvedAt?.trim() ? normalized.approvedAt : null,
+    paid_at: normalized.paidAt?.trim() ? normalized.paidAt : null,
+    created_by: normalized.createdBy,
+    updated_by: normalized.updatedBy,
   };
 }
 

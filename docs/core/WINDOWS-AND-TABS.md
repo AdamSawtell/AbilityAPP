@@ -3,7 +3,7 @@
 **Audience:** Developers, business analysts, access administrators, and reviewers who need to know *where* each function lives in the UI.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (grants).  
 **Version:** 1.1  
-**Last updated:** 23 June 2026 (participant portal routes; Amplify PDF heap)
+**Last updated:** 23 June 2026 (agency vendor portal + vendor invoices)
 
 ---
 
@@ -38,6 +38,25 @@
 **Demo participant:** `Bernie@email` (client `bp-bern` / Bernadette Rose).
 
 **Code:** `web/src/components/portal/*`, `web/src/lib/portal/*`, `web/src/app/portal/*`
+
+### Agency vendor portal routes
+
+| Surface | Sign-in | Notes |
+|---------|---------|-------|
+| Amplify demo | `https://app.abilityvua.com/agency-portal/login` | `roster@staffplus.example` (StaffPlus vendor BP) |
+| Local dev | `http://localhost:3000/agency-portal/login` | Demo **Open agency portal** when `PORTAL_DEMO_EXPOSE_LINK` or `AGENCY_PORTAL_DEMO_EXPOSE_LINK` |
+
+| Tab / page | Route | Purpose |
+|------------|-------|---------|
+| Sign in | `/agency-portal/login` | Email must match agency vendor `business_partner.email` |
+| Hub | `/agency-portal` | Dashboard |
+| Shift requests | `/agency-portal/requests`, `/agency-portal/requests/{id}` | Confirm **Sent** requests → **Worker proposed** |
+| Timesheets | `/agency-portal/timesheets` | Approved agency timesheets |
+| Invoices | `/agency-portal/invoices` | Submit invoice against approved timesheet |
+
+**Code:** `web/src/components/agency-portal/*`, `web/src/lib/agency-portal/*`, `web/src/app/agency-portal/*`
+
+Staff counterpart: **Vendor invoices** (`/vendor-invoices`, `/vendor-invoices/{id}`) — finance approve/paid.
 
 ### Windows vs tabs
 
@@ -353,6 +372,7 @@ Claim and invoice detail: single page with lines panel. No tab windows.
 | Agency workers | `agency-workers` | `/agency-workers` | People |
 | Agency timesheets | `agency-timesheets` | `/agency-timesheets` | People |
 | Generate agency timesheets | `generate-agency-timesheets` | `/generate-agency-timesheets` | People |
+| Vendor invoices | `vendor-invoices` | `/vendor-invoices` | People |
 | Workforce planning | `workforce-planning` | `/workforce-planning` | Workforce planning |
 | Organisation structure | `workforce-organisation` | `/workforce-planning/organisation` | Workforce planning |
 | Edit org structure | `workforce-org-edit` | (action grant) | — |

@@ -35,7 +35,39 @@ export const agencyTimesheetDropdowns = {
   status: ["Draft", "Approved"],
 };
 
-export const initialAgencyTimesheets: AgencyTimesheetRecord[] = [];
+export const initialAgencyTimesheets: AgencyTimesheetRecord[] = [
+  {
+    id: "at-demo-staffplus-week",
+    documentNo: "ATS-DEMO-01",
+    vendorBpId: "bp-staffplus",
+    periodStart: "2025-10-06",
+    periodEnd: "2025-10-12",
+    status: "Approved",
+    totalHours: 6,
+    totalVendorCost: 435,
+    notes: "Demo approved timesheet for agency portal invoice",
+    lines: [
+      {
+        id: "atl-demo-jane-oct",
+        lineNo: 1,
+        rosterShiftId: "rs-bern-agency-done",
+        agencyShiftRequestId: "asr-demo-jane-oct",
+        agencyWorkerId: "aw-sp-jane",
+        clientId: "bp-bern",
+        locationId: "loc-glenelg-sil",
+        shiftDate: "2025-10-08",
+        startTime: "09:00",
+        endTime: "15:00",
+        hours: 6,
+        vendorHourlyRate: 72.5,
+        vendorCost: 435,
+        notes: "",
+      },
+    ],
+    createdBy: "Riley Shaw",
+    updatedBy: "Riley Shaw",
+  },
+];
 
 export function emptyAgencyTimesheetLine(lineNo: number): AgencyTimesheetLine {
   return {
