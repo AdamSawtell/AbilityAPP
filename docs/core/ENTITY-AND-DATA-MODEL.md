@@ -3,7 +3,7 @@
 **Audience:** Reviewers, BAs, and developers who need to understand how records connect across the operational spine.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (functions), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) (where to view/edit).  
 **Version:** 1.1  
-**Last updated:** 23 June 2026 (portal entities)
+**Last updated:** 23 June 2026 (agency staffing WP-AG.1, portal entities)
 
 ---
 
@@ -27,8 +27,9 @@ Enquiry ──convert──► Client ◄─────────────
                        └──► Task (entityType + entityId)
 
 Employee ──► Roster shift / Timesheet / Leave / Credential
+Agency worker ──► vendor business partner; Roster shift (agency coverage)
 Location ◄── assignments ── Client, Employee, Product
-Business partner ◄── associations ── Client; plan manager on billing
+Business partner ◄── associations ── Client; plan manager on billing; staffing vendor for agency workers
 ```
 
 **Principle:** Every operational record should link to the correct **client**, **employee**, **location**, or upstream document ([BUILD-EXPECTATIONS.md](../BUILD-EXPECTATIONS.md) §14).
@@ -44,6 +45,7 @@ Business partner ◄── associations ── Client; plan manager on billing
 | Enquiry | `enquiry` | `id` | `/enquiries` | Tabbed record |
 | Client | `client` | `id` | `/clients` | Tabbed record |
 | Employee | `employee` | `id` | `/employees` | Tabbed record |
+| Agency worker | `agency_worker` | `id` | `/agency-workers` | Single page register |
 | Location | `support_location` | `id` | `/locations` | Tabbed record |
 | Business partner | `business_partner` | `id` | `/business-partners` | Single page |
 | Service agreement | `service_agreement` | `id` | `/service-agreements` | Overview + Lines |
@@ -129,12 +131,17 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Monthly service plan | `clientId` | Planned hours/spend by month |
 | Roster of care | `clientId`, optional `serviceAgreementId` | Weekly template |
 | Service planning instance | `clientId`, booking/plan refs | Demand board |
-| Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (typical) | Week on `/rostering?week=` |
+| Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (typical); agency: `coverageSource`, `agencyWorkerId`, `vendorBpId`, `agencyRequestId` | Week on `/rostering?week=` |
+| Agency worker | `vendorBpId` → `business_partner` | `/agency-workers` register |
+| Agency shift request | `rosterShiftId`, `vendorBpId`, optional `agencyWorkerId` | Drawer from Gaps; not standalone route |
+| Site orientation | `workerType` (agency/employee), `workerId`, `locationId`, `orientedAt` | Gate at confirm agency shift |
 
 | Validation | Module |
 |------------|--------|
 | Double-book / conflicts | `roster-shift-compliance.ts` |
 | Qualifications on publish | `roster-shift-qualification.ts` |
+| Agency vacant gap exclusion | `roster-gap-analysis.ts` (`isVacantShift`) |
+| Site orientation at confirm | `site-orientation.ts`, `agency-shift-workflow.ts` |
 | Recurrence | `roster_shift` recurrence fields |
 
 ---
@@ -205,6 +212,19 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Timesheet | `employeeId` on header |
 | Location | Location → Employees assignment lines |
 
+### Agency workers (not employees)
+
+| Record | Fields | Notes |
+|--------|--------|-------|
+| `agency_worker` | `vendor_bp_id`, contact, qualifications, skills | Register at `/agency-workers` |
+| `agency_shift_request` | `roster_shift_id`, `vendor_bp_id`, `agency_worker_id` | Workflow from Gaps |
+| `site_orientation` | `worker_type`, `worker_id`, `location_id` | Checked at confirm |
+
+| Link to delivery | How |
+|------------------|-----|
+| Roster shift (agency) | `coverageSource=agency`, `agencyWorkerId`, `vendorBpId`, `agencyRequestId`; `employeeId` empty |
+| Business partner | Vendor staffing agency |
+
 ---
 
 ## 11. Locations and catalogue
@@ -243,7 +263,8 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Service booking | client; agreement when funded | Client → Service bookings | `booking-compliance.ts` |
 | Incident | client | Client → Incidents | workflow rules |
 | Task | entityType + entityId | Client → Requests | — |
-| Timesheet / roster shift | employee, client, location, booking (typical) | Roster week view | `roster-shift-compliance.ts` |
+| Timesheet / roster shift | employee **or** agency worker + vendor, client, location, booking (typical) | Roster week view | `roster-shift-compliance.ts` |
+| Agency shift request | roster shift, vendor; worker when proposed | Gaps drawer | `agency-shift-workflow.ts` |
 | Roster of care | client; agreement optional | Client → Roster of care | template + publish |
 | Claim line | timesheet line / service context | Claim detail | PAPL validation |
 | Invoice line | service line refs | Invoice detail | invoice line validation |

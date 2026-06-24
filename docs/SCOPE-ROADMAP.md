@@ -173,6 +173,7 @@ Legend: ✅ Live · 🟡 Partial / MVP · ⬜ Not started · 🔵 In progress
 | Worker schedule templates + fill board | ✅ | Yes — WP-H.1/H.2 |
 | Client RoC on record + rostered vs required | ✅ | Yes — WP-G.1 |
 | Employee schedule tab + My shifts calendar | ✅ | Yes — WP-G.2/G.3 |
+| Agency worker register + coverage workflow | ✅ | Yes — WP-AG.1 (AB-0019) |
 | Mobile worker app | ⬜ | Phase 2 (PWA or native) |
 | RoC import | ✅ | Yes — WP-D.13 |
 

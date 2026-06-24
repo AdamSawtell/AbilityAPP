@@ -169,6 +169,18 @@
       "entryPoints": ["web/src/components/line-item-table.tsx", "web/src/components/record-activities-panel.tsx"],
       "logic": ["web/src/lib/activity-line-policy.ts", "web/src/lib/data-store.tsx"],
       "tables": ["app_task", "client_activity", "enquiry_activity", "employee_activity", "support_location_activity"]
+    },
+    {
+      "number": 15,
+      "id": "request-agency-coverage",
+      "name": "Agency staffing coverage",
+      "status": "live",
+      "summary": "Fill vacant roster shifts using vendor-linked agency workers: request, shift pack, confirm with site orientation, complete.",
+      "doc": "docs/processes/15-agency-staffing.md",
+      "trigger": "User clicks Request agency on a vacant shift in Rostering Gaps",
+      "entryPoints": ["web/src/components/roster-gaps-panel.tsx", "web/src/components/agency-shift-request-drawer.tsx"],
+      "logic": ["web/src/lib/agency-shift-workflow.ts", "web/src/lib/site-orientation.ts", "web/src/lib/data-store.tsx"],
+      "tables": ["agency_worker", "agency_shift_request", "site_orientation", "roster_shift"]
     }
   ]
 }

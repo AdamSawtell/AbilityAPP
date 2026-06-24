@@ -21,8 +21,13 @@ Maps to `docs/processes/processes.json` and `ACCESS_PROCESSES` in catalog.
 | UAT-15-P-011 | `review-employee-credential` | HR | Review queue | Approved/rejected | **Pass** — HR home 9 reviews |
 | UAT-15-P-012 | `approve-leave-request` | Manager | Review queue | Balance updated | **Pass** — approved leave on calendar |
 | UAT-15-P-013 | `financial-month-close` | Finance | Financial close | Month close or blockers | **Pass** — TEST-097 blocked close |
+| UAT-15-P-014 | `request-activity-deletion` | Coordinator | Activity Request deletion | Admin task created | **Pass** — WP-ACT.1 localhost |
+| UAT-15-P-015 | `request-agency-coverage` | RileyShaw | Gaps Request agency | Request drawer opens | **Pass** — Amplify 2026-06-24 |
+| UAT-15-P-016 | `send-agency-shift-pack` | RileyShaw | Send in agency drawer | Sent + mailto | **Pending** — TEST-070 |
+| UAT-15-P-017 | `confirm-agency-shift` | RileyShaw | Confirm in drawer | Agency badge on shift | **Pending** — TEST-070 |
+| UAT-15-P-018 | `complete-agency-shift` | RileyShaw | Complete in drawer | Request Completed | **Pending** — TEST-070 optional step |
 
-## Document / print processes (inventory UAT-15-P-014+)
+## Document / print processes (inventory UAT-15-P-019+)
 
 Spot-checked during module UAT — see inventory § **Processes (UAT-15)**.
 

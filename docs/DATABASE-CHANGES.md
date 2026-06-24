@@ -57,6 +57,9 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `employee_document` | HR documents |
 | `employee_activity` | Employee activity log |
 | `employee_leave_entitlement` | Leave entitlements / balances |
+| `agency_worker` | Agency relief workers (vendor-linked; not employees) |
+| `agency_shift_request` | Agency coverage requests linked to vacant `roster_shift` |
+| `site_orientation` | Site orientation per worker (agency or employee) and location |
 
 ## Not built yet (needs migration when added)
 

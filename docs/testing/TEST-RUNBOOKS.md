@@ -115,6 +115,28 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-070 — Agency staffing smoke (WP-AG.1)
+
+| | |
+|--|--|
+| **User** | RileyShaw / welcome (rostering manager — has agency processes) |
+| **DATA** | `bp-staffplus`, `aw-sp-jane`, `rs-bern-tue-vac`, week `2025-10-06` |
+| **Pass if** | Register visible; gap request → propose Jane → send pack → confirm → Agency badge |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/agency-workers` | Jane Agency + Mike Relief; Works for StaffPlus |
+| 2 | `/rostering?week=2025-10-06` → **Gaps** | BERN-TUE-VAC vacant listed |
+| 3 | **Request agency** → vendor StaffPlus | Request drawer opens; document no assigned |
+| 4 | Propose **Jane Agency** → **Send shift pack** | Status Sent; mailto draft available |
+| 5 | **Confirm agency shift** | No orientation error; week shows Jane + Agency badge |
+| 6 | (Optional) **Complete agency shift** | Request Completed; shift Completed |
+| 7 | Full audit trail on shift + request | Process events logged |
+
+**Note:** Intake Coordinator (GabrielaWilson) lacks `request-agency-coverage` — **Request agency** hidden. Use RileyShaw or rostering officer.
+
+---
+
 ## TEST-085 — Flow 5 billing smoke
 
 | | |

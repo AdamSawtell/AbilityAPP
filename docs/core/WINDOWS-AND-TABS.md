@@ -256,7 +256,11 @@ Business partners: single-page record (no tab windows in catalog).
 | Multi-provider budget | `multi-provider-budget` | `/multi-provider-budget` | Child of service planning |
 | Rostering | `rostering` | `/rostering` | Service delivery |
 
-Rostering uses `?week=` query for the roster week. No record tabs — grid/calendar UI.
+Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward plan**, **Capacity**, **Gaps**, **Open shifts**, **RoC**. No record tabs — grid/calendar UI.
+
+**Agency staffing (WP-AG.1):** **Gaps** tab lists vacant shifts; **Request agency** opens the agency shift request drawer (process `request-agency-coverage`). Confirmed agency cover shows an **Agency** badge on the week calendar.
+
+**Processes:** `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` (rostering + agency-workers grants).
 
 ---
 
@@ -345,6 +349,8 @@ Claim and invoice detail: single page with lines panel. No tab windows.
 | Organisation structure | `workforce-organisation` | `/workforce-planning/organisation` | Workforce planning |
 | Edit org structure | `workforce-org-edit` | (action grant) | — |
 | Edit org chart tiers | `workforce-org-chart-tier` | `/system/org-chart-tiers` | — |
+
+Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Single-page register (not tabbed). Coverage workflow runs from Rostering → Gaps, not from the agency record.
 
 ### Employee record tabs
 

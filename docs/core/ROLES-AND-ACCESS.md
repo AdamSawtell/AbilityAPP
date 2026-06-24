@@ -93,6 +93,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 |----------|---------------|---------|-----------|
 | Service planning | Rostering, Admin | `service-planning`, `multi-provider-budget` | — |
 | Rostering publish | Rostering Manager, Admin | `rostering` (write) | — |
+| Agency coverage workflow | Rostering Manager, Rostering Officer, Coordinator, Exec Ops, Admin | `rostering` (write), `agency-workers` (write) | `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` |
 | Open shifts | Support Worker | `my-open-shifts` | — |
 
 ### §10–11 My workplace and timesheets
@@ -131,6 +132,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Employee HR file | HR Manager, Admin | `employees` + tabs | `assign-employee-credential` |
 | Generate HR documents | HR Manager, Admin | `employee-documents` (write) | `print-employee-offer`, `print-employee-contract`, `print-employee-separation` |
 | Workforce planning / leave on behalf | HR Manager, Admin | `workforce-planning` | `submit-leave-on-behalf`, `approve-leave-request`, `review-employee-credential` |
+| Agency worker register | Rostering Manager, Coordinator, Admin | `agency-workers` (write) | — (coverage processes on rostering) |
 
 ### §16 Incidents and complaints
 

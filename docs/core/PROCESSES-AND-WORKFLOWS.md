@@ -125,7 +125,16 @@
 | Qualification gate | Publish | Blocks if worker missing WWCC / NDIS screening (configurable) |
 | Open shift claim | Worker claims on `/my/open-shifts` | Assigns worker to vacant shift — Partial |
 
-**No numbered process doc** — roster actions are window-write operations with server validation (`roster-shift-compliance.ts`).
+| Process ID | Trigger | Workflow |
+|------------|---------|----------|
+| `request-agency-coverage` | **Request agency** on Gaps tab | Creates `agency_shift_request` for vacant shift + vendor |
+| `send-agency-shift-pack` | Send in agency drawer | Mailto shift pack; request status Sent; document audit |
+| `confirm-agency-shift` | Confirm in agency drawer | Assigns agency worker on shift; orientation gate |
+| `complete-agency-shift` | Complete in agency drawer | Closes request; shift status Completed |
+
+**Deep doc:** [15-agency-staffing.md](../processes/15-agency-staffing.md)
+
+**No numbered process doc** — other roster actions are window-write operations with server validation (`roster-shift-compliance.ts`).
 
 ---
 

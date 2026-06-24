@@ -18,6 +18,9 @@
 | UAT-05-S-006 | Qualification block | Worker without WWCC | Publish blocked | **Pass** — publish panel blocks missing credentials (seeded WWCC fix in TEST-060) |
 | UAT-05-S-007 | RoC / forward plan | Roster views | Load without error | **Pass** — RoC + Forward plan tabs render |
 | UAT-05-S-008 | Open shifts list | Rostering open shifts tab | Vacant shifts visible | **Pass** — **Open shifts 23** tab |
+| UAT-05-S-009 | Agency worker register | `/agency-workers` | Vendor-linked workers list | **Pass** — Jane/Mike → StaffPlus (localhost 2026-06-24) |
+| UAT-05-S-010 | Request agency on gap | `/rostering?week=2025-10-06` Gaps | Request agency drawer on BERN-TUE-VAC | **Pass** — Amplify 2026-06-24 RileyShaw; StaffPlus in vendor list |
+| UAT-05-S-011 | Site orientation gate | Confirm without orientation | Block with message | **Pass** — logic in `confirmAgencyShift`; Jane seeded oriented at Glenelg SIL |
 
 ## Window checklist
 

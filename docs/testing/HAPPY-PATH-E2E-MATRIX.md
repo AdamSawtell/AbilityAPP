@@ -218,7 +218,10 @@ flowchart LR
 | 4.17 | HP-057 | Coordinator | Verify client Activity reflects service | `/clients/bp-bern?tab=Activity` | Activity row or case note linked to shift/date | Live | TEST-057 |
 | 4.18 | HP-058 | Admin | Confirm audit trail on SA, booking, roster, timesheet | Each record → Full audit trail | Field-level events on save | Live | TEST-058 |
 | 4.19 | HP-059 | SuperUser | Access control: coordinator without roster grant | `/rostering` | Blocked or read-only per role matrix | Live | TEST-059 |
-| 4.20 | HP-060 | AI browser | Smoke chain 4.10→4.16 with Bern + one worker | Multi-route | Publish + approved path; data survives refresh | Live | TEST-060 |
+| 4.20 | HP-070 | Roster admin | Register agency worker linked to vendor | `/agency-workers` | Worker saved; Works for vendor; audit footer | Live | TEST-070 |
+| 4.21 | HP-071 | Roster admin | Request agency on vacant shift | `/rostering?week=2025-10-06` Gaps | Request created; vendor selected | Live | TEST-070 |
+| 4.22 | HP-072 | Roster admin | Confirm agency worker (orientation OK) | Agency drawer | Shift Agency badge; coverage_source agency | Live | TEST-070 |
+| 4.23 | HP-060 | AI browser | Smoke chain 4.10→4.16 with Bern + one worker | Multi-route | Publish + approved path; data survives refresh | Live | TEST-060 |
 
 **Flow 4 exit criteria:** Approved timesheet exists for Bern linked to a rostered shift derived from SA → booking → planning.
 
@@ -452,6 +455,9 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-243 | Rostering | Create shift from plan | `/rostering` | Roster admin | Live | HP-050 |
 | FUNC-244 | Rostering | Assign worker | `/rostering` | Roster admin | Live | HP-051 |
 | FUNC-245 | Rostering | Publish / notify | `/rostering` | Roster admin | Live | HP-052 |
+| FUNC-246 | Agency workers | Register + vendor link | `/agency-workers` | Roster admin+ | Live | HP-070 |
+| FUNC-246a | Rostering | Request agency coverage | `/rostering` Gaps | Roster admin+ | Live | HP-071, TEST-070 |
+| FUNC-246b | Rostering | Confirm agency shift | Agency drawer | Roster admin+ | Live | HP-072, TEST-070 |
 | FUNC-246 | Rostering | Conflict / qualification hints | `/rostering` | Roster admin | Live | HP-093 |
 | FUNC-247 | My workplace | View my shifts | `/my/shifts` | Support worker | Live | HP-053 |
 | FUNC-248 | My workplace | Check-in/out | `/my/shifts` | Support worker | Live | HP-054 |
