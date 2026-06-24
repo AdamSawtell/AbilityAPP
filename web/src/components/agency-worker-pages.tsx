@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { SiteOrientationPanel } from "@/components/site-orientation-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
@@ -227,6 +228,7 @@ export function AgencyWorkerListView({
 
 export function AgencyWorkerDetailView({ id }: { id: string }) {
   const { agencyWorkers, businessPartners, upsertAgencyWorker } = useData();
+  const { session } = useAuth();
   const canSave = useModuleSaveAccess("agency-workers", "agency-worker");
   const stored = agencyWorkers.find((w) => w.id === id);
   const [draft, setDraft] = useState<AgencyWorkerRecord | null>(null);
@@ -342,6 +344,15 @@ export function AgencyWorkerDetailView({ id }: { id: string }) {
             readOnly={!canSave}
           />
         </div>
+        <section className="mt-6">
+          <h3 className="mb-3 text-sm font-semibold text-slate-900">Site orientations</h3>
+          <SiteOrientationPanel
+            workerType="agency"
+            workerId={worker.id}
+            readOnly={!canSave}
+            actor={session?.displayName ?? "SuperUser"}
+          />
+        </section>
       </AppShell>
       <UnsavedChangesBar visible={hasUnsavedChanges && canSave} onSave={onSave} onDiscard={() => setDraft(null)} />
     </>
@@ -351,7 +362,7 @@ export function AgencyWorkerDetailView({ id }: { id: string }) {
 export function NewAgencyWorkerView({ vendorBpId }: { vendorBpId?: string }) {
   const router = useRouter();
   const { agencyWorkers, upsertAgencyWorker, businessPartners } = useData();
-  const { canWriteWindow } = useAuth();
+  const { canWriteWindow, session } = useAuth();
   const canCreate = canWriteWindow("agency-workers");
 
   const vendorOptions = useMemo(

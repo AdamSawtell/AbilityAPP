@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { SiteOrientationPanel } from "@/components/site-orientation-panel";
 import {
   buildAgencyShiftPack,
   completeAgencyShift,
   confirmAgencyShift,
+  lastAgencyWorkedAtLocation,
   proposeAgencyWorker,
   requestAgencyCoverage,
   sendAgencyShiftPack,
@@ -16,6 +18,7 @@ import { agencyWorkerDisplayName, agencyWorkersForVendor, isAgencyVendorPartner 
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { formatDayHeading, formatShiftTimeRange, normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
+import { checkSiteOrientation } from "@/lib/site-orientation";
 import { DOCUMENT_PRINT_PROCESSES } from "@/lib/document-template";
 import { auditDocumentProcess } from "@/lib/document-print-audit";
 
@@ -50,6 +53,7 @@ export function AgencyShiftRequestDrawer({
   const [error, setError] = useState<string | null>(null);
   const [mailtoUrl, setMailtoUrl] = useState<string | undefined>();
   const [historyRefresh, setHistoryRefresh] = useState(0);
+  const [showOrientationForm, setShowOrientationForm] = useState(false);
 
   const vendors = useMemo(
     () => businessPartners.filter((p) => isAgencyVendorPartner(p.partnerType) && p.status === "Active"),
@@ -76,6 +80,36 @@ export function AgencyShiftRequestDrawer({
   const canSend = canProcess("send-agency-shift-pack");
   const canConfirm = canProcess("confirm-agency-shift");
   const canComplete = canProcess("complete-agency-shift");
+
+  const selectedWorkerId = activeRequest?.agencyWorkerId || agencyWorkerId;
+  const selectedWorker = agencyWorkers.find((w) => w.id === selectedWorkerId);
+
+  const orientationPreview = useMemo(() => {
+    if (!selectedWorker || !normalizedShift.locationId?.trim()) return null;
+    const lastWorked = lastAgencyWorkedAtLocation(
+      rosterShifts,
+      selectedWorker.id,
+      normalizedShift.locationId,
+      normalizedShift.shiftDate
+    );
+    return {
+      check: checkSiteOrientation(
+        siteOrientations,
+        "agency",
+        selectedWorker.id,
+        normalizedShift.locationId,
+        normalizedShift.shiftDate,
+        lastWorked
+      ),
+      lastWorked,
+    };
+  }, [
+    selectedWorker,
+    normalizedShift.locationId,
+    normalizedShift.shiftDate,
+    rosterShifts,
+    siteOrientations,
+  ]);
 
   function persistRequest(next: AgencyShiftRequestRecord) {
     const err = upsertAgencyShiftRequest(next);
@@ -160,6 +194,9 @@ export function AgencyShiftRequestDrawer({
     });
     if (!result.ok || !result.result) {
       setError(result.error ?? "Could not confirm agency shift.");
+      if (orientationPreview && !orientationPreview.check.ok) {
+        setShowOrientationForm(true);
+      }
       return;
     }
     if (!persistRequest(result.result.request)) return;
@@ -168,11 +205,8 @@ export function AgencyShiftRequestDrawer({
       setError(shiftErr);
       return;
     }
-    if (result.result.orientation.severity === "warning") {
-      setMessage(`Confirmed with warning: ${result.result.orientation.message}`);
-    } else {
-      setMessage("Agency worker confirmed on shift.");
-    }
+    setMessage("Agency worker confirmed on shift.");
+    setShowOrientationForm(false);
     setError(null);
   }
 
@@ -352,8 +386,29 @@ export function AgencyShiftRequestDrawer({
                 <h3 className="text-sm font-semibold text-slate-800">4. Confirm and complete</h3>
                 <p className="text-sm text-slate-600">
                   Site orientation is checked before confirmation. Workers without current orientation cannot be
-                  confirmed.
+                  confirmed — record orientation below when blocked.
                 </p>
+                {orientationPreview && selectedWorker ? (
+                  <p
+                    className={`rounded-lg border px-3 py-2 text-sm ${
+                      orientationPreview.check.ok
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                        : "border-amber-200 bg-amber-50 text-amber-950"
+                    }`}
+                  >
+                    {orientationPreview.check.message}
+                  </p>
+                ) : null}
+                {(!orientationPreview?.check.ok && selectedWorker) || showOrientationForm ? (
+                  <SiteOrientationPanel
+                    defaultWorkerType="agency"
+                    defaultWorkerId={selectedWorkerId}
+                    defaultLocationId={normalizedShift.locationId}
+                    shiftDate={normalizedShift.shiftDate}
+                    lastWorkedAtLocation={orientationPreview?.lastWorked}
+                    actor={actor}
+                  />
+                ) : null}
                 <div className="flex flex-wrap gap-2">
                   {canConfirm ? (
                     <button

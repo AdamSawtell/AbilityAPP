@@ -111,16 +111,68 @@ export function checkSiteOrientation(
 
   if (lastWorkedAtLocation) {
     const gap = monthsBetween(lastWorkedAtLocation, shiftDate);
-    if (gap >= SITE_ORIENTATION_GAP_MONTHS) {
+    if (gap >= SITE_ORIENTATION_GAP_MONTHS && latest.orientedAt <= lastWorkedAtLocation) {
       return {
         ok: false,
-        severity: "warning",
-        message: `Worker has not worked at this site for ${gap} month(s) — re-orientation recommended.`,
+        severity: "error",
+        message: `Worker has not worked at this site for ${gap} month(s) — site orientation required.`,
       };
     }
   }
 
   return { ok: true, severity: "ok", message: "Site orientation current." };
+}
+
+export function orientationsForLocation(
+  orientations: SiteOrientationRecord[],
+  locationId: string
+): SiteOrientationRecord[] {
+  return orientations
+    .filter((o) => o.locationId === locationId)
+    .map(normalizeSiteOrientation)
+    .sort((a, b) => b.orientedAt.localeCompare(a.orientedAt));
+}
+
+export function orientationsForWorker(
+  orientations: SiteOrientationRecord[],
+  workerType: SiteOrientationWorkerType,
+  workerId: string
+): SiteOrientationRecord[] {
+  return orientations
+    .filter((o) => o.workerType === workerType && o.workerId === workerId)
+    .map(normalizeSiteOrientation)
+    .sort((a, b) => b.orientedAt.localeCompare(a.orientedAt));
+}
+
+export function createSiteOrientation(
+  partial: Partial<SiteOrientationRecord> & {
+    workerType: SiteOrientationWorkerType;
+    workerId: string;
+    locationId: string;
+    orientedAt: string;
+  },
+  existing: SiteOrientationRecord[]
+): SiteOrientationRecord {
+  const orientedAt = partial.orientedAt.slice(0, 10);
+  const latest = latestOrientationForWorker(
+    existing,
+    partial.workerType,
+    partial.workerId,
+    partial.locationId
+  );
+  const id = partial.id?.trim() || latest?.id || `so-${Date.now()}`;
+  return normalizeSiteOrientation({
+    id,
+    workerType: partial.workerType,
+    workerId: partial.workerId,
+    locationId: partial.locationId,
+    orientedAt,
+    expiresAt: orientedAt ? orientationValidUntil(orientedAt) : "",
+    acknowledgedBy: partial.acknowledgedBy ?? "",
+    notes: partial.notes ?? "",
+    createdBy: partial.createdBy ?? "SuperUser",
+    updatedBy: partial.updatedBy ?? "SuperUser",
+  });
 }
 
 export function orientationValidUntil(orientedAt: string): string {

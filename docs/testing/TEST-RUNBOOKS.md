@@ -127,6 +127,8 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 |------|--------|---------|
 | 1 | `/agency-workers` | Jane Agency + Mike Relief; Works for StaffPlus |
 | 1b | `/business-partners/bp-staffplus?tab=Agency workers` | Same workers on vendor tab; count badge |
+| 1c | `/locations/loc-glenelg-sil?tab=Site orientation` | Jane orientation listed; add form saves |
+| 1d | `/agency-workers/aw-sp-jane` | Site orientations section shows Glenelg row |
 | 2 | `/rostering?week=2025-10-06` → **Gaps** | BERN-TUE-VAC vacant listed |
 | 3 | **Request agency** → vendor StaffPlus | Request drawer opens; document no assigned |
 | 4 | Propose **Jane Agency** → **Send shift pack** | Status Sent; mailto draft available |

@@ -12,8 +12,8 @@
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
-| **Next slice** | **WP-AG.3** — site orientation UI (or WP-UX.2 employee/incident line drawers) |
-| **Last push** | 2026-06-24 — WP-AG.2 vendor agency workers tab |
+| **Next slice** | **WP-AG.4** — agency timesheet lines + vendor cost (or WP-UX.2 employee/incident line drawers) |
+| **Last push** | 2026-06-23 — WP-AG.3 site orientation UI + confirm gate |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
@@ -63,6 +63,28 @@ Staffing vendors (Vendor / NDIS agency type) show an **Agency workers** tab on t
 1. Open `/business-partners/bp-staffplus` → **Agency workers** tab — Jane Agency + Mike Relief.
 2. Click a worker row → agency worker detail; **View vendor worker pool** link returns to tab.
 3. **Add agency worker** → vendor pre-selected on new form.
+
+---
+
+## WP-AG.3 — Site orientation UI + confirm gate (2026-06-23)
+
+**Status:** ✅ Shipped
+
+Full site orientation management on location and agency worker records; agency shift confirm hard-blocks when orientation is missing, expired, or the 1-month site gap applies.
+
+| Area | Change |
+|------|--------|
+| Locations → **Site orientation** tab | List + record orientations per site (`location-site-orientation` window) |
+| Agency worker record | Site orientations section (worker-centric list + add form) |
+| Agency shift drawer | Orientation preview; inline record form when confirm blocked |
+| `site-orientation.ts` | 1-month gap severity `error`; helpers for list/create |
+| Migration | `location-site-orientation` grants mirrored from `location-incidents` |
+
+### What you can test — WP-AG.3
+
+1. `/locations/loc-glenelg-sil?tab=Site orientation` — Jane orientation row; add Mike orientation.
+2. `/agency-workers/aw-sp-jane` — orientations section links to Glenelg SIL.
+3. Rostering Gaps → agency drawer → confirm Jane on BERN-TUE-VAC — passes with seed orientation; Mike without orientation shows block + inline form.
 
 ---
 

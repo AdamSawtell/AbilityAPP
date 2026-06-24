@@ -10,8 +10,10 @@ import type { ClientRecord } from "@/lib/client";
 import type { LocationRecord } from "@/lib/location";
 import {
   checkSiteOrientation,
+  createSiteOrientation,
   latestOrientationForWorker,
   type SiteOrientationRecord,
+  type SiteOrientationWorkerType,
 } from "@/lib/site-orientation";
 import {
   formatDayHeading,
@@ -177,7 +179,7 @@ export function confirmAgencyShift(input: {
     lastWorked
   );
 
-  if (!orientation.ok && input.blockOnOrientation !== false && orientation.severity === "error") {
+  if (!orientation.ok && input.blockOnOrientation !== false) {
     return { ok: false, error: orientation.message };
   }
 
@@ -228,6 +230,7 @@ export function completeAgencyShift(input: {
 }
 
 export function recordSiteOrientation(input: {
+  workerType: SiteOrientationWorkerType;
   workerId: string;
   locationId: string;
   orientedAt: string;
@@ -236,25 +239,17 @@ export function recordSiteOrientation(input: {
   actor: string;
   existing: SiteOrientationRecord[];
 }): SiteOrientationRecord {
-  const latest = latestOrientationForWorker(input.existing, "agency", input.workerId, input.locationId);
-  const id = latest?.id ?? `so-${Date.now()}`;
-  const orientedAt = input.orientedAt.slice(0, 10);
-  return {
-    id,
-    workerType: "agency",
-    workerId: input.workerId,
-    locationId: input.locationId,
-    orientedAt,
-    expiresAt: orientedAt ? addYear(orientedAt) : "",
-    acknowledgedBy: input.acknowledgedBy,
-    notes: input.notes ?? "",
-    createdBy: input.actor,
-    updatedBy: input.actor,
-  };
-}
-
-function addYear(isoDate: string): string {
-  const d = new Date(`${isoDate.slice(0, 10)}T12:00:00`);
-  d.setFullYear(d.getFullYear() + 1);
-  return d.toISOString().slice(0, 10);
+  return createSiteOrientation(
+    {
+      workerType: input.workerType,
+      workerId: input.workerId,
+      locationId: input.locationId,
+      orientedAt: input.orientedAt,
+      acknowledgedBy: input.acknowledgedBy,
+      notes: input.notes,
+      createdBy: input.actor,
+      updatedBy: input.actor,
+    },
+    input.existing
+  );
 }

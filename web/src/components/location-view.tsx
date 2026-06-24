@@ -10,6 +10,8 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { RecordPhotoPanel } from "@/components/record-photo-panel";
+import { SiteOrientationPanel } from "@/components/site-orientation-panel";
+import { orientationsForLocation } from "@/lib/site-orientation";
 import {
   locationActivityTableConfig,
   locationAlertTableConfig,
@@ -175,12 +177,13 @@ function FieldGrid({
   );
 }
 
-function tabCount(location: LocationRecord, tab: string): number | null {
+function tabCount(location: LocationRecord, tab: string, siteOrientationCount?: number): number | null {
   if (tab === "Alerts") return location.alerts.length;
   if (tab === "Clients") return location.clientLinks.length;
   if (tab === "Employees") return location.employeeLinks.length;
   if (tab === "Products & services") return location.productLinks.length;
   if (tab === "Activity") return location.activities.length;
+  if (tab === "Site orientation") return siteOrientationCount ?? null;
   if (tab === "Incidents") return null;
   return null;
 }
@@ -206,7 +209,11 @@ export function LocationTabbedView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { session, canWindow, canWriteWindow, canProcess } = useAuth();
-  const { clients, employees, products } = useData();
+  const { clients, employees, products, siteOrientations } = useData();
+  const siteOrientationCount = useMemo(
+    () => orientationsForLocation(siteOrientations, location.id).length,
+    [siteOrientations, location.id]
+  );
   const { getOptions } = useReferenceData();
 
   const referenceDropdowns = useMemo(
@@ -276,7 +283,7 @@ export function LocationTabbedView({
               </p>
               <div className="space-y-0.5">
                 {group.tabs.map((tab) => {
-                  const count = tabCount(location, tab);
+                  const count = tabCount(location, tab, siteOrientationCount);
                   const active = activeTab === tab;
                   return (
                     <button
@@ -522,6 +529,14 @@ export function LocationTabbedView({
               </div>
             ) : null}
           </div>
+        ) : null}
+
+        {activeTab === "Site orientation" && canWindow("location-site-orientation") ? (
+          <SiteOrientationPanel
+            locationId={location.id}
+            readOnly={!canWriteLocationTab("Site orientation")}
+            actor={session?.displayName ?? "SuperUser"}
+          />
         ) : null}
 
         {activeTab === "Activity" && canWindow("location-activity") ? (

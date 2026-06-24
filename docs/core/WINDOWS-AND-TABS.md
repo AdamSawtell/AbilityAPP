@@ -187,6 +187,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Clients | `location-clients` |
 | Employees | `location-employees` |
 | Incidents | `location-incidents` |
+| Site orientation | `location-site-orientation` |
 | Products & services | `location-products-and-services` |
 
 **Processes:** `assign-location-client`, `assign-location-employee`, `assign-location-product`.

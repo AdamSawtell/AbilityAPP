@@ -172,7 +172,7 @@ export const agencyWorkersArticle: HelpArticle = {
   ],
   relatedRoutes: ["/agency-workers", "/agency-workers/new", "/rostering", "/business-partners"],
   windowKeys: ["agency-workers", "rostering"],
-  lastUpdated: "2026-06-24",
+  lastUpdated: "2026-06-23",
   sections: [
     {
       id: "agency-why-separate",
@@ -221,14 +221,15 @@ export const agencyWorkersArticle: HelpArticle = {
       title: "Site orientation (continuity of care)",
       body:
         "NDIS practice expects workers to be oriented to a site before delivering support there. AbilityVua tracks **site orientation** rows per worker type (agency or employee), location, and date.\n\n" +
-        "When you **confirm** an agency worker on a shift, the system checks whether orientation is current for that location. If the worker has not worked at the site recently and no orientation is on file, confirm is blocked until orientation is recorded (demo: Jane Agency has orientation at Glenelg SIL).\n\n" +
-        "Orientation logic considers the last time the same agency worker completed a shift at that location — if within the configured window, a repeat orientation may not be required. Full orientation UI on location and worker records is planned in a later slice (WP-AG.3).",
+        "Record orientations on **Locations → Site orientation** (all workers at that site) or on an **Agency worker** record (all sites for that worker). When you **confirm** an agency worker on a shift, the system checks orientation for that location — missing, expired, or a gap of one month or more since the worker last worked there blocks confirm until orientation is saved.\n\n" +
+        "The agency shift drawer shows the gate result and an inline form when confirm is blocked. Demo: Jane Agency has orientation at Glenelg SIL (oriented 2025-09-01).",
       bullets: [
         "Orientation is checked at **Confirm agency shift**, not at request creation.",
-        "Warnings vs hard blocks depend on severity — default blocks when orientation is missing.",
-        "Record orientation before confirming first-time agency cover at a new site.",
+        "Confirm is hard-blocked when orientation is missing, expired, or the 1-month site gap applies.",
+        "Record orientation on the location tab, worker record, or inline in the agency drawer.",
       ],
-      windowKeys: ["agency-workers", "rostering"],
+      relatedRoutes: ["/locations", "/agency-workers"],
+      windowKeys: ["agency-workers", "locations", "rostering"],
     },
     {
       id: "agency-find-gaps",

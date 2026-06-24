@@ -134,7 +134,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (typical); agency: `coverageSource`, `agencyWorkerId`, `vendorBpId`, `agencyRequestId` | Week on `/rostering?week=` |
 | Agency worker | `vendorBpId` → `business_partner` | `/agency-workers` register |
 | Agency shift request | `rosterShiftId`, `vendorBpId`, optional `agencyWorkerId` | Drawer from Gaps; not standalone route |
-| Site orientation | `workerType` (agency/employee), `workerId`, `locationId`, `orientedAt` | Gate at confirm agency shift |
+| Site orientation | `workerType` (agency/employee), `workerId`, `locationId`, `orientedAt` | Location **Site orientation** tab; agency worker record; gate at confirm |
 
 | Validation | Module |
 |------------|--------|
