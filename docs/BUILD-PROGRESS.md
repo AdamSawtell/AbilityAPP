@@ -13,7 +13,7 @@
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
 | **Next slice** | Employee/incident line drawers or feature backlog (see [SCOPE-ROADMAP.md](./SCOPE-ROADMAP.md)) |
-| **Last push** | 2026-06-24 — client line list + drawer UX |
+| **Last push** | 2026-06-24 — admin-only activity deletion (`cadcf71`) |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
@@ -1631,6 +1631,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-24 | WP-ACT.1 Amplify | `app.abilityvua.com` — client/enquiry activity, list dashboards, incident mgmt | **Pass** | `cadcf71` deployed; admin Remove; GabrielaWilson Request deletion |
 | 2026-06-23 | WP-ACT.1 | `localhost:3000/clients/bp-bern?tab=Activity` | **Pass** | Admin: Remove in drawer; GabrielaWilson: Request deletion → REQ-3207 |
 | 2026-06-23 | AbilityVua rebrand | `app.abilityvua.com` `/login`, `/`, `/clients`, `/help`, `/portal/login` | **Partial** | Staff login, session, DB org/role **Pass**; portal demo link was localhost pre-deploy; UI branding ships with this commit |
 | 2026-06-20 | Entity linking + WP-C.3 | `/clients/bp-bern?tab=Service bookings`, `/service-bookings/50145`, `/service-agreements/sa-rose-ni`, `/service-bookings/new?clientId=bp-bern` | **Pass** | localhost:3000, SuperUser session, all HTTP 200 |
