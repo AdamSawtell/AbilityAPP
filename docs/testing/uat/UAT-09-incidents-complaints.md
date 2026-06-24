@@ -14,7 +14,7 @@
 | UAT-09-S-006 | Print incident notification | Document registry | **Pass** — process on incident detail (catalog) |
 | UAT-09-S-007 | Complaints register | `/complaints` — create + list | **Pass** — register loads; audit module (TEST-098) |
 | UAT-09-S-008 | Client → Incidents tab | Reverse link from client | **Pass** — UAT-02-T-007 Bern 7 incidents |
-| UAT-09-S-009 | Incident line drawers | Parties/actions/evidence/notifications open in side drawer | **Pass** — TEST-094 local smoke |
+| UAT-09-S-009 | Incident line drawers | Parties/actions/evidence/notifications open in side drawer | **Pass** — TEST-094 Amplify smoke (2026-06-25) |
 
 ## Window checklist
 

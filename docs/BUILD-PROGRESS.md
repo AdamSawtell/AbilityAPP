@@ -42,6 +42,8 @@ Employee and incident child collections now use the shared summary list + side d
 
 **Local smoke (2026-06-25):** `/employees/emp-rostering-manager?tab=Credentials%20Assigned` as **AbilityVua Admin** showed summary-list mode; **Add credential** opened the `Credential` drawer and unsaved bar. `/incidents/inc-1000001?tab=Investigation` showed actions/evidence summary lists; opening the existing action row displayed the `Incident action` drawer with full fields.
 
+**Amplify smoke pass (2026-06-25):** live `https://app.abilityvua.com` after commit `0830d56` — employee **Credentials Assigned** shows summary list + `Credential` drawer on **Add credential**; incident **Investigation** action row opens `Incident action` drawer; **Notifications** **Log notification** opens `Notification` drawer with unsaved bar. No error banners.
+
 ---
 
 ## WP-AG.1 — Agency staffing (AB-0019) (2026-06-24)
