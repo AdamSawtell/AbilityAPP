@@ -13,7 +13,7 @@
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | — |
 | **Next slice** | **WP-AG.2** — agency workers tab on vendor business partner (or WP-UX.2 employee/incident line drawers) |
-| **Last push** | 2026-06-24 — agency staffing WP-AG.1 code (`92408a5`); docs follow this commit |
+| **Last push** | 2026-06-24 — WP-AG.1 docs (`6bc0629`) after code (`92408a5` / `c72ae79`) |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
