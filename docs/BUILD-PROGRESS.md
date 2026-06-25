@@ -13,10 +13,33 @@
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | Release hardening follow-ups |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-25 — WP-UX.5 participant portal parity (dashboard + help) |
+| **Last push** | 2026-06-25 — WP-UX.6 branded portal sign-in landings |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
+
+---
+
+## WP-UX.6 — Branded portal sign-in landings (2026-06-25)
+
+**Status:** ✅ Shipped
+
+Both portal sign-in pages now use one shared branded landing (`PortalAuthLanding`) built on the same `LoginBackdrop` + `OrgLogo` as the staff login. Each shows the org logo, trading + legal name, address, a portal badge, a short intro, the magic-link card, a **How to use this portal** link, a **Staff sign in** link, and a contact strip (phone, email, website). The old plain `PortalShell`-wrapped login (with audit footer and stray copy) is removed — sign-in pages are now a clean, consistent shop window across staff, participant, and vendor.
+
+| Area | Change |
+|------|--------|
+| Shared | New `web/src/components/portal/portal-auth-landing.tsx` — config-driven magic-link landing |
+| Participant | `portal-login-page.tsx` uses the shared landing |
+| Vendor | `agency-portal-login-page.tsx` uses the shared landing |
+| Consistency | Same backdrop, logo, contact strip, and links as staff `/login` |
+
+### What you can test — WP-UX.6
+
+1. `/portal/login` and `/agency-portal/login` show the org logo, name, address, portal badge, and contact strip on the branded backdrop.
+2. The magic-link request still works (demo **Open portal** / **Open agency portal** link appears).
+3. **How to use this portal** and **Staff sign in** links resolve.
+
+**Local smoke (2026-06-25):** Both login pages render the branded landing with logo, name, address, badge, intro, sign-in card, help + staff links, and phone/email/website contact strip. Vendor magic-link request returned the demo **Open agency portal** link. No error banners.
 
 ---
 
@@ -1921,6 +1944,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-25 | WP-UX.6 uncommitted | 0 | **Pass** | Branded portal sign-in landings; no findings |
 | 2026-06-25 | WP-UX.5 uncommitted | 2 Medium, fixed | **Pass** | Next-support skips elapsed shifts; overdue plan review prioritised over upcoming supports |
 | 2026-06-25 | WP-UX.4 uncommitted | 1 High, fixed | **Pass** | Failed dashboard loads now show error notice instead of misleading all-caught-up state |
 | 2026-06-25 | WP-UX.3 uncommitted | 1 Medium, fixed; rerun 0 | **Pass** | Replaced phantom vendor help window key with portal-only metadata |
