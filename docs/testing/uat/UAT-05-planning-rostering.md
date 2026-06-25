@@ -21,7 +21,7 @@
 | UAT-05-S-009 | Agency worker register | `/agency-workers` | Vendor-linked workers list | **Pass** — Jane/Mike → StaffPlus (localhost 2026-06-24) |
 | UAT-05-S-010 | Request agency on gap | `/rostering?week=2025-10-06` Gaps | Request agency drawer on BERN-TUE-VAC | **Pass** — Amplify 2026-06-24 RileyShaw; StaffPlus in vendor list |
 | UAT-05-S-011 | Site orientation gate | Confirm without orientation | Block with message | **Pass** — logic in `confirmAgencyShift`; Jane seeded oriented at Glenelg SIL |
-| UAT-05-S-012 | Agency portal help | `/agency-portal/help` after vendor sign-in | Vendor-only how-to and escalation paths visible | **Pass** — local smoke 2026-06-25 |
+| UAT-05-S-012 | Agency portal help | `/agency-portal/help` after vendor sign-in | Vendor-only how-to and escalation paths visible | **Pass** — Amplify smoke (2026-06-25) |
 
 ## Window checklist
 

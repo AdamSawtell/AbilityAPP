@@ -20,7 +20,7 @@
 | UAT-07-S-008 | Generate invoices | Invoice records | **Pass** — June invoices in list (TEST-073) |
 | UAT-07-S-009 | Issue / print invoice | Document + delivery scaffold | **Partial** — delivery scaffold; email send not production (HP-074) |
 | UAT-07-S-010 | Negative — unapproved TS | Excluded from claim gen | **Pass** — blocked TS excluded; `cl-jun26-bern-rej` Rejected line |
-| UAT-07-S-011 | Finance menu + vendor AP | Finance sidebar groups claims, invoices, reconciliation, vendor invoices | **Pass** — local smoke 2026-06-25 |
+| UAT-07-S-011 | Finance menu + vendor AP | Finance sidebar groups claims, invoices, reconciliation, vendor invoices | **Pass** — Amplify smoke (2026-06-25) |
 
 ## Window checklist
 

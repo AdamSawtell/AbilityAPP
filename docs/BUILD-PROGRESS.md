@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
-| **Active slice** | **WP-UX.3** — vendor guide access + Finance menu |
-| **Next slice** | Release hardening follow-ups |
-| **Last push** | 2026-06-25 — WP-UX.2 line drawer smoke log |
+| **Active slice** | Release hardening follow-ups |
+| **Next slice** | Release hardening polish (Finance role grants, stale labels) |
+| **Last push** | 2026-06-25 — WP-UX.3 Amplify smoke log |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -41,6 +41,8 @@ Agency vendors get a dedicated guarded **How to use this portal** page inside `/
 4. Direct vendor help without an agency portal session redirects to `/agency-portal/login`.
 
 **Local smoke (2026-06-25):** `/vendor-invoices` as **Super User** showed top-level **Finance** with Vendor invoices, claims, invoices, reconciliations, and Financial close; the page guide resolved to **Finance** with no error banner. `/agency-portal/help` redirected to login without a vendor session; after `roster@staffplus.example` demo sign-in, the guide loaded with invoice-document requirements and shift/timesheet/invoice/login/safeguarding escalation paths.
+
+**Amplify smoke pass (2026-06-25):** live `https://app.abilityvua.com` after redeploy commit `7b43f28` — `/vendor-invoices` as **Super User** shows **Finance** sidebar with vendor invoices, claims, invoices, reconciliations, and Financial close; page guide resolves to **Finance**. `/agency-portal/help` redirects to login when signed out; after `roster@staffplus.example` demo sign-in, vendor guide loads with mandatory invoice document note and shift/timesheet/invoice/login/safeguarding escalation paths. No error banners.
 
 ---
 
@@ -1808,6 +1810,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-25 | WP-UX.3 Amplify | `app.abilityvua.com/vendor-invoices`, `/agency-portal/help` | **Pass** | `7b43f28` redeploy; Finance menu + guide; vendor help + escalation; signed-out redirect |
 | 2026-06-24 | WP-ACT.1 Amplify | `app.abilityvua.com` — client/enquiry activity, list dashboards, incident mgmt | **Pass** | `cadcf71` deployed; admin Remove; GabrielaWilson Request deletion |
 | 2026-06-23 | WP-ACT.1 | `localhost:3000/clients/bp-bern?tab=Activity` | **Pass** | Admin: Remove in drawer; GabrielaWilson: Request deletion → REQ-3207 |
 | 2026-06-23 | AbilityVua rebrand | `app.abilityvua.com` `/login`, `/`, `/clients`, `/help`, `/portal/login` | **Partial** | Staff login, session, DB org/role **Pass**; portal demo link was localhost pre-deploy; UI branding ships with this commit |
