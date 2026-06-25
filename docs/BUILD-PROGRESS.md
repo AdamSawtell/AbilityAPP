@@ -1896,6 +1896,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-25 | WP-UX.4 uncommitted | 1 High, fixed | **Pass** | Failed dashboard loads now show error notice instead of misleading all-caught-up state |
 | 2026-06-25 | WP-UX.3 uncommitted | 1 Medium, fixed; rerun 0 | **Pass** | Replaced phantom vendor help window key with portal-only metadata |
 | 2026-06-24 | WP-UX.1 uncommitted | 0 | **Pass** | List-drawer UX; no findings |
 | 2026-06-23 | Incident SLA + sidebar branding pre-push | 1 Medium | **Pass** | Fixed: org profile save preserves SLA from incident management page |
