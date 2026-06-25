@@ -2,7 +2,7 @@
 
 **Pack:** UAT-14 | **Priority:** P3 | **Owner:** Product  
 **Environment:** localhost + [Amplify demo](https://app.abilityvua.com)  
-**Tester:** AI-browser | **Completed:** 2026-06-18 / 2026-06-23 Amplify re-check | **Result:** **Pass**
+**Tester:** AI-browser | **Completed:** 2026-06-18 / 2026-06-23 / 2026-06-25 Amplify re-check (dashboard + help) | **Result:** **Pass**
 
 ## How to access (not in staff sidebar)
 
@@ -12,7 +12,7 @@
 | 2 | Do **not** use staff `/login` — portal is a separate surface |
 | 3 | Enter **`Bernie@email`** (must match client **Email** on `/clients/bp-bern`) |
 | 4 | **Email me a sign-in link** → click **Open portal** under the demo link |
-| 5 | Hub at `/portal` — **My services**, **My funding**, **Request a service** |
+| 5 | Hub at `/portal` — dashboard with **My services**, **My funding**, **Request a service**, **How to use your portal** |
 
 **Demo participant:** `Bernie@email` (Bernadette Rose / `bp-bern`)
 
@@ -20,11 +20,12 @@
 
 | UAT ID | Route | Expected | Result |
 |--------|-------|----------|--------|
-| UAT-14-S-001 | `/portal/login` | Sign-in form; magic link request for participant email | **Pass** — localhost + Amplify demo link |
-| UAT-14-S-002 | `/portal` | Dashboard hub signed in as participant | **Pass** — "Hello, Bernie" + nav cards |
+| UAT-14-S-001 | `/portal/login` | Sign-in form; magic link request for participant email; footer **How to use your portal** link | **Pass** — localhost + Amplify demo link (2026-06-25) |
+| UAT-14-S-002 | `/portal` | Dashboard: next-step banner, summary tiles (Upcoming supports / Funding remaining / Requests in review / Plan review), badged action cards | **Pass** — Amplify 2026-06-25; "Welcome, Bernie", "1 request under review", 3 upcoming |
 | UAT-14-S-003 | `/portal/budget` | Plan budget summary (read-only) | **Pass** — page loads; empty state when no budget lines published |
 | UAT-14-S-004 | `/portal/services` | Upcoming rostered supports (week + list) | **Pass** — 2 supports in current week calendar |
 | UAT-14-S-005 | `/portal/requests` | Submit service request | **Pass** — request submitted; success message shown |
+| UAT-14-S-006 | `/portal/help` | Participant-only how-to guide and who-to-contact escalation | **Pass** — Amplify 2026-06-25; all sections + escalation render; signed-out redirects to login |
 
 ## Steps (reference)
 
@@ -45,6 +46,6 @@
 
 ## Related
 
-- Help: **Participant portal** article  
+- Help: **How to use your portal** (participant guide, in-portal) + **Participant portal** article (staff)  
 - BUILD-PROGRESS: WP-0.3, WP-0.4, WP-G.0, WP-0.7  
 - [HAPPY-PATH-E2E-MATRIX.md](../HAPPY-PATH-E2E-MATRIX.md) — portal row updated to **Live (MVP)**

@@ -22,6 +22,7 @@
 | UAT-05-S-010 | Request agency on gap | `/rostering?week=2025-10-06` Gaps | Request agency drawer on BERN-TUE-VAC | **Pass** — Amplify 2026-06-24 RileyShaw; StaffPlus in vendor list |
 | UAT-05-S-011 | Site orientation gate | Confirm without orientation | Block with message | **Pass** — logic in `confirmAgencyShift`; Jane seeded oriented at Glenelg SIL |
 | UAT-05-S-012 | Agency portal help | `/agency-portal/help` after vendor sign-in | Vendor-only how-to and escalation paths visible | **Pass** — Amplify smoke (2026-06-25) |
+| UAT-05-S-013 | Agency portal dashboard | `/agency-portal` after vendor sign-in | Next-step banner, summary tiles (Awaiting you / Ready to invoice / With finance / Paid), badged action cards | **Pass** — Amplify smoke (2026-06-25); StaffPlus "1 invoice with finance" |
 
 ## Window checklist
 

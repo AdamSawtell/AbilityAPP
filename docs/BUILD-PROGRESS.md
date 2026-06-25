@@ -1855,6 +1855,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-25 | WP-UX.4+5 Amplify | `app.abilityvua.com/agency-portal`(+`/help`), `/portal`(+`/help`) | **Pass** | `a1c0dcb` live; both portal dashboards + how-to guides render; no error banners |
 | 2026-06-25 | WP-UX.5 | `localhost:3000/portal`, `/portal/help` | **Pass** | Participant dashboard parity (banner, tiles, badged cards); `/portal/help` guide renders; no error banner |
 | 2026-06-25 | WP-UX.4 | `localhost:3000/agency-portal` | **Pass** | Vendor dashboard: next-step banner, summary tiles, badged action cards; no error banner |
 | 2026-06-25 | WP-UX.3 Amplify | `app.abilityvua.com/vendor-invoices`, `/agency-portal/help` | **Pass** | `7b43f28` redeploy; Finance menu + guide; vendor help + escalation; signed-out redirect |
