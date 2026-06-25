@@ -65,6 +65,8 @@ function PortalAuthForm({ config }: { config: PortalAuthConfig }) {
       : `https://${organization.website.trim()}`
     : "";
   const websiteLabel = organization.website?.trim().replace(/^https?:\/\//i, "").replace(/\/$/, "");
+  const publicEmail = organization.email?.trim();
+  const showEmail = publicEmail && !publicEmail.toLowerCase().endsWith(".local");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -162,7 +164,7 @@ function PortalAuthForm({ config }: { config: PortalAuthConfig }) {
         </div>
       </div>
 
-      {organization.phone || organization.email || websiteHref || locationLine ? (
+      {organization.phone || showEmail || websiteHref ? (
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           {organization.phone ? (
             <ContactItem
@@ -176,16 +178,16 @@ function PortalAuthForm({ config }: { config: PortalAuthConfig }) {
               {organization.phone}
             </ContactItem>
           ) : null}
-          {organization.email ? (
+          {showEmail ? (
             <ContactItem
-              href={`mailto:${organization.email}`}
+              href={`mailto:${publicEmail}`}
               icon={
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                 </svg>
               }
             >
-              {organization.email}
+              {publicEmail}
             </ContactItem>
           ) : null}
           {websiteHref ? (
