@@ -174,6 +174,25 @@ Regression: `npm run test:karen` covers the matching/typo/availability logic.
 
 ---
 
+## TEST-065 — Organisation app theme (AB-0017 Phase 1)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **DATA** | Default org on `/system/organization` |
+| **Pass if** | Theme presets preview live, save persists colours, reset restores AbilityVua defaults |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/system/organization` → App theme | Section shows four colour fields, presets, Preview live toggle |
+| 2 | Click **Teal care** preset | Primary and accent fields update |
+| 3 | Turn on **Preview live** | Workspace header/links/buttons shift to teal without saving |
+| 4 | Save | Success; audit footer records theme fields |
+| 5 | Reload page | Saved colours still applied |
+| 6 | **Reset theme** then Save | App returns to default pink; sign-in gradient matches |
+
+---
+
 ## TEST-070 — Agency staffing smoke (WP-AG.1)
 
 | | |

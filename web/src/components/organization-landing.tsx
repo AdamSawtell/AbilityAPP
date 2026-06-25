@@ -27,7 +27,7 @@ export function OrgLogo({
 
   return (
     <span
-      className={`flex ${box} items-center justify-center bg-gradient-to-br from-[#d4147a] to-[#b51266] ${text} font-bold text-white shadow-xl`}
+      className={`flex ${box} items-center justify-center bg-gradient-to-br from-brand-primary to-brand-primary-hover ${text} font-bold text-white shadow-xl`}
     >
       {organization.searchKey?.trim().charAt(0).toUpperCase() || "a"}
     </span>
@@ -37,7 +37,10 @@ export function OrgLogo({
 export function LoginBackdrop({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1e1b4b] via-[#5b215c] to-[#be185d]" aria-hidden />
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-[var(--brand-login-from)] via-[var(--brand-login-via)] to-[var(--brand-login-to)]"
+        aria-hidden
+      />
       <div
         className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-[#f9a8d4]/25 blur-3xl"
         aria-hidden

@@ -62,6 +62,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `agency_timesheet` / `agency_timesheet_line` | Vendor timesheet header + lines from completed agency shifts |
 | `site_orientation` | Site orientation per worker (agency or employee) and location |
 | `roster_shift` AB-0021 fields | Training/meeting grouping, cost allocation, cost centre, estimated cost, attendance sign-off |
+| `app_organization` theme columns (AB-0017) | `theme_primary_colour`, `theme_accent_colour`, `theme_background_colour`, `theme_text_colour` — empty = AbilityVua defaults |
 
 ## Not built yet (needs migration when added)
 

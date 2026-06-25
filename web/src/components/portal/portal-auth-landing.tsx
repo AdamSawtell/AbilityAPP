@@ -130,7 +130,7 @@ function PortalAuthForm({ config }: { config: PortalAuthConfig }) {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
               placeholder={config.emailPlaceholder ?? "you@example.com"}
             />
           </div>
@@ -138,7 +138,7 @@ function PortalAuthForm({ config }: { config: PortalAuthConfig }) {
           <button
             type="submit"
             disabled={loading || !email.trim()}
-            className="w-full rounded-lg bg-[#d4147a] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-brand-primary py-3 text-sm font-semibold text-white shadow-md transition hover:bg-brand-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Sending…" : "Email me a sign-in link"}
           </button>
@@ -148,14 +148,14 @@ function PortalAuthForm({ config }: { config: PortalAuthConfig }) {
         {signInLink ? (
           <p className="mt-2 text-center text-sm">
             <span className="text-slate-500">Demo sign-in link: </span>
-            <Link href={signInLink} className="font-semibold text-[#b51266] hover:underline">
+            <Link href={signInLink} className="font-semibold text-brand-link hover:underline">
               {config.openLinkLabel}
             </Link>
           </p>
         ) : null}
 
         <div className="mt-6 flex flex-col items-center gap-2 border-t border-slate-100 pt-5 text-center">
-          <Link href={config.helpHref} className="text-xs font-medium text-[#b51266] underline-offset-2 hover:underline">
+          <Link href={config.helpHref} className="text-xs font-medium text-brand-link underline-offset-2 hover:underline">
             How to use this portal
           </Link>
           <Link href="/login" className="text-[11px] text-slate-400 underline-offset-2 hover:text-slate-600 hover:underline">

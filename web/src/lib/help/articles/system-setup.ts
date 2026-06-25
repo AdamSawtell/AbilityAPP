@@ -150,10 +150,10 @@ export const systemOrganisationArticle: HelpArticle = {
   title: "Organisation profile, time & date, and org chart tiers",
   summary: "Set provider branding, organisation timezone, NDIS details, and chart tier labels before workforce setup.",
   category: "System setup",
-  keywords: ["organisation", "logo", "NDIS", "provider", "org chart tiers", "branding"],
+  keywords: ["organisation", "logo", "NDIS", "provider", "org chart tiers", "branding", "theme", "colours"],
   relatedRoutes: ["/system/organization", "/system/org-chart-tiers", "/system/settings/time-and-date"],
   windowKeys: ["admin-organization", "workforce-org-chart-tier"],
-  lastUpdated: "2026-06-23",
+  lastUpdated: "2026-06-26",
   sections: [
     {
       id: "organisation-profile",
@@ -176,6 +176,21 @@ export const systemOrganisationArticle: HelpArticle = {
         "Save timezone. The sidebar clock updates immediately.",
       ],
       relatedRoutes: ["/system/settings/time-and-date", "/system/guides/time-and-date"],
+    },
+    {
+      id: "app-theme",
+      title: "App theme colours",
+      body: "System → Organisation → App theme lets admins set primary, accent, background, and text colours for the signed-in app shell and sign-in pages.\n\nLeave fields blank to use AbilityVua defaults. Use **Preview live** to try colours before saving. Contrast warnings are advisory only — they do not block save. **Reset theme** clears all four fields back to defaults.\n\nDocument branding (bank details and footers) is separate — see Document branding below.",
+      steps: [
+        "Open System → Organisation → App theme.",
+        "Pick a preset or enter hex colours for Primary and Accent (required for a custom look).",
+        "Optionally set Background and Text colours.",
+        "Turn on Preview live to see the workspace update without saving.",
+        "Save. Sign-in backdrop, buttons, links, and workspace chrome use the new colours.",
+        "Use Reset theme to revert to AbilityVua defaults.",
+      ],
+      relatedRoutes: ["/system/organization"],
+      windowKeys: ["admin-organization"],
     },
     {
       id: "document-branding",

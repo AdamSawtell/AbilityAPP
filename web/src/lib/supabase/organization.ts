@@ -32,6 +32,10 @@ export type OrganizationRow = {
   document_footer_text: string;
   gst_registered: boolean;
   buddy_shift_pay_policy: string;
+  theme_primary_colour: string;
+  theme_accent_colour: string;
+  theme_background_colour: string;
+  theme_text_colour: string;
   notes: string;
   created_by: string;
   updated_by: string;
@@ -70,6 +74,10 @@ export function organizationFromRow(row: OrganizationRow): OrganizationRecord {
     documentFooterText: row.document_footer_text ?? "",
     gstRegistered: row.gst_registered ?? false,
     buddyShiftPayPolicy: normalizeBuddyShiftPayPolicy(row.buddy_shift_pay_policy),
+    themePrimaryColour: row.theme_primary_colour ?? "",
+    themeAccentColour: row.theme_accent_colour ?? "",
+    themeBackgroundColour: row.theme_background_colour ?? "",
+    themeTextColour: row.theme_text_colour ?? "",
     notes: row.notes ?? "",
     createdBy: row.created_by ?? "",
     updatedBy: row.updated_by ?? "",
@@ -109,6 +117,10 @@ export function organizationToRow(record: OrganizationRecord): OrganizationRow {
     document_footer_text: record.documentFooterText,
     gst_registered: record.gstRegistered,
     buddy_shift_pay_policy: record.buddyShiftPayPolicy || "ask",
+    theme_primary_colour: record.themePrimaryColour ?? "",
+    theme_accent_colour: record.themeAccentColour ?? "",
+    theme_background_colour: record.themeBackgroundColour ?? "",
+    theme_text_colour: record.themeTextColour ?? "",
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,

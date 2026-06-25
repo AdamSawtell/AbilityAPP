@@ -3,6 +3,7 @@
 import type { AuditStampable } from "@/lib/audit";
 import { normalizeBuddyShiftPayPolicy, type BuddyShiftPayPolicy } from "@/lib/buddy-shift";
 import { normalizeInvestigationSlaDays } from "@/lib/incident-management-settings";
+import { normalizeHexColour } from "@/lib/org-theme";
 
 export type OrganizationRecord = AuditStampable & {
   id: string;
@@ -35,6 +36,14 @@ export type OrganizationRecord = AuditStampable & {
   gstRegistered: boolean;
   /** Buddy/orientation shift pay default: always_pay | dont_pay | ask */
   buddyShiftPayPolicy: BuddyShiftPayPolicy;
+  /** App shell primary brand colour (#RRGGBB). Empty = system default (AB-0017). */
+  themePrimaryColour: string;
+  /** App shell accent / login gradient colour (#RRGGBB). Empty = default. */
+  themeAccentColour: string;
+  /** Optional workspace background colour (#RRGGBB). Empty = default. */
+  themeBackgroundColour: string;
+  /** Optional primary text colour (#RRGGBB). Empty = default. */
+  themeTextColour: string;
   notes: string;
   createdBy: string;
   updatedBy: string;
@@ -171,6 +180,10 @@ export function defaultOrganization(): OrganizationRecord {
     documentFooterText: "",
     gstRegistered: false,
     buddyShiftPayPolicy: "ask",
+    themePrimaryColour: "",
+    themeAccentColour: "",
+    themeBackgroundColour: "",
+    themeTextColour: "",
     notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -192,6 +205,10 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     bankAccountName: (record.bankAccountName ?? "").trim(),
     remittanceEmail: (record.remittanceEmail ?? "").trim(),
     documentFooterText: (record.documentFooterText ?? "").trim(),
+    themePrimaryColour: normalizeHexColour(record.themePrimaryColour),
+    themeAccentColour: normalizeHexColour(record.themeAccentColour),
+    themeBackgroundColour: normalizeHexColour(record.themeBackgroundColour),
+    themeTextColour: normalizeHexColour(record.themeTextColour),
   };
 }
 

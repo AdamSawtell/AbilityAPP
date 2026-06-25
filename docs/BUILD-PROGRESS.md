@@ -20,6 +20,29 @@
 
 ---
 
+## AB-0017 Phase 1 — Organisation app colour theme (2026-06-26)
+
+**Status:** ✅ Implemented — pending commit/deploy
+
+Per-organisation app shell colours (primary, accent, background, text) stored on `app_organization`. Admin UI on System → Organisation → App theme with presets, live preview, contrast warnings, and reset. CSS variables applied app-wide via `OrgThemeProvider`; shared chrome (sign-in, workspace shell, login buttons) uses `brand-*` Tailwind tokens.
+
+| Area | Change |
+|------|--------|
+| Migration | `20260628120000_org_app_theme.sql` — four nullable theme columns on `app_organization` |
+| Theme lib | `web/src/lib/org-theme.ts`, `globals.css` brand tokens, `OrgThemeProvider` |
+| Admin UI | `OrgAppThemeSection` on organisation page |
+| Chrome | Login backdrop, workspace shell, login buttons refactored to brand tokens |
+
+### What you can test — AB-0017 Phase 1
+
+1. System → Organisation → App theme — pick Teal care preset, turn on Preview live — workspace buttons/links update.
+2. Save — reload page — colours persist; sign-in backdrop uses accent gradient.
+3. Reset theme — all fields clear; app returns to AbilityVua pink defaults.
+
+**Verification (2026-06-26):** `npm run build` ✅ (exit 0), `npm run page-guides:check` ✅ (128 routes, 0 gaps). Localhost smoke ✅ — `/system/organization` App theme: Teal care preset + Preview live applies `#0d9488` primary and `#134e4a` accent CSS vars. Fixed preset batching bug (functional `setDraft` so primary + accent apply together). Migration `20260628120000_org_app_theme.sql` pending remote apply on next push.
+
+---
+
 ## AB-0021 — Training and meeting scheduling (2026-06-25)
 
 **Status:** ✅ Shipped — 2026-06-25

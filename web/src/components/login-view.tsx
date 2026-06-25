@@ -125,7 +125,7 @@ export function LoginView() {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
               />
             </div>
 
@@ -140,7 +140,7 @@ export function LoginView() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
               />
             </div>
 
@@ -149,7 +149,7 @@ export function LoginView() {
             <button
               type="submit"
               disabled={submitting || !username.trim() || !password}
-              className="w-full rounded-lg bg-[#d4147a] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-brand-primary py-3 text-sm font-semibold text-white shadow-md transition hover:bg-brand-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Signing in…" : "Continue"}
             </button>
@@ -165,7 +165,7 @@ export function LoginView() {
                 required
                 value={roleId}
                 onChange={(e) => setRoleId(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
               >
                 <option value="">Select role…</option>
                 {roleOptions.map((r) => (
@@ -181,7 +181,7 @@ export function LoginView() {
             <button
               type="submit"
               disabled={submitting || !roleId}
-              className="w-full rounded-lg bg-[#d4147a] py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-brand-primary py-3 text-sm font-semibold text-white shadow-md transition hover:bg-brand-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Opening workspace…" : "Continue to workspace"}
             </button>

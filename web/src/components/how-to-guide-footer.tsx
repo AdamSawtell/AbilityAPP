@@ -15,11 +15,11 @@ export function HowToGuideFooter() {
     <footer className="mt-8">
       <Link
         href={guide.href}
-        className="inline-flex max-w-full items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 px-2.5 py-1.5 text-[11px] leading-tight text-slate-500 shadow-sm transition hover:border-[#f9a8d4]/50 hover:bg-[#fdf2f8]/60 hover:text-[#b51266]"
+        className="inline-flex max-w-full items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 px-2.5 py-1.5 text-[11px] leading-tight text-slate-500 shadow-sm transition hover:border-brand-border-accent hover:bg-brand-muted-surface hover:text-brand-link"
         aria-label={`${areaLabel}: ${guide.title}`}
       >
         <span
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white text-[11px] font-semibold text-[#d4147a] ring-1 ring-slate-200/80"
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white text-[11px] font-semibold text-brand-primary ring-1 ring-slate-200/80"
           aria-hidden
         >
           ?

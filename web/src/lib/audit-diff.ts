@@ -414,6 +414,10 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     documentFooterText: "Document footer",
     gstRegistered: "GST registered",
     buddyShiftPayPolicy: "Buddy shift pay policy",
+    themePrimaryColour: "Theme primary colour",
+    themeAccentColour: "Theme accent colour",
+    themeBackgroundColour: "Theme background colour",
+    themeTextColour: "Theme text colour",
   },
   incident: {
     documentNo: "Document no.",

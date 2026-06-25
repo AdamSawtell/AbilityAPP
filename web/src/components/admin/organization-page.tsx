@@ -15,6 +15,8 @@ import {
   type OrganizationRecord,
 } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
+import { OrgAppThemeSection } from "@/components/admin/org-app-theme-section";
+import { useOrgThemePreviewState } from "@/components/org-theme-provider";
 
 function OrgField({
   field,
@@ -26,7 +28,7 @@ function OrgField({
   onChange: (key: keyof OrganizationRecord, value: string) => void;
 }) {
   const base =
-    "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
+    "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20";
 
   if (field.type === "textarea") {
     return (
@@ -80,6 +82,7 @@ function OrgField({
 
 export function OrganizationAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
   const { organization, source, updateOrganization, resetOrganization } = useOrganization();
+  const { setPreview } = useOrgThemePreviewState();
   const { session: workspaceSession } = useAuth();
   const systemAuth = useSystemAuthOptional();
   const session = variant === "system" ? systemAuth?.session : workspaceSession;
@@ -91,17 +94,19 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
   const displayName = organizationDisplayName(record);
 
   function onChange(key: keyof OrganizationRecord, value: string) {
-    const base = draft ?? organization;
-    const next: OrganizationRecord = {
-      ...base,
-      updatedBy: session?.displayName ?? session?.username ?? "System",
-    };
-    if (key === "gstRegistered") {
-      next.gstRegistered = value === "true";
-    } else {
-      (next as Record<string, unknown>)[key] = value;
-    }
-    setDraft(next);
+    setDraft((prev) => {
+      const base = prev ?? organization;
+      const next: OrganizationRecord = {
+        ...base,
+        updatedBy: session?.displayName ?? session?.username ?? "System",
+      };
+      if (key === "gstRegistered") {
+        next.gstRegistered = value === "true";
+      } else {
+        (next as Record<string, unknown>)[key] = value;
+      }
+      return next;
+    });
     setSaved(false);
   }
 
@@ -118,6 +123,7 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
   function onDiscard() {
     setDraft(null);
     setSaved(false);
+    setPreview(null);
   }
 
   const Shell = variant === "system" ? SystemShell : AppShell;
@@ -167,7 +173,7 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
               // eslint-disable-next-line @next/next/no-img-element
               <img src={record.logoUrl} alt="" className="h-full w-full object-contain" />
             ) : (
-              <span className="text-2xl font-bold text-[#d4147a]">a</span>
+              <span className="text-2xl font-bold text-brand-primary">a</span>
             )}
           </div>
           <div className="min-w-0 flex-1">
@@ -182,6 +188,8 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
           </div>
           {saved && !hasUnsavedChanges ? <span className="text-sm text-emerald-700">Saved</span> : null}
         </div>
+
+        <OrgAppThemeSection record={record} onChange={onChange} />
 
         <div className="space-y-6">
           {organizationSections.map((section) => (

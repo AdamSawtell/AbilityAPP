@@ -46,7 +46,7 @@ function ChatResizeHandle({ onResize }: { onResize: (deltaX: number) => void }) 
       role="separator"
       aria-orientation="vertical"
       aria-label="Resize AI chat panel"
-      className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-col-resize hover:bg-[#d4147a]/20 active:bg-[#d4147a]/30"
+      className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-col-resize hover:bg-brand-primary/20 active:bg-brand-primary/30"
       onMouseDown={(e) => {
         dragging.current = true;
         lastX.current = e.clientX;
@@ -99,7 +99,7 @@ export function WorkspaceChrome({
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f4f6f8] text-slate-900">
+    <div className="flex h-screen overflow-hidden bg-brand-background text-brand-text">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
         <div className="shrink-0 border-b border-slate-100 px-5 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-2.5" title={orgName}>
@@ -126,7 +126,7 @@ export function WorkspaceChrome({
                     <span key={`${crumb.label}-${index}`} className="inline-flex items-center gap-1.5">
                       {index > 0 ? <span className="text-slate-300">/</span> : null}
                       {crumb.href ? (
-                        <Link href={crumb.href} className="hover:text-[#b51266]">
+                        <Link href={crumb.href} className="hover:text-brand-link">
                           {crumb.label}
                         </Link>
                       ) : (
@@ -157,7 +157,7 @@ export function WorkspaceChrome({
                 <button
                   type="button"
                   onClick={toggleCollapsed}
-                  className="rounded-md px-1 py-2 text-[10px] font-semibold uppercase tracking-wide text-[#b51266] hover:bg-[#fdf2f8]"
+                  className="rounded-md px-1 py-2 text-[10px] font-semibold uppercase tracking-wide text-brand-link hover:bg-brand-muted-surface"
                   title="Expand AI chat (Ctrl+\)"
                 >
                   AI

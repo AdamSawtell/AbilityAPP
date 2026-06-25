@@ -132,3 +132,8 @@ export function useOrganization() {
   if (!ctx) throw new Error("useOrganization must be used within OrganizationProvider");
   return ctx;
 }
+
+/** Returns null outside OrganizationProvider (e.g. login route before hydrate). */
+export function useOrganizationOptional() {
+  return useContext(OrganizationContext);
+}
