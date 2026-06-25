@@ -89,16 +89,18 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "open-shifts",
       title: "Claim open shifts",
-      body: "When rostering posts vacant shifts to the marketplace, you can browse and claim cover from My workplace → Open shifts. The system checks for double-booking before accepting your claim.",
+      body: "When rostering posts vacant shifts to the marketplace, you can browse and claim cover from My workplace → Open shifts. Shifts that match your saved weekly availability are listed first and tagged so you can spot them quickly. If a shift falls outside your availability — for example an overnight shift when you only work days — the card warns you and you must tap Claim anyway? to confirm before it is claimed. The system still blocks any claim that double-books you.",
       steps: [
-        "Open My workplace → Open shifts.",
+        "Set your weekly pattern on My workplace → Availability so shifts can be matched to your hours.",
+        "Open My workplace → Open shifts. Matching shifts appear first with a “Within your availability” tag.",
         "Review date, time, client, and location on each card.",
         "Click Claim shift — your user must be linked to your employee record.",
+        "If the shift is outside your saved availability, read the warning and tap Claim anyway? to confirm (or Cancel).",
         "If you are already rostered at that time, the claim is blocked with a message.",
         "After claiming, the confirmation names the date, time, client, and location so you know exactly which shift you took.",
         "Open My workplace → My shifts → All to see the claimed shift, even if it is weeks away.",
       ],
-      relatedRoutes: ["/my/open-shifts", "/rostering"],
+      relatedRoutes: ["/my/open-shifts", "/my/availability", "/rostering"],
       windowKeys: ["my-open-shifts"],
     },
     {

@@ -12,6 +12,10 @@ import { clientNameFromActivityMessage } from "../src/lib/ai/activity-coach-disp
 import { pickBestMatch, scoreClientMatch } from "../src/lib/ai/tools/client-resolve.ts";
 import { shiftsAssignedToWorker } from "../src/lib/roster-shift-checkin.ts";
 import { filterMyShiftsView } from "../src/lib/my-shifts-grouping.ts";
+import {
+  classifyShiftAvailability,
+  sortOpenShiftsByAvailability,
+} from "../src/lib/roster-open-shifts.ts";
 
 let failures = 0;
 
@@ -89,8 +93,20 @@ const best = pickBestMatch([henry, bernadette], "Bernadette Rose");
 check("BUG-0003 picks the requested client, not first row", best?.id, "client-bern");
 
 check(
+  "BUG-0003 typo-tolerant match still grounds on Bernadette ('Bernedette Rose')",
+  pickBestMatch([henry, bernadette], "Bernedette Rose")?.id,
+  "client-bern"
+);
+
+check(
   "BUG-0003 returns null when nothing matches (no arbitrary fallback)",
   pickBestMatch([henry], "her visit tomorrow"),
+  null
+);
+
+check(
+  "BUG-0003 never grounds on unrelated client when requested name absent",
+  pickBestMatch([henry], "Bernadette Rose"),
   null
 );
 
@@ -131,6 +147,47 @@ check(
   "BUG-0004 All view returns every assigned shift",
   filterMyShiftsView(assigned, "all", "emp1", today).map((s) => s.id),
   ["s-today", "s-far-future"]
+);
+
+// ---- KAREN-BUG-0004 (availability-aware open-shift claim) ------------------
+// 2025-10-06 is a Monday; availability stores Monday as dayOfWeek 0.
+const mondayAvailability = [
+  { id: "a1", lineNo: 1, dayOfWeek: 0, startTime: "08:00", endTime: "17:00", availability: "Available", notes: "" },
+];
+const inHours = { shiftDate: "2025-10-06", startTime: "09:00", endTime: "17:00" };
+const overnight = { shiftDate: "2025-10-06", startTime: "22:00", endTime: "06:00" };
+const saturday = { shiftDate: "2025-10-04", startTime: "09:00", endTime: "13:00" };
+
+check(
+  "BUG-0004 shift inside saved hours matches availability",
+  classifyShiftAvailability(inHours, mondayAvailability).matchesAvailability,
+  true
+);
+check(
+  "BUG-0004 overnight 22:00-06:00 shift is outside availability and needs confirm",
+  classifyShiftAvailability(overnight, mondayAvailability).needsConfirm,
+  true
+);
+check(
+  "BUG-0004 day with no saved hours is outside availability",
+  classifyShiftAvailability(saturday, mondayAvailability).status,
+  "outside"
+);
+check(
+  "BUG-0004 no availability configured does not block claiming",
+  classifyShiftAvailability(inHours, []).needsConfirm,
+  false
+);
+check(
+  "BUG-0004 matching shift sorts ahead of outside-availability shift",
+  sortOpenShiftsByAvailability(
+    [
+      { id: "ot", shiftDate: "2025-10-06", startTime: "22:00", endTime: "06:00" },
+      { id: "ok", shiftDate: "2025-10-06", startTime: "09:00", endTime: "17:00" },
+    ],
+    mondayAvailability
+  ).map((s) => s.id),
+  ["ok", "ot"]
 );
 
 if (failures > 0) {

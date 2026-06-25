@@ -59,13 +59,24 @@ Four Major issues from Karen's support-worker browser run were fixed in priority
 | KAREN-BUG-0003 | Assistant / Activity notes | Hardened client-name extraction (rejects phrases like "her visit tomorrow") and removed arbitrary `rows[0]` fallback in `resolveClient`/`pickBestMatch`; an explicitly named-but-unmatched client now returns null so the assistant asks instead of grounding on the wrong person. |
 | KAREN-BUG-0004 | Open shifts / My shifts | Claim confirmation now names date · time · client · location with a link to My shifts; **All** view lists every assigned shift (new `shiftsAssignedToWorker`), so a claimed future shift beyond the rolling fortnight is verifiable. |
 
+### Retest follow-up (round 2, 2026-06-25) — KAREN-BUG-0003 & 0004 failed live retest
+
+| Bug | Root cause found on retest | Fix |
+|-----|----------------------------|-----|
+| KAREN-BUG-0003 | The model's `client_get` tool resolved names with a raw `ilike` and took an arbitrary `clients[0]` (no scoring/exact-match), and the activity coach fell back to the open client page (and trusted the `client_get` row) when a named client did not match. | `client_get` now grounds through the shared `resolveClient`/`pickBestMatch` and returns `candidates` + "do not guess" when there is no confident match; added typo tolerance (`Bernedette` → `Bernadette`) and a `MIN_CONFIDENT_CLIENT_SCORE`. `resolveCoachClient` no longer falls back to the page client when a name was given, and `tryActivityCoachFromClientGet` re-resolves by the named client (asks when unresolved). |
+| KAREN-BUG-0004 | Confirmation detail and the All view were fixed, but there was no availability awareness — an outside-availability shift (e.g. overnight) could be claimed with no warning. | New `classifyShiftAvailability` + `sortOpenShiftsByAvailability`; Open shifts now lists matching shifts first with a tag, and an outside-availability claim requires an explicit **Claim anyway?** confirm. `MyOpenShiftsPage` loads `/api/my/availability` and passes it to the panel. |
+
 ### What you can test — KAREN fixes
 
 1. My workplace → Availability — default rows read Monday–Friday; Save is disabled until rows load; an empty payload is rejected.
-2. Support worker assistant — ask to log an activity "for Bernadette Rose"; it confirms Bernadette (not another client), and a vague phrase no longer auto-selects a client.
-3. My workplace → Open shifts — claim a shift; confirmation shows full detail and links to My shifts → All, where the claimed shift appears.
+2. Support worker assistant — ask to log an activity "for Bernadette Rose" (or the typo "Bernedette Rose"); it confirms Bernadette only, and a non-existent/ambiguous name makes it ask rather than guess.
+3. My workplace → Open shifts — matching shifts are listed first; claiming an outside-availability shift warns and needs a second confirm; confirmation shows full detail and links to My shifts → All, where the claimed shift appears.
 
-**Tier 1 (2026-06-25):** `npm run build` ✅ (exit 0), `npm run page-guides:check` ✅ (127 routes, 0 gaps), `npm run test:karen` ✅ (13/13 regression checks). Browser smoke on Amplify pending next deploy/retest.
+**Tier 1 (2026-06-25, round 2):** `npm run build` ✅ (exit 0, TypeScript included), `npm run page-guides:check` ✅ (128 routes, 0 gaps), `npm run test:karen` ✅ (20/20 regression checks).
+
+**Tier 2 (localhost browser smoke):** Open shifts page — daytime shifts tagged "Within your availability" and sorted first; every overnight 22:00–06:00 shift flagged "Outside your Monday availability (09:00–17:00)"; clicking Claim on an outside shift switches to **Claim anyway?** + Cancel and does not claim on the first tap. ✅
+
+**Tier 3 (Bugbot):** 2 medium findings fixed — (1) `/api/my/availability` now returns `configured` so default editor placeholder rows are not treated as saved availability; (2) claim buttons are held (“Checking availability…”) until availability resolves so the confirm gate cannot be bypassed by the load race. Re-ran build + `test:karen` after fixes. Karen live retest (KAREN-TST-0011/0012) pending next deploy (assistant grounding needs the deployed OpenAI-backed chat).
 
 ---
 

@@ -1,6 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import { canAccessWindow } from "@/lib/access/catalog";
+import {
+  fetchClientPool,
+  rankClientMatches,
+  resolveClient,
+} from "@/lib/ai/tools/client-resolve";
 
 export async function runClientGet(
   supabase: SupabaseClient,
@@ -15,13 +20,42 @@ export async function runClientGet(
   const searchKey = args.searchKey?.trim() ?? "";
   const name = args.name?.trim() ?? "";
 
-  let query = supabase.from("client").select("*");
-  if (id) query = query.eq("id", id);
-  else if (searchKey) query = query.eq("search_key", searchKey);
-  else if (name) query = query.ilike("name", `%${name}%`);
-  else return { found: false, error: "Provide clientId, searchKey, or name." };
+  if (!id && !searchKey && !name) {
+    return { found: false, error: "Provide clientId, searchKey, or name." };
+  }
 
-  const { data: clients, error } = await query.limit(3);
+  // Ground the lookup through the shared resolver so a name search picks the best
+  // scored match (or returns candidates to ask about) rather than an arbitrary
+  // first row — never fall back to the wrong client (KAREN-BUG-0003).
+  const resolved = await resolveClient(supabase, { clientId: id, searchKey, name });
+  if (!resolved) {
+    if (name) {
+      const candidates = rankClientMatches(await fetchClientPool(supabase, name), name)
+        .slice(0, 5)
+        .map((entry) => ({
+          id: entry.row.id,
+          name: entry.row.name,
+          searchKey: entry.row.search_key,
+          href: `/clients/${entry.row.id}`,
+        }));
+      return {
+        found: false,
+        query: { id, searchKey, name },
+        candidates,
+        note:
+          candidates.length > 0
+            ? `No confident match for "${name}". Ask the user to confirm which client they mean — do not guess.`
+            : `No client matched "${name}". Ask the user for the correct name or search key — do not guess.`,
+      };
+    }
+    return { found: false, query: { id, searchKey, name } };
+  }
+
+  const { data: clients, error } = await supabase
+    .from("client")
+    .select("*")
+    .eq("id", resolved.id)
+    .limit(1);
   if (error) throw error;
   if (!clients?.length) return { found: false, query: { id, searchKey, name } };
 

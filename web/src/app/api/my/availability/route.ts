@@ -14,8 +14,13 @@ export async function GET() {
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const rows = await loadMyAvailability(ctx.employeeId);
+  // `configured` reflects whether the worker has actually saved availability.
+  // The editor still receives default placeholder rows to fill in, but callers
+  // that gate behaviour on real availability (e.g. open-shift claims) must not
+  // treat the Mon–Fri defaults as saved hours (KAREN-BUG-0004).
   return NextResponse.json({
     rows: rows.length ? rows : defaultAvailabilityRows(),
+    configured: rows.length > 0,
   });
 }
 

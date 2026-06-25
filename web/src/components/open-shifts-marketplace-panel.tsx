@@ -4,11 +4,25 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ClientRecordLink } from "@/components/record-link";
 import type { ClientRecord } from "@/lib/client";
-import type { EmployeeRecord } from "@/lib/employee";
+import type { EmployeeAvailabilityRow, EmployeeRecord } from "@/lib/employee";
 import type { LocationRecord } from "@/lib/location";
-import { buildClaimedShift, listOpenMarketplaceShifts } from "@/lib/roster-open-shifts";
+import {
+  buildClaimedShift,
+  classifyShiftAvailability,
+  listOpenMarketplaceShifts,
+  sortOpenShiftsByAvailability,
+  type ShiftAvailabilityStatus,
+} from "@/lib/roster-open-shifts";
 import { formatDayHeading, formatShiftTimeRange, normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
+
+const AVAILABILITY_BADGE: Record<ShiftAvailabilityStatus, { label: string; className: string } | null> = {
+  preferred: { label: "Matches preferred hours", className: "bg-emerald-100 text-emerald-900" },
+  available: { label: "Within your availability", className: "bg-emerald-100 text-emerald-900" },
+  outside: { label: "Outside your availability", className: "bg-amber-100 text-amber-900" },
+  unavailable: { label: "You marked this day unavailable", className: "bg-rose-100 text-rose-900" },
+  unknown: null,
+};
 
 export function OpenShiftsMarketplacePanel({
   rosterShifts,
@@ -18,6 +32,8 @@ export function OpenShiftsMarketplacePanel({
   serviceBookings,
   mode,
   currentEmployeeId,
+  availability,
+  availabilityReady = true,
   onAssign,
   onClaim,
 }: {
@@ -28,17 +44,35 @@ export function OpenShiftsMarketplacePanel({
   serviceBookings: ServiceBookingRecord[];
   mode: "coordinator" | "worker";
   currentEmployeeId?: string;
+  availability?: EmployeeAvailabilityRow[];
+  /** False while the worker's availability is still loading — claims are held so
+   *  an outside-availability shift cannot be claimed before the confirm gate is
+   *  known (KAREN-BUG-0004). */
+  availabilityReady?: boolean;
   onAssign?: (shift: RosterShiftRecord) => void;
   onClaim?: (shift: RosterShiftRecord) => Promise<string | null>;
 }) {
   const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const openShifts = useMemo(() => listOpenMarketplaceShifts(rosterShifts), [rosterShifts]);
+  const openShifts = useMemo(() => {
+    const open = listOpenMarketplaceShifts(rosterShifts);
+    return mode === "worker" ? sortOpenShiftsByAvailability(open, availability) : open;
+  }, [rosterShifts, mode, availability]);
 
-  async function handleClaim(shift: RosterShiftRecord) {
+  async function handleClaim(shift: RosterShiftRecord, needsConfirm: boolean) {
     if (!onClaim) return;
+    // Require an explicit second tap before claiming a shift outside saved
+    // availability (KAREN-BUG-0004).
+    if (needsConfirm && confirmingId !== shift.id) {
+      setConfirmingId(shift.id);
+      setError("");
+      setMessage("");
+      return;
+    }
+    setConfirmingId(null);
     setClaimingId(shift.id);
     setError("");
     setMessage("");
@@ -97,6 +131,13 @@ export function OpenShiftsMarketplacePanel({
               ? buildClaimedShift(shift, currentEmployeeId, "Self-service", rosterShifts)
               : null;
           const claimBlocked = previewClaim && !previewClaim.ok;
+          const availabilityResult =
+            mode === "worker" ? classifyShiftAvailability(shift, availability) : null;
+          const availabilityBadge = availabilityResult
+            ? AVAILABILITY_BADGE[availabilityResult.status]
+            : null;
+          const needsConfirm = Boolean(availabilityResult?.needsConfirm);
+          const isConfirming = confirmingId === shift.id;
 
           return (
             <article
@@ -115,6 +156,14 @@ export function OpenShiftsMarketplacePanel({
                   {shift.status}
                 </span>
               </div>
+
+              {availabilityBadge ? (
+                <span
+                  className={`mt-3 inline-flex w-fit rounded-full px-2 py-0.5 text-[11px] font-medium ${availabilityBadge.className}`}
+                >
+                  {availabilityBadge.label}
+                </span>
+              ) : null}
 
               <div className="mt-3 space-y-1 text-sm text-slate-700">
                 {client ? (
@@ -149,17 +198,50 @@ export function OpenShiftsMarketplacePanel({
                 {mode === "worker" && onClaim ? (
                   <button
                     type="button"
-                    disabled={!currentEmployeeId || claimingId === shift.id || Boolean(claimBlocked)}
-                    title={claimBlocked ? previewClaim?.message : undefined}
-                    onClick={() => void handleClaim(shift)}
-                    className="rounded-lg bg-[#d4147a] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={
+                      !currentEmployeeId ||
+                      claimingId === shift.id ||
+                      Boolean(claimBlocked) ||
+                      !availabilityReady
+                    }
+                    title={
+                      claimBlocked
+                        ? previewClaim?.message
+                        : !availabilityReady
+                          ? "Checking your availability…"
+                          : undefined
+                    }
+                    onClick={() => void handleClaim(shift, needsConfirm)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 ${
+                      isConfirming ? "bg-amber-600 hover:bg-amber-700" : "bg-[#d4147a] hover:bg-[#b51266]"
+                    }`}
                   >
-                    {claimingId === shift.id ? "Claiming…" : "Claim shift"}
+                    {!availabilityReady
+                      ? "Checking availability…"
+                      : claimingId === shift.id
+                        ? "Claiming…"
+                        : isConfirming
+                          ? "Claim anyway?"
+                          : "Claim shift"}
+                  </button>
+                ) : null}
+                {mode === "worker" && isConfirming ? (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingId(null)}
+                    className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Cancel
                   </button>
                 ) : null}
               </div>
               {claimBlocked && previewClaim && !previewClaim.ok ? (
                 <p className="mt-2 text-xs text-rose-800">{previewClaim.message}</p>
+              ) : availabilityResult && availabilityResult.needsConfirm ? (
+                <p className="mt-2 text-xs text-amber-800">
+                  {availabilityResult.message}
+                  {isConfirming ? " Tap “Claim anyway?” to confirm." : ""}
+                </p>
               ) : null}
             </article>
           );

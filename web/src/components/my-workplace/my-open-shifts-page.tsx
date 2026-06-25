@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workplace/my-workplace-guard";
@@ -8,11 +8,37 @@ import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { normalizeRosterShift } from "@/lib/roster-shift";
+import type { EmployeeAvailabilityRow } from "@/lib/employee";
 
 export function MyOpenShiftsPage() {
   const { session } = useAuth();
   const { clients, employees, locations, serviceBookings, rosterShifts, claimOpenRosterShift } = useData();
   const employeeId = session?.employeeBpId?.trim() ?? "";
+  const [availability, setAvailability] = useState<EmployeeAvailabilityRow[]>([]);
+  const [availabilityReady, setAvailabilityReady] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/my/availability", { credentials: "include" })
+      .then((res) =>
+        res.ok ? (res.json() as Promise<{ rows: EmployeeAvailabilityRow[]; configured?: boolean }>) : null
+      )
+      .then((data) => {
+        if (!active) return;
+        // Only use rows the worker has actually saved — default editor
+        // placeholders must not gate claims (KAREN-BUG-0004).
+        setAvailability(data?.configured ? data.rows ?? [] : []);
+      })
+      .catch(() => {
+        /* availability is advisory — claiming still works without it */
+      })
+      .finally(() => {
+        if (active) setAvailabilityReady(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleClaim = useCallback(
     async (shift: ReturnType<typeof normalizeRosterShift>) => {
@@ -43,6 +69,8 @@ export function MyOpenShiftsPage() {
           serviceBookings={serviceBookings}
           mode="worker"
           currentEmployeeId={employeeId}
+          availability={availability}
+          availabilityReady={availabilityReady}
           onClaim={handleClaim}
         />
       </AppShell>

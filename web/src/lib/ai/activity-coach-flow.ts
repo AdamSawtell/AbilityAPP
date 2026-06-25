@@ -38,9 +38,12 @@ async function resolveCoachClient(
   const routeId = clientIdFromPagePath(pagePath);
   const nameFromMessage = clientNameFromActivityMessage(userMessage);
 
+  // When the user explicitly names a client, that name is the source of truth.
+  // Never silently fall back to whatever client page is open — that is how the
+  // assistant grounded on the wrong person (KAREN-BUG-0003). A null result asks
+  // the user to confirm instead of guessing.
   if (nameFromMessage) {
-    const fromName = await resolveClient(supabase, { name: nameFromMessage, pagePath });
-    if (fromName) return fromName;
+    return resolveClient(supabase, { name: nameFromMessage, pagePath });
   }
 
   if (routeId) {
@@ -235,6 +238,21 @@ export async function tryActivityCoachFromClientGet(
 
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   if (!lastUser || !isActivityCoachIntent(lastUser.content)) return null;
+
+  // If the user named a client, re-resolve by that name and treat it as the
+  // source of truth. Do not trust the model's client_get row for a named client:
+  // when the name cannot be confidently resolved, ask rather than ground on
+  // whatever the model fetched (KAREN-BUG-0003).
+  const nameFromMessage = clientNameFromActivityMessage(lastUser.content);
+  if (nameFromMessage) {
+    const byName = await resolveClient(supabase, { name: nameFromMessage, pagePath });
+    if (!byName) return null;
+    if (shouldAutoConfirmCoachOnPage(pagePath, lastUser.content, byName)) {
+      const activities = await loadCoachActivities(supabase, session, byName, pagePath, threadState);
+      return buildNotesAndStep3Advance(threadState, byName, activities, { autoFromPage: true });
+    }
+    return step1Response(threadState, byName);
+  }
 
   const row = clientGetResult as { found?: boolean; client?: { id?: string; name?: string; searchKey?: string } };
   if (!row?.found || !row.client?.id) return null;

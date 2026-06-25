@@ -152,6 +152,28 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-064 — Assistant client grounding + availability-aware claim (Karen QA)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo (assistant) and a worker login linked to an employee (claim) |
+| **DATA** | Client `Bernadette Rose` (`bp-bern`); worker availability set to weekday daytime |
+| **Pass if** | Assistant only grounds on the named client and asks when unsure; open-shift claim warns before an outside-availability claim and the claimed shift is visible in My shifts → All |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open the AI assistant and ask to log an activity note for "Bernadette Rose" | Step 1 confirms **Bernadette Rose** — never Henry/another client |
+| 2 | Ask to log a note for a name with a typo ("Bernedette Rose") | Still grounds on Bernadette Rose |
+| 3 | Ask to log a note for a client that does not exist | Assistant asks which client / lists candidates — does not guess or fall back to the open record |
+| 4 | Set My workplace → Availability to a weekday daytime pattern | Availability saved |
+| 5 | My workplace → Open shifts | Matching shifts listed first with "Within your availability" tag |
+| 6 | Claim a shift outside your availability (e.g. overnight 22:00–06:00) | Card warns; button changes to **Claim anyway?**; claim only proceeds on the second confirm |
+| 7 | Confirm the claim, then open My shifts → All | Confirmation names date/time/client/location; claimed shift appears under All |
+
+Regression: `npm run test:karen` covers the matching/typo/availability logic.
+
+---
+
 ## TEST-070 — Agency staffing smoke (WP-AG.1)
 
 | | |
