@@ -113,6 +113,9 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Maintain positions under Workforce planning → Organisation structure.",
       "Seed task automations for leave and credential review (see Task automations guide).",
       "Leave calendar and review queue stay in the workspace at Workforce planning.",
+      "Grant Training and meetings (`training-meetings`) at Write for HR managers, team leaders, or rostering roles that schedule non-service sessions.",
+      "Review training categories, meeting categories, cost centres, and attendance statuses with finance before go-live.",
+      "Create a test training session in Workforce planning → Training and meetings, confirm it appears on Rostering, then sign off one attendee and verify the cost summary.",
     ]
   ),
   moduleSetupArticle(

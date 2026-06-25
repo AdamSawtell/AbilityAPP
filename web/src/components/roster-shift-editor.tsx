@@ -10,6 +10,8 @@ import {
   buddyShiftFromPrimary,
   buddyShiftPayPolicyFromOrganization,
   isBuddyShift,
+  isTrainingOrMeetingPurpose,
+  normalizeShiftPurpose,
   resolveBuddyPayStatus,
   SHIFT_PAY_STATUS_OPTIONS,
   SHIFT_PURPOSE_OPTIONS,
@@ -56,12 +58,13 @@ export function RosterShiftEditor({
   onClose: () => void;
   onSaved?: () => void;
 }) {
-  const { clients, employees, locations, serviceBookings, rosterShifts, upsertRosterShift, addRecurringRosterShifts } =
+  const { clients, employees, locations, serviceBookings, rosterShifts, timesheets, upsertRosterShift, addRecurringRosterShifts } =
     useData();
   const { organization } = useOrganization();
   const payPolicy = buddyShiftPayPolicyFromOrganization(organization);
-  const { canWriteWindow } = useAuth();
+  const { canWriteWindow, session } = useAuth();
   const canSave = canWriteWindow("rostering");
+  const actor = session?.displayName || "SuperUser";
   const isNew = !initial?.id;
 
   const [draft, setDraft] = useState<RosterShiftRecord>(() => {
@@ -92,9 +95,11 @@ export function RosterShiftEditor({
   const [saveError, setSaveError] = useState("");
 
   const validationMode = rosterValidationMode(draft);
+  const canRepeatWeekly =
+    isNew && !isBuddyShift(draft) && !isTrainingOrMeetingPurpose(normalizeShiftPurpose(draft.shiftPurpose));
 
   const issues = useMemo(() => {
-    if (isNew && repeatWeekly && weekdayOffsets.length && !isBuddyShift(draft)) {
+    if (canRepeatWeekly && repeatWeekly && weekdayOffsets.length) {
       const rows = expandWeeklyRecurrence(draft, weekdayOffsets, weekCount);
       const conflictMap = detectRecurringRosterConflicts(rows, rosterShifts);
       const firstConflict = rows.flatMap((row) => {
@@ -107,7 +112,7 @@ export function RosterShiftEditor({
       return [...fieldIssues, ...firstConflict];
     }
     return validateRosterShift(draft, { existing: rosterShifts }, validationMode);
-  }, [draft, isNew, repeatWeekly, weekdayOffsets, weekCount, rosterShifts, validationMode]);
+  }, [draft, canRepeatWeekly, repeatWeekly, weekdayOffsets, weekCount, rosterShifts, validationMode]);
   const saveBlocked = rosterShiftSaveBlocked(issues);
 
   const bookingOptions = useMemo(
@@ -128,6 +133,24 @@ export function RosterShiftEditor({
   function onChange<K extends keyof RosterShiftRecord>(key: K, value: RosterShiftRecord[K]) {
     setDraft((prev) => {
       let next = normalizeRosterShift({ ...prev, [key]: value, updatedBy: "SuperUser" });
+      if (key === "attendanceStatus") {
+        const attendanceStatus = String(value);
+        const linkedTimesheet = timesheets.some((sheet) =>
+          sheet.lines.some((line) => line.rosterShiftId === prev.id)
+        );
+        if (prev.attendanceStatus === "Attended" && attendanceStatus !== "Attended" && linkedTimesheet) {
+          setSaveError("This attendee already has a generated timesheet line. Remove or reverse the timesheet line before changing attendance.");
+          return prev;
+        }
+        const signed = attendanceStatus === "Attended" || attendanceStatus === "Did not attend";
+        next = normalizeRosterShift({
+          ...next,
+          attendanceSignedOffAt: signed ? new Date().toISOString() : "",
+          attendanceSignedOffBy: signed ? actor : "",
+          status: signed ? "Completed" : next.status === "Completed" ? "Published" : next.status,
+          payStatus: attendanceStatus === "Did not attend" ? "non_payable" : "payable",
+        });
+      }
       if (key === "shiftPurpose") {
         if (isBuddyShift({ shiftPurpose: String(value) })) {
           next = applyBuddyDefaults(
@@ -138,6 +161,21 @@ export function RosterShiftEditor({
             },
             payPolicy
           );
+        } else if (isTrainingOrMeetingPurpose(normalizeShiftPurpose(next.shiftPurpose))) {
+          next = {
+            ...next,
+            clientId: "",
+            serviceBookingId: "",
+            billingClassification:
+              next.costAllocation === "billable"
+                ? "billable"
+                : next.costAllocation === "admin_costed"
+                  ? "admin_costed"
+                  : "non_billable_internal_cost",
+            payStatus: "payable",
+            primaryRosterShiftId: "",
+            buddyReason: "",
+          };
         } else {
           next = {
             ...next,
@@ -166,7 +204,8 @@ export function RosterShiftEditor({
     setSaveError("");
     if (!canSave || saveBlocked) return;
 
-    const buddyPay = resolveBuddyPayStatus(payPolicy, draft.payStatus as "" | "payable" | "non_payable");
+    const draftIsBuddy = isBuddyShift(draft);
+    const buddyPay = draftIsBuddy ? resolveBuddyPayStatus(payPolicy, draft.payStatus as "" | "payable" | "non_payable") : "";
     if (isBuddyShift(draft) && buddyPayStatusRequiresBookerChoice(payPolicy) && !buddyPay) {
       setSaveError("Choose whether this buddy shift is paid or non-payable.");
       return;
@@ -179,7 +218,7 @@ export function RosterShiftEditor({
       payPolicy
     );
 
-    if (isNew && repeatWeekly && weekdayOffsets.length && !isBuddyShift(draftToSave)) {
+    if (canRepeatWeekly && repeatWeekly && weekdayOffsets.length) {
       const rows = expandWeeklyRecurrence(draftToSave, weekdayOffsets, weekCount);
       const conflictMap = detectRecurringRosterConflicts(rows, rosterShifts);
       const blocked = rows.some((row) => {
@@ -354,6 +393,90 @@ export function RosterShiftEditor({
             </select>
           </label>
 
+          {isTrainingOrMeetingPurpose(normalizeShiftPurpose(draft.shiftPurpose)) ? (
+            <>
+              <label className="sm:col-span-2">
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Session title</span>
+                <input
+                  className={inputClass}
+                  value={draft.sessionTitle ?? ""}
+                  onChange={(e) => onChange("sessionTitle", e.target.value)}
+                />
+              </label>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Session category</span>
+                <select
+                  className={inputClass}
+                  value={draft.sessionCategory ?? ""}
+                  onChange={(e) => onChange("sessionCategory", e.target.value)}
+                >
+                  <option value="">Select category</option>
+                  {rosterShiftDropdowns.sessionCategory.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Cost allocation</span>
+                <select
+                  className={inputClass}
+                  value={draft.costAllocation ?? "non_billable"}
+                  onChange={(e) => {
+                    const costAllocation = e.target.value;
+                    onChange("costAllocation", costAllocation);
+                    onChange(
+                      "billingClassification",
+                      costAllocation === "billable"
+                        ? "billable"
+                        : costAllocation === "admin_costed"
+                          ? "admin_costed"
+                          : "non_billable_internal_cost"
+                    );
+                  }}
+                >
+                  <option value="billable">Billable</option>
+                  <option value="non_billable">Non-billable</option>
+                  <option value="admin_costed">Admin-costed</option>
+                </select>
+              </label>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Cost centre</span>
+                <input
+                  className={inputClass}
+                  value={draft.costCentre ?? ""}
+                  onChange={(e) => onChange("costCentre", e.target.value)}
+                />
+              </label>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Estimated hourly cost</span>
+                <input
+                  className={inputClass}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={draft.estimatedHourlyCost ?? 0}
+                  onChange={(e) => onChange("estimatedHourlyCost", Number(e.target.value))}
+                />
+              </label>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Attendance</span>
+                <select
+                  className={inputClass}
+                  value={draft.attendanceStatus ?? "Scheduled"}
+                  onChange={(e) => onChange("attendanceStatus", e.target.value)}
+                >
+                  {rosterShiftDropdowns.attendanceStatus.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          ) : null}
+
           {isBuddyShift(draft) ? (
             <>
               <label>
@@ -444,7 +567,7 @@ export function RosterShiftEditor({
           publishMode={draft.status === "Published" || draft.status === "Completed"}
         />
 
-        {isNew && !isBuddyShift(draft) ? (
+        {canRepeatWeekly ? (
           <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
             <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
               <input

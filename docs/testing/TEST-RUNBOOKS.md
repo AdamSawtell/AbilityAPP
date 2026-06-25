@@ -134,6 +134,24 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-063 — Training and meeting scheduling (AB-0021)
+
+| | |
+|--|--|
+| **User** | RileyShaw / welcome or SuperUser / flamingo |
+| **DATA** | `rs-train-manual-isla`, `rs-train-manual-gabriela`, week `2025-10-06` |
+| **Pass if** | Training session schedules roster rows, roster shows Training/Admin cost badges, attendance sign-off stamps attendee rows, and cost centre summary updates |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/workforce-planning/training` | Training and meetings page loads with audit footer |
+| 2 | Schedule a Training session for two attendees | Success message; session appears in Scheduled sessions |
+| 3 | `/rostering?week=2025-10-06` | Seeded Manual handling refresher rows show Training + Admin cost badges |
+| 4 | Set one attendee to Attended | Row shows signed-off user/time and status Completed |
+| 5 | Review Cost summary | Training cost centre shows signed-off attended hours and estimated cost |
+
+---
+
 ## TEST-070 — Agency staffing smoke (WP-AG.1)
 
 | | |

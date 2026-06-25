@@ -34,13 +34,13 @@ The largest greenfield work is **Chunk 4 (Rostering)**. Upstream modules must be
 | Auth, org, roles | ✅ Live | Off / Read / Write per window |
 | Enquiries | ✅ Live | Pipeline, qualification, convert, HubSpot sync |
 | Clients | ✅ Live | Full tabs, plan budget import, lifecycle, portal email |
-| Employees | ✅ Live | Credentials, leave, My workplace, HR documents |
+| Employees | ✅ Live | Credentials, leave, My workplace, HR documents, training/meeting scheduling |
 | Locations, incidents, tasks | ✅ Live | Core CRUD + line tables |
 | Business partners | ✅ Live | Registry + client billing prefs |
 | Service agreements | ✅ Live | E-sign, print pack, lifecycle states |
 | Products, price lists, contracts | ✅ Live | Reference + agreement linking |
 | Service bookings | ✅ Live | Compliance on save, client reverse nav |
-| Rostering | ✅ Live | Week grid, publish, open shifts, RoC publish |
+| Rostering | ✅ Live | Week grid, publish, open shifts, RoC publish, training/meeting rows |
 | Service planning | ✅ Live | Monthly plans, multi-provider budget, utilisation |
 | Timesheets | ✅ Live | Generate, submit, approve, check-in verification |
 | Billing / claims | ✅ Live | PAPL validation; PRODA submission not live |
@@ -174,6 +174,7 @@ Legend: ✅ Live · 🟡 Partial / MVP · ⬜ Not started · 🔵 In progress
 | Client RoC on record + rostered vs required | ✅ | Yes — WP-G.1 |
 | Employee schedule tab + My shifts calendar | ✅ | Yes — WP-G.2/G.3 |
 | Agency worker register + coverage workflow | ✅ | Yes — WP-AG.1 (AB-0019) |
+| Training and meeting scheduling | ✅ | AB-0021 v1 — roster-visible sessions, cost allocation, attendance |
 | Mobile worker app | ⬜ | Phase 2 (PWA or native) |
 | RoC import | ✅ | Yes — WP-D.13 |
 

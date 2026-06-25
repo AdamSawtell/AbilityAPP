@@ -2376,6 +2376,15 @@ export type RosterShiftRow = {
   agency_worker_id: string | null;
   vendor_bp_id: string | null;
   agency_request_id: string | null;
+  training_session_group_id: string;
+  session_title: string;
+  session_category: string;
+  cost_allocation: string;
+  cost_centre: string;
+  estimated_hourly_cost: number;
+  attendance_status: string;
+  attendance_signed_off_at: string | null;
+  attendance_signed_off_by: string;
   shift_purpose: string;
   billing_classification: string;
   pay_status: string;
@@ -2429,6 +2438,15 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     agencyWorkerId: row.agency_worker_id ?? "",
     vendorBpId: row.vendor_bp_id ?? "",
     agencyRequestId: row.agency_request_id ?? "",
+    trainingSessionGroupId: row.training_session_group_id ?? "",
+    sessionTitle: row.session_title ?? "",
+    sessionCategory: row.session_category ?? "",
+    costAllocation: row.cost_allocation ?? "non_billable",
+    costCentre: row.cost_centre ?? "",
+    estimatedHourlyCost: Number(row.estimated_hourly_cost ?? 0),
+    attendanceStatus: row.attendance_status ?? "Scheduled",
+    attendanceSignedOffAt: row.attendance_signed_off_at ?? "",
+    attendanceSignedOffBy: row.attendance_signed_off_by ?? "",
     shiftPurpose: row.shift_purpose ?? "service_delivery",
     billingClassification: row.billing_classification ?? "billable",
     payStatus: row.pay_status ?? "payable",
@@ -2465,6 +2483,15 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     agency_worker_id: record.agencyWorkerId?.trim() ? record.agencyWorkerId : null,
     vendor_bp_id: record.vendorBpId?.trim() ? record.vendorBpId : null,
     agency_request_id: record.agencyRequestId?.trim() ? record.agencyRequestId : null,
+    training_session_group_id: record.trainingSessionGroupId ?? "",
+    session_title: record.sessionTitle ?? "",
+    session_category: record.sessionCategory ?? "",
+    cost_allocation: record.costAllocation ?? "non_billable",
+    cost_centre: record.costCentre ?? "",
+    estimated_hourly_cost: Number(record.estimatedHourlyCost ?? 0),
+    attendance_status: record.attendanceStatus ?? "Scheduled",
+    attendance_signed_off_at: record.attendanceSignedOffAt?.trim() ? record.attendanceSignedOffAt : null,
+    attendance_signed_off_by: record.attendanceSignedOffBy ?? "",
     shift_purpose: record.shiftPurpose || "service_delivery",
     billing_classification: record.billingClassification || "billable",
     pay_status: record.payStatus || "payable",

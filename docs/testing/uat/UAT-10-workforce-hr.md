@@ -19,6 +19,7 @@
 | UAT-10-S-011 | Leave on behalf | Process 10 | **Pass** — workforce planning leave path |
 | UAT-10-S-012 | Employee exit checklist | Employment tab — separation | **Pass** — TEST-096 emp-staff-147 + DOC-28994158 |
 | UAT-10-S-013 | Employee line drawers | Credentials/leave/activity child rows open in side drawer | **Pass** — TEST-094 Amplify smoke (2026-06-25) |
+| UAT-10-S-014 | Training and meeting scheduling | `/workforce-planning/training`; roster badges; attendance sign-off; cost summary | Pending — TEST-063 |
 
 ## Employee tabs
 

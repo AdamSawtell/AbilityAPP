@@ -258,6 +258,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **HR documents** ÔÇö generate offer, contract, separation letter | HR+ | Document + HR file line + registry | Live |
 | **Employee exit checklist** ÔÇö separation letter, roster clearance, end date | HR+ | Structured offboarding | Live |
 | **Workforce planning queue** ÔÇö credentials and leave pending review | HR+ | Single operations inbox | Live |
+| **Training and meetings** — roster-visible individual/group sessions with cost allocation and attendance sign-off | HR, team leaders, rostering | Staff sessions appear on the roster; cost centre summaries show estimated training/meeting cost | Live |
 | **Agency workers** ÔÇö vendor-linked relief register (not employee HR file) | Roster admin, coordinators | Pool for agency shift proposals | Live |
 
 ---

@@ -211,6 +211,12 @@ const MODULE_WINDOWS: AccessWindow[] = [
   },
 ];
 
+function moduleWindow(key: string): AccessWindow {
+  const window = MODULE_WINDOWS.find((w) => w.key === key);
+  if (!window) throw new Error(`Missing module window: ${key}`);
+  return window;
+}
+
 const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "service-bookings",
@@ -367,6 +373,15 @@ const WORKFORCE_WINDOWS: AccessWindow[] = [
     href: "/workforce-planning/organisation",
     parentWindowKey: "workforce-planning",
     abilityErpName: "Organisation structure",
+    showInSidebar: true,
+  },
+  {
+    key: "training-meetings",
+    label: "Training and meetings",
+    group: "Workforce planning",
+    href: "/workforce-planning/training",
+    parentWindowKey: "workforce-planning",
+    abilityErpName: "Training and meeting scheduling",
     showInSidebar: true,
   },
   {
@@ -621,31 +636,36 @@ export const ACCESS_WINDOWS: AccessWindow[] = [
   ...PARENT_WINDOWS,
   ...homePanelAccessWindows(),
   ...TASK_WINDOWS,
-  MODULE_WINDOWS[0],
+  moduleWindow("enquiries"),
   ...ENQUIRY_DEPENDENT_WINDOWS,
-  MODULE_WINDOWS[1],
+  moduleWindow("clients"),
   ...CLIENT_DEPENDENT_WINDOWS,
-  MODULE_WINDOWS[2],
+  moduleWindow("incidents"),
   ...INCIDENT_DEPENDENT_WINDOWS,
   ...INCIDENT_EXTRA_WINDOWS,
-  MODULE_WINDOWS[3],
+  moduleWindow("complaints"),
   ...LOCATION_DEPENDENT_WINDOWS,
-  MODULE_WINDOWS[4],
+  moduleWindow("locations"),
   ...EMPLOYEE_DEPENDENT_WINDOWS,
+  moduleWindow("employees"),
+  moduleWindow("agency-workers"),
+  moduleWindow("agency-timesheets"),
+  moduleWindow("generate-agency-timesheets"),
+  moduleWindow("vendor-invoices"),
   ...WORKFORCE_WINDOWS,
   ...MY_WORKPLACE_WINDOWS,
-  MODULE_WINDOWS[5],
-  MODULE_WINDOWS[6],
+  moduleWindow("business-partners"),
+  moduleWindow("products"),
   ...PRODUCT_DEPENDENT_WINDOWS,
-  MODULE_WINDOWS[7],
+  moduleWindow("price-lists"),
   ...PRICE_LIST_DEPENDENT_WINDOWS,
-  MODULE_WINDOWS[8],
+  moduleWindow("service-agreements"),
   ...SERVICE_AGREEMENT_DEPENDENT_WINDOWS,
-  MODULE_WINDOWS[9],
+  moduleWindow("contracts"),
   ...CONTRACT_DEPENDENT_WINDOWS,
   ...DELIVERY_WINDOWS,
   ...SERVICE_BOOKING_DEPENDENT_WINDOWS,
-  MODULE_WINDOWS[10],
+  moduleWindow("reports"),
   ...REPORT_WINDOWS,
   ...ADMIN_WINDOWS,
 ];

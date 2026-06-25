@@ -126,6 +126,8 @@
 | Open shift claim | Worker claims on `/my/open-shifts` | Assigns worker to vacant shift — Partial |
 | Add buddy shift | **Add buddy shift** on staffed shift card | Creates linked shift with `shiftPurpose` buddy/orientation; inherits client/location/time |
 | Cancel primary shift | Cancel on roster grid | Linked buddy shifts auto-cancelled |
+| Schedule training/meeting | Workforce planning → Training and meetings | Creates one roster row per attendee with shared `trainingSessionGroupId`, cost allocation, and attendance status |
+| Sign training attendance | Training and meetings attendance selector | Stamps attendance status, sign-off user/time, and marks attended rows Completed |
 
 | Process ID | Trigger | Workflow |
 |------------|---------|----------|

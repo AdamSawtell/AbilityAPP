@@ -1,4 +1,4 @@
-import { isLineBillable } from "@/lib/buddy-shift";
+import { isLineBillable, isTrainingOrMeetingPurpose, normalizeShiftPurpose } from "@/lib/buddy-shift";
 import { shiftDurationHours, type RosterShiftRecord } from "@/lib/roster-shift";
 import {
   createTimesheet,
@@ -40,6 +40,9 @@ function shiftInPeriod(shift: RosterShiftRecord, periodStart: string, periodEnd:
 }
 
 function isEligibleShift(shift: RosterShiftRecord): boolean {
+  if (isTrainingOrMeetingPurpose(normalizeShiftPurpose(shift.shiftPurpose))) {
+    return Boolean(shift.employeeId?.trim()) && ELIGIBLE_STATUSES.has(shift.status) && shift.attendanceStatus === "Attended";
+  }
   return Boolean(shift.employeeId?.trim()) && ELIGIBLE_STATUSES.has(shift.status);
 }
 

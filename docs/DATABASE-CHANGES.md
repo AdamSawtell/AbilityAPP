@@ -61,6 +61,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `agency_shift_request` | Agency coverage requests linked to vacant `roster_shift` |
 | `agency_timesheet` / `agency_timesheet_line` | Vendor timesheet header + lines from completed agency shifts |
 | `site_orientation` | Site orientation per worker (agency or employee) and location |
+| `roster_shift` AB-0021 fields | Training/meeting grouping, cost allocation, cost centre, estimated cost, attendance sign-off |
 
 ## Not built yet (needs migration when added)
 

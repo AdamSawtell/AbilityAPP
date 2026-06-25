@@ -379,6 +379,7 @@ Claim and invoice detail: single page with lines panel. No tab windows.
 | Generate agency timesheets | `generate-agency-timesheets` | `/generate-agency-timesheets` | People |
 | Workforce planning | `workforce-planning` | `/workforce-planning` | Workforce planning |
 | Organisation structure | `workforce-organisation` | `/workforce-planning/organisation` | Workforce planning |
+| Training and meetings | `training-meetings` | `/workforce-planning/training` | Workforce planning |
 | Edit org structure | `workforce-org-edit` | (action grant) | — |
 | Edit org chart tiers | `workforce-org-chart-tier` | `/system/org-chart-tiers` | — |
 

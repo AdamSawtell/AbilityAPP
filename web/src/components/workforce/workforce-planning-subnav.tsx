@@ -18,6 +18,13 @@ const tabs = [
       canWindow("workforce-organisation") || canWindow("workforce-planning"),
     exact: false,
   },
+  {
+    href: "/workforce-planning/training",
+    label: "Training and meetings",
+    canShow: (canWindow: (key: string) => boolean) =>
+      canWindow("training-meetings") || canWindow("workforce-planning"),
+    exact: false,
+  },
 ] as const;
 
 export function WorkforcePlanningSubnav() {

@@ -11,6 +11,7 @@ import {
 } from "@/lib/roster-shift-qualification";
 import type { ClientRecord } from "@/lib/client";
 import type { EmployeeRecord } from "@/lib/employee";
+import { isTrainingOrMeetingPurpose, normalizeShiftPurpose } from "@/lib/buddy-shift";
 
 export type RosterShiftIssue = {
   code: string;
@@ -40,7 +41,9 @@ export function validateRosterShift(
 ): RosterShiftIssue[] {
   const issues: RosterShiftIssue[] = [];
 
-  if (!record.clientId?.trim()) {
+  const internalSession = isTrainingOrMeetingPurpose(normalizeShiftPurpose(record.shiftPurpose));
+
+  if (!internalSession && !record.clientId?.trim()) {
     issues.push({
       code: "CLIENT_REQUIRED",
       message: "Link a client before saving this shift.",

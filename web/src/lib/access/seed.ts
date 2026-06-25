@@ -29,6 +29,7 @@ import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 const TASK_ACCESS = ["tasks", "tasks-assigned-to-me", "tasks-for-my-role", "tasks-all", "tasks-past"] as const;
 export const ALL_TASK_TYPE_IDS = INITIAL_TASK_TYPES.map((t) => t.id);
 const EMPLOYEE_INCIDENT_LINK_WINDOWS = ["employees", "employee-overview", "employee-incidents"] as const;
+const SUPPORT_PLAN_DOCUMENT_PROCESSES = ["print-support-plan", "send-support-plan"] as const;
 
 const INTAKE_ACCESS = {
   windowKeys: [
@@ -59,6 +60,7 @@ const INTAKE_ACCESS = {
     "notify-ndis-reportable",
     "submit-leave-request",
     "submit-employee-credential",
+    ...SUPPORT_PLAN_DOCUMENT_PROCESSES,
   ],
   reportIds: ["client-register", "enquiry-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
   taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
@@ -107,7 +109,7 @@ const COORDINATOR_ACCESS = {
     ...windowKeysWithDependents("service-bookings"),
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],
-  processIds: [...COORDINATOR_OPERATIONS_PROCESSES, "approve-timesheet"],
+  processIds: [...COORDINATOR_OPERATIONS_PROCESSES, "approve-timesheet", ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
   reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents", "financial-close-summary", "ndis-audit-pack-summary"],
   taskTypePermissions: managerAccess().taskTypePermissions,
 };
@@ -116,6 +118,7 @@ const ROSTERING_DELIVERY_WINDOWS = [
   "service-bookings",
   "service-planning",
   "multi-provider-budget",
+  "training-meetings",
   "rostering",
   "agency-workers",
   "timesheets",
@@ -147,12 +150,14 @@ const TEAM_LEADER_ACCESS = {
     "my-credentials",
     "workforce-planning",
     "workforce-organisation",
+    "training-meetings",
     "workforce-org-edit",
+    "rostering",
     ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
     "timesheet-approval",
     ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
   ],
-  processIds: [...workforceManagerLeaveAccess().processIds, "approve-timesheet"],
+  processIds: [...workforceManagerLeaveAccess().processIds, "approve-timesheet", ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
   reportIds: managerAccess().reportIds,
   taskTypePermissions: managerAccess().taskTypePermissions,
 };
@@ -173,7 +178,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-exec-ict", "ICT_Executive", "ICT Executive", "Executive lead for systems and technology", executiveAccess()),
   defineRole("role-exec-quality", "Quality_Executive", "Quality Executive", "Executive lead for quality and compliance", executiveAccess()),
   defineRole("role-hr-manager", "HR_Manager", "HR Manager", "HR team leadership", {
-    ...managerAccess(["workforce-organisation"]),
+    ...managerAccess(["workforce-organisation", "training-meetings"]),
     ...workforceHrReviewAccess(),
   }),
   defineRole(
@@ -199,8 +204,14 @@ export const SEED_ROLES: AppRoleRecord[] = [
     reportIds: [...managerAccess().reportIds, "financial-close-summary", "ndis-audit-pack-summary"],
   }),
   defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess([...FINANCE_OFFICER_BILLING_WINDOWS])),
-  defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", managerAccess(["incidents-compliance", "incidents-dashboard"])),
-  defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", officerAccess(["incidents-compliance"])),
+  defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", {
+    ...managerAccess(["incidents-compliance", "incidents-dashboard"]),
+    processIds: [...managerAccess(["incidents-compliance", "incidents-dashboard"]).processIds, ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
+  }),
+  defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", {
+    ...officerAccess(["incidents-compliance"]),
+    processIds: [...officerAccess(["incidents-compliance"]).processIds, ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
+  }),
   defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", {
     ...managerAccess(["workforce-organisation", ...ROSTERING_DELIVERY_WINDOWS]),
     ...workforceManagerLeaveAccess(),

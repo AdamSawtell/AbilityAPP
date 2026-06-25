@@ -4,9 +4,14 @@ import type { TimesheetLine } from "@/lib/timesheet";
 
 export type BuddyShiftPayPolicy = "always_pay" | "dont_pay" | "ask";
 
-export type ShiftPurpose = "service_delivery" | "buddy_shadow" | "orientation_training";
+export type ShiftPurpose =
+  | "service_delivery"
+  | "buddy_shadow"
+  | "orientation_training"
+  | "training_session"
+  | "staff_meeting";
 
-export type BillingClassification = "billable" | "non_billable_internal_cost";
+export type BillingClassification = "billable" | "non_billable_internal_cost" | "admin_costed";
 
 export type ShiftPayStatus = "payable" | "non_payable";
 
@@ -32,11 +37,14 @@ export const SHIFT_PURPOSE_OPTIONS: { value: ShiftPurpose; label: string }[] = [
   { value: "service_delivery", label: "Service delivery" },
   { value: "buddy_shadow", label: "Buddy / shadow" },
   { value: "orientation_training", label: "Orientation / training" },
+  { value: "training_session", label: "Training session" },
+  { value: "staff_meeting", label: "Staff meeting" },
 ];
 
 export const BILLING_CLASSIFICATION_OPTIONS: { value: BillingClassification; label: string }[] = [
   { value: "billable", label: "Billable to participant" },
   { value: "non_billable_internal_cost", label: "Non-billable internal cost" },
+  { value: "admin_costed", label: "Admin-costed" },
 ];
 
 export const SHIFT_PAY_STATUS_OPTIONS: { value: ShiftPayStatus; label: string }[] = [
@@ -50,12 +58,20 @@ export function normalizeBuddyShiftPayPolicy(value: unknown): BuddyShiftPayPolic
 }
 
 export function normalizeShiftPurpose(value: unknown): ShiftPurpose {
-  if (value === "buddy_shadow" || value === "orientation_training") return value;
+  if (
+    value === "buddy_shadow" ||
+    value === "orientation_training" ||
+    value === "training_session" ||
+    value === "staff_meeting"
+  ) {
+    return value;
+  }
   return "service_delivery";
 }
 
 export function normalizeBillingClassification(value: unknown): BillingClassification {
-  return value === "non_billable_internal_cost" ? "non_billable_internal_cost" : "billable";
+  if (value === "non_billable_internal_cost" || value === "admin_costed") return value;
+  return "billable";
 }
 
 export function normalizeShiftPayStatus(value: unknown): ShiftPayStatus {
@@ -64,6 +80,10 @@ export function normalizeShiftPayStatus(value: unknown): ShiftPayStatus {
 
 export function isBuddyShiftPurpose(purpose: ShiftPurpose): boolean {
   return purpose === "buddy_shadow" || purpose === "orientation_training";
+}
+
+export function isTrainingOrMeetingPurpose(purpose: ShiftPurpose): boolean {
+  return purpose === "training_session" || purpose === "staff_meeting";
 }
 
 export function isBuddyShift(shift: Pick<RosterShiftRecord, "shiftPurpose">): boolean {
@@ -111,12 +131,13 @@ export function applyBuddyDefaults(
   shift: RosterShiftRecord,
   policy: BuddyShiftPayPolicy
 ): RosterShiftRecord {
-  if (!isBuddyShift(shift)) {
+  const purpose = normalizeShiftPurpose(shift.shiftPurpose);
+  if (!isBuddyShiftPurpose(purpose)) {
     return {
       ...shift,
-      shiftPurpose: "service_delivery",
+      shiftPurpose: purpose,
       billingClassification: normalizeBillingClassification(shift.billingClassification),
-      payStatus: "payable",
+      payStatus: isTrainingOrMeetingPurpose(purpose) ? normalizeShiftPayStatus(shift.payStatus) : "payable",
       primaryRosterShiftId: "",
       buddyReason: "",
     };

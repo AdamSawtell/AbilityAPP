@@ -10,13 +10,39 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **100%** |
-| **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
-| **Active slice** | Release hardening follow-ups |
+| **Current work package** | **AB-0021 — Training and meeting scheduling** |
+| **Active slice** | AB-0021 v1 implementation and verification |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
 | **Last push** | 2026-06-25 — WP-UX.6 branded portal sign-in landings |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
+
+---
+
+## AB-0021 — Training and meeting scheduling (2026-06-25)
+
+**Status:** ✅ Shipped — 2026-06-25
+
+Training and meetings are now scheduled as roster-visible attendee rows grouped by `trainingSessionGroupId`. The Workforce planning → Training and meetings page creates group sessions, records cost allocation (`billable`, `non_billable`, `admin_costed`), cost centre, estimated hourly cost, and attendance sign-off. Roster cards show Training/Meeting and cost badges; attendance sign-off stamps user/time and completes attended rows.
+
+| Area | Change |
+|------|--------|
+| Data model | `roster_shift` session group, title/category, cost allocation/centre, estimated cost, attendance fields |
+| Workforce | `/workforce-planning/training` schedule form, session list, attendance sign-off, cost summary |
+| Rostering | Training/Meeting roster badges and editor fields |
+| Access | `training-meetings` window under Workforce planning; HR manager, Team Leader, and rostering roles seeded write grants |
+| Payroll | Training/meeting rows generate timesheet lines only when attendance is Attended and shift is Published/Completed; attendance sign-off verifies without check-in |
+| Docs/tests | Help article, setup guide, core docs, TEST-063, UAT-10 row |
+
+### What you can test — AB-0021
+
+1. Workforce planning → Training and meetings — schedule a training session for two attendees; confirm success and cost summary.
+2. `/rostering?week=2025-10-06` — seeded Manual handling refresher rows show Training and Admin cost badges.
+3. Training and meetings → Scheduled sessions — set one attendee to Attended; signed-off user appears and the row status becomes Completed.
+4. Open the same attendee row from Rostering — session title/category/cost/attendance fields are visible in the roster editor.
+
+**Verification (2026-06-25):** `npm run build` ✅ (exit 0), `npm run page-guides:check` ✅ (128 routes, 0 gaps), `npx tsc --noEmit` ✅ (exit 0). Remote SQL applied: `20260628010000_training_meeting_scheduling.sql` + `seed-access.sql`. Localhost smoke ✅ — `/workforce-planning/training` schedule + attendance sign-off/revert + attended cost summary; `/rostering?week=2025-10-06` Training/Admin cost badges. Timesheet logic check ✅ — only attended active training rows generate and verify. Bugbot review rounds fixed atomic group scheduling, access grants, attendance/timesheet guards, and catalog window indexing.
 
 ---
 

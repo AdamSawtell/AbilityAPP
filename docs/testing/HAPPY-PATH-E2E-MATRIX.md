@@ -284,6 +284,7 @@ flowchart LR
 | 6.8 | HP-093 | Roster admin | Qualification hints on assign | `/rostering` shift editor | Missing cred blocks publish | Live | TEST-092 |
 | 6.9 | HP-094 | HR | Leave + availability (parallel) | `/my/leave`, `/my/availability` | Self-service surfaces load | Live | TEST-093 |
 | 6.10 | HP-095 | Admin | Audit on credential save | Full audit trail | Field-level event | Live | TEST-093 |
+| 6.11 | HP-095A | HR / team leader | Schedule training or staff meeting | `/workforce-planning/training` | Attendee roster rows created; roster badges visible; attendance sign-off updates attended cost summary | Live | TEST-063 |
 
 **Flow 6 exit criteria:** Assigned worker passes publish-week mandatory credential checks.
 
@@ -528,6 +529,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-453 | Employee | Exit checklist | Employment tab | HR+ | Live | HP-104–108 |
 | FUNC-454 | My workplace | Leave request | `/my/leave` | All staff | Live | HP-094 |
 | FUNC-455 | Workforce planning | Leave calendar | `/workforce-planning` | HR+ | Live | — |
+| FUNC-455A | Workforce planning | Training and meeting scheduling | `/workforce-planning/training` | HR, team leader, rostering | Live | HP-095A, TEST-063 |
 | FUNC-456 | Tasks | Assign + action | `/tasks` | All | Live | HP-009, HP-117 |
 
 ### 5.9 Cross-cutting

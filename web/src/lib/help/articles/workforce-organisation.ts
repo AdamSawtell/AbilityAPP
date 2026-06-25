@@ -101,6 +101,60 @@ export const workforceLeaveCalendarArticle: HelpArticle = {
   ],
 };
 
+export const trainingMeetingsArticle: HelpArticle = {
+  id: "article-training-meetings",
+  slug: "training-meetings",
+  title: "Training and meeting scheduling",
+  summary:
+    "Schedule individual or group staff training and meetings on the roster, allocate costs, sign attendance, and review attended cost centre totals.",
+  category: "People",
+  keywords: [
+    "training",
+    "meeting",
+    "staff meeting",
+    "attendance",
+    "cost centre",
+    "admin cost",
+    "workforce planning",
+    "roster",
+    "how to",
+  ],
+  relatedRoutes: ["/workforce-planning/training", "/rostering"],
+  windowKeys: ["training-meetings", "workforce-planning", "rostering"],
+  lastUpdated: "2026-06-25",
+  sections: [
+    {
+      id: "schedule",
+      title: "Schedule a session",
+      steps: [
+        "Open Workforce planning → Training and meetings.",
+        "Enter the session title, type, category, date, time, location, cost allocation, cost centre, and estimated hourly cost.",
+        "Select one or more attendees.",
+        "Click Schedule on roster — AbilityVua creates one roster row per attendee under a shared session group.",
+        "Use View on roster to confirm the training or meeting badges appear on the roster calendar.",
+      ],
+      relatedRoutes: ["/workforce-planning/training", "/rostering"],
+    },
+    {
+      id: "attendance",
+      title: "Record attendance",
+      steps: [
+        "Open the session from Scheduled sessions.",
+        "Set each attendee to Attended, Did not attend, Excused, or Scheduled.",
+        "Attendance sign-off stamps the roster row with the current user and completion timestamp.",
+      ],
+      relatedRoutes: ["/workforce-planning/training"],
+    },
+    {
+      id: "costs",
+      title: "Review costs",
+      body:
+        "Cost totals are planning estimates only. Payroll interpretation remains in Keypay, Xero, or the configured payroll system. The summary groups attended rows by cost centre and estimated hourly cost so managers can see signed-off operational cost for training and meetings.",
+      relatedRoutes: ["/workforce-planning/training"],
+    },
+  ],
+};
+
 export const workforceOrganisationArticle: HelpArticle = {
   id: "article-workforce-organisation",
   slug: "workforce-organisation",

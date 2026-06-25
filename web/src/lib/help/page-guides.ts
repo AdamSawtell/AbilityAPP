@@ -105,6 +105,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/vendor-invoices", slug: "finance", surface: "app" },
 
   // App — workforce & admin
+  { prefix: "/workforce-planning/training", slug: "training-meetings", surface: "app" },
   { prefix: "/workforce-planning/organisation", slug: "workforce-organisation", surface: "app" },
   { prefix: "/workforce-planning", slug: "workforce-leave-calendar", surface: "app" },
   { prefix: "/admin/roles", slug: "roles-and-access", surface: "app" },

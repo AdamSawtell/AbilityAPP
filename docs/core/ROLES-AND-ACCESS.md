@@ -134,6 +134,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Employee HR file | HR Manager, Admin | `employees` + tabs | `assign-employee-credential` |
 | Generate HR documents | HR Manager, Admin | `employee-documents` (write) | `print-employee-offer`, `print-employee-contract`, `print-employee-separation` |
 | Workforce planning / leave on behalf | HR Manager, Admin | `workforce-planning` | `submit-leave-on-behalf`, `approve-leave-request`, `review-employee-credential` |
+| Training and meeting scheduling | HR Manager, Team Leader, Admin | `training-meetings` (write), `rostering` (read/write for roster view) | — (window-write; attendance sign-off is in-module) |
 | Agency worker register | Rostering Manager, Coordinator, Admin | `agency-workers` (write) | — (coverage processes on rostering) |
 
 ### §16 Incidents and complaints

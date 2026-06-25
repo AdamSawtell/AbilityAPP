@@ -15,7 +15,7 @@ import { participantPortalArticle } from "@/lib/help/articles/participant-portal
 import { participantPortalGuideArticle } from "@/lib/help/articles/participant-portal-guide";
 import { agencyVendorPortalArticle } from "@/lib/help/articles/agency-vendor-portal";
 import { financeArticle } from "@/lib/help/articles/finance";
-import { workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
+import { trainingMeetingsArticle, workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
 import { recordRetentionArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle, timeAndDateArticle } from "@/lib/help/articles/session-audit";
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
 
@@ -40,6 +40,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   agencyVendorPortalArticle,
   financeArticle,
   workforceLeaveCalendarArticle,
+  trainingMeetingsArticle,
   workforceOrganisationArticle,
   servicesArticle,
   deliveryArticle,

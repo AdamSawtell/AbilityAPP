@@ -1,4 +1,5 @@
 import { shiftCheckInStatus } from "@/lib/roster-shift-checkin";
+import { isTrainingOrMeetingPurpose, normalizeShiftPurpose } from "@/lib/buddy-shift";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { TimesheetLine, TimesheetRecord } from "@/lib/timesheet";
 import type { LocationRecord } from "@/lib/location";
@@ -72,6 +73,16 @@ export function verifyTimesheetLine(
       ...base,
       status: "no-roster-link",
       message: "Roster shift not found — verify manually.",
+    };
+  }
+
+  if (isTrainingOrMeetingPurpose(normalizeShiftPurpose(shift.shiftPurpose)) && shift.attendanceStatus === "Attended") {
+    return {
+      ...base,
+      status: "verified",
+      actualHours: scheduledHours,
+      varianceHours: 0,
+      message: `Verified — attendance signed off for ${scheduledHours.toFixed(2)} h.`,
     };
   }
 

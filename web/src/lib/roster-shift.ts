@@ -34,6 +34,15 @@ export type RosterShiftRecord = {
   agencyWorkerId: string;
   vendorBpId: string;
   agencyRequestId: string;
+  trainingSessionGroupId?: string;
+  sessionTitle?: string;
+  sessionCategory?: string;
+  costAllocation?: "billable" | "non_billable" | "admin_costed" | string;
+  costCentre?: string;
+  estimatedHourlyCost?: number;
+  attendanceStatus?: "Scheduled" | "Attended" | "Did not attend" | "Excused" | string;
+  attendanceSignedOffAt?: string;
+  attendanceSignedOffBy?: string;
   shiftPurpose?: ShiftPurpose | string;
   billingClassification?: BillingClassification | string;
   payStatus?: ShiftPayStatus | string;
@@ -44,9 +53,12 @@ export type RosterShiftRecord = {
 };
 
 export const rosterShiftDropdowns = {
-  shiftType: ["Standard", "Sleepover", "Active overnight", "Group"],
+  shiftType: ["Standard", "Sleepover", "Active overnight", "Group", "Training", "Meeting"],
   status: ["Draft", "Published", "Completed", "Cancelled"],
   coverageSource: ["internal", "agency"],
+  sessionCategory: ["Internal training", "External training", "Mandatory compliance", "Team meeting", "Staff meeting", "Client-facing training"],
+  costAllocation: ["billable", "non_billable", "admin_costed"],
+  attendanceStatus: ["Scheduled", "Attended", "Did not attend", "Excused"],
 };
 
 export function isAgencyCoveredShift(shift: RosterShiftRecord): boolean {
@@ -347,6 +359,90 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     createdBy: "Riley Shaw",
     updatedBy: "Riley Shaw",
   },
+  {
+    id: "rs-train-manual-isla",
+    shiftRef: "TRN-MANUAL-ISLA",
+    clientId: "",
+    employeeId: "emp-isla",
+    locationId: "loc-glenelg-sil",
+    serviceBookingId: "",
+    shiftDate: "2025-10-09",
+    startTime: "10:00",
+    endTime: "12:00",
+    shiftType: "Training",
+    status: "Published",
+    notes: "Manual handling refresher group session.",
+    recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
+    trainingSessionGroupId: "tsg-manual-2025-10-09",
+    sessionTitle: "Manual handling refresher",
+    sessionCategory: "Mandatory compliance",
+    costAllocation: "admin_costed",
+    costCentre: "Training",
+    estimatedHourlyCost: 48,
+    attendanceStatus: "Scheduled",
+    attendanceSignedOffAt: "",
+    attendanceSignedOffBy: "",
+    shiftPurpose: "training_session",
+    billingClassification: "admin_costed",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
+    createdBy: "Riley Shaw",
+    updatedBy: "Riley Shaw",
+  },
+  {
+    id: "rs-train-manual-gabriela",
+    shiftRef: "TRN-MANUAL-GAB",
+    clientId: "",
+    employeeId: "emp-gabriela",
+    locationId: "loc-glenelg-sil",
+    serviceBookingId: "",
+    shiftDate: "2025-10-09",
+    startTime: "10:00",
+    endTime: "12:00",
+    shiftType: "Training",
+    status: "Published",
+    notes: "Manual handling refresher group session.",
+    recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
+    trainingSessionGroupId: "tsg-manual-2025-10-09",
+    sessionTitle: "Manual handling refresher",
+    sessionCategory: "Mandatory compliance",
+    costAllocation: "admin_costed",
+    costCentre: "Training",
+    estimatedHourlyCost: 48,
+    attendanceStatus: "Scheduled",
+    attendanceSignedOffAt: "",
+    attendanceSignedOffBy: "",
+    shiftPurpose: "training_session",
+    billingClassification: "admin_costed",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
+    createdBy: "Riley Shaw",
+    updatedBy: "Riley Shaw",
+  },
 ];
 
 export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftRecord {
@@ -390,6 +486,18 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
     agencyWorkerId: record.agencyWorkerId ?? "",
     vendorBpId: record.vendorBpId ?? "",
     agencyRequestId: record.agencyRequestId ?? "",
+    trainingSessionGroupId: record.trainingSessionGroupId ?? "",
+    sessionTitle: record.sessionTitle ?? "",
+    sessionCategory: record.sessionCategory ?? "",
+    costAllocation:
+      record.costAllocation === "billable" || record.costAllocation === "admin_costed"
+        ? record.costAllocation
+        : "non_billable",
+    costCentre: record.costCentre ?? "",
+    estimatedHourlyCost: Number.isFinite(Number(record.estimatedHourlyCost)) ? Number(record.estimatedHourlyCost) : 0,
+    attendanceStatus: record.attendanceStatus || "Scheduled",
+    attendanceSignedOffAt: record.attendanceSignedOffAt ?? "",
+    attendanceSignedOffBy: record.attendanceSignedOffBy ?? "",
     shiftPurpose: purpose,
     billingClassification: normalizeBillingClassification(record.billingClassification),
     payStatus,
@@ -430,6 +538,15 @@ export function createRosterShift(
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    trainingSessionGroupId: "",
+    sessionTitle: "",
+    sessionCategory: "",
+    costAllocation: "billable",
+    costCentre: "",
+    estimatedHourlyCost: 0,
+    attendanceStatus: "Scheduled",
+    attendanceSignedOffAt: "",
+    attendanceSignedOffBy: "",
     shiftPurpose: "service_delivery",
     billingClassification: "billable",
     payStatus: "payable",

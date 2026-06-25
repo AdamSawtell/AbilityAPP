@@ -27,7 +27,7 @@ import {
   shiftsForWeek,
   weekStartFromDate,
 } from "@/lib/roster-shift";
-import { isBuddyShift, isShiftBillable } from "@/lib/buddy-shift";
+import { isBuddyShift, isShiftBillable, isTrainingOrMeetingPurpose, normalizeShiftPurpose } from "@/lib/buddy-shift";
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
 import { rosterValidationMode } from "@/lib/roster-shift-compliance";
 import { gapsForWeek, isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
@@ -509,6 +509,9 @@ export function RosteringWeekView() {
                           } ${isDragging ? "opacity-40" : ""}`}
                         >
                           <p className="font-semibold text-slate-900">{formatShiftTimeRange(shift.startTime, shift.endTime)}</p>
+                          {isTrainingOrMeetingPurpose(normalizeShiftPurpose(shift.shiftPurpose)) && shift.sessionTitle ? (
+                            <p className="mt-1 text-[11px] font-semibold text-slate-900">{shift.sessionTitle}</p>
+                          ) : null}
                           {client ? (
                             <ClientRecordLink
                               id={client.id}
@@ -582,6 +585,16 @@ export function RosteringWeekView() {
                               Buddy
                             </span>
                           ) : null}
+                          {shift.shiftPurpose === "training_session" ? (
+                            <span className="mt-1 inline-flex rounded-full bg-cyan-100 px-1.5 py-0.5 text-[10px] font-medium text-cyan-950">
+                              Training
+                            </span>
+                          ) : null}
+                          {shift.shiftPurpose === "staff_meeting" ? (
+                            <span className="mt-1 inline-flex rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-950">
+                              Meeting
+                            </span>
+                          ) : null}
                           {isBuddyShift(shift) && shift.payStatus === "non_payable" ? (
                             <span className="mt-1 inline-flex rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-800">
                               Non-payable
@@ -590,6 +603,15 @@ export function RosteringWeekView() {
                           {isBuddyShift(shift) && !isShiftBillable(shift) ? (
                             <span className="mt-1 inline-flex rounded-full bg-indigo-100 px-1.5 py-0.5 text-[10px] font-medium text-indigo-900">
                               Non-billable
+                            </span>
+                          ) : null}
+                          {isTrainingOrMeetingPurpose(normalizeShiftPurpose(shift.shiftPurpose)) && shift.costAllocation ? (
+                            <span className="mt-1 inline-flex rounded-full bg-indigo-100 px-1.5 py-0.5 text-[10px] font-medium text-indigo-900">
+                              {shift.costAllocation === "admin_costed"
+                                ? "Admin cost"
+                                : shift.costAllocation === "billable"
+                                  ? "Billable"
+                                  : "Non-billable"}
                             </span>
                           ) : null}
                           {shift.recurrenceGroupId ? (

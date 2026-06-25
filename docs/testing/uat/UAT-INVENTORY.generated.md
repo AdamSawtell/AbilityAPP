@@ -1,6 +1,6 @@
 # UAT window inventory (generated)
 
-**Generated:** 2026-06-24
+**Generated:** 2026-06-25
 **Do not edit by hand.** Regenerate with `npm run uat:inventory`.
 
 Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | Fail | Skip | N/A.
@@ -9,7 +9,7 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | Metric | Count |
 |--------|------:|
-| App windows (incl. tabs) | 133 |
+| App windows (incl. tabs) | 134 |
 | System windows | 12 |
 | Access processes | 48 |
 | Reports | 10 |
@@ -176,9 +176,10 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-10-W-017 | `employee-system-access` | System access | tab: System access | employees | |
 | UAT-10-W-018 | `workforce-planning` | Workforce planning | /workforce-planning | — | |
 | UAT-10-W-019 | `workforce-organisation` | Organisation structure | /workforce-planning/organisation | workforce-planning | |
-| UAT-10-W-020 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | |
-| UAT-10-W-021 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | |
-| UAT-10-W-022 | `employees` | Employees | /employees | — | |
+| UAT-10-W-020 | `training-meetings` | Training and meetings | /workforce-planning/training | workforce-planning | |
+| UAT-10-W-021 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | |
+| UAT-10-W-022 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | |
+| UAT-10-W-023 | `employees` | Employees | /employees | — | |
 
 ## UAT-11
 
