@@ -35,14 +35,18 @@ export function AgencyPortalShell({
       <footer className="mx-auto max-w-4xl px-4 pb-8 sm:px-6">
         <RecordAuditFooter moduleLabel="Agency vendor portal" />
         <p className="mt-3 text-center text-xs text-slate-400">
-          Need help? Contact {organization.phone || organization.email || "your provider"}.
+          Need help?{" "}
+          <Link href="/agency-portal/help" className="font-medium text-sky-700 hover:underline">
+            How to use this portal
+          </Link>{" "}
+          · Contact {organization.phone || organization.email || "your provider"} for support or escalation.
         </p>
       </footer>
     </div>
   );
 }
 
-export function AgencyPortalNav({ active }: { active: "home" | "requests" | "timesheets" | "invoices" }) {
+export function AgencyPortalNav({ active }: { active: "home" | "requests" | "timesheets" | "invoices" | "help" }) {
   const linkClass = (key: typeof active) =>
     `rounded-lg px-3 py-2 text-sm font-medium ${
       active === key ? "bg-sky-50 text-sky-800" : "text-slate-600 hover:bg-slate-100"
@@ -61,6 +65,9 @@ export function AgencyPortalNav({ active }: { active: "home" | "requests" | "tim
       </Link>
       <Link href="/agency-portal/invoices" className={linkClass("invoices")}>
         Invoices
+      </Link>
+      <Link href="/agency-portal/help" className={linkClass("help")}>
+        How to use this portal
       </Link>
     </nav>
   );

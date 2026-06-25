@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth-store";
-import { ACCESS_WINDOWS, deliverySidebarWindows } from "@/lib/access/catalog";
+import { ACCESS_WINDOWS, deliverySidebarWindows, financeSidebarWindows } from "@/lib/access/catalog";
 import { useData } from "@/lib/data-store";
 import { incidentHomeStats } from "@/lib/incident-hub";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
@@ -59,6 +59,13 @@ const serviceLinks = [
 ];
 
 const deliveryLinks = deliverySidebarWindows().map((w) => ({
+  href: w.href!,
+  label: w.label,
+  windowKey: w.key,
+  match: (path: string) => path === w.href || path.startsWith(`${w.href}/`),
+}));
+
+const financeLinks = financeSidebarWindows().map((w) => ({
   href: w.href!,
   label: w.label,
   windowKey: w.key,
@@ -331,6 +338,7 @@ export function SidebarNav() {
   const visibleWorkforceLinks = workforceLinks.filter((l) => l.canShow(canWindow));
   const visibleServiceLinks = serviceLinks.filter((l) => canWindow(l.windowKey));
   const visibleDeliveryLinks = deliveryLinks.filter((l) => canWindow(l.windowKey));
+  const visibleFinanceLinks = financeLinks.filter((l) => canWindow(l.windowKey));
   const visibleAdminLinks = adminLinks.filter((l) => canWindow(l.windowKey));
   const visibleReports = useMemo(() => {
     if (!session) return [];
@@ -359,6 +367,7 @@ export function SidebarNav() {
     visibleWorkforceLinks.length > 0 ||
     visibleServiceLinks.length > 0 ||
     visibleDeliveryLinks.length > 0 ||
+    visibleFinanceLinks.length > 0 ||
     showReports ||
     visibleAdminLinks.length > 0;
 
@@ -382,6 +391,7 @@ export function SidebarNav() {
     if (key === "incidents" && pathname.startsWith("/incidents")) return true;
     if (key === "services" && (pathname.startsWith("/products") || pathname.startsWith("/price-lists") || pathname.startsWith("/contracts"))) return true;
     if (key === "delivery" && deliveryLinks.some((l) => l.match(pathname))) return true;
+    if (key === "finance" && financeLinks.some((l) => l.match(pathname))) return true;
     if (key === "reports" && pathname.startsWith("/reports")) return true;
     return expanded[key] === true;
   }
@@ -810,6 +820,56 @@ export function SidebarNav() {
         </div>
       ) : null}
 
+      {visibleFinanceLinks.length > 0 ? (
+        <div
+          className={sectionDividerClass(
+            hasCoreNav ||
+              showEnquiries ||
+              showClients ||
+              showLocations ||
+              visiblePeopleLinks.length > 0 ||
+              showIncidents ||
+              visibleServiceLinks.length > 0 ||
+              visibleDeliveryLinks.length > 0
+          )}
+        >
+          <SectionHeader
+            label="Finance"
+            icon={
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125h17.25c.621 0 1.125.504 1.125 1.125V6m-19.5 0h19.5m0 0v.75a.75.75 0 0 1-.75.75h-.75m-16.5 0h16.5m-16.5 0A2.25 2.25 0 0 0 6 9.75v6A2.25 2.25 0 0 0 8.25 18h7.5A2.25 2.25 0 0 0 18 15.75v-6A2.25 2.25 0 0 0 15.75 7.5m-7.5 0v.75A2.25 2.25 0 0 0 10.5 10.5h3A2.25 2.25 0 0 0 15.75 8.25V7.5"
+                />
+              </svg>
+            }
+            sectionKey="finance"
+            open={isOpen("finance")}
+            onToggle={toggleSection}
+            href={visibleFinanceLinks[0]?.href ?? "/claims"}
+            active={visibleFinanceLinks.some((l) => l.match(pathname))}
+          />
+          {isOpen("finance") ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              {visibleFinanceLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`block rounded-md px-2 py-1.5 text-xs font-medium ${
+                    link.match(pathname)
+                      ? "bg-[#fdf2f8] text-[#b51266]"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {showReports ? (
         <div
           className={sectionDividerClass(
@@ -820,6 +880,7 @@ export function SidebarNav() {
               visiblePeopleLinks.length > 0 ||
               visibleServiceLinks.length > 0 ||
               visibleDeliveryLinks.length > 0 ||
+              visibleFinanceLinks.length > 0 ||
               showIncidents
           )}
         >
@@ -877,6 +938,8 @@ export function SidebarNav() {
               showLocations ||
               visiblePeopleLinks.length > 0 ||
               visibleServiceLinks.length > 0 ||
+              visibleDeliveryLinks.length > 0 ||
+              visibleFinanceLinks.length > 0 ||
               showReports
           )}
         >

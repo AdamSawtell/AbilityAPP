@@ -4,6 +4,7 @@ export type HelpCategory =
   | "Core"
   | "People"
   | "Services"
+  | "Finance"
   | "Reports"
   | "Admin"
   | "System setup"
@@ -34,6 +35,8 @@ export type HelpArticle = {
   relatedRoutes: string[];
   /** Empty means visible to every signed-in user. */
   windowKeys: string[];
+  /** Portal-only articles are rendered by portal pages and hidden from staff help/search. */
+  portalOnly?: boolean;
   lastUpdated: string;
   sections: HelpSection[];
 };

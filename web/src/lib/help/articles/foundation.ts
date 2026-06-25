@@ -10,7 +10,7 @@ export const gettingStartedArticle: HelpArticle = {
   keywords: ["login", "sign in", "role", "welcome", "overview", "introduction"],
   relatedRoutes: ["/login", "/"],
   windowKeys: [],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-25",
   sections: [
     {
       id: "what-is-abilityvua",
@@ -20,6 +20,7 @@ export const gettingStartedArticle: HelpArticle = {
         "Core: Home, Tasks, Enquiries, Clients, Locations, Reports",
         "People: Employees, My workplace, Workforce planning",
         "Services: Products, price lists, contracts, service agreements",
+        "Finance: claims, invoices, vendor invoices, reconciliation, and close",
         "Admin: System setup (organisation, reference data, roles, tasks) — link on the sign-in page",
       ],
     },

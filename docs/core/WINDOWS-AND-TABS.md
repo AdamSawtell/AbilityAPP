@@ -3,7 +3,7 @@
 **Audience:** Developers, business analysts, access administrators, and reviewers who need to know *where* each function lives in the UI.  
 **Pair with:** [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) (outcomes), [PROCESSES-AND-WORKFLOWS.md](./PROCESSES-AND-WORKFLOWS.md) (actions), [ENTITY-AND-DATA-MODEL.md](./ENTITY-AND-DATA-MODEL.md) (record links), [ROLES-AND-ACCESS.md](./ROLES-AND-ACCESS.md) (grants).  
 **Version:** 1.1  
-**Last updated:** 25 June 2026 (employee/incident line drawers)
+**Last updated:** 25 June 2026 (Finance sidebar + vendor portal support guide)
 
 ---
 
@@ -329,10 +329,11 @@ Timesheet detail: single page (no tab windows). **Process:** `approve-timesheet`
 
 | Function area | Window key | Route | Sidebar |
 |---------------|------------|-------|---------|
-| Claims | `claims` | `/claims` | Service delivery |
-| Generate claims | `generate-claims` | `/generate-claims` | Service delivery |
-| Invoices | `invoices` | `/invoices` | Service delivery |
-| Generate invoices | `generate-invoices` | `/generate-invoices` | Service delivery |
+| Claims | `claims` | `/claims` | Finance |
+| Generate claims | `generate-claims` | `/generate-claims` | Finance |
+| Invoices | `invoices` | `/invoices` | Finance |
+| Generate invoices | `generate-invoices` | `/generate-invoices` | Finance |
+| Vendor invoices | `vendor-invoices` | `/vendor-invoices` | Finance |
 
 Claim and invoice detail: single page with lines panel. No tab windows.
 
@@ -350,10 +351,10 @@ Claim and invoice detail: single page with lines panel. No tab windows.
 
 | Function area | Window key | Route | Sidebar |
 |---------------|------------|-------|---------|
-| Plan reconciliation | `plan-reconciliation` | `/plan-reconciliation` | Service delivery |
-| Claim reconciliation | `claim-reconciliation` | `/claim-reconciliation` | Service delivery |
-| Invoice reconciliation | `invoice-reconciliation` | `/invoice-reconciliation` | Service delivery |
-| Financial close | `financial-close` | `/financial-close` | Service delivery |
+| Plan reconciliation | `plan-reconciliation` | `/plan-reconciliation` | Finance |
+| Claim reconciliation | `claim-reconciliation` | `/claim-reconciliation` | Finance |
+| Invoice reconciliation | `invoice-reconciliation` | `/invoice-reconciliation` | Finance |
+| Financial close | `financial-close` | `/financial-close` | Finance |
 | NDIS audit pack | `ndis-audit-pack` | `/ndis-audit-pack` | Service delivery |
 | Board reporting | `board-reporting` | `/board-reporting` | Service delivery |
 | Reports hub | `reports` | `/reports` | Core |
@@ -372,13 +373,12 @@ Claim and invoice detail: single page with lines panel. No tab windows.
 | Agency workers | `agency-workers` | `/agency-workers` | People |
 | Agency timesheets | `agency-timesheets` | `/agency-timesheets` | People |
 | Generate agency timesheets | `generate-agency-timesheets` | `/generate-agency-timesheets` | People |
-| Vendor invoices | `vendor-invoices` | `/vendor-invoices` | People |
 | Workforce planning | `workforce-planning` | `/workforce-planning` | Workforce planning |
 | Organisation structure | `workforce-organisation` | `/workforce-planning/organisation` | Workforce planning |
 | Edit org structure | `workforce-org-edit` | (action grant) | — |
 | Edit org chart tiers | `workforce-org-chart-tier` | `/system/org-chart-tiers` | — |
 
-Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency timesheets: `/agency-timesheets`, `/agency-timesheets/{id}`, `/generate-agency-timesheets`. Coverage workflow runs from Rostering → Gaps; timesheet generation from completed agency shifts.
+Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency timesheets: `/agency-timesheets`, `/agency-timesheets/{id}`, `/generate-agency-timesheets`. Coverage workflow runs from Rostering → Gaps; timesheet generation from completed agency shifts. Vendor invoice review is in Finance.
 
 ### Employee record tabs
 

@@ -115,6 +115,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Claims register | Finance Officer+, Admin | `claims` | `print-claim-batch` |
 | Generate invoices | Finance Officer+, Admin | `generate-invoices` (write) | — |
 | Invoices + Send via Email | Finance Officer+, Admin | `invoices` (write) | `print-invoice`, `batch-print-invoices`, `send-invoice` |
+| Vendor invoices AP-lite | Finance Manager+, Admin | `vendor-invoices` (write) | `approve-vendor-invoice`, `mark-vendor-invoice-paid` |
 
 ### §14 Reconciliation and reporting
 

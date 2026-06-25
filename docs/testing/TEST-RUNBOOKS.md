@@ -131,6 +131,7 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 1d | `/agency-workers/aw-sp-jane` | Site orientations section shows Glenelg row |
 | 1e | `/generate-agency-timesheets` week `2025-10-06`–`2025-10-12` | StaffPlus draft; Jane 6 h vendor cost |
 | 1f | `/agency-timesheets/{id}` | Approve for vendor invoice |
+| 1g | Vendor portal `/agency-portal/help` | Vendor-only guide loads after agency portal sign-in; support escalation paths visible |
 | 2 | `/rostering?week=2025-10-06` → **Gaps** | BERN-TUE-VAC vacant listed |
 | 3 | **Request agency** → vendor StaffPlus | Request drawer opens; document no assigned |
 | 4 | Propose **Jane Agency** → **Send shift pack** | Status Sent; mailto draft available |
@@ -148,15 +149,17 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 |--|--|
 | **User** | SuperUser or JessicaHancock / welcome |
 | **DATA** | June 2026 period; `bp-bern` agency claim path |
-| **Pass if** | Claims preview/generate sane; rollup aligns |
+| **Pass if** | Finance sidebar groups claims/invoices/reconciliation; claims preview/generate sane; rollup aligns |
 
 | Step | Action | Pass if |
 |------|--------|---------|
-| 1 | `/generate-claims` — June 2026 | Preview lines; PAPL messages |
-| 2 | Open `/claims/cl-jun26-bern` (or display ref) | Detail loads |
-| 3 | `/generate-invoices` — June 2026 | Eligible count matches seed |
-| 4 | Bern plan budget — apply billing rollup | Claimed matches panel |
-| 5 | `/plan-reconciliation` — June 2026 | Variance row loads |
+| 1 | Open staff app as SuperUser or finance user | Finance menu visible when finance windows are granted |
+| 2 | `/generate-claims` — June 2026 | Preview lines; PAPL messages |
+| 3 | Open `/claims/cl-jun26-bern` (or display ref) | Detail loads from Finance menu/page |
+| 4 | `/generate-invoices` — June 2026 | Eligible count matches seed |
+| 5 | Bern plan budget — apply billing rollup | Claimed matches panel |
+| 6 | `/plan-reconciliation` — June 2026 | Variance row loads |
+| 7 | `/vendor-invoices` | Vendor invoices listed under Finance; how-to link resolves to Finance guide |
 
 ---
 

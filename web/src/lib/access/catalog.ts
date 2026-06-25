@@ -156,7 +156,7 @@ const MODULE_WINDOWS: AccessWindow[] = [
   {
     key: "vendor-invoices",
     label: "Vendor invoices",
-    group: "People",
+    group: "Finance",
     href: "/vendor-invoices",
     abilityErpName: "Vendor invoice",
     showInSidebar: true,
@@ -272,7 +272,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "claims",
     label: "Claims",
-    group: "Delivery",
+    group: "Finance",
     href: "/claims",
     abilityErpName: "Claim",
     showInSidebar: true,
@@ -280,7 +280,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "generate-claims",
     label: "Generate claims",
-    group: "Delivery",
+    group: "Finance",
     href: "/generate-claims",
     abilityErpName: "Generate Claims",
     showInSidebar: true,
@@ -288,7 +288,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "invoices",
     label: "Invoices",
-    group: "Delivery",
+    group: "Finance",
     href: "/invoices",
     abilityErpName: "Invoice",
     showInSidebar: true,
@@ -296,7 +296,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "generate-invoices",
     label: "Generate invoices",
-    group: "Delivery",
+    group: "Finance",
     href: "/generate-invoices",
     abilityErpName: "Generate Invoices",
     showInSidebar: true,
@@ -304,7 +304,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "plan-reconciliation",
     label: "Plan reconciliation",
-    group: "Delivery",
+    group: "Finance",
     href: "/plan-reconciliation",
     abilityErpName: "Plan reconciliation",
     showInSidebar: true,
@@ -312,7 +312,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "claim-reconciliation",
     label: "Claim reconciliation",
-    group: "Delivery",
+    group: "Finance",
     href: "/claim-reconciliation",
     abilityErpName: "Claim reconciliation",
     showInSidebar: true,
@@ -320,7 +320,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "invoice-reconciliation",
     label: "Invoice reconciliation",
-    group: "Delivery",
+    group: "Finance",
     href: "/invoice-reconciliation",
     abilityErpName: "Invoice reconciliation",
     showInSidebar: true,
@@ -328,7 +328,7 @@ const DELIVERY_WINDOWS: AccessWindow[] = [
   {
     key: "financial-close",
     label: "Financial close",
-    group: "Delivery",
+    group: "Finance",
     href: "/financial-close",
     abilityErpName: "Financial close",
     showInSidebar: true,
@@ -947,7 +947,12 @@ export const APP_WINDOW_KEYS = ACCESS_WINDOWS.filter((w) => w.surface !== "syste
 
 /** Delivery group windows shown in the workspace sidebar (catalog-driven). */
 export function deliverySidebarWindows(): AccessWindow[] {
-  return DELIVERY_WINDOWS.filter((w) => w.showInSidebar !== false && w.href);
+  return DELIVERY_WINDOWS.filter((w) => w.group === "Delivery" && w.showInSidebar !== false && w.href);
+}
+
+/** Finance group windows shown in the workspace sidebar (catalog-driven). */
+export function financeSidebarWindows(): AccessWindow[] {
+  return ACCESS_WINDOWS.filter((w) => w.group === "Finance" && w.showInSidebar !== false && w.href);
 }
 
 export const SYSTEM_SURFACE_WINDOW_KEYS = ACCESS_WINDOWS.filter((w) => w.surface === "system").map((w) => w.key);

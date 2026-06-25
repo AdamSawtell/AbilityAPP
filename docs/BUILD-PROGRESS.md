@@ -11,12 +11,36 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
-| **Active slice** | **WP-UX.2** — employee/incident line drawers |
+| **Active slice** | **WP-UX.3** — vendor guide access + Finance menu |
 | **Next slice** | Release hardening follow-ups |
-| **Last push** | 2026-06-25 — agency vendor invoice upload + AP smoke |
+| **Last push** | 2026-06-25 — WP-UX.2 line drawer smoke log |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
+
+---
+
+## WP-UX.3 — Vendor guide access and Finance menu (2026-06-25)
+
+**Status:** ✅ Shipped
+
+Agency vendors get a dedicated guarded **How to use this portal** page inside `/agency-portal`, with escalation paths for shift, timesheet, invoice, login, and urgent safeguarding support. Staff get a separate Finance how-to covering claims, invoices, vendor AP, reconciliation, and close. Finance/AP windows move under a top-level **Finance** sidebar group without changing window keys or role grants.
+
+| Area | Change |
+|------|--------|
+| Vendor portal | `/agency-portal/help` guarded by agency portal session; nav/footer link added |
+| Help articles | Vendor portal guide scoped to portal; new staff **Finance** guide |
+| Sidebar | Claims, invoices, vendor invoices, reconciliations, and financial close grouped under **Finance** |
+| Core/test docs | Finance sidebar and vendor support guide documented |
+
+### What you can test — WP-UX.3
+
+1. Staff app as SuperUser or finance user — sidebar shows **Finance** with Claims, Generate claims, Invoices, Generate invoices, Vendor invoices, reconciliations, and Financial close based on grants.
+2. `/vendor-invoices` — page guide resolves to **Finance** rather than the vendor-only guide.
+3. Agency portal as `roster@staffplus.example` — `/agency-portal/help` loads after magic-link sign-in and shows support/escalation paths.
+4. Direct vendor help without an agency portal session redirects to `/agency-portal/login`.
+
+**Local smoke (2026-06-25):** `/vendor-invoices` as **Super User** showed top-level **Finance** with Vendor invoices, claims, invoices, reconciliations, and Financial close; the page guide resolved to **Finance** with no error banner. `/agency-portal/help` redirected to login without a vendor session; after `roster@staffplus.example` demo sign-in, the guide loaded with invoice-document requirements and shift/timesheet/invoice/login/safeguarding escalation paths.
 
 ---
 
@@ -1846,6 +1870,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-25 | WP-UX.3 uncommitted | 1 Medium, fixed; rerun 0 | **Pass** | Replaced phantom vendor help window key with portal-only metadata |
 | 2026-06-24 | WP-UX.1 uncommitted | 0 | **Pass** | List-drawer UX; no findings |
 | 2026-06-23 | Incident SLA + sidebar branding pre-push | 1 Medium | **Pass** | Fixed: org profile save preserves SLA from incident management page |
 | 2026-06-23 | List dashboards pre-push | 1 Medium + 1 Low | **Pass** | Fixed: due-soon window ±7 days only; in-progress card excludes Drafted |

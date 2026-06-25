@@ -92,10 +92,19 @@ export function AgencyPortalHubPage() {
             </Link>
             <Link
               href="/agency-portal/invoices"
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md sm:col-span-2"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md"
             >
               <h2 className="text-base font-semibold text-slate-900">Invoices</h2>
               <p className="mt-1 text-sm text-slate-600">Submit and track invoices against approved timesheets.</p>
+            </Link>
+            <Link
+              href="/agency-portal/help"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md"
+            >
+              <h2 className="text-base font-semibold text-slate-900">How to use this portal</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Step-by-step portal help and escalation paths for shift, timesheet, invoice, and login support.
+              </p>
             </Link>
           </div>
         </AgencyPortalShell>

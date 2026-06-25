@@ -1,6 +1,6 @@
 # UAT window inventory (generated)
 
-**Generated:** 2026-06-22
+**Generated:** 2026-06-24
 **Do not edit by hand.** Regenerate with `npm run uat:inventory`.
 
 Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | Fail | Skip | N/A.
@@ -9,9 +9,9 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | Metric | Count |
 |--------|------:|
-| App windows (incl. tabs) | 132 |
-| System windows | 10 |
-| Access processes | 41 |
+| App windows (incl. tabs) | 133 |
+| System windows | 12 |
+| Access processes | 48 |
 | Reports | 10 |
 
 ## UAT-00
@@ -82,18 +82,16 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-03-W-005 | `location-clients` | Clients | tab: Clients | locations | |
 | UAT-03-W-006 | `location-employees` | Employees | tab: Employees | locations | |
 | UAT-03-W-007 | `location-incidents` | Incidents | tab: Incidents | locations | |
-| UAT-03-W-008 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
-| UAT-03-W-009 | `locations` | Locations | /locations | — | |
-| UAT-03-W-010 | `business-partners` | Business partners | /business-partners | — | |
+| UAT-03-W-008 | `location-site-orientation` | Site orientation | tab: Site orientation | locations | |
+| UAT-03-W-009 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
+| UAT-03-W-010 | `locations` | Locations | /locations | — | |
 | UAT-03-W-011 | `product-overview` | Overview | tab: Overview | products | |
 | UAT-03-W-012 | `product-pricing` | Pricing | tab: Pricing | products | |
-| UAT-03-W-013 | `products` | Products | /products | — | |
-| UAT-03-W-014 | `price-list-overview` | Overview | tab: Overview | price-lists | |
-| UAT-03-W-015 | `price-list-lines` | Lines | tab: Lines | price-lists | |
-| UAT-03-W-016 | `price-lists` | Price lists | /price-lists | — | |
-| UAT-03-W-017 | `contract-overview` | Overview | tab: Overview | contracts | |
-| UAT-03-W-018 | `contract-audit` | Audit | tab: Audit | contracts | |
-| UAT-03-W-019 | `contracts` | Contracts | /contracts | — | |
+| UAT-03-W-013 | `price-list-overview` | Overview | tab: Overview | price-lists | |
+| UAT-03-W-014 | `price-list-lines` | Lines | tab: Lines | price-lists | |
+| UAT-03-W-015 | `contract-overview` | Overview | tab: Overview | contracts | |
+| UAT-03-W-016 | `contract-audit` | Audit | tab: Audit | contracts | |
+| UAT-03-W-017 | `business-partners` | Business partners | /business-partners | — | |
 
 ## UAT-04
 
@@ -101,10 +99,9 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 |--------|------------|-------|-------------|--------|--------|
 | UAT-04-W-001 | `service-agreement-overview` | Overview | tab: Overview | service-agreements | |
 | UAT-04-W-002 | `service-agreement-lines` | Lines | tab: Lines | service-agreements | |
-| UAT-04-W-003 | `service-agreements` | Service agreements | /service-agreements | — | |
-| UAT-04-W-004 | `service-bookings` | Service bookings | /service-bookings | — | |
-| UAT-04-W-005 | `service-booking-overview` | Overview | tab: Overview | service-bookings | |
-| UAT-04-W-006 | `service-booking-lines` | Lines | tab: Lines | service-bookings | |
+| UAT-04-W-003 | `service-bookings` | Service bookings | /service-bookings | — | |
+| UAT-04-W-004 | `service-booking-overview` | Overview | tab: Overview | service-bookings | |
+| UAT-04-W-005 | `service-booking-lines` | Lines | tab: Lines | service-bookings | |
 
 ## UAT-05
 
@@ -218,13 +215,24 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-13-W-005 | `admin-task-management` | Task management | /system/admin/task-management | — | |
 | UAT-13-W-006 | `admin-task-automations` | Task automations | /system/admin/task-automations | — | |
 | UAT-13-W-007 | `admin-document-templates` | Document templates | /system/admin/document-templates | — | |
-| UAT-13-W-008 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | |
-| UAT-13-W-009 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | |
-| UAT-13-W-010 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | |
-| UAT-13-W-011 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
-| UAT-13-W-012 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
-| UAT-13-W-013 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
-| UAT-13-W-014 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
+| UAT-13-W-008 | `admin-document-email` | Email content | /system/admin/document-email | — | |
+| UAT-13-W-009 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | |
+| UAT-13-W-010 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | |
+| UAT-13-W-011 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | |
+| UAT-13-W-012 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
+| UAT-13-W-013 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
+| UAT-13-W-014 | `system-incident-management` | Incident management | /system/settings/incident-management | — | |
+| UAT-13-W-015 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
+| UAT-13-W-016 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
+
+## UAT-99
+
+| UAT ID | Window key | Label | Route / tab | Parent | Result |
+|--------|------------|-------|-------------|--------|--------|
+| UAT-99-W-001 | `agency-workers` | Agency workers | /agency-workers | — | |
+| UAT-99-W-002 | `agency-timesheets` | Agency timesheets | /agency-timesheets | — | |
+| UAT-99-W-003 | `generate-agency-timesheets` | Generate agency timesheets | /generate-agency-timesheets | — | |
+| UAT-99-W-004 | `vendor-invoices` | Vendor invoices | /vendor-invoices | — | |
 
 ## Processes (UAT-15)
 
@@ -239,38 +247,45 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-15-P-007 | `report-incident` | Report incident | incidents | |
 | UAT-15-P-008 | `notify-ndis-reportable` | Notify NDIS Commission | incidents | |
 | UAT-15-P-009 | `assign-task` | Assign task | — | |
-| UAT-15-P-010 | `action-task` | Action task | — | |
-| UAT-15-P-011 | `submit-leave-request` | Submit leave request | my-leave | |
-| UAT-15-P-012 | `submit-employee-credential` | Submit credential | my-credentials | |
-| UAT-15-P-013 | `submit-leave-on-behalf` | Submit leave on behalf | workforce-planning | |
-| UAT-15-P-014 | `review-employee-credential` | Review employee credential | workforce-planning | |
-| UAT-15-P-015 | `approve-leave-request` | Approve leave request | workforce-planning | |
-| UAT-15-P-016 | `approve-timesheet` | Approve timesheet | timesheet-approval | |
-| UAT-15-P-017 | `print-invoice` | Print invoice | invoices | |
-| UAT-15-P-018 | `batch-print-invoices` | Batch print invoices | invoices | |
-| UAT-15-P-019 | `print-service-agreement` | Print service agreement | service-agreements | |
-| UAT-15-P-020 | `print-agreement-variation` | Print agreement variation | service-agreements | |
-| UAT-15-P-021 | `print-employee-contract` | Generate employee contract | employee-documents | |
-| UAT-15-P-022 | `print-employee-offer` | Generate offer of employment | employee-documents | |
-| UAT-15-P-023 | `print-enquiry-acknowledgement` | Print enquiry acknowledgement | enquiries | |
-| UAT-15-P-024 | `print-remittance-cover` | Print remittance cover | invoice-reconciliation | |
-| UAT-15-P-025 | `print-participant-statement` | Print participant statement | clients | |
-| UAT-15-P-026 | `print-board-report` | Print board report | board-reporting | |
-| UAT-15-P-027 | `send-invoice` | Issue invoice | invoices | |
-| UAT-15-P-028 | `print-claim-batch` | Print claim batch summary | claims | |
-| UAT-15-P-029 | `print-incident-notification` | Print incident notification | incidents | |
-| UAT-15-P-030 | `print-audit-pack` | Print audit pack report | ndis-audit-pack | |
-| UAT-15-P-031 | `print-consent-schedule` | Print consent schedule | clients | |
-| UAT-15-P-032 | `print-support-plan` | Print support plan | clients | |
-| UAT-15-P-033 | `send-support-plan` | Send support plan | clients | |
-| UAT-15-P-034 | `print-employee-separation` | Generate separation letter | employee-documents | |
-| UAT-15-P-035 | `manage-session-audit-risk` | Investigate session risk | admin-user-session-audit | |
-| UAT-15-P-036 | `view-session-sensitive-session-data` | View sensitive session data | admin-user-session-audit | |
-| UAT-15-P-037 | `manage-process-audit-risk` | Investigate process risk | admin-process-audit | |
-| UAT-15-P-038 | `view-process-audit-sensitive` | View sensitive process data | admin-process-audit | |
-| UAT-15-P-039 | `manage-ai-query-audit-risk` | Investigate AI query risk | admin-ai-query-audit | |
-| UAT-15-P-040 | `view-ai-query-audit-sensitive` | View sensitive AI query data | admin-ai-query-audit | |
-| UAT-15-P-041 | `manage-retention-settings` | Manage retention settings | admin-record-retention | |
+| UAT-15-P-010 | `request-activity-deletion` | Request activity deletion | — | |
+| UAT-15-P-011 | `request-agency-coverage` | Request agency coverage | rostering | |
+| UAT-15-P-012 | `send-agency-shift-pack` | Send agency shift pack | rostering | |
+| UAT-15-P-013 | `confirm-agency-shift` | Confirm agency shift | rostering | |
+| UAT-15-P-014 | `complete-agency-shift` | Complete agency shift | rostering | |
+| UAT-15-P-015 | `approve-vendor-invoice` | Approve vendor invoice | vendor-invoices | |
+| UAT-15-P-016 | `mark-vendor-invoice-paid` | Mark vendor invoice paid | vendor-invoices | |
+| UAT-15-P-017 | `action-task` | Action task | — | |
+| UAT-15-P-018 | `submit-leave-request` | Submit leave request | my-leave | |
+| UAT-15-P-019 | `submit-employee-credential` | Submit credential | my-credentials | |
+| UAT-15-P-020 | `submit-leave-on-behalf` | Submit leave on behalf | workforce-planning | |
+| UAT-15-P-021 | `review-employee-credential` | Review employee credential | workforce-planning | |
+| UAT-15-P-022 | `approve-leave-request` | Approve leave request | workforce-planning | |
+| UAT-15-P-023 | `approve-timesheet` | Approve timesheet | timesheet-approval | |
+| UAT-15-P-024 | `print-invoice` | Print invoice | invoices | |
+| UAT-15-P-025 | `batch-print-invoices` | Batch print invoices | invoices | |
+| UAT-15-P-026 | `print-service-agreement` | Print service agreement | service-agreements | |
+| UAT-15-P-027 | `print-agreement-variation` | Print agreement variation | service-agreements | |
+| UAT-15-P-028 | `print-employee-contract` | Generate employee contract | employee-documents | |
+| UAT-15-P-029 | `print-employee-offer` | Generate offer of employment | employee-documents | |
+| UAT-15-P-030 | `print-enquiry-acknowledgement` | Print enquiry acknowledgement | enquiries | |
+| UAT-15-P-031 | `print-remittance-cover` | Print remittance cover | invoice-reconciliation | |
+| UAT-15-P-032 | `print-participant-statement` | Print participant statement | client-overview | |
+| UAT-15-P-033 | `print-board-report` | Print board report | board-reporting | |
+| UAT-15-P-034 | `send-invoice` | Send invoice via email | invoices | |
+| UAT-15-P-035 | `print-claim-batch` | Print claim batch summary | claims | |
+| UAT-15-P-036 | `print-incident-notification` | Print incident notification | incidents | |
+| UAT-15-P-037 | `print-audit-pack` | Print audit pack report | ndis-audit-pack | |
+| UAT-15-P-038 | `print-consent-schedule` | Print consent schedule | client-overview | |
+| UAT-15-P-039 | `print-support-plan` | Print support plan | client-support-plan | |
+| UAT-15-P-040 | `send-support-plan` | Send support plan via email | client-support-plan | |
+| UAT-15-P-041 | `print-employee-separation` | Generate separation letter | employee-documents | |
+| UAT-15-P-042 | `manage-session-audit-risk` | Investigate session risk | admin-user-session-audit | |
+| UAT-15-P-043 | `view-session-sensitive-session-data` | View sensitive session data | admin-user-session-audit | |
+| UAT-15-P-044 | `manage-process-audit-risk` | Investigate process risk | admin-process-audit | |
+| UAT-15-P-045 | `view-process-audit-sensitive` | View sensitive process data | admin-process-audit | |
+| UAT-15-P-046 | `manage-ai-query-audit-risk` | Investigate AI query risk | admin-ai-query-audit | |
+| UAT-15-P-047 | `view-ai-query-audit-sensitive` | View sensitive AI query data | admin-ai-query-audit | |
+| UAT-15-P-048 | `manage-retention-settings` | Manage retention settings | admin-record-retention | |
 
 ## Reports (UAT-12)
 

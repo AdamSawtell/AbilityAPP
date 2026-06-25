@@ -227,6 +227,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Send via Email (invoice)** ÔÇö PDF + email handoff; marks Sent | Billing+ | Plan manager receives handoff from staff device | Live |
 | **Invoice reconciliation dashboard** ÔÇö unpaid, overdue, follow-up | Finance+ | Cash collection visibility | Live |
 | **Print remittance cover** ÔÇö reconciliation print to registry | Finance+ | Remittance advice document | Live |
+| **Vendor invoice AP-lite** ÔÇö review agency portal invoices with mandatory document | Finance+ | Agency invoices approved and marked paid from Finance menu | Live |
 
 ---
 

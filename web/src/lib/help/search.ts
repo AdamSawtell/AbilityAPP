@@ -51,8 +51,9 @@ export function filterArticlesForSession(
 ): HelpArticle[] {
   return articles.filter(
     (article) =>
-      article.windowKeys.length === 0 ||
-      article.windowKeys.some((key) => windowKeys.includes(key))
+      !article.portalOnly &&
+      (article.windowKeys.length === 0 ||
+        article.windowKeys.some((key) => windowKeys.includes(key)))
   );
 }
 
