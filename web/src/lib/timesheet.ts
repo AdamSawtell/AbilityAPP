@@ -1,4 +1,13 @@
 /** Worker timesheet — header plus lines generated from roster shifts. */
+import {
+  normalizeBillingClassification,
+  normalizeShiftPayStatus,
+  normalizeShiftPurpose,
+  type BillingClassification,
+  type ShiftPayStatus,
+  type ShiftPurpose,
+} from "@/lib/buddy-shift";
+
 export type TimesheetLine = {
   id: string;
   lineNo: number;
@@ -12,6 +21,9 @@ export type TimesheetLine = {
   shiftType: string;
   hours: number;
   notes: string;
+  shiftPurpose?: ShiftPurpose | string;
+  billingClassification?: BillingClassification | string;
+  payStatus?: ShiftPayStatus | string;
 };
 
 export type TimesheetRecord = {
@@ -57,6 +69,9 @@ export function emptyTimesheetLine(lineNo: number): TimesheetLine {
     shiftType: "Standard",
     hours: 0,
     notes: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
   };
 }
 
@@ -74,6 +89,9 @@ export function normalizeTimesheet(record: TimesheetRecord): TimesheetRecord {
     shiftType: line.shiftType || "Standard",
     hours: Number.isFinite(line.hours) ? line.hours : 0,
     notes: line.notes ?? "",
+    shiftPurpose: normalizeShiftPurpose(line.shiftPurpose),
+    billingClassification: normalizeBillingClassification(line.billingClassification),
+    payStatus: normalizeShiftPayStatus(line.payStatus),
   }));
   const totalHours =
     record.totalHours > 0

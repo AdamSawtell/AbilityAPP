@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ClientRecordLink } from "@/components/record-link";
+import { isBuddyShift } from "@/lib/buddy-shift";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs, useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
@@ -424,6 +425,11 @@ function MyShiftCard({
           {shift.shiftType ? (
             <span className="mt-2 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
               {shift.shiftType}
+            </span>
+          ) : null}
+          {isBuddyShift(shift) ? (
+            <span className="mt-2 inline-flex rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-900">
+              Buddy shift
             </span>
           ) : null}
         </div>

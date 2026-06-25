@@ -1,3 +1,4 @@
+import { isBuddyShift } from "@/lib/buddy-shift";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { RosterShiftIssue } from "@/lib/roster-shift-compliance";
 
@@ -64,6 +65,9 @@ export function detectRosterShiftConflicts(
     }
 
     if (record.clientId && other.clientId === record.clientId) {
+      // Buddy / shadow shifts intentionally overlap the primary shift for the
+      // same client, so the pair must not be flagged as a client double-book.
+      if (isBuddyShift(record) || isBuddyShift(other)) continue;
       issues.push({
         code: "CLIENT_DOUBLE_BOOKED",
         message: `Client already has support ${other.startTime.slice(0, 5)}–${other.endTime.slice(0, 5)} on this date (shift ${other.shiftRef || other.id}).`,

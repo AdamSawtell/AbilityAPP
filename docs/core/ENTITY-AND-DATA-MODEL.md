@@ -131,7 +131,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Monthly service plan | `clientId` | Planned hours/spend by month |
 | Roster of care | `clientId`, optional `serviceAgreementId` | Weekly template |
 | Service planning instance | `clientId`, booking/plan refs | Demand board |
-| Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (typical); agency: `coverageSource`, `agencyWorkerId`, `vendorBpId`, `agencyRequestId` | Week on `/rostering?week=` |
+| Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (typical); agency: `coverageSource`, `agencyWorkerId`, `vendorBpId`, `agencyRequestId`; buddy: `shiftPurpose`, `billingClassification`, `payStatus`, `primaryRosterShiftId`, `buddyReason` | Week on `/rostering?week=` |
 | Agency worker | `vendorBpId` → `business_partner` | `/agency-workers` register |
 | Agency shift request | `rosterShiftId`, `vendorBpId`, optional `agencyWorkerId` | Drawer from Gaps; not standalone route |
 | Agency timesheet | `vendorBpId`, `periodStart`/`periodEnd`, lines → `roster_shift_id` | `/agency-timesheets`; generate from Completed agency shifts |
@@ -144,6 +144,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Agency vacant gap exclusion | `roster-gap-analysis.ts` (`isVacantShift`) |
 | Site orientation at confirm | `site-orientation.ts`, `agency-shift-workflow.ts` |
 | Recurrence | `roster_shift` recurrence fields |
+| Buddy pay policy | `organization.buddy_shift_pay_policy` (`always_pay` \| `dont_pay` \| `ask`) | System → Organisation → Buddy shifts |
 
 ---
 
@@ -160,7 +161,8 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 
 | Downstream | Rule |
 |------------|------|
-| Claim generation | Uses **approved** timesheet lines |
+| Claim generation | Uses **approved** timesheet lines; skips `billingClassification=non_billable_internal_cost` |
+| Payroll export | Excludes `payStatus=non_payable` lines |
 | Lock | Timesheets may lock after claim batch generated |
 
 ---

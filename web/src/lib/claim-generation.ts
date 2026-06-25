@@ -1,3 +1,4 @@
+import { isLineBillable } from "@/lib/buddy-shift";
 import type { ClientRecord } from "@/lib/client";
 import {
   billingLinkedTimesheetLineIds,
@@ -40,6 +41,7 @@ export type ClaimGenerationPreview = {
   unverifiedSkippedCount: number;
   lockedClaimSkippedCount: number;
   invoiceManagedSkippedCount: number;
+  nonBillableSkippedCount: number;
   rows: ClaimGenerationPreviewRow[];
 };
 
@@ -50,6 +52,7 @@ export type ClaimGenerationResult = {
   skippedUnverified: number;
   skippedLockedClaim: number;
   skippedInvoiceManaged: number;
+  skippedNonBillable: number;
 };
 
 export type ClaimGenerationContext = {
@@ -187,6 +190,7 @@ function collectEligibleLines(
   unverifiedSkipped: number;
   lockedClaimSkipped: number;
   invoiceManagedSkipped: number;
+  nonBillableSkipped: number;
 } {
   const linked = billingLinkedTimesheetLineIds(ctx.claims, ctx.invoices);
   const lockedClients = lockedClaimClientIds(ctx.claims, periodStart, periodEnd);
@@ -195,6 +199,7 @@ function collectEligibleLines(
   let unverifiedSkipped = 0;
   let lockedClaimSkipped = 0;
   let invoiceManagedSkipped = 0;
+  let nonBillableSkipped = 0;
 
   for (const timesheet of ctx.timesheets) {
     if (timesheet.status !== "Approved") continue;
@@ -206,6 +211,10 @@ function collectEligibleLines(
     for (const tsLine of timesheet.lines) {
       if (!lineInPeriod(tsLine, periodStart, periodEnd)) continue;
       if (!tsLine.clientId?.trim()) continue;
+      if (!isLineBillable(tsLine)) {
+        nonBillableSkipped += 1;
+        continue;
+      }
       const client = ctx.clients.find((c) => c.id === tsLine.clientId);
       if (!isAgencyManagedClient(client)) {
         invoiceManagedSkipped += 1;
@@ -227,7 +236,7 @@ function collectEligibleLines(
     }
   }
 
-  return { eligible, alreadyClaimed, unverifiedSkipped, lockedClaimSkipped, invoiceManagedSkipped };
+  return { eligible, alreadyClaimed, unverifiedSkipped, lockedClaimSkipped, invoiceManagedSkipped, nonBillableSkipped };
 }
 
 export function previewClaimGeneration(
@@ -235,11 +244,14 @@ export function previewClaimGeneration(
   periodStart: string,
   periodEnd: string
 ): ClaimGenerationPreview {
-  const { eligible, alreadyClaimed, unverifiedSkipped, lockedClaimSkipped, invoiceManagedSkipped } = collectEligibleLines(
-    ctx,
-    periodStart,
-    periodEnd
-  );
+  const {
+    eligible,
+    alreadyClaimed,
+    unverifiedSkipped,
+    lockedClaimSkipped,
+    invoiceManagedSkipped,
+    nonBillableSkipped,
+  } = collectEligibleLines(ctx, periodStart, periodEnd);
   const byClient = new Map<string, { lineCount: number; totalAmount: number }>();
 
   for (const row of eligible) {
@@ -279,6 +291,7 @@ export function previewClaimGeneration(
     unverifiedSkippedCount: unverifiedSkipped,
     lockedClaimSkippedCount: lockedClaimSkipped,
     invoiceManagedSkippedCount: invoiceManagedSkipped,
+    nonBillableSkippedCount: nonBillableSkipped,
     rows,
   };
 }
@@ -304,11 +317,14 @@ export function generateClaimsFromTimesheets(
   periodEnd: string,
   actorName = "SuperUser"
 ): ClaimGenerationResult {
-  const { eligible, alreadyClaimed, unverifiedSkipped, lockedClaimSkipped, invoiceManagedSkipped } = collectEligibleLines(
-    ctx,
-    periodStart,
-    periodEnd
-  );
+  const {
+    eligible,
+    alreadyClaimed,
+    unverifiedSkipped,
+    lockedClaimSkipped,
+    invoiceManagedSkipped,
+    nonBillableSkipped,
+  } = collectEligibleLines(ctx, periodStart, periodEnd);
   const byClient = new Map<string, EligibleSourceLine[]>();
 
   for (const row of eligible) {
@@ -388,5 +404,6 @@ export function generateClaimsFromTimesheets(
     skippedUnverified: unverifiedSkipped,
     skippedLockedClaim: lockedClaimSkipped,
     skippedInvoiceManaged: invoiceManagedSkipped,
+    skippedNonBillable: nonBillableSkipped,
   };
 }

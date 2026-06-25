@@ -20,6 +20,32 @@
 
 ---
 
+## AB-0022 — Buddy shift management (2026-06-25)
+
+**Status:** ✅ Shipped
+
+Buddy shifts are shadow/orientation roster shifts linked to a primary staffed shift. Pay and billing are independent: non-payable lines stay on the timesheet but are excluded from payroll export; non-billable lines are skipped in claims and invoices. Org default pay handling is configured under System → Organisation → Buddy shifts (`always_pay` | `dont_pay` | `ask`). Cancelling the primary shift auto-cancels linked buddy shifts. Participant portal does not show buddy shifts (v1).
+
+| Area | Change |
+|------|--------|
+| Data model | `roster_shift` + `timesheet_line` purpose/billing/pay fields; `organization.buddy_shift_pay_policy` |
+| Rostering | Add buddy shift button, badges, editor fields, cancel cascade |
+| Billing/pay | Claim/invoice skip non-billable; payroll export skips non-payable |
+| System | `/system/settings/buddy-shifts` policy page |
+| Seed | `rs-bern-mon-buddy` on week `2025-10-06` |
+
+### What you can test — AB-0022
+
+1. System → Organisation → **Buddy shifts** — set pay policy and save.
+2. `/rostering?week=2025-10-06` — see seeded buddy shift with badges; use **Add buddy shift** on a staffed card.
+3. Generate timesheets — buddy line shows **Non-payable** where configured.
+4. Generate claims / payroll export — non-billable and non-payable lines excluded per rules.
+5. Cancel a primary shift — linked buddy shifts cancel with it.
+
+**Local smoke (2026-06-25):** System operator `SuperUser` can open `/system/settings/buddy-shifts`; policy options and organisation audit footer render. `RileyShaw` can open `/rostering?week=2025-10-06`; staffed shift cards show **Add buddy shift**, and the buddy editor opens with purpose, participant billing, worker pay, linked primary shift, reason, and notes. The current local dataset did not include the seeded `rs-bern-mon-buddy` row, so badge visibility, cancel cascade, and generation/export checks remain for seeded DB smoke (TEST-061).
+
+---
+
 ## WP-UX.6 — Branded portal sign-in landings (2026-06-25)
 
 **Status:** ✅ Shipped

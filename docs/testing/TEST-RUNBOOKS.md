@@ -115,6 +115,25 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-061 — Buddy shift management (AB-0022)
+
+| | |
+|--|--|
+| **User** | RileyShaw / welcome (rostering); System admin for policy |
+| **DATA** | `rs-bern-mon-buddy`, `?week=2025-10-06`, org `buddyShiftPayPolicy=ask` |
+| **Pass if** | Seeded buddy visible; policy saves; non-payable line on timesheet; excluded from payroll CSV and claim generation |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/system/settings/buddy-shifts` (System sign-in) | Policy radio group loads; save persists |
+| 2 | `/rostering?week=2025-10-06` | `BERN-MON-BUDDY` shows Buddy + Non-payable badges |
+| 3 | Add buddy shift on staffed shift | Editor opens with purpose, billing, pay, reason, linked primary |
+| 4 | Cancel primary shift with linked buddy | Buddy shift status Cancelled |
+| 5 | `/generate-timesheets` for week | Buddy line on timesheet with Non-payable badge |
+| 6 | Payroll export / generate claims | Non-payable excluded from payroll; non-billable skipped in claims preview |
+
+---
+
 ## TEST-070 — Agency staffing smoke (WP-AG.1)
 
 | | |

@@ -355,6 +355,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     if (!hydrated) return;
     if (pathname.startsWith("/system")) return;
     if (pathname.startsWith("/portal")) return;
+    if (pathname.startsWith("/agency-portal")) return;
     if (!session && pathname !== "/login") {
       router.replace("/login");
     }
@@ -373,6 +374,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (pathname.startsWith("/system")) return <>{children}</>;
   if (pathname.startsWith("/portal")) return <>{children}</>;
+  if (pathname.startsWith("/agency-portal")) return <>{children}</>;
   if (!session && pathname !== "/login") return null;
   return <>{children}</>;
 }

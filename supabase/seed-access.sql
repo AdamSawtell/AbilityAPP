@@ -1880,6 +1880,7 @@ values
   ('role-coordinator', 'multi-provider-budget', 'write'),
   ('role-coordinator', 'ndis-audit-pack', 'write'),
   ('role-coordinator', 'rostering', 'write'),
+  ('role-team-leader', 'rostering', 'write'),
   ('role-coordinator', 'timesheets', 'write'),
   ('role-coordinator', 'timesheet-approval', 'write'),
   ('role-coordinator', 'generate-timesheets', 'write'),

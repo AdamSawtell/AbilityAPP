@@ -209,7 +209,22 @@ export function LoginView() {
         </p>
       </div>
 
-      <p className="mt-8 text-center text-xs text-white/40">
+      <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/50">
+        <Link href="/portal/login" className="underline-offset-2 transition hover:text-white/80 hover:underline">
+          Client portal
+        </Link>
+        <span aria-hidden className="text-white/30">
+          ·
+        </span>
+        <Link
+          href="/agency-portal/login"
+          className="underline-offset-2 transition hover:text-white/80 hover:underline"
+        >
+          Vendor portal
+        </Link>
+      </div>
+
+      <p className="mt-6 text-center text-xs text-white/40">
         Powered by <span className="font-medium text-white/55">AbilityVua</span>
       </p>
     </LoginBackdrop>

@@ -1,6 +1,7 @@
 /** Organisation profile — provider identity used across NDIS documents and branding. */
 
 import type { AuditStampable } from "@/lib/audit";
+import { normalizeBuddyShiftPayPolicy, type BuddyShiftPayPolicy } from "@/lib/buddy-shift";
 import { normalizeInvestigationSlaDays } from "@/lib/incident-management-settings";
 
 export type OrganizationRecord = AuditStampable & {
@@ -32,6 +33,8 @@ export type OrganizationRecord = AuditStampable & {
   remittanceEmail: string;
   documentFooterText: string;
   gstRegistered: boolean;
+  /** Buddy/orientation shift pay default: always_pay | dont_pay | ask */
+  buddyShiftPayPolicy: BuddyShiftPayPolicy;
   notes: string;
   createdBy: string;
   updatedBy: string;
@@ -167,6 +170,7 @@ export function defaultOrganization(): OrganizationRecord {
     remittanceEmail: "",
     documentFooterText: "",
     gstRegistered: false,
+    buddyShiftPayPolicy: "ask",
     notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
@@ -182,6 +186,7 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     registrationGroups: (record.registrationGroups ?? "").trim(),
     incidentInvestigationSlaDays: normalizeInvestigationSlaDays(sla),
     gstRegistered: Boolean(record.gstRegistered),
+    buddyShiftPayPolicy: normalizeBuddyShiftPayPolicy(record.buddyShiftPayPolicy),
     bankBsb: (record.bankBsb ?? "").trim(),
     bankAccount: (record.bankAccount ?? "").trim(),
     bankAccountName: (record.bankAccountName ?? "").trim(),

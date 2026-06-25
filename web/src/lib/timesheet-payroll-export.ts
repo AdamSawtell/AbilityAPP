@@ -1,6 +1,7 @@
 import type { ClientRecord } from "@/lib/client";
 import type { EmployeeRecord } from "@/lib/employee";
 import type { LocationRecord } from "@/lib/location";
+import { isLinePayable } from "@/lib/buddy-shift";
 import { rowsToCsv } from "@/lib/reports/export";
 import type { ReportColumnDef } from "@/lib/reports/types";
 import type { TimesheetLine, TimesheetRecord } from "@/lib/timesheet";
@@ -116,6 +117,7 @@ export function buildPayrollExportRows(
   for (const sheet of sheets) {
     const employee = employeeById.get(sheet.employeeId);
     for (const line of sheet.lines) {
+      if (!isLinePayable(line)) continue;
       rows.push(
         lineToPayrollRow(
           sheet,

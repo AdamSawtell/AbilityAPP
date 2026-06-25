@@ -4,6 +4,18 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
+  applyBuddyDefaults,
+  BILLING_CLASSIFICATION_OPTIONS,
+  buddyPayStatusRequiresBookerChoice,
+  buddyShiftFromPrimary,
+  buddyShiftPayPolicyFromOrganization,
+  isBuddyShift,
+  resolveBuddyPayStatus,
+  SHIFT_PAY_STATUS_OPTIONS,
+  SHIFT_PURPOSE_OPTIONS,
+} from "@/lib/buddy-shift";
+import { useOrganization } from "@/lib/organization-store";
+import {
   expandWeeklyRecurrence,
   RECURRENCE_WEEKDAY_OPTIONS,
   weekdayOffsetFromDate,
@@ -33,23 +45,30 @@ export function RosterShiftEditor({
   initial,
   defaultDate,
   prefill,
+  buddyFromPrimary,
   onClose,
   onSaved,
 }: {
   initial?: RosterShiftRecord | null;
   defaultDate?: string;
   prefill?: { clientId?: string; serviceBookingId?: string };
+  buddyFromPrimary?: RosterShiftRecord | null;
   onClose: () => void;
   onSaved?: () => void;
 }) {
   const { clients, employees, locations, serviceBookings, rosterShifts, upsertRosterShift, addRecurringRosterShifts } =
     useData();
+  const { organization } = useOrganization();
+  const payPolicy = buddyShiftPayPolicyFromOrganization(organization);
   const { canWriteWindow } = useAuth();
   const canSave = canWriteWindow("rostering");
   const isNew = !initial?.id;
 
-  const [draft, setDraft] = useState<RosterShiftRecord>(() =>
-    normalizeRosterShift(
+  const [draft, setDraft] = useState<RosterShiftRecord>(() => {
+    if (buddyFromPrimary) {
+      return normalizeRosterShift(buddyShiftFromPrimary(buddyFromPrimary, {}, rosterShifts, payPolicy));
+    }
+    return normalizeRosterShift(
       initial ??
         createRosterShift(
           {
@@ -62,8 +81,8 @@ export function RosterShiftEditor({
           },
           rosterShifts
         )
-    )
-  );
+    );
+  });
 
   const [repeatWeekly, setRepeatWeekly] = useState(false);
   const [weekCount, setWeekCount] = useState(4);
@@ -75,7 +94,7 @@ export function RosterShiftEditor({
   const validationMode = rosterValidationMode(draft);
 
   const issues = useMemo(() => {
-    if (isNew && repeatWeekly && weekdayOffsets.length) {
+    if (isNew && repeatWeekly && weekdayOffsets.length && !isBuddyShift(draft)) {
       const rows = expandWeeklyRecurrence(draft, weekdayOffsets, weekCount);
       const conflictMap = detectRecurringRosterConflicts(rows, rosterShifts);
       const firstConflict = rows.flatMap((row) => {
@@ -107,7 +126,34 @@ export function RosterShiftEditor({
   );
 
   function onChange<K extends keyof RosterShiftRecord>(key: K, value: RosterShiftRecord[K]) {
-    setDraft((prev) => normalizeRosterShift({ ...prev, [key]: value, updatedBy: "SuperUser" }));
+    setDraft((prev) => {
+      let next = normalizeRosterShift({ ...prev, [key]: value, updatedBy: "SuperUser" });
+      if (key === "shiftPurpose") {
+        if (isBuddyShift({ shiftPurpose: String(value) })) {
+          next = applyBuddyDefaults(
+            {
+              ...next,
+              billingClassification:
+                next.billingClassification === "billable" ? next.billingClassification : "non_billable_internal_cost",
+            },
+            payPolicy
+          );
+        } else {
+          next = {
+            ...next,
+            shiftPurpose: "service_delivery",
+            billingClassification: "billable",
+            payStatus: "payable",
+            primaryRosterShiftId: "",
+            buddyReason: "",
+          };
+        }
+      }
+      if (key === "shiftPurpose" || key === "payStatus") {
+        next = applyBuddyDefaults(next, payPolicy);
+      }
+      return next;
+    });
   }
 
   function toggleWeekday(offset: number) {
@@ -119,8 +165,22 @@ export function RosterShiftEditor({
   function save() {
     setSaveError("");
     if (!canSave || saveBlocked) return;
-    if (isNew && repeatWeekly && weekdayOffsets.length) {
-      const rows = expandWeeklyRecurrence(draft, weekdayOffsets, weekCount);
+
+    const buddyPay = resolveBuddyPayStatus(payPolicy, draft.payStatus as "" | "payable" | "non_payable");
+    if (isBuddyShift(draft) && buddyPayStatusRequiresBookerChoice(payPolicy) && !buddyPay) {
+      setSaveError("Choose whether this buddy shift is paid or non-payable.");
+      return;
+    }
+    const draftToSave = applyBuddyDefaults(
+      {
+        ...draft,
+        payStatus: buddyPay || draft.payStatus,
+      },
+      payPolicy
+    );
+
+    if (isNew && repeatWeekly && weekdayOffsets.length && !isBuddyShift(draftToSave)) {
+      const rows = expandWeeklyRecurrence(draftToSave, weekdayOffsets, weekCount);
       const conflictMap = detectRecurringRosterConflicts(rows, rosterShifts);
       const blocked = rows.some((row) => {
         const mode = rosterValidationMode(row);
@@ -137,7 +197,7 @@ export function RosterShiftEditor({
         return;
       }
     } else {
-      const record = isNew ? createRosterShift(draft, rosterShifts) : draft;
+      const record = isNew ? createRosterShift(draftToSave, rosterShifts) : draftToSave;
       const mode = rosterValidationMode(record);
       const saveIssues = validateRosterShift(record, { existing: rosterShifts }, mode);
       if (rosterShiftSaveBlocked(saveIssues)) return;
@@ -160,7 +220,9 @@ export function RosterShiftEditor({
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">{isNew ? "New shift" : "Edit shift"}</h2>
+            <h2 className="text-lg font-semibold text-slate-900">
+              {buddyFromPrimary ? "New buddy shift" : isNew ? "New shift" : "Edit shift"}
+            </h2>
             <p className="mt-1 text-sm text-slate-600">Link client, worker, location, and optional service booking.</p>
           </div>
           <button type="button" onClick={onClose} className="text-sm text-slate-500 hover:text-slate-800">
@@ -267,6 +329,21 @@ export function RosterShiftEditor({
             </select>
           </label>
           <label>
+            <span className="mb-1.5 block text-xs font-medium text-slate-600">Shift purpose</span>
+            <select
+              className={inputClass}
+              value={draft.shiftPurpose}
+              onChange={(e) => onChange("shiftPurpose", e.target.value)}
+              disabled={Boolean(buddyFromPrimary)}
+            >
+              {SHIFT_PURPOSE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Status</span>
             <select className={inputClass} value={draft.status} onChange={(e) => onChange("status", e.target.value)}>
               {rosterShiftDropdowns.status.map((s) => (
@@ -276,6 +353,76 @@ export function RosterShiftEditor({
               ))}
             </select>
           </label>
+
+          {isBuddyShift(draft) ? (
+            <>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Participant billing</span>
+                <select
+                  className={inputClass}
+                  value={draft.billingClassification}
+                  onChange={(e) => onChange("billingClassification", e.target.value)}
+                >
+                  {BILLING_CLASSIFICATION_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {buddyPayStatusRequiresBookerChoice(payPolicy) ? (
+                <label>
+                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Worker pay</span>
+                  <select
+                    className={inputClass}
+                    value={draft.payStatus}
+                    onChange={(e) => onChange("payStatus", e.target.value)}
+                  >
+                    <option value="">Select paid or non-payable…</option>
+                    {SHIFT_PAY_STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                  <p className="text-xs font-medium text-slate-500">Worker pay</p>
+                  <p className="mt-1 font-medium">
+                    {draft.payStatus === "non_payable" ? "Non-payable" : "Paid shift"}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Organisation policy:{" "}
+                    {payPolicy === "always_pay" ? "Always pay" : "Don't pay"}
+                  </p>
+                </div>
+              )}
+              {draft.primaryRosterShiftId ? (
+                <div className="sm:col-span-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                  <p className="text-xs font-medium text-slate-500">Linked primary shift</p>
+                  <p className="mt-1 font-medium">
+                    {rosterShifts.find((s) => s.id === draft.primaryRosterShiftId)?.shiftRef ||
+                      draft.primaryRosterShiftId}
+                  </p>
+                </div>
+              ) : null}
+              <label className="sm:col-span-2">
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Buddy / orientation reason</span>
+                <input
+                  className={inputClass}
+                  value={draft.buddyReason}
+                  onChange={(e) => onChange("buddyReason", e.target.value)}
+                  placeholder="e.g. New worker site orientation"
+                />
+              </label>
+              <p className="sm:col-span-2 text-xs text-slate-500">
+                Buddy shifts appear on rosters and timesheets. Non-billable shifts are excluded from claims and
+                invoices. Non-payable shifts are excluded from payroll export.
+              </p>
+            </>
+          ) : null}
+
           <label className="sm:col-span-2">
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Notes</span>
             <textarea
@@ -297,7 +444,7 @@ export function RosterShiftEditor({
           publishMode={draft.status === "Published" || draft.status === "Completed"}
         />
 
-        {isNew ? (
+        {isNew && !isBuddyShift(draft) ? (
           <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
             <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
               <input

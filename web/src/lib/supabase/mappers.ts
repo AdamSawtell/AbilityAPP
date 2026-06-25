@@ -2376,6 +2376,11 @@ export type RosterShiftRow = {
   agency_worker_id: string | null;
   vendor_bp_id: string | null;
   agency_request_id: string | null;
+  shift_purpose: string;
+  billing_classification: string;
+  pay_status: string;
+  primary_roster_shift_id: string | null;
+  buddy_reason: string;
   created_by: string;
   updated_by: string;
 };
@@ -2424,6 +2429,11 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     agencyWorkerId: row.agency_worker_id ?? "",
     vendorBpId: row.vendor_bp_id ?? "",
     agencyRequestId: row.agency_request_id ?? "",
+    shiftPurpose: row.shift_purpose ?? "service_delivery",
+    billingClassification: row.billing_classification ?? "billable",
+    payStatus: row.pay_status ?? "payable",
+    primaryRosterShiftId: row.primary_roster_shift_id ?? "",
+    buddyReason: row.buddy_reason ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2455,6 +2465,11 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     agency_worker_id: record.agencyWorkerId?.trim() ? record.agencyWorkerId : null,
     vendor_bp_id: record.vendorBpId?.trim() ? record.vendorBpId : null,
     agency_request_id: record.agencyRequestId?.trim() ? record.agencyRequestId : null,
+    shift_purpose: record.shiftPurpose || "service_delivery",
+    billing_classification: record.billingClassification || "billable",
+    pay_status: record.payStatus || "payable",
+    primary_roster_shift_id: record.primaryRosterShiftId?.trim() ? record.primaryRosterShiftId : null,
+    buddy_reason: record.buddyReason ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };
@@ -2856,6 +2871,9 @@ export type TimesheetLineRowDb = {
   shift_type: string;
   hours: number;
   notes: string;
+  shift_purpose: string;
+  billing_classification: string;
+  pay_status: string;
 };
 
 export function timesheetFromRow(row: TimesheetRow, lines: TimesheetLineRowDb[]): TimesheetRecord {
@@ -2895,6 +2913,9 @@ function timesheetLineFromRow(row: TimesheetLineRowDb): TimesheetLine {
     shiftType: row.shift_type,
     hours: Number(row.hours) || 0,
     notes: row.notes,
+    shiftPurpose: row.shift_purpose ?? "service_delivery",
+    billingClassification: row.billing_classification ?? "billable",
+    payStatus: row.pay_status ?? "payable",
   };
 }
 
@@ -2935,6 +2956,9 @@ export function timesheetLineToRow(timesheetId: string, line: TimesheetLine): Ti
     shift_type: line.shiftType,
     hours: line.hours,
     notes: line.notes,
+    shift_purpose: line.shiftPurpose || "service_delivery",
+    billing_classification: line.billingClassification || "billable",
+    pay_status: line.payStatus || "payable",
   };
 }
 

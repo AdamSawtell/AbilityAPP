@@ -198,6 +198,11 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     agencyWorkerId: "Agency worker",
     vendorBpId: "Agency vendor",
     agencyRequestId: "Agency request",
+    shiftPurpose: "Shift purpose",
+    billingClassification: "Billing classification",
+    payStatus: "Pay status",
+    primaryRosterShiftId: "Primary shift",
+    buddyReason: "Buddy reason",
   },
   "agency-worker": {
     searchKey: "Search key",
@@ -399,6 +404,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     remittanceEmail: "Remittance email",
     documentFooterText: "Document footer",
     gstRegistered: "GST registered",
+    buddyShiftPayPolicy: "Buddy shift pay policy",
   },
   incident: {
     documentNo: "Document no.",

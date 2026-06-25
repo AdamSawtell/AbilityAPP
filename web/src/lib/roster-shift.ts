@@ -1,4 +1,14 @@
 /** Roster shift — one worker assignment for a client on a date/time window. */
+import {
+  isBuddyShiftPurpose,
+  normalizeBillingClassification,
+  normalizeShiftPayStatus,
+  normalizeShiftPurpose,
+  type BillingClassification,
+  type ShiftPayStatus,
+  type ShiftPurpose,
+} from "@/lib/buddy-shift";
+
 export type RosterShiftRecord = {
   id: string;
   shiftRef: string;
@@ -24,6 +34,11 @@ export type RosterShiftRecord = {
   agencyWorkerId: string;
   vendorBpId: string;
   agencyRequestId: string;
+  shiftPurpose?: ShiftPurpose | string;
+  billingClassification?: BillingClassification | string;
+  payStatus?: ShiftPayStatus | string;
+  primaryRosterShiftId?: string;
+  buddyReason?: string;
   createdBy: string;
   updatedBy: string;
 };
@@ -65,6 +80,11 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -93,6 +113,11 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -121,6 +146,11 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -177,6 +207,11 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -205,6 +240,11 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -233,6 +273,11 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
   },
@@ -261,12 +306,58 @@ export const initialRosterShifts: RosterShiftRecord[] = [
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     createdBy: "Isla Robinson",
     updatedBy: "Isla Robinson",
+  },
+  {
+    id: "rs-bern-mon-buddy",
+    shiftRef: "BERN-MON-BUDDY",
+    clientId: "bp-bern",
+    employeeId: "emp-oliver",
+    locationId: "loc-glenelg-sil",
+    serviceBookingId: "sb-50145",
+    shiftDate: "2025-10-06",
+    startTime: "09:00",
+    endTime: "15:00",
+    shiftType: "Standard",
+    status: "Published",
+    notes: "Buddy shadow — site orientation with Isla on SIL morning",
+    recurrenceGroupId: "",
+    checkedInAt: "",
+    checkedOutAt: "",
+    checkInNotes: "",
+    checkInLatitude: "",
+    checkInLongitude: "",
+    checkOutLatitude: "",
+    checkOutLongitude: "",
+    coverageSource: "internal",
+    agencyWorkerId: "",
+    vendorBpId: "",
+    agencyRequestId: "",
+    shiftPurpose: "buddy_shadow",
+    billingClassification: "non_billable_internal_cost",
+    payStatus: "non_payable",
+    primaryRosterShiftId: "rs-bern-mon-am",
+    buddyReason: "New worker site orientation",
+    createdBy: "Riley Shaw",
+    updatedBy: "Riley Shaw",
   },
 ];
 
 export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftRecord {
+  const purpose = normalizeShiftPurpose(record.shiftPurpose);
+  // Buddy shifts under an "ask" policy must keep an unset pay status so the
+  // booker is forced to choose; only non-buddy shifts default to payable.
+  const payStatus = isBuddyShiftPurpose(purpose)
+    ? record.payStatus === "payable" || record.payStatus === "non_payable"
+      ? record.payStatus
+      : ""
+    : normalizeShiftPayStatus(record.payStatus);
   return {
     ...record,
     shiftRef: record.shiftRef ?? "",
@@ -299,6 +390,11 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
     agencyWorkerId: record.agencyWorkerId ?? "",
     vendorBpId: record.vendorBpId ?? "",
     agencyRequestId: record.agencyRequestId ?? "",
+    shiftPurpose: purpose,
+    billingClassification: normalizeBillingClassification(record.billingClassification),
+    payStatus,
+    primaryRosterShiftId: record.primaryRosterShiftId ?? "",
+    buddyReason: record.buddyReason ?? "",
   };
 }
 
@@ -334,6 +430,11 @@ export function createRosterShift(
     agencyWorkerId: "",
     vendorBpId: "",
     agencyRequestId: "",
+    shiftPurpose: "service_delivery",
+    billingClassification: "billable",
+    payStatus: "payable",
+    primaryRosterShiftId: "",
+    buddyReason: "",
     ...partial,
     createdBy: partial.createdBy || "SuperUser",
     updatedBy: partial.updatedBy || "SuperUser",

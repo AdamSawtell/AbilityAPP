@@ -101,6 +101,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "Org chart tiers",
         match: (p) => p.startsWith("/system/org-chart-tiers"),
       },
+      {
+        href: "/system/settings/buddy-shifts",
+        label: "Buddy shifts",
+        match: (p) => p.startsWith("/system/settings/buddy-shifts"),
+      },
     ]),
   },
   {

@@ -124,6 +124,8 @@
 | Publish roster week | Publish on `/rostering` | Shifts visible in **My shifts**; may create notify tasks |
 | Qualification gate | Publish | Blocks if worker missing WWCC / NDIS screening (configurable) |
 | Open shift claim | Worker claims on `/my/open-shifts` | Assigns worker to vacant shift — Partial |
+| Add buddy shift | **Add buddy shift** on staffed shift card | Creates linked shift with `shiftPurpose` buddy/orientation; inherits client/location/time |
+| Cancel primary shift | Cancel on roster grid | Linked buddy shifts auto-cancelled |
 
 | Process ID | Trigger | Workflow |
 |------------|---------|----------|

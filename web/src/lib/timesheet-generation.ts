@@ -1,3 +1,4 @@
+import { isLineBillable } from "@/lib/buddy-shift";
 import { shiftDurationHours, type RosterShiftRecord } from "@/lib/roster-shift";
 import {
   createTimesheet,
@@ -67,6 +68,9 @@ function lineFromShift(shift: RosterShiftRecord, lineNo: number): TimesheetLine 
     shiftType: shift.shiftType,
     hours: shiftDurationHours(shift),
     notes: shift.notes,
+    shiftPurpose: shift.shiftPurpose,
+    billingClassification: shift.billingClassification,
+    payStatus: shift.payStatus,
   };
 }
 

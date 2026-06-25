@@ -7,7 +7,7 @@ export const deliveryArticle: HelpArticle = {
   summary: "Schedule NDIS service delivery, then roster staff and generate timesheets.",
   category: "Services",
   keywords: ["service booking", "rostering", "timesheet", "NDIS", "delivery", "schedule"],
-  lastUpdated: "2026-06-24",
+  lastUpdated: "2026-06-25",
   sections: [
     {
       id: "overview",
@@ -109,7 +109,9 @@ export const deliveryArticle: HelpArticle = {
         "Use Add shift from a coverage gap to pre-fill the client and booking.",
         "Open a client → Roster of care tab to review weekly care templates, hour totals, and rostered vs required hours.",
         "Open an employee → Schedule tab for their week calendar; Schedule template for weekly availability (coordinators with Workforce planning access).",
-        "Workforce planning → Worker schedule templates lists supply patterns; Fill board assigns suggested workers to vacant shifts.",
+        "On a staffed shift card, click Add buddy shift to roster a shadow/orientation shift linked to the primary worker.",
+        "Set participant billing (billable or non-billable) and worker pay (paid or non-payable) — org policy may default or ask each time (System → Organisation → Buddy shifts).",
+        "Buddy shifts show Buddy, Non-payable, and Non-billable badges on the calendar. Cancelling the primary shift also cancels linked buddy shifts.",
       ],
       relatedRoutes: ["/rostering"],
       windowKeys: ["rostering"],

@@ -1,4 +1,5 @@
 import type { OrganizationRecord } from "@/lib/organization";
+import { normalizeBuddyShiftPayPolicy } from "@/lib/buddy-shift";
 import { ORGANIZATION_ID } from "@/lib/organization";
 
 export type OrganizationRow = {
@@ -30,6 +31,7 @@ export type OrganizationRow = {
   remittance_email: string;
   document_footer_text: string;
   gst_registered: boolean;
+  buddy_shift_pay_policy: string;
   notes: string;
   created_by: string;
   updated_by: string;
@@ -67,6 +69,7 @@ export function organizationFromRow(row: OrganizationRow): OrganizationRecord {
     remittanceEmail: row.remittance_email ?? "",
     documentFooterText: row.document_footer_text ?? "",
     gstRegistered: row.gst_registered ?? false,
+    buddyShiftPayPolicy: normalizeBuddyShiftPayPolicy(row.buddy_shift_pay_policy),
     notes: row.notes ?? "",
     createdBy: row.created_by ?? "",
     updatedBy: row.updated_by ?? "",
@@ -105,6 +108,7 @@ export function organizationToRow(record: OrganizationRecord): OrganizationRow {
     remittance_email: record.remittanceEmail,
     document_footer_text: record.documentFooterText,
     gst_registered: record.gstRegistered,
+    buddy_shift_pay_policy: record.buddyShiftPayPolicy || "ask",
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,

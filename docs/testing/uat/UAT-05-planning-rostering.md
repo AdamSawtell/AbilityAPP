@@ -24,6 +24,10 @@
 | UAT-05-S-012 | Agency portal help | `/agency-portal/help` after vendor sign-in | Vendor-only how-to and escalation paths visible | **Pass** — Amplify smoke (2026-06-25) |
 | UAT-05-S-013 | Agency portal dashboard | `/agency-portal` after vendor sign-in | Next-step banner, summary tiles (Awaiting you / Ready to invoice / With finance / Paid), badged action cards | **Pass** — Amplify smoke (2026-06-25); StaffPlus "1 invoice with finance" |
 | UAT-05-S-014 | Agency portal login landing | `/agency-portal/login` | Branded landing with org logo/name/address/contact strip, help + staff links, and vendor magic-link request | **Pass** — Amplify 2026-06-25; `roster@staffplus.example` returned **Open agency portal** demo link |
+| UAT-05-S-015 | Buddy shift on roster | `/rostering?week=2025-10-06` | Seeded `BERN-MON-BUDDY` with Buddy + Non-payable badges | Pending seeded DB smoke — local dataset did not include the seeded buddy row |
+| UAT-05-S-016 | Add buddy shift | Add buddy shift on staffed card | Linked shift editor opens with pay/billing fields | **Pass** — localhost 2026-06-25; editor opens with purpose, billing, pay, reason, and linked primary |
+| UAT-05-S-017 | Buddy pay policy | `/system/settings/buddy-shifts` | Org policy saves (always pay / don't pay / ask) | **Partial** — localhost 2026-06-25; policy options and audit footer render after System access fix; save not mutated |
+| UAT-05-S-018 | Primary cancel cascade | Cancel primary shift | Linked buddy shift auto-cancelled | Pending seeded DB smoke |
 
 ## Window checklist
 

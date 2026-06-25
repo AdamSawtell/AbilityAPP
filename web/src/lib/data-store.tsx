@@ -151,6 +151,7 @@ import { locationEventsFromSave } from "@/lib/task-automation/location-triggers"
 import { timesheetEventsFromSave } from "@/lib/task-automation/timesheet-triggers";
 import { investigationSlaDays } from "@/lib/incident-analytics";
 import { defaultOrganization } from "@/lib/organization";
+import { isBuddyShift } from "@/lib/buddy-shift";
 import { convertEnquiryToClient } from "@/lib/convert";
 import { syncClientsForIncident } from "@/lib/incident-client-sync";
 import { syncLocationsForIncident } from "@/lib/incident-location-sync";
@@ -1249,9 +1250,26 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
 
       const stamped = persistRecordAudit("roster-shift", normalized, !exists, before);
-      setRosterShifts((current) =>
-        exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped]
-      );
+      setRosterShifts((current) => {
+        let next = exists ? current.map((r) => (r.id === stamped.id ? stamped : r)) : [...current, stamped];
+        if (stamped.status === "Cancelled" && !isBuddyShift(stamped) && before?.status !== "Cancelled") {
+          const buddies = current.filter(
+            (r) => r.primaryRosterShiftId === stamped.id && r.status !== "Cancelled"
+          );
+          for (const buddy of buddies) {
+            const cancelledBuddy = normalizeRosterShift({
+              ...buddy,
+              status: "Cancelled",
+              updatedBy: stamped.updatedBy,
+            });
+            const buddyStamped = persistRecordAudit("roster-shift", cancelledBuddy, false, buddy);
+            void persistRemote((supabase) => saveRosterShift(supabase, buddyStamped));
+            next = next.map((r) => (r.id === buddyStamped.id ? buddyStamped : r));
+            if (!next.some((r) => r.id === buddyStamped.id)) next = [...next, buddyStamped];
+          }
+        }
+        return next;
+      });
       void persistRemote((supabase) => saveRosterShift(supabase, stamped));
       return null;
     },

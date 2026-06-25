@@ -1,6 +1,7 @@
 "use client";
 
 import type { TimesheetLine } from "@/lib/timesheet";
+import { isLinePayable } from "@/lib/buddy-shift";
 import {
   verificationStatusClass,
   verificationStatusLabel,
@@ -61,6 +62,15 @@ export function TimesheetVerificationPanel({
           >
             <div>
               <p className="font-medium text-slate-900">{lineLabel(row.lineId)}</p>
+              {(() => {
+                const line = lines.find((l) => l.id === row.lineId);
+                if (!line || isLinePayable(line)) return null;
+                return (
+                  <span className="mt-1 inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-800">
+                    Non-payable
+                  </span>
+                );
+              })()}
               <p className="mt-0.5 text-slate-600">{row.message}</p>
               {row.geofenceWarning ? (
                 <p className="mt-1 text-xs text-amber-800">{row.geofenceWarning}</p>

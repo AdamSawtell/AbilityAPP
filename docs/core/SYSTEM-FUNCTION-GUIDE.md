@@ -172,6 +172,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Agency worker register** ÔÇö relief staff linked to staffing vendor | Roster admin, coordinators | Named agency pool per vendor; not payroll employees | Live |
 | **Request agency coverage** ÔÇö vacant shift to vendor workflow | Roster admin, coordinators | Agency shift request + shift pack email | Live |
 | **Confirm agency shift** ÔÇö assign agency worker with site orientation check | Roster admin, coordinators | Shift shows Agency badge; vendor + worker on roster | Live |
+| **Buddy shift management** ÔÇö shadow/orientation shifts linked to primary | Roster admin, team leaders, coordinators | Separate pay and billing axes; org pay policy; primary cancel cascades | Live |
 
 ---
 

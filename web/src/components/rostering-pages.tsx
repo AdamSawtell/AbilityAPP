@@ -21,12 +21,13 @@ import {
   addDaysIso,
   formatDayHeading,
   formatShiftTimeRange,
+  isAgencyCoveredShift,
   normalizeRosterShift,
   resolveRosterWeekStart,
   shiftsForWeek,
-  isAgencyCoveredShift,
   weekStartFromDate,
 } from "@/lib/roster-shift";
+import { isBuddyShift, isShiftBillable } from "@/lib/buddy-shift";
 import { detectRosterShiftConflicts } from "@/lib/roster-shift-conflicts";
 import { rosterValidationMode } from "@/lib/roster-shift-compliance";
 import { gapsForWeek, isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
@@ -73,6 +74,7 @@ export function RosteringWeekView() {
   const [editorShift, setEditorShift] = useState<ReturnType<typeof normalizeRosterShift> | null | "new">(null);
   const [newShiftDate, setNewShiftDate] = useState("");
   const [editorPrefill, setEditorPrefill] = useState<{ clientId?: string; serviceBookingId?: string } | null>(null);
+  const [buddyFromPrimary, setBuddyFromPrimary] = useState<ReturnType<typeof normalizeRosterShift> | null>(null);
   const [dragShiftId, setDragShiftId] = useState<string | null>(null);
   const [dropTargetDay, setDropTargetDay] = useState<string | null>(null);
   const [rescheduleNotice, setRescheduleNotice] = useState<{ tone: "error" | "success"; message: string } | null>(
@@ -202,8 +204,15 @@ export function RosteringWeekView() {
 
   function openShiftEditor(shift: ReturnType<typeof normalizeRosterShift>) {
     if (dragStartedRef.current) return;
+    setBuddyFromPrimary(null);
     setEditorPrefill(null);
     setEditorShift(shift);
+  }
+
+  function openBuddyEditor(primary: ReturnType<typeof normalizeRosterShift>) {
+    setEditorPrefill(null);
+    setBuddyFromPrimary(primary);
+    setEditorShift("new");
   }
 
   function handleExportWeekCsv() {
@@ -544,6 +553,20 @@ export function RosteringWeekView() {
                               Booking {booking.documentNo}
                             </Link>
                           ) : null}
+                          {canEditRoster &&
+                          !isBuddyShift(shift) &&
+                          (shift.employeeId?.trim() || shift.agencyWorkerId?.trim()) ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openBuddyEditor(shift);
+                              }}
+                              className="mt-2 block text-[10px] font-semibold text-violet-800 hover:underline"
+                            >
+                              Add buddy shift
+                            </button>
+                          ) : null}
                           {vacant ? (
                             <span className="mt-1 inline-flex rounded-full bg-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-950">
                               Vacant
@@ -552,6 +575,21 @@ export function RosteringWeekView() {
                           {isAgencyCoveredShift(shift) ? (
                             <span className="mt-1 inline-flex rounded-full bg-sky-200 px-1.5 py-0.5 text-[10px] font-medium text-sky-950">
                               Agency
+                            </span>
+                          ) : null}
+                          {isBuddyShift(shift) ? (
+                            <span className="mt-1 inline-flex rounded-full bg-violet-200 px-1.5 py-0.5 text-[10px] font-medium text-violet-950">
+                              Buddy
+                            </span>
+                          ) : null}
+                          {isBuddyShift(shift) && shift.payStatus === "non_payable" ? (
+                            <span className="mt-1 inline-flex rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-800">
+                              Non-payable
+                            </span>
+                          ) : null}
+                          {isBuddyShift(shift) && !isShiftBillable(shift) ? (
+                            <span className="mt-1 inline-flex rounded-full bg-indigo-100 px-1.5 py-0.5 text-[10px] font-medium text-indigo-900">
+                              Non-billable
                             </span>
                           ) : null}
                           {shift.recurrenceGroupId ? (
@@ -618,9 +656,11 @@ export function RosteringWeekView() {
           initial={editorShift === "new" ? null : editorShift}
           defaultDate={newShiftDate}
           prefill={editorPrefill ?? undefined}
+          buddyFromPrimary={buddyFromPrimary}
           onClose={() => {
             setEditorShift(null);
             setEditorPrefill(null);
+            setBuddyFromPrimary(null);
           }}
         />
       ) : null}

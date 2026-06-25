@@ -287,6 +287,8 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 
 **Agency staffing (WP-AG.1):** **Gaps** tab lists vacant shifts; **Request agency** opens the agency shift request drawer (process `request-agency-coverage`). Confirmed agency cover shows an **Agency** badge on the week calendar.
 
+**Buddy shifts (AB-0022):** On staffed shift cards, **Add buddy shift** creates a linked shadow/orientation shift. Calendar badges: **Buddy**, **Non-payable**, **Non-billable**. Org pay default: System → Organisation → **Buddy shifts** (`/system/settings/buddy-shifts`). Participant portal does not show buddy shifts (v1).
+
 **Processes:** `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` (rostering + agency-workers grants).
 
 ---
@@ -484,6 +486,7 @@ System routes use **System** sign-in (`/system/...`). Navigation: `web/src/lib/s
 | Organisation profile | `/system/organization` | Organisation |
 | Time & date | `/system/settings/time-and-date` | Organisation |
 | Incident management | `/system/settings/incident-management` | Incident reports |
+| Buddy shifts | `/system/settings/buddy-shifts` | Organisation |
 | Org chart tiers | `/system/org-chart-tiers` | Organisation |
 | Reference data | `/system/reference-data` | Reference data |
 | Task management | `/system/admin/task-management` | Tasks |
