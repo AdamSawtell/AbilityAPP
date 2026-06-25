@@ -37,14 +37,18 @@ export function PortalShell({
       <footer className="mx-auto max-w-4xl px-4 pb-8 sm:px-6">
         <RecordAuditFooter moduleLabel="Participant portal" />
         <p className="mt-3 text-center text-xs text-slate-400">
-          Need help? Contact {organization.phone || organization.email || "your provider"}.
+          Need help?{" "}
+          <Link href="/portal/help" className="font-medium text-[#b51266] hover:underline">
+            How to use your portal
+          </Link>{" "}
+          · Contact {organization.phone || organization.email || "your provider"} for support.
         </p>
       </footer>
     </div>
   );
 }
 
-export function PortalNav({ active }: { active: "home" | "services" | "budget" | "requests" }) {
+export function PortalNav({ active }: { active: "home" | "services" | "budget" | "requests" | "help" }) {
   const linkClass = (key: typeof active) =>
     `rounded-lg px-3 py-2 text-sm font-medium ${
       active === key ? "bg-[#fdf2f8] text-[#b51266]" : "text-slate-600 hover:bg-slate-100"
@@ -63,6 +67,9 @@ export function PortalNav({ active }: { active: "home" | "services" | "budget" |
       </Link>
       <Link href="/portal/requests" className={linkClass("requests")}>
         Request a service
+      </Link>
+      <Link href="/portal/help" className={linkClass("help")}>
+        How to use your portal
       </Link>
     </nav>
   );

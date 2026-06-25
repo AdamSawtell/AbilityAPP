@@ -90,10 +90,11 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/my", slug: "my-workplace", surface: "app" },
 
   // App — participant portal
-  { prefix: "/portal/requests", slug: "participant-portal", surface: "app" },
-  { prefix: "/portal/services", slug: "participant-portal", surface: "app" },
-  { prefix: "/portal/budget", slug: "participant-portal", surface: "app" },
-  { prefix: "/portal", slug: "participant-portal", surface: "app" },
+  { prefix: "/portal/help", slug: "participant-portal-guide", surface: "app" },
+  { prefix: "/portal/requests", slug: "participant-portal-guide", surface: "app" },
+  { prefix: "/portal/services", slug: "participant-portal-guide", surface: "app" },
+  { prefix: "/portal/budget", slug: "participant-portal-guide", surface: "app" },
+  { prefix: "/portal", slug: "participant-portal-guide", surface: "app" },
   // App — agency vendor portal
   { prefix: "/agency-portal/help", slug: "agency-vendor-portal", surface: "app" },
   { prefix: "/agency-portal/requests", slug: "agency-vendor-portal", surface: "app" },

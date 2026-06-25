@@ -30,10 +30,11 @@
 | Function | Route | Notes |
 |----------|-------|-------|
 | Sign in | `/portal/login` | Email must match `client.email`; demo shows **Open portal** when `PORTAL_DEMO_EXPOSE_LINK=true` |
-| Hub | `/portal` | Dashboard — redirects to login if no session |
+| Hub | `/portal` | Dashboard — next-step banner, summary tiles, badged cards; redirects to login if no session |
 | My services | `/portal/services` | Week + list of rostered supports |
 | My funding | `/portal/budget` | Read-only plan budget lines |
 | Request a service | `/portal/requests` | Submit → staff see **Clients** → **Requests** tab |
+| How to use your portal | `/portal/help` | Participant-only guide (`participant-portal-guide`) — services, funding, requests, escalation |
 
 **Demo participant:** `Bernie@email` (client `bp-bern` / Bernadette Rose).
 
@@ -49,10 +50,11 @@
 | Tab / page | Route | Purpose |
 |------------|-------|---------|
 | Sign in | `/agency-portal/login` | Email must match agency vendor `business_partner.email` |
-| Hub | `/agency-portal` | Dashboard |
+| Hub | `/agency-portal` | Dashboard — next-step banner, summary tiles, badged cards |
 | Shift requests | `/agency-portal/requests`, `/agency-portal/requests/{id}` | Confirm **Sent** requests → **Worker proposed** |
 | Timesheets | `/agency-portal/timesheets` | Approved agency timesheets |
 | Invoices | `/agency-portal/invoices` | Submit invoice against approved timesheet (mandatory PDF/image attachment) |
+| How to use this portal | `/agency-portal/help` | Vendor-only guide (`agency-vendor-portal`) — shifts, timesheets, invoices, escalation |
 
 **Code:** `web/src/components/agency-portal/*`, `web/src/lib/agency-portal/*`, `web/src/app/agency-portal/*`
 

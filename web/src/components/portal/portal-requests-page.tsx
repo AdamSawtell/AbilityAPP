@@ -228,10 +228,9 @@ export function PortalRequestsPage() {
           )}
 
           <p className="mt-6 text-xs text-slate-500">
-            Need help choosing a service? Contact your coordinator — staff can also see requests on your client record
-            under{" "}
-            <Link href="/help/participant-portal" className="text-[#b51266] hover:underline">
-              Requests
+            Need help choosing a service? Contact your coordinator, or see{" "}
+            <Link href="/portal/help" className="text-[#b51266] hover:underline">
+              How to use your portal
             </Link>
             .
           </p>

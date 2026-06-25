@@ -13,10 +13,33 @@
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | Release hardening follow-ups |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-25 — WP-UX.4 vendor portal landing dashboard |
+| **Last push** | 2026-06-25 — WP-UX.5 participant portal parity (dashboard + help) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
+
+---
+
+## WP-UX.5 — Participant portal parity with vendor portal (2026-06-25)
+
+**Status:** ✅ Shipped
+
+The participant (client) portal now matches the vendor portal's UX and support functions. The home page (`/portal`) is a dashboard with the same structure as `/agency-portal`: a **Your next step** banner, four summary tiles, and badged action cards. A new participant-only **How to use your portal** guide (`participant-portal-guide`, `portalOnly`) is available at `/portal/help`, linked from the nav and footer, with escalation guidance. The participant portal keeps its org-brand pink accent; the vendor portal keeps sky — only the accent colour differs between portals, the layout and support functions are identical.
+
+| Area | Change |
+|------|--------|
+| Participant home | `PortalHubPage` fetches services/budget/requests; next-step banner, tiles (Upcoming supports, Funding remaining, Requests in review, Plan review), badged cards |
+| Help | New `/portal/help` guarded page + `participant-portal-guide` article; nav + footer link |
+| Shell/nav | `PortalNav` gains **How to use your portal**; footer mirrors vendor help link |
+| Page guides | `/portal/*` + `/portal/help` resolve to `participant-portal-guide` |
+| Core docs | WINDOWS-AND-TABS portal tables updated (both portals) |
+
+### What you can test — WP-UX.5
+
+1. Participant portal as `Bernie@email` — `/portal` shows the dashboard with a next-step banner and tiles reflecting live data.
+2. Action cards show count badges (e.g. My services "N upcoming") and link to the matching page.
+3. `/portal/help` loads the participant guide after sign-in; signed-out access redirects to `/portal/login`.
+4. Nav and footer both link to **How to use your portal**.
 
 ---
 
@@ -1832,6 +1855,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-25 | WP-UX.5 | `localhost:3000/portal`, `/portal/help` | **Pass** | Participant dashboard parity (banner, tiles, badged cards); `/portal/help` guide renders; no error banner |
 | 2026-06-25 | WP-UX.4 | `localhost:3000/agency-portal` | **Pass** | Vendor dashboard: next-step banner, summary tiles, badged action cards; no error banner |
 | 2026-06-25 | WP-UX.3 Amplify | `app.abilityvua.com/vendor-invoices`, `/agency-portal/help` | **Pass** | `7b43f28` redeploy; Finance menu + guide; vendor help + escalation; signed-out redirect |
 | 2026-06-24 | WP-ACT.1 Amplify | `app.abilityvua.com` — client/enquiry activity, list dashboards, incident mgmt | **Pass** | `cadcf71` deployed; admin Remove; GabrielaWilson Request deletion |
@@ -1896,6 +1920,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-25 | WP-UX.5 uncommitted | 2 Medium, fixed | **Pass** | Next-support skips elapsed shifts; overdue plan review prioritised over upcoming supports |
 | 2026-06-25 | WP-UX.4 uncommitted | 1 High, fixed | **Pass** | Failed dashboard loads now show error notice instead of misleading all-caught-up state |
 | 2026-06-25 | WP-UX.3 uncommitted | 1 Medium, fixed; rerun 0 | **Pass** | Replaced phantom vendor help window key with portal-only metadata |
 | 2026-06-24 | WP-UX.1 uncommitted | 0 | **Pass** | List-drawer UX; no findings |
