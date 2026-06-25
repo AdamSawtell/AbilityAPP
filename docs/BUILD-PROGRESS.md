@@ -42,7 +42,9 @@ Buddy shifts are shadow/orientation roster shifts linked to a primary staffed sh
 4. Generate claims / payroll export — non-billable and non-payable lines excluded per rules.
 5. Cancel a primary shift — linked buddy shifts cancel with it.
 
-**Local smoke (2026-06-25):** System operator `SuperUser` can open `/system/settings/buddy-shifts`; policy options and organisation audit footer render. `RileyShaw` can open `/rostering?week=2025-10-06`; staffed shift cards show **Add buddy shift**, and the buddy editor opens with purpose, participant billing, worker pay, linked primary shift, reason, and notes. The current local dataset did not include the seeded `rs-bern-mon-buddy` row, so badge visibility, cancel cascade, and generation/export checks remain for seeded DB smoke (TEST-061).
+**Local smoke (2026-06-25):** System operator `SuperUser` can open `/system/settings/buddy-shifts`; policy options and organisation audit footer render. `RileyShaw` can open `/rostering?week=2025-10-06`; staffed shift cards show **Add buddy shift**, and the buddy editor opens with purpose, participant billing, worker pay, linked primary shift, reason, and notes.
+
+**Amplify smoke pass (2026-06-25):** remote migration `20260628000000_buddy_shift_management.sql` applied via `run-all-remote-seeds.mjs --file` (push blocked by pre-existing duplicate-version history drift — verified columns, demo row, and Team Leader grant directly). Live `https://app.abilityvua.com` after deploy `0b1ee7a`: `/system/settings/buddy-shifts` shows policy radios with **Ask when booking** selected (reads `buddy_shift_pay_policy='ask'`) + organisation audit footer; `/login` shows **Client portal** + **Vendor portal** links and Vendor portal opens `/agency-portal/login` (allowlist fix); `/rostering?week=2025-10-06` shows seeded **BERN-MON-BUDDY** with **Buddy / Non-payable / Non-billable** badges and no false conflict against its primary, **Add buddy shift** on internal and agency (Jane Agency) cards, and the buddy editor opens with **Worker pay** unselected ("Select paid or non-payable…") and no Repeat weekly option. Generation/export and cancel-cascade remain for a later seeded run-through (TEST-061).
 
 ---
 
@@ -1973,6 +1975,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-25 | AB-0022 uncommitted | 2 High + 2 Medium, fixed | **Pass** | Buddy `ask` pay status stays unselected (no payable default); buddy/primary overlap no longer blocks publish; weekly recurrence disabled for buddy shifts; **Add buddy shift** now shows on agency-covered shifts |
 | 2026-06-25 | WP-UX.6 uncommitted | 0 | **Pass** | Branded portal sign-in landings; no findings |
 | 2026-06-25 | WP-UX.5 uncommitted | 2 Medium, fixed | **Pass** | Next-support skips elapsed shifts; overdue plan review prioritised over upcoming supports |
 | 2026-06-25 | WP-UX.4 uncommitted | 1 High, fixed | **Pass** | Failed dashboard loads now show error notice instead of misleading all-caught-up state |
