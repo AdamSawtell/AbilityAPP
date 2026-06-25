@@ -30,7 +30,7 @@ export const agencyVendorPortalArticle: HelpArticle = {
     {
       id: "overview",
       title: "What the agency vendor portal is",
-      body: "The agency vendor portal is separate from the staff app. Providers email shift packs from roster Gaps; vendors confirm coverage and propose a worker here. Provider staff then complete final roster confirmation after orientation checks.\n\nDemo vendor: roster@staffplus.example (StaffPlus Agency).",
+      body: "The agency vendor portal is separate from the staff app. Providers email shift packs from roster Gaps; vendors confirm coverage and propose a worker here. Provider staff then complete final roster confirmation after orientation checks.\n\nThe home page is a dashboard. A 'Your next step' banner tells you the single most important action right now, summary tiles show how many shift requests await you, how many approved timesheets are ready to invoice, how many invoices are with finance, and how many are paid. Action cards carry live count badges so you can jump straight to the right place.\n\nDemo vendor: roster@staffplus.example (StaffPlus Agency).",
       relatedRoutes: ["/agency-portal"],
     },
     {

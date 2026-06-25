@@ -13,10 +13,32 @@
 | **Current work package** | **Release hardening — UAT-14 portal + Amplify PDF heap** |
 | **Active slice** | Release hardening follow-ups |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-25 — WP-UX.3 Amplify smoke log |
+| **Last push** | 2026-06-25 — WP-UX.4 vendor portal landing dashboard |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
+
+---
+
+## WP-UX.4 — Vendor portal landing dashboard (2026-06-25)
+
+**Status:** ✅ Shipped
+
+The agency vendor portal home page (`/agency-portal`) is now a dashboard instead of a flat link grid. It loads the vendor's live requests, timesheets, and invoices and surfaces a **Your next step** banner (shift requests to action → approved timesheets to invoice → invoices with finance → all caught up), four summary tiles, and action cards with live count badges. No new routes, windows, or processes.
+
+| Area | Change |
+|------|--------|
+| Vendor portal home | `AgencyPortalHubPage` fetches requests/timesheets/invoices and computes counts |
+| UX | Next-step banner, summary tiles (Awaiting you, Ready to invoice, With finance, Paid), badged action cards, icons, signed-in footer note |
+| Help article | `agency-vendor-portal` overview describes the dashboard |
+
+### What you can test — WP-UX.4
+
+1. Agency portal as `roster@staffplus.example` — `/agency-portal` shows the dashboard with a next-step banner and summary tiles reflecting live data.
+2. Action cards show count badges (e.g. Invoices "1 in review") and link to the matching page.
+3. No error banner; load failure falls back to the cards with a notice.
+
+**Local smoke (2026-06-25):** `localhost:3000/agency-portal` after `roster@staffplus.example` demo sign-in rendered the **Welcome** header, **Your next step** banner ("1 invoice is with finance" → Track invoices), tiles (Awaiting you 0, Ready to invoice 0, With finance 1, Paid 1), and an Invoices card with a "1 in review" badge. No error banner.
 
 ---
 
@@ -1810,6 +1832,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-25 | WP-UX.4 | `localhost:3000/agency-portal` | **Pass** | Vendor dashboard: next-step banner, summary tiles, badged action cards; no error banner |
 | 2026-06-25 | WP-UX.3 Amplify | `app.abilityvua.com/vendor-invoices`, `/agency-portal/help` | **Pass** | `7b43f28` redeploy; Finance menu + guide; vendor help + escalation; signed-out redirect |
 | 2026-06-24 | WP-ACT.1 Amplify | `app.abilityvua.com` — client/enquiry activity, list dashboards, incident mgmt | **Pass** | `cadcf71` deployed; admin Remove; GabrielaWilson Request deletion |
 | 2026-06-23 | WP-ACT.1 | `localhost:3000/clients/bp-bern?tab=Activity` | **Pass** | Admin: Remove in drawer; GabrielaWilson: Request deletion → REQ-3207 |
