@@ -20,7 +20,7 @@
 
 | UAT ID | Route | Expected | Result |
 |--------|-------|----------|--------|
-| UAT-14-S-001 | `/portal/login` | Sign-in form; magic link request for participant email; footer **How to use your portal** link | **Pass** — localhost + Amplify demo link (2026-06-25) |
+| UAT-14-S-001 | `/portal/login` | Branded landing with org logo/name/address/contact strip, help + staff links, and magic-link request for participant email | **Pass** — Amplify 2026-06-25; `Bernie@email` returned **Open portal** demo link |
 | UAT-14-S-002 | `/portal` | Dashboard: next-step banner, summary tiles (Upcoming supports / Funding remaining / Requests in review / Plan review), badged action cards | **Pass** — Amplify 2026-06-25; "Welcome, Bernie", "1 request under review", 3 upcoming |
 | UAT-14-S-003 | `/portal/budget` | Plan budget summary (read-only) | **Pass** — page loads; empty state when no budget lines published |
 | UAT-14-S-004 | `/portal/services` | Upcoming rostered supports (week + list) | **Pass** — 2 supports in current week calendar |

@@ -41,6 +41,8 @@ Both portal sign-in pages now use one shared branded landing (`PortalAuthLanding
 
 **Local smoke (2026-06-25):** Both login pages render the branded landing with logo, name, address, badge, intro, sign-in card, help + staff links, and phone/email/website contact strip. Vendor magic-link request returned the demo **Open agency portal** link. No error banners.
 
+**Amplify smoke (2026-06-25):** live `https://app.abilityvua.com` after redeploy `e197986` — `/portal/login` and `/agency-portal/login` render the branded landing with org logo/identity, portal badge, address, phone, corrected `www.abilityvua.com` website, and no `.local` email in the public contact strip. Demo magic-link actions returned **Open portal** and **Open agency portal** respectively. Live Organisation profile website corrected from `www.apbilityvua.com` to `www.abilityvua.com`.
+
 ---
 
 ## WP-UX.5 — Participant portal parity with vendor portal (2026-06-25)
@@ -1878,6 +1880,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-25 | WP-UX.6 Amplify | `app.abilityvua.com/portal/login`, `/agency-portal/login` | **Pass** | `e197986` live; branded landings render; no `.local` public email; website corrected; demo magic links work |
 | 2026-06-25 | WP-UX.4+5 Amplify | `app.abilityvua.com/agency-portal`(+`/help`), `/portal`(+`/help`) | **Pass** | `a1c0dcb` live; both portal dashboards + how-to guides render; no error banners |
 | 2026-06-25 | WP-UX.5 | `localhost:3000/portal`, `/portal/help` | **Pass** | Participant dashboard parity (banner, tiles, badged cards); `/portal/help` guide renders; no error banner |
 | 2026-06-25 | WP-UX.4 | `localhost:3000/agency-portal` | **Pass** | Vendor dashboard: next-step banner, summary tiles, badged action cards; no error banner |
