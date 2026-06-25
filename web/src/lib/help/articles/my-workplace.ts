@@ -25,7 +25,7 @@ export const myWorkplaceArticle: HelpArticle = {
   ],
   relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/timesheets", "/my/contracts", "/my/credentials"],
   windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-timesheets", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-21",
+  lastUpdated: "2026-06-25",
   sections: [
     {
       id: "overview",
@@ -82,7 +82,7 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "availability",
       title: "Working availability",
-      body: "Set your preferred weekly pattern so rostering can see when you are available, preferred, or unavailable.",
+      body: "Set your preferred weekly pattern so rostering can see when you are available, preferred, or unavailable. The default pattern is Monday to Friday. Save availability stays disabled until your weekly pattern has finished loading, so an empty form can never overwrite and clear your saved days.",
       relatedRoutes: ["/my/availability"],
       windowKeys: ["my-availability"],
     },
@@ -95,6 +95,8 @@ export const myWorkplaceArticle: HelpArticle = {
         "Review date, time, client, and location on each card.",
         "Click Claim shift — your user must be linked to your employee record.",
         "If you are already rostered at that time, the claim is blocked with a message.",
+        "After claiming, the confirmation names the date, time, client, and location so you know exactly which shift you took.",
+        "Open My workplace → My shifts → All to see the claimed shift, even if it is weeks away.",
       ],
       relatedRoutes: ["/my/open-shifts", "/rostering"],
       windowKeys: ["my-open-shifts"],
@@ -105,7 +107,7 @@ export const myWorkplaceArticle: HelpArticle = {
       body: "Workers check in and out of assigned roster shifts from My workplace. GPS location is captured when the browser allows it. If the site has geofence coordinates configured, check-in/out more than the allowed radius shows an amber alert for workers and coordinators. Verified shifts show on the roster week view and feed timesheet generation.",
       steps: [
         "Open My workplace → My shifts.",
-        "Use Today, Upcoming, or All — dates follow the organisation timezone shown under the app logo.",
+        "Use Today, Upcoming, or All — Today and Upcoming cover the rolling fortnight; All lists every shift assigned to you, including ones further ahead such as a shift you just claimed.",
         "Switch to Week calendar for a seven-day grid of your assigned shifts.",
         "Draft shifts appear with a Draft badge; check-in opens after your coordinator publishes the shift.",
         "The Next action banner highlights today's shift when you can check in or out.",

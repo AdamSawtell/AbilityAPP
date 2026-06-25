@@ -20,6 +20,29 @@
 
 ---
 
+## Karen browser QA fixes — KAREN-BUG-0001–0004 (2026-06-25)
+
+**Status:** ✅ Fixed — pending retest
+
+Four Major issues from Karen's support-worker browser run were fixed in priority order.
+
+| Bug | Area | Fix |
+|-----|------|-----|
+| KAREN-BUG-0001 | My workplace → Availability | `defaultAvailabilityRows()` used `dayOfWeek [1..5]` (Tue–Sat) against a 0=Monday label index; now `[0..4]` (Mon–Fri) via `DEFAULT_AVAILABILITY_WEEKDAYS`. |
+| KAREN-BUG-0002 | My workplace → Availability | Save disabled until rows load; empty `rows` rejected client- and server-side (`saveMyAvailability` + both `/api/(my|workforce)/availability` PUT) unless explicit `allowEmpty`. |
+| KAREN-BUG-0003 | Assistant / Activity notes | Hardened client-name extraction (rejects phrases like "her visit tomorrow") and removed arbitrary `rows[0]` fallback in `resolveClient`/`pickBestMatch`; an explicitly named-but-unmatched client now returns null so the assistant asks instead of grounding on the wrong person. |
+| KAREN-BUG-0004 | Open shifts / My shifts | Claim confirmation now names date · time · client · location with a link to My shifts; **All** view lists every assigned shift (new `shiftsAssignedToWorker`), so a claimed future shift beyond the rolling fortnight is verifiable. |
+
+### What you can test — KAREN fixes
+
+1. My workplace → Availability — default rows read Monday–Friday; Save is disabled until rows load; an empty payload is rejected.
+2. Support worker assistant — ask to log an activity "for Bernadette Rose"; it confirms Bernadette (not another client), and a vague phrase no longer auto-selects a client.
+3. My workplace → Open shifts — claim a shift; confirmation shows full detail and links to My shifts → All, where the claimed shift appears.
+
+**Tier 1 (2026-06-25):** `npm run build` ✅ (exit 0), `npm run page-guides:check` ✅ (127 routes, 0 gaps), `npm run test:karen` ✅ (13/13 regression checks). Browser smoke on Amplify pending next deploy/retest.
+
+---
+
 ## AB-0022 — Buddy shift management (2026-06-25)
 
 **Status:** ✅ Shipped

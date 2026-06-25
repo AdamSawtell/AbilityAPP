@@ -65,6 +65,10 @@ export function dayLabels(): string[] {
   return ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 }
 
+// dayOfWeek is 0-indexed against dayLabels() (0 = Monday). The default working
+// pattern is Monday-Friday (KAREN-BUG-0001).
+export const DEFAULT_AVAILABILITY_WEEKDAYS = [0, 1, 2, 3, 4] as const;
+
 export function buildMyContracts(
   documents: EmployeeDocumentRow[],
   acknowledgements: { documentId: string; acknowledgedAt: string }[]

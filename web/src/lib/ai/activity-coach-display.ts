@@ -9,16 +9,79 @@ export type ActivityCoachClient = {
 const ACTIVITY_INTENT_RE =
   /\b(activity note|visit note|progress note|activity update|log (?:an? )?activity|create\b[\s\S]{0,48}\bactivity|write\b[\s\S]{0,32}\bactivity|home visit|meal prep|write (?:an? )?note|add (?:an? )?note)\b/i;
 
+// Words that signal the captured phrase is not a person's name (pronouns, time
+// words, and common activity vocabulary). Used to reject false matches like
+// "her visit tomorrow" so the assistant never grounds on the wrong client.
+const NON_NAME_TOKENS = new Set([
+  "a",
+  "an",
+  "the",
+  "her",
+  "his",
+  "their",
+  "them",
+  "they",
+  "she",
+  "he",
+  "me",
+  "my",
+  "mine",
+  "you",
+  "your",
+  "this",
+  "that",
+  "today",
+  "tonight",
+  "tomorrow",
+  "yesterday",
+  "now",
+  "later",
+  "morning",
+  "afternoon",
+  "evening",
+  "week",
+  "day",
+  "visit",
+  "phone",
+  "call",
+  "note",
+  "notes",
+  "activity",
+  "client",
+  "participant",
+  "shift",
+  "report",
+]);
+
+/** True when the captured phrase plausibly looks like a 1-3 word person name. */
+function looksLikePersonName(candidate: string): boolean {
+  const tokens = candidate.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0 || tokens.length > 3) return false;
+  return tokens.every((token) => {
+    const lower = token.replace(/[^a-z'-]/gi, "").toLowerCase();
+    if (lower.length < 2) return false;
+    return !NON_NAME_TOKENS.has(lower);
+  });
+}
+
+// One to three name tokens (letters, with optional hyphen/apostrophe inside a
+// token, e.g. "Smith-Jones", "O'Brien"). Stops cleanly at digits, dashes used
+// as separators, and punctuation.
+const NAME_TOKEN = "[A-Za-z][A-Za-z']*(?:-[A-Za-z']+)?";
+const NAME_CAPTURE = `(${NAME_TOKEN}(?:\\s+${NAME_TOKEN}){0,2})`;
+
 export function clientNameFromActivityMessage(text: string): string | null {
   const trimmed = text.trim();
   const patterns = [
-    /\bfor\s+([A-Za-z][A-Za-z'\s-]{1,60}?)(?:\s*[.?!]|$)/i,
-    /\bactivity(?:\s+note)?\s+for\s+([A-Za-z][A-Za-z'\s-]{1,60}?)(?:\s*[.?!]|$)/i,
+    new RegExp(`\\bactivity(?:\\s+note)?\\s+for\\s+${NAME_CAPTURE}`, "i"),
+    new RegExp(`\\bfor\\s+${NAME_CAPTURE}`, "i"),
   ];
   for (const pattern of patterns) {
     const match = trimmed.match(pattern);
     const name = match?.[1]?.trim();
-    if (name && name.length >= 3) return name;
+    // Require a plausible person name so phrases like "her visit tomorrow" are
+    // not mistaken for a client (KAREN-BUG-0003).
+    if (name && name.length >= 3 && looksLikePersonName(name)) return name;
   }
   return null;
 }

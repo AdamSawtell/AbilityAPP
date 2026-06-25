@@ -3,28 +3,10 @@ import type { AuthSession } from "@/lib/access/types";
 import type { ChatThreadState } from "@/lib/ai/types";
 import { persistAiClientActivity, type ClientActivityDraft } from "@/lib/ai/persist";
 import { canAccessWindow } from "@/lib/access/catalog";
+import { resolveClient } from "@/lib/ai/tools/client-resolve";
 
 function canAccess(session: AuthSession): boolean {
   return canAccessWindow(session.windowKeys, "clients") || canAccessWindow(session.windowKeys, "client-activity");
-}
-
-async function resolveClient(
-  supabase: SupabaseClient,
-  args: Record<string, unknown>
-): Promise<{ id: string; name: string; searchKey: string } | null> {
-  const clientId = String(args.clientId ?? "").trim();
-  const searchKey = String(args.searchKey ?? "").trim();
-  const name = String(args.clientName ?? args.name ?? "").trim();
-
-  let query = supabase.from("client").select("id, name, search_key");
-  if (clientId) query = query.eq("id", clientId);
-  else if (searchKey) query = query.eq("search_key", searchKey);
-  else if (name) query = query.ilike("name", `%${name}%`);
-  else return null;
-
-  const { data } = await query.limit(1).maybeSingle();
-  if (!data) return null;
-  return { id: data.id, name: data.name, searchKey: data.search_key };
 }
 
 export async function runClientActivityDraftCreate(
@@ -40,7 +22,12 @@ export async function runClientActivityDraftCreate(
     return { threadState, message: "Database not configured." };
   }
 
-  const client = await resolveClient(supabase, args);
+  const client = await resolveClient(supabase, {
+    clientId: String(args.clientId ?? ""),
+    searchKey: String(args.searchKey ?? ""),
+    name: String(args.clientName ?? args.name ?? ""),
+    pagePath: String(args.pagePath ?? ""),
+  });
   if (!client) {
     return { threadState, message: "Which client is this activity for? Provide a name or search key." };
   }

@@ -19,33 +19,40 @@ function clientIdFromPagePath(pagePath?: string): string {
   return parts[1];
 }
 
-function pickBestMatch(rows: ClientRow[], term: string): ClientRow | null {
-  if (!rows.length) return null;
-  if (rows.length === 1) return rows[0];
-
+export function scoreClientMatch(row: ClientRow, term: string): number {
   const q = term.toLowerCase().trim();
   const tokens = q.split(/\s+/).filter(Boolean);
+  const name = row.name.toLowerCase();
+  const first = row.first_name.toLowerCase();
+  const last = row.last_name.toLowerCase();
+  const preferred = row.preferred_name.toLowerCase();
+  const sk = row.search_key.toLowerCase();
+  let score = 0;
+  if (name === q) score += 100;
+  if (first === q || last === q || preferred === q) score += 80;
+  if (q.length >= 3 && name.includes(q)) score += 50;
+  if (q.length >= 3 && sk.includes(q)) score += 40;
+  for (const t of tokens) {
+    if (t.length < 2) continue;
+    if (first.includes(t) || last.includes(t) || preferred.includes(t) || sk.includes(t)) score += 20;
+    if (t.length >= 4 && (first.startsWith(t.slice(0, 4)) || t.startsWith(first.slice(0, 4)))) score += 15;
+  }
+  return score;
+}
 
-  const scored = rows.map((row) => {
-    const name = row.name.toLowerCase();
-    const first = row.first_name.toLowerCase();
-    const last = row.last_name.toLowerCase();
-    const preferred = row.preferred_name.toLowerCase();
-    const sk = row.search_key.toLowerCase();
-    let score = 0;
-    if (name === q) score += 100;
-    if (first === q || last === q || preferred === q) score += 80;
-    if (name.includes(q)) score += 50;
-    if (sk.includes(q)) score += 40;
-    for (const t of tokens) {
-      if (first.includes(t) || last.includes(t) || preferred.includes(t) || sk.includes(t)) score += 20;
-      if (first.startsWith(t.slice(0, 4)) || t.startsWith(first.slice(0, 4))) score += 15;
-    }
-    return { row, score };
-  });
+// Return null instead of an arbitrary row when nothing actually matches the
+// query — this prevents the assistant from grounding on the wrong client
+// (KAREN-BUG-0003). Callers treat null as "ask the user which client".
+export function pickBestMatch(rows: ClientRow[], term: string): ClientRow | null {
+  if (!rows.length) return null;
 
-  scored.sort((a, b) => b.score - a.score);
-  return scored[0]?.score > 0 ? scored[0].row : rows[0];
+  const scored = rows
+    .map((row) => ({ row, score: scoreClientMatch(row, term) }))
+    .sort((a, b) => b.score - a.score);
+
+  const best = scored[0];
+  if (!best || best.score <= 0) return null;
+  return best.row;
 }
 
 async function fetchByIlike(
@@ -149,21 +156,9 @@ export async function resolveClient(
   const match = pickBestMatch(pools, name);
   if (match) return { id: match.id, name: match.name, searchKey: match.search_key };
 
-  if (pageClientId) {
-    const { data: byId } = await supabase
-      .from("client")
-      .select("id, name, search_key")
-      .eq("id", pageClientId)
-      .maybeSingle();
-    if (byId) return { id: byId.id, name: byId.name, searchKey: byId.search_key };
-
-    const { data: bySearchKey } = await supabase
-      .from("client")
-      .select("id, name, search_key")
-      .eq("search_key", pageClientId)
-      .maybeSingle();
-    if (bySearchKey) return { id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key };
-  }
-
+  // A name was explicitly requested but nothing matched confidently. Do NOT fall
+  // back to the client whose page happens to be open — that is how the assistant
+  // grounded on the wrong person (KAREN-BUG-0003). Return null so the caller asks
+  // the user to pick the right client.
   return null;
 }

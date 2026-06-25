@@ -44,8 +44,19 @@ export function OpenShiftsMarketplacePanel({
     setMessage("");
     const err = await onClaim(shift);
     setClaimingId(null);
-    if (err) setError(err);
-    else setMessage(`You claimed the shift on ${formatDayHeading(shift.shiftDate)}.`);
+    if (err) {
+      setError(err);
+      return;
+    }
+    const client = clients.find((c) => c.id === shift.clientId);
+    const location = locations.find((l) => l.id === shift.locationId);
+    const parts = [
+      formatDayHeading(shift.shiftDate),
+      formatShiftTimeRange(shift.startTime, shift.endTime),
+    ];
+    if (client) parts.push(client.name);
+    if (location) parts.push(location.name);
+    setMessage(`Shift claimed — ${parts.join(" · ")}.`);
   }
 
   if (!openShifts.length) {
@@ -59,7 +70,18 @@ export function OpenShiftsMarketplacePanel({
   return (
     <div className="space-y-4">
       {message ? (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">{message}</p>
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">
+          <p>{message}</p>
+          {mode === "worker" ? (
+            <p className="mt-1">
+              It now appears under{" "}
+              <Link href="/my/shifts" className="font-semibold underline hover:no-underline">
+                My shifts → All
+              </Link>
+              .
+            </p>
+          ) : null}
+        </div>
       ) : null}
       {error ? (
         <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{error}</p>

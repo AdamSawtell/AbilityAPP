@@ -24,9 +24,9 @@ export async function PUT(request: Request) {
   const ctx = await requireMyWorkplace(session, "my-availability");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  let body: { rows?: EmployeeAvailabilityRow[] };
+  let body: { rows?: EmployeeAvailabilityRow[]; allowEmpty?: boolean };
   try {
-    body = (await request.json()) as { rows?: EmployeeAvailabilityRow[] };
+    body = (await request.json()) as { rows?: EmployeeAvailabilityRow[]; allowEmpty?: boolean };
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
@@ -35,8 +35,15 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "rows array required" }, { status: 400 });
   }
 
+  if (body.rows.length === 0 && body.allowEmpty !== true) {
+    return NextResponse.json(
+      { error: "No availability rows to save — reload the page and try again before saving." },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { employee, rows } = await saveMyAvailability(ctx, body.rows);
+    const { employee, rows } = await saveMyAvailability(ctx, body.rows, { allowEmpty: body.allowEmpty === true });
     return NextResponse.json({ employee, rows });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not save availability";

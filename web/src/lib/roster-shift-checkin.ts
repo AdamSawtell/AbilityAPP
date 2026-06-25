@@ -49,6 +49,22 @@ export function shiftsForWorkerSchedule(
     .sort((a, b) => `${a.shiftDate}${a.startTime}`.localeCompare(`${b.shiftDate}${b.startTime}`));
 }
 
+/**
+ * Every shift assigned to the worker (no date window), excluding cancelled.
+ * Used by the My shifts "All" view so a claimed future shift is always
+ * verifiable, even beyond the rolling schedule window (KAREN-BUG-0004).
+ */
+export function shiftsAssignedToWorker(
+  shifts: RosterShiftRecord[],
+  employeeId: string
+): RosterShiftRecord[] {
+  const id = employeeId.trim();
+  if (!id) return [];
+  return shifts
+    .filter((s) => s.employeeId === id && s.status !== "Cancelled")
+    .sort((a, b) => `${a.shiftDate}${a.startTime}`.localeCompare(`${b.shiftDate}${b.startTime}`));
+}
+
 /** Shifts a worker can check in on (Published / Completed only). */
 export function shiftsForWorkerCheckIn(
   shifts: RosterShiftRecord[],

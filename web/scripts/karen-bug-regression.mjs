@@ -1,0 +1,140 @@
+/**
+ * Regression checks for the Karen browser QA bugs.
+ * Run: npm run test:karen  (uses tsx to import the real source modules)
+ *
+ * Covers:
+ *  - KAREN-BUG-0001: default availability weekday rows map Monday-Friday.
+ *  - KAREN-BUG-0003: assistant client name extraction + match grounding.
+ *  - KAREN-BUG-0004: claimed/assigned shifts visible in My shifts "All".
+ */
+import { dayLabels, DEFAULT_AVAILABILITY_WEEKDAYS } from "../src/lib/my-workplace/types.ts";
+import { clientNameFromActivityMessage } from "../src/lib/ai/activity-coach-display.ts";
+import { pickBestMatch, scoreClientMatch } from "../src/lib/ai/tools/client-resolve.ts";
+import { shiftsAssignedToWorker } from "../src/lib/roster-shift-checkin.ts";
+import { filterMyShiftsView } from "../src/lib/my-shifts-grouping.ts";
+
+let failures = 0;
+
+function check(name, actual, expected) {
+  const a = JSON.stringify(actual);
+  const e = JSON.stringify(expected);
+  if (a !== e) {
+    failures += 1;
+    console.error(`FAIL ${name}\n  expected: ${e}\n  actual:   ${a}`);
+  } else {
+    console.log(`PASS ${name}`);
+  }
+}
+
+function checkTruthy(name, actual) {
+  if (!actual) {
+    failures += 1;
+    console.error(`FAIL ${name}\n  expected truthy, got: ${JSON.stringify(actual)}`);
+  } else {
+    console.log(`PASS ${name}`);
+  }
+}
+
+// ---- KAREN-BUG-0001 -------------------------------------------------------
+const labels = dayLabels();
+check(
+  "BUG-0001 default availability maps Monday-Friday",
+  DEFAULT_AVAILABILITY_WEEKDAYS.map((d) => labels[d]),
+  ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+);
+check("BUG-0001 first default day is Monday (index 0)", DEFAULT_AVAILABILITY_WEEKDAYS[0], 0);
+check("BUG-0001 default rows never include Saturday/Sunday", DEFAULT_AVAILABILITY_WEEKDAYS.includes(5) || DEFAULT_AVAILABILITY_WEEKDAYS.includes(6), false);
+
+// ---- KAREN-BUG-0003 (name extraction) -------------------------------------
+check(
+  "BUG-0003 extracts explicit client name",
+  clientNameFromActivityMessage("Save an activity for Bernadette Rose. Phone call at 1400hrs."),
+  "Bernadette Rose"
+);
+check(
+  "BUG-0003 extracts name before a dash separator",
+  clientNameFromActivityMessage("log activity note for Bernadette Rose - phone call from today at 1400hrs"),
+  "Bernadette Rose"
+);
+check(
+  "BUG-0003 rejects pronoun/time phrase as a name",
+  clientNameFromActivityMessage("log an activity note - she is away for her visit tomorrow"),
+  null
+);
+check(
+  "BUG-0003 rejects 'for the visit'",
+  clientNameFromActivityMessage("add a note for the visit today"),
+  null
+);
+
+// ---- KAREN-BUG-0003 (match grounding) -------------------------------------
+const bernadette = {
+  id: "client-bern",
+  name: "Bernadette Rose",
+  search_key: "ROSEBE",
+  first_name: "Bernadette",
+  last_name: "Rose",
+  preferred_name: "Bernie",
+};
+const henry = {
+  id: "client-henry",
+  name: "Henry Robinson",
+  search_key: "ROBIHE",
+  first_name: "Henry",
+  last_name: "Robinson",
+  preferred_name: "",
+};
+
+const best = pickBestMatch([henry, bernadette], "Bernadette Rose");
+check("BUG-0003 picks the requested client, not first row", best?.id, "client-bern");
+
+check(
+  "BUG-0003 returns null when nothing matches (no arbitrary fallback)",
+  pickBestMatch([henry], "her visit tomorrow"),
+  null
+);
+
+checkTruthy(
+  "BUG-0003 exact name outscores unrelated client",
+  scoreClientMatch(bernadette, "Bernadette Rose") > scoreClientMatch(henry, "Bernadette Rose")
+);
+
+// ---- KAREN-BUG-0004 -------------------------------------------------------
+const today = "2025-10-01";
+const shift = (id, date, employeeId, status) => ({
+  id,
+  shiftDate: date,
+  startTime: "09:00",
+  endTime: "17:00",
+  employeeId,
+  status,
+});
+const rosterShifts = [
+  shift("s-today", "2025-10-01", "emp1", "Published"),
+  shift("s-far-future", "2025-11-15", "emp1", "Published"), // beyond +14d window
+  shift("s-cancelled", "2025-10-10", "emp1", "Cancelled"),
+  shift("s-other", "2025-10-08", "emp2", "Published"),
+];
+
+const assigned = shiftsAssignedToWorker(rosterShifts, "emp1");
+check(
+  "BUG-0004 assigned set includes far-future claimed shift",
+  assigned.map((s) => s.id),
+  ["s-today", "s-far-future"]
+);
+check(
+  "BUG-0004 assigned set excludes cancelled and other workers",
+  assigned.some((s) => s.id === "s-cancelled" || s.id === "s-other"),
+  false
+);
+check(
+  "BUG-0004 All view returns every assigned shift",
+  filterMyShiftsView(assigned, "all", "emp1", today).map((s) => s.id),
+  ["s-today", "s-far-future"]
+);
+
+if (failures > 0) {
+  console.error(`\n${failures} regression check(s) failed.`);
+  process.exit(1);
+}
+console.log("\nAll Karen regression checks passed.");

@@ -20,6 +20,7 @@ export function MyAvailabilityPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const labels = dayLabels();
 
   useEffect(() => {
@@ -28,7 +29,10 @@ export function MyAvailabilityPage() {
         if (!res.ok) throw new Error("Could not load availability");
         return res.json() as Promise<{ rows: EmployeeAvailabilityRow[] }>;
       })
-      .then((data) => setRows(data.rows))
+      .then((data) => {
+        setRows(data.rows);
+        setLoaded(true);
+      })
       .catch((err: Error) => setError(err.message));
   }, []);
 
@@ -38,6 +42,12 @@ export function MyAvailabilityPage() {
 
   async function saveAvailability(e: React.FormEvent) {
     e.preventDefault();
+    // Guard: never save before rows have loaded, and never save an empty set —
+    // that would silently clear the worker's availability (KAREN-BUG-0002).
+    if (!loaded || rows.length === 0) {
+      setError("Availability is still loading — wait for your weekly pattern to appear before saving.");
+      return;
+    }
     setSaving(true);
     setError("");
     setMessage("");
@@ -75,6 +85,15 @@ export function MyAvailabilityPage() {
             <p className="mt-1 text-sm text-slate-600">Rostering will use this as a guide when building shifts.</p>
           </div>
           <div className="divide-y divide-slate-100">
+            {!loaded && !error ? (
+              <p className="px-5 py-6 text-sm text-slate-600">Loading your weekly pattern…</p>
+            ) : null}
+            {loaded && rows.length === 0 ? (
+              <p className="px-5 py-6 text-sm text-amber-800">
+                No weekly pattern rows are available. Reload the page before saving so you don&apos;t clear your
+                availability.
+              </p>
+            ) : null}
             {rows.map((row, index) => (
               <div key={row.id} className="grid gap-3 px-5 py-4 sm:grid-cols-5 sm:items-end">
                 <div>
@@ -107,8 +126,12 @@ export function MyAvailabilityPage() {
             ))}
           </div>
           <div className="border-t border-slate-100 px-5 py-4">
-            <button type="submit" disabled={saving} className="rounded-lg bg-[#d4147a] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60">
-              {saving ? "Saving…" : "Save availability"}
+            <button
+              type="submit"
+              disabled={saving || !loaded || rows.length === 0}
+              className="rounded-lg bg-[#d4147a] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
+            >
+              {saving ? "Saving…" : loaded ? "Save availability" : error ? "Couldn’t load — reload" : "Loading…"}
             </button>
             {message ? <p className="mt-3 text-sm text-emerald-700">{message}</p> : null}
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}

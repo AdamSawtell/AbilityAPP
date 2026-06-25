@@ -24,6 +24,7 @@ import {
   formatCheckInTimestamp,
   shiftCheckInStatus,
   shiftCheckInStatusLabel,
+  shiftsAssignedToWorker,
   shiftsForWorkerSchedule,
 } from "@/lib/roster-shift-checkin";
 import { formatShiftTimeRange } from "@/lib/roster-shift";
@@ -71,6 +72,12 @@ export function MyShiftsPage() {
     () => shiftsForWorkerSchedule(rosterShifts, employeeId, orgToday),
     [rosterShifts, employeeId, orgToday]
   );
+  // "All" must show every assigned shift, including those beyond the rolling
+  // schedule window, so a claimed future shift is always verifiable (KAREN-BUG-0004).
+  const allAssigned = useMemo(
+    () => shiftsAssignedToWorker(rosterShifts, employeeId),
+    [rosterShifts, employeeId]
+  );
 
   const [view, setView] = useState<MyShiftsView>("today");
   const [layout, setLayout] = useState<"list" | "week">("list");
@@ -78,10 +85,16 @@ export function MyShiftsPage() {
   const [error, setError] = useState("");
   const [notesByShift, setNotesByShift] = useState<Record<string, string>>({});
 
-  const counts = useMemo(() => countMyShiftsView(shifts, employeeId, orgToday), [shifts, employeeId, orgToday]);
+  const counts = useMemo(() => {
+    const base = countMyShiftsView(shifts, employeeId, orgToday);
+    return { ...base, all: allAssigned.length };
+  }, [shifts, allAssigned, employeeId, orgToday]);
   const filtered = useMemo(
-    () => filterMyShiftsView(shifts, view, employeeId, orgToday),
-    [shifts, view, employeeId, orgToday]
+    () =>
+      view === "all"
+        ? filterMyShiftsView(allAssigned, "all", employeeId, orgToday)
+        : filterMyShiftsView(shifts, view, employeeId, orgToday),
+    [shifts, allAssigned, view, employeeId, orgToday]
   );
   const groups = useMemo(() => groupShiftsByDate(filtered, orgToday), [filtered, orgToday]);
 
@@ -93,11 +106,13 @@ export function MyShiftsPage() {
   const shiftsByWeekDay = useMemo(() => {
     const map = new Map<string, RosterShiftRecord[]>();
     for (const day of weekDays) map.set(day, []);
-    for (const shift of shifts) {
+    // Use the full assigned set so a claimed shift in the visible week is never
+    // dropped from the week grid (KAREN-BUG-0004).
+    for (const shift of allAssigned) {
       if (map.has(shift.shiftDate)) map.get(shift.shiftDate)!.push(shift);
     }
     return map;
-  }, [shifts, weekDays]);
+  }, [allAssigned, weekDays]);
   const actionShift = useMemo(() => nextMyShiftAction(shifts, employeeId, orgToday), [shifts, employeeId, orgToday]);
   const draftCount = useMemo(() => shifts.filter((s) => s.status === "Draft").length, [shifts]);
 
@@ -229,7 +244,7 @@ export function MyShiftsPage() {
                 ? "No shifts scheduled for today (organisation time)."
                 : view === "upcoming"
                   ? "No upcoming shifts in the next two weeks."
-                  : "No assigned shifts in the next two weeks."}
+                  : "No shifts are assigned to you yet."}
             </p>
             {employeeId ? (
               <ul className="mt-3 list-inside list-disc space-y-1 text-slate-500">

@@ -47,6 +47,10 @@ export function EmployeeScheduleTemplatePanel({
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!canEdit) return;
+    if (rows.length === 0) {
+      setError("No weekly pattern rows loaded — reload before saving so the template isn't cleared.");
+      return;
+    }
     setSaving(true);
     setError("");
     setMessage("");
@@ -132,7 +136,7 @@ export function EmployeeScheduleTemplatePanel({
       {canEdit ? (
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || rows.length === 0}
           className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
         >
           {saving ? "Saving…" : "Save schedule template"}

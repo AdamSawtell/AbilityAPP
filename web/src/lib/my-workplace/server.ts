@@ -41,6 +41,7 @@ import {
 } from "@/lib/task-automation/employee-triggers";
 import { closeWorkforceAutomationTasks, runServerAutomationEvents } from "@/lib/task-automation/run-server";
 import {
+  DEFAULT_AVAILABILITY_WEEKDAYS,
   isStaffContractDocument,
   type MyCredentialSubmitPayload,
   type MyLeaveSubmitPayload,
@@ -281,8 +282,15 @@ export async function saveMyProfile(ctx: MyWorkplaceContext, payload: MyProfileP
 
 export async function saveMyAvailability(
   ctx: MyWorkplaceContext,
-  rows: EmployeeAvailabilityRow[]
+  rows: EmployeeAvailabilityRow[],
+  options: { allowEmpty?: boolean } = {}
 ): Promise<{ employee: EmployeeRecord; rows: EmployeeAvailabilityRow[] }> {
+  // Guard against silently clearing availability when the editor saved before its
+  // rows finished loading (KAREN-BUG-0002). Clearing is only allowed when the
+  // caller explicitly opts in.
+  if (rows.length === 0 && !options.allowEmpty) {
+    throw new Error("No availability rows to save — reload the page and try again before saving.");
+  }
   const supabase = isSupabaseConfigured() ? serviceClient() : null;
   const normalized = rows.map((row, index) => ({
     ...row,
@@ -564,7 +572,8 @@ export async function submitLeaveOnBehalf(
 }
 
 export function defaultAvailabilityRows(): EmployeeAvailabilityRow[] {
-  return [1, 2, 3, 4, 5].map((dayOfWeek, index) => ({
+  // dayOfWeek is 0-indexed Monday..Sunday (see dayLabels()), so Monday-Friday is [0,1,2,3,4].
+  return [...DEFAULT_AVAILABILITY_WEEKDAYS].map((dayOfWeek, index) => ({
     id: newLineId("avail"),
     lineNo: index + 1,
     dayOfWeek,

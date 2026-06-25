@@ -34,7 +34,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  let body: { employeeId?: string; rows?: EmployeeAvailabilityRow[] };
+  let body: { employeeId?: string; rows?: EmployeeAvailabilityRow[]; allowEmpty?: boolean };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -46,11 +46,20 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "employeeId and rows are required" }, { status: 400 });
   }
 
+  if (body.rows.length === 0 && body.allowEmpty !== true) {
+    return NextResponse.json(
+      { error: "No availability rows to save — reload the page and try again before saving." },
+      { status: 400 }
+    );
+  }
+
   const employee = await loadMyEmployee(employeeId);
   if (!employee) return NextResponse.json({ error: "Employee not found" }, { status: 404 });
 
   try {
-    const result = await saveMyAvailability({ session, employeeId }, body.rows);
+    const result = await saveMyAvailability({ session, employeeId }, body.rows, {
+      allowEmpty: body.allowEmpty === true,
+    });
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Save failed";

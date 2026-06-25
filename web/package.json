@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "start": "node --max-old-space-size=768 ./node_modules/next/dist/bin/next start",
     "lint": "eslint",
-    "page-guides:check": "npx tsx scripts/check-page-guides.mjs"
+    "page-guides:check": "npx tsx scripts/check-page-guides.mjs",
+    "test:karen": "npx tsx scripts/karen-bug-regression.mjs"
   },
   "dependencies": {
     "@sparticuz/chromium-min": "^147.0.0",
