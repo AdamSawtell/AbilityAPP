@@ -20,7 +20,26 @@
 
 ---
 
-## AB-0017 Phase 1 — Organisation app colour theme (2026-06-26)
+## Incidents UX and role visibility (2026-06-26)
+
+**Status:** ✅ Implemented — pending deploy and smoke
+
+Renamed **Incident reports** → **Incidents**. Wide **Submit incident here** button on the list (below summary cards for managers). New role feature **Can see all incidents** (`incidents-see-all`, default off for support workers): without it, users see only their own open reports; dashboard and NDIS compliance nav removed from list/sidebar.
+
+| Area | Change |
+|------|--------|
+| Access | `incidents-see-all` window; managers/coordinators granted; support worker loses dashboard/compliance/override |
+| UI | `incident-list.tsx`, `incidents/page.tsx`, sidebar |
+| Migration | `20260629120000_incidents_see_all_access.sql` |
+| Submit audit | `createdBy` set from session on quick report and new incident |
+
+### What you can test
+
+1. **KarenAiTester** (Support Worker) → Incidents → **Submit incident here** visible; list shows only own open incidents (e.g. INC-KAREN-1); no dashboard link.
+2. **SuperUser** as Quality Manager → full summary cards, all incidents, dashboard link.
+3. Admin → Roles → Incidents → toggle **Can see all incidents**.
+
+---
 
 **Status:** ✅ Shipped — 2026-06-26 (live on Amplify, persistence smoke passed)
 

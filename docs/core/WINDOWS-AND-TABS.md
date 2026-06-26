@@ -438,10 +438,10 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 
 | Function area | Window key | Route | Sidebar |
 |---------------|------------|-------|---------|
-| Incident reports | `incidents` | `/incidents` | People |
+| Incidents | `incidents` | `/incidents` | People |
 | Complaints and feedback | `complaints` | `/complaints` | People |
-| NDIS compliance queue | `incidents-compliance` | `/incidents/compliance` | — |
-| Incident dashboard | `incidents-dashboard` | `/incidents/dashboard` | — |
+| Can see all incidents | `incidents-see-all` | (role feature on Incidents) | — |
+| Incident dashboard | `incidents-dashboard` | `/incidents/dashboard` | — (legacy; dashboard gated by `incidents-see-all`) |
 | Manager override | `incident-manager-override` | (process grant) | — |
 
 ### Incident record tabs

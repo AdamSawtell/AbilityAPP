@@ -1,6 +1,19 @@
 import { ALL_PROCESS_IDS, APP_WINDOW_KEYS, MY_WORKPLACE_WINDOW_KEYS, TASK_WINDOW_KEYS } from "@/lib/access/catalog";
 import { withHomePanels } from "@/lib/access/home-panels";
 import { windowKeysWithDependents } from "@/lib/access/detail-windows";
+
+export const INCIDENTS_SEE_ALL_WINDOW = "incidents-see-all";
+export const INCIDENT_MANAGER_OVERRIDE_WINDOW = "incident-manager-override";
+
+export function withIncidentsSeeAll<T extends { windowKeys: string[] }>(access: T): T {
+  if (access.windowKeys.includes(INCIDENTS_SEE_ALL_WINDOW)) return access;
+  return { ...access, windowKeys: [...access.windowKeys, INCIDENTS_SEE_ALL_WINDOW] };
+}
+
+export function withIncidentManagerOverride<T extends { windowKeys: string[] }>(access: T): T {
+  if (access.windowKeys.includes(INCIDENT_MANAGER_OVERRIDE_WINDOW)) return access;
+  return { ...access, windowKeys: [...access.windowKeys, INCIDENT_MANAGER_OVERRIDE_WINDOW] };
+}
 import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
 import { fullTaskTypePermissions, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
@@ -99,8 +112,9 @@ const WORKPLACE_OPERATIONS_PROCESSES = [
 ] as const;
 
 export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
-  return {
-    windowKeys: [
+  return withIncidentManagerOverride(
+    withIncidentsSeeAll({
+      windowKeys: [
       "home",
       "reports",
       ...TASK_ACCESS,
@@ -132,7 +146,8 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
     processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
     reportIds: [...EXEC_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
-  };
+  })
+  );
 }
 
 export function workforceHrReviewAccess(): Pick<AppRoleRecord, "processIds"> {
@@ -155,21 +170,23 @@ export function workforceManagerLeaveAccess(): Pick<AppRoleRecord, "processIds">
 export function managerAccess(
   extraWindows: string[] = []
 ): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
-  return {
-    windowKeys: [
-      "home",
-      "reports",
-      ...TASK_ACCESS,
-      ...MY_WORKPLACE_ACCESS,
-      "workforce-planning",
-      ...extraWindows,
-      ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
-      ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
-    ],
-    processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
-    reportIds: [...MANAGER_REPORTS],
-    taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
-  };
+  return withIncidentManagerOverride(
+    withIncidentsSeeAll({
+      windowKeys: [
+        "home",
+        "reports",
+        ...TASK_ACCESS,
+        ...MY_WORKPLACE_ACCESS,
+        "workforce-planning",
+        ...extraWindows,
+        ...windowKeysWithDependents("clients", "incidents", "locations", "employees"),
+        ...EMPLOYEE_INCIDENT_LINK_WINDOWS,
+      ],
+      processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
+      reportIds: [...MANAGER_REPORTS],
+      taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
+    })
+  );
 }
 
 export function officerAccess(
@@ -193,11 +210,11 @@ export function officerAccess(
 }
 
 export function boardAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions" | "windowAccess"> {
-  const windowKeys = ["home", "reports", "workforce-planning", "workforce-organisation", "incidents", "incidents-dashboard", "board-reporting"];
+  const windowKeys = ["home", "reports", "workforce-planning", "workforce-organisation", "incidents", INCIDENTS_SEE_ALL_WINDOW, "board-reporting"];
   return {
     windowKeys,
     windowAccess: {
-      ...windowAccessFromKeys(["home", "reports", "workforce-planning", "workforce-organisation", "incidents", "incidents-dashboard"], "write"),
+      ...windowAccessFromKeys(["home", "reports", "workforce-planning", "workforce-organisation", "incidents", INCIDENTS_SEE_ALL_WINDOW], "write"),
       "board-reporting": "read",
     },
     processIds: [],

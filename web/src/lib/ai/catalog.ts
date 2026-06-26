@@ -50,7 +50,7 @@ export const AI_TOOL_MODULE_LABELS: Record<AiToolModule, string> = {
   clients: "Clients",
   enquiries: "Enquiries",
   tasks: "Tasks",
-  incidents: "Incident reports",
+  incidents: "Incidents",
   people: "People",
   locations: "Locations",
   delivery: "Delivery",

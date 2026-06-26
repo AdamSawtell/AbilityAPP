@@ -192,9 +192,10 @@ values
   ('role-admin', 'incident-parties-and-links', 'write'),
   ('role-admin', 'incident-investigation', 'write'),
   ('role-admin', 'incident-notifications', 'write'),
-  ('role-admin', 'incidents-compliance', 'write'),
-  ('role-admin', 'incidents-dashboard', 'write'),
+  ('role-admin', 'incidents-see-all', 'write'),
   ('role-admin', 'incident-manager-override', 'write'),
+  ('role-admin', 'incidents-dashboard', 'write'),
+  ('role-admin', 'incidents-compliance', 'write'),
   ('role-admin', 'complaints', 'write'),
   ('role-admin', 'location-overview', 'write'),
   ('role-admin', 'location-activity', 'write'),
@@ -284,7 +285,7 @@ values
   ('role-board', 'workforce-planning', 'write'),
   ('role-board', 'workforce-organisation', 'write'),
   ('role-board', 'incidents', 'write'),
-  ('role-board', 'incidents-dashboard', 'write'),
+  ('role-board', 'incidents-see-all', 'write'),
   ('role-board', 'board-reporting', 'read'),
   ('role-ceo', 'home', 'write'),
   ('role-ceo', 'reports', 'write'),
@@ -334,9 +335,6 @@ values
   ('role-ceo', 'incident-parties-and-links', 'write'),
   ('role-ceo', 'incident-investigation', 'write'),
   ('role-ceo', 'incident-notifications', 'write'),
-  ('role-ceo', 'incidents-compliance', 'write'),
-  ('role-ceo', 'incidents-dashboard', 'write'),
-  ('role-ceo', 'incident-manager-override', 'write'),
   ('role-ceo', 'locations', 'write'),
   ('role-ceo', 'location-overview', 'write'),
   ('role-ceo', 'location-activity', 'write'),
@@ -387,6 +385,8 @@ values
   ('role-ceo', 'generate-claims', 'write'),
   ('role-ceo', 'invoices', 'write'),
   ('role-ceo', 'generate-invoices', 'write'),
+  ('role-ceo', 'incidents-see-all', 'write'),
+  ('role-ceo', 'incident-manager-override', 'write'),
   ('role-ceo', 'home-prompt', 'read'),
   ('role-ceo', 'home-needs-attention', 'read'),
   ('role-ceo', 'home-today', 'read'),
@@ -447,9 +447,6 @@ values
   ('role-exec-operations', 'incident-parties-and-links', 'write'),
   ('role-exec-operations', 'incident-investigation', 'write'),
   ('role-exec-operations', 'incident-notifications', 'write'),
-  ('role-exec-operations', 'incidents-compliance', 'write'),
-  ('role-exec-operations', 'incidents-dashboard', 'write'),
-  ('role-exec-operations', 'incident-manager-override', 'write'),
   ('role-exec-operations', 'locations', 'write'),
   ('role-exec-operations', 'location-overview', 'write'),
   ('role-exec-operations', 'location-activity', 'write'),
@@ -500,6 +497,8 @@ values
   ('role-exec-operations', 'generate-claims', 'write'),
   ('role-exec-operations', 'invoices', 'write'),
   ('role-exec-operations', 'generate-invoices', 'write'),
+  ('role-exec-operations', 'incidents-see-all', 'write'),
+  ('role-exec-operations', 'incident-manager-override', 'write'),
   ('role-exec-operations', 'home-prompt', 'read'),
   ('role-exec-operations', 'home-needs-attention', 'read'),
   ('role-exec-operations', 'home-today', 'read'),
@@ -560,9 +559,6 @@ values
   ('role-exec-hr', 'incident-parties-and-links', 'write'),
   ('role-exec-hr', 'incident-investigation', 'write'),
   ('role-exec-hr', 'incident-notifications', 'write'),
-  ('role-exec-hr', 'incidents-compliance', 'write'),
-  ('role-exec-hr', 'incidents-dashboard', 'write'),
-  ('role-exec-hr', 'incident-manager-override', 'write'),
   ('role-exec-hr', 'locations', 'write'),
   ('role-exec-hr', 'location-overview', 'write'),
   ('role-exec-hr', 'location-activity', 'write'),
@@ -613,6 +609,8 @@ values
   ('role-exec-hr', 'generate-claims', 'write'),
   ('role-exec-hr', 'invoices', 'write'),
   ('role-exec-hr', 'generate-invoices', 'write'),
+  ('role-exec-hr', 'incidents-see-all', 'write'),
+  ('role-exec-hr', 'incident-manager-override', 'write'),
   ('role-exec-hr', 'home-prompt', 'read'),
   ('role-exec-hr', 'home-needs-attention', 'read'),
   ('role-exec-hr', 'home-today', 'read'),
@@ -673,9 +671,6 @@ values
   ('role-exec-finance', 'incident-parties-and-links', 'write'),
   ('role-exec-finance', 'incident-investigation', 'write'),
   ('role-exec-finance', 'incident-notifications', 'write'),
-  ('role-exec-finance', 'incidents-compliance', 'write'),
-  ('role-exec-finance', 'incidents-dashboard', 'write'),
-  ('role-exec-finance', 'incident-manager-override', 'write'),
   ('role-exec-finance', 'locations', 'write'),
   ('role-exec-finance', 'location-overview', 'write'),
   ('role-exec-finance', 'location-activity', 'write'),
@@ -726,6 +721,8 @@ values
   ('role-exec-finance', 'generate-claims', 'write'),
   ('role-exec-finance', 'invoices', 'write'),
   ('role-exec-finance', 'generate-invoices', 'write'),
+  ('role-exec-finance', 'incidents-see-all', 'write'),
+  ('role-exec-finance', 'incident-manager-override', 'write'),
   ('role-exec-finance', 'home-prompt', 'read'),
   ('role-exec-finance', 'home-needs-attention', 'read'),
   ('role-exec-finance', 'home-today', 'read'),
@@ -786,9 +783,6 @@ values
   ('role-exec-ict', 'incident-parties-and-links', 'write'),
   ('role-exec-ict', 'incident-investigation', 'write'),
   ('role-exec-ict', 'incident-notifications', 'write'),
-  ('role-exec-ict', 'incidents-compliance', 'write'),
-  ('role-exec-ict', 'incidents-dashboard', 'write'),
-  ('role-exec-ict', 'incident-manager-override', 'write'),
   ('role-exec-ict', 'locations', 'write'),
   ('role-exec-ict', 'location-overview', 'write'),
   ('role-exec-ict', 'location-activity', 'write'),
@@ -839,6 +833,8 @@ values
   ('role-exec-ict', 'generate-claims', 'write'),
   ('role-exec-ict', 'invoices', 'write'),
   ('role-exec-ict', 'generate-invoices', 'write'),
+  ('role-exec-ict', 'incidents-see-all', 'write'),
+  ('role-exec-ict', 'incident-manager-override', 'write'),
   ('role-exec-ict', 'home-prompt', 'read'),
   ('role-exec-ict', 'home-needs-attention', 'read'),
   ('role-exec-ict', 'home-today', 'read'),
@@ -899,9 +895,6 @@ values
   ('role-exec-quality', 'incident-parties-and-links', 'write'),
   ('role-exec-quality', 'incident-investigation', 'write'),
   ('role-exec-quality', 'incident-notifications', 'write'),
-  ('role-exec-quality', 'incidents-compliance', 'write'),
-  ('role-exec-quality', 'incidents-dashboard', 'write'),
-  ('role-exec-quality', 'incident-manager-override', 'write'),
   ('role-exec-quality', 'locations', 'write'),
   ('role-exec-quality', 'location-overview', 'write'),
   ('role-exec-quality', 'location-activity', 'write'),
@@ -952,6 +945,8 @@ values
   ('role-exec-quality', 'generate-claims', 'write'),
   ('role-exec-quality', 'invoices', 'write'),
   ('role-exec-quality', 'generate-invoices', 'write'),
+  ('role-exec-quality', 'incidents-see-all', 'write'),
+  ('role-exec-quality', 'incident-manager-override', 'write'),
   ('role-exec-quality', 'home-prompt', 'read'),
   ('role-exec-quality', 'home-needs-attention', 'read'),
   ('role-exec-quality', 'home-today', 'read'),
@@ -1011,9 +1006,6 @@ values
   ('role-hr-manager', 'incident-parties-and-links', 'write'),
   ('role-hr-manager', 'incident-investigation', 'write'),
   ('role-hr-manager', 'incident-notifications', 'write'),
-  ('role-hr-manager', 'incidents-compliance', 'write'),
-  ('role-hr-manager', 'incidents-dashboard', 'write'),
-  ('role-hr-manager', 'incident-manager-override', 'write'),
   ('role-hr-manager', 'locations', 'write'),
   ('role-hr-manager', 'location-overview', 'write'),
   ('role-hr-manager', 'location-activity', 'write'),
@@ -1042,6 +1034,8 @@ values
   ('role-hr-manager', 'employee-documents', 'write'),
   ('role-hr-manager', 'employee-skills', 'write'),
   ('role-hr-manager', 'employee-system-access', 'write'),
+  ('role-hr-manager', 'incidents-see-all', 'write'),
+  ('role-hr-manager', 'incident-manager-override', 'write'),
   ('role-hr-manager', 'home-prompt', 'read'),
   ('role-hr-manager', 'home-needs-attention', 'read'),
   ('role-hr-manager', 'home-today', 'read'),
@@ -1099,9 +1093,6 @@ values
   ('role-hr-officer', 'incident-parties-and-links', 'write'),
   ('role-hr-officer', 'incident-investigation', 'write'),
   ('role-hr-officer', 'incident-notifications', 'write'),
-  ('role-hr-officer', 'incidents-compliance', 'write'),
-  ('role-hr-officer', 'incidents-dashboard', 'write'),
-  ('role-hr-officer', 'incident-manager-override', 'write'),
   ('role-hr-officer', 'locations', 'write'),
   ('role-hr-officer', 'location-overview', 'write'),
   ('role-hr-officer', 'location-activity', 'write'),
@@ -1167,9 +1158,6 @@ values
   ('role-ict-manager', 'incident-parties-and-links', 'write'),
   ('role-ict-manager', 'incident-investigation', 'write'),
   ('role-ict-manager', 'incident-notifications', 'write'),
-  ('role-ict-manager', 'incidents-compliance', 'write'),
-  ('role-ict-manager', 'incidents-dashboard', 'write'),
-  ('role-ict-manager', 'incident-manager-override', 'write'),
   ('role-ict-manager', 'locations', 'write'),
   ('role-ict-manager', 'location-overview', 'write'),
   ('role-ict-manager', 'location-activity', 'write'),
@@ -1198,6 +1186,8 @@ values
   ('role-ict-manager', 'employee-documents', 'write'),
   ('role-ict-manager', 'employee-skills', 'write'),
   ('role-ict-manager', 'employee-system-access', 'write'),
+  ('role-ict-manager', 'incidents-see-all', 'write'),
+  ('role-ict-manager', 'incident-manager-override', 'write'),
   ('role-ict-manager', 'home-prompt', 'read'),
   ('role-ict-manager', 'home-needs-attention', 'read'),
   ('role-ict-manager', 'home-today', 'read'),
@@ -1252,9 +1242,6 @@ values
   ('role-ict-officer', 'incident-parties-and-links', 'write'),
   ('role-ict-officer', 'incident-investigation', 'write'),
   ('role-ict-officer', 'incident-notifications', 'write'),
-  ('role-ict-officer', 'incidents-compliance', 'write'),
-  ('role-ict-officer', 'incidents-dashboard', 'write'),
-  ('role-ict-officer', 'incident-manager-override', 'write'),
   ('role-ict-officer', 'locations', 'write'),
   ('role-ict-officer', 'location-overview', 'write'),
   ('role-ict-officer', 'location-activity', 'write'),
@@ -1322,9 +1309,6 @@ values
   ('role-finance-manager', 'incident-parties-and-links', 'write'),
   ('role-finance-manager', 'incident-investigation', 'write'),
   ('role-finance-manager', 'incident-notifications', 'write'),
-  ('role-finance-manager', 'incidents-compliance', 'write'),
-  ('role-finance-manager', 'incidents-dashboard', 'write'),
-  ('role-finance-manager', 'incident-manager-override', 'write'),
   ('role-finance-manager', 'locations', 'write'),
   ('role-finance-manager', 'location-overview', 'write'),
   ('role-finance-manager', 'location-activity', 'write'),
@@ -1353,6 +1337,8 @@ values
   ('role-finance-manager', 'employee-documents', 'write'),
   ('role-finance-manager', 'employee-skills', 'write'),
   ('role-finance-manager', 'employee-system-access', 'write'),
+  ('role-finance-manager', 'incidents-see-all', 'write'),
+  ('role-finance-manager', 'incident-manager-override', 'write'),
   ('role-finance-manager', 'financial-close', 'write'),
   ('role-finance-manager', 'plan-reconciliation', 'write'),
   ('role-finance-manager', 'claim-reconciliation', 'write'),
@@ -1417,9 +1403,6 @@ values
   ('role-finance-officer', 'incident-parties-and-links', 'write'),
   ('role-finance-officer', 'incident-investigation', 'write'),
   ('role-finance-officer', 'incident-notifications', 'write'),
-  ('role-finance-officer', 'incidents-compliance', 'write'),
-  ('role-finance-officer', 'incidents-dashboard', 'write'),
-  ('role-finance-officer', 'incident-manager-override', 'write'),
   ('role-finance-officer', 'locations', 'write'),
   ('role-finance-officer', 'location-overview', 'write'),
   ('role-finance-officer', 'location-activity', 'write'),
@@ -1459,8 +1442,6 @@ values
   ('role-quality-manager', 'my-timesheets', 'write'),
   ('role-quality-manager', 'my-credentials', 'write'),
   ('role-quality-manager', 'workforce-planning', 'write'),
-  ('role-quality-manager', 'incidents-compliance', 'write'),
-  ('role-quality-manager', 'incidents-dashboard', 'write'),
   ('role-quality-manager', 'clients', 'write'),
   ('role-quality-manager', 'client-overview', 'write'),
   ('role-quality-manager', 'client-alerts', 'write'),
@@ -1489,7 +1470,6 @@ values
   ('role-quality-manager', 'incident-parties-and-links', 'write'),
   ('role-quality-manager', 'incident-investigation', 'write'),
   ('role-quality-manager', 'incident-notifications', 'write'),
-  ('role-quality-manager', 'incident-manager-override', 'write'),
   ('role-quality-manager', 'locations', 'write'),
   ('role-quality-manager', 'location-overview', 'write'),
   ('role-quality-manager', 'location-activity', 'write'),
@@ -1518,6 +1498,8 @@ values
   ('role-quality-manager', 'employee-documents', 'write'),
   ('role-quality-manager', 'employee-skills', 'write'),
   ('role-quality-manager', 'employee-system-access', 'write'),
+  ('role-quality-manager', 'incidents-see-all', 'write'),
+  ('role-quality-manager', 'incident-manager-override', 'write'),
   ('role-quality-manager', 'home-prompt', 'read'),
   ('role-quality-manager', 'home-needs-attention', 'read'),
   ('role-quality-manager', 'home-today', 'read'),
@@ -1544,7 +1526,6 @@ values
   ('role-quality-officer', 'my-timesheets', 'write'),
   ('role-quality-officer', 'my-credentials', 'write'),
   ('role-quality-officer', 'workforce-planning', 'write'),
-  ('role-quality-officer', 'incidents-compliance', 'write'),
   ('role-quality-officer', 'clients', 'write'),
   ('role-quality-officer', 'client-overview', 'write'),
   ('role-quality-officer', 'client-alerts', 'write'),
@@ -1573,8 +1554,6 @@ values
   ('role-quality-officer', 'incident-parties-and-links', 'write'),
   ('role-quality-officer', 'incident-investigation', 'write'),
   ('role-quality-officer', 'incident-notifications', 'write'),
-  ('role-quality-officer', 'incidents-dashboard', 'write'),
-  ('role-quality-officer', 'incident-manager-override', 'write'),
   ('role-quality-officer', 'locations', 'write'),
   ('role-quality-officer', 'location-overview', 'write'),
   ('role-quality-officer', 'location-activity', 'write'),
@@ -1652,9 +1631,6 @@ values
   ('role-rostering-manager', 'incident-parties-and-links', 'write'),
   ('role-rostering-manager', 'incident-investigation', 'write'),
   ('role-rostering-manager', 'incident-notifications', 'write'),
-  ('role-rostering-manager', 'incidents-compliance', 'write'),
-  ('role-rostering-manager', 'incidents-dashboard', 'write'),
-  ('role-rostering-manager', 'incident-manager-override', 'write'),
   ('role-rostering-manager', 'locations', 'write'),
   ('role-rostering-manager', 'location-overview', 'write'),
   ('role-rostering-manager', 'location-activity', 'write'),
@@ -1683,6 +1659,8 @@ values
   ('role-rostering-manager', 'employee-documents', 'write'),
   ('role-rostering-manager', 'employee-skills', 'write'),
   ('role-rostering-manager', 'employee-system-access', 'write'),
+  ('role-rostering-manager', 'incidents-see-all', 'write'),
+  ('role-rostering-manager', 'incident-manager-override', 'write'),
   ('role-rostering-manager', 'home-prompt', 'read'),
   ('role-rostering-manager', 'home-needs-attention', 'read'),
   ('role-rostering-manager', 'home-today', 'read'),
@@ -1746,9 +1724,6 @@ values
   ('role-rostering-officer', 'incident-parties-and-links', 'write'),
   ('role-rostering-officer', 'incident-investigation', 'write'),
   ('role-rostering-officer', 'incident-notifications', 'write'),
-  ('role-rostering-officer', 'incidents-compliance', 'write'),
-  ('role-rostering-officer', 'incidents-dashboard', 'write'),
-  ('role-rostering-officer', 'incident-manager-override', 'write'),
   ('role-rostering-officer', 'locations', 'write'),
   ('role-rostering-officer', 'location-overview', 'write'),
   ('role-rostering-officer', 'location-activity', 'write'),
@@ -1821,9 +1796,6 @@ values
   ('role-intake', 'incident-parties-and-links', 'write'),
   ('role-intake', 'incident-investigation', 'write'),
   ('role-intake', 'incident-notifications', 'write'),
-  ('role-intake', 'incidents-compliance', 'write'),
-  ('role-intake', 'incidents-dashboard', 'write'),
-  ('role-intake', 'incident-manager-override', 'write'),
   ('role-intake', 'locations', 'write'),
   ('role-intake', 'location-overview', 'write'),
   ('role-intake', 'location-activity', 'write'),
@@ -1895,9 +1867,6 @@ values
   ('role-coordinator', 'incident-parties-and-links', 'write'),
   ('role-coordinator', 'incident-investigation', 'write'),
   ('role-coordinator', 'incident-notifications', 'write'),
-  ('role-coordinator', 'incidents-compliance', 'write'),
-  ('role-coordinator', 'incidents-dashboard', 'write'),
-  ('role-coordinator', 'incident-manager-override', 'write'),
   ('role-coordinator', 'locations', 'write'),
   ('role-coordinator', 'location-overview', 'write'),
   ('role-coordinator', 'location-activity', 'write'),
@@ -1937,6 +1906,8 @@ values
   ('role-coordinator', 'employees', 'write'),
   ('role-coordinator', 'employee-overview', 'write'),
   ('role-coordinator', 'employee-incidents', 'write'),
+  ('role-coordinator', 'incidents-see-all', 'write'),
+  ('role-coordinator', 'incident-manager-override', 'write'),
   ('role-coordinator', 'home-prompt', 'read'),
   ('role-coordinator', 'home-needs-attention', 'read'),
   ('role-coordinator', 'home-today', 'read'),
@@ -1995,9 +1966,6 @@ values
   ('role-team-leader', 'incident-parties-and-links', 'write'),
   ('role-team-leader', 'incident-investigation', 'write'),
   ('role-team-leader', 'incident-notifications', 'write'),
-  ('role-team-leader', 'incidents-compliance', 'write'),
-  ('role-team-leader', 'incidents-dashboard', 'write'),
-  ('role-team-leader', 'incident-manager-override', 'write'),
   ('role-team-leader', 'locations', 'write'),
   ('role-team-leader', 'location-overview', 'write'),
   ('role-team-leader', 'location-activity', 'write'),
@@ -2027,6 +1995,8 @@ values
   ('role-team-leader', 'employee-skills', 'write'),
   ('role-team-leader', 'employee-system-access', 'write'),
   ('role-team-leader', 'timesheet-approval', 'write'),
+  ('role-team-leader', 'incidents-see-all', 'write'),
+  ('role-team-leader', 'incident-manager-override', 'write'),
   ('role-team-leader', 'home-prompt', 'read'),
   ('role-team-leader', 'home-needs-attention', 'read'),
   ('role-team-leader', 'home-today', 'read'),
@@ -2076,9 +2046,6 @@ values
   ('role-support-worker', 'incident-parties-and-links', 'write'),
   ('role-support-worker', 'incident-investigation', 'write'),
   ('role-support-worker', 'incident-notifications', 'write'),
-  ('role-support-worker', 'incidents-compliance', 'write'),
-  ('role-support-worker', 'incidents-dashboard', 'write'),
-  ('role-support-worker', 'incident-manager-override', 'write'),
   ('role-support-worker', 'locations', 'write'),
   ('role-support-worker', 'location-overview', 'write'),
   ('role-support-worker', 'location-activity', 'write'),
@@ -2663,40 +2630,40 @@ on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;
 
 -- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)
-update public.app_user set password = '$2b$10$w5X47OENdDPUN9MPrUE0K.HfD0KQudXHBaA5UE49Umh4l0u1Ac866' where username = 'SuperUser';
-update public.app_user set password = '$2b$10$B38/n0UYwdg0WAauShlkKuyRnP.ymOtko9NPw3Rf5ThaFvf5I0btm' where username = 'PatriciaChen';
-update public.app_user set password = '$2b$10$TCL4LVhDe.ajCzQFeKdMzOCLiT82rG5mKPMIsa7V0x3GZEFnDb0XW' where username = 'MichaelSmith';
-update public.app_user set password = '$2b$10$uU6oqfiV8Gv2WahQUato/.Ody.85s.I72.1o3UCHEsDjk12lnMImG' where username = 'PiperCollins';
-update public.app_user set password = '$2b$10$6nYQC5VryzuZ3s5sQxw/jOup5e3QJACTqxFHuxlr.OmWk/3DyMQ0i' where username = 'IslaRobinson';
-update public.app_user set password = '$2b$10$oe71my6Ze5zmHZjngmsGKeia5jBM12LUBlWyywpyHfQxkwEpIC.eq' where username = 'GabrielaWilson';
-update public.app_user set password = '$2b$10$x.f9AxPNXzeUNUonbNkppuxMYnTSYc4m.ZmvZQZpBzUChOVfnkoYe' where username = 'DianeFoster';
-update public.app_user set password = '$2b$10$5Vhp/s9DSsIn3UBuXfXS2.VTjFXpRMaK90c/IMXKPs7eoYyUX3uXq' where username = 'JamesWhitford';
-update public.app_user set password = '$2b$10$hE3vT/LcQ0Pj0Xit80bYgemA07Rmv7iZZxgKC05RU/RdpGaGtKs8u' where username = 'SamRivera';
-update public.app_user set password = '$2b$10$DZPfR70T8uxZzYDXfBN/HuULeZ/PVz0u.9AQwtOKqnDmi0JUIXQKO' where username = 'MargaretHolt';
-update public.app_user set password = '$2b$10$MyZiXstxsf2j75MVIY0oBOaMJEpdbhyesW4Y9cmyILanUniR.5V5m' where username = 'RileyShaw';
-update public.app_user set password = '$2b$10$fip5xdKt6Tk45HR49Q5E4.hx6/uELrXviknkxU30cQzoCt8gPh/ua' where username = 'EleanorWright';
-update public.app_user set password = '$2b$10$8naympEat654OzQ9WpUHJOSUkTK5CYHau3j/gcEsIv0LNLNQjCY0a' where username = 'MarcusOBrien';
-update public.app_user set password = '$2b$10$g9jluQXk8z7027O/qhkUL.gnz032E3RgIIcN2gfZqPQv6ugb7Tg8G' where username = 'HelenTran';
-update public.app_user set password = '$2b$10$9TUaNWrxoqYEtW/itWT2HeGXRHbEp14dKUYp.j.HQgIlVYbfhi7km' where username = 'DavidOkonkwo';
-update public.app_user set password = '$2b$10$YFFN4V5.m89s09QxxAyvPOM94zvoq.dHnMOTGG8epCg1IOa0Kgj3a' where username = 'SandraBlake';
-update public.app_user set password = '$2b$10$ZC85.ed9VNLk0HNAT8YMYe/YQEiWeVT/LqfnRypOVs7wTCeObomXi' where username = 'CalebMurphy';
-update public.app_user set password = '$2b$10$Xbdvj08RwLEIOgK.0ieqQubBcAw.wPdjIxQuGGhirs0rq8TbASFO6' where username = 'AlexKim';
-update public.app_user set password = '$2b$10$fT.9NHzdaHMfMnuPQY/ti.nfajeiFuk68tn46SjE6k4b.lOBQpgEq' where username = 'JordanLee';
-update public.app_user set password = '$2b$10$VzIp2Vmk8O3csKcXQ3mJZuepTsSKcfl3i6zh7GSjHCfgMS0GVAmtO' where username = 'QuinnTaylor';
-update public.app_user set password = '$2b$10$gA5fefdZo7Dx2ODVTRW2pO0w4qCNzoQf2cT7vdlfoB93RPkdYF/vu' where username = 'AudreyPatel';
-update public.app_user set password = '$2b$10$5V21/TN5RDlgeGHElE4T3O03kuvq8V7b0JbfGgwKdUV/xYbz8V6w6' where username = 'MorganBlake';
-update public.app_user set password = '$2b$10$CAf.2db6zDLE.DF4hM6pB.naObWrwzu/n81f0xijYfTLDHaDgezSK' where username = 'TessaNguyen';
-update public.app_user set password = '$2b$10$19aEVeVkSipZgW4dK0DF4e//EQK.MOsCbVfYRDQa9jMvqYN/6EnYq' where username = 'JessicaHancock';
-update public.app_user set password = '$2b$10$vZx46k3KPVJj.IiNU2PAHuFPsr6vX/9TZmmU8Gz7Jz3T0uylL0Q42' where username = 'NaomiSingh';
-update public.app_user set password = '$2b$10$njsdY/Q4rBSXnpLiePi8leU430OydCIopUr6cRctnEOEy505p3wE6' where username = 'RoseDash';
-update public.app_user set password = '$2b$10$cLVWJmrjlMTje8cGApmflOz8jjvZ64rFzs3bzY7yE1OQZ5wEF9bki' where username = 'OliverWilliams';
-update public.app_user set password = '$2b$10$FDk4LVRIezJGfukFkqnPnOs5CdqID.CBc7r4nqKr5m1HKgVDLs.D.' where username = 'AvaThomas';
-update public.app_user set password = '$2b$10$VSeR4K7MbZT4bsbKl2TtqOgWNSpfyS9qCqQlsG5Y9ks25uOeaArAW' where username = 'NoahJackson';
-update public.app_user set password = '$2b$10$mVbL1tUu75xtGBBiscQQU.dFK6qdEFzo/xwzQtdWkNAEW6prka18a' where username = 'MiaWhite';
-update public.app_user set password = '$2b$10$8FvCDmxkPRY4FHoPOXGV9OcwYLzY4NPrLSIZasLhKQK6D3VK9JHyK' where username = 'LiamHarris';
-update public.app_user set password = '$2b$10$B/371zjWmGDJ.Mz6OEqV2ubsluObvFI49BC9qANGAPPW35jSvyPu6' where username = 'ZoeMartin';
-update public.app_user set password = '$2b$10$FmlJTKu09Alc0XXDM/PQIuooqbiewkaZNwFAETb92YnaBTy/3qG6K' where username = 'EthanThompson';
-update public.app_user set password = '$2b$10$z/6fsKD5G7mDy.8CqiLNaOXPR2/Hwe9ebgn5AZIQoOg90EDIJKRQa' where username = 'ChloeGarcia';
-update public.app_user set password = '$2b$10$5KtrrfkebGiRpOhnYcmDwu7jGssZNjkPOSrjg5xqau0fL/DND103m' where username = 'MasonRobinson';
-update public.app_user set password = '$2b$10$Mqh9GSVzPF94ngu3.1eZGe7J1exy/g08uFf3uLCHMMJelarz/ya06' where username = 'RubyClark';
-update public.app_user set password = '$2b$10$LEnbwLbdm6BlBieWCoTwzObyDzqTLO5ivxH1JdguFzUxpZsRMk.VK' where username = 'LucasLewis';
+update public.app_user set password = '$2b$10$X7gQxXePTOTI6n6wFPYkYeP7Dydgwi2BcDHeGLWbPNbmA1uh8tjVu' where username = 'SuperUser';
+update public.app_user set password = '$2b$10$WRpG2uRNLwLve8Uiw/CGUOw0X5ZpYL7AEaBuADabLqi7oS/DyC9l2' where username = 'PatriciaChen';
+update public.app_user set password = '$2b$10$B6hfK1MfmDbwUw43LQfjrePG7fA9b7/P0bB1AhEPrXbSY4oXLTWhe' where username = 'MichaelSmith';
+update public.app_user set password = '$2b$10$0SFMS9VgBoDtDH44D1HxG.wyIXD9IfbeWj0r93Mig362zUai3vGaS' where username = 'PiperCollins';
+update public.app_user set password = '$2b$10$gJVDn6K4ejQK97QG8Ll4he1CaD3P.sNk5MommWY.WJENzhwEDxv8G' where username = 'IslaRobinson';
+update public.app_user set password = '$2b$10$Zgs4Q1bs1gFMxwaRuuKik.0WX/bcPG9wOufpJd8tjgFDkPyST/JNG' where username = 'GabrielaWilson';
+update public.app_user set password = '$2b$10$D4ED0E5UzEkkJSVsR90oLuzGH4trugF2n02lNoVWgUvAhQWvoxyHm' where username = 'DianeFoster';
+update public.app_user set password = '$2b$10$g80rGSWqmSqqWufrTcJj2u5W52HFU6ASPacNcT.H6wQD1TDmSXAFW' where username = 'JamesWhitford';
+update public.app_user set password = '$2b$10$OB5Rt8rBvkJ7la20ZreuvOiKURQnvvbtp.mA.hosorrv4f8rrRU32' where username = 'SamRivera';
+update public.app_user set password = '$2b$10$cxrNAlW9cchT6sbsOL7exulXGeWwDvj1bIuN6e7pdtvSSMgsgJBCS' where username = 'MargaretHolt';
+update public.app_user set password = '$2b$10$gDC3MC7IEfS4elMvPSonJe/21m/UKm8PIWtXHTF8uRqTqA2/iT9Sq' where username = 'RileyShaw';
+update public.app_user set password = '$2b$10$3a4Tx2jHp3SxmDH0FvKIW.QqmiIgBgiWJB/RFZ8uNgPXkj4.ZAwMe' where username = 'EleanorWright';
+update public.app_user set password = '$2b$10$d1rnDqucrLDVB24QCBaXkO0/tlhomws5.uG9WlfJyh5nK2UzjwX4a' where username = 'MarcusOBrien';
+update public.app_user set password = '$2b$10$w6IWGzDkVCdmbhKlB0yOGO.IU3vG.eZ3.5hVpyJjBkb6RAwFLUL1i' where username = 'HelenTran';
+update public.app_user set password = '$2b$10$1ODSOoF3v9WE0eSQnTdF6.dCW.TTtm.VM/SNSrIvABKJrmcLbpSwW' where username = 'DavidOkonkwo';
+update public.app_user set password = '$2b$10$mUYGeO4NVCLBbVu0OwvVXe/Wv0HBEQNJqTbC.7Q7C6U7muYg6fYKC' where username = 'SandraBlake';
+update public.app_user set password = '$2b$10$dI7.M1a//kQGjDQVpfRXd.b43kcj3sJcBv04OZOUYGKdi8myBLOa2' where username = 'CalebMurphy';
+update public.app_user set password = '$2b$10$h4IE8S52nfzYHfHPzoqfaevbp7r7FnMih6LIFB/uWUkxDWtpBgnkC' where username = 'AlexKim';
+update public.app_user set password = '$2b$10$8ruHIsQmCRaGfAxRclZ/beFLTfp79XkanoucoFSZoybUzYx3chBoG' where username = 'JordanLee';
+update public.app_user set password = '$2b$10$synoJdxkaC8tvRzXq263v.yIFuvA/Cj7wVTSoxYX8IUkC2ghHouOC' where username = 'QuinnTaylor';
+update public.app_user set password = '$2b$10$ndS4/sD.AFoC0Glkm6bvSu8Eawnm8.6NhXRPouGOTOgkLzxtxbf3G' where username = 'AudreyPatel';
+update public.app_user set password = '$2b$10$ynQYGrjr2tOLLPo/D89UxuFahVp.aOxWxKBxulOH6IHIkqIV7G2jW' where username = 'MorganBlake';
+update public.app_user set password = '$2b$10$tW/i4Dtap/A6iFg14LgBU.EvvR4OYdJBLtDpMrk1XpvTHkL81j0yC' where username = 'TessaNguyen';
+update public.app_user set password = '$2b$10$LQVOlJk.lglw9sR.y4vwKucvNs/y/hT79worb7DizUHUxiXQsEm1O' where username = 'JessicaHancock';
+update public.app_user set password = '$2b$10$0WQPVv9z4oALEZNwtjL8.O97ScREjUjSAlUQxWtKcCxm9Ub8rI/be' where username = 'NaomiSingh';
+update public.app_user set password = '$2b$10$XbkUC.J539bE7GTVcpl25emkcacs6zLYIIByi5s0JNXIDKgLkwS6W' where username = 'RoseDash';
+update public.app_user set password = '$2b$10$aDRoCUVrJuGRo3MFcUdxduFFTbG5RhR6EvDTObW2kFCojUYe7L72u' where username = 'OliverWilliams';
+update public.app_user set password = '$2b$10$wLgoDXF8LU4qZ4DhPiCwseKng11SsbY6XGv0SO8iolN7BZ.DaPsCu' where username = 'AvaThomas';
+update public.app_user set password = '$2b$10$KoS8OoWf4l78Y/lcrGQSDOElHE6je.mNc13XloP6X7rG/7cXAn6Ja' where username = 'NoahJackson';
+update public.app_user set password = '$2b$10$GCB96rWdxCRxTT/mJiSar.frSJniyRC6749Gi3QF93mKzO7a9PQXy' where username = 'MiaWhite';
+update public.app_user set password = '$2b$10$NntQo8sHE5cj7ha.cNdMaeFIVA0XkcKWcTFE7nHR94yVpGggOtFNS' where username = 'LiamHarris';
+update public.app_user set password = '$2b$10$spQO370Lh.yvTnvbhkFErudy7lKqjo2Ci7YvUpjjsPgula1QwE7im' where username = 'ZoeMartin';
+update public.app_user set password = '$2b$10$UEyWOdyCr1IF717lTv1vs.WKTTuYVaLcSqm4Z7FY8n/lF6a36K3KS' where username = 'EthanThompson';
+update public.app_user set password = '$2b$10$SFlFgz7M6QSl0pVGDDs8VO/DEHY/8gvcqo2ATa44kSZvC6k6Zh38K' where username = 'ChloeGarcia';
+update public.app_user set password = '$2b$10$xF.7AV27H0rpxAGNzrCPQ.5K9sjHz7HX/67LWNqiHEzi8M7ZK4URu' where username = 'MasonRobinson';
+update public.app_user set password = '$2b$10$Z99aLVSd1luRZ30IDCK8WetP7BxMwJe7rwni25hhlNRqO7lfXNb6K' where username = 'RubyClark';
+update public.app_user set password = '$2b$10$0OHwfxhh55qXAgL8JyBr4uO.95fcnmUzjOGLMczZs6JR7ibe.fpEO' where username = 'LucasLewis';

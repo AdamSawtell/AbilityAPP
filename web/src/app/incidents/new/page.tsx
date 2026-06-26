@@ -49,7 +49,12 @@ function NewIncidentPageInner() {
   );
 
   function onSubmit(record: IncidentRecord) {
-    const created = addIncident(record);
+    const actor = session?.displayName ?? session?.username ?? "User";
+    const created = addIncident({
+      ...record,
+      createdBy: actor,
+      updatedBy: actor,
+    });
     trackAiPrepareSaved({
       userId: session?.userId ?? "",
       roleId: session?.activeRoleId ?? "",
@@ -82,7 +87,7 @@ function NewIncidentPageInner() {
       }
       breadcrumbs={[
         { label: "Home", href: "/" },
-        { label: "Incident reports", href: "/incidents" },
+        { label: "Incidents", href: "/incidents" },
         { label: "New" },
       ]}
       audit={{ moduleLabel: "Incidents" }}

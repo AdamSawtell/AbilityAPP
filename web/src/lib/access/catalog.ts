@@ -99,7 +99,7 @@ const MODULE_WINDOWS: AccessWindow[] = [
   },
   {
     key: "incidents",
-    label: "Incident reports",
+    label: "Incidents",
     group: "People",
     href: "/incidents",
     abilityErpName: "Incident Report",

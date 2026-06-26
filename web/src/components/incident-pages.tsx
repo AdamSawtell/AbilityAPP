@@ -11,6 +11,7 @@ import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { canSeeAllIncidents, canViewIncidentRecord } from "@/lib/incident-list-access";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
@@ -47,7 +48,7 @@ export function IncidentDetailView({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const justSubmitted = searchParams.get("submitted") === "1";
   const { incidents, updateIncident, clients } = useData();
-  const { session, canProcess } = useAuth();
+  const { session, canProcess, canWindow } = useAuth();
   const { organization } = useOrganization();
   const { resolveTemplate } = useDocumentPlatform();
   const canPrintNotification = canProcess(DOCUMENT_PRINT_PROCESSES.printIncidentNotification);
@@ -63,13 +64,32 @@ export function IncidentDetailView({ id }: { id: string }) {
   const record = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
 
+  if (stored && session && !canViewIncidentRecord(stored, session, canSeeAllIncidents(canWindow))) {
+    return (
+      <AppShell
+        title="Incident not available"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Incidents", href: "/incidents" },
+          { label: "Not available" },
+        ]}
+        audit={{ moduleLabel: "Incidents" }}
+      >
+        <p className="text-slate-600">You can only open incident reports that you submitted and that are still open.</p>
+        <Link href="/incidents" className="mt-4 inline-block text-[#b51266] hover:underline">
+          Back to incidents
+        </Link>
+      </AppShell>
+    );
+  }
+
   if (!record) {
     return (
       <AppShell
         title="Incident not found"
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Incident reports", href: "/incidents" },
+          { label: "Incidents", href: "/incidents" },
           { label: "Not found" },
         ]}
         audit={{ moduleLabel: "Incident not found" }}
@@ -232,7 +252,7 @@ export function IncidentDetailView({ id }: { id: string }) {
         subtitle="Incident tracking and NDIS safeguard reporting"
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Incident reports", href: "/incidents" },
+          { label: "Incidents", href: "/incidents" },
           { label: record.documentNo },
         ]}
         actions={

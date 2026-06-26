@@ -72,14 +72,24 @@ export const INCIDENT_DEPENDENT_WINDOWS = buildDetailWindows(
   "Incident Report"
 );
 
-export const INCIDENT_EXTRA_WINDOWS: AccessWindow[] = [
+/** Optional incident role features — granted explicitly per role, not via windowKeysWithDependents. */
+export const INCIDENT_FEATURE_WINDOWS: AccessWindow[] = [
   {
-    key: "incidents-compliance",
-    label: "NDIS compliance",
+    key: "incidents-see-all",
+    label: "Can see all incidents",
     group: "People",
-    href: "/incidents/compliance",
+    href: "/incidents",
     parentWindowKey: "incidents",
-    abilityErpName: "Incident Report — NDIS compliance",
+    abilityErpName: "Incident Report — see all incidents",
+    showInSidebar: false,
+  },
+  {
+    key: "incident-manager-override",
+    label: "Override manager review",
+    group: "People",
+    href: "/incidents",
+    parentWindowKey: "incidents",
+    abilityErpName: "Incident Report — manager review override",
     showInSidebar: false,
   },
   {
@@ -92,15 +102,18 @@ export const INCIDENT_EXTRA_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
-    key: "incident-manager-override",
-    label: "Override manager review",
+    key: "incidents-compliance",
+    label: "NDIS compliance",
     group: "People",
-    href: "/incidents",
+    href: "/incidents/compliance",
     parentWindowKey: "incidents",
-    abilityErpName: "Incident Report — manager review override",
+    abilityErpName: "Incident Report — NDIS compliance",
     showInSidebar: false,
   },
 ];
+
+/** @deprecated Use INCIDENT_FEATURE_WINDOWS — kept for catalog import compatibility. */
+export const INCIDENT_EXTRA_WINDOWS = INCIDENT_FEATURE_WINDOWS;
 
 export const CONTRACT_DEPENDENT_WINDOWS = buildDetailWindows(
   "contracts",
@@ -186,7 +199,7 @@ function buildDependentsForParent(parentKey: string): AccessWindow[] {
     case "enquiries":
       return ENQUIRY_DEPENDENT_WINDOWS;
     case "incidents":
-      return [...INCIDENT_DEPENDENT_WINDOWS, ...INCIDENT_EXTRA_WINDOWS];
+      return INCIDENT_DEPENDENT_WINDOWS;
     case "employees":
       return EMPLOYEE_DEPENDENT_WINDOWS;
     case "locations":

@@ -584,7 +584,12 @@ export function IncidentQuickReportDialog({
 
   function handleSubmit(record: IncidentRecord) {
     setSubmitting(true);
-    const created = addIncident(record);
+    const actor = reporterName?.trim() || "User";
+    const created = addIncident({
+      ...record,
+      createdBy: actor,
+      updatedBy: actor,
+    });
     onSubmitted(created.id);
     setSubmitting(false);
     onClose();

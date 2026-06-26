@@ -20,6 +20,8 @@ import {
   securityAdminSessionAuditAccess,
   auditViewerSessionAccess,
   supportWorkerAccess,
+  withIncidentsSeeAll,
+  withIncidentManagerOverride,
   WORKFORCE_ON_BEHALF_PROCESSES,
   workforceHrReviewAccess,
   workforceManagerLeaveAccess,
@@ -72,7 +74,8 @@ const COORDINATOR_OPERATIONS_PROCESSES = [
   ...WORKFORCE_ON_BEHALF_PROCESSES,
 ] as const;
 
-const COORDINATOR_ACCESS = {
+const COORDINATOR_ACCESS = withIncidentManagerOverride(
+  withIncidentsSeeAll({
   windowKeys: [
     "home",
     "reports",
@@ -112,7 +115,8 @@ const COORDINATOR_ACCESS = {
   processIds: [...COORDINATOR_OPERATIONS_PROCESSES, "approve-timesheet", ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
   reportIds: ["client-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents", "financial-close-summary", "ndis-audit-pack-summary"],
   taskTypePermissions: managerAccess().taskTypePermissions,
-};
+  })
+);
 
 const ROSTERING_DELIVERY_WINDOWS = [
   "service-bookings",
@@ -134,7 +138,8 @@ const FINANCE_OFFICER_BILLING_WINDOWS = [
   "generate-invoices",
 ] as const;
 
-const TEAM_LEADER_ACCESS = {
+const TEAM_LEADER_ACCESS = withIncidentManagerOverride(
+  withIncidentsSeeAll({
   windowKeys: [
     "home",
     "reports",
@@ -160,7 +165,8 @@ const TEAM_LEADER_ACCESS = {
   processIds: [...workforceManagerLeaveAccess().processIds, "approve-timesheet", ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
   reportIds: managerAccess().reportIds,
   taskTypePermissions: managerAccess().taskTypePermissions,
-};
+  })
+);
 
 export const SEED_ROLES: AppRoleRecord[] = [
   adminRole(ALL_TASK_TYPE_IDS),
@@ -205,12 +211,12 @@ export const SEED_ROLES: AppRoleRecord[] = [
   }),
   defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess([...FINANCE_OFFICER_BILLING_WINDOWS])),
   defineRole("role-quality-manager", "Quality_Manager", "Quality Manager", "Quality and compliance team leadership", {
-    ...managerAccess(["incidents-compliance", "incidents-dashboard"]),
-    processIds: [...managerAccess(["incidents-compliance", "incidents-dashboard"]).processIds, ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
+    ...managerAccess(),
+    processIds: [...managerAccess().processIds, ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
   }),
   defineRole("role-quality-officer", "Quality_Officer", "Quality Officer", "Quality audits and compliance tasks", {
-    ...officerAccess(["incidents-compliance"]),
-    processIds: [...officerAccess(["incidents-compliance"]).processIds, ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
+    ...officerAccess(),
+    processIds: [...officerAccess().processIds, ...SUPPORT_PLAN_DOCUMENT_PROCESSES],
   }),
   defineRole("role-rostering-manager", "Rostering_Manager", "Rostering Manager", "Workforce roster planning and allocation", {
     ...managerAccess(["workforce-organisation", ...ROSTERING_DELIVERY_WINDOWS]),

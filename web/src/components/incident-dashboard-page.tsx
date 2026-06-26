@@ -11,6 +11,7 @@ import {
   RankedEntityList,
   SeverityHeatMap,
 } from "@/components/incident-dashboard-charts";
+import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { exportDashboardCsv, printDashboardPdf } from "@/lib/incident-dashboard-export";
 import {
@@ -18,6 +19,7 @@ import {
   defaultIncidentDateRange,
   type TrendGranularity,
 } from "@/lib/incident-analytics";
+import { canSeeAllIncidents } from "@/lib/incident-list-access";
 import { organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
 
@@ -41,7 +43,9 @@ function presetRange(preset: (typeof DATE_PRESETS)[number]["id"]) {
 
 export function IncidentDashboardPage() {
   const { incidents, clients, employees, locations, products } = useData();
+  const { canWindow } = useAuth();
   const { organization } = useOrganization();
+  const seeAll = canSeeAllIncidents(canWindow);
   const [range, setRange] = useState(defaultIncidentDateRange);
   const [granularity, setGranularity] = useState<TrendGranularity>("weekly");
   const [activePreset, setActivePreset] = useState<string>("90d");
@@ -72,13 +76,32 @@ export function IncidentDashboardPage() {
     setRange(presetRange(id));
   }
 
+  if (!seeAll) {
+    return (
+      <AppShell
+        title="Dashboard & analytics"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Incidents", href: "/incidents" },
+          { label: "Dashboard & analytics" },
+        ]}
+        audit={{ moduleLabel: "Incident dashboard & analytics" }}
+      >
+        <p className="text-slate-600">The incident dashboard is available to roles that can see all incidents.</p>
+        <Link href="/incidents" className="mt-4 inline-block text-[#b51266] hover:underline">
+          Back to incidents
+        </Link>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell
       title="Dashboard & analytics"
       subtitle={`Incident volume, trends, and SLA tracking (investigation SLA: ${organization.incidentInvestigationSlaDays} days).`}
       breadcrumbs={[
         { label: "Home", href: "/" },
-        { label: "Incident reports", href: "/incidents" },
+        { label: "Incidents", href: "/incidents" },
         { label: "Dashboard & analytics" },
       ]}
       audit={{ moduleLabel: "Incident dashboard & analytics" }}

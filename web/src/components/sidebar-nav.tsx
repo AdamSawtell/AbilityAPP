@@ -689,7 +689,7 @@ export function SidebarNav() {
           )}
         >
           <SectionHeader
-            label="Incident reports"
+            label="Incidents"
             icon={<NavIcon name="incident" />}
             sectionKey="incidents"
             open={isOpen("incidents")}
@@ -701,23 +701,14 @@ export function SidebarNav() {
           {isOpen("incidents") ? (
             <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
               <Link href="/incidents" className={subLinkClass(pathname === "/incidents")}>
-                All incidents
+                {canWindow("incidents-see-all") ? "All incidents" : "My incidents"}
               </Link>
-              {canWindow("incidents-dashboard") ? (
+              {canWindow("incidents-see-all") ? (
                 <Link
                   href="/incidents/dashboard"
                   className={subLinkClass(pathname.startsWith("/incidents/dashboard"))}
                 >
                   Dashboard & analytics
-                </Link>
-              ) : null}
-              {canWindow("incidents-compliance") ? (
-                <Link
-                  href="/incidents/compliance"
-                  className={subLinkClass(pathname.startsWith("/incidents/compliance"))}
-                >
-                  NDIS compliance
-                  {incidentBadge > 0 ? ` (${incidentBadge} overdue)` : ""}
                 </Link>
               ) : null}
             </div>

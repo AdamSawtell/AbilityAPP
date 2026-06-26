@@ -1,6 +1,6 @@
 # UAT window inventory (generated)
 
-**Generated:** 2026-06-25
+**Generated:** 2026-06-26
 **Do not edit by hand.** Regenerate with `npm run uat:inventory`.
 
 Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | Fail | Skip | N/A.
@@ -9,7 +9,7 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | Metric | Count |
 |--------|------:|
-| App windows (incl. tabs) | 134 |
+| App windows (incl. tabs) | 140 |
 | System windows | 12 |
 | Access processes | 48 |
 | Reports | 10 |
@@ -85,23 +85,27 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-03-W-008 | `location-site-orientation` | Site orientation | tab: Site orientation | locations | |
 | UAT-03-W-009 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
 | UAT-03-W-010 | `locations` | Locations | /locations | — | |
-| UAT-03-W-011 | `product-overview` | Overview | tab: Overview | products | |
-| UAT-03-W-012 | `product-pricing` | Pricing | tab: Pricing | products | |
-| UAT-03-W-013 | `price-list-overview` | Overview | tab: Overview | price-lists | |
-| UAT-03-W-014 | `price-list-lines` | Lines | tab: Lines | price-lists | |
-| UAT-03-W-015 | `contract-overview` | Overview | tab: Overview | contracts | |
-| UAT-03-W-016 | `contract-audit` | Audit | tab: Audit | contracts | |
-| UAT-03-W-017 | `business-partners` | Business partners | /business-partners | — | |
+| UAT-03-W-011 | `business-partners` | Business partners | /business-partners | — | |
+| UAT-03-W-012 | `products` | Products | /products | — | |
+| UAT-03-W-013 | `product-overview` | Overview | tab: Overview | products | |
+| UAT-03-W-014 | `product-pricing` | Pricing | tab: Pricing | products | |
+| UAT-03-W-015 | `price-lists` | Price lists | /price-lists | — | |
+| UAT-03-W-016 | `price-list-overview` | Overview | tab: Overview | price-lists | |
+| UAT-03-W-017 | `price-list-lines` | Lines | tab: Lines | price-lists | |
+| UAT-03-W-018 | `contracts` | Contracts | /contracts | — | |
+| UAT-03-W-019 | `contract-overview` | Overview | tab: Overview | contracts | |
+| UAT-03-W-020 | `contract-audit` | Audit | tab: Audit | contracts | |
 
 ## UAT-04
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-04-W-001 | `service-agreement-overview` | Overview | tab: Overview | service-agreements | |
-| UAT-04-W-002 | `service-agreement-lines` | Lines | tab: Lines | service-agreements | |
-| UAT-04-W-003 | `service-bookings` | Service bookings | /service-bookings | — | |
-| UAT-04-W-004 | `service-booking-overview` | Overview | tab: Overview | service-bookings | |
-| UAT-04-W-005 | `service-booking-lines` | Lines | tab: Lines | service-bookings | |
+| UAT-04-W-001 | `service-agreements` | Service agreements | /service-agreements | — | |
+| UAT-04-W-002 | `service-agreement-overview` | Overview | tab: Overview | service-agreements | |
+| UAT-04-W-003 | `service-agreement-lines` | Lines | tab: Lines | service-agreements | |
+| UAT-04-W-004 | `service-bookings` | Service bookings | /service-bookings | — | |
+| UAT-04-W-005 | `service-booking-overview` | Overview | tab: Overview | service-bookings | |
+| UAT-04-W-006 | `service-booking-lines` | Lines | tab: Lines | service-bookings | |
 
 ## UAT-05
 
@@ -143,15 +147,16 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-09-W-001 | `incidents` | Incident reports | /incidents | — | |
+| UAT-09-W-001 | `incidents` | Incidents | /incidents | — | |
 | UAT-09-W-002 | `incident-overview` | Overview | tab: Overview | incidents | |
 | UAT-09-W-003 | `incident-parties-and-links` | Parties & links | tab: Parties & links | incidents | |
 | UAT-09-W-004 | `incident-investigation` | Investigation | tab: Investigation | incidents | |
 | UAT-09-W-005 | `incident-notifications` | Notifications | tab: Notifications | incidents | |
-| UAT-09-W-006 | `incidents-compliance` | NDIS compliance | /incidents/compliance | incidents | |
-| UAT-09-W-007 | `incidents-dashboard` | Dashboard & analytics | /incidents/dashboard | incidents | |
-| UAT-09-W-008 | `incident-manager-override` | Override manager review | /incidents | incidents | |
-| UAT-09-W-009 | `complaints` | Complaints and feedback | /complaints | — | |
+| UAT-09-W-006 | `incidents-see-all` | Can see all incidents | /incidents | incidents | |
+| UAT-09-W-007 | `incident-manager-override` | Override manager review | /incidents | incidents | |
+| UAT-09-W-008 | `incidents-dashboard` | Dashboard & analytics | /incidents/dashboard | incidents | |
+| UAT-09-W-009 | `incidents-compliance` | NDIS compliance | /incidents/compliance | incidents | |
+| UAT-09-W-010 | `complaints` | Complaints and feedback | /complaints | — | |
 
 ## UAT-10
 
@@ -174,12 +179,12 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-10-W-015 | `employee-documents` | Documents | tab: Documents | employees | |
 | UAT-10-W-016 | `employee-skills` | Skills & languages | tab: Skills & languages | employees | |
 | UAT-10-W-017 | `employee-system-access` | System access | tab: System access | employees | |
-| UAT-10-W-018 | `workforce-planning` | Workforce planning | /workforce-planning | — | |
-| UAT-10-W-019 | `workforce-organisation` | Organisation structure | /workforce-planning/organisation | workforce-planning | |
-| UAT-10-W-020 | `training-meetings` | Training and meetings | /workforce-planning/training | workforce-planning | |
-| UAT-10-W-021 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | |
-| UAT-10-W-022 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | |
-| UAT-10-W-023 | `employees` | Employees | /employees | — | |
+| UAT-10-W-018 | `employees` | Employees | /employees | — | |
+| UAT-10-W-019 | `workforce-planning` | Workforce planning | /workforce-planning | — | |
+| UAT-10-W-020 | `workforce-organisation` | Organisation structure | /workforce-planning/organisation | workforce-planning | |
+| UAT-10-W-021 | `training-meetings` | Training and meetings | /workforce-planning/training | workforce-planning | |
+| UAT-10-W-022 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | |
+| UAT-10-W-023 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | |
 
 ## UAT-11
 
@@ -204,6 +209,7 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-12-W-003 | `tasks-for-my-role` | To my role | /tasks?scope=my-role | tasks | |
 | UAT-12-W-004 | `tasks-all` | All tasks | /tasks?scope=all | tasks | |
 | UAT-12-W-005 | `tasks-past` | Past | /tasks?scope=past | tasks | |
+| UAT-12-W-006 | `reports` | Reports | /reports | — | |
 
 ## UAT-13
 

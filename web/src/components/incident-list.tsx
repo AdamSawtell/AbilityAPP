@@ -37,7 +37,28 @@ function isOpenIncident(record: IncidentRecord) {
   return record.status !== "Closed";
 }
 
-export function IncidentList({ records }: { records: IncidentRecord[] }) {
+function SubmitIncidentButton({ href }: { href: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex w-full items-center justify-center rounded-xl border-2 border-[#d4147a] bg-[#fdf2f8] px-6 py-4 text-base font-semibold text-[#b51266] shadow-sm transition hover:border-[#b51266] hover:bg-[#fce7f3] hover:shadow-md"
+    >
+      Submit incident here
+    </Link>
+  );
+}
+
+export function IncidentList({
+  records,
+  seeAll = true,
+  canCreate = false,
+  submitHref = "/incidents/new",
+}: {
+  records: IncidentRecord[];
+  seeAll?: boolean;
+  canCreate?: boolean;
+  submitHref?: string;
+}) {
   const searchParams = useSearchParams();
   const initialScope: IncidentListScope =
     searchParams.get("scope") === "reportable"
@@ -61,10 +82,12 @@ export function IncidentList({ records }: { records: IncidentRecord[] }) {
   const filtered = useMemo(() => {
     let rows = [...records];
 
-    if (scope === "open") {
-      rows = rows.filter(isOpenIncident);
-    } else if (scope === "reportable") {
-      rows = rows.filter((r) => r.isReportable);
+    if (seeAll) {
+      if (scope === "open") {
+        rows = rows.filter(isOpenIncident);
+      } else if (scope === "reportable") {
+        rows = rows.filter((r) => r.isReportable);
+      }
     }
 
     if (search.trim()) {
@@ -79,53 +102,61 @@ export function IncidentList({ records }: { records: IncidentRecord[] }) {
     }
 
     return rows.sort((a, b) => (b.occurredAt || "").localeCompare(a.occurredAt || ""));
-  }, [records, scope, search]);
+  }, [records, scope, search, seeAll]);
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <button
-          type="button"
-          onClick={() => setScope("open")}
-          className={`rounded-xl border p-4 text-left transition hover:shadow-sm ${
-            scope === "open"
-              ? "border-[#f9a8d4] bg-[#fdf2f8] ring-1 ring-[#f9a8d4]/50"
-              : "border-slate-200 bg-white hover:border-slate-300"
-          }`}
-        >
-          <p className="text-sm font-medium text-slate-600">Open incidents</p>
-          <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{openCount}</p>
-          <p className="mt-1 text-xs text-slate-500">Not yet closed</p>
-        </button>
-        <button
-          type="button"
-          onClick={() => setScope("reportable")}
-          className={`rounded-xl border p-4 text-left transition hover:shadow-sm ${
-            scope === "reportable"
-              ? "border-amber-300 bg-amber-50 ring-1 ring-amber-200"
-              : "border-slate-200 bg-white hover:border-slate-300"
-          }`}
-        >
-          <p className="text-sm font-medium text-slate-600">NDIS reportable</p>
-          <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{reportableCount}</p>
-          <p className="mt-1 text-xs text-slate-500">
-            {overdueCount > 0 ? `${overdueCount} overdue notification${overdueCount === 1 ? "" : "s"}` : "Commission reporting"}
-          </p>
-        </button>
-        <button
-          type="button"
-          onClick={() => setScope("all")}
-          className={`rounded-xl border p-4 text-left transition hover:shadow-sm ${
-            scope === "all"
-              ? "border-slate-300 bg-slate-50 ring-1 ring-slate-200"
-              : "border-slate-200 bg-white hover:border-slate-300"
-          }`}
-        >
-          <p className="text-sm font-medium text-slate-600">All incidents</p>
-          <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{records.length}</p>
-          <p className="mt-1 text-xs text-slate-500">Full register</p>
-        </button>
-      </div>
+      {seeAll ? (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <button
+            type="button"
+            onClick={() => setScope("open")}
+            className={`rounded-xl border p-4 text-left transition hover:shadow-sm ${
+              scope === "open"
+                ? "border-[#f9a8d4] bg-[#fdf2f8] ring-1 ring-[#f9a8d4]/50"
+                : "border-slate-200 bg-white hover:border-slate-300"
+            }`}
+          >
+            <p className="text-sm font-medium text-slate-600">Open incidents</p>
+            <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{openCount}</p>
+            <p className="mt-1 text-xs text-slate-500">Not yet closed</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setScope("reportable")}
+            className={`rounded-xl border p-4 text-left transition hover:shadow-sm ${
+              scope === "reportable"
+                ? "border-amber-300 bg-amber-50 ring-1 ring-amber-200"
+                : "border-slate-200 bg-white hover:border-slate-300"
+            }`}
+          >
+            <p className="text-sm font-medium text-slate-600">NDIS reportable</p>
+            <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{reportableCount}</p>
+            <p className="mt-1 text-xs text-slate-500">
+              {overdueCount > 0 ? `${overdueCount} overdue notification${overdueCount === 1 ? "" : "s"}` : "Commission reporting"}
+            </p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setScope("all")}
+            className={`rounded-xl border p-4 text-left transition hover:shadow-sm ${
+              scope === "all"
+                ? "border-slate-300 bg-slate-50 ring-1 ring-slate-200"
+                : "border-slate-200 bg-white hover:border-slate-300"
+            }`}
+          >
+            <p className="text-sm font-medium text-slate-600">All incidents</p>
+            <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{records.length}</p>
+            <p className="mt-1 text-xs text-slate-500">Full register</p>
+          </button>
+        </div>
+      ) : (
+        <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          Showing your open incident reports. Closed incidents drop off this list.
+        </p>
+      )}
+
+      {canCreate ? <SubmitIncidentButton href={submitHref} /> : null}
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -147,14 +178,14 @@ export function IncidentList({ records }: { records: IncidentRecord[] }) {
                 <th className="px-4 py-3">Occurred</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Severity</th>
-                <th className="px-4 py-3">NDIS</th>
+                {seeAll ? <th className="px-4 py-3">NDIS</th> : null}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
-                    No incidents match this view.
+                  <td colSpan={seeAll ? 6 : 5} className="px-4 py-10 text-center text-slate-500">
+                    {seeAll ? "No incidents match this view." : "You have no open incident reports."}
                   </td>
                 </tr>
               ) : (
@@ -173,24 +204,26 @@ export function IncidentList({ records }: { records: IncidentRecord[] }) {
                       <IncidentStatusBadge status={record.status} />
                     </td>
                     <td className="px-4 py-3 text-slate-600">{record.severity}</td>
-                    <td className="px-4 py-3">
-                      {record.isReportable ? (
-                        <span
-                          className={`text-xs font-medium ${
-                            isNdisReportOverdue(record) ? "text-rose-700" : "text-amber-800"
-                          }`}
-                        >
-                          {ndisDeadlineLabel(record)}
-                          {record.reportDeadlineAt ? (
-                            <span className="mt-0.5 block font-normal text-slate-500">
-                              Due {formatDisplayDateTime(record.reportDeadlineAt)}
-                            </span>
-                          ) : null}
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
+                    {seeAll ? (
+                      <td className="px-4 py-3">
+                        {record.isReportable ? (
+                          <span
+                            className={`text-xs font-medium ${
+                              isNdisReportOverdue(record) ? "text-rose-700" : "text-amber-800"
+                            }`}
+                          >
+                            {ndisDeadlineLabel(record)}
+                            {record.reportDeadlineAt ? (
+                              <span className="mt-0.5 block font-normal text-slate-500">
+                                Due {formatDisplayDateTime(record.reportDeadlineAt)}
+                              </span>
+                            ) : null}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+                    ) : null}
                   </tr>
                 ))
               )}

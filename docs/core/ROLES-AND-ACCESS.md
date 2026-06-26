@@ -143,7 +143,8 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 |----------|---------------|---------|-----------|
 | Report incident | All staff (varies) | `incidents` + tabs | `report-incident` |
 | NDIS notification | Quality, Admin | incident tabs (write) | `notify-ndis-reportable` |
-| Compliance / dashboard | Quality, Manager | `incidents-compliance`, `incidents-dashboard` | — |
+| List / submit | Support Worker | `incidents` (write) | `report-incident` — sees **My incidents** (own open reports only) |
+| See all / dashboard | Manager, Quality, Coordinator | `incidents-see-all` | Full register + summary cards + `/incidents/dashboard` |
 | Complaints | Manager, Quality | `complaints` | — |
 | Manager override | Senior manager | `incident-manager-override` | — |
 
