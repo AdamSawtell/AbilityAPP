@@ -59,6 +59,17 @@ import {
   type ServiceBookingRecord,
 } from "@/lib/service-booking";
 import { isVacantShift } from "@/lib/roster-gap-analysis";
+import {
+  buildApproveShiftRequest,
+  buildRejectShiftRequest,
+  buildShiftRequestSubmission,
+  buildWithdrawShiftRequest,
+  computeOpenFillStatus,
+  normalizeShiftRequest,
+  syncShiftOpenFillStatus,
+  type RosterShiftRequestRecord,
+  type ShiftRequestResponseType,
+} from "@/lib/roster-shift-request";
 import { buildClaimedShift } from "@/lib/roster-open-shifts";
 import {
   rosterShiftSaveBlocked,
@@ -215,6 +226,9 @@ import {
   saveBoardReportPack,
   saveRosterShifts,
   claimVacantRosterShift,
+  saveRosterShiftRequest,
+  saveRosterShiftRequests,
+  approveVacantShiftRequest,
   saveTimesheet,
   saveTimesheets,
   saveClaim,
@@ -239,6 +253,7 @@ type DataStore = {
   serviceAgreements: ServiceAgreementRecord[];
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
+  rosterShiftRequests: RosterShiftRequestRecord[];
   /** Unscoped roster register — open-shift “show all locations” browse only. */
   allRosterShifts: RosterShiftRecord[];
   /** Unscoped lookup for read-only labels on out-of-location open shifts. */
@@ -291,6 +306,17 @@ type DataStore = {
   upsertVendorInvoice: (record: VendorInvoiceRecord) => void;
   bulkUpsertAgencyTimesheets: (records: AgencyTimesheetRecord[]) => void;
   claimOpenRosterShift: (shiftId: string, employeeId: string, updatedBy: string) => Promise<string | null>;
+  submitShiftRequest: (
+    shiftId: string,
+    employeeId: string,
+    responseType: ShiftRequestResponseType,
+    updatedBy: string,
+    notes?: string
+  ) => Promise<string | null>;
+  withdrawShiftRequest: (requestId: string, updatedBy: string) => Promise<string | null>;
+  approveShiftRequest: (requestId: string, updatedBy: string) => Promise<string | null>;
+  rejectShiftRequest: (requestId: string, updatedBy: string, rejectionReason: string) => Promise<string | null>;
+  setShiftCriticalFill: (shiftId: string, criticalFill: boolean, updatedBy: string) => string | null;
   checkInRosterShift: (
     shiftId: string,
     employeeId: string,
@@ -394,6 +420,7 @@ type Persisted = {
   serviceAgreements?: ServiceAgreementRecord[];
   serviceBookings?: ServiceBookingRecord[];
   rosterShifts?: RosterShiftRecord[];
+  rosterShiftRequests?: RosterShiftRequestRecord[];
   agencyWorkers?: AgencyWorkerRecord[];
   agencyShiftRequests?: AgencyShiftRequestRecord[];
   siteOrientations?: SiteOrientationRecord[];
@@ -428,6 +455,7 @@ function seedData(): Required<Persisted> {
     serviceAgreements: seedServiceAgreements.map(normalizeServiceAgreement),
     serviceBookings: seedServiceBookings.map(normalizeServiceBooking),
     rosterShifts: seedRosterShifts.map(normalizeRosterShift),
+    rosterShiftRequests: [],
     agencyWorkers: seedAgencyWorkers.map(normalizeAgencyWorker),
     agencyShiftRequests: seedAgencyShiftRequests.map(normalizeAgencyShiftRequest),
     siteOrientations: seedSiteOrientations.map(normalizeSiteOrientation),
@@ -463,6 +491,7 @@ function portalEmptyData(): Required<Persisted> {
     serviceAgreements: [],
     serviceBookings: [],
     rosterShifts: [],
+    rosterShiftRequests: [],
     agencyWorkers: [],
     agencyShiftRequests: [],
     siteOrientations: [],
@@ -514,6 +543,7 @@ function loadLocal(): Required<Persisted> {
       serviceAgreements: (parsed.serviceAgreements ?? seedServiceAgreements).map(normalizeServiceAgreement),
       serviceBookings: (parsed.serviceBookings ?? seedServiceBookings).map(normalizeServiceBooking),
       rosterShifts: (parsed.rosterShifts ?? seedRosterShifts).map(normalizeRosterShift),
+      rosterShiftRequests: (parsed.rosterShiftRequests ?? []).map(normalizeShiftRequest),
       agencyWorkers: (parsed.agencyWorkers ?? seedAgencyWorkers).map(normalizeAgencyWorker),
       agencyShiftRequests: (parsed.agencyShiftRequests ?? seedAgencyShiftRequests).map(normalizeAgencyShiftRequest),
       siteOrientations: (parsed.siteOrientations ?? seedSiteOrientations).map(normalizeSiteOrientation),
@@ -566,6 +596,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [serviceAgreements, setServiceAgreements] = useState<ServiceAgreementRecord[]>(defaults.serviceAgreements);
   const [serviceBookings, setServiceBookings] = useState<ServiceBookingRecord[]>(defaults.serviceBookings);
   const [rosterShifts, setRosterShifts] = useState<RosterShiftRecord[]>(defaults.rosterShifts);
+  const [rosterShiftRequests, setRosterShiftRequests] = useState<RosterShiftRequestRecord[]>(
+    defaults.rosterShiftRequests ?? []
+  );
   const [agencyWorkers, setAgencyWorkers] = useState<AgencyWorkerRecord[]>(defaults.agencyWorkers);
   const [agencyShiftRequests, setAgencyShiftRequests] = useState<AgencyShiftRequestRecord[]>(
     defaults.agencyShiftRequests
@@ -661,6 +694,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const serviceAgreementsRef = useSyncRef(serviceAgreements);
   const serviceBookingsRef = useSyncRef(serviceBookings);
   const rosterShiftsRef = useSyncRef(rosterShifts);
+  const rosterShiftRequestsRef = useSyncRef(rosterShiftRequests);
   const agencyWorkersRef = useSyncRef(agencyWorkers);
   const agencyShiftRequestsRef = useSyncRef(agencyShiftRequests);
   const siteOrientationsRef = useSyncRef(siteOrientations);
@@ -709,6 +743,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setServiceAgreements(data.serviceAgreements);
       setServiceBookings(data.serviceBookings);
       setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
+      setRosterShiftRequests((data.rosterShiftRequests ?? []).map(normalizeShiftRequest));
       setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
       setAgencyShiftRequests(
         data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest)
@@ -783,6 +818,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setServiceAgreements(data.serviceAgreements);
             setServiceBookings(data.serviceBookings);
             setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
+            setRosterShiftRequests((data.rosterShiftRequests ?? []).map(normalizeShiftRequest));
             setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
             setAgencyShiftRequests(
               data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest)
@@ -882,6 +918,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceAgreements,
       serviceBookings,
       rosterShifts,
+      rosterShiftRequests,
       agencyWorkers,
       agencyShiftRequests,
       siteOrientations,
@@ -914,6 +951,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     serviceAgreements,
     serviceBookings,
     rosterShifts,
+    rosterShiftRequests,
     agencyWorkers,
     agencyShiftRequests,
     siteOrientations,
@@ -1466,6 +1504,160 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       return null;
     },
     [rosterShiftsRef, source]
+  );
+
+  const submitShiftRequest = useCallback(
+    async (
+      shiftId: string,
+      employeeId: string,
+      responseType: ShiftRequestResponseType,
+      updatedBy: string,
+      notes?: string
+    ): Promise<string | null> => {
+      const shift = rosterShiftsRef.current.find((s) => s.id === shiftId);
+      if (!shift) return "Shift not found.";
+      const built = buildShiftRequestSubmission({
+        shift,
+        employeeId,
+        responseType,
+        actorName: updatedBy,
+        existing: rosterShiftRequestsRef.current,
+        allShifts: rosterShiftsRef.current,
+        notes,
+      });
+      if (!built.ok) return built.message;
+
+      if (source === "supabase" && isSupabaseConfigured()) {
+        await persistRemote((supabase) => saveRosterShiftRequest(supabase, built.request));
+      }
+
+      setRosterShiftRequests((current) => [...current.filter((r) => r.id !== built.request.id), built.request]);
+      const updatedShift = syncShiftOpenFillStatus(
+        { ...shift, openFillStatus: computeOpenFillStatus(shift, [...rosterShiftRequestsRef.current, built.request]) },
+        [...rosterShiftRequestsRef.current, built.request]
+      );
+      if (updatedShift.openFillStatus !== shift.openFillStatus) {
+        setRosterShifts((current) => current.map((r) => (r.id === shiftId ? updatedShift : r)));
+        if (source === "supabase" && isSupabaseConfigured()) {
+          void persistRemote((supabase) => saveRosterShift(supabase, updatedShift));
+        }
+      }
+      return null;
+    },
+    [persistRemote, rosterShiftsRef, rosterShiftRequestsRef, source]
+  );
+
+  const withdrawShiftRequest = useCallback(
+    async (requestId: string, updatedBy: string): Promise<string | null> => {
+      const request = rosterShiftRequestsRef.current.find((r) => r.id === requestId);
+      if (!request) return "Request not found.";
+      const built = buildWithdrawShiftRequest({ request, actorName: updatedBy });
+      if (!("rosterShiftId" in built)) return built.message;
+      const updated = built;
+      if (source === "supabase" && isSupabaseConfigured()) {
+        await persistRemote((supabase) => saveRosterShiftRequest(supabase, updated));
+      }
+
+      setRosterShiftRequests((current) => current.map((r) => (r.id === requestId ? updated : r)));
+      const shift = rosterShiftsRef.current.find((s) => s.id === request.rosterShiftId);
+      if (shift) {
+        const nextRequests = rosterShiftRequestsRef.current.map((r) => (r.id === requestId ? updated : r));
+        const updatedShift = syncShiftOpenFillStatus(shift, nextRequests);
+        if (updatedShift.openFillStatus !== shift.openFillStatus) {
+          setRosterShifts((current) => current.map((r) => (r.id === shift.id ? updatedShift : r)));
+          if (source === "supabase" && isSupabaseConfigured()) {
+            void persistRemote((supabase) => saveRosterShift(supabase, updatedShift));
+          }
+        }
+      }
+      return null;
+    },
+    [persistRemote, rosterShiftRequestsRef, rosterShiftsRef, source]
+  );
+
+  const approveShiftRequest = useCallback(
+    async (requestId: string, updatedBy: string): Promise<string | null> => {
+      const request = rosterShiftRequestsRef.current.find((r) => r.id === requestId);
+      if (!request) return "Request not found.";
+      const shift = rosterShiftsRef.current.find((s) => s.id === request.rosterShiftId);
+      if (!shift) return "Shift not found.";
+
+      const built = buildApproveShiftRequest({
+        shift,
+        request,
+        allRequests: rosterShiftRequestsRef.current,
+        allShifts: rosterShiftsRef.current,
+        actorName: updatedBy,
+      });
+      if (!built.ok) return built.message;
+
+      if (source === "supabase" && isSupabaseConfigured()) {
+        const supabase = createClient();
+        const ok = await approveVacantShiftRequest(
+          supabase,
+          built.shift,
+          built.request,
+          built.otherUpdates
+        );
+        if (!ok) return "This shift is no longer vacant.";
+      } else {
+        const latest = rosterShiftsRef.current.find((s) => s.id === shift.id);
+        if (!latest || !isVacantShift(latest)) return "This shift is no longer vacant.";
+      }
+
+      const before = rosterShiftsRef.current.find((r) => r.id === built.shift.id);
+      const stamped = persistRecordAudit("roster-shift", built.shift, false, before);
+      setRosterShifts((current) =>
+        current.map((r) => (r.id === stamped.id ? stamped : r))
+      );
+      setRosterShiftRequests((current) => {
+        const byId = new Map(current.map((r) => [r.id, r]));
+        byId.set(built.request.id, built.request);
+        for (const row of built.otherUpdates) byId.set(row.id, row);
+        return [...byId.values()];
+      });
+      return null;
+    },
+    [rosterShiftsRef, rosterShiftRequestsRef, source]
+  );
+
+  const rejectShiftRequest = useCallback(
+    async (requestId: string, updatedBy: string, rejectionReason: string): Promise<string | null> => {
+      const request = rosterShiftRequestsRef.current.find((r) => r.id === requestId);
+      if (!request) return "Request not found.";
+      const built = buildRejectShiftRequest({ request, actorName: updatedBy, rejectionReason });
+      if (!("rosterShiftId" in built)) return built.message;
+      const updated = built;
+      if (source === "supabase" && isSupabaseConfigured()) {
+        await persistRemote((supabase) => saveRosterShiftRequest(supabase, updated));
+      }
+      setRosterShiftRequests((current) => current.map((r) => (r.id === requestId ? updated : r)));
+      return null;
+    },
+    [persistRemote, rosterShiftRequestsRef, source]
+  );
+
+  const setShiftCriticalFill = useCallback(
+    (shiftId: string, criticalFill: boolean, updatedBy: string): string | null => {
+      const shift = rosterShiftsRef.current.find((s) => s.id === shiftId);
+      if (!shift) return "Shift not found.";
+      const now = new Date().toISOString();
+      const next = normalizeRosterShift({
+        ...shift,
+        criticalFill,
+        criticalFillMarkedAt: criticalFill ? now : "",
+        criticalFillMarkedBy: criticalFill ? updatedBy : "",
+        updatedBy,
+      });
+      const before = rosterShiftsRef.current.find((r) => r.id === shiftId);
+      const stamped = persistRecordAudit("roster-shift", next, false, before);
+      setRosterShifts((current) => current.map((r) => (r.id === shiftId ? stamped : r)));
+      if (source === "supabase" && isSupabaseConfigured()) {
+        void persistRemote((supabase) => saveRosterShift(supabase, stamped));
+      }
+      return null;
+    },
+    [persistRemote, rosterShiftsRef, source]
   );
 
   const checkInRosterShift = useCallback(
@@ -2128,6 +2320,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceBookings: scopedView.serviceBookings,
       rosterShifts: scopedView.rosterShifts,
       allRosterShifts: rosterShifts,
+      rosterShiftRequests,
       locationCatalog: locations,
       clientCatalog: clients,
       agencyWorkers,
@@ -2177,6 +2370,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertVendorInvoice,
       bulkUpsertAgencyTimesheets,
       claimOpenRosterShift,
+      submitShiftRequest,
+      withdrawShiftRequest,
+      approveShiftRequest,
+      rejectShiftRequest,
+      setShiftCriticalFill,
       checkInRosterShift,
       checkOutRosterShift,
       addRecurringRosterShifts,
@@ -2222,6 +2420,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [
       enquiries,
       scopedView,
+      rosterShifts,
+      rosterShiftRequests,
       businessPartners,
       products,
       priceLists,
@@ -2263,6 +2463,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertVendorInvoice,
       bulkUpsertAgencyTimesheets,
       claimOpenRosterShift,
+      submitShiftRequest,
+      withdrawShiftRequest,
+      approveShiftRequest,
+      rejectShiftRequest,
+      setShiftCriticalFill,
       checkInRosterShift,
       checkOutRosterShift,
       addRecurringRosterShifts,

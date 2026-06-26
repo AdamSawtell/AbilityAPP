@@ -1,0 +1,58 @@
+---
+description: Agent must apply Supabase migrations and seeds to remote — never hand off to the user
+alwaysApply: true
+---
+
+# Supabase migrations — agent applies, always
+
+When a slice adds or changes **schema** (`supabase/migrations/`) or **remote seed SQL** (`supabase/seed-*.sql`, `seed-access.sql`), the agent **must apply it to the remote Supabase project** before handoff. This is not optional and not the user's job.
+
+## Required commands
+
+From repo root:
+
+```powershell
+npm run supabase:push-remote
+```
+
+When access or demo seeds changed (run the file you touched):
+
+```powershell
+npm run supabase:seed-demo-once -- --file supabase/seed-access.sql
+```
+
+Run **after** Tier 1 build passes and **before** Tier 2 browser smoke that depends on new tables/columns.
+
+## When this applies
+
+| Change | Agent action |
+|--------|----------------|
+| New file in `supabase/migrations/` | `npm run supabase:push-remote` |
+| Altered migration (only if not yet pushed) | Fix forward with a new migration; push |
+| `seed-access.sql` or role grants | Push migration if any + targeted seed |
+| `mappers.ts` / new tables | Migration must be pushed same slice |
+
+## Verification
+
+Log in handoff **Verification** block:
+
+- `npm run supabase:push-remote` — exit 0
+- Migration version(s) applied (filename stem)
+
+## Never
+
+- Say "apply the migration locally" or "run supabase:push-remote when ready."
+- Hand off UI that reads new tables without pushing first.
+- Ask "Should I apply the migration?"
+- Skip push because the user didn't mention Supabase.
+
+## Failures
+
+If `supabase:push-remote` fails (duplicate version, auth, network):
+
+1. Diagnose and fix (rename migration, repair history, retry).
+2. Do not mark the slice done until remote apply succeeds or you document a blocking env issue with exact error output.
+
+## Pairing
+
+Same sequence as `.cursor/rules/push-and-test.mdc` and `dev-core/AGENT-PLAYBOOK.md` slice step 5.

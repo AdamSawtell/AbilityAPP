@@ -36,6 +36,8 @@ import type { ServiceBookingRecord } from "@/lib/service-booking";
 import { normalizeServiceBooking } from "@/lib/service-booking";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import { normalizeRosterShift } from "@/lib/roster-shift";
+import type { RosterShiftRequestRecord } from "@/lib/roster-shift-request";
+import { normalizeShiftRequest } from "@/lib/roster-shift-request";
 import type { TimesheetRecord } from "@/lib/timesheet";
 import { normalizeTimesheet } from "@/lib/timesheet";
 import type { PlanAssessmentDocument, SupportPlanRecord } from "@/lib/support-plan";
@@ -80,7 +82,10 @@ import {
   serviceBookingToRow,
   rosterShiftFromRow,
   rosterShiftToRow,
+  rosterShiftRequestFromRow,
+  rosterShiftRequestToRow,
   type RosterShiftRow,
+  type RosterShiftRequestRow,
   agencyWorkerFromRow,
   agencyWorkerToRow,
   type AgencyWorkerRow,
@@ -246,6 +251,7 @@ export type AppData = {
   serviceAgreements: ServiceAgreementRecord[];
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
+  rosterShiftRequests: RosterShiftRequestRecord[];
   agencyWorkers: AgencyWorkerRecord[];
   agencyShiftRequests: AgencyShiftRequestRecord[];
   siteOrientations: SiteOrientationRecord[];
@@ -480,6 +486,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     bookingsRes,
     bookingLinesRes,
     rosterShiftsRes,
+    rosterShiftRequestsRes,
     agencyWorkersRes,
     agencyShiftRequestsRes,
     siteOrientationsRes,
@@ -555,6 +562,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("service_booking").select("*").order("date_promised", { ascending: false }),
     supabase.from("service_booking_line").select("*").order("line_no"),
     supabase.from("roster_shift").select("*").order("shift_date"),
+    supabase.from("roster_shift_request").select("*").order("submitted_at", { ascending: false }),
     supabase.from("agency_worker").select("*").order("name"),
     supabase.from("agency_shift_request").select("*").order("document_no", { ascending: false }),
     supabase.from("site_orientation").select("*").order("oriented_at", { ascending: false }),
@@ -632,6 +640,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     bookingsRes.error ??
     bookingLinesRes.error ??
     rosterShiftsRes.error ??
+    rosterShiftRequestsRes.error ??
     agencyWorkersRes.error ??
     agencyShiftRequestsRes.error ??
     siteOrientationsRes.error ??
@@ -797,6 +806,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     rosterShifts: ((rosterShiftsRes.data ?? []) as RosterShiftRow[]).map((row) =>
       normalizeRosterShift(rosterShiftFromRow(row))
+    ),
+    rosterShiftRequests: ((rosterShiftRequestsRes.data ?? []) as RosterShiftRequestRow[]).map((row) =>
+      normalizeShiftRequest(rosterShiftRequestFromRow(row))
     ),
     agencyWorkers: ((agencyWorkersRes.data ?? []) as AgencyWorkerRow[]).map((row) =>
       normalizeAgencyWorker(agencyWorkerFromRow(row))
@@ -1313,6 +1325,7 @@ export async function claimVacantRosterShift(
     .update({
       employee_id: shift.employeeId?.trim() ? shift.employeeId : null,
       status: shift.status,
+      open_fill_status: shift.openFillStatus || "Filled",
       updated_by: shift.updatedBy,
     })
     .eq("id", shift.id)
@@ -1320,6 +1333,51 @@ export async function claimVacantRosterShift(
     .select("id");
   if (error) throw error;
   return (data?.length ?? 0) > 0;
+}
+
+export async function saveRosterShiftRequest(
+  supabase: SupabaseClient,
+  record: RosterShiftRequestRecord
+) {
+  const row = rosterShiftRequestToRow(normalizeShiftRequest(record));
+  const { error } = await supabase.from("roster_shift_request").upsert(row);
+  if (error) throw error;
+}
+
+export async function saveRosterShiftRequests(
+  supabase: SupabaseClient,
+  records: RosterShiftRequestRecord[]
+) {
+  if (!records.length) return;
+  const rows = records.map((record) => rosterShiftRequestToRow(normalizeShiftRequest(record)));
+  const { error } = await supabase.from("roster_shift_request").upsert(rows);
+  if (error) throw error;
+}
+
+/** Approve one request and assign worker atomically when shift is still vacant. */
+export async function approveVacantShiftRequest(
+  supabase: SupabaseClient,
+  shift: RosterShiftRecord,
+  request: RosterShiftRequestRecord,
+  otherRejected: RosterShiftRequestRecord[]
+): Promise<boolean> {
+  const normalizedShift = normalizeRosterShift(shift);
+  const { data, error } = await supabase
+    .from("roster_shift")
+    .update({
+      employee_id: normalizedShift.employeeId?.trim() ? normalizedShift.employeeId : null,
+      status: normalizedShift.status,
+      open_fill_status: "Filled",
+      updated_by: normalizedShift.updatedBy,
+    })
+    .eq("id", normalizedShift.id)
+    .is("employee_id", null)
+    .select("id");
+  if (error) throw error;
+  if (!data?.length) return false;
+  await saveRosterShiftRequest(supabase, request);
+  await saveRosterShiftRequests(supabase, otherRejected);
+  return true;
 }
 
 /** Record worker check-in only when not already checked in. */

@@ -49,6 +49,8 @@ import type {
 import type { ServiceAgreementLine, ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { ServiceBookingLine, ServiceBookingRecord } from "@/lib/service-booking";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
+import type { RosterShiftRequestRecord } from "@/lib/roster-shift-request";
+import { normalizeShiftRequest } from "@/lib/roster-shift-request";
 import type { TimesheetLine, TimesheetRecord } from "@/lib/timesheet";
 import type {
   PlanAssessmentDocument,
@@ -2390,6 +2392,10 @@ export type RosterShiftRow = {
   pay_status: string;
   primary_roster_shift_id: string | null;
   buddy_reason: string;
+  critical_fill: boolean;
+  critical_fill_marked_at: string | null;
+  critical_fill_marked_by: string;
+  open_fill_status: string;
   created_by: string;
   updated_by: string;
 };
@@ -2452,6 +2458,10 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     payStatus: row.pay_status ?? "payable",
     primaryRosterShiftId: row.primary_roster_shift_id ?? "",
     buddyReason: row.buddy_reason ?? "",
+    criticalFill: Boolean(row.critical_fill),
+    criticalFillMarkedAt: row.critical_fill_marked_at ?? "",
+    criticalFillMarkedBy: row.critical_fill_marked_by ?? "",
+    openFillStatus: row.open_fill_status ?? "Open",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2497,6 +2507,61 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     pay_status: record.payStatus || "payable",
     primary_roster_shift_id: record.primaryRosterShiftId?.trim() ? record.primaryRosterShiftId : null,
     buddy_reason: record.buddyReason ?? "",
+    critical_fill: Boolean(record.criticalFill),
+    critical_fill_marked_at: record.criticalFillMarkedAt?.trim() ? record.criticalFillMarkedAt : null,
+    critical_fill_marked_by: record.criticalFillMarkedBy ?? "",
+    open_fill_status: record.openFillStatus || "Open",
+    created_by: record.createdBy,
+    updated_by: record.updatedBy,
+  };
+}
+
+// --- Roster shift request ---
+
+export type RosterShiftRequestRow = {
+  id: string;
+  roster_shift_id: string;
+  employee_id: string;
+  response_type: string;
+  status: string;
+  submitted_at: string;
+  decided_at: string | null;
+  decided_by: string;
+  rejection_reason: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+};
+
+export function rosterShiftRequestFromRow(row: RosterShiftRequestRow): RosterShiftRequestRecord {
+  return normalizeShiftRequest({
+    id: row.id,
+    rosterShiftId: row.roster_shift_id,
+    employeeId: row.employee_id,
+    responseType: row.response_type as RosterShiftRequestRecord["responseType"],
+    status: row.status as RosterShiftRequestRecord["status"],
+    submittedAt: row.submitted_at ?? "",
+    decidedAt: row.decided_at ?? "",
+    decidedBy: row.decided_by ?? "",
+    rejectionReason: row.rejection_reason ?? "",
+    notes: row.notes ?? "",
+    createdBy: row.created_by,
+    updatedBy: row.updated_by,
+  });
+}
+
+export function rosterShiftRequestToRow(record: RosterShiftRequestRecord): RosterShiftRequestRow {
+  return {
+    id: record.id,
+    roster_shift_id: record.rosterShiftId,
+    employee_id: record.employeeId,
+    response_type: record.responseType,
+    status: record.status,
+    submitted_at: record.submittedAt?.trim() ? record.submittedAt : new Date().toISOString(),
+    decided_at: record.decidedAt?.trim() ? record.decidedAt : null,
+    decided_by: record.decidedBy ?? "",
+    rejection_reason: record.rejectionReason ?? "",
+    notes: record.notes ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

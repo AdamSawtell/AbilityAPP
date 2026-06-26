@@ -27,7 +27,12 @@ import {
   shiftsAssignedToWorker,
   shiftsForWorkerSchedule,
 } from "@/lib/roster-shift-checkin";
-import { formatShiftTimeRange } from "@/lib/roster-shift";
+import {
+  requestsForEmployee,
+  shiftRequestResponseLabels,
+  shiftRequestStatusLabels,
+} from "@/lib/roster-shift-request";
+import { formatDayHeading, formatShiftTimeRange } from "@/lib/roster-shift";
 import { addDaysIso, weekStartFromDate } from "@/lib/roster-shift";
 import { shiftTimesheetDeliveryStatus } from "@/lib/shift-timesheet-bridge";
 import { captureGeolocation } from "@/lib/geolocation";
@@ -61,7 +66,7 @@ const VIEW_OPTIONS: { id: MyShiftsView; label: string }[] = [
 export function MyShiftsPage() {
   const { session } = useAuth();
   const { employee } = useMyEmployee();
-  const { clients, locations, rosterShifts, timesheets, checkInRosterShift, checkOutRosterShift } = useData();
+  const { clients, locations, rosterShifts, rosterShiftRequests, timesheets, checkInRosterShift, checkOutRosterShift, withdrawShiftRequest } = useData();
   const timezoneCtx = useSystemTimezoneOptional();
   const timezone = timezoneCtx?.timezone ?? DEFAULT_ORGANIZATION_TIMEZONE;
   const orgToday = useMemo(() => organizationTodayIso(timezone), [timezone]);
@@ -80,6 +85,7 @@ export function MyShiftsPage() {
   );
 
   const [view, setView] = useState<MyShiftsView>("today");
+  const [section, setSection] = useState<"schedule" | "requests">("schedule");
   const [layout, setLayout] = useState<"list" | "week">("list");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -115,6 +121,18 @@ export function MyShiftsPage() {
   }, [allAssigned, weekDays]);
   const actionShift = useMemo(() => nextMyShiftAction(shifts, employeeId, orgToday), [shifts, employeeId, orgToday]);
   const draftCount = useMemo(() => shifts.filter((s) => s.status === "Draft").length, [shifts]);
+  const myRequests = useMemo(
+    () => requestsForEmployee(rosterShiftRequests, employeeId).filter((r) => r.responseType !== "decline"),
+    [rosterShiftRequests, employeeId]
+  );
+
+  async function handleWithdrawRequest(requestId: string) {
+    setError("");
+    setBusyId(requestId);
+    const err = await withdrawShiftRequest(requestId, updatedBy);
+    setBusyId(null);
+    if (err) setError(err);
+  }
 
   const handleCheckIn = useCallback(
     async (shiftId: string) => {
@@ -194,6 +212,93 @@ export function MyShiftsPage() {
           </p>
         ) : null}
 
+        <div className="mb-4 flex rounded-xl border border-slate-200 bg-slate-50 p-1 text-sm" role="tablist">
+          {(
+            [
+              { id: "schedule" as const, label: "Scheduled shifts" },
+              { id: "requests" as const, label: "Shift requests" },
+            ] as const
+          ).map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              aria-selected={section === option.id}
+              onClick={() => setSection(option.id)}
+              className={`min-h-11 flex-1 rounded-lg px-3 py-2 font-medium transition-colors ${
+                section === option.id
+                  ? "bg-white text-[#b51266] shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {option.label}
+              {option.id === "requests" && myRequests.length ? (
+                <span className="ml-1.5 text-xs font-normal text-slate-500">({myRequests.length})</span>
+              ) : null}
+            </button>
+          ))}
+        </div>
+
+        {section === "requests" ? (
+          <div className="space-y-3">
+            {!myRequests.length ? (
+              <p className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600">
+                No shift requests yet. Browse{" "}
+                <Link href="/my/open-shifts" className="font-medium text-[#b51266] hover:underline">
+                  Open shifts
+                </Link>{" "}
+                to apply for cover.
+              </p>
+            ) : (
+              myRequests.map((request) => {
+                const shift = rosterShifts.find((s) => s.id === request.rosterShiftId);
+                const client = shift ? clients.find((c) => c.id === shift.clientId) : undefined;
+                const location = shift ? locations.find((l) => l.id === shift.locationId) : undefined;
+                if (!shift) return null;
+                return (
+                  <article key={request.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-lg font-semibold text-slate-900">{formatDayHeading(shift.shiftDate)}</p>
+                        <p className="text-sm text-slate-700">
+                          {formatShiftTimeRange(shift.startTime, shift.endTime)}
+                        </p>
+                        {location ? <p className="text-sm text-slate-600">{location.name}</p> : null}
+                        {client ? <p className="text-sm text-slate-600">{client.name}</p> : null}
+                        {shift.criticalFill ? (
+                          <span className="mt-2 inline-flex rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-medium text-rose-950">
+                            Critical fill
+                          </span>
+                        ) : null}
+                      </div>
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium uppercase text-slate-700">
+                        {shiftRequestStatusLabels[request.status]}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-slate-600">
+                      {shiftRequestResponseLabels[request.responseType]} · submitted{" "}
+                      {new Date(request.submittedAt).toLocaleString("en-AU")}
+                    </p>
+                    {request.status === "rejected" && request.rejectionReason ? (
+                      <p className="mt-2 text-sm text-rose-900">{request.rejectionReason}</p>
+                    ) : null}
+                    {request.status === "requested" ? (
+                      <button
+                        type="button"
+                        disabled={busyId === request.id}
+                        onClick={() => void handleWithdrawRequest(request.id)}
+                        className="mt-3 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                      >
+                        Withdraw request
+                      </button>
+                    ) : null}
+                  </article>
+                );
+              })
+            )}
+          </div>
+        ) : (
+          <>
         <div
           className="mb-4 flex rounded-xl border border-slate-200 bg-slate-50 p-1 text-sm"
           role="tablist"
@@ -306,6 +411,8 @@ export function MyShiftsPage() {
               </section>
             ))}
           </div>
+        )}
+          </>
         )}
       </AppShell>
     </MyWorkplaceGuard>

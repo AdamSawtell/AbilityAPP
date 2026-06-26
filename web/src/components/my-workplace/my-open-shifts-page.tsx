@@ -7,13 +7,28 @@ import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workpl
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import type { ShiftRequestResponseType } from "@/lib/roster-shift-request";
 import { normalizeRosterShift } from "@/lib/roster-shift";
 import type { EmployeeAvailabilityRow } from "@/lib/employee";
 
 export function MyOpenShiftsPage() {
   const { session } = useAuth();
-  const { clients, clientCatalog, employees, locations, locationCatalog, serviceBookings, rosterShifts, allRosterShifts, locationScope, claimOpenRosterShift } = useData();
+  const {
+    clients,
+    clientCatalog,
+    employees,
+    locations,
+    locationCatalog,
+    serviceBookings,
+    rosterShifts,
+    allRosterShifts,
+    rosterShiftRequests,
+    locationScope,
+    submitShiftRequest,
+    withdrawShiftRequest,
+  } = useData();
   const employeeId = session?.employeeBpId?.trim() ?? "";
+  const actor = session?.displayName ?? "Self-service";
   const [availability, setAvailability] = useState<EmployeeAvailabilityRow[]>([]);
   const [availabilityReady, setAvailabilityReady] = useState(false);
 
@@ -25,12 +40,10 @@ export function MyOpenShiftsPage() {
       )
       .then((data) => {
         if (!active) return;
-        // Only use rows the worker has actually saved — default editor
-        // placeholders must not gate claims (KAREN-BUG-0004).
         setAvailability(data?.configured ? data.rows ?? [] : []);
       })
       .catch(() => {
-        /* availability is advisory — claiming still works without it */
+        /* availability is advisory */
       })
       .finally(() => {
         if (active) setAvailabilityReady(true);
@@ -40,18 +53,23 @@ export function MyOpenShiftsPage() {
     };
   }, []);
 
-  const handleClaim = useCallback(
-    async (shift: ReturnType<typeof normalizeRosterShift>) => {
-      return claimOpenRosterShift(shift.id, employeeId, session?.displayName ?? "Self-service");
+  const handleSubmitRequest = useCallback(
+    async (shift: ReturnType<typeof normalizeRosterShift>, responseType: ShiftRequestResponseType) => {
+      return submitShiftRequest(shift.id, employeeId, responseType, actor);
     },
-    [claimOpenRosterShift, employeeId, session?.displayName]
+    [submitShiftRequest, employeeId, actor]
+  );
+
+  const handleWithdraw = useCallback(
+    async (requestId: string) => withdrawShiftRequest(requestId, actor),
+    [withdrawShiftRequest, actor]
   );
 
   return (
     <MyWorkplaceGuard windowKey="my-open-shifts">
       <AppShell
         title="Open shifts"
-        subtitle="Browse vacant shifts posted by rostering and claim cover when you are available."
+        subtitle="Browse vacant shifts and submit a request — rostering reviews and assigns cover."
         breadcrumbs={myWorkplaceBreadcrumbs("Open shifts")}
         audit={{ moduleLabel: "Open shifts" }}
       >
@@ -64,6 +82,7 @@ export function MyOpenShiftsPage() {
         <OpenShiftsMarketplacePanel
           rosterShifts={rosterShifts}
           allRosterShifts={allRosterShifts}
+          rosterShiftRequests={rosterShiftRequests}
           locationScope={locationScope}
           clients={clients}
           clientCatalog={clientCatalog}
@@ -75,7 +94,8 @@ export function MyOpenShiftsPage() {
           currentEmployeeId={employeeId}
           availability={availability}
           availabilityReady={availabilityReady}
-          onClaim={handleClaim}
+          onSubmitRequest={handleSubmitRequest}
+          onWithdrawRequest={handleWithdraw}
         />
       </AppShell>
     </MyWorkplaceGuard>

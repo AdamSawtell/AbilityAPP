@@ -39,6 +39,25 @@ Applies to client, location, and employee activity tabs, contact activity, and e
 
 ---
 
+## Open shift request workflow (2026-06-27)
+
+**Status:** Implemented locally — migration applied to remote; UI/docs uncommitted.
+
+Replaces direct self-claim with a rostering-controlled request workflow.
+
+| Area | Change |
+|------|--------|
+| Data | `roster_shift_request` table; `critical_fill`, `open_fill_status` on `roster_shift` |
+| Worker | Request / withdraw / decline / available-if-critical on Open shifts; Shift requests tab on My shifts |
+| Rostering | Review requests with suitability hints; approve assigns worker; reject with reason |
+| Fill board | Filters (critical fill, awaiting decision, open with/without requests) |
+
+**What you can test:** TEST-074.
+
+**Remote DB:** `npm run supabase:push-remote` — exit 0 — `20260701120000_roster_shift_requests.sql` applied.
+
+---
+
 ## Open shifts — browse all locations (2026-06-27)
 
 **Status:** Shipped.

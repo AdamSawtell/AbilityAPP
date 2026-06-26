@@ -20,14 +20,14 @@ npm run build
 npm run page-guides:check
 ```
 
-If schema changed:
+If schema changed — **agent runs this; do not ask the user**:
 
 ```powershell
 cd ..
 npm run supabase:push-remote
 ```
 
-Log commands and exit codes in `docs/BUILD-PROGRESS.md` → **Verification log**.
+See `.cursor/rules/supabase-migrations.mdc`. Log exit code and migration filename in BUILD-PROGRESS.
 
 ---
 

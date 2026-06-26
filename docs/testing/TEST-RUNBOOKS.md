@@ -565,6 +565,28 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-074 — Open shift request workflow
+
+| | |
+|--|--|
+| **Users** | Worker (`AvaThomas`) + rostering coordinator (`IslaRobinson`) |
+| **Routes** | `/my/open-shifts`, `/my/shifts`, `/rostering` (Open shifts tab), Workforce planning fill board |
+| **Pass if** | Request does not auto-assign; rostering approves one worker; rejected/declined remain visible |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Worker: Open shifts → **Request shift** on an in-scope vacant shift | Pending status; no assignment yet |
+| 2 | Worker: My shifts → **Shift requests** | Request listed as awaiting rostering |
+| 3 | Coordinator: Rostering → Open shifts → **Review requests** | Worker request visible with suitability hints |
+| 4 | Coordinator: **Approve & assign** | Worker assigned; shift leaves open list |
+| 5 | Worker: My shifts → Scheduled | Approved shift appears in schedule |
+| 6 | Second worker requests same shift before approval | Multiple pending requests allowed |
+| 7 | Coordinator: **Mark critical fill** on vacant shift | Critical badge on worker and coordinator views |
+| 8 | Worker: **Available if critical** / **Decline** | Recorded separately from normal request |
+| 9 | Fill board filters | Open with requests / Critical fill filters work |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

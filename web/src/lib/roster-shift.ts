@@ -48,6 +48,10 @@ export type RosterShiftRecord = {
   payStatus?: ShiftPayStatus | string;
   primaryRosterShiftId?: string;
   buddyReason?: string;
+  criticalFill?: boolean;
+  criticalFillMarkedAt?: string;
+  criticalFillMarkedBy?: string;
+  openFillStatus?: string;
   createdBy: string;
   updatedBy: string;
 };
@@ -503,6 +507,10 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
     payStatus,
     primaryRosterShiftId: record.primaryRosterShiftId ?? "",
     buddyReason: record.buddyReason ?? "",
+    criticalFill: Boolean(record.criticalFill),
+    criticalFillMarkedAt: record.criticalFillMarkedAt ?? "",
+    criticalFillMarkedBy: record.criticalFillMarkedBy ?? "",
+    openFillStatus: record.openFillStatus || "Open",
   };
 }
 

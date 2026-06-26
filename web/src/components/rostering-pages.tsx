@@ -50,8 +50,22 @@ export function RosteringWeekView() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { clients, employees, locations, serviceBookings, rosterShifts, agencyWorkers, businessPartners, upsertRosterShift } = useData();
-  const { canWriteWindow, canProcess } = useAuth();
+  const {
+    clients,
+    employees,
+    locations,
+    serviceBookings,
+    rosterShifts,
+    rosterShiftRequests,
+    agencyWorkers,
+    businessPartners,
+    upsertRosterShift,
+    approveShiftRequest,
+    rejectShiftRequest,
+    setShiftCriticalFill,
+  } = useData();
+  const { session, canWriteWindow, canProcess } = useAuth();
+  const actor = session?.displayName ?? "SuperUser";
   const canEditRoster = canWriteWindow("rostering");
   const canRequestAgency = canProcess("request-agency-coverage");
   const dragStartedRef = useRef(false);
@@ -346,12 +360,18 @@ export function RosteringWeekView() {
         ) : view === "open" ? (
           <OpenShiftsMarketplacePanel
             rosterShifts={rosterShifts}
+            rosterShiftRequests={rosterShiftRequests}
             clients={clients}
             employees={employees}
             locations={locations}
             serviceBookings={serviceBookings}
             mode="coordinator"
             onAssign={(shift) => setEditorShift(normalizeRosterShift(shift))}
+            onApproveRequest={(requestId) => approveShiftRequest(requestId, actor)}
+            onRejectRequest={(requestId, reason) => rejectShiftRequest(requestId, actor, reason)}
+            onToggleCriticalFill={(shift, criticalFill) =>
+              setShiftCriticalFill(shift.id, criticalFill, actor)
+            }
           />
         ) : view === "roc" ? (
           <RosterRocPanel />
