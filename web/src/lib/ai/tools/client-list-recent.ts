@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import { canAccessWindow } from "@/lib/access/catalog";
+import { filterAiClientRows } from "@/lib/ai/tools/client-location-access";
 
 export async function runClientListRecent(
   supabase: SupabaseClient,
@@ -23,11 +24,13 @@ export async function runClientListRecent(
     .limit(limit);
   if (error) throw error;
 
+  const scoped = await filterAiClientRows(supabase, session, data ?? []);
+
   return {
     hours,
     since,
-    count: data?.length ?? 0,
-    results: (data ?? []).map((row) => ({
+    count: scoped.length,
+    results: scoped.map((row) => ({
       id: row.id,
       searchKey: row.search_key,
       name: row.name,

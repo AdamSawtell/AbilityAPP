@@ -82,6 +82,21 @@ export function scoreClientMatch(row: ClientRow, term: string): number {
 
 export type RankedClientMatch = { row: ClientRow; score: number };
 
+export type ResolveClientOptions = {
+  /** When set, only clients in this id set may be returned. */
+  allowedClientIds?: Set<string> | null;
+};
+
+function filterPoolByAllowed(rows: ClientRow[], allowed?: Set<string> | null): ClientRow[] {
+  if (!allowed) return rows;
+  return rows.filter((row) => allowed.has(row.id));
+}
+
+function guardResolved(client: ResolvedClient | null, allowed?: Set<string> | null): ResolvedClient | null {
+  if (!client || !allowed) return client;
+  return allowed.has(client.id) ? client : null;
+}
+
 /** All rows scored against the term, highest score first (zero-score rows dropped). */
 export function rankClientMatches(rows: ClientRow[], term: string): RankedClientMatch[] {
   return rows
@@ -116,7 +131,11 @@ async function fetchByIlike(
 // Build a de-duplicated pool of candidate clients for a free-text name using
 // partial (and per-token) matches. Shared by resolveClient and client_get so
 // both ground the assistant the same way (KAREN-BUG-0003).
-export async function fetchClientPool(supabase: SupabaseClient, name: string): Promise<ClientRow[]> {
+export async function fetchClientPool(
+  supabase: SupabaseClient,
+  name: string,
+  options?: ResolveClientOptions
+): Promise<ClientRow[]> {
   const trimmed = name.trim();
   if (!trimmed) return [];
 
@@ -147,7 +166,7 @@ export async function fetchClientPool(supabase: SupabaseClient, name: string): P
 
   add(await fetchByIlike(supabase, "search_key", `%${trimmed}%`));
 
-  return pool;
+  return filterPoolByAllowed(pool, options?.allowedClientIds);
 }
 
 export async function resolveClient(
@@ -158,8 +177,10 @@ export async function resolveClient(
     name?: string;
     clientName?: string;
     pagePath?: string;
-  }
+  },
+  options?: ResolveClientOptions
 ): Promise<ResolvedClient | null> {
+  const allowed = options?.allowedClientIds;
   const clientId = String(args.clientId ?? "").trim();
   const searchKey = String(args.searchKey ?? "").trim();
   const name = String(args.clientName ?? args.name ?? "").trim();
@@ -171,14 +192,14 @@ export async function resolveClient(
       .select("id, name, search_key")
       .eq("id", clientId)
       .maybeSingle();
-    if (byId) return { id: byId.id, name: byId.name, searchKey: byId.search_key };
+    if (byId) return guardResolved({ id: byId.id, name: byId.name, searchKey: byId.search_key }, allowed);
 
     const { data: bySearchKey } = await supabase
       .from("client")
       .select("id, name, search_key")
       .eq("search_key", clientId)
       .maybeSingle();
-    if (bySearchKey) return { id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key };
+    if (bySearchKey) return guardResolved({ id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key }, allowed);
   }
 
   if (searchKey) {
@@ -187,7 +208,7 @@ export async function resolveClient(
       .select("id, name, search_key")
       .eq("search_key", searchKey)
       .maybeSingle();
-    if (data) return { id: data.id, name: data.name, searchKey: data.search_key };
+    if (data) return guardResolved({ id: data.id, name: data.name, searchKey: data.search_key }, allowed);
   }
 
   if (pageClientId && !name) {
@@ -196,22 +217,22 @@ export async function resolveClient(
       .select("id, name, search_key")
       .eq("id", pageClientId)
       .maybeSingle();
-    if (byId) return { id: byId.id, name: byId.name, searchKey: byId.search_key };
+    if (byId) return guardResolved({ id: byId.id, name: byId.name, searchKey: byId.search_key }, allowed);
 
     const { data: bySearchKey } = await supabase
       .from("client")
       .select("id, name, search_key")
       .eq("search_key", pageClientId)
       .maybeSingle();
-    if (bySearchKey) return { id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key };
+    if (bySearchKey) return guardResolved({ id: bySearchKey.id, name: bySearchKey.name, searchKey: bySearchKey.search_key }, allowed);
   }
 
   if (!name) return null;
 
-  const pools = await fetchClientPool(supabase, name);
+  const pools = await fetchClientPool(supabase, name, options);
 
   const match = pickBestMatch(pools, name);
-  if (match) return { id: match.id, name: match.name, searchKey: match.search_key };
+  if (match) return guardResolved({ id: match.id, name: match.name, searchKey: match.search_key }, allowed);
 
   // A name was explicitly requested but nothing matched confidently. Do NOT fall
   // back to the client whose page happens to be open — that is how the assistant

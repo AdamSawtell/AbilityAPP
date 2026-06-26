@@ -120,7 +120,8 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 
 | Function | Who | Outcome | Status |
 |----------|-----|---------|--------|
-| **Location register** ÔÇö sites, addresses, capacity | Admin+ | Master site list for rostering and bookings, with large record banner for quick recognition | Live |
+| **Location register** — sites, addresses, capacity | Admin+ | Master site list for rostering and bookings, with large record banner for quick recognition | Live |
+| **Location-based security** — employees see assigned locations and linked clients only; roles with **Unrestricted location access** bypass | All staff | Caseload scoped by `location.employeeLinks` / `location.clientLinks`; workspace data layer + server API + AI tools | Live |
 | **Assign clients to location** | Admin+ | Caseload by site | Live |
 | **Assign employees to location** | Admin+ | Workforce by site | Live |
 | **Assign products to location** ÔÇö services offered at site | Admin+ | Catalogue scoped to delivery location | Live |

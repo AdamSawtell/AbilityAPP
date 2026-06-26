@@ -2,6 +2,14 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/auth-store";
+import {
+  applyLocationScopeToView,
+  canSeeAllLocations,
+  computeLocationScope,
+  isClientInLocationScope,
+  type LocationScope,
+} from "@/lib/location-list-access";
 import {
   createAgencyWorker,
   initialAgencyWorkers as seedAgencyWorkers,
@@ -252,6 +260,7 @@ type DataStore = {
   locations: LocationRecord[];
   tasks: TaskRecord[];
   taskAutomations: TaskAutomationRecord[];
+  locationScope: LocationScope;
   hydrated: boolean;
   source: "supabase" | "local";
   refreshFromRemote: () => Promise<void>;
@@ -585,6 +594,57 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [taskAutomations, setTaskAutomations] = useState<TaskAutomationRecord[]>(initialTaskAutomations);
   const [hydrated, setHydrated] = useState(false);
   const [source, setSource] = useState<"supabase" | "local">("local");
+  const { session, canWindow } = useAuth();
+
+  const locationScope = useMemo(
+    () =>
+      computeLocationScope(
+        locations,
+        session?.employeeBpId ?? "",
+        Boolean(session) && !portalOnly && canSeeAllLocations(canWindow),
+        Boolean(session) && !portalOnly
+      ),
+    [locations, session, portalOnly, canWindow]
+  );
+
+  const scopedView = useMemo(
+    () =>
+      applyLocationScopeToView(locationScope, {
+        locations,
+        clients,
+        incidents,
+        contracts,
+        serviceAgreements,
+        serviceBookings,
+        supportPlans,
+        planDocuments,
+        rosterOfCares,
+        monthlyServicePlans,
+        timesheets,
+        rosterShifts,
+        claims,
+        invoices,
+        tasks,
+      }),
+    [
+      locationScope,
+      locations,
+      clients,
+      incidents,
+      contracts,
+      serviceAgreements,
+      serviceBookings,
+      supportPlans,
+      planDocuments,
+      rosterOfCares,
+      monthlyServicePlans,
+      timesheets,
+      rosterShifts,
+      claims,
+      invoices,
+      tasks,
+    ]
+  );
 
   const enquiriesRef = useSyncRef(enquiries);
   const incidentsRef = useSyncRef(incidents);
@@ -1890,35 +1950,55 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const getClientByEnquiryId = useCallback(
-    (enquiryId: string) => clients.find((c) => c.enquiryId === enquiryId),
-    [clients]
+    (enquiryId: string) => {
+      const match = clients.find((c) => c.enquiryId === enquiryId);
+      if (!match || !isClientInLocationScope(match.id, locationScope)) return undefined;
+      return match;
+    },
+    [clients, locationScope]
   );
 
   const getContractsByClientId = useCallback(
-    (clientId: string) => contracts.filter((c) => c.clientId === clientId),
-    [contracts]
+    (clientId: string) => {
+      if (!isClientInLocationScope(clientId, locationScope)) return [];
+      return contracts.filter((c) => c.clientId === clientId);
+    },
+    [contracts, locationScope]
   );
 
   const getServiceAgreementsByClientId = useCallback(
-    (clientId: string) => serviceAgreements.filter((r) => r.clientId === clientId),
-    [serviceAgreements]
+    (clientId: string) => {
+      if (!isClientInLocationScope(clientId, locationScope)) return [];
+      return serviceAgreements.filter((r) => r.clientId === clientId);
+    },
+    [serviceAgreements, locationScope]
   );
 
   const getServiceBookingsByClientId = useCallback(
-    (clientId: string) => serviceBookings.filter((r) => r.clientId === clientId),
-    [serviceBookings]
+    (clientId: string) => {
+      if (!isClientInLocationScope(clientId, locationScope)) return [];
+      return serviceBookings.filter((r) => r.clientId === clientId);
+    },
+    [serviceBookings, locationScope]
   );
 
   const getSupportPlanByClientId = useCallback(
-    (clientId: string) =>
-      supportPlans.find((r) => r.clientId === clientId && r.active) ??
-      supportPlans.find((r) => r.clientId === clientId),
-    [supportPlans]
+    (clientId: string) => {
+      if (!isClientInLocationScope(clientId, locationScope)) return undefined;
+      return (
+        supportPlans.find((r) => r.clientId === clientId && r.active) ??
+        supportPlans.find((r) => r.clientId === clientId)
+      );
+    },
+    [supportPlans, locationScope]
   );
 
   const getPlanDocumentsByClientId = useCallback(
-    (clientId: string) => planDocuments.filter((d) => d.clientId === clientId),
-    [planDocuments]
+    (clientId: string) => {
+      if (!isClientInLocationScope(clientId, locationScope)) return [];
+      return planDocuments.filter((d) => d.clientId === clientId);
+    },
+    [planDocuments, locationScope]
   );
 
   const upsertTask = useCallback((task: TaskRecord) => {
@@ -2003,24 +2083,29 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const getTasksByEntity = useCallback(
-    (entityType: TaskEntityType, entityId: string) =>
-      tasks.filter((t) => t.entityType === entityType && t.entityId === entityId),
-    [tasks]
+    (entityType: TaskEntityType, entityId: string) => {
+      if (entityType === "client" && !isClientInLocationScope(entityId, locationScope)) return [];
+      return tasks.filter((t) => t.entityType === entityType && t.entityId === entityId);
+    },
+    [tasks, locationScope]
   );
 
   const getIncidentsForClient = useCallback(
-    (clientId: string) => incidentsLinkedToClient(incidents, clientId),
-    [incidents]
+    (clientId: string) => {
+      if (!isClientInLocationScope(clientId, locationScope)) return [];
+      return incidentsLinkedToClient(scopedView.incidents, clientId);
+    },
+    [scopedView.incidents, locationScope]
   );
 
   const getIncidentsForEmployee = useCallback(
-    (employeeId: string) => incidentsLinkedToEmployee(incidents, employeeId),
-    [incidents]
+    (employeeId: string) => incidentsLinkedToEmployee(scopedView.incidents, employeeId),
+    [scopedView.incidents]
   );
 
   const getIncidentsForLocation = useCallback(
-    (locationId: string) => incidentsLinkedToLocation(incidents, locationId),
-    [incidents]
+    (locationId: string) => incidentsLinkedToLocation(scopedView.incidents, locationId),
+    [scopedView.incidents]
   );
 
   const getTaskById = useCallback((id: string) => tasks.find((t) => t.id === id), [tasks]);
@@ -2028,36 +2113,37 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       enquiries,
-      incidents,
-      clients,
+      incidents: scopedView.incidents,
+      clients: scopedView.clients,
       businessPartners,
-      contracts,
+      contracts: scopedView.contracts,
       products,
       priceLists,
-      serviceAgreements,
-      serviceBookings,
-      rosterShifts,
+      serviceAgreements: scopedView.serviceAgreements,
+      serviceBookings: scopedView.serviceBookings,
+      rosterShifts: scopedView.rosterShifts,
       agencyWorkers,
       agencyShiftRequests,
       siteOrientations,
       agencyTimesheets,
       vendorInvoices,
-      rosterOfCares,
-      monthlyServicePlans,
-      timesheets,
-      claims,
+      rosterOfCares: scopedView.rosterOfCares,
+      monthlyServicePlans: scopedView.monthlyServicePlans,
+      timesheets: scopedView.timesheets,
+      claims: scopedView.claims,
       claimRemittances,
-      invoices,
+      invoices: scopedView.invoices,
       payrollClosedPeriods,
       financialClosedMonths,
       boardReportTemplates,
       boardReportPacks,
-      supportPlans,
-      planDocuments,
+      supportPlans: scopedView.supportPlans,
+      planDocuments: scopedView.planDocuments,
       employees,
-      locations,
-      tasks,
+      locations: scopedView.locations,
+      tasks: scopedView.tasks,
       taskAutomations,
+      locationScope,
       hydrated,
       source,
       refreshFromRemote,
@@ -2127,36 +2213,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       enquiries,
-      incidents,
-      clients,
+      scopedView,
       businessPartners,
-      contracts,
       products,
       priceLists,
-      serviceAgreements,
-      serviceBookings,
-      rosterShifts,
       agencyWorkers,
       agencyShiftRequests,
       siteOrientations,
       agencyTimesheets,
       vendorInvoices,
-      rosterOfCares,
-      monthlyServicePlans,
-      timesheets,
-      claims,
       claimRemittances,
-      invoices,
       payrollClosedPeriods,
       financialClosedMonths,
       boardReportTemplates,
       boardReportPacks,
-      supportPlans,
-      planDocuments,
       employees,
-      locations,
-      tasks,
       taskAutomations,
+      locationScope,
       hydrated,
       source,
       refreshFromRemote,

@@ -3,24 +3,26 @@ import type { AuthSession } from "@/lib/access/types";
 import type { ChatThreadState, ClientPatchDraft } from "@/lib/ai/types";
 import { aiCanAccessWindow } from "@/lib/ai/access";
 import { persistAiClientPatch } from "@/lib/ai/persist";
+import { aiAllowedClientIds } from "@/lib/ai/tools/client-location-access";
+import { resolveClient } from "@/lib/ai/tools/client-resolve";
 
 async function resolveClientId(
   supabase: SupabaseClient,
+  session: AuthSession,
   args: Record<string, unknown>
 ): Promise<{ id: string; name: string; searchKey: string } | null> {
-  const clientId = String(args.clientId ?? "").trim();
-  const searchKey = String(args.searchKey ?? "").trim();
-  const name = String(args.clientName ?? args.name ?? "").trim();
-
-  let query = supabase.from("client").select("id, name, search_key");
-  if (clientId) query = query.eq("id", clientId);
-  else if (searchKey) query = query.eq("search_key", searchKey);
-  else if (name) query = query.ilike("name", `%${name}%`);
-  else return null;
-
-  const { data } = await query.limit(1).maybeSingle();
-  if (!data) return null;
-  return { id: data.id, name: data.name, searchKey: data.search_key };
+  const allowedClientIds = await aiAllowedClientIds(supabase, session);
+  const resolved = await resolveClient(
+    supabase,
+    {
+      clientId: String(args.clientId ?? "").trim(),
+      searchKey: String(args.searchKey ?? "").trim(),
+      name: String(args.clientName ?? args.name ?? "").trim(),
+    },
+    { allowedClientIds }
+  );
+  if (!resolved) return null;
+  return { id: resolved.id, name: resolved.name, searchKey: resolved.searchKey };
 }
 
 export async function runClientPatchDraftCreate(
@@ -34,7 +36,7 @@ export async function runClientPatchDraftCreate(
   }
   if (!supabase) return { threadState, message: "Database not configured." };
 
-  const client = await resolveClientId(supabase, args);
+  const client = await resolveClientId(supabase, session, args);
   if (!client) {
     return { threadState, message: "Which client should be updated? Provide name or search key." };
   }

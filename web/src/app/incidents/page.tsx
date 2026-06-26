@@ -6,7 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { IncidentList } from "@/components/incident-list";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
-import { canSeeAllIncidents, visibleIncidentsForSession } from "@/lib/incident-list-access";
+import { canSeeAllIncidents, visibleIncidentsForSessionWithLocation } from "@/lib/incident-list-access";
 
 function IncidentListFallback() {
   return (
@@ -15,15 +15,20 @@ function IncidentListFallback() {
 }
 
 export default function IncidentsPage() {
-  const { incidents } = useData();
+  const { incidents, locationScope } = useData();
   const { canWriteWindow, canWindow, session } = useAuth();
   const canCreateIncident = canWriteWindow("incidents");
   const seeAll = canSeeAllIncidents(canWindow);
 
   const visibleIncidents = useMemo(() => {
     if (!session) return [];
-    return visibleIncidentsForSession(incidents, session, seeAll);
-  }, [incidents, session, seeAll]);
+    return visibleIncidentsForSessionWithLocation(
+      incidents,
+      session,
+      seeAll,
+      locationScope.visibleClientIds
+    );
+  }, [incidents, session, seeAll, locationScope.visibleClientIds]);
 
   return (
     <AppShell

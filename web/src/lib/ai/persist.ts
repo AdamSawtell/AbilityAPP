@@ -25,6 +25,7 @@ import { incidentDraftToPartial } from "@/lib/ai/tools/incident-draft";
 import type { IncidentUpdateDraft } from "@/lib/ai/types";
 import { createIncident, advanceIncidentWorkflow, normalizeIncident, type IncidentRecord } from "@/lib/incident";
 import { fetchIncidents, saveIncident } from "@/lib/supabase/data-api";
+import { assertAiClientAccessible } from "@/lib/ai/tools/client-location-access";
 
 export type AiPersistResult<T> =
   | { ok: true; record: T; href?: string }
@@ -154,6 +155,11 @@ export async function persistAiClientActivity(
     return { ok: false, error: "Client not found." };
   }
 
+  const access = await assertAiClientAccessible(supabase, session, draft.clientId);
+  if (!access.ok) {
+    return { ok: false, error: access.error };
+  }
+
   const lineNo = await nextClientActivityLineNo(supabase, draft.clientId);
   const id = `ca-ai-${Date.now().toString(36)}`;
   const activity = {
@@ -190,6 +196,11 @@ export async function persistAiClientPatch(
 ): Promise<AiPersistResult<ClientRecord>> {
   if (!aiCanWriteWindow(session, "clients") && !aiCanWriteWindow(session, "client-activity")) {
     return { ok: false, error: "Your role cannot update clients." };
+  }
+
+  const access = await assertAiClientAccessible(supabase, session, draft.clientId);
+  if (!access.ok) {
+    return { ok: false, error: access.error };
   }
 
   try {

@@ -508,6 +508,27 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-071 — Location-based security (Phase 1)
+
+| | |
+|--|--|
+| **User** | `user-sw-01` (Support Worker, assigned to GLEN-SIL) then SuperUser with Admin role |
+| **Routes** | `/locations`, `/clients`, `/incidents`, `/admin/roles` |
+| **Pass if** | Assigned-location scope hides out-of-scope locations/clients; `locations-see-all` on role bypasses filter |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Log in as support worker linked to GLEN-SIL (`emp-isla` or seeded SW user) | Home loads without errors |
+| 2 | Open `/locations` | Only locations where the employee appears in **Staff assigned** (e.g. GLEN-SIL) |
+| 3 | Open `/clients` | Only clients linked on those locations (e.g. Bernie) |
+| 4 | Deep-link `/clients/{out-of-scope-id}` | Client not found |
+| 5 | Open `/admin/roles`; expand **Locations** for Support Worker | No **Unrestricted location access** grant |
+| 6 | Switch to Admin role (or CEO) with `locations-see-all` | Full location and client registers visible |
+| 7 | Ask the workspace AI to search for a client outside your locations | No match / not found (not another participant's record) |
+| 8 | Run **Client register** report as scoped user | Rows match `/clients` list only |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

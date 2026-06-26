@@ -1,5 +1,6 @@
 import type { AuthSession } from "@/lib/access/types";
 import type { IncidentRecord } from "@/lib/incident";
+import { filterIncidentsByLocationScope } from "@/lib/location-list-access";
 
 export const INCIDENTS_SEE_ALL_WINDOW = "incidents-see-all";
 
@@ -38,4 +39,16 @@ export function canViewIncidentRecord(
 ): boolean {
   if (seeAll) return true;
   return record.status !== "Closed" && incidentSubmittedByUser(record, session);
+}
+
+/** Apply incident role visibility then optional location scope (client-linked incidents). */
+export function visibleIncidentsForSessionWithLocation(
+  records: IncidentRecord[],
+  session: Pick<AuthSession, "displayName" | "username">,
+  seeAllIncidents: boolean,
+  visibleClientIds: Set<string> | null
+): IncidentRecord[] {
+  const byRole = visibleIncidentsForSession(records, session, seeAllIncidents);
+  if (!visibleClientIds) return byRole;
+  return filterIncidentsByLocationScope(byRole, visibleClientIds);
 }

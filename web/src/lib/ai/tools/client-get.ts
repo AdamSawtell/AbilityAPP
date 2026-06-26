@@ -6,6 +6,7 @@ import {
   rankClientMatches,
   resolveClient,
 } from "@/lib/ai/tools/client-resolve";
+import { aiAllowedClientIds, assertAiClientAccessible } from "@/lib/ai/tools/client-location-access";
 
 export async function runClientGet(
   supabase: SupabaseClient,
@@ -27,10 +28,12 @@ export async function runClientGet(
   // Ground the lookup through the shared resolver so a name search picks the best
   // scored match (or returns candidates to ask about) rather than an arbitrary
   // first row — never fall back to the wrong client (KAREN-BUG-0003).
-  const resolved = await resolveClient(supabase, { clientId: id, searchKey, name });
+  const allowedClientIds = await aiAllowedClientIds(supabase, session);
+
+  const resolved = await resolveClient(supabase, { clientId: id, searchKey, name }, { allowedClientIds });
   if (!resolved) {
     if (name) {
-      const candidates = rankClientMatches(await fetchClientPool(supabase, name), name)
+      const candidates = rankClientMatches(await fetchClientPool(supabase, name, { allowedClientIds }), name)
         .slice(0, 5)
         .map((entry) => ({
           id: entry.row.id,
@@ -49,6 +52,11 @@ export async function runClientGet(
       };
     }
     return { found: false, query: { id, searchKey, name } };
+  }
+
+  const access = await assertAiClientAccessible(supabase, session, resolved.id);
+  if (!access.ok) {
+    return { found: false, note: access.error };
   }
 
   const { data: clients, error } = await supabase

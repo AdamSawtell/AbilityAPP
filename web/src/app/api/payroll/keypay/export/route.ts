@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getAuthSessionFromRequest, sessionCanWriteWindow } from "@/lib/auth/session.server";
+import { timesheetIdsAccessibleInSession } from "@/lib/location-scope.server";
 import {
   exportPayloadToKeypay,
   payrollRowsToKeypayPayload,
@@ -52,6 +53,14 @@ export async function POST(request: Request) {
     const data = await fetchPayrollExportData(supabase, timesheetIds);
     if (data.timesheets.length !== timesheetIds.length) {
       return NextResponse.json({ error: "One or more timesheets were not found." }, { status: 400 });
+    }
+
+    const blockedIds = await timesheetIdsAccessibleInSession(supabase, session, data.timesheets);
+    if (blockedIds?.size) {
+      const blocked = timesheetIds.filter((id) => blockedIds.has(id));
+      if (blocked.length) {
+        return NextResponse.json({ error: "One or more timesheets are outside your location access." }, { status: 403 });
+      }
     }
 
     const prepared = preparePayrollExport(

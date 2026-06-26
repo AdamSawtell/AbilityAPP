@@ -4,7 +4,12 @@ import { canAccessWindow } from "@/lib/access/catalog";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { fetchIncidents } from "@/lib/supabase/data-api";
 import { buildIncidentComplianceDigest } from "@/lib/reports/runners/incident-compliance-digest";
-import { initialIncidents } from "@/lib/incident";
+import { initialIncidents, normalizeIncident } from "@/lib/incident";
+import {
+  filterIncidentsForSessionLocationScope,
+  resolveLocationScopeForSession,
+} from "@/lib/location-scope.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Compliance digest endpoint for schedulers (e.g. weekly cron via external job).
@@ -22,15 +27,20 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const format = searchParams.get("format");
 
-  let incidents = initialIncidents;
+  let incidents = initialIncidents.map(normalizeIncident);
+  let scopeSupabase: SupabaseClient | null = null;
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClient();
-      incidents = await fetchIncidents(supabase);
+      scopeSupabase = supabase;
+      incidents = (await fetchIncidents(supabase)).map(normalizeIncident);
     } catch {
       // fall back to seed data
     }
   }
+
+  const scope = await resolveLocationScopeForSession(scopeSupabase, session);
+  incidents = filterIncidentsForSessionLocationScope(incidents, scope);
 
   const digest = buildIncidentComplianceDigest(incidents);
 

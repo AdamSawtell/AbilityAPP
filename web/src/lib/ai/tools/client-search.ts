@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthSession } from "@/lib/access/types";
 import { canAccessWindow } from "@/lib/access/catalog";
+import { filterAiClientRows } from "@/lib/ai/tools/client-location-access";
 
 export async function runClientSearch(
   supabase: SupabaseClient,
@@ -23,7 +24,8 @@ export async function runClientSearch(
   if (error) throw error;
 
   const q = query.toLowerCase();
-  const filtered = (data ?? []).filter((row) => {
+  const scopedRows = await filterAiClientRows(supabase, session, data ?? []);
+  const filtered = scopedRows.filter((row) => {
     if (!q) return true;
     const blob = [row.name, row.search_key, row.email, row.phone, row.status].join(" ").toLowerCase();
     return blob.includes(q);

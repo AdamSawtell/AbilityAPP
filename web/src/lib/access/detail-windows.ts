@@ -115,6 +115,19 @@ export const INCIDENT_FEATURE_WINDOWS: AccessWindow[] = [
 /** @deprecated Use INCIDENT_FEATURE_WINDOWS — kept for catalog import compatibility. */
 export const INCIDENT_EXTRA_WINDOWS = INCIDENT_FEATURE_WINDOWS;
 
+/** Optional location role features — granted explicitly per role, not via windowKeysWithDependents. */
+export const LOCATION_FEATURE_WINDOWS: AccessWindow[] = [
+  {
+    key: "locations-see-all",
+    label: "Unrestricted location access (can see all)",
+    group: "People",
+    href: "/locations",
+    parentWindowKey: "locations",
+    abilityErpName: "Location — unrestricted access",
+    showInSidebar: false,
+  },
+];
+
 export const CONTRACT_DEPENDENT_WINDOWS = buildDetailWindows(
   "contracts",
   "contract",

@@ -40,7 +40,7 @@ export const gettingStartedArticle: HelpArticle = {
     {
       id: "roles",
       title: "Roles and what you can see",
-      body: "Each role controls which sidebar items, record tabs, reports, and task types you can open. If a menu item is missing, your role does not include that window. Switch roles from your profile at the bottom of the sidebar when your account has multiple roles.\n\nExample: support workers see **My incidents** (only their own open reports). Coordinators and quality roles with **Can see all incidents** see the full register and dashboard.",
+      body: "Each role controls which sidebar items, record tabs, reports, and task types you can open. If a menu item is missing, your role does not include that window. Switch roles from your profile at the bottom of the sidebar when your account has multiple roles.\n\nExample: support workers see **My incidents** (only their own open reports). Coordinators and quality roles with **Can see all incidents** see the full register and dashboard.\n\n**Location access:** unless your role includes **Unrestricted location access (can see all)**, you only see support locations you are assigned to and clients linked to those locations. Client-related lists, tasks, rosters, billing, and incidents inherit that scope automatically.",
       relatedRoutes: ["/system/admin/roles"],
     },
     {

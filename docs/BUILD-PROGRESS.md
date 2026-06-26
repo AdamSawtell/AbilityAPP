@@ -20,6 +20,40 @@
 
 ---
 
+---
+
+## Location-based security (2026-06-26)
+
+**Status:** Phase 2 — server/API enforcement + AI tools + document send routes (not yet pushed).
+
+Phase 1 scoped workspace data via `DataProvider`. Phase 2 adds:
+
+| Area | Change |
+|------|--------|
+| Server | `location-scope.server.ts` — session scope resolution + client/timesheet guards |
+| AI tools | Client search/get/patch/activity and incident-linked search respect location scope |
+| API | NDIS gateway submit, Keypay export, compliance digest, portal service requests, send invoice/support plan |
+| Incidents | `visibleIncidentsForSessionWithLocation` combines `incidents-see-all` + location scope |
+
+**What you can test:** TEST-071 steps 1–6; AI client lookup as scoped support worker returns only assigned clients; API returns 404 for out-of-scope client ids.
+
+**Remaining (Phase 3):** Reports Advance SQL hardening, enquiry intake linkage, full notification audit.
+
+Location is the primary security boundary for client visibility. Employees see only locations they are assigned to (`location.employeeLinks`) and clients linked to those locations (`location.clientLinks`). Roles with **`locations-see-all`** (configured under **Locations** in Admin → Roles, same pattern as **Can see all incidents**) bypass all location filtering.
+
+| Area | Change |
+|------|--------|
+| Access | `locations-see-all` feature window; migration + seed grants for leadership/manager roles |
+| Logic | `web/src/lib/location-list-access.ts` — scope builders and collection filters |
+| Data layer | `DataProvider` applies scope to clients, locations, and client-linked collections |
+| Docs | ROLES-AND-ACCESS §6, SYSTEM-FUNCTION-GUIDE §6, foundation help, TEST-071 |
+
+**What you can test:** TEST-071 — support worker at assigned location sees scoped registers; admin/executive with `locations-see-all` sees all.
+
+**Remaining (Phase 2+):** server-side API enforcement, reports/exports/quick search hardening, enquiries linkage.
+
+---
+
 ## Entity header (record banner) redesign (2026-06-26)
 
 **Status:** ✅ Shipped — pushed to `main` (`5c537b6`); extended to Provider/Business Partner and Organisation banners on 2026-06-26.

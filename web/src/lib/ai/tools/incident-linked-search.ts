@@ -4,6 +4,13 @@ import { canAccessWindow } from "@/lib/access/catalog";
 import { incidentsLinkedToClient, incidentsLinkedToEmployee } from "@/lib/incident-queries";
 import { fetchIncidents } from "@/lib/supabase/data-api";
 import { formatDisplayDateTime, isNdisReportOverdue, normalizeIncident } from "@/lib/incident";
+import { aiAllowedClientIds } from "@/lib/ai/tools/client-location-access";
+import { resolveClient } from "@/lib/ai/tools/client-resolve";
+import {
+  filterIncidentsForSessionLocationScope,
+  resolveLocationScopeForSession,
+} from "@/lib/location-scope.server";
+import { canSeeAllIncidents, visibleIncidentsForSessionWithLocation } from "@/lib/incident-list-access";
 
 export async function runIncidentLinkedSearch(
   supabase: SupabaseClient,
@@ -15,18 +22,35 @@ export async function runIncidentLinkedSearch(
   }
 
   const limit = Math.min(Math.max(Number(args.limit) || 15, 1), 40);
-  const incidents = (await fetchIncidents(supabase)).map(normalizeIncident);
+  const scope = await resolveLocationScopeForSession(supabase, session);
+  let incidents = filterIncidentsForSessionLocationScope(
+    (await fetchIncidents(supabase)).map(normalizeIncident),
+    scope
+  );
+  incidents = visibleIncidentsForSessionWithLocation(
+    incidents,
+    session,
+    canSeeAllIncidents((key) => canAccessWindow(session.windowKeys, key)),
+    scope.visibleClientIds
+  );
+
+  const allowedClientIds = await aiAllowedClientIds(supabase, session);
 
   let clientId = String(args.clientId ?? "").trim();
   const clientName = String(args.clientName ?? "").trim();
   const searchKey = String(args.searchKey ?? "").trim();
 
   if (!clientId && (clientName || searchKey)) {
-    let query = supabase.from("client").select("id, name, search_key");
-    if (searchKey) query = query.eq("search_key", searchKey);
-    else if (clientName) query = query.ilike("name", `%${clientName}%`);
-    const { data } = await query.limit(1).maybeSingle();
-    if (data) clientId = data.id;
+    const resolved = await resolveClient(
+      supabase,
+      { searchKey, name: clientName },
+      { allowedClientIds }
+    );
+    if (resolved) clientId = resolved.id;
+  }
+
+  if (clientId && allowedClientIds && !allowedClientIds.has(clientId)) {
+    return { count: 0, results: [], error: "Client not found." };
   }
 
   let employeeId = String(args.employeeId ?? "").trim();

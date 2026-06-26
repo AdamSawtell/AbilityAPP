@@ -4,10 +4,16 @@ import { windowKeysWithDependents } from "@/lib/access/detail-windows";
 
 export const INCIDENTS_SEE_ALL_WINDOW = "incidents-see-all";
 export const INCIDENT_MANAGER_OVERRIDE_WINDOW = "incident-manager-override";
+export const LOCATIONS_SEE_ALL_WINDOW = "locations-see-all";
 
 export function withIncidentsSeeAll<T extends { windowKeys: string[] }>(access: T): T {
   if (access.windowKeys.includes(INCIDENTS_SEE_ALL_WINDOW)) return access;
   return { ...access, windowKeys: [...access.windowKeys, INCIDENTS_SEE_ALL_WINDOW] };
+}
+
+export function withLocationsSeeAll<T extends { windowKeys: string[] }>(access: T): T {
+  if (access.windowKeys.includes(LOCATIONS_SEE_ALL_WINDOW)) return access;
+  return { ...access, windowKeys: [...access.windowKeys, LOCATIONS_SEE_ALL_WINDOW] };
 }
 
 export function withIncidentManagerOverride<T extends { windowKeys: string[] }>(access: T): T {
@@ -112,7 +118,8 @@ const WORKPLACE_OPERATIONS_PROCESSES = [
 ] as const;
 
 export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
-  return withIncidentManagerOverride(
+  return withLocationsSeeAll(
+    withIncidentManagerOverride(
     withIncidentsSeeAll({
       windowKeys: [
       "home",
@@ -146,7 +153,8 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
     processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
     reportIds: [...EXEC_REPORTS],
     taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
-  })
+    })
+    )
   );
 }
 
@@ -170,7 +178,8 @@ export function workforceManagerLeaveAccess(): Pick<AppRoleRecord, "processIds">
 export function managerAccess(
   extraWindows: string[] = []
 ): Pick<AppRoleRecord, "windowKeys" | "processIds" | "reportIds" | "taskTypePermissions"> {
-  return withIncidentManagerOverride(
+  return withLocationsSeeAll(
+    withIncidentManagerOverride(
     withIncidentsSeeAll({
       windowKeys: [
         "home",
@@ -186,6 +195,7 @@ export function managerAccess(
       reportIds: [...MANAGER_REPORTS],
       taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
     })
+    )
   );
 }
 

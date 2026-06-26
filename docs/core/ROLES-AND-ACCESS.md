@@ -77,6 +77,8 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Function | Typical roles | Windows | Processes |
 |----------|---------------|---------|-----------|
 | Location CRUD | Admin, Coordinator (read) | `locations` + tabs | `assign-location-*` |
+| Location-scoped visibility | Support Worker, Coordinator, Team Leader, Officers | `locations` (no `locations-see-all`) | Employees see only assigned locations and linked clients |
+| Unrestricted location access | Admin, Executives, Managers | `locations-see-all` | Org-wide locations and clients (same pattern as `incidents-see-all`) |
 | Business partners | Admin, Finance | `business-partners` | — |
 
 ### §7–8 Agreements and bookings

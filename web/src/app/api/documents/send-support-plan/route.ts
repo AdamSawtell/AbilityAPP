@@ -1,10 +1,26 @@
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest, sessionCanRunProcess } from "@/lib/auth/session.server";
+import { assertClientAccessibleInSession } from "@/lib/location-scope.server";
 import type { DocumentClass } from "@/lib/document-template";
 import { buildMailtoUrl, renderDocumentEmailTemplate } from "@/lib/document-email-template";
 import { loadDocumentEmailTemplate, registerAndSendDocument } from "@/lib/document-send.server";
 import { htmlToPdfBuffer } from "@/lib/document-pdf.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+
+function serviceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url?.trim() || !key?.trim()) return null;
+  return createSupabaseClient(url, key, { auth: { persistSession: false } });
+}
+
+async function supportPlanClientId(planId: string): Promise<string> {
+  const supabase = serviceClient();
+  if (!supabase) return "";
+  const { data } = await supabase.from("support_plan").select("client_id").eq("id", planId).maybeSingle();
+  return String(data?.client_id ?? "").trim();
+}
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -47,6 +63,16 @@ export async function POST(request: Request) {
 
   if (!body.html?.trim() || !body.templateId?.trim() || !body.entityId?.trim()) {
     return NextResponse.json({ error: "html, templateId, and entityId are required" }, { status: 400 });
+  }
+
+  if (isSupabaseConfigured()) {
+    const clientId = await supportPlanClientId(body.entityId.trim());
+    if (clientId) {
+      const access = await assertClientAccessibleInSession(serviceClient(), session, clientId);
+      if (!access.ok) {
+        return NextResponse.json({ error: access.error }, { status: access.status });
+      }
+    }
   }
 
   const placeholders = body.emailPlaceholders ?? {};

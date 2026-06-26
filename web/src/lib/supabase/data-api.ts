@@ -424,6 +424,33 @@ export async function fetchPayrollExportData(
   };
 }
 
+/** Minimal location load for employee/client link scope checks (server-side access). */
+export async function fetchSupportLocationsForScope(supabase: SupabaseClient): Promise<LocationRecord[]> {
+  const [supportLocationsRes, supportLocationClientsRes, supportLocationEmployeesRes] = await Promise.all([
+    supabase.from("support_location").select("*").order("search_key"),
+    supabase.from("support_location_client").select("*").order("line_no"),
+    supabase.from("support_location_employee").select("*").order("line_no"),
+  ]);
+  if (supportLocationsRes.error) throw supportLocationsRes.error;
+  if (supportLocationClientsRes.error) throw supportLocationClientsRes.error;
+  if (supportLocationEmployeesRes.error) throw supportLocationEmployeesRes.error;
+
+  const clientsByLocation = groupBy(supportLocationClientsRes.data as SupportLocationClientRowDb[], "location_id");
+  const employeesByLocation = groupBy(supportLocationEmployeesRes.data as SupportLocationEmployeeRowDb[], "location_id");
+
+  return ((supportLocationsRes.data ?? []) as SupportLocationRow[]).map((row) =>
+    normalizeLocation(
+      locationFromRow(row, {
+        alerts: [],
+        clientLinks: clientsByLocation.get(row.id) ?? [],
+        employeeLinks: employeesByLocation.get(row.id) ?? [],
+        productLinks: [],
+        activities: [],
+      })
+    )
+  );
+}
+
 export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const [
     enquiriesRes,

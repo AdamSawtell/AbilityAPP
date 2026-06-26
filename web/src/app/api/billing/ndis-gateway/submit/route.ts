@@ -8,6 +8,7 @@ import {
 } from "@/lib/integrations/ndis-gateway";
 import { normalizeClaim } from "@/lib/claim";
 import { getAuthSessionFromRequest, sessionCanWriteWindow } from "@/lib/auth/session.server";
+import { assertClientAccessibleInSession } from "@/lib/location-scope.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { fetchClaimGatewayData, saveClaim } from "@/lib/supabase/data-api";
 
@@ -66,6 +67,11 @@ export async function POST(request: Request) {
       priceLists: data.priceLists,
     };
     const validated = normalizeClaim(revalidateClaimRecord(data.claim, ctx, "gateway"));
+    const clientAccess = await assertClientAccessibleInSession(supabase, session, validated.clientId);
+    if (!clientAccess.ok) {
+      return NextResponse.json({ error: clientAccess.error }, { status: clientAccess.status });
+    }
+
     const block = claimGatewaySubmitBlocked(validated, ctx);
     if (block) {
       return NextResponse.json({ error: block }, { status: 400 });
