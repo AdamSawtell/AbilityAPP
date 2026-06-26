@@ -190,6 +190,19 @@ export function isLocationInLocationScope(locationId: string, scope: LocationSco
   return scope.visibleLocationIds.has(locationId);
 }
 
+/** Mirrors roster shift filtering — a shift is in scope when its client and location are visible. */
+export function isRosterShiftInLocationScope(
+  shift: { clientId?: string; locationId?: string },
+  scope: LocationScope
+): boolean {
+  if (!scope.enabled || scope.seeAll) return true;
+  const clientId = shift.clientId?.trim();
+  if (clientId && scope.visibleClientIds && !scope.visibleClientIds.has(clientId)) return false;
+  const locationId = shift.locationId?.trim();
+  if (locationId && scope.visibleLocationIds && !scope.visibleLocationIds.has(locationId)) return false;
+  return true;
+}
+
 export type LocationScopedViewCollections = {
   locations: LocationRecord[];
   clients: ClientRecord[];

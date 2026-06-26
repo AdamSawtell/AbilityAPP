@@ -39,6 +39,25 @@ Applies to client, location, and employee activity tabs, contact activity, and e
 
 ---
 
+## Open shifts — browse all locations (2026-06-27)
+
+**Status:** Shipped.
+
+Location-scoped workers still see only claimable open shifts at assigned locations by default. **Show all available shifts** lists every vacant shift; cards at other locations are read-only with a rostering call-to-action (no Claim button, no client record links). Toggle hidden for users with `locations-see-all`.
+
+| Area | Change |
+|------|--------|
+| UI | `open-shifts-marketplace-panel.tsx` — toggle, in-scope vs other-location sections |
+| Data | `allRosterShifts`, `locationCatalog`, `clientCatalog` on `DataProvider` for browse labels |
+| Logic | `isRosterShiftInLocationScope()` in `location-list-access.ts` |
+| Docs | `my-workplace` help, TEST-073 |
+
+**What you can test:** TEST-073 — `AvaThomas` / `welcome` on **My workplace → Open shifts**: default shows Northern SIL shifts with Claim; toggle reveals Glenelg shifts as read-only with *Call rostering to apply* note.
+
+**Tier 2 (localhost):** Pass as Ava Thomas — 5 claimable NTH-SIL shifts; toggle shows **Other locations** Glenelg cards without Claim buttons. ✅
+
+---
+
 ## Location-based security (2026-06-26)
 
 **Status:** Phase 2 — server/API enforcement + AI tools + document send routes (not yet pushed).

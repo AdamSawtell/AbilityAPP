@@ -12,7 +12,7 @@ import type { EmployeeAvailabilityRow } from "@/lib/employee";
 
 export function MyOpenShiftsPage() {
   const { session } = useAuth();
-  const { clients, employees, locations, serviceBookings, rosterShifts, claimOpenRosterShift } = useData();
+  const { clients, clientCatalog, employees, locations, locationCatalog, serviceBookings, rosterShifts, allRosterShifts, locationScope, claimOpenRosterShift } = useData();
   const employeeId = session?.employeeBpId?.trim() ?? "";
   const [availability, setAvailability] = useState<EmployeeAvailabilityRow[]>([]);
   const [availabilityReady, setAvailabilityReady] = useState(false);
@@ -63,9 +63,13 @@ export function MyOpenShiftsPage() {
         ) : null}
         <OpenShiftsMarketplacePanel
           rosterShifts={rosterShifts}
+          allRosterShifts={allRosterShifts}
+          locationScope={locationScope}
           clients={clients}
+          clientCatalog={clientCatalog}
           employees={employees}
           locations={locations}
+          locationCatalog={locationCatalog}
           serviceBookings={serviceBookings}
           mode="worker"
           currentEmployeeId={employeeId}

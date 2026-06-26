@@ -25,7 +25,7 @@ export const myWorkplaceArticle: HelpArticle = {
   ],
   relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/timesheets", "/my/contracts", "/my/credentials"],
   windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-timesheets", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-25",
+  lastUpdated: "2026-06-27",
   sections: [
     {
       id: "overview",
@@ -89,10 +89,11 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "open-shifts",
       title: "Claim open shifts",
-      body: "When rostering posts vacant shifts to the marketplace, you can browse and claim cover from My workplace → Open shifts. Shifts that match your saved weekly availability are listed first and tagged so you can spot them quickly. If a shift falls outside your availability — for example an overnight shift when you only work days — the card warns you and you must tap Claim anyway? to confirm before it is claimed. The system still blocks any claim that double-books you.",
+      body: "When rostering posts vacant shifts to the marketplace, you can browse and claim cover from My workplace → Open shifts. By default you see open shifts at locations you are assigned to — you can claim those directly. Use Show all available shifts to browse vacant cover at other sites; those cards are read-only and note that you should call rostering to apply if you are interested. Shifts that match your saved weekly availability are listed first and tagged so you can spot them quickly. If a shift falls outside your availability — for example an overnight shift when you only work days — the card warns you and you must tap Claim anyway? to confirm before it is claimed. The system still blocks any claim that double-books you.",
       steps: [
         "Set your weekly pattern on My workplace → Availability so shifts can be matched to your hours.",
-        "Open My workplace → Open shifts. Matching shifts appear first with a “Within your availability” tag.",
+        "Open My workplace → Open shifts. Your assigned locations appear first — claim these directly.",
+        "Optional: click Show all available shifts to browse cover at other locations (read-only). Call rostering to apply for those.",
         "Review date, time, client, and location on each card.",
         "Click Claim shift — your user must be linked to your employee record.",
         "If the shift is outside your saved availability, read the warning and tap Claim anyway? to confirm (or Cancel).",

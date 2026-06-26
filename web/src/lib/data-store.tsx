@@ -239,6 +239,11 @@ type DataStore = {
   serviceAgreements: ServiceAgreementRecord[];
   serviceBookings: ServiceBookingRecord[];
   rosterShifts: RosterShiftRecord[];
+  /** Unscoped roster register — open-shift “show all locations” browse only. */
+  allRosterShifts: RosterShiftRecord[];
+  /** Unscoped lookup for read-only labels on out-of-location open shifts. */
+  locationCatalog: LocationRecord[];
+  clientCatalog: ClientRecord[];
   agencyWorkers: AgencyWorkerRecord[];
   agencyShiftRequests: AgencyShiftRequestRecord[];
   siteOrientations: SiteOrientationRecord[];
@@ -2122,6 +2127,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       serviceAgreements: scopedView.serviceAgreements,
       serviceBookings: scopedView.serviceBookings,
       rosterShifts: scopedView.rosterShifts,
+      allRosterShifts: rosterShifts,
+      locationCatalog: locations,
+      clientCatalog: clients,
       agencyWorkers,
       agencyShiftRequests,
       siteOrientations,

@@ -547,6 +547,24 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-073 — Open shifts: assigned locations + browse all
+
+| | |
+|--|--|
+| **User** | Support worker assigned to one location (e.g. `AvaThomas` / NTH-SIL) |
+| **Routes** | `/my/open-shifts` |
+| **Pass if** | Default shows only assigned-location shifts (claimable); toggle shows other locations read-only |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in as a location-scoped support worker | Open shifts page loads |
+| 2 | Review default list | Only shifts at assigned location(s); **Claim shift** available |
+| 3 | Click **Show all available shifts** | Additional cards appear under **Other locations** |
+| 4 | Open an other-location card | No claim button; note to call rostering to apply |
+| 5 | Click **Hide other locations** | Other-location cards disappear |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text
