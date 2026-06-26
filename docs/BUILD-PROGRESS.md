@@ -22,7 +22,7 @@
 
 ## Entity header (record banner) redesign (2026-06-26)
 
-**Status:** ✅ Implemented — pending push and Amplify smoke
+**Status:** ✅ Shipped — pushed to `main` (`5c537b6`)
 
 New reusable `EntityHeader` component (`web/src/components/entity-header.tsx`) replaces the sparse record headers with a modern three-column banner: large hero photo (≈176px, rounded) on the left, prominent name + subtitle + status badges + icon contact metadata in the centre, and a quick-reference summary panel (with optional action slot) on the right. Responsive — summary stacks on tablet, photo moves above on mobile.
 
