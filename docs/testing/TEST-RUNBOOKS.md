@@ -488,6 +488,24 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-069 — Entity header (record banner)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **Routes** | `/clients/bp-bern`, an employee record, a location record |
+| **Pass if** | All three show the same large-photo banner: hero image, name, badges, icon contact details, right summary panel |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `bp-bern` | Large photo/initials, big name, lifecycle + status + alert badges, email/phone/address icons, Funding/Disability summary |
+| 2 | Click a badge (e.g. consents/restrictive) | Navigates to that tab |
+| 3 | Open an employee with expiring/expired credentials | Compliance warning banner above the header; credential badges link to Credentials Assigned |
+| 4 | Open a location | Status + client/staff/service badges; Capacity/City summary |
+| 5 | Narrow the window to tablet then mobile | Summary stacks below; photo moves above details; no overflow |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

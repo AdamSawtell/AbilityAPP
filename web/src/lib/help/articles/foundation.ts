@@ -65,10 +65,10 @@ export const navigationArticle: HelpArticle = {
   summary:
     "Use the sidebar, open record tabs, switch detail tabs inside a record, and save your work.",
   category: "Foundation",
-  keywords: ["sidebar", "tabs", "workspace", "navigate", "open records", "save", "unsaved"],
+  keywords: ["sidebar", "tabs", "workspace", "navigate", "open records", "save", "unsaved", "banner", "record header"],
   relatedRoutes: ["/"],
   windowKeys: [],
-  lastUpdated: "2026-06-23",
+  lastUpdated: "2026-06-26",
   sections: [
     {
       id: "sidebar",
@@ -90,6 +90,18 @@ export const navigationArticle: HelpArticle = {
         "Green tabs: clients",
         "Indigo tabs: employees",
         "Teal tabs: locations",
+      ],
+    },
+    {
+      id: "record-banner",
+      title: "The record banner",
+      body: "Every master record (clients, employees, locations) opens with a consistent banner so you instantly recognise who or what you are viewing. A large photo sits on the left, the name and key details in the centre, and a quick-reference summary panel on the right.",
+      bullets: [
+        "Left: a large photo (or initials when no photo is set) as the visual anchor.",
+        "Centre: the record name, a short subtitle, status badges (active, alerts, consents, credentials), and contact details with icons.",
+        "Right: a summary panel — funding and disability for clients, department and site for employees, capacity and city for locations.",
+        "Status badges link straight to the relevant tab (for example alerts or restrictive practices).",
+        "On tablet the summary stacks below; on mobile the photo moves above the details.",
       ],
     },
     {

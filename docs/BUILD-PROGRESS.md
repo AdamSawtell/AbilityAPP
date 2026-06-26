@@ -20,6 +20,29 @@
 
 ---
 
+## Entity header (record banner) redesign (2026-06-26)
+
+**Status:** ✅ Implemented — pending push and Amplify smoke
+
+New reusable `EntityHeader` component (`web/src/components/entity-header.tsx`) replaces the sparse record headers with a modern three-column banner: large hero photo (≈176px, rounded) on the left, prominent name + subtitle + status badges + icon contact metadata in the centre, and a quick-reference summary panel (with optional action slot) on the right. Responsive — summary stacks on tablet, photo moves above on mobile.
+
+| Area | Change |
+|------|--------|
+| Component | `entity-header.tsx` — `EntityHeader` with `badges`, `metadata` (icon + label + value), `summary`, `actions`, and `banner` slots; tone-based badge colours and inline SVG icons |
+| Client | `client-core-summary.tsx` rebuilt on `EntityHeader` (lifecycle/status/alerts/consents/restrictive/risk/support-plan/agreement badges; funding/disability/NDIS summary) |
+| Employee | `employee-core-summary.tsx` rebuilt; compliance warning kept as the banner slot; department/site/employment summary |
+| Location | `location-core-summary.tsx` rebuilt; status/links badges; capacity/city/type summary |
+
+### What you can test
+
+1. Open a Client, Employee, and Location record — each shows the same large-photo banner with name, badges, contact icons, and right-hand summary.
+2. Status badges (alerts, consents, credentials, links) still navigate to their tabs.
+3. Resize to tablet/mobile — summary stacks, photo moves above; layout stays clean.
+
+**Verification (2026-06-26):** `npm run build` ✅ (exit 0).
+
+---
+
 ## Hotfix — role save no longer wipes grants on failure (2026-06-26)
 
 **Status:** ✅ Fixed — pending push and Amplify smoke
