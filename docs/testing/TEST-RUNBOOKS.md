@@ -193,6 +193,38 @@ Regression: `npm run test:karen` covers the matching/typo/availability logic.
 
 ---
 
+## TEST-066 — Karen AiTester support-worker day (seeded)
+
+| | |
+|--|--|
+| **User** | `KarenAiTester` / `welcome` (role Support Worker) |
+| **DATA** | `npm run supabase:seed-karen` — attaches a full day on `Bernadette Rose` (`bp-bern`) to the KarenAiTester login |
+| **Pass if** | Today's two shifts show in My shifts; client profile, care plan, goals, case notes and a draft timesheet are all present and editable |
+| **Note** | Flows 7 (medication assistance) and 8 (travel/kilometres) are backlog — no feature to test yet |
+
+Seeded for the automated browser tester (re-runnable, fixed ids):
+
+| What | Detail |
+|------|--------|
+| Today (relative to run date) | Two **Published** shifts on `bp-bern` — AM SIL `09:00–15:00` (`rs-karen-jun26-am`), PM community access `15:30–18:00` (`rs-karen-jun26-pm`), neither checked in |
+| History | Two **Completed** checked-in/out shifts on the previous two days (`rs-karen-jun24/25`) |
+| Timesheet | Draft `ts-karen-jun` (12h, 2 lines) ready to submit |
+| Case notes | Three activity notes on `bp-bern` (`act-karen-1/2/3`) |
+| Goal progress | One review on goal-1 transfers (`gpr-karen-goal1`) |
+| Incident | One reported incident `inc-karen-1` for history |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in as `KarenAiTester` / `welcome` → My shifts | Today's AM + PM shifts on Bernadette Rose listed |
+| 2 | Open the client profile for Bernadette Rose | Profile, care plan and risks visible (read) |
+| 3 | Clock on the AM shift | Check-in recorded; status reflects on shift |
+| 4 | Add a case note on Bernadette | New activity row saves and persists after reload |
+| 5 | Record goal progress on goal-1 | Progress review row saves (history now ≥ 2) |
+| 6 | Report an incident from the shift | New incident created (list already has `inc-karen-1`) |
+| 7 | Check out the AM shift, then My timesheets → submit `TS-KAREN-JUN` | Checkout recorded; draft timesheet submits |
+
+---
+
 ## TEST-070 — Agency staffing smoke (WP-AG.1)
 
 | | |

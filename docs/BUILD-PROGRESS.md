@@ -22,7 +22,7 @@
 
 ## AB-0017 Phase 1 — Organisation app colour theme (2026-06-26)
 
-**Status:** ✅ Implemented — pending commit/deploy
+**Status:** ✅ Shipped — 2026-06-26 (live on Amplify, persistence smoke passed)
 
 Per-organisation app shell colours (primary, accent, background, text) stored on `app_organization`. Admin UI on System → Organisation → App theme with presets, live preview, contrast warnings, and reset. CSS variables applied app-wide via `OrgThemeProvider`; shared chrome (sign-in, workspace shell, login buttons) uses `brand-*` Tailwind tokens.
 
@@ -39,7 +39,13 @@ Per-organisation app shell colours (primary, accent, background, text) stored on
 2. Save — reload page — colours persist; sign-in backdrop uses accent gradient.
 3. Reset theme — all fields clear; app returns to AbilityVua pink defaults.
 
-**Verification (2026-06-26):** `npm run build` ✅ (exit 0), `npm run page-guides:check` ✅ (128 routes, 0 gaps). Localhost smoke ✅ — `/system/organization` App theme: Teal care preset + Preview live applies `#0d9488` primary and `#134e4a` accent CSS vars. Fixed preset batching bug (functional `setDraft` so primary + accent apply together). Migration `20260628120000_org_app_theme.sql` pending remote apply on next push.
+**Verification (2026-06-26):** `npm run build` ✅ (exit 0), `npm run page-guides:check` ✅ (128 routes, 0 gaps). Localhost smoke ✅ — `/system/organization` App theme: Teal care preset + Preview live applies `#0d9488` primary and `#134e4a` accent CSS vars. Fixed preset batching bug (functional `setDraft` so primary + accent apply together). Bugbot: per-field colour-picker defaults + portal/system sign-in brand tokens fixed.
+
+**Amplify deploy fix (2026-06-26):** Deploys had been failing for days with `next build` JS heap OOM at the 768 MB runtime `NODE_OPTIONS` cap (Amplify deployments 298–304 failed; only 299 retrigger deployed). Fixed in `amplify.yml` by running the build step with its own inline 4 GB heap (`NODE_OPTIONS=--max-old-space-size=4096 npm run build`); runtime SSR cap unchanged. Deploy 305 succeeded.
+
+**Remote migration (2026-06-26):** `20260628120000_org_app_theme.sql` applied directly to remote (idempotent `add column if not exists` ×4) after `supabase db push --include-all` hit a `schema_migrations` history desync (pre-existing — several already-applied migrations not recorded in history). Theme columns confirmed present on `app_organization`. **Known follow-up:** remote `supabase_migrations.schema_migrations` history is out of sync with `supabase/migrations/`; a `supabase migration repair` pass is needed before plain `db push` will work cleanly.
+
+**Amplify live smoke (2026-06-26):** ✅ System → Organisation → App theme: Teal care preset applied `#0d9488`/`#134e4a`, **saved and persisted across hard reload**, then Reset theme restored default pink (`#d4147a`) and persisted. Tenant left on default pink.
 
 ---
 
@@ -2058,6 +2064,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-26 | Karen AiTester seed uncommitted | 1 High + 1 Medium, fixed | **Pass** | `app_user` upsert now links `employee_bp_id` to `emp-karen` when unset so the session resolves an employee; shift/timesheet/incident/activity dates are relative to `current_date` so the fixture stays valid when re-run |
 | 2026-06-25 | AB-0022 uncommitted | 2 High + 2 Medium, fixed | **Pass** | Buddy `ask` pay status stays unselected (no payable default); buddy/primary overlap no longer blocks publish; weekly recurrence disabled for buddy shifts; **Add buddy shift** now shows on agency-covered shifts |
 | 2026-06-25 | WP-UX.6 uncommitted | 0 | **Pass** | Branded portal sign-in landings; no findings |
 | 2026-06-25 | WP-UX.5 uncommitted | 2 Medium, fixed | **Pass** | Next-support skips elapsed shifts; overdue plan review prioritised over upcoming supports |

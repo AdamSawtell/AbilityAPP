@@ -16,6 +16,7 @@
     "supabase:seed-test-window": "node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-delivery-test-window.sql",
     "supabase:seed-e2e-amplify": "node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-e2e-amplify-smoke.sql",
     "supabase:seed-e2e-intake": "node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-e2e-intake-chain.sql",
+    "supabase:seed-karen": "node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-karen-aitester.sql",
     "uat:inventory": "cd web && npx tsx ../scripts/generate-uat-inventory.mjs",
     "supabase:setup-remote": "node scripts/apply-remote-db.mjs all",
     "supabase:seed-workforce": "cd web && npx tsx ../scripts/generate-access-seed.mjs && npx tsx ../scripts/generate-employee-seed.mjs && npx tsx ../scripts/generate-org-structure-seed.mjs && node ../scripts/generate-org-bulk-positions.mjs && node ../scripts/run-workforce-seeds.mjs --linked",
