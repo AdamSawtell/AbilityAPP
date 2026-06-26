@@ -9,7 +9,7 @@ import {
 import { normalizeClaim } from "@/lib/claim";
 import { getAuthSessionFromRequest, sessionCanWriteWindow } from "@/lib/auth/session.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
-import { fetchAllData, saveClaim } from "@/lib/supabase/data-api";
+import { fetchClaimGatewayData, saveClaim } from "@/lib/supabase/data-api";
 
 function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -54,9 +54,8 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createServiceClient();
-    const data = await fetchAllData(supabase);
-    const claim = data.claims.find((row) => row.id === claimId);
-    if (!claim) {
+    const data = await fetchClaimGatewayData(supabase, claimId);
+    if (!data.claim) {
       return NextResponse.json({ error: "Claim not found." }, { status: 404 });
     }
 
@@ -66,7 +65,7 @@ export async function POST(request: Request) {
       products: data.products,
       priceLists: data.priceLists,
     };
-    const validated = normalizeClaim(revalidateClaimRecord(claim, ctx, "gateway"));
+    const validated = normalizeClaim(revalidateClaimRecord(data.claim, ctx, "gateway"));
     const block = claimGatewaySubmitBlocked(validated, ctx);
     if (block) {
       return NextResponse.json({ error: block }, { status: 400 });

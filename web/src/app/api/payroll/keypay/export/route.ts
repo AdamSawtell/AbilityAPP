@@ -6,7 +6,7 @@ import {
   payrollRowsToKeypayPayload,
 } from "@/lib/integrations/keypay-payroll";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
-import { fetchAllData, saveTimesheets } from "@/lib/supabase/data-api";
+import { fetchPayrollExportData, saveTimesheets } from "@/lib/supabase/data-api";
 import { preparePayrollExport } from "@/lib/timesheet-payroll-export";
 
 function createServiceClient() {
@@ -49,14 +49,13 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createServiceClient();
-    const data = await fetchAllData(supabase);
-    const sheets = data.timesheets.filter((sheet) => timesheetIds.includes(sheet.id));
-    if (sheets.length !== timesheetIds.length) {
+    const data = await fetchPayrollExportData(supabase, timesheetIds);
+    if (data.timesheets.length !== timesheetIds.length) {
       return NextResponse.json({ error: "One or more timesheets were not found." }, { status: 400 });
     }
 
     const prepared = preparePayrollExport(
-      sheets,
+      data.timesheets,
       data.employees,
       data.clients,
       data.locations,

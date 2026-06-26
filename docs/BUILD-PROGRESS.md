@@ -49,6 +49,8 @@ Per-organisation app shell colours (primary, accent, background, text) stored on
 
 **Build warning fix (2026-06-26):** Set `outputFileTracingRoot` to match `turbopack.root` in `web/next.config.ts`, removing the per-build `⚠ Both outputFileTracingRoot and turbopack.root are set` warning and pinning the PDF/Chromium file-tracing root to the web app.
 
+**Performance hardening (2026-06-26):** Removed the remaining server API uses of full workspace hydration (`fetchAllData`) from NDIS gateway submit and KeyPay export. These endpoints now fetch only the selected claim/timesheet records plus referenced lines, clients, bookings, products, price lists, employees, locations, and roster shifts. This reduces long-running Supabase query risk on single-record submit/export actions and leaves the broader app hydration path unchanged for a later lazy-loading slice.
+
 **Amplify live smoke (2026-06-26):** ✅ System → Organisation → App theme: Teal care preset applied `#0d9488`/`#134e4a`, **saved and persisted across hard reload**, then Reset theme restored default pink (`#d4147a`) and persisted. Tenant left on default pink.
 
 ---
@@ -2068,6 +2070,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-26 | API targeted fetch hardening uncommitted | 1 Medium, fixed; rerun 0 | **Pass** | NDIS gateway now keeps full price-list fallback semantics while avoiding full workspace hydration; KeyPay export uses targeted timesheet/line/reference fetches |
 | 2026-06-26 | SuperUser all-roles uncommitted | 1 High + 1 Medium, fixed | **Pass** | SuperUser detection keyed on seeded `user-superuser` id (not the mutable username) so renaming an account cannot escalate it; `upsertUser` mirrors the all-roles expansion into client state so the UI matches what is persisted |
 | 2026-06-26 | Karen AiTester seed uncommitted | 1 High + 1 Medium, fixed | **Pass** | `app_user` upsert now links `employee_bp_id` to `emp-karen` when unset so the session resolves an employee; shift/timesheet/incident/activity dates are relative to `current_date` so the fixture stays valid when re-run |
 | 2026-06-25 | AB-0022 uncommitted | 2 High + 2 Medium, fixed | **Pass** | Buddy `ask` pay status stays unselected (no payable default); buddy/primary overlap no longer blocks publish; weekly recurrence disabled for buddy shifts; **Add buddy shift** now shows on agency-covered shifts |

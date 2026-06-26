@@ -277,6 +277,153 @@ async function replaceChildRows(
   if (error) throw error;
 }
 
+function uniqueNonEmpty(values: Array<string | null | undefined>): string[] {
+  return [...new Set(values.map((value) => value?.trim() ?? "").filter(Boolean))];
+}
+
+async function selectRowsByIds<T extends { id: string }>(
+  supabase: SupabaseClient,
+  table: string,
+  ids: string[]
+): Promise<T[]> {
+  if (!ids.length) return [];
+  const { data, error } = await supabase.from(table).select("*").in("id", ids);
+  if (error) throw error;
+  return (data ?? []) as T[];
+}
+
+export type ClaimGatewayData = Pick<AppData, "claims" | "clients" | "serviceBookings" | "products" | "priceLists">;
+
+export async function fetchClaimGatewayData(
+  supabase: SupabaseClient,
+  claimId: string
+): Promise<ClaimGatewayData & { claim: ClaimRecord | null }> {
+  const { data: claimRow, error: claimError } = await supabase
+    .from("claim")
+    .select("*")
+    .eq("id", claimId)
+    .maybeSingle();
+  if (claimError) throw claimError;
+  if (!claimRow) {
+    return { claim: null, claims: [], clients: [], serviceBookings: [], products: [], priceLists: [] };
+  }
+
+  const { data: lineRows, error: lineError } = await supabase
+    .from("claim_line")
+    .select("*")
+    .eq("claim_id", claimId)
+    .order("line_no");
+  if (lineError) throw lineError;
+
+  const claimLines = (lineRows ?? []) as ClaimLineRowDb[];
+  const claim = normalizeClaim(claimFromRow(claimRow as ClaimRow, claimLines));
+
+  const clientIds = uniqueNonEmpty([claim.clientId, ...claim.lines.map((line) => line.clientId)]);
+  const bookingIds = uniqueNonEmpty(claim.lines.map((line) => line.serviceBookingId));
+  const productIds = uniqueNonEmpty(claim.lines.map((line) => line.productId));
+
+  const [clientRows, bookingRows, bookingLineRows, productRows] = await Promise.all([
+    selectRowsByIds(supabase, "client", clientIds),
+    selectRowsByIds<ServiceBookingRow>(supabase, "service_booking", bookingIds),
+    bookingIds.length
+      ? supabase.from("service_booking_line").select("*").in("service_booking_id", bookingIds).order("line_no")
+      : Promise.resolve({ data: [], error: null }),
+    selectRowsByIds<ProductRow>(supabase, "product", productIds),
+  ]);
+
+  if (bookingLineRows.error) throw bookingLineRows.error;
+
+  const products = (productRows as ProductRow[]).map(productFromRow);
+  // Keep the same validation semantics as the in-app gateway panel: if a product
+  // is missing a linked price list, revalidateClaimRecord falls back to priceLists[0].
+  // Price lists are reference data, so loading the full catalog is still cheap.
+  const { data: priceRows, error: priceError } = await supabase.from("price_list").select("*").order("name");
+  if (priceError) throw priceError;
+
+  const priceRowsTyped = (priceRows ?? []) as PriceListRow[];
+  const resolvedPriceListIds = uniqueNonEmpty(priceRowsTyped.map((row) => row.id));
+  const { data: priceLineRows, error: priceLineError } = resolvedPriceListIds.length
+    ? await supabase.from("price_list_line").select("*").in("price_list_id", resolvedPriceListIds).order("line_no")
+    : { data: [], error: null };
+  if (priceLineError) throw priceLineError;
+
+  const bookingLines = (bookingLineRows.data ?? []) as ServiceBookingLineRowDb[];
+  const priceLines = (priceLineRows ?? []) as PriceListLineRow[];
+
+  return {
+    claim,
+    claims: [claim],
+    clients: (clientRows as Parameters<typeof clientFromRow>[0][]).map((row) =>
+      clientFromRow(row, [], [], [], [], [], [], [], [], [])
+    ),
+    serviceBookings: (bookingRows as ServiceBookingRow[]).map((row) =>
+      normalizeServiceBooking(
+        serviceBookingFromRow(
+          row,
+          bookingLines.filter((line) => line.service_booking_id === row.id)
+        )
+      )
+    ),
+    products,
+    priceLists: priceRowsTyped.map((row) =>
+      normalizePriceList(priceListFromRow(row, priceLines.filter((line) => line.price_list_id === row.id)))
+    ),
+  };
+}
+
+export type PayrollExportData = Pick<AppData, "timesheets" | "employees" | "clients" | "locations" | "rosterShifts">;
+
+export async function fetchPayrollExportData(
+  supabase: SupabaseClient,
+  timesheetIds: string[]
+): Promise<PayrollExportData> {
+  const ids = uniqueNonEmpty(timesheetIds);
+  if (!ids.length) return { timesheets: [], employees: [], clients: [], locations: [], rosterShifts: [] };
+
+  const [timesheetRows, lineRows] = await Promise.all([
+    selectRowsByIds<TimesheetRow>(supabase, "timesheet", ids),
+    supabase.from("timesheet_line").select("*").in("timesheet_id", ids).order("line_no"),
+  ]);
+  if (lineRows.error) throw lineRows.error;
+
+  const lines = (lineRows.data ?? []) as TimesheetLineRowDb[];
+  const timesheets = (timesheetRows as TimesheetRow[]).map((row) =>
+    normalizeTimesheet(timesheetFromRow(row, lines.filter((line) => line.timesheet_id === row.id)))
+  );
+
+  const employeeIds = uniqueNonEmpty(timesheets.map((sheet) => sheet.employeeId));
+  const clientIds = uniqueNonEmpty(timesheets.flatMap((sheet) => sheet.lines.map((line) => line.clientId)));
+  const locationIds = uniqueNonEmpty(timesheets.flatMap((sheet) => sheet.lines.map((line) => line.locationId)));
+  const rosterShiftIds = uniqueNonEmpty(timesheets.flatMap((sheet) => sheet.lines.map((line) => line.rosterShiftId)));
+
+  const [employeeRows, clientRows, locationRows, rosterRows] = await Promise.all([
+    selectRowsByIds(supabase, "employee", employeeIds),
+    selectRowsByIds(supabase, "client", clientIds),
+    selectRowsByIds(supabase, "support_location", locationIds),
+    selectRowsByIds<RosterShiftRow>(supabase, "roster_shift", rosterShiftIds),
+  ]);
+
+  return {
+    timesheets,
+    employees: (employeeRows as Parameters<typeof employeeFromRow>[0][]).map((row) => normalizeEmployee(employeeFromRow(row))),
+    clients: (clientRows as Parameters<typeof clientFromRow>[0][]).map((row) =>
+      clientFromRow(row, [], [], [], [], [], [], [], [], [])
+    ),
+    locations: (locationRows as Parameters<typeof locationFromRow>[0][]).map((row) =>
+      normalizeLocation(
+        locationFromRow(row, {
+          alerts: [],
+          clientLinks: [],
+          employeeLinks: [],
+          productLinks: [],
+          activities: [],
+        })
+      )
+    ),
+    rosterShifts: (rosterRows as RosterShiftRow[]).map((row) => normalizeRosterShift(rosterShiftFromRow(row))),
+  };
+}
+
 export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const [
     enquiriesRes,
