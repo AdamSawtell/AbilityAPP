@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppRoleRecord, AppUserRecord, TaskTypePermission } from "@/lib/access/types";
 import { ensureAdminRoleAccess, isAdminRole } from "@/lib/access/role-access-templates";
+import { effectiveRoleIds, isSuperUser } from "@/lib/access/superuser";
 import { INITIAL_TASK_TYPES } from "@/lib/task-type";
 import {
   normalizeRoleWindowAccess,
@@ -69,12 +70,16 @@ const USER_COLUMNS =
   "id, username, email, first_name, last_name, phone, active, employee_bp_id, notes";
 
 export async function fetchUsers(supabase: SupabaseClient): Promise<AppUserRecord[]> {
-  const [usersRes, userRolesRes] = await Promise.all([
+  const [usersRes, userRolesRes, rolesRes] = await Promise.all([
     supabase.from("app_user").select(USER_COLUMNS).order("username"),
     supabase.from("app_user_role").select("user_id, role_id"),
+    supabase.from("app_role").select("id").eq("active", true),
   ]);
   if (usersRes.error) throw usersRes.error;
   if (userRolesRes.error) throw userRolesRes.error;
+  if (rolesRes.error) throw rolesRes.error;
+
+  const allRoleIds = ((rolesRes.data ?? []) as { id: string }[]).map((row) => row.id);
 
   const rolesByUser = new Map<string, string[]>();
   for (const row of userRolesRes.data ?? []) {
@@ -83,9 +88,11 @@ export async function fetchUsers(supabase: SupabaseClient): Promise<AppUserRecor
     rolesByUser.set(row.user_id, list);
   }
 
-  return ((usersRes.data ?? []) as UserRow[]).map((row) =>
-    userFromRow(row, rolesByUser.get(row.id) ?? [])
-  );
+  return ((usersRes.data ?? []) as UserRow[]).map((row) => {
+    const user = userFromRow(row, rolesByUser.get(row.id) ?? []);
+    if (!isSuperUser(user)) return user;
+    return { ...user, roleIds: effectiveRoleIds(user, allRoleIds) };
+  });
 }
 
 export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecord[]> {
@@ -170,10 +177,17 @@ export async function saveUser(supabase: SupabaseClient, user: AppUserRecord, pa
   const { error } = await supabase.from("app_user").upsert(row);
   if (error) throw error;
 
+  let roleIds = user.roleIds;
+  if (isSuperUser(user)) {
+    const { data, error: rolesError } = await supabase.from("app_role").select("id").eq("active", true);
+    if (rolesError) throw rolesError;
+    roleIds = (data ?? []).map((r) => r.id);
+  }
+
   await supabase.from("app_user_role").delete().eq("user_id", user.id);
-  if (user.roleIds.length) {
+  if (roleIds.length) {
     const { error: linkError } = await supabase.from("app_user_role").insert(
-      user.roleIds.map((role_id) => ({ user_id: user.id, role_id }))
+      roleIds.map((role_id) => ({ user_id: user.id, role_id }))
     );
     if (linkError) throw linkError;
   }

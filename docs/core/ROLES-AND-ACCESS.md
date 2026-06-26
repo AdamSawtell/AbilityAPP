@@ -34,7 +34,7 @@
 
 | Role key | Label | Primary persona | Spine flows |
 |----------|-------|-----------------|-------------|
-| `role-admin` | AbilityVua Admin | SuperUser — full access | All |
+| `role-admin` | AbilityVua Admin | SuperUser default — full catalog access | All |
 | `role-intake` | Intake Coordinator | GabrielaWilson | 1–2 Enquiry → convert |
 | `role-coordinator` | Support Coordinator | IslaRobinson | 2–5 Client, plan, agreements, bookings |
 | `role-rostering-manager` | Rostering Manager | RileyShaw | 4 Delivery, roster, timesheets |
@@ -187,11 +187,13 @@ A user with **Write** on invoices but **without** `send-invoice` can edit record
 
 | User | Roles | Why |
 |------|-------|-----|
-| SuperUser | `role-admin` | Full regression |
+| SuperUser | All active roles (always, including new roles) | Full regression and role-switch testing |
 | IslaRobinson | `role-intake` + `role-coordinator` | Intake through service delivery |
 | GabrielaWilson | `role-intake` | Enquiry-focused testing |
 
 Sign out and back in after `seed-access.sql` changes so session reloads window keys.
+
+**SuperUser:** The `SuperUser` login always receives every active workspace role for sign-in and role switching — including roles added after the last seed. Runtime logic in `web/src/lib/access/superuser.ts` grants this; re-running `npm run supabase:seed-access` also writes all current roles to `app_user_role` for that user.
 
 ---
 

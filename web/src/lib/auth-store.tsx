@@ -11,6 +11,7 @@ import { canSaveModuleRecord, canWriteWindowSession } from "@/lib/access/window-
 import { canAccessReport } from "@/lib/reports/catalog";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess, ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
 import { ensureAdminRoleAccess } from "@/lib/access/role-access-templates";
+import { effectiveRoleIds, isSuperUser } from "@/lib/access/superuser";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   fetchRoles,
@@ -236,21 +237,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const upsertUser = useCallback(
     async (user: AppUserRecord, options?: { password?: string }) => {
+      // SuperUser is persisted with every active role; mirror that in client state
+      // so the UI never shows fewer roles than were saved.
+      const allRoleIds = roles.filter((r) => r.active).map((r) => r.id);
+      const stored: AppUserRecord = isSuperUser(user)
+        ? { ...user, roleIds: effectiveRoleIds(user, allRoleIds) }
+        : user;
       setUsers((prev) => {
-        const exists = prev.some((u) => u.id === user.id);
-        return exists ? prev.map((u) => (u.id === user.id ? user : u)) : [...prev, user];
+        const exists = prev.some((u) => u.id === stored.id);
+        return exists ? prev.map((u) => (u.id === stored.id ? stored : u)) : [...prev, stored];
       });
       if (source === "supabase" && isSupabaseConfigured()) {
         const res = await fetch("/api/auth/system-access", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ user, password: options?.password }),
+          body: JSON.stringify({ user: stored, password: options?.password }),
         });
         if (!res.ok) throw new Error("Could not save system access");
       }
     },
-    [source]
+    [source, roles]
   );
 
   const upsertRole = useCallback(
@@ -279,7 +286,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (userId: string) => {
       const user = users.find((u) => u.id === userId);
       if (!user) return [];
-      return roles.filter((r) => r.active && user.roleIds.includes(r.id));
+      const allRoleIds = roles.filter((r) => r.active).map((r) => r.id);
+      const allowed = new Set(effectiveRoleIds(user, allRoleIds));
+      return roles.filter((r) => r.active && allowed.has(r.id));
     },
     [users, roles]
   );

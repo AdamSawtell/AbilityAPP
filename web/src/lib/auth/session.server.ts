@@ -8,6 +8,7 @@ import { normalizeRoleWindowAccess, canWriteWindowSession } from "@/lib/access/w
 import { agentIdsForRole } from "@/lib/ai/seed";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess, ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
 import { ensureAdminRoleAccess, isAdminRole } from "@/lib/access/role-access-templates";
+import { userHasRole } from "@/lib/access/superuser";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import {
@@ -110,7 +111,8 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
       const [users, roles] = await Promise.all([fetchUsers(supabase), fetchRoles(supabase)]);
       const user = users.find((u) => u.id === userId);
       const role = roles.find((r) => r.id === roleId);
-      if (!user?.active || !role?.active || !user.roleIds.includes(roleId)) return null;
+      const allRoleIds = roles.filter((r) => r.active).map((r) => r.id);
+      if (!user?.active || !role?.active || !userHasRole(user, roleId, allRoleIds)) return null;
 
       const agentIds = await resolveRoleAgentIds(supabase, roleId);
 
@@ -165,7 +167,8 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
 
   const user = SEED_USERS.find((u) => u.id === userId);
   const role = SEED_ROLES.find((r) => r.id === roleId);
-  if (!user?.active || !role?.active || !user.roleIds.includes(roleId)) return null;
+  const allRoleIds = SEED_ROLES.filter((r) => r.active).map((r) => r.id);
+  if (!user?.active || !role?.active || !userHasRole(user, roleId, allRoleIds)) return null;
   const merged = normalizeRoleWindowAccess(withSeedTaskAccess(role));
   return {
     userId: user.id,

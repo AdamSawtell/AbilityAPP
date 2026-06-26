@@ -3,6 +3,7 @@ import type { AppUserRecord } from "@/lib/access/types";
 import { hashPassword, isPasswordHashed, verifyPassword } from "@/lib/auth/password.server";
 import { SEED_LOGIN_PASSWORDS } from "@/lib/auth/passwords.server";
 import { SEED_USERS } from "@/lib/access/seed";
+import { isSuperUser } from "@/lib/access/superuser";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
@@ -41,6 +42,11 @@ function userFromRow(row: UserRow, roleIds: string[]): AppUserRecord {
 }
 
 async function roleIdsForUser(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
+  if (isSuperUser(userId)) {
+    const { data, error } = await supabase.from("app_role").select("id").eq("active", true);
+    if (error) throw error;
+    return (data ?? []).map((r) => r.id);
+  }
   const { data, error } = await supabase.from("app_user_role").select("role_id").eq("user_id", userId);
   if (error) throw error;
   return (data ?? []).map((r) => r.role_id);

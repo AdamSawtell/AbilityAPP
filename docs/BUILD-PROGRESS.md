@@ -2064,6 +2064,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-26 | SuperUser all-roles uncommitted | 1 High + 1 Medium, fixed | **Pass** | SuperUser detection keyed on seeded `user-superuser` id (not the mutable username) so renaming an account cannot escalate it; `upsertUser` mirrors the all-roles expansion into client state so the UI matches what is persisted |
 | 2026-06-26 | Karen AiTester seed uncommitted | 1 High + 1 Medium, fixed | **Pass** | `app_user` upsert now links `employee_bp_id` to `emp-karen` when unset so the session resolves an employee; shift/timesheet/incident/activity dates are relative to `current_date` so the fixture stays valid when re-run |
 | 2026-06-25 | AB-0022 uncommitted | 2 High + 2 Medium, fixed | **Pass** | Buddy `ask` pay status stays unselected (no payable default); buddy/primary overlap no longer blocks publish; weekly recurrence disabled for buddy shifts; **Add buddy shift** now shows on agency-covered shifts |
 | 2026-06-25 | WP-UX.6 uncommitted | 0 | **Pass** | Branded portal sign-in landings; no findings |

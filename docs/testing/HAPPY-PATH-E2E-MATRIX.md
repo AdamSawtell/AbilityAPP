@@ -575,7 +575,7 @@ Representative suites — full window list lives in `supabase/seed-access.sql` (
 
 | ROLE ID | User | Role key | Primary flows | Minimum windows |
 |---------|------|----------|---------------|-----------------|
-| ROLE-010 | SuperUser | `role-admin` | All | All app windows |
+| ROLE-010 | SuperUser | All active roles | All | All app windows (default role: Admin) |
 | ROLE-011 | IslaRobinson | `role-coordinator` | 2–5 | clients, service-agreements, service-bookings, plan budget, generate-claims (read) |
 | ROLE-012 | RileyShaw | `role-rostering-manager` | 4 | rostering, service-planning, service-bookings, timesheets, timesheet-approval, generate-timesheets |
 | ROLE-013 | OliverWilliams | `role-support-worker` | 4–5 | my-workplace, my-shifts, my-timesheets, clients (activity) |

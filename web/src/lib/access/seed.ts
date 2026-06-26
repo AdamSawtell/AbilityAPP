@@ -247,7 +247,7 @@ export const SEED_USERS: AppUserRecord[] = [
     active: true,
     employeeBpId: "",
     notes: "Full access administrator (AbilityVua SuperUser equivalent)",
-    roleIds: ["role-admin"],
+    roleIds: SEED_ROLES.filter((r) => r.active).map((r) => r.id),
   },
   {
     id: "user-ceo",

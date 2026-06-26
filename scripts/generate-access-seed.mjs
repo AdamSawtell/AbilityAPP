@@ -55,7 +55,11 @@ lines.push(
 );
 lines.push("");
 
-const userRoles = SEED_USERS.flatMap((u) => u.roleIds.map((role_id) => ({ user_id: u.id, role_id })));
+const userRoles = SEED_USERS.flatMap((u) => {
+  const roleIds =
+    u.id === "user-superuser" ? SEED_ROLES.filter((r) => r.active).map((r) => r.id) : u.roleIds;
+  return roleIds.map((role_id) => ({ user_id: u.id, role_id }));
+});
 lines.push("insert into public.app_user_role (user_id, role_id)");
 lines.push("values");
 lines.push(userRoles.map((r) => `  (${sqlString(r.user_id)}, ${sqlString(r.role_id)})`).join(",\n"));
