@@ -181,10 +181,10 @@ export function resolvePageChatContext(pathname: string, lookup: RecordLookup): 
   if (module === "incidents") {
     return {
       systemLine: "The user is on the incidents hub.",
-      viewingLabel: "Incident reports",
+      viewingLabel: "Incidents",
       moduleLabel: "Incidents",
-      capabilities: ["Search incidents", "Compliance summary"],
-      suggestions: ["Any overdue NDIS reportables?", "Prepare a new incident report"],
+      capabilities: ["Search incidents", "Submit incident", "NDIS reportable summary"],
+      suggestions: ["Any overdue NDIS reportables?", "How do I submit an incident?"],
       preferredAgentId: "agent-incidents",
     };
   }

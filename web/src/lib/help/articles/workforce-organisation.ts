@@ -187,7 +187,7 @@ export const workforceOrganisationArticle: HelpArticle = {
     "/help/task-automations",
   ],
   windowKeys: ["workforce-organisation", "workforce-planning", "workforce-org-edit", "workforce-org-chart-tier"],
-  lastUpdated: "2026-06-19",
+  lastUpdated: "2026-06-26",
   sections: [
     {
       id: "overview",
@@ -369,8 +369,8 @@ export const workforceOrganisationArticle: HelpArticle = {
       body: "Use these flows after seeding workforce data.",
       bullets: [
         "Login as MichaelSmith — open a reportable incident with emp-sw-001 as party; sign off manager review.",
-        "Login as AvaThomas (support worker) — confirm the same incident does not offer manager review.",
-        "Login as SuperUser — override works via incident-manager-override on the admin role.",
+        "Login as AvaThomas (support worker) — confirm the same incident does not offer manager review and My incidents shows only her own open reports.",
+        "Login as SuperUser — switch to Quality Manager; confirm full register and dashboard. Manager override remains on roles granted incident-manager-override.",
         "Filter org chart to Northern SIL and confirm 11 support worker positions appear.",
         "Add a client alert line and check Tasks for the automation task.",
         "Open System → Admin → Task automations and dry-run a rule against a sample incident.",

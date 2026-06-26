@@ -230,7 +230,7 @@ export const systemRolesAccessArticle: HelpArticle = {
   keywords: ["roles", "access", "windows", "permissions", "users", "security", "system admin"],
   relatedRoutes: ["/admin/roles", "/employees"],
   windowKeys: ["admin-roles", "employee-system-access"],
-  lastUpdated: "2026-06-23",
+  lastUpdated: "2026-06-26",
   sections: [
     {
       id: "roles-page",
@@ -272,6 +272,26 @@ export const systemRolesAccessArticle: HelpArticle = {
       body: "User accounts are linked from employee records. Open an employee → System access tab to connect a login and assign roles.\n\nWorkspace Admin → Users redirects to the employee list for this workflow.",
       relatedRoutes: ["/employees"],
       windowKeys: ["employee-system-access"],
+    },
+    {
+      id: "incidents-visibility",
+      title: "Incidents — who sees the full register",
+      body: "Under Admin → Roles → Incidents, **Can see all incidents** controls whether a role sees every incident or only their own open reports.\n\nLeave it off for frontline roles that submit incidents but should not browse the organisation register. Turn it on for coordinators, quality, and managers who need summary cards, the full list, and Dashboard & analytics.\n\nSupport workers without see-all still see **Submit incident here** on the Incidents list and can open records they created.",
+      steps: [
+        "Open Admin → Roles and select the role (for example Support Worker).",
+        "Expand Incidents and confirm the module is on at Write if they submit incidents.",
+        "Leave **Can see all incidents** off for frontline-only visibility.",
+        "For a coordinator or quality role, tick **Can see all incidents**.",
+        "Save and sign in as a test user to confirm My incidents vs the full register.",
+      ],
+      relatedRoutes: ["/admin/roles", "/incidents"],
+      windowKeys: ["admin-roles", "incidents-see-all"],
+    },
+    {
+      id: "superuser-testing",
+      title: "SuperUser and role switching",
+      body: "The seeded **SuperUser** account (`user-superuser`) can switch to any active role from the profile menu at the bottom of the sidebar. Use this for UAT and access checks without maintaining separate logins.\n\nSuperUser is keyed on the fixed user id — renaming another account to SuperUser does not grant all roles. Regular users only see roles explicitly assigned on their employee System access tab.",
+      relatedRoutes: ["/admin/roles", "/employees"],
     },
     {
       id: "org-positions",

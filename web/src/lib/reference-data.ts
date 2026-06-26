@@ -21,7 +21,7 @@ export type ReferenceDataGroup =
   | "Locations"
   | "Products & services"
   | "Contracts"
-  | "Incident reports";
+  | "Incidents";
 
 export type ReferenceDataMeta = {
   label: string;
@@ -143,16 +143,16 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   contractTerm: { label: "Contract term", group: "Contracts" },
   auditAction: { label: "Audit action", group: "Contracts" },
   // Incident reports
-  partyType: { label: "Party type", group: "Incident reports" },
-  partyRole: { label: "Party role", group: "Incident reports" },
-  incidentActionType: { label: "Incident action type", group: "Incident reports" },
-  notificationTarget: { label: "Notification target", group: "Incident reports" },
-  notificationMethod: { label: "Notification method", group: "Incident reports" },
-  incidentStatus: { label: "Incident status", group: "Incident reports" },
-  incidentSeverity: { label: "Incident severity", group: "Incident reports" },
-  ndisReportableType: { label: "NDIS reportable type", group: "Incident reports" },
-  incidentCategory: { label: "Incident category", group: "Incident reports" },
-  incidentServiceType: { label: "Incident service type", group: "Incident reports" },
+  partyType: { label: "Party type", group: "Incidents" },
+  partyRole: { label: "Party role", group: "Incidents" },
+  incidentActionType: { label: "Incident action type", group: "Incidents" },
+  notificationTarget: { label: "Notification target", group: "Incidents" },
+  notificationMethod: { label: "Notification method", group: "Incidents" },
+  incidentStatus: { label: "Incident status", group: "Incidents" },
+  incidentSeverity: { label: "Incident severity", group: "Incidents" },
+  ndisReportableType: { label: "NDIS reportable type", group: "Incidents" },
+  incidentCategory: { label: "Incident category", group: "Incidents" },
+  incidentServiceType: { label: "Incident service type", group: "Incidents" },
 };
 
 export type ReferenceDataKey = keyof typeof referenceDataMeta;

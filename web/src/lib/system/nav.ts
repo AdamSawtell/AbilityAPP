@@ -172,7 +172,7 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
   },
   {
     key: "incidents",
-    label: "Incident reports",
+    label: "Incidents",
     icon: "incident",
     links: withModuleNav("incidents", [
       {

@@ -91,7 +91,7 @@ function HomeQuickActions({
     { href: "/clients", label: "Browse clients" },
     ...(showEmployees ? [{ href: "/employees", label: "Browse employees" }] : []),
     ...(showIncidents
-      ? [{ href: "/incidents", label: incidentOverdue > 0 ? `Incidents (${incidentOverdue} overdue)` : "Incident reports" }]
+      ? [{ href: "/incidents", label: incidentOverdue > 0 ? `Incidents (${incidentOverdue} overdue)` : "Incidents" }]
       : []),
     ...(showTasks ? [{ href: "/tasks", label: openTaskCount > 0 ? `Tasks (${openTaskCount})` : "Tasks" }] : []),
     ...(showMyWorkplace

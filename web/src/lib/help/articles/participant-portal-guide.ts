@@ -40,9 +40,11 @@ export const participantPortalGuideArticle: HelpArticle = {
       id: "sign-in",
       title: "Sign in",
       steps: [
-        "Open the portal sign-in page and enter the email address your provider has on file for you.",
+        "Open the portal sign-in page. You see your provider logo, name, address, and contact details on the branded sign-in screen.",
+        "Enter the email address your provider has on file for you.",
         "Select Email me a sign-in link.",
         "Open the link to sign in. You stay signed in for seven days, or until you sign out.",
+        "Use **How to use this portal** on the sign-in page for this guide, or **Staff sign in** if you need the staff app.",
         "If your email is not recognised, contact your provider so they can update your record.",
       ],
       relatedRoutes: ["/portal/login"],

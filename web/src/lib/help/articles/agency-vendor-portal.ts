@@ -37,9 +37,10 @@ export const agencyVendorPortalArticle: HelpArticle = {
       id: "sign-in",
       title: "Sign in",
       steps: [
-        "Open /agency-portal/login.",
+        "Open /agency-portal/login — the page shows your provider logo, name, address, and contact details.",
         "Enter the email on the vendor business partner record (demo: roster@staffplus.example).",
         "Request a sign-in link and open the demo link when shown.",
+        "Use **How to use this portal** on the sign-in page for this guide, or **Staff sign in** for the staff app.",
       ],
       relatedRoutes: ["/agency-portal/login"],
     },

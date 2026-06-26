@@ -47,6 +47,26 @@ export const incidentsArticle: HelpArticle = {
       windowKeys: ["incidents", "incidents-see-all"],
     },
     {
+      id: "submit-from-list",
+      title: "Submit from the Incidents list",
+      body: "The main way to create an incident is the wide **Submit incident here** button on the Incidents list — below the summary cards for managers, or below the info banner for support workers. The old header button and NDIS compliance shortcut have been removed to keep the list focused.",
+      steps: [
+        "Open Incidents in the sidebar.",
+        "Click Submit incident here.",
+        "Complete the three guided steps (what happened, who was involved, safeguards).",
+        "Submit — you land on the full record to add investigation detail.",
+      ],
+      relatedRoutes: ["/incidents", "/incidents/new"],
+      windowKeys: ["incidents"],
+    },
+    {
+      id: "dashboard",
+      title: "Dashboard and analytics",
+      body: "Roles with **Can see all incidents** see open / reportable / all summary cards on the list and a **Dashboard & analytics** link in the sidebar. The dashboard shows volume trends, SLA tracking, and export/print. Support workers without see-all access do not see the dashboard link; direct URLs show a short message and link back to Incidents.",
+      relatedRoutes: ["/incidents/dashboard"],
+      windowKeys: ["incidents-see-all"],
+    },
+    {
       id: "report-from-home",
       title: "Report from Home",
       body: "Staff with the report-incident process can submit from Home without opening the full module first.",
@@ -133,7 +153,7 @@ export const reportIncidentQuickArticle: HelpArticle = {
       title: "Full form",
       steps: [
         "Open Incidents in the sidebar.",
-        "Click Submit incident here (wide button below the summary cards).",
+        "Click Submit incident here (wide button — below summary cards for managers, below the info banner for support workers).",
         "Use the same guided steps, then continue on the record tabs.",
       ],
       relatedRoutes: ["/incidents/new"],

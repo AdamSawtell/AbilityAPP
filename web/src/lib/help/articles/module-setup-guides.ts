@@ -17,7 +17,7 @@ function moduleSetupArticle(
     keywords: [slug, "system setup", "reference data", "module setup"],
     relatedRoutes: [setupRoute, `/system/reference-data/${refSection}`],
     windowKeys: [],
-    lastUpdated: "2026-06-18",
+    lastUpdated: "2026-06-26",
     sections: [
       {
         id: "open",
@@ -120,13 +120,15 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
   ),
   moduleSetupArticle(
     "incidents-setup",
-    "Incident reports setup",
-    "Statuses, severity, parties, and automation hooks.",
+    "Incidents setup",
+    "Statuses, severity, role visibility, parties, and automation hooks.",
     "/system/setup/incidents",
     "incidents",
     [
       "Align incident status and severity with your quality framework.",
-      "Set investigation SLA days under System → Incident reports → Incident management.",
+      "Set investigation SLA days under System → Incidents → Incident management.",
+      "Grant Can see all incidents on coordinator, quality, and manager roles; leave it off for support workers (they see My incidents only).",
+      "Grant report-incident process and Incidents module Write for frontline staff who submit incidents.",
       "Set party and NDIS reportable types.",
       "Configure task automations for reportable and SLA workflows.",
     ]

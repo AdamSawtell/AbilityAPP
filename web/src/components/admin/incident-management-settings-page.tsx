@@ -59,7 +59,7 @@ export function IncidentManagementSettingsView() {
         subtitle="Investigation SLA and other incident module defaults for the workspace."
         breadcrumbs={[
           { label: "System", href: "/system" },
-          { label: "Incident reports", href: "/system/setup/incidents" },
+          { label: "Incidents", href: "/system/setup/incidents" },
           { label: "Incident management" },
         ]}
         audit={{

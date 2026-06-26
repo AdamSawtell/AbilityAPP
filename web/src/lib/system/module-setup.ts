@@ -149,11 +149,12 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
   },
   incidents: {
     sectionKey: "incidents",
-    title: "Incident reports setup",
-    summary: "Statuses, severity, parties, and NDIS reportable types.",
+    title: "Incidents setup",
+    summary: "Statuses, severity, role visibility, parties, and NDIS reportable types.",
     checklist: [
       "Align incident status and severity with your quality framework.",
       "Set investigation SLA days for the dashboard and automations.",
+      "Grant Can see all incidents on coordinator, quality, and manager roles; leave off for support workers.",
       "Set party types and NDIS reportable categories.",
       "Configure task automations for reportable and SLA workflows.",
     ],

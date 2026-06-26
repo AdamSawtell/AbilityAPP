@@ -10,7 +10,7 @@ export const gettingStartedArticle: HelpArticle = {
   keywords: ["login", "sign in", "role", "welcome", "overview", "introduction"],
   relatedRoutes: ["/login", "/"],
   windowKeys: [],
-  lastUpdated: "2026-06-25",
+  lastUpdated: "2026-06-26",
   sections: [
     {
       id: "what-is-abilityvua",
@@ -18,7 +18,7 @@ export const gettingStartedArticle: HelpArticle = {
       body: "AbilityVua is the workspace for NDIS providers. You manage enquiries, clients, locations, employees, services, tasks, and reports in one place. The layout follows AbilityERP windows and tabs so teams can move between systems with familiar names.",
       bullets: [
         "Core: Home, Tasks, Enquiries, Clients, Locations, Reports",
-        "People: Employees, My workplace, Workforce planning",
+        "People: Employees, My workplace, Incidents, Complaints",
         "Services: Products, price lists, contracts, service agreements",
         "Finance: claims, invoices, vendor invoices, reconciliation, and close",
         "Admin: System setup (organisation, reference data, roles, tasks) — link on the sign-in page",
@@ -32,14 +32,15 @@ export const gettingStartedArticle: HelpArticle = {
         "Go to the login page for your hosted site.",
         "Enter your username and password.",
         "Click Sign in.",
-        "If you have more than one role, choose the role for this session.",
+        "If you have more than one role, choose the role for this session from the profile menu at the bottom of the sidebar.",
+        "The SuperUser demo account can switch to any active role for testing.",
       ],
       relatedRoutes: ["/login"],
     },
     {
       id: "roles",
       title: "Roles and what you can see",
-      body: "Each role controls which sidebar items, record tabs, reports, and task types you can open. If a menu item is missing, your role does not include that window. Switch roles from your profile at the bottom of the sidebar when your account has multiple roles.",
+      body: "Each role controls which sidebar items, record tabs, reports, and task types you can open. If a menu item is missing, your role does not include that window. Switch roles from your profile at the bottom of the sidebar when your account has multiple roles.\n\nExample: support workers see **My incidents** (only their own open reports). Coordinators and quality roles with **Can see all incidents** see the full register and dashboard.",
       relatedRoutes: ["/system/admin/roles"],
     },
     {
@@ -136,7 +137,7 @@ export const homeArticle: HelpArticle = {
   keywords: ["home", "dashboard", "calendar", "welcome", "assistant", "briefing"],
   relatedRoutes: ["/"],
   windowKeys: ["home"],
-  lastUpdated: "2026-06-24",
+  lastUpdated: "2026-06-26",
   sections: [
     {
       id: "overview",
@@ -158,7 +159,7 @@ export const homeArticle: HelpArticle = {
     {
       id: "modules",
       title: "Modules",
-      body: "Compact counts for enquiries, clients, incidents, and employees (based on your role). Use More actions for other shortcuts.",
+      body: "Compact counts for enquiries, clients, incidents, and employees (based on your role). Support workers may see incident counts on Home even when the Incidents list shows only **My incidents**. Use More actions for other shortcuts — including **Report incident** when your role has the quick-report panel.",
     },
     {
       id: "home-panels",

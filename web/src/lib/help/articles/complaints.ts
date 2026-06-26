@@ -9,7 +9,7 @@ export const complaintsFeedbackArticle: HelpArticle = {
   keywords: ["complaint", "feedback", "quality", "register", "participant"],
   relatedRoutes: ["/complaints"],
   windowKeys: ["complaints"],
-  lastUpdated: "2026-06-22",
+  lastUpdated: "2026-06-26",
   sections: [
     {
       id: "overview",
@@ -17,7 +17,7 @@ export const complaintsFeedbackArticle: HelpArticle = {
       body: "AbilityVua does not use a separate complaints database. Log complaints on the client Activity tab (type Complaint) or as an incident with category Complaint. Feedback uses Activity type Feedback.",
       steps: [
         "Clients → open participant → Activity → Add activity → type Complaint or Feedback.",
-        "Or Incidents → Report incident → category Complaint for formal complaint workflow.",
+        "Or Incidents → Submit incident here → category Complaint for formal complaint workflow.",
         "Open People → Complaints and feedback to review the combined register.",
       ],
       relatedRoutes: ["/complaints", "/clients", "/incidents"],

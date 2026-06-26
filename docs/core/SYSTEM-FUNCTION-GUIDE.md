@@ -267,11 +267,11 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 
 | Function | Who | Outcome | Status |
 |----------|-----|---------|--------|
-| **Incident register** ÔÇö create and list | All staff | Formal incident record | Live |
+| **Incident register** ÔÇö create and list | All staff (see-all for full register) | Formal incident record; Submit incident here on list | Live |
 | **Incident detail** ÔÇö parties, evidence, actions, notifications | Managers+ | NDIS incident workflow | Live |
 | **NDIS reportable tracking** ÔÇö commission notification deadlines | Quality+ | Regulatory timeframe visibility | Live |
-| **Incident dashboard** ÔÇö stats and trends | Managers+ | Oversight view | Live |
-| **Compliance queue** ÔÇö incidents needing NDIS action | Quality+ | Nothing missed on reportables | Live |
+| **Incident dashboard** ÔÇö stats and trends | Roles with Can see all incidents | Oversight view | Live |
+| **Can see all incidents** ÔÇö role feature for register visibility | Administrators | Frontline see own open only; managers see all | Live |
 | **Print incident notification** ÔÇö formal letter to registry | Managers+ | Documented notification | Live |
 | **Complaints register** ÔÇö feedback and complaints hub | Managers+ | Separate from incidents | Live |
 | **Manager override** ÔÇö senior access on restricted incidents | Senior managers | Escalation path | Live |

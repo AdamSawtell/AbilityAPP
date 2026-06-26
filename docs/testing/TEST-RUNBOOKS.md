@@ -220,8 +220,29 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 3 | Clock on the AM shift | Check-in recorded; status reflects on shift |
 | 4 | Add a case note on Bernadette | New activity row saves and persists after reload |
 | 5 | Record goal progress on goal-1 | Progress review row saves (history now ≥ 2) |
-| 6 | Report an incident from the shift | New incident created (list already has `inc-karen-1`) |
+| 6 | Incidents → Submit incident here | New incident created; list shows My incidents only (seed includes `inc-karen-1`) |
 | 7 | Check out the AM shift, then My timesheets → submit `TS-KAREN-JUN` | Checkout recorded; draft timesheet submits |
+
+---
+
+## TEST-068 — Incidents role visibility and Submit incident here
+
+| | |
+|--|--|
+| **User** | `KarenAiTester` / `welcome` (Support Worker), then SuperUser as Quality Manager |
+| **DATA** | Seed incident `inc-karen-1` on Karen account; org register has additional incidents |
+| **Pass if** | Support worker sees My incidents only + wide Submit incident here; manager/see-all sees full register, summary cards, and dashboard link |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in as KarenAiTester → Incidents | Sidebar **My incidents**; info banner explains limited view |
+| 2 | List content | Only own open incidents (e.g. INC-KAREN-1); no open/reportable/all summary cards |
+| 3 | Submit incident here | Wide button visible below info banner; opens guided new incident flow |
+| 4 | Sidebar | No Dashboard & analytics link |
+| 5 | `/incidents/dashboard` direct | Blocked or short message with link back to Incidents |
+| 6 | Sign in as SuperUser → switch to Quality Manager → Incidents | Full summary cards, all incidents in list, **Submit incident here** below cards |
+| 7 | Sidebar | Dashboard & analytics link present; dashboard loads stats |
+| 8 | Admin → Roles → Support Worker → Incidents | **Can see all incidents** off by default |
 
 ---
 
@@ -405,13 +426,14 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | | |
 |--|--|
 | **User** | QuinnTaylor / welcome (Quality Manager) |
-| **Pass if** | Complaints register + incident dashboard load |
+| **Pass if** | Complaints register + incident dashboard load (Quality Manager has Can see all incidents) |
 
 | Step | Action | Pass if |
 |------|--------|---------|
 | 1 | `/complaints` | List + audit module label |
 | 2 | `/incidents/dashboard` | Stats render |
-| 3 | `/tasks?scope=assigned-to-me` | Task hub scopes load |
+| 3 | `/incidents` | Full register visible (not My incidents only) |
+| 4 | `/tasks?scope=assigned-to-me` | Task hub scopes load |
 
 ---
 

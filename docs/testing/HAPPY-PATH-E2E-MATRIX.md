@@ -102,7 +102,7 @@ Aligned with [scope/README.md](../scope/README.md) and chunk map in [BUILD-PROGR
 | **7** | Participant exit | DATA-018 | Flow 5 optional | Lifecycle **exit**; bookings wound down | TEST-095 | **Amplify pass** — activity note + lifecycle exit saved |
 | **8** | Employee exit | DATA-019 | Flow 6 | Exit checklist complete; terminated | TEST-096 | **Amplify pass** — `emp-staff-147` terminated; org ABN seed fixes auto-generate |
 | **9** | Financial month close | Org calendar | Flow 5 | Close checklist reviewed | TEST-097 | **Amplify pass** — checklist loads; close blocked (expected) |
-| **10** | Governance | Incidents / complaints | — | Register + workflow accessible | TEST-098 | **Amplify pass** — complaints + incident dashboard |
+| **10** | Governance | Incidents / complaints | — | Register + workflow accessible | TEST-098, TEST-068 | **Amplify pass** — complaints + incident dashboard + role visibility |
 | **11** | Reporting / audit wrap | Bern or org | Flow 5 / 7 | Audit pack + board report render | TEST-099 | **Amplify pass** — SuperUser audit pack + board report |
 
 ```mermaid
@@ -239,7 +239,7 @@ flowchart LR
 | 5.1b | HP-063 | Coordinator | Request activity deletion (non-admin) | `/clients/bp-bern?tab=Activity` | Request deletion creates admin task; no direct Remove | Live | TEST-062 |
 | 5.2 | HP-062 | Coordinator | Link activity to service date / shift | Activity line fields | Reference to delivery period where supported | Partial | TEST-062 |
 | 5.3 | HP-063 | Any reporter | Log incident (if occurred) | `/incidents` → new | Incident created; Overview + tabs; audit footer | Live | TEST-063 |
-| 5.4 | HP-064 | Manager | Progress incident workflow (review, NDIS fields) | `/incidents/{id}` | Status transitions; compliance tab available | Live | TEST-064 |
+| 5.4 | HP-064 | Manager | Progress incident workflow (review, NDIS fields) | `/incidents/{id}` | Status transitions; investigation tabs | Live | TEST-064 |
 | 5.5 | HP-065 | Manager | Override manager review (if role granted) | Incident + `incident-manager-override` | Override action audited | Live | TEST-065 |
 | 5.6 | HP-066 | Billing clerk | Preview NDIS claims from approved timesheets | `/generate-claims` | Preview lines with PAPL validation messages | Live | TEST-066 |
 | 5.7 | HP-067 | Billing clerk | Generate claims (incl. standard delivery) | `/generate-claims` | Claim records created; locked timesheets excluded from re-gen | Live | TEST-067 |
@@ -354,8 +354,8 @@ flowchart LR
 | Step | HP ID | Actor | Action | Route / surface | Expected outcome | Build | TEST ID |
 |------|-------|-------|--------|-----------------|------------------|-------|---------|
 | 10.1 | HP-114 | Staff | Complaints register | `/complaints` | List + create; audit | Live | TEST-098 |
-| 10.2 | HP-115 | Manager | Incident dashboard | `/incidents/dashboard` | Stats render | Live | TEST-098 |
-| 10.3 | HP-116 | Manager | NDIS incident compliance view | `/incidents/compliance` | Compliance queue | Live | TEST-098 |
+| 10.2 | HP-115 | Manager | Incident dashboard | `/incidents/dashboard` | Stats render (requires Can see all incidents) | Live | TEST-098 |
+| 10.3 | HP-116 | Support worker vs manager | Incidents list visibility | `/incidents` | Karen: My incidents only; manager: full register + Submit incident here | Live | TEST-068 |
 | 10.4 | HP-117 | Any | Task hub scopes | `/tasks?scope=assigned-to-me` | Tasks load per scope | Live | TEST-098 |
 
 **Flow 10 exit criteria:** Governance routes load for manager role without console errors.
@@ -482,10 +482,10 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-330 | Client Activity | Line list + drawer CRUD | Client → Activity | Worker+ | Live | HP-061, TEST-061 |
 | FUNC-332 | Client Activity | Admin-only delete; request deletion task | Client → Activity | Worker+ / Admin | Live | HP-063, TEST-062 |
 | FUNC-331 | Client Activity | Audit on save | Client → Activity | Worker+ | Live | HP-058 |
-| FUNC-332 | Incidents | List + create | `/incidents` | All staff | Live | HP-063 |
+| FUNC-332 | Incidents | List + Submit incident here | `/incidents` | All staff (see-all for full register) | Live | HP-063, TEST-068 |
 | FUNC-333 | Incidents | Detail tabs + workflow + line drawers | `/incidents/{id}` | Manager+ | Live | HP-064, TEST-094 |
-| FUNC-334 | Incidents | NDIS compliance view | `/incidents/compliance` | Quality+ | Live | HP-064 |
-| FUNC-335 | Incidents | Dashboard | `/incidents/dashboard` | Manager+ | Live | HP-115 |
+| FUNC-334 | Incidents | Role visibility (Can see all incidents) | `/incidents`, `/incidents/dashboard` | Role-gated | Live | HP-116, TEST-068 |
+| FUNC-335 | Incidents | Dashboard | `/incidents/dashboard` | See-all roles | Live | HP-115 |
 | FUNC-336 | Incidents | Manager override | Access: `incident-manager-override` | Senior mgr | Live | HP-065 |
 | FUNC-337 | Complaints | Register hub | `/complaints` | Manager+ | Live | HP-114 |
 
