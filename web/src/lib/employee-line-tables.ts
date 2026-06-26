@@ -89,8 +89,8 @@ export const credentialTableConfig: GenericTableConfig<EmployeeCredentialRow> = 
     status: "Current",
     documentRef: "",
     notes: "",
-    createdBy: "SuperUser",
-    updatedBy: "SuperUser",
+    createdBy: "",
+    updatedBy: "",
   }),
 };
 
@@ -196,7 +196,7 @@ export const employeeActivityTableConfig: GenericTableConfig<EmployeeActivityRow
     activityType: "Note",
     subject: "",
     description: "",
-    createdBy: "SuperUser",
+    createdBy: "",
   }),
 };
 

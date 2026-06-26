@@ -22,6 +22,23 @@
 
 ---
 
+## Fix — record line "Created by" stamps the signed-in user (2026-06-26)
+
+**Status:** Shipped.
+
+New activity/credential lines were stamped `Created by: SuperUser` regardless of who was signed in, because the `emptyRow` configs hardcoded `"SuperUser"` and the generic `LineItemTable` never overrode it.
+
+| Area | Change |
+|------|--------|
+| UI | `LineItemTable.addRow`/`duplicateRow` stamp `createdBy` (and `updatedBy`) with `session.displayName`; `updateRow` refreshes `updatedBy` on edit |
+| Config | Removed hardcoded `"SuperUser"` defaults from client, location, and employee activity/credential `emptyRow` builders |
+
+Applies to client, location, and employee activity tabs, contact activity, and employee credentials (all share `LineItemTable`). The AI-assisted activity draft path already used `session.displayName`.
+
+**What you can test:** Sign in as a non-SuperUser (e.g. `IslaRobinson` / `welcome`), open a client → **Activity** → **Add activity**: **Created by** shows your name. Verified live-equivalent on localhost as Isla Robinson (Support Coordinator).
+
+---
+
 ## Location-based security (2026-06-26)
 
 **Status:** Phase 2 — server/API enforcement + AI tools + document send routes (not yet pushed).

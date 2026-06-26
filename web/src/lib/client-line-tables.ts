@@ -241,7 +241,7 @@ export const activityTableConfig: ClientTabTableConfig<ClientActivityRow> = {
     activityType: "Note",
     subject: "",
     description: "",
-    createdBy: "SuperUser",
+    createdBy: "",
   }),
 };
 
@@ -414,7 +414,7 @@ export const contactActivityTableConfig: ClientTabTableConfig<ClientContactActiv
     contactName: "",
     subject: "",
     description: "",
-    createdBy: "SuperUser",
+    createdBy: "",
   }),
 };
 

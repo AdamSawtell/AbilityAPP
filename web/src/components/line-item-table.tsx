@@ -144,12 +144,35 @@ export function LineItemTable<TRow extends RowBase>({
 
   const drawerRow = drawerRowId ? rows.find((row) => row.id === drawerRowId) ?? null : null;
 
+  const actorName = session?.displayName?.trim() || "Unknown user";
+
   function updateRow(id: string, key: keyof TRow, value: string | number | boolean) {
-    onChange(rows.map((row) => (row.id === id ? { ...row, [key]: value } : row)));
+    onChange(
+      rows.map((row) => {
+        if (row.id !== id) return row;
+        const updated = { ...row, [key]: value };
+        // Keep updatedBy in sync with the editor; skip when the field itself is being edited.
+        if (key !== "updatedBy" && Object.prototype.hasOwnProperty.call(row, "updatedBy")) {
+          (updated as Record<string, unknown>).updatedBy = actorName;
+        }
+        return updated;
+      })
+    );
+  }
+
+  function stampActor(row: TRow): TRow {
+    const stamped = { ...row };
+    if (Object.prototype.hasOwnProperty.call(row, "createdBy")) {
+      (stamped as Record<string, unknown>).createdBy = actorName;
+    }
+    if (Object.prototype.hasOwnProperty.call(row, "updatedBy")) {
+      (stamped as Record<string, unknown>).updatedBy = actorName;
+    }
+    return stamped;
   }
 
   function addRow() {
-    const next = config.emptyRow(rows.length + 1);
+    const next = stampActor(config.emptyRow(rows.length + 1));
     onChange(renumberLines([...rows, next]));
     if (layout === "list-drawer") setDrawerRowId(next.id);
   }
@@ -193,7 +216,7 @@ export function LineItemTable<TRow extends RowBase>({
   function duplicateRow(id: string) {
     const source = rows.find((row) => row.id === id);
     if (!source) return;
-    const copy = { ...source, id: config.emptyRow(rows.length + 1).id };
+    const copy = stampActor({ ...source, id: config.emptyRow(rows.length + 1).id });
     onChange(renumberLines([...rows, copy]));
     if (layout === "list-drawer") setDrawerRowId(copy.id);
   }

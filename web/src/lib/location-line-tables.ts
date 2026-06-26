@@ -123,6 +123,6 @@ export const locationActivityTableConfig: GenericTableConfig<LocationActivityRow
     activityType: "Note",
     subject: "",
     description: "",
-    createdBy: "SuperUser",
+    createdBy: "",
   }),
 };

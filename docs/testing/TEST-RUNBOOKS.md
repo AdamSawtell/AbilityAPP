@@ -529,6 +529,24 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-072 — Record line "Created by" reflects the signed-in user
+
+| | |
+|--|--|
+| **User** | `IslaRobinson` / `welcome` (any non-SuperUser) |
+| **Routes** | `/clients/{id}` → Activity tab (also Location and Employee activity tabs) |
+| **Pass if** | New activity/credential lines stamp the signed-in user, not "SuperUser" |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in as a non-SuperUser with client access | Workspace loads |
+| 2 | Open a client → **Activity** → **Add activity** | New line editor opens |
+| 3 | Read the **Created by** field | Shows the signed-in user's name (e.g. Isla Robinson), not "SuperUser" |
+| 4 | Save the parent record, reload | **Created by** persists as the signed-in user |
+| 5 | Edit an existing line (record with `updatedBy`, e.g. employee credential) | **Updated by** refreshes to the editor |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text
