@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { AgencyWorkerListView } from "@/components/agency-worker-pages";
 import { AppShell } from "@/components/app-shell";
+import { BusinessPartnerCoreSummary } from "@/components/business-partner-core-summary";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
@@ -297,15 +298,14 @@ function BusinessPartnerDetailViewInner({ id }: { id: string }) {
           meta: auditMetaFrom(stored ?? partner),
         }}
       >
+        <BusinessPartnerCoreSummary partner={partner} saved={saved && !hasUnsavedChanges} />
+
         <BusinessPartnerTabBar
           partnerId={partner.id}
           activeTab={activeTab}
           showAgencyTab={showAgencyTab}
           agencyWorkerCount={agencyWorkerCount}
         />
-        {saved && !hasUnsavedChanges && activeTab === "Overview" ? (
-          <p className="mb-4 text-sm text-emerald-700">Saved</p>
-        ) : null}
         {activeTab === "Overview" ? (
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <PartnerForm partner={partner} onChange={onChange} readOnly={!canSave} />

@@ -95,11 +95,12 @@ export const navigationArticle: HelpArticle = {
     {
       id: "record-banner",
       title: "The record banner",
-      body: "Every master record (clients, employees, locations) opens with a consistent banner so you instantly recognise who or what you are viewing. A large photo sits on the left, the name and key details in the centre, and a quick-reference summary panel on the right.",
+      body: "Every master record (clients, employees, locations, business partners/providers, and the organisation profile) opens with a consistent banner so you instantly recognise who or what you are viewing. A large photo, logo, or initials block sits on the left, the name and key details in the centre, and a quick-reference summary panel on the right.",
       bullets: [
-        "Left: a large photo (or initials when no photo is set) as the visual anchor.",
-        "Centre: the record name, a short subtitle, status badges (active, alerts, consents, credentials), and contact details with icons.",
-        "Right: a summary panel — funding and disability for clients, department and site for employees, capacity and city for locations.",
+        "Left: a large photo, organisation logo, or initials when no image is set as the visual anchor.",
+        "Centre: the record name, a short subtitle, status badges (active, alerts, consents, credentials, registration), and contact details with icons.",
+        "Right: a summary panel — funding and disability for clients, department and site for employees, capacity and city for locations, payment/ABN details for providers, and registration details for the organisation.",
+        "Contact details live in the banner for the record they belong to; standalone contact records are not a separate workspace page yet.",
         "Status badges link straight to the relevant tab (for example alerts or restrictive practices).",
         "On tablet the summary stacks below; on mobile the photo moves above the details.",
       ],

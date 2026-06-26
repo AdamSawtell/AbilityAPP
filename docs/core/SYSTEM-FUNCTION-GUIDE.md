@@ -120,11 +120,11 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 
 | Function | Who | Outcome | Status |
 |----------|-----|---------|--------|
-| **Location register** ÔÇö sites, addresses, capacity | Admin+ | Master site list for rostering and bookings | Live |
+| **Location register** ÔÇö sites, addresses, capacity | Admin+ | Master site list for rostering and bookings, with large record banner for quick recognition | Live |
 | **Assign clients to location** | Admin+ | Caseload by site | Live |
 | **Assign employees to location** | Admin+ | Workforce by site | Live |
 | **Assign products to location** ÔÇö services offered at site | Admin+ | Catalogue scoped to delivery location | Live |
-| **Business partner register** ÔÇö plan managers, referrers, vendors | Admin+ | Shared directory for invoices and associations | Live |
+| **Business partner register** ÔÇö plan managers, referrers, vendors | Admin+ | Shared directory for invoices and associations, with provider-style record banner and contact summary | Live |
 | **Plan manager on client billing** ÔÇö default invoice recipient | Coordinators+ | Correct plan-managed billing routing | Live |
 
 ---
@@ -341,7 +341,7 @@ AI does **not** auto-save records. Staff review drafts and click Save.
 | Function | Who | Outcome | Status |
 |----------|-----|---------|--------|
 | **Roles and access** ÔÇö windows, processes, reports per role | Admin | Least-privilege security model | Live |
-| **Organisation profile** — legal entity, logo, app theme colours, document branding, bank, GST | System admin | Branded sign-in and app shell; headers/footers on all documents | Live |
+| **Organisation profile** — legal entity, logo, app theme colours, document branding, bank, GST | System admin | Branded sign-in and app shell; organisation banner; headers/footers on all documents | Live |
 | **Reference data** ÔÇö dropdowns and lookups | System admin | Consistent coding across modules | Live |
 | **User session audit** ÔÇö login sessions, risk flags | System admin | Security investigation | Live |
 | **Process audit** ÔÇö who ran which business process | System admin | Operational compliance | Live |

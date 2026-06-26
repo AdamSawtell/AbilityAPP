@@ -22,7 +22,7 @@
 
 ## Entity header (record banner) redesign (2026-06-26)
 
-**Status:** ✅ Shipped — pushed to `main` (`5c537b6`)
+**Status:** ✅ Shipped — pushed to `main` (`5c537b6`); extended to Provider/Business Partner and Organisation banners on 2026-06-26.
 
 New reusable `EntityHeader` component (`web/src/components/entity-header.tsx`) replaces the sparse record headers with a modern three-column banner: large hero photo (≈176px, rounded) on the left, prominent name + subtitle + status badges + icon contact metadata in the centre, and a quick-reference summary panel (with optional action slot) on the right. Responsive — summary stacks on tablet, photo moves above on mobile.
 
@@ -32,14 +32,17 @@ New reusable `EntityHeader` component (`web/src/components/entity-header.tsx`) r
 | Client | `client-core-summary.tsx` rebuilt on `EntityHeader` (lifecycle/status/alerts/consents/restrictive/risk/support-plan/agreement badges; funding/disability/NDIS summary) |
 | Employee | `employee-core-summary.tsx` rebuilt; compliance warning kept as the banner slot; department/site/employment summary |
 | Location | `location-core-summary.tsx` rebuilt; status/links badges; capacity/city/type summary |
+| Provider / business partner | `business-partner-core-summary.tsx` added; partner/status/invoice badges, contact/remittance metadata, ABN/payment/preferred contact summary |
+| Organisation | `organization-core-summary.tsx` added; logo/initials hero, registration/GST badges, general + primary contact metadata, ABN/NDIS/city summary |
+| Contact | Standalone contact record pages do not exist yet; contact details are surfaced inside the owning record banners (client, employee, provider/business partner, organisation). |
 
 ### What you can test
 
-1. Open a Client, Employee, and Location record — each shows the same large-photo banner with name, badges, contact icons, and right-hand summary.
+1. Open a Client, Employee, Location, Business Partner/Provider, and Organisation record — each shows the same large-photo/logo/initials banner with name, badges, contact icons, and right-hand summary.
 2. Status badges (alerts, consents, credentials, links) still navigate to their tabs.
 3. Resize to tablet/mobile — summary stacks, photo moves above; layout stays clean.
 
-**Verification (2026-06-26):** `npm run build` ✅ (exit 0).
+**Verification (2026-06-26):** `npm run build` ✅ (exit 0). Extension verification: `npx tsc --noEmit` ✅ (exit 0), `npm run page-guides:check` ✅ (exit 0), `npm run build` ✅ (exit 0). Browser smoke ✅ — `/business-partners/bp-staffplus` and `/system/organization` show the shared banner with contact metadata and summary panels; actions remain in `AppShell` (Option A). Bugbot: 1 Medium (`Inactive` status tone matched `active`) fixed before push.
 
 ---
 

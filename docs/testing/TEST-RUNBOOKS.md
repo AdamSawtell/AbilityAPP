@@ -493,8 +493,8 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | | |
 |--|--|
 | **User** | SuperUser / flamingo |
-| **Routes** | `/clients/bp-bern`, an employee record, a location record |
-| **Pass if** | All three show the same large-photo banner: hero image, name, badges, icon contact details, right summary panel |
+| **Routes** | `/clients/bp-bern`, an employee record, a location record, a business partner/provider record, `/admin/organization` |
+| **Pass if** | All master record surfaces show the same banner pattern: hero image/logo/initials, name, badges, icon contact details, right summary panel |
 
 | Step | Action | Pass if |
 |------|--------|---------|
@@ -502,7 +502,9 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 2 | Click a badge (e.g. consents/restrictive) | Navigates to that tab |
 | 3 | Open an employee with expiring/expired credentials | Compliance warning banner above the header; credential badges link to Credentials Assigned |
 | 4 | Open a location | Status + client/staff/service badges; Capacity/City summary |
-| 5 | Narrow the window to tablet then mobile | Summary stacks below; photo moves above details; no overflow |
+| 5 | Open a business partner/provider | Initials hero, partner/status/invoice badges, email/phone/address/remittance icons, ABN/payment summary |
+| 6 | Open `/admin/organization` | Logo/initials hero, registration/GST badges, general contact + primary contact, ABN/NDIS summary |
+| 7 | Narrow the window to tablet then mobile | Summary stacks below; photo moves above details; no overflow |
 
 ---
 

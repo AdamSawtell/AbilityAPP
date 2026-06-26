@@ -51,6 +51,7 @@ export type EntityHeaderProps = {
   subtitle?: ReactNode;
   imageUrl?: string;
   imageAlt?: string;
+  imageFit?: "cover" | "contain";
   badges?: EntityHeaderBadge[];
   metadata?: EntityHeaderMetaItem[];
   summary?: EntityHeaderSummaryItem[];
@@ -177,6 +178,7 @@ export function EntityHeader({
   subtitle,
   imageUrl,
   imageAlt,
+  imageFit = "cover",
   badges = [],
   metadata = [],
   summary = [],
@@ -196,7 +198,9 @@ export function EntityHeader({
               <img
                 src={imageUrl}
                 alt={imageAlt ?? ""}
-                className="h-36 w-36 shrink-0 rounded-[20px] object-cover shadow-lg ring-1 ring-slate-200/80 sm:h-40 sm:w-40 lg:h-44 lg:w-44"
+                className={`h-36 w-36 shrink-0 rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200/80 sm:h-40 sm:w-40 lg:h-44 lg:w-44 ${
+                  imageFit === "contain" ? "object-contain p-4" : "object-cover"
+                }`}
               />
             ) : (
               <span className="flex h-36 w-36 shrink-0 items-center justify-center rounded-[20px] bg-gradient-to-br from-slate-700 to-slate-900 text-4xl font-bold text-white shadow-lg ring-1 ring-slate-900/10 sm:h-40 sm:w-40 lg:h-44 lg:w-44">

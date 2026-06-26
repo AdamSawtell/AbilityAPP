@@ -9,13 +9,13 @@ import { useSystemAuthOptional } from "@/lib/system-auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import {
   ORGANIZATION_ID,
-  organizationDisplayName,
   organizationSections,
   type OrganizationFieldDef,
   type OrganizationRecord,
 } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
 import { OrgAppThemeSection } from "@/components/admin/org-app-theme-section";
+import { OrganizationCoreSummary } from "@/components/organization-core-summary";
 import { useOrgThemePreviewState } from "@/components/org-theme-provider";
 
 function OrgField({
@@ -91,7 +91,6 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
 
   const record = draft ?? organization;
   const hasUnsavedChanges = Boolean(draft);
-  const displayName = organizationDisplayName(record);
 
   function onChange(key: keyof OrganizationRecord, value: string) {
     setDraft((prev) => {
@@ -167,27 +166,7 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
           ) : null
         }
       >
-        <div className="mb-6 flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-            {record.logoUrl?.trim() ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={record.logoUrl} alt="" className="h-full w-full object-contain" />
-            ) : (
-              <span className="text-2xl font-bold text-brand-primary">a</span>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-lg font-semibold text-slate-900">{displayName}</p>
-            <p className="text-sm text-slate-500">
-              {record.legalName && record.legalName !== record.tradingName ? record.legalName : "Legal name not set"}
-            </p>
-            <p className="mt-1 text-xs text-slate-400">
-              {record.city && record.state ? `${record.city}, ${record.state}` : "Address not complete"}
-              {record.ndisRegistrationNumber ? ` · NDIS ${record.ndisRegistrationNumber}` : ""}
-            </p>
-          </div>
-          {saved && !hasUnsavedChanges ? <span className="text-sm text-emerald-700">Saved</span> : null}
-        </div>
+        <OrganizationCoreSummary record={record} saved={saved && !hasUnsavedChanges} />
 
         <OrgAppThemeSection record={record} onChange={onChange} />
 
