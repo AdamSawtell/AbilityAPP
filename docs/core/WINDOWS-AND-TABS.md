@@ -285,6 +285,8 @@ Business partners: Overview tab plus **Agency workers** tab when partner type is
 
 Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward plan**, **Capacity**, **Gaps**, **Open shifts**, **RoC**. No record tabs — grid/calendar UI.
 
+**Open shifts (request workflow):** Vacant shifts appear on **Open shifts** and **My workplace → Open shifts**. Workers **Request shift** (or **Available if critical** / **Decline** on urgent shifts). Coordinators **Review requests**, **Approve & assign**, **Reject**, **Assign worker**, or **Mark critical fill**. **Workforce planning → Fill board** triages the focus week with the same review panel and filters (open / requested / critical fill).
+
 **Agency staffing (WP-AG.1):** **Gaps** tab lists vacant shifts; **Request agency** opens the agency shift request drawer (process `request-agency-coverage`). Confirmed agency cover shows an **Agency** badge on the week calendar.
 
 **Buddy shifts (AB-0022):** On staffed shift cards, **Add buddy shift** creates a linked shadow/orientation shift. Calendar badges: **Buddy**, **Non-payable**, **Non-billable**. Org pay default: System → Organisation → **Buddy shifts** (`/system/settings/buddy-shifts`). Participant portal does not show buddy shifts (v1).
@@ -305,9 +307,11 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 | My availability | `my-availability` | `/my/availability` |
 | My contracts | `my-contracts` | `/my/contracts` |
 | Open shifts | `my-open-shifts` | `/my/open-shifts` |
-| My shifts | `my-shifts` | `/my/shifts` |
+| My shifts | `my-shifts` | `/my/shifts` — **Scheduled shifts** tab + **Shift requests** tab |
 | My timesheets | `my-timesheets` | `/my/timesheets` |
 | My credentials | `my-credentials` | `/my/credentials` |
+
+**Open shift requests:** Worker submits from Open shifts; tracks on My shifts → Shift requests. Coordinator review on Rostering → Open shifts and Workforce planning fill board.
 
 **Processes:** `submit-leave-request`, `submit-employee-credential`.
 

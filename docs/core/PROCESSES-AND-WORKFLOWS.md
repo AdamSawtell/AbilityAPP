@@ -123,7 +123,7 @@
 |----------|---------|--------------|
 | Publish roster week | Publish on `/rostering` | Shifts visible in **My shifts**; may create notify tasks |
 | Qualification gate | Publish | Blocks if worker missing WWCC / NDIS screening (configurable) |
-| Open shift claim | Worker claims on `/my/open-shifts` | Assigns worker to vacant shift — Partial |
+| Open shift request | Worker requests on `/my/open-shifts`; coordinator approves on Rostering → Open shifts or fill board | Assigns one worker; rejects other pending requests; critical fill flag — Live |
 | Add buddy shift | **Add buddy shift** on staffed shift card | Creates linked shift with `shiftPurpose` buddy/orientation; inherits client/location/time |
 | Cancel primary shift | Cancel on roster grid | Linked buddy shifts auto-cancelled |
 | Schedule training/meeting | Workforce planning → Training and meetings | Creates one roster row per attendee with shared `trainingSessionGroupId`, cost allocation, and attendance status |

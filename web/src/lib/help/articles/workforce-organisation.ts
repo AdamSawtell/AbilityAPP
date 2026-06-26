@@ -5,7 +5,7 @@ export const workforceLeaveCalendarArticle: HelpArticle = {
   slug: "workforce-leave-calendar",
   title: "Workforce planning: leave calendar and reviews",
   summary:
-    "View team leave, approve requests in the review queue, submit leave on behalf of staff, and track pending credentials — with tasks (not email) for assignees.",
+    "View team leave, approve requests in the review queue, triage vacant shifts on the fill board, and track pending credentials — with tasks (not email) for assignees.",
   category: "People",
   keywords: [
     "workforce planning",
@@ -17,11 +17,15 @@ export const workforceLeaveCalendarArticle: HelpArticle = {
     "submit on behalf",
     "annual leave",
     "roster",
+    "open shift",
+    "shift request",
+    "fill board",
+    "critical fill",
     "how to",
   ],
-  relatedRoutes: ["/workforce-planning", "/workforce-planning#reviews", "/workforce-planning#submit-leave"],
-  windowKeys: ["workforce-planning"],
-  lastUpdated: "2026-06-19",
+  relatedRoutes: ["/workforce-planning", "/workforce-planning#reviews", "/workforce-planning#submit-leave", "/workforce-planning#fill-board", "/rostering"],
+  windowKeys: ["workforce-planning", "rostering"],
+  lastUpdated: "2026-06-27",
   sections: [
     {
       id: "open",
@@ -31,6 +35,7 @@ export const workforceLeaveCalendarArticle: HelpArticle = {
         "Open Workforce planning in the sidebar.",
         "Review the pipeline summary cards: leave awaiting approval, approved upcoming, credentials pending.",
         "Scroll to Review queue (#reviews) if you can approve leave or sign off credentials.",
+        "Scroll to Roster fill board (#fill-board) to triage vacant shifts, worker requests, and critical fill — see Help → Delivery for the full open shift request workflow.",
       ],
       relatedRoutes: ["/workforce-planning"],
     },
@@ -79,6 +84,21 @@ export const workforceLeaveCalendarArticle: HelpArticle = {
         "Submit — the request appears on the employee record and in the review queue.",
       ],
       relatedRoutes: ["/workforce-planning#submit-leave"],
+    },
+    {
+      id: "fill-board",
+      title: "Roster fill board and shift requests",
+      body: "The fill board on Workforce planning lists vacant shifts for the focus week with pending employee requests, critical fill flags, and suggested workers. Use it alongside Rostering → Open shifts when you need week-scoped triage with filters.\n\nFilter chips: All vacant, Open — no requests, Open with requests, Awaiting decision, Critical fill. Review requests opens the same approval panel as rostering — approve and assign, reject with reason, or toggle critical fill. Assign on a suggested worker row rosters directly when you already know who should cover.",
+      steps: [
+        "Open Workforce planning → Roster fill board (anchor link #fill-board).",
+        "Set Focus week starting to match the roster week you are filling.",
+        "Use Critical fill or Open with requests when cover is urgent.",
+        "Click Review requests — approve a Request shift, reject others, or mark/remove critical fill.",
+        "Click Assign on a suggested worker when no request exists or you are overriding the queue.",
+        "For shifts outside the focus week or a full marketplace list, open Rostering → Open shifts.",
+      ],
+      relatedRoutes: ["/workforce-planning#fill-board", "/rostering", "/my/open-shifts"],
+      windowKeys: ["workforce-planning", "rostering"],
     },
     {
       id: "tasks",

@@ -254,7 +254,7 @@ export function RosteringWeekView() {
                   ? "Roster of care — import or generate weekly support schedules per participant."
                   : view === "capacity"
                     ? "Capacity — roster demand vs active worker hours across the forward horizon."
-                    : "Open shift marketplace — vacant shifts for coordinators to assign or workers to claim."
+                    : "Open shift marketplace — vacant shifts for coordinators to assign or review worker requests."
         }
         audit={{ moduleLabel: "Rostering" }}
         actions={

@@ -169,7 +169,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Assign worker to shift** | Roster admin | Named deliverer on each shift | Live |
 | **Qualification checks** ÔÇö WWCC, NDIS screening on publish | Roster admin | Block publish when non-compliant | Live |
 | **Publish roster** ÔÇö notify workers via tasks | Roster admin | Workers see shifts in My workplace | Live |
-| **Open shifts marketplace** ÔÇö workers claim vacant shifts | Support workers | Fill gaps from pool | Partial |
+| **Open shifts marketplace** — workers request vacant shifts; rostering reviews and assigns | Support workers + roster admin | Request → review → assign; critical fill — Live |
 | **Agency worker register** ÔÇö relief staff linked to staffing vendor | Roster admin, coordinators | Named agency pool per vendor; not payroll employees | Live |
 | **Request agency coverage** ÔÇö vacant shift to vendor workflow | Roster admin, coordinators | Agency shift request + shift pack email | Live |
 | **Confirm agency shift** ÔÇö assign agency worker with site orientation check | Roster admin, coordinators | Shift shows Agency badge; vendor + worker on roster | Live |
