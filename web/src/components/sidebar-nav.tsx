@@ -6,7 +6,6 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { ACCESS_WINDOWS, deliverySidebarWindows, financeSidebarWindows } from "@/lib/access/catalog";
 import { useData } from "@/lib/data-store";
-import { incidentHomeStats } from "@/lib/incident-hub";
 import { ACCESS_REPORTS } from "@/lib/reports/catalog";
 import { taskCountsForSession } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
@@ -308,7 +307,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { tabs } = useWorkspace();
   const { session, canWindow, canReport } = useAuth();
-  const { tasks, incidents } = useData();
+  const { tasks } = useData();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const showHome = canWindow("home");
@@ -327,8 +326,6 @@ export function SidebarNav() {
   );
   const openTaskCount = taskCounts.assignedToMe + taskCounts.myRole;
   const taskBadge = taskStats?.overdue ? taskStats.overdue : openTaskCount > 0 ? openTaskCount : 0;
-  const incidentStats = useMemo(() => incidentHomeStats(incidents), [incidents]);
-  const incidentBadge = incidentStats.overdue;
   const showEnquiries = canWindow("enquiries");
   const showClients = canWindow("clients");
   const showIncidents = canWindow("incidents");
@@ -696,7 +693,6 @@ export function SidebarNav() {
             onToggle={toggleSection}
             href="/incidents"
             active={pathname.startsWith("/incidents")}
-            badge={incidentBadge > 0 ? incidentBadge : undefined}
           />
           {isOpen("incidents") ? (
             <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
