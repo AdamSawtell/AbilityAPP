@@ -193,6 +193,42 @@ export async function saveUser(supabase: SupabaseClient, user: AppUserRecord, pa
   }
 }
 
+/**
+ * PostgREST `in` value list for text keys. Keys are slugs ([a-z0-9-]) but we
+ * still quote each value defensively so the filter parses correctly.
+ */
+function inList(values: string[]): string {
+  return `(${values.map((v) => `"${v}"`).join(",")})`;
+}
+
+/**
+ * Replace a role's child rows safely: write the desired rows FIRST (upsert), and
+ * only then delete the rows that are no longer wanted. If a write fails it throws
+ * before any delete runs, so a partial/failed save can never wipe existing grants.
+ * (The old delete-then-insert order wiped all grants if any insert failed.)
+ */
+async function replaceRoleChildRows(
+  supabase: SupabaseClient,
+  table: string,
+  roleId: string,
+  keyColumn: string,
+  rows: Record<string, unknown>[],
+  options: { tolerateMissingTable?: boolean } = {}
+) {
+  if (rows.length) {
+    const { error: writeErr } = await supabase.from(table).upsert(rows as never);
+    if (writeErr && !(options.tolerateMissingTable && writeErr.code === "42P01")) throw writeErr;
+  }
+
+  let pruneQuery = supabase.from(table).delete().eq("role_id", roleId);
+  const keepKeys = rows.map((row) => String(row[keyColumn]));
+  if (keepKeys.length) {
+    pruneQuery = pruneQuery.not(keyColumn, "in", inList(keepKeys));
+  }
+  const { error: pruneErr } = await pruneQuery;
+  if (pruneErr && !(options.tolerateMissingTable && pruneErr.code === "42P01")) throw pruneErr;
+}
+
 export async function saveRole(supabase: SupabaseClient, role: AppRoleRecord) {
   let normalized = normalizeRoleWindowAccess(role);
   if (isAdminRole(normalized)) {
@@ -210,48 +246,49 @@ export async function saveRole(supabase: SupabaseClient, role: AppRoleRecord) {
   });
   if (error) throw error;
 
-  await supabase.from("app_role_window").delete().eq("role_id", normalized.id);
-  const entries = Object.entries(normalized.windowAccess);
-  if (entries.length) {
-    const { error: wErr } = await supabase.from("app_role_window").insert(
-      entries.map(([window_key, access_level]) => ({
-        role_id: normalized.id,
-        window_key,
-        access_level,
-      }))
-    );
-    if (wErr) throw wErr;
-  }
+  await replaceRoleChildRows(
+    supabase,
+    "app_role_window",
+    normalized.id,
+    "window_key",
+    Object.entries(normalized.windowAccess).map(([window_key, access_level]) => ({
+      role_id: normalized.id,
+      window_key,
+      access_level,
+    }))
+  );
 
-  await supabase.from("app_role_process").delete().eq("role_id", normalized.id);
-  if (normalized.processIds.length) {
-    const { error: pErr } = await supabase.from("app_role_process").insert(
-      normalized.processIds.map((process_id) => ({ role_id: normalized.id, process_id }))
-    );
-    if (pErr) throw pErr;
-  }
+  await replaceRoleChildRows(
+    supabase,
+    "app_role_process",
+    normalized.id,
+    "process_id",
+    normalized.processIds.map((process_id) => ({ role_id: normalized.id, process_id }))
+  );
 
-  await supabase.from("app_role_report").delete().eq("role_id", normalized.id);
-  if (normalized.reportIds.length) {
-    const { error: rErr } = await supabase.from("app_role_report").insert(
-      normalized.reportIds.map((report_id) => ({ role_id: normalized.id, report_id }))
-    );
-    if (rErr && rErr.code !== "42P01") throw rErr;
-  }
+  await replaceRoleChildRows(
+    supabase,
+    "app_role_report",
+    normalized.id,
+    "report_id",
+    normalized.reportIds.map((report_id) => ({ role_id: normalized.id, report_id })),
+    { tolerateMissingTable: true }
+  );
 
-  await supabase.from("app_role_task_type").delete().eq("role_id", normalized.id);
-  if (normalized.taskTypePermissions.length) {
-    const { error: ttErr } = await supabase.from("app_role_task_type").insert(
-      normalized.taskTypePermissions.map((p) => ({
-        role_id: normalized.id,
-        task_type_id: p.taskTypeId,
-        can_see: p.canSee,
-        can_select: p.canSelect,
-        can_create: p.canCreate,
-      }))
-    );
-    if (ttErr && ttErr.code !== "42P01") throw ttErr;
-  }
+  await replaceRoleChildRows(
+    supabase,
+    "app_role_task_type",
+    normalized.id,
+    "task_type_id",
+    normalized.taskTypePermissions.map((p) => ({
+      role_id: normalized.id,
+      task_type_id: p.taskTypeId,
+      can_see: p.canSee,
+      can_select: p.canSelect,
+      can_create: p.canCreate,
+    })),
+    { tolerateMissingTable: true }
+  );
 }
 
 export async function resolveRoleAccess(

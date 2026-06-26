@@ -359,6 +359,8 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
   const { roles, upsertRole } = useAuth();
   const [activeId, setActiveId] = useState<string | null>(roles[0]?.id ?? null);
   const [draft, setDraft] = useState<AppRoleRecord | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const record = draft ?? roles.find((r) => r.id === activeId) ?? null;
   const windowsByGroup = useMemo(() => {
@@ -381,6 +383,8 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
     const role = roles.find((r) => r.id === id);
     if (!role) return;
     setActiveId(id);
+    setSaveState("idle");
+    setSaveError(null);
     setDraft(
       ensureAdminRoleAccess(
         normalizeRoleWindowAccess({
@@ -408,6 +412,8 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
       taskTypePermissions: [],
     };
     setActiveId(role.id);
+    setSaveState("idle");
+    setSaveError(null);
     setDraft(role);
   }
 
@@ -457,9 +463,26 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
   }
 
   async function save() {
-    if (!record?.roleKey.trim() || !record.name.trim()) return;
-    await upsertRole(normalizeRoleWindowAccess(record));
-    setDraft(null);
+    if (!record?.roleKey.trim() || !record.name.trim()) {
+      setSaveError("Role key and name are required before saving.");
+      setSaveState("error");
+      return;
+    }
+    setSaveState("saving");
+    setSaveError(null);
+    const normalized = normalizeRoleWindowAccess(record);
+    try {
+      await upsertRole(normalized);
+      // Keep the draft (normalized) so the editor keeps showing exactly what was
+      // saved, rather than re-reading state that could momentarily be stale.
+      setDraft(normalized);
+      setSaveState("saved");
+    } catch (err) {
+      setSaveError(
+        err instanceof Error ? err.message : "Could not save the role. Your changes were not stored."
+      );
+      setSaveState("error");
+    }
   }
 
   const Shell = variant === "system" ? SystemShell : AppShell;
@@ -701,12 +724,23 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
                 </div>
               </section>
 
+              {saveState === "error" && saveError ? (
+                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                  {saveError}
+                </p>
+              ) : null}
+              {saveState === "saved" ? (
+                <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                  Role saved. Windows, processes, and reports are stored.
+                </p>
+              ) : null}
               <button
                 type="button"
+                disabled={saveState === "saving"}
                 onClick={() => void save()}
-                className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
+                className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
               >
-                Save role
+                {saveState === "saving" ? "Saving…" : "Save role"}
               </button>
             </div>
           ) : (

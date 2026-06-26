@@ -20,9 +20,32 @@
 
 ---
 
+## Hotfix — role save no longer wipes grants on failure (2026-06-26)
+
+**Status:** ✅ Fixed — pending push and Amplify smoke
+
+**Symptom (reported on Amplify):** Adding window + process access to a role (Support Worker) saved fine, but reopening the role showed the grants gone; saving again wiped all access permanently.
+
+**Root cause:** `saveRole` (`web/src/lib/supabase/access-api.ts`) replaced each child collection with **delete-all-then-insert**, non-atomically. If any insert failed (transient error, or the `access_level` column briefly out of sync on remote during the 2026-06-26 migration-history repair), the delete had already removed every row and the error was **silently swallowed** by the roles page (`void save()`). Reopening then showed an empty role; re-saving the empty draft cleanly persisted the wipe.
+
+| Area | Change |
+|------|--------|
+| Save order | New `replaceRoleChildRows` helper: **upsert desired rows first, then prune removed rows** (PostgREST `not in`). A failed write throws before any delete, so grants can never be wiped by a partial/failed save. Applied to windows, processes, reports, task types. |
+| Error surfacing | `roles-page.tsx` now shows a red error banner on save failure and keeps the draft (no silent loss); green confirmation on success; Save button shows Saving… and disables during save. |
+
+### What you can test
+
+1. Admin → Roles → Support Worker → add a window + process → **Save role** → green confirmation.
+2. Reopen the role → grants still present.
+3. Force a failure (offline) → red error banner, draft preserved, DB grants unchanged on reconnect.
+
+**Verification (2026-06-26):** `npx tsc --noEmit` ✅ (exit 0), `npm run build` ✅ (exit 0).
+
+---
+
 ## Incidents UX and role visibility (2026-06-26)
 
-**Status:** ✅ Implemented — pending deploy and smoke
+**Status:** ✅ Shipped — 2026-06-26 (live on Amplify; localhost + production smoke passed)
 
 Renamed **Incident reports** → **Incidents**. Wide **Submit incident here** button on the list (below summary cards for managers). New role feature **Can see all incidents** (`incidents-see-all`, default off for support workers): without it, users see only their own open reports; dashboard and NDIS compliance nav removed from list/sidebar.
 
