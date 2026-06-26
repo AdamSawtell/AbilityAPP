@@ -30,7 +30,10 @@ applications:
               echo "Wrote .env.production for Next.js (AUTH_SESSION_SECRET length: ${#AUTH_SESSION_SECRET})"
         build:
           commands:
-            - npm run build
+            # The runtime SSR Lambda is capped low (NODE_OPTIONS=768 MB), but `next build`
+            # webpack-compiles 170+ routes and OOMs at that cap. Give the build its own high
+            # heap inline so it does not inherit the runtime limit. Does not affect runtime.
+            - NODE_OPTIONS="--max-old-space-size=4096" npm run build
             # Shrink compute bundle — frees memory for Chromium PDF at runtime (Amplify SSR limit ~220 MB).
             - rm -f node_modules/@swc/core-linux-x64-gnu/swc.linux-x64-gnu.node || true
             - rm -f node_modules/@swc/core-linux-x64-musl/swc.linux-x64-musl.node || true
