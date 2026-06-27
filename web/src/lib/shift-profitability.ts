@@ -233,6 +233,65 @@ export function summarizePeriodProfitability(
   };
 }
 
+export type MonthLabourSummary = PeriodProfitabilitySummary & {
+  month: string;
+};
+
+/**
+ * Aggregate shift cost vs income for a calendar accounting month. `resolveMonth`
+ * maps each shift date to the YYYY-MM it should be attributed to (per the pay
+ * period definition's month allocation method), so a month that spans several
+ * pay periods is summarised correctly.
+ */
+export function summarizeMonthLabour(
+  shifts: RosterShiftRecord[],
+  employees: EmployeeRecord[],
+  bookings: ServiceBookingRecord[],
+  month: string,
+  resolveMonth: (shiftDate: string) => string
+): MonthLabourSummary {
+  const target = month.slice(0, 7);
+  let shiftCount = 0;
+  let totalHours = 0;
+  let totalCost = 0;
+  let totalIncome = 0;
+  let lossMakingShifts = 0;
+
+  for (const raw of shifts) {
+    const shift = normalizeRosterShift(raw);
+    if (shift.status === "Cancelled") continue;
+    if (resolveMonth(shift.shiftDate) !== target) continue;
+    const workerId = assignedWorkerIdsForShift(shift)[0] ?? shift.employeeId?.trim();
+    const employee = employees.find((e) => e.id === workerId);
+    if (!employee) continue;
+    const row = calculateShiftProfitability(shift, employee, bookings);
+    shiftCount += 1;
+    totalHours += row.hours;
+    totalCost += row.cost;
+    totalIncome += row.income;
+    if (row.margin < 0) lossMakingShifts += 1;
+  }
+
+  totalHours = Math.round(totalHours * 100) / 100;
+  totalCost = Math.round(totalCost * 100) / 100;
+  totalIncome = Math.round(totalIncome * 100) / 100;
+  const totalMargin = Math.round((totalIncome - totalCost) * 100) / 100;
+  const marginPct = totalIncome > 0 ? Math.round((totalMargin / totalIncome) * 1000) / 10 : null;
+
+  return {
+    month: target,
+    periodStart: `${target}-01`,
+    periodEnd: `${target}-31`,
+    shiftCount,
+    totalHours,
+    totalCost,
+    totalIncome,
+    totalMargin,
+    marginPct,
+    lossMakingShifts,
+  };
+}
+
 export function formatMarginCurrency(value: number): string {
   const prefix = value < 0 ? "-$" : "$";
   return `${prefix}${Math.abs(value).toFixed(2)}`;

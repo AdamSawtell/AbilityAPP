@@ -201,6 +201,10 @@
 | `print-audit-pack` | NDIS audit pack month | Registry report |
 | `print-board-report` | Board reporting pack | Registry export |
 | `financial-month-close` | Mark month closed | Checklist gates → `financial_closed_month` row — Partial UI |
+| Monthly labour cost | Financial close — close month | Sums shift cost/income/margin for the month using the pay period **month allocation method** (accrual / period-end / pay-date), lists contributing pay periods |
+| Shift profitability | Financial close — pay period | SCHADS cost vs billable income for the selected pay period; loss-making shift count |
+
+**Month allocation:** a calendar month spans several fortnightly pay periods. `pay_period_definition.month_allocation_method` (Admin → Pay periods) controls attribution — `accrual` (default, match each shift to the month worked), `period_end` (whole period → month its end date falls in), or `pay_date` (whole period → month paid = end + `pay_date_offset_days`).
 
 **Deep doc:** [docs/processes/13-financial-month-close.md](../processes/13-financial-month-close.md)
 

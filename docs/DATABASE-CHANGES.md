@@ -69,6 +69,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `roster_of_care_line` session fields (20260702120000) | `default_employee_id`, `support_ratio`, `session_key` — master roster grouping |
 | `app_organization` roster rollover fields (20260702123000) | `roster_rollover_enabled`, `roster_rollover_lookahead_weeks`, `roster_rollover_default_status`, `roster_rollover_skip_existing` — RoC → live roster defaults |
 | `pay_period_definition` / `pay_period_instance` (20260702150000) | Organisation pay cycle config and generated open/closed period buckets (AB-0033) |
+| `pay_period_definition` month allocation (20260702160000) | `month_allocation_method` (`accrual` \| `period_end` \| `pay_date`), `pay_date_offset_days` — how pay-period cost maps to a calendar month for financial close |
 | `employee` contracted/SCHADS columns (20260702151000) | `contracted_hours_per_period`, `contracted_hours_period`, `schads_classification_level`, `schads_pay_point`, `super_rate` (AB-0032 / AB-0031) |
 | `roster_shift` profitability columns (20260702152000) | `pay_period_instance_id`, `calculated_cost`, `calculated_income`, `calculated_margin` (AB-0031) |
 | `app_organization` theme columns (AB-0017) | `theme_primary_colour`, `theme_accent_colour`, `theme_background_colour`, `theme_text_colour` — empty = AbilityVua defaults |

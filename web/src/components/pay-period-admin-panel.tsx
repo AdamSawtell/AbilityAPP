@@ -5,12 +5,14 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
   PAY_PERIOD_FREQUENCY_OPTIONS,
+  PAY_PERIOD_MONTH_ALLOCATION_OPTIONS,
   PAY_PERIOD_START_DAY_LABELS,
   formatPayPeriodLabel,
   generatePayPeriodInstances,
   normalizePayPeriodDefinition,
   type PayPeriodDefinitionRecord,
   type PayPeriodInstanceRecord,
+  type PayPeriodMonthAllocationMethod,
 } from "@/lib/pay-period";
 
 const inputClass =
@@ -75,10 +77,16 @@ export function PayPeriodAdminPanel() {
     anchorDate: "2026-06-22",
     labelPattern: "PP {start}–{end}",
     editGraceDays: 3,
+    monthAllocationMethod: "accrual",
+    payDateOffsetDays: 7,
     isActive: true,
     createdBy: actor,
     updatedBy: actor,
   });
+
+  const selectedAllocation = PAY_PERIOD_MONTH_ALLOCATION_OPTIONS.find(
+    (row) => row.value === definition.monthAllocationMethod
+  );
 
   const instances = useMemo(
     () =>
@@ -203,6 +211,43 @@ export function PayPeriodAdminPanel() {
               onChange={(e) => patchDefinition({ labelPattern: e.target.value })}
             />
           </label>
+          <label className="text-sm sm:col-span-2">
+            <span className="mb-1 block text-xs font-medium text-slate-600">
+              Month allocation (financial close)
+            </span>
+            <select
+              className={inputClass}
+              value={definition.monthAllocationMethod}
+              onChange={(e) =>
+                patchDefinition({
+                  monthAllocationMethod: e.target.value as PayPeriodMonthAllocationMethod,
+                })
+              }
+            >
+              {PAY_PERIOD_MONTH_ALLOCATION_OPTIONS.map((row) => (
+                <option key={row.value} value={row.value}>
+                  {row.label}
+                </option>
+              ))}
+            </select>
+            {selectedAllocation ? (
+              <span className="mt-1 block text-xs text-slate-500">{selectedAllocation.description}</span>
+            ) : null}
+          </label>
+          {definition.monthAllocationMethod === "pay_date" ? (
+            <label className="text-sm">
+              <span className="mb-1 block text-xs font-medium text-slate-600">
+                Pay date offset (days after period end)
+              </span>
+              <input
+                type="number"
+                min={0}
+                className={inputClass}
+                value={definition.payDateOffsetDays}
+                onChange={(e) => patchDefinition({ payDateOffsetDays: Number(e.target.value) })}
+              />
+            </label>
+          ) : null}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <button

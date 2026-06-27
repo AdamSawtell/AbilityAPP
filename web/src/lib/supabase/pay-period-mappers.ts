@@ -17,6 +17,8 @@ export type PayPeriodDefinitionRow = {
   anchor_date: string;
   label_pattern: string;
   edit_grace_days: number;
+  month_allocation_method: string;
+  pay_date_offset_days: number;
   is_active: boolean;
   created_by: string;
   updated_by: string;
@@ -46,6 +48,8 @@ export function payPeriodDefinitionFromRow(row: PayPeriodDefinitionRow): PayPeri
     anchorDate: row.anchor_date?.slice(0, 10) ?? "",
     labelPattern: row.label_pattern,
     editGraceDays: row.edit_grace_days,
+    monthAllocationMethod: row.month_allocation_method as PayPeriodDefinitionRecord["monthAllocationMethod"],
+    payDateOffsetDays: row.pay_date_offset_days,
     isActive: row.is_active,
     createdBy: row.created_by,
     updatedBy: row.updated_by,
@@ -64,6 +68,8 @@ export function payPeriodDefinitionToRow(record: PayPeriodDefinitionRecord): Pay
     anchor_date: normalized.anchorDate,
     label_pattern: normalized.labelPattern,
     edit_grace_days: normalized.editGraceDays,
+    month_allocation_method: normalized.monthAllocationMethod,
+    pay_date_offset_days: normalized.payDateOffsetDays,
     is_active: normalized.isActive,
     created_by: normalized.createdBy,
     updated_by: normalized.updatedBy,

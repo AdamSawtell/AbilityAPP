@@ -8,6 +8,42 @@ export type PayPeriodFrequency = "weekly" | "fortnightly" | "monthly";
 
 export type PayPeriodInstanceStatus = "open" | "locked" | "closed";
 
+/**
+ * How a pay period's labour cost is attributed to a calendar (accounting) month
+ * when a fortnight straddles a month boundary.
+ *
+ * - `accrual` — match each shift to the month the work was performed (its shift
+ *   date). AASB / GAAP accrual-matching standard; default. A single fortnight can
+ *   split across two months.
+ * - `period_end` — assign the whole pay period to the month its end date falls in.
+ * - `pay_date` — assign the whole pay period to the month it is paid (period end
+ *   + pay date offset). Cash-basis style management reporting.
+ */
+export type PayPeriodMonthAllocationMethod = "accrual" | "period_end" | "pay_date";
+
+export const PAY_PERIOD_MONTH_ALLOCATION_OPTIONS: {
+  value: PayPeriodMonthAllocationMethod;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "accrual",
+    label: "Accrual (work performed) — recommended",
+    description:
+      "Match each shift to the month the work happened. AASB/GAAP accrual standard; a fortnight can split across two months.",
+  },
+  {
+    value: "period_end",
+    label: "Period end date",
+    description: "Assign the whole pay period to the month its end date falls in.",
+  },
+  {
+    value: "pay_date",
+    label: "Pay date (cash basis)",
+    description: "Assign the whole pay period to the month it is paid (period end + pay date offset).",
+  },
+];
+
 export const PAY_PERIOD_START_DAY_LABELS = [
   "Monday",
   "Tuesday",
@@ -35,6 +71,10 @@ export type PayPeriodDefinitionRecord = {
   labelPattern: string;
   /** Days after period end before roster/timesheet edits lock automatically. */
   editGraceDays: number;
+  /** How a pay period's cost maps to a calendar month for financial close. */
+  monthAllocationMethod: PayPeriodMonthAllocationMethod;
+  /** Days after period end that wages are paid (used by the pay_date method). */
+  payDateOffsetDays: number;
   isActive: boolean;
   createdBy: string;
   updatedBy: string;
@@ -63,6 +103,11 @@ export function normalizePayPeriodDefinition(record: PayPeriodDefinitionRecord):
   const periodLengthDays =
     frequency === "monthly" ? 28 : record.periodLengthDays || frequencyToLengthDays(frequency);
   const startDay = Math.max(0, Math.min(6, Number(record.startDay ?? 0))) as PayPeriodStartDay;
+  const monthAllocationMethod = PAY_PERIOD_MONTH_ALLOCATION_OPTIONS.some(
+    (row) => row.value === record.monthAllocationMethod
+  )
+    ? (record.monthAllocationMethod as PayPeriodMonthAllocationMethod)
+    : "accrual";
   return {
     ...record,
     organizationId: record.organizationId?.trim() || ORGANIZATION_ID,
@@ -73,6 +118,8 @@ export function normalizePayPeriodDefinition(record: PayPeriodDefinitionRecord):
     anchorDate: record.anchorDate?.slice(0, 10) || weekStartFromDate(new Date().toISOString().slice(0, 10)),
     labelPattern: record.labelPattern?.trim() || "PP {start}–{end}",
     editGraceDays: Math.max(0, Number(record.editGraceDays ?? 0)),
+    monthAllocationMethod,
+    payDateOffsetDays: Math.max(0, Number(record.payDateOffsetDays ?? 7)),
     isActive: record.isActive !== false,
     createdBy: record.createdBy ?? "",
     updatedBy: record.updatedBy ?? "",
@@ -264,6 +311,68 @@ export function shiftsInPayPeriod<T extends { shiftDate: string }>(
   return shifts.filter((shift) => dateInPayPeriod(shift.shiftDate, row));
 }
 
+/** Pay date for a generated period instance (period end + offset). */
+export function payDateForInstance(
+  definition: PayPeriodDefinitionRecord,
+  instance: PayPeriodInstanceRecord
+): string {
+  const def = normalizePayPeriodDefinition(definition);
+  const row = normalizePayPeriodInstance(instance);
+  return addDaysIso(row.endDate, def.payDateOffsetDays);
+}
+
+/**
+ * The calendar accounting month (YYYY-MM) a single shift's labour cost is
+ * attributed to, per the definition's month allocation method.
+ *
+ * - accrual: the month the shift was worked (its date).
+ * - period_end / pay_date: the month derived from the pay period the shift
+ *   falls in (its end date, or pay date). Falls back to the shift month when no
+ *   matching period instance is found.
+ */
+export function financialMonthForShiftDate(
+  definition: PayPeriodDefinitionRecord,
+  instances: PayPeriodInstanceRecord[],
+  shiftDate: string
+): string {
+  const day = shiftDate.slice(0, 10);
+  const def = normalizePayPeriodDefinition(definition);
+  if (def.monthAllocationMethod === "accrual") return day.slice(0, 7);
+  const instance = findPayPeriodInstanceForDate(instances, day);
+  if (!instance) return day.slice(0, 7);
+  if (def.monthAllocationMethod === "pay_date") {
+    return payDateForInstance(def, instance).slice(0, 7);
+  }
+  return normalizePayPeriodInstance(instance).endDate.slice(0, 7);
+}
+
+/** Pay period instances whose labour cost contributes to a calendar month. */
+export function payPeriodsContributingToMonth(
+  definition: PayPeriodDefinitionRecord,
+  instances: PayPeriodInstanceRecord[],
+  month: string
+): PayPeriodInstanceRecord[] {
+  const target = month.slice(0, 7);
+  const def = normalizePayPeriodDefinition(definition);
+  return instances
+    .filter((row) => row.definitionId === def.id)
+    .map(normalizePayPeriodInstance)
+    .filter((row) => {
+      if (def.monthAllocationMethod === "accrual") {
+        return row.startDate.slice(0, 7) <= target && row.endDate.slice(0, 7) >= target;
+      }
+      if (def.monthAllocationMethod === "pay_date") {
+        return payDateForInstance(def, row).slice(0, 7) === target;
+      }
+      return row.endDate.slice(0, 7) === target;
+    })
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+}
+
+export function monthAllocationMethodLabel(method: PayPeriodMonthAllocationMethod | string): string {
+  return PAY_PERIOD_MONTH_ALLOCATION_OPTIONS.find((row) => row.value === method)?.label ?? method;
+}
+
 export const initialPayPeriodDefinition: PayPeriodDefinitionRecord = normalizePayPeriodDefinition({
   id: "ppd-default",
   organizationId: ORGANIZATION_ID,
@@ -274,6 +383,8 @@ export const initialPayPeriodDefinition: PayPeriodDefinitionRecord = normalizePa
   anchorDate: "2026-06-22",
   labelPattern: "PP {start}–{end}",
   editGraceDays: 3,
+  monthAllocationMethod: "accrual",
+  payDateOffsetDays: 7,
   isActive: true,
   createdBy: "System",
   updatedBy: "System",

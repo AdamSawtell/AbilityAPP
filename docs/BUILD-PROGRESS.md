@@ -11,14 +11,33 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
-| **Active slice** | AB-0033 / AB-0032 / AB-0031 — Pay periods, contracted hours, shift profitability |
+| **Active slice** | Pay-period month allocation (financial close) — configurable accrual / period-end / pay-date |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-28 — Pay periods, contracted hours, shift profitability (`e2b14c7`) |
+| **Last push** | 2026-06-28 — Monday fortnightly demo data + Amplify smoke (`ad2364c`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+## Pay-period month allocation for financial close (2026-06-28)
+
+**Status:** Built, ready for testing.
+
+**Why:** A calendar (accounting) month spans several fortnightly pay periods, so labour cost has to be attributed to a month. Industry/AASB standard is **accrual (work performed)**; common alternatives are **period-end** and **pay-date (cash)**. Method is now configurable.
+
+| Area | Change |
+|------|--------|
+| Admin → Pay periods | New **Month allocation (financial close)** selector — Accrual (default) / Period end date / Pay date (cash); Pay-date shows a pay-date offset field |
+| Financial close | New **Monthly labour cost** card — shift cost, income, margin for the close month using the configured method, plus the contributing pay periods |
+| Data model | `pay_period_definition.month_allocation_method`, `pay_date_offset_days` (`20260702160000`) |
+| Logic | `financialMonthForShiftDate`, `payPeriodsContributingToMonth`, `summarizeMonthLabour` — per-shift attribution (accrual maps each shift to the month worked) |
+
+**What you can test:**
+- **Admin → Pay periods** — switch Month allocation; for Pay date set the offset; save
+- **Financial close** — Monthly labour cost card reflects the method; contributing pay periods list updates; per-pay-period Shift profitability still works
 
 ---
 

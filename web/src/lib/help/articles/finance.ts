@@ -29,7 +29,7 @@ export const financeArticle: HelpArticle = {
     "/financial-close",
   ],
   windowKeys: [],
-  lastUpdated: "2026-06-27",
+  lastUpdated: "2026-06-28",
   sections: [
     {
       id: "finance-menu",
@@ -98,8 +98,22 @@ export const financeArticle: HelpArticle = {
       steps: [
         "Open Financial close and pick the close month.",
         "Review the checklist — plan variance, claims, invoices, payroll blocks.",
+        "Check Monthly labour cost — a calendar month usually spans several fortnightly pay periods, so this card totals shift cost, income, and margin for the month using the configured allocation method and lists the contributing pay periods.",
         "Scroll to Shift profitability — select a pay period to see SCHADS-based cost vs billable income, total margin, and loss-making shifts.",
-        "Configure pay cycle boundaries under Admin → Pay periods before relying on period close.",
+        "Configure pay cycle boundaries and the month allocation method under Admin → Pay periods before relying on period close.",
+      ],
+    },
+    {
+      id: "pay-period-month-allocation",
+      title: "Pay periods that span a month-end",
+      body:
+        "Fortnightly pay periods rarely line up with calendar months, so one month contains parts of several pay periods. Admin → Pay periods sets how each period's labour cost is attributed to an accounting month: Accrual (work performed) matches each shift to the month it was worked (AASB/GAAP accrual standard, recommended — a fortnight can split across two months); Period end date assigns the whole period to the month its end date falls in; Pay date (cash basis) assigns it to the month it is paid (period end plus the pay date offset). Financial close → Monthly labour cost uses this setting.",
+      relatedRoutes: ["/admin/pay-periods", "/financial-close"],
+      steps: [
+        "Open Admin → Pay periods.",
+        "Set Month allocation (financial close) — Accrual is recommended for accurate month matching.",
+        "For Pay date (cash basis), set the pay date offset (days after period end that wages are paid).",
+        "Save and regenerate periods, then confirm Financial close → Monthly labour cost reflects the method.",
       ],
     },
   ],

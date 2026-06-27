@@ -14,7 +14,14 @@ import {
   type FinancialCloseContext,
 } from "@/lib/financial-close";
 import { formatPlanMonthLabel, currentPlanMonthIso } from "@/lib/monthly-service-plan";
-import { findCurrentPayPeriodInstance } from "@/lib/pay-period";
+import {
+  financialMonthForShiftDate,
+  findCurrentPayPeriodInstance,
+  formatPayPeriodLabel,
+  monthAllocationMethodLabel,
+  payPeriodsContributingToMonth,
+} from "@/lib/pay-period";
+import { formatMarginCurrency, summarizeMonthLabour } from "@/lib/shift-profitability";
 import { downloadCsv } from "@/lib/reports/export";
 
 function buildContext(data: ReturnType<typeof useData>): FinancialCloseContext {
@@ -50,6 +57,27 @@ export function FinancialCloseView() {
     () => payPeriodInstances.find((row) => row.id === payPeriodInstanceId),
     [payPeriodInstances, payPeriodInstanceId]
   );
+
+  const activeDefinition = useMemo(
+    () => data.payPeriodDefinitions.find((row) => row.isActive) ?? data.payPeriodDefinitions[0],
+    [data.payPeriodDefinitions]
+  );
+
+  const monthLabour = useMemo(() => {
+    if (!activeDefinition) return null;
+    return summarizeMonthLabour(
+      data.rosterShifts,
+      data.employees,
+      data.serviceBookings,
+      closeMonth,
+      (shiftDate) => financialMonthForShiftDate(activeDefinition, payPeriodInstances, shiftDate)
+    );
+  }, [activeDefinition, data.rosterShifts, data.employees, data.serviceBookings, closeMonth, payPeriodInstances]);
+
+  const contributingPeriods = useMemo(() => {
+    if (!activeDefinition) return [];
+    return payPeriodsContributingToMonth(activeDefinition, payPeriodInstances, closeMonth);
+  }, [activeDefinition, payPeriodInstances, closeMonth]);
 
   const ctx = useMemo(() => buildContext(data), [data]);
   const evaluation = useMemo(() => evaluateFinancialClose(ctx, closeMonth), [ctx, closeMonth]);
@@ -204,6 +232,69 @@ export function FinancialCloseView() {
       </div>
 
       <FinancialCloseMonthPanel />
+
+      {activeDefinition && monthLabour ? (
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Monthly labour cost — {formatPlanMonthLabel(closeMonth)}
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              A calendar month can span several pay periods. Costs are attributed using{" "}
+              <span className="font-medium">{monthAllocationMethodLabel(activeDefinition.monthAllocationMethod)}</span>{" "}
+              (change under{" "}
+              <Link href="/admin/pay-periods" className="font-medium text-[#b51266] hover:underline">
+                Admin → Pay periods
+              </Link>
+              ).
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Staffed shifts</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">{monthLabour.shiftCount}</p>
+              <p className="text-xs text-slate-500">{monthLabour.totalHours.toFixed(1)} hours</p>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Labour cost</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">{formatMarginCurrency(monthLabour.totalCost)}</p>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Billable income</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">{formatMarginCurrency(monthLabour.totalIncome)}</p>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Margin</p>
+              <p
+                className={`mt-1 text-lg font-semibold ${
+                  monthLabour.totalMargin < 0 ? "text-rose-700" : "text-emerald-700"
+                }`}
+              >
+                {formatMarginCurrency(monthLabour.totalMargin)}
+              </p>
+              {monthLabour.marginPct !== null ? (
+                <p className="text-xs text-slate-500">{monthLabour.marginPct}% margin</p>
+              ) : null}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              Pay periods contributing to this month
+            </p>
+            {contributingPeriods.length ? (
+              <ul className="mt-2 space-y-1 text-sm text-slate-700">
+                {contributingPeriods.map((row) => (
+                  <li key={row.id}>
+                    {formatPayPeriodLabel(activeDefinition, row.startDate, row.endDate)} ({row.status})
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-slate-500">No pay periods map to this month yet.</p>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
