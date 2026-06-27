@@ -15,8 +15,8 @@
 | UAT-11-S-007 | `/my/contracts` | View employment contracts | **Pass** — contracts tab loads |
 | UAT-11-S-008 | `/my/profile` | Edit profile fields | **Pass** — profile / about me page |
 | UAT-11-S-009 | `/my/open-shifts` | Open shift request marketplace | **Pass** — request / withdraw / critical fill flow covered by TEST-074 |
-| UAT-11-S-010 | `/my/open-shifts`, `/my/shifts` | Contact Rostering communication | **Pass when tested** — TEST-075 creates a Rostering Communication task and shows it in history |
+| UAT-11-S-010 | `/my`, `/my/open-shifts`, `/my/shifts` | Contact Rostering communication | **Pass** — Amplify TEST-075 created **REQ-3220**, history opened `/tasks/task-1782528595749`, Rostering Officer saw it in To my role |
 
 ## Window checklist
 
-[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-11** — **Pass** on Amplify (2026-06-22); S-009/S-010 updated by TEST-074/075 coverage.
+[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-11** — **Pass** on Amplify (2026-06-27); S-009/S-010 updated by TEST-074/075 coverage.

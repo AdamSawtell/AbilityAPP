@@ -13,7 +13,8 @@
 | UAT-00-S-005 | Tasks — all | SuperUser | `/tasks?scope=all` | **Pass** — 41 all tasks; past scope 33 |
 | UAT-00-S-006 | Create task on client | Coordinator | Linked entity; audit | **Pass** — New task link on task hub (UAT-15-P-009) |
 | UAT-00-S-007 | Complete task | Assignee | Status closed; timeline | **Pass** — task detail links from hub (TEST-098 HP-117) |
+| UAT-00-S-008 | Home My calendar — shifts and requests | AvaThomas | Allocated shift + pending request chips show on Home calendar | **Pass** — Amplify TEST-076 shows teal allocated shifts and cyan **Requested 09:00–15:00** for Tue 14 July |
 
 ## Window checklist
 
-[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-00** — all **Pass** on Amplify (2026-06-18).
+[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-00** — all **Pass** on Amplify (2026-06-27).

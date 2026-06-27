@@ -13,7 +13,7 @@
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
 | **Active slice** | AB-0021 v1 implementation and verification |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-25 — WP-UX.6 branded portal sign-in landings |
+| **Last push** | 2026-06-27 — Home My calendar + Contact Rostering live smoke evidence |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -37,6 +37,8 @@ Extends the Home **Today → My calendar** to show a worker's full personal sche
 
 **What you can test:** TEST-076.
 
+**Amplify smoke (2026-06-27):** ✅ Live on `app.abilityvua.com` as **Ava Thomas** — Home → **My calendar** shows the new **Allocated shifts** and **Shift requests** legend entries; allocated shift chips visible in Month/Week views; clicking a shift opens `/my/shifts`. Request-chip path verified by submitting an open-shift request for Tue 14 July 2026 09:00–15:00 (Northern SIL House): Home calendar shows cyan **Requested 09:00 – 15:00**. Dedupe approval/fill path not run on production; existing allocated Jul 7 shift renders only as teal allocated shift.
+
 ---
 
 ## My Workplace Contact Rostering (2026-06-27)
@@ -55,6 +57,8 @@ Adds a task-backed communication channel on the employee rostering surfaces.
 **What you can test:** TEST-075.
 
 **Remote DB:** `npm run supabase:push-remote` — exit 0 — `20260701123000_rostering_communication_task_type.sql` applied.
+
+**Amplify smoke (2026-06-27):** ✅ Live on `app.abilityvua.com` as **Ava Thomas** + **Morgan Blake** — Contact Rostering panel appears on `/my`, `/my/open-shifts`, and `/my/shifts`; submitted **REQ-3220** (`Rostering: Amplify smoke contact rostering`); history row opened `/tasks/task-1782528595749`; Morgan Blake saw the task in `/tasks?scope=my-role`.
 
 ---
 
@@ -2210,6 +2214,8 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-27 | Home My calendar Amplify | `app.abilityvua.com/`, `/my/open-shifts`, `/my/shifts` | **Pass** | Ava Thomas: teal allocated shift chips visible; request submitted for Tue 14 July 09:00–15:00 and cyan **Requested** chip appears on Home calendar; no console errors |
+| 2026-06-27 | Contact Rostering Amplify | `app.abilityvua.com/my`, `/my/open-shifts`, `/my/shifts`, `/tasks/[id]`, `/tasks?scope=my-role` | **Pass** | Ava Thomas submitted **REQ-3220**; history row opened `/tasks/task-1782528595749`; Morgan Blake saw it in To my role |
 | 2026-06-27 | My Workplace Contact Rostering | `localhost:3000/my/open-shifts`, `/my/shifts`, `/tasks/[id]`, `/tasks?scope=my-role` | **Pass** | Isla Robinson submitted REQ-3208; history appeared on Open shifts and My shifts; task detail opened with audit footer; Morgan Blake (Rostering Officer) saw it in To my role with friendly task type label |
 | 2026-06-25 | WP-UX.6 Amplify | `app.abilityvua.com/portal/login`, `/agency-portal/login` | **Pass** | `e197986` live; branded landings render; no `.local` public email; website corrected; demo magic links work |
 | 2026-06-25 | WP-UX.4+5 Amplify | `app.abilityvua.com/agency-portal`(+`/help`), `/portal`(+`/help`) | **Pass** | `a1c0dcb` live; both portal dashboards + how-to guides render; no error banners |
