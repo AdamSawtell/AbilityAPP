@@ -59,42 +59,89 @@ update public.employee set contracted_hours_per_period = 48, contracted_hours_pe
 update public.employee set contracted_hours_per_period = 0, contracted_hours_period = 'fortnight', schads_classification_level = 'level-2.1', schads_pay_point = 'PP1', super_rate = 12 where id = 'emp-sw-007';
 update public.employee set contracted_hours_per_period = 0, contracted_hours_period = 'fortnight', schads_classification_level = 'level-2.1', schads_pay_point = 'PP1', super_rate = 12 where id = 'emp-sw-022';
 
--- 4. Live shifts across the current fortnight (2026-06-22 .. 2026-07-05) at Glenelg.
+-- 4. Hourly SIL booking for Glenelg profitability demo (NDIS 2025-26 daytime cap).
+insert into public.service_booking (
+  id, document_no, organization, description, target_document_type, is_template, ready_to_claim_rule,
+  program_of_supports, date_ordered, date_promised, start_date, end_date, client_id, invoice_partner,
+  service_agreement_id, booking_generator_ref, total_lines, grand_total, document_status, created_by, updated_by
+)
+values (
+  'sb-glen-pp-jun26', '50260', 'AbilityERP', 'Glenelg SIL — June fortnight (hourly)', 'Service Booking - Standard',
+  false, 'Manual Tick', false, '2026-06-22', '2026-07-05', '2026-06-22', '2026-07-05', 'bp-bern',
+  'NDIS - National Disability Insurance Scheme', 'sa-rose-ni', 'GLEN_PP', 1680, 1680, 'Completed',
+  'Isla Robinson', 'Isla Robinson'
+)
+on conflict (id) do update set
+  start_date = excluded.start_date,
+  end_date = excluded.end_date,
+  grand_total = excluded.grand_total,
+  document_status = excluded.document_status,
+  updated_by = excluded.updated_by;
+
+insert into public.service_booking_line (
+  id, service_booking_id, line_no, manual_hold, ready_to_claim, ordered_quantity, quantity_invoiced,
+  date_promised, product_id, claim_type, use_time_based_quantity, start_date, end_date, uom, price, line_amount
+)
+values (
+  'sbl-glen-pp-jun26-10', 'sb-glen-pp-jun26', 10, false, true, 24, 0, '2026-07-05', 'prod-sil-wd', '', true,
+  '2026-06-22', '2026-07-05', 'Hour', 70.23, 1685.52
+)
+on conflict (id) do update set
+  uom = excluded.uom,
+  price = excluded.price,
+  line_amount = excluded.line_amount,
+  use_time_based_quantity = excluded.use_time_based_quantity;
+
+-- 5. Live shifts across the current fortnight (2026-06-22 .. 2026-07-05) at Glenelg.
 -- Weekday daytime = positive margin; weekend/casual = lower or negative margin.
 insert into public.roster_shift (
   id, shift_ref, client_id, employee_id, location_id, service_booking_id,
   shift_date, start_time, end_time, shift_type, status, notes, created_by, updated_by
 ) values
-  ('rs-pp-0622-am', 'PP-0622-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-06-22', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0622-pm', 'PP-0622-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', null, '2026-06-22', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0623-am', 'PP-0623-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-06-23', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0623-pm', 'PP-0623-PM', 'bp-bern', 'emp-sw-017',      'loc-glenelg-sil', null, '2026-06-23', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0624-am', 'PP-0624-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-06-24', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0624-pm', 'PP-0624-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', null, '2026-06-24', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0625-am', 'PP-0625-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-06-25', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0625-pm', 'PP-0625-PM', 'bp-bern', 'emp-sw-017',      'loc-glenelg-sil', null, '2026-06-25', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0626-am', 'PP-0626-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-06-26', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0626-pm', 'PP-0626-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', null, '2026-06-26', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0627-am', 'PP-0627-AM', 'bp-bern', 'emp-sw-007',      'loc-glenelg-sil', null, '2026-06-27', '07:00', '15:00', 'Standard', 'Published', 'Saturday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0628-am', 'PP-0628-AM', 'bp-bern', 'emp-sw-022',      'loc-glenelg-sil', null, '2026-06-28', '07:00', '15:00', 'Standard', 'Published', 'Sunday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0629-am', 'PP-0629-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-06-29', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0629-pm', 'PP-0629-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', null, '2026-06-29', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0630-am', 'PP-0630-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-06-30', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0630-pm', 'PP-0630-PM', 'bp-bern', 'emp-sw-032',      'loc-glenelg-sil', null, '2026-06-30', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0701-am', 'PP-0701-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-07-01', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0701-pm', 'PP-0701-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', null, '2026-07-01', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0702-am', 'PP-0702-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', null, '2026-07-02', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0703-am', 'PP-0703-AM', 'bp-bern', 'emp-sw-017',      'loc-glenelg-sil', null, '2026-07-03', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0704-am', 'PP-0704-AM', 'bp-bern', 'emp-sw-007',      'loc-glenelg-sil', null, '2026-07-04', '07:00', '15:00', 'Standard', 'Published', 'Saturday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
-  ('rs-pp-0705-am', 'PP-0705-AM', 'bp-bern', 'emp-sw-022',      'loc-glenelg-sil', null, '2026-07-05', '07:00', '15:00', 'Standard', 'Published', 'Sunday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0622-am', 'PP-0622-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-22', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0622-pm', 'PP-0622-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-22', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0623-am', 'PP-0623-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-23', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0623-pm', 'PP-0623-PM', 'bp-bern', 'emp-sw-017',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-23', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0624-am', 'PP-0624-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-24', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0624-pm', 'PP-0624-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-24', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0625-am', 'PP-0625-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-25', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0625-pm', 'PP-0625-PM', 'bp-bern', 'emp-sw-017',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-25', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0626-am', 'PP-0626-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-26', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0626-pm', 'PP-0626-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-26', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0627-am', 'PP-0627-AM', 'bp-bern', 'emp-sw-007',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-27', '07:00', '15:00', 'Standard', 'Published', 'Saturday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0628-am', 'PP-0628-AM', 'bp-bern', 'emp-sw-022',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-28', '07:00', '15:00', 'Standard', 'Published', 'Sunday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0629-am', 'PP-0629-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-29', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0629-pm', 'PP-0629-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-29', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0630-am', 'PP-0630-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-30', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0630-pm', 'PP-0630-PM', 'bp-bern', 'emp-sw-032',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-06-30', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0701-am', 'PP-0701-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-07-01', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0701-pm', 'PP-0701-PM', 'bp-bern', 'emp-sw-002',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-07-01', '15:00', '22:00', 'Standard', 'Published', 'Evening support', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0702-am', 'PP-0702-AM', 'bp-bern', 'emp-jason-brown', 'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-07-02', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0703-am', 'PP-0703-AM', 'bp-bern', 'emp-sw-017',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-07-03', '07:00', '15:00', 'Standard', 'Published', 'Morning personal care', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0704-am', 'PP-0704-AM', 'bp-bern', 'emp-sw-007',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-07-04', '07:00', '15:00', 'Standard', 'Published', 'Saturday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
+  ('rs-pp-0705-am', 'PP-0705-AM', 'bp-bern', 'emp-sw-022',      'loc-glenelg-sil', 'sb-glen-pp-jun26', '2026-07-05', '07:00', '15:00', 'Standard', 'Published', 'Sunday morning (casual)', 'Isla Robinson', 'Isla Robinson'),
   ('rs-pp-0703-pm-open', 'PP-0703-PM', 'bp-bern', null,         'loc-glenelg-sil', null, '2026-07-03', '15:00', '22:00', 'Standard', 'Published', 'Vacant — needs cover (find and fill demo)', 'Isla Robinson', 'Isla Robinson')
 on conflict (id) do update set
   client_id = excluded.client_id,
   employee_id = excluded.employee_id,
   location_id = excluded.location_id,
+  service_booking_id = excluded.service_booking_id,
   shift_date = excluded.shift_date,
   start_time = excluded.start_time,
   end_time = excluded.end_time,
   status = excluded.status,
   notes = excluded.notes,
   updated_by = excluded.updated_by;
+
+-- 6. June delivery-window shifts: hourly SIL line (weekly lump sums are for claims, not per-shift income).
+update public.service_booking_line
+set uom = 'Hour',
+    price = 70.23,
+    ordered_quantity = 42,
+    line_amount = round(70.23 * 42, 2),
+    use_time_based_quantity = true
+where id = 'sbl-jun26-50150-10';
+
+update public.service_booking
+set total_lines = 2949.66, grand_total = 2949.66, updated_by = 'System'
+where id = 'sb-jun26-50150';

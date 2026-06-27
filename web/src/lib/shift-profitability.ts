@@ -117,8 +117,13 @@ export function estimateShiftIncome(
   const hours = shiftDurationHours(normalized);
   if (booking?.lines?.length) {
     const line = booking.lines[0];
+    const uom = (line.uom ?? "").trim().toLowerCase();
     const rate = parseFloat(String(line.price ?? "").replace(/,/g, ""));
-    if (Number.isFinite(rate) && rate > 0) return Math.round(rate * hours * 100) / 100;
+    const hourlyUom = uom === "hour" || uom === "hr" || uom === "hours";
+    if (Number.isFinite(rate) && rate > 0 && (hourlyUom || line.useTimeBasedQuantity)) {
+      return Math.round(rate * hours * 100) / 100;
+    }
+    // Weekly/lump-sum booking lines are not per-shift hourly rates — fall through to baseline.
   }
   if (normalized.estimatedHourlyCost && normalized.estimatedHourlyCost > 0) {
     return Math.round(normalized.estimatedHourlyCost * hours * 100) / 100;

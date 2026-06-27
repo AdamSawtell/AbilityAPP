@@ -20,7 +20,7 @@ insert into public.service_booking (
 values (
   'sb-jun26-50150', '50150', 'AbilityERP', 'June SIL week — test window', 'Service Booking - Standard',
   false, 'Manual Tick', false, '2026-06-02', '2026-06-15', '2026-06-09', '2026-06-15', 'bp-bern',
-  'NDIS - National Disability Insurance Scheme', 'sa-rose-ni', 'BERN_SIL', 2940, 2940, 'Completed',
+  'NDIS - National Disability Insurance Scheme', 'sa-rose-ni', 'BERN_SIL', 2949.66, 2949.66, 'Completed',
   'Isla Robinson', 'Isla Robinson'
 )
 on conflict (id) do update set
@@ -34,8 +34,8 @@ insert into public.service_booking_line (
   date_promised, product_id, claim_type, use_time_based_quantity, start_date, end_date, uom, price, line_amount
 )
 values (
-  'sbl-jun26-50150-10', 'sb-jun26-50150', 10, false, true, 1, 0, '2026-06-15', 'prod-sil-wd', '', true,
-  '2026-06-09', '2026-06-15', 'Week', 2940, 2940
+  'sbl-jun26-50150-10', 'sb-jun26-50150', 10, false, true, 42, 0, '2026-06-15', 'prod-sil-wd', '', true,
+  '2026-06-09', '2026-06-15', 'Hour', 70.23, 2949.66
 )
 on conflict (id) do update set start_date = excluded.start_date, end_date = excluded.end_date, line_amount = excluded.line_amount;
 
