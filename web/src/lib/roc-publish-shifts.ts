@@ -373,6 +373,102 @@ export function buildShiftsFromRosterOfCare(
   return { shifts, skippedLines, warnings };
 }
 
+/** Bulk rollover scope — roll forward every active RoC, one client, or one location. */
+export type RocRolloverScope =
+  | { kind: "all" }
+  | { kind: "client"; clientId: string }
+  | { kind: "location"; locationId: string };
+
+export type BulkRocPublishPreview = {
+  shifts: RosterShiftRecord[];
+  /** Number of RoC templates contributing lines to this rollover. */
+  rocCount: number;
+  skippedLines: { rocId: string; lineNo: number; reason: string }[];
+  warnings: string[];
+};
+
+/** Restrict a RoC's lines to a single location (used by location-scoped rollover). */
+function rocWithLinesAtLocation(roc: RosterOfCareRecord, locationId: string): RosterOfCareRecord {
+  return { ...roc, lines: roc.lines.filter((line) => line.locationId?.trim() === locationId) };
+}
+
+/**
+ * Bulk rollover across multiple RoC templates in one action.
+ *
+ * - `all` — every Active RoC.
+ * - `client` — Active RoCs for one participant (co-resident sessions still merge).
+ * - `location` — only the lines delivered at one location, across all participants.
+ *
+ * Each in-scope RoC is published with the single-RoC builder (which already merges
+ * peer Active session lines), then results are de-duplicated by shift id so shared
+ * sessions are never written twice.
+ */
+export function buildShiftsFromRosterOfCares(
+  scope: RocRolloverScope,
+  input: RocPublishInput,
+  existing: RosterShiftRecord[],
+  serviceBookings: ServiceBookingRecord[],
+  allRocs: RosterOfCareRecord[]
+): BulkRocPublishPreview {
+  const activeRocs = (allRocs ?? []).filter((roc) => roc.status === "Active");
+
+  let scopeRocs: RosterOfCareRecord[];
+  let mergeRocs: RosterOfCareRecord[];
+  if (scope.kind === "client") {
+    scopeRocs = activeRocs.filter((roc) => roc.clientId === scope.clientId);
+    mergeRocs = activeRocs;
+  } else if (scope.kind === "location") {
+    const filtered = activeRocs
+      .map((roc) => rocWithLinesAtLocation(roc, scope.locationId))
+      .filter((roc) => roc.lines.length > 0);
+    scopeRocs = filtered;
+    mergeRocs = filtered;
+  } else {
+    scopeRocs = activeRocs;
+    mergeRocs = activeRocs;
+  }
+
+  const byId = new Map<string, RosterShiftRecord>();
+  const skippedLines: { rocId: string; lineNo: number; reason: string }[] = [];
+  const warnings = new Set<string>();
+
+  for (const roc of scopeRocs) {
+    const preview = buildShiftsFromRosterOfCare(roc, input, existing, serviceBookings, mergeRocs);
+    for (const reason of preview.warnings) warnings.add(reason);
+    for (const skip of preview.skippedLines) {
+      skippedLines.push({ rocId: roc.id, lineNo: skip.lineNo, reason: skip.reason });
+    }
+    for (const shift of preview.shifts) {
+      const prior = byId.get(shift.id);
+      if (!prior) {
+        byId.set(shift.id, shift);
+        continue;
+      }
+      byId.set(
+        shift.id,
+        normalizeRosterShift(
+          syncShiftHeaderFromSessionLines({
+            ...prior,
+            clientLines: mergeClientLines(prior.clientLines ?? [], shift.clientLines ?? []),
+            workerLines: mergeWorkerLines(prior.workerLines ?? [], shift.workerLines ?? []),
+            notes: shift.notes || prior.notes,
+            sessionKey: prior.sessionKey || shift.sessionKey,
+            requiredWorkerCount: Math.max(prior.requiredWorkerCount ?? 1, shift.requiredWorkerCount ?? 1),
+            updatedBy: input.actor,
+          })
+        )
+      );
+    }
+  }
+
+  return {
+    shifts: [...byId.values()],
+    rocCount: scopeRocs.length,
+    skippedLines,
+    warnings: [...warnings],
+  };
+}
+
 export function validateRocPublishShifts(
   shifts: RosterShiftRecord[],
   existing: RosterShiftRecord[],

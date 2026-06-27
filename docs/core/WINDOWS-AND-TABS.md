@@ -291,6 +291,8 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 
 **Buddy shifts (AB-0022):** On staffed shift cards, **Add buddy shift** creates a linked shadow/orientation shift. Calendar badges: **Buddy**, **Non-payable**, **Non-billable**. Org pay default: System → Organisation → **Buddy shifts** (`/system/settings/buddy-shifts`). Participant portal does not show buddy shifts (v1).
 
+**RoC tab:** Import RoC CSV, generate a draft from a service agreement, per-RoC **Publish to roster**, and **Bulk rollover** (scope **All active RoCs** / **By client** / **By location**) — all gated on `rostering` write. Bulk rollover de-duplicates shared session-key shifts and honours the Organisation rollover defaults.
+
 **Processes:** `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` (rostering + agency-workers grants).
 
 ---

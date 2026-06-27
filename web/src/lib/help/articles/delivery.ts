@@ -120,6 +120,8 @@ export const deliveryArticle: HelpArticle = {
         "Open Rostering → RoC to import weekly roster-of-care CSV or generate a draft from a service agreement.",
         "Review Organisation → Roster rollover defaults for lookahead weeks, default Draft/Published status, and skip-existing behaviour.",
         "On an Active RoC card, use Publish to roster — it rolls master RoC lines into live shifts using those defaults; matching session keys at the same time/location become one multi-client session.",
+        "To roll forward many templates at once, use Rostering → RoC → Bulk rollover: choose All active rosters of care, By client, or By location, set the week range and status, then Publish — shared session keys merge into one session and Skip dates already published prevents duplicates.",
+        "By location publishes only the lines delivered at the selected location (for example a SIL house), not the day-program lines those participants attend elsewhere.",
         "Assign workers on the week view, then set status to Published before generating timesheets.",
         "Use Add shift from a coverage gap to pre-fill the client and booking.",
         "Open a client → Roster of care tab to review weekly care templates, hour totals, and rostered vs required hours.",

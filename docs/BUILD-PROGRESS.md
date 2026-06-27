@@ -13,12 +13,30 @@
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
 | **Active slice** | AB-0021 v1 implementation and verification |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-27 — Roster Sessions v1 + Glenelg SIL House full roster of care demo data |
+| **Last push** | 2026-06-27 — Bulk RoC rollover (all / client / location) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+## Bulk RoC rollover — all / client / location (2026-06-27)
+
+**Status:** Built, verified, committed and pushed.
+
+Adds a one-action rollover across many roster-of-care templates, alongside the existing per-RoC publish.
+
+| Area | Change |
+|------|--------|
+| Lib | `buildShiftsFromRosterOfCares(scope, …)` in `roc-publish-shifts.ts` — `scope` is `all` \| `client` \| `location`; iterates in-scope Active RoCs through the single-RoC builder and de-duplicates shared sessions by shift id |
+| Location scope | Publishes only the lines delivered at the selected location (line-level filter) — a SIL house rolls its AM/PM/sleepover sessions, not the participants' off-site day program |
+| UI | **Bulk rollover** panel on Rostering → RoC: scope selector + client/location pickers (only options that have active RoC lines), shared week range / status / skip-existing controls pre-filled from Organisation rollover defaults, combined preview (`N shifts across M templates`) and one Publish button |
+
+**What you can test:** Rostering → RoC → **Bulk rollover** → Scope **By location** → Glenelg SIL House → publish 4 weeks Draft; the three residents' RoC lines merge into shared AM/PM/sleepover sessions. Re-run with **Skip dates already published** ticked → reports all skipped. Try **By client** (Marcus Webb) and **All active rosters of care**.
+
+**Verification:** `npm run build` ✅ (exit 0). No schema or seed change (reuses `addRecurringRosterShifts`). Docs updated: `PROCESSES-AND-WORKFLOWS.md`, `SYSTEM-FUNCTION-GUIDE.md`, `WINDOWS-AND-TABS.md`, help `delivery.ts`, `TEST-RUNBOOKS.md` (TEST-060), `HAPPY-PATH-E2E-MATRIX.md` (FUNC-245a), `UAT-05` (UAT-05-S-020).
 
 ---
 

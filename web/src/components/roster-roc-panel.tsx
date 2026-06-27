@@ -14,18 +14,34 @@ import {
 import { rocWeekdayLabel, type RosterOfCareRecord } from "@/lib/roster-of-care";
 import {
   buildShiftsFromRosterOfCare,
+  buildShiftsFromRosterOfCares,
   validateRocPublishShifts,
+  type RocRolloverScope,
 } from "@/lib/roc-publish-shifts";
 import { weekStartFromDate } from "@/lib/roster-shift";
 import type { OrganizationRecord } from "@/lib/organization";
+import type { ClientRecord } from "@/lib/client";
+import type { LocationRecord } from "@/lib/location";
+import type { ServiceBookingRecord } from "@/lib/service-booking";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
 
 const TEMPLATE_CSV = `client_search_key,day,start_time,end_time,support_type,location_search_key,worker_requirement,notes
 BERN,Mon,09:00,15:00,Standard,GLEN-SIL,Support worker,SIL morning
 BERN,Wed,14:00,20:00,Standard,GLEN-SIL,Support worker,Community access afternoon`;
 
 export function RosterRocPanel() {
-  const { clients, locations, employees, serviceAgreements, rosterOfCares, bulkUpsertRosterOfCares, upsertRosterOfCare } =
-    useData();
+  const {
+    clients,
+    locations,
+    employees,
+    serviceAgreements,
+    rosterOfCares,
+    serviceBookings,
+    rosterShifts,
+    addRecurringRosterShifts,
+    bulkUpsertRosterOfCares,
+    upsertRosterOfCare,
+  } = useData();
   const { organization } = useOrganization();
   const { session, canWriteWindow } = useAuth();
   const canEdit = canWriteWindow("rostering");
@@ -157,6 +173,19 @@ export function RosterRocPanel() {
             </div>
           </dl>
         </section>
+      ) : null}
+
+      {canEdit ? (
+        <BulkRolloverPanel
+          clients={clients}
+          locations={locations}
+          rosterOfCares={rosterOfCares}
+          serviceBookings={serviceBookings}
+          rosterShifts={rosterShifts}
+          organization={organization}
+          actor={actor}
+          addRecurringRosterShifts={addRecurringRosterShifts}
+        />
       ) : null}
 
       {canEdit ? (
@@ -468,5 +497,259 @@ function RocCard({
         </div>
       ) : null}
     </li>
+  );
+}
+
+function BulkRolloverPanel({
+  clients,
+  locations,
+  rosterOfCares,
+  serviceBookings,
+  rosterShifts,
+  organization,
+  actor,
+  addRecurringRosterShifts,
+}: {
+  clients: ClientRecord[];
+  locations: LocationRecord[];
+  rosterOfCares: RosterOfCareRecord[];
+  serviceBookings: ServiceBookingRecord[];
+  rosterShifts: RosterShiftRecord[];
+  organization: OrganizationRecord;
+  actor: string;
+  addRecurringRosterShifts: (records: RosterShiftRecord[]) => string | null;
+}) {
+  const [scopeKind, setScopeKind] = useState<RocRolloverScope["kind"]>("all");
+  const [clientId, setClientId] = useState("");
+  const [locationId, setLocationId] = useState("");
+  const [weekStart, setWeekStart] = useState(() => weekStartFromDate(new Date().toISOString().slice(0, 10)));
+  const [weekCount, setWeekCount] = useState(() =>
+    organization.rosterRolloverEnabled ? organization.rosterRolloverLookaheadWeeks : 4
+  );
+  const [shiftStatus, setShiftStatus] = useState<"Draft" | "Published">(() =>
+    organization.rosterRolloverEnabled ? organization.rosterRolloverDefaultStatus : "Draft"
+  );
+  const [skipExisting, setSkipExisting] = useState(() =>
+    organization.rosterRolloverEnabled ? organization.rosterRolloverSkipExisting : true
+  );
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const activeRocs = useMemo(() => rosterOfCares.filter((roc) => roc.status === "Active"), [rosterOfCares]);
+
+  const clientOptions = useMemo(() => {
+    const ids = new Set(activeRocs.map((roc) => roc.clientId));
+    return clients.filter((c) => ids.has(c.id)).sort((a, b) => a.searchKey.localeCompare(b.searchKey));
+  }, [activeRocs, clients]);
+
+  const locationOptions = useMemo(() => {
+    const ids = new Set<string>();
+    for (const roc of activeRocs) {
+      for (const line of roc.lines) {
+        if (line.locationId?.trim()) ids.add(line.locationId);
+      }
+    }
+    return locations.filter((l) => ids.has(l.id)).sort((a, b) => a.searchKey.localeCompare(b.searchKey));
+  }, [activeRocs, locations]);
+
+  const scope: RocRolloverScope | null = useMemo(() => {
+    if (scopeKind === "client") return clientId ? { kind: "client", clientId } : null;
+    if (scopeKind === "location") return locationId ? { kind: "location", locationId } : null;
+    return { kind: "all" };
+  }, [scopeKind, clientId, locationId]);
+
+  const input = useMemo(
+    () => ({ weekStart, weekCount, status: shiftStatus, actor }),
+    [weekStart, weekCount, shiftStatus, actor]
+  );
+
+  const previewWithoutSkip = useMemo(
+    () =>
+      scope
+        ? buildShiftsFromRosterOfCares(scope, { ...input, skipExisting: false }, rosterShifts, serviceBookings, rosterOfCares)
+        : null,
+    [scope, input, rosterShifts, serviceBookings, rosterOfCares]
+  );
+  const preview = useMemo(
+    () =>
+      scope
+        ? buildShiftsFromRosterOfCares(scope, { ...input, skipExisting }, rosterShifts, serviceBookings, rosterOfCares)
+        : null,
+    [scope, input, skipExisting, rosterShifts, serviceBookings, rosterOfCares]
+  );
+
+  const allSkippedByExisting =
+    skipExisting && (previewWithoutSkip?.shifts.length ?? 0) > 0 && (preview?.shifts.length ?? 0) === 0;
+  const validation = preview
+    ? validateRocPublishShifts(preview.shifts, rosterShifts, { allSkippedByExisting })
+    : null;
+
+  function handlePublish() {
+    setError("");
+    setMessage("");
+    if (!scope || !preview) {
+      setError("Select a rollover scope.");
+      return;
+    }
+    if (allSkippedByExisting) {
+      setMessage("All shifts in this range were already published.");
+      return;
+    }
+    if (validation?.blocked) {
+      setError(validation.errors.join(" "));
+      return;
+    }
+    const saveError = addRecurringRosterShifts(preview.shifts);
+    if (saveError) {
+      setError(saveError);
+      return;
+    }
+    const note =
+      (validation?.warnings.length ?? 0) || preview.warnings.length
+        ? ` Warnings: ${[...(validation?.warnings ?? []), ...preview.warnings].slice(0, 3).join(" ")}`
+        : "";
+    setMessage(
+      `Published ${preview.shifts.length} ${shiftStatus.toLowerCase()} shift${preview.shifts.length === 1 ? "" : "s"} from ${preview.rocCount} roster of care template${preview.rocCount === 1 ? "" : "s"}.${note}`
+    );
+  }
+
+  const scopeIncomplete =
+    (scopeKind === "client" && !clientId) || (scopeKind === "location" && !locationId);
+  const previewCount = preview?.shifts.length ?? 0;
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <h2 className="text-sm font-semibold text-slate-900">Bulk rollover</h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Roll forward live shifts from active rosters of care in one action — for every participant, one client, or one
+        location. Lines that share a session key publish to one shared session.
+      </p>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <label className="block text-xs">
+          <span className="mb-1 block font-medium text-slate-700">Scope</span>
+          <select
+            value={scopeKind}
+            onChange={(e) => {
+              setScopeKind(e.target.value as RocRolloverScope["kind"]);
+              setMessage("");
+              setError("");
+            }}
+            className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          >
+            <option value="all">All active rosters of care</option>
+            <option value="client">By client</option>
+            <option value="location">By location</option>
+          </select>
+        </label>
+        {scopeKind === "client" ? (
+          <label className="block text-xs">
+            <span className="mb-1 block font-medium text-slate-700">Client</span>
+            <select
+              value={clientId}
+              onChange={(e) => setClientId(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+            >
+              <option value="">Select client</option>
+              {clientOptions.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.searchKey} — {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        {scopeKind === "location" ? (
+          <label className="block text-xs">
+            <span className="mb-1 block font-medium text-slate-700">Location</span>
+            <select
+              value={locationId}
+              onChange={(e) => setLocationId(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+            >
+              <option value="">Select location</option>
+              {locationOptions.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.searchKey}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <label className="block text-xs">
+          <span className="mb-1 block font-medium text-slate-700">Week starting</span>
+          <input
+            type="date"
+            value={weekStart}
+            onChange={(e) => setWeekStart(weekStartFromDate(e.target.value))}
+            className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          />
+        </label>
+        <label className="block text-xs">
+          <span className="mb-1 block font-medium text-slate-700">Weeks</span>
+          <select
+            value={weekCount}
+            onChange={(e) => setWeekCount(Number(e.target.value))}
+            className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          >
+            {[1, 2, 3, 4, 6, 8, 12].map((n) => (
+              <option key={n} value={n}>
+                {n} week{n === 1 ? "" : "s"}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-xs">
+          <span className="mb-1 block font-medium text-slate-700">Shift status</span>
+          <select
+            value={shiftStatus}
+            onChange={(e) => setShiftStatus(e.target.value as "Draft" | "Published")}
+            className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm"
+          >
+            <option value="Draft">Draft (vacant OK)</option>
+            <option value="Published">Published (worker required)</option>
+          </select>
+        </label>
+        <label className="flex items-end gap-2 text-xs text-slate-700">
+          <input
+            type="checkbox"
+            checked={skipExisting}
+            onChange={(e) => setSkipExisting(e.target.checked)}
+            className="rounded border-slate-300"
+          />
+          Skip dates already published
+        </label>
+      </div>
+
+      <p className="mt-2 text-xs text-slate-600">
+        Preview: {previewCount} shift{previewCount === 1 ? "" : "s"} across {preview?.rocCount ?? 0} roster of care
+        template{(preview?.rocCount ?? 0) === 1 ? "" : "s"}
+        {preview?.skippedLines.length
+          ? ` · ${preview.skippedLines.length} line${preview.skippedLines.length === 1 ? "" : "s"} skipped (missing location)`
+          : ""}
+      </p>
+      {validation?.errors.length ? (
+        <p className="mt-2 text-xs text-rose-700">{validation.errors.slice(0, 2).join(" ")}</p>
+      ) : null}
+      {validation?.warnings.length || preview?.warnings.length ? (
+        <p className="mt-2 text-xs text-amber-800">
+          {[...(validation?.warnings ?? []), ...(preview?.warnings ?? [])].slice(0, 2).join(" ")}
+        </p>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={handlePublish}
+        disabled={scopeIncomplete || (!previewCount && !allSkippedByExisting) || validation?.blocked}
+        className="mt-3 rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
+      >
+        Publish {previewCount} shift{previewCount === 1 ? "" : "s"}
+      </button>
+      {error ? <p className="mt-2 text-xs text-rose-700">{error}</p> : null}
+      {message ? <p className="mt-2 text-xs text-emerald-800">{message}</p> : null}
+    </section>
   );
 }

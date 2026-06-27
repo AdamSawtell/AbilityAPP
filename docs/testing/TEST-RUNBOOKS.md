@@ -115,6 +115,7 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 5 | Rostering → New shift | Service-delivery editor shows Clients (billing), Workers (payroll), Session key, and collective risks |
 | 6 | Add second client with ratio `1:4`; save as Draft; reopen | Two client lines and ratio persist; vacant worker line persists |
 | 7 | Rostering → RoC | Rollover defaults panel shows Organisation lookahead/status/skip-existing values; RoC table has Worker, Ratio, Session columns |
+| 8 | Rostering → RoC → Bulk rollover, Scope = By location → Glenelg SIL House, 4 weeks, Draft | Preview shows shifts across 3 RoC templates; Publish creates merged multi-client sessions; re-running with Skip dates already published reports all skipped |
 
 ---
 
