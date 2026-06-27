@@ -14,8 +14,9 @@
 | UAT-11-S-006 | `/my/availability` | Set availability | **Pass** — availability page in my-workplace hub |
 | UAT-11-S-007 | `/my/contracts` | View employment contracts | **Pass** — contracts tab loads |
 | UAT-11-S-008 | `/my/profile` | Edit profile fields | **Pass** — profile / about me page |
-| UAT-11-S-009 | `/my/open-shifts` | Marketplace (partial) | **Partial** — page loads; marketplace thin |
+| UAT-11-S-009 | `/my/open-shifts` | Open shift request marketplace | **Pass** — request / withdraw / critical fill flow covered by TEST-074 |
+| UAT-11-S-010 | `/my/open-shifts`, `/my/shifts` | Contact Rostering communication | **Pass when tested** — TEST-075 creates a Rostering Communication task and shows it in history |
 
 ## Window checklist
 
-[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-11** — **Pass** (S-009 partial) on Amplify (2026-06-22).
+[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-11** — **Pass** on Amplify (2026-06-22); S-009/S-010 updated by TEST-074/075 coverage.

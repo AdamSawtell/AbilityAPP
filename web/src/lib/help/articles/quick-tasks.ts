@@ -551,4 +551,37 @@ export const quickTaskArticles: HelpArticle[] = [
       },
     ],
   },
+  {
+    id: "article-contact-rostering",
+    slug: "contact-rostering",
+    title: "How do I contact rostering?",
+    summary: "Employees contact rostering from My workplace; the message becomes a Rostering Communication task.",
+    category: "Quick tasks",
+    keywords: [
+      "contact rostering",
+      "rostering communication",
+      "message rostering",
+      "shift question",
+      "availability question",
+      "how do i",
+    ],
+    relatedRoutes: ["/my/open-shifts", "/my/shifts", "/tasks"],
+    windowKeys: ["my-open-shifts", "my-shifts", "tasks-assigned-to-me", "tasks-for-my-role"],
+    lastUpdated: "2026-06-27",
+    sections: [
+      {
+        id: "steps",
+        title: "Steps",
+        steps: [
+          "Open My workplace → Open shifts or My workplace → My shifts.",
+          "Click Contact Rostering.",
+          "Enter a subject and message.",
+          "Choose category, priority, and an optional related shift.",
+          "Submit — a Rostering Communication task is created for the Rostering Officer role.",
+          "Open the row in Rostering communication history to continue the conversation.",
+        ],
+        relatedRoutes: ["/my/open-shifts", "/my/shifts"],
+      },
+    ],
+  },
 ];

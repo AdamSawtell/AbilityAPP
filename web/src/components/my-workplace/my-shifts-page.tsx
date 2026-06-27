@@ -7,6 +7,7 @@ import { ClientRecordLink } from "@/components/record-link";
 import { isBuddyShift } from "@/lib/buddy-shift";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs, useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
+import { RosteringCommunicationPanel } from "@/components/my-workplace/rostering-communication-panel";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
 import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
 import { useAuth } from "@/lib/auth-store";
@@ -66,7 +67,7 @@ const VIEW_OPTIONS: { id: MyShiftsView; label: string }[] = [
 export function MyShiftsPage() {
   const { session } = useAuth();
   const { employee } = useMyEmployee();
-  const { clients, locations, rosterShifts, rosterShiftRequests, timesheets, checkInRosterShift, checkOutRosterShift, withdrawShiftRequest } = useData();
+  const { clients, locations, rosterShifts, allRosterShifts, rosterShiftRequests, timesheets, checkInRosterShift, checkOutRosterShift, withdrawShiftRequest } = useData();
   const timezoneCtx = useSystemTimezoneOptional();
   const timezone = timezoneCtx?.timezone ?? DEFAULT_ORGANIZATION_TIMEZONE;
   const orgToday = useMemo(() => organizationTodayIso(timezone), [timezone]);
@@ -125,6 +126,15 @@ export function MyShiftsPage() {
     () => requestsForEmployee(rosterShiftRequests, employeeId).filter((r) => r.responseType !== "decline"),
     [rosterShiftRequests, employeeId]
   );
+  const relatedCommunicationShifts = useMemo(() => {
+    const byId = new Map<string, RosterShiftRecord>();
+    for (const shift of allAssigned) byId.set(shift.id, shift);
+    for (const request of myRequests) {
+      const shift = allRosterShifts.find((row) => row.id === request.rosterShiftId);
+      if (shift) byId.set(shift.id, shift);
+    }
+    return [...byId.values()];
+  }, [allAssigned, myRequests, allRosterShifts]);
 
   async function handleWithdrawRequest(requestId: string) {
     setError("");
@@ -187,6 +197,16 @@ export function MyShiftsPage() {
         ) : null}
         {error ? (
           <p className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{error}</p>
+        ) : null}
+
+        {employeeId ? (
+          <RosteringCommunicationPanel
+            employeeId={employeeId}
+            employeeName={employee?.name ?? session?.displayName ?? "Employee"}
+            relatedShifts={relatedCommunicationShifts}
+            clients={clients}
+            locations={locations}
+          />
         ) : null}
 
         {actionShift && employeeId ? (

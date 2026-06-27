@@ -313,6 +313,8 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 
 **Open shift requests:** Worker submits from Open shifts; tracks on My shifts → Shift requests. Coordinator review on Rostering → Open shifts and Workforce planning fill board.
 
+**Contact Rostering:** Open shifts and My shifts show a prominent **Contact Rostering** panel. Submissions create `tt-rostering-communication` tasks assigned to the Rostering Officer role; the employee sees the communication history on the same My Workplace pages and can open the task conversation.
+
 **Processes:** `submit-leave-request`, `submit-employee-credential`.
 
 ---

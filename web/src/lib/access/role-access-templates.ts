@@ -22,7 +22,12 @@ export function withIncidentManagerOverride<T extends { windowKeys: string[] }>(
 }
 import { ALL_REPORT_IDS } from "@/lib/reports/catalog";
 import type { AppRoleRecord } from "@/lib/access/types";
-import { fullTaskTypePermissions, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
+import {
+  ROSTERING_COMMUNICATION_TASK_TYPE_ID,
+  fullTaskTypePermissions,
+  mergeTaskTypePermissions,
+  permissionsForTypes,
+} from "@/lib/task-type";
 import { normalizeRoleWindowAccess, windowAccessFromKeys } from "@/lib/access/window-access";
 
 export const ADMIN_ROLE_ID = "role-admin";
@@ -152,7 +157,13 @@ export function executiveAccess(): Pick<AppRoleRecord, "windowKeys" | "processId
     ],
     processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
     reportIds: [...EXEC_REPORTS],
-    taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
+    taskTypePermissions: permissionsForTypes([
+      "tt-review",
+      "tt-approve",
+      "tt-check",
+      "tt-decide",
+      ROSTERING_COMMUNICATION_TASK_TYPE_ID,
+    ]),
     })
     )
   );
@@ -193,7 +204,13 @@ export function managerAccess(
       ],
       processIds: [...EXEC_PROCESSES, ...WORKPLACE_OPERATIONS_PROCESSES],
       reportIds: [...MANAGER_REPORTS],
-      taskTypePermissions: permissionsForTypes(["tt-review", "tt-approve", "tt-check", "tt-decide"]),
+      taskTypePermissions: permissionsForTypes([
+        "tt-review",
+        "tt-approve",
+        "tt-check",
+        "tt-decide",
+        ROSTERING_COMMUNICATION_TASK_TYPE_ID,
+      ]),
     })
     )
   );
@@ -215,7 +232,7 @@ export function officerAccess(
     ],
     processIds: [...OFFICER_PROCESSES, ...MY_WORKPLACE_STAFF_PROCESSES, ...WORKFORCE_ON_BEHALF_PROCESSES],
     reportIds: [...OFFICER_REPORTS],
-    taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-other"]),
+    taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-other", ROSTERING_COMMUNICATION_TASK_TYPE_ID]),
   };
 }
 
@@ -246,7 +263,7 @@ export function supportWorkerAccess(): Pick<AppRoleRecord, "windowKeys" | "proce
     ],
     processIds: ["assign-task", "request-activity-deletion", "action-task", "report-incident", "assign-location-employee", "submit-leave-request", "submit-employee-credential"],
     reportIds: ["tasks-all", "location-register", "incident-register"],
-    taskTypePermissions: permissionsForTypes(["tt-check", "tt-other", "tt-review"]),
+    taskTypePermissions: permissionsForTypes(["tt-check", "tt-other", "tt-review", ROSTERING_COMMUNICATION_TASK_TYPE_ID]),
   };
 }
 

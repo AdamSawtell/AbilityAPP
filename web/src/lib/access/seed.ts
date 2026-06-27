@@ -1,6 +1,11 @@
 import type { AppRoleRecord, AppUserRecord } from "@/lib/access/types";
 import { normalizeRoleWindowAccess, windowAccessFromKeys } from "@/lib/access/window-access";
-import { INITIAL_TASK_TYPES, mergeTaskTypePermissions, permissionsForTypes } from "@/lib/task-type";
+import {
+  INITIAL_TASK_TYPES,
+  ROSTERING_COMMUNICATION_TASK_TYPE_ID,
+  mergeTaskTypePermissions,
+  permissionsForTypes,
+} from "@/lib/task-type";
 import { bulkStaffUserLinks } from "@/lib/employee-bulk-seed";
 import { leadershipUsersFromLinks } from "@/lib/access/leadership-login-seed";
 import {
@@ -65,7 +70,13 @@ const INTAKE_ACCESS = {
     ...SUPPORT_PLAN_DOCUMENT_PROCESSES,
   ],
   reportIds: ["client-register", "enquiry-register", "location-register", "tasks-all", "incident-register", "ndis-reportable-incidents"],
-  taskTypePermissions: permissionsForTypes(["tt-review", "tt-check", "tt-develop", "tt-other"]),
+  taskTypePermissions: permissionsForTypes([
+    "tt-review",
+    "tt-check",
+    "tt-develop",
+    "tt-other",
+    ROSTERING_COMMUNICATION_TASK_TYPE_ID,
+  ]),
 };
 
 const COORDINATOR_OPERATIONS_PROCESSES = [

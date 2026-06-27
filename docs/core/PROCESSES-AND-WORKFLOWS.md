@@ -240,6 +240,7 @@
 |------------|---------|--------------|
 | `assign-task` | Record tasks panel or hub | New `app_task` with entity link |
 | `request-activity-deletion` | Request deletion on activity line | `app_task` type `tt-activity-delete` assigned to Admin role |
+| Rostering communication | **Contact Rostering** on `/my/open-shifts` or `/my/shifts` | `app_task` type `tt-rostering-communication`, assigned to Rostering Officer role; employee creator keeps visibility |
 | `action-task` | Assignee opens task | Status In progress / Complete / Cancelled |
 
 **Task automations:** System rules create tasks on leave submit, credential submit, roster publish, etc. (`/system/admin/task-automations`).

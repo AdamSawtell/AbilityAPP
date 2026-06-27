@@ -179,6 +179,21 @@ export const deliveryArticle: HelpArticle = {
       windowKeys: ["rostering", "workforce-planning"],
     },
     {
+      id: "rostering-communication",
+      title: "Rostering Communication tasks",
+      body: "Employees can contact rostering from My workplace → Open shifts or My workplace → My shifts. Each submission creates a Rostering Communication task assigned to the Rostering Officer role. The task is also visible to the employee who created it, so both sides can continue the conversation on the same task until it is resolved.\n\nThe initial task description stores category, priority, sender, optional related shift, and the message. Task updates act as the conversation history; completing or cancelling the task closes the communication.",
+      steps: [
+        "Rostering Officer: open Tasks → To my role.",
+        "Filter or scan for task type Rostering communication.",
+        "Open the task to read the subject, category, priority, sender, message, and related shift if present.",
+        "Use Update to reply or ask for more detail — the employee sees the update in the same task.",
+        "Use In progress while the item is being worked.",
+        "Use Task completed when the rostering question is resolved.",
+      ],
+      relatedRoutes: ["/tasks", "/my/open-shifts", "/my/shifts"],
+      windowKeys: ["tasks-for-my-role", "tasks-assigned-to-me", "my-open-shifts", "my-shifts"],
+    },
+    {
       id: "timesheets",
       title: "Timesheets",
       body: "Generate draft timesheets from published roster shifts for a pay period. Supervisors verify each line against worker check-in/out before approving for payroll export.",

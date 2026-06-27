@@ -33,6 +33,15 @@ function loadStoredTypes(): TaskTypeRecord[] | null {
   }
 }
 
+function mergeWithInitialTypes(types: TaskTypeRecord[]): TaskTypeRecord[] {
+  const byId = new Map(INITIAL_TASK_TYPES.map((type) => [type.id, normalizeTaskType(type)]));
+  for (const type of types) {
+    const normalized = normalizeTaskType(type);
+    byId.set(normalized.id, normalized);
+  }
+  return sortTaskTypes([...byId.values()]);
+}
+
 export function TaskTypeProvider({ children }: { children: React.ReactNode }) {
   const [taskTypes, setTaskTypes] = useState<TaskTypeRecord[]>(INITIAL_TASK_TYPES);
   const [hydrated, setHydrated] = useState(false);
@@ -43,7 +52,7 @@ export function TaskTypeProvider({ children }: { children: React.ReactNode }) {
     queueMicrotask(() => {
       if (cancelled) return;
       const stored = loadStoredTypes();
-      if (stored?.length) setTaskTypes(sortTaskTypes(stored));
+      setTaskTypes(mergeWithInitialTypes(stored ?? []));
       setHydrated(true);
     });
 

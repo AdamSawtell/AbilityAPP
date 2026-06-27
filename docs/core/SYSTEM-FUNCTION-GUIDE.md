@@ -188,6 +188,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **My credentials** ÔÇö submit WWCC, NDIS screening, training evidence | All staff | Compliance docs for HR review | Live |
 | **My contracts** ÔÇö view generated HR documents | All staff | Access to offer/contract copies | Live |
 | **My availability** ÔÇö set availability patterns | Support workers | Input to roster planning | Live |
+| **Contact Rostering** — task-backed roster communication | All staff | Message assigned to Rostering Officer, visible in employee history | Live |
 
 ---
 
@@ -288,6 +289,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Action task** ÔÇö start, complete, cancel | Assignees | Task lifecycle tracked | Live |
 | **Task automations** ÔÇö System-configured rules | System admin | Repeatable task creation | Live |
 | **Roster publish tasks** ÔÇö auto task when roster published | Roster admin | Workers notified in-app | Live |
+| **Rostering communication** — employee-to-roster task thread | Staff + Rostering Officer | Governed conversation with status, priority, assignment, and audit | Live |
 
 Workforce communications intentionally use **tasks, not email** for internal workflow (see [MY-WORKPLACE-DEV-NOTES.md](./MY-WORKPLACE-DEV-NOTES.md)).
 

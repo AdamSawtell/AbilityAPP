@@ -462,7 +462,8 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-246 | Rostering | Conflict / qualification hints | `/rostering` | Roster admin | Live | HP-093 |
 | FUNC-247 | My workplace | View my shifts | `/my/shifts` | Support worker | Live | HP-053 |
 | FUNC-248 | My workplace | Check-in/out | `/my/shifts` | Support worker | Live | HP-054 |
-| FUNC-249 | Open shifts | Marketplace claim | `/my/open-shifts` | Support worker | Partial | — |
+| FUNC-249 | Open shifts | Request marketplace shift | `/my/open-shifts` | Support worker | Live | TEST-074 |
+| FUNC-250 | My workplace | Contact Rostering task conversation | `/my/open-shifts`, `/my/shifts` | All staff, Rostering Officer | Live | TEST-075 |
 
 ### 5.4 Timesheets
 

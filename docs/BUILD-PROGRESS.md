@@ -22,6 +22,25 @@
 
 ---
 
+## My Workplace Contact Rostering (2026-06-27)
+
+**Status:** Shipped.
+
+Adds a task-backed communication channel on the employee rostering surfaces.
+
+| Area | Change |
+|------|--------|
+| UI | Prominent **Contact Rostering** panel on `/my`, `/my/open-shifts`, and `/my/shifts`; modal with subject, message, category, optional related shift, priority, attachments placeholder |
+| Task framework | New `tt-rostering-communication` task type; submissions assigned to `role-rostering-officer`; creator sees history immediately |
+| Conversation | Existing task updates serve as the ongoing message thread; history links to `/tasks/{id}` |
+| Docs/tests | My workplace + delivery help, setup guide, core docs, TEST-075, UAT-11 |
+
+**What you can test:** TEST-075.
+
+**Remote DB:** `npm run supabase:push-remote` — exit 0 — `20260701123000_rostering_communication_task_type.sql` applied.
+
+---
+
 ## Fix — record line "Created by" stamps the signed-in user (2026-06-26)
 
 **Status:** Shipped.
@@ -1469,6 +1488,17 @@ Use the **live Amplify app** after each push (or `cd web && npm run dev` locally
 
 Each row is what end users and system administrators need. In-app: workspace footer **How to use this page** → Help article; System → **Setup guides** or `/system/setup/<module>`.
 
+### My Workplace Contact Rostering
+
+| | Detail |
+|---|--------|
+| **User how-to** | Help → **My workplace self-service** → **Contact Rostering**; Quick task **How do I contact rostering?**; Help → **Delivery** → **Rostering Communication tasks** |
+| **User steps** | 1. Open `/my`, `/my/open-shifts`, or `/my/shifts`. 2. Click **Contact Rostering**. 3. Enter subject/message/category/priority/optional related shift. 4. Submit. 5. Open history row to continue the task conversation. |
+| **System setup** | `/system/setup/services` — confirm `tt-rostering-communication` task type grants and Rostering Officer task queue |
+| **Reference data** | None — categories are fixed in the modal for v1 |
+| **Role access** | Staff roles need `tt-rostering-communication` see/create; Rostering Officer receives tasks via `role-rostering-officer` and `tasks-for-my-role` |
+| **Admin verify** | Submit a General Enquiry as a worker; confirm task appears under Rostering Officer → Tasks → To my role |
+
 ### WP-A.1 — Client lifecycle
 
 | | Detail |
@@ -2084,6 +2114,9 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Command | Result |
 |------|---------|--------|
+| 2026-06-27 | `npm run build` | exit 0 (My Workplace Contact Rostering) |
+| 2026-06-27 | `npm run page-guides:check` | exit 0 — 128 routes (My Workplace Contact Rostering) |
+| 2026-06-27 | `npm run supabase:push-remote` | exit 0 — `20260701123000` rostering communication task type |
 | 2026-06-18 | `npm run build` | exit 0 |
 | 2026-06-18 | `npm run page-guides:check` | exit 0 |
 | 2026-06-18 | `npm run supabase:push-remote` | `20260624180000` cancellation fields |
@@ -2160,6 +2193,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Slice | Routes tested | Result | Notes |
 |------|-------|---------------|--------|-------|
+| 2026-06-27 | My Workplace Contact Rostering | `localhost:3000/my/open-shifts`, `/my/shifts`, `/tasks/[id]`, `/tasks?scope=my-role` | **Pass** | Isla Robinson submitted REQ-3208; history appeared on Open shifts and My shifts; task detail opened with audit footer; Morgan Blake (Rostering Officer) saw it in To my role with friendly task type label |
 | 2026-06-25 | WP-UX.6 Amplify | `app.abilityvua.com/portal/login`, `/agency-portal/login` | **Pass** | `e197986` live; branded landings render; no `.local` public email; website corrected; demo magic links work |
 | 2026-06-25 | WP-UX.4+5 Amplify | `app.abilityvua.com/agency-portal`(+`/help`), `/portal`(+`/help`) | **Pass** | `a1c0dcb` live; both portal dashboards + how-to guides render; no error banners |
 | 2026-06-25 | WP-UX.5 | `localhost:3000/portal`, `/portal/help` | **Pass** | Participant dashboard parity (banner, tiles, badged cards); `/portal/help` guide renders; no error banner |
@@ -2227,7 +2261,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
-| 2026-06-26 | API targeted fetch hardening uncommitted | 1 Medium, fixed; rerun 0 | **Pass** | NDIS gateway now keeps full price-list fallback semantics while avoiding full workspace hydration; KeyPay export uses targeted timesheet/line/reference fetches |
+| 2026-06-27 | Contact Rostering uncommitted | 1 High + 3 Medium, fixed; rerun 2 Medium, fixed | **Pass** | Fixed: related-shift privacy on Open shifts; submit busy guard; history `canSeeTaskType`; My shifts request lookup via `allRosterShifts`; `canCreateTaskType` on submit; panel on `/my` overview |
 | 2026-06-26 | SuperUser all-roles uncommitted | 1 High + 1 Medium, fixed | **Pass** | SuperUser detection keyed on seeded `user-superuser` id (not the mutable username) so renaming an account cannot escalate it; `upsertUser` mirrors the all-roles expansion into client state so the UI matches what is persisted |
 | 2026-06-26 | Karen AiTester seed uncommitted | 1 High + 1 Medium, fixed | **Pass** | `app_user` upsert now links `employee_bp_id` to `emp-karen` when unset so the session resolves an employee; shift/timesheet/incident/activity dates are relative to `current_date` so the fixture stays valid when re-run |
 | 2026-06-25 | AB-0022 uncommitted | 2 High + 2 Medium, fixed | **Pass** | Buddy `ask` pay status stays unselected (no payable default); buddy/primary overlap no longer blocks publish; weekly recurrence disabled for buddy shifts; **Add buddy shift** now shows on agency-covered shifts |
@@ -2311,6 +2345,7 @@ Maps each new/updated library surface to required handoff artifacts. **Todo** = 
 
 | Date | Slice | User article | System setup | page-guides:check |
 |------|-------|--------------|--------------|-------------------|
+| 2026-06-27 | My Workplace Contact Rostering | `my-workplace` — Contact Rostering; quick task `contact-rostering`; `delivery` — Rostering Communication tasks | `services-setup` task type/role queue checklist | exit 0 |
 | 2026-06-18 | WP-A.1–A.5 | `clients` — lifecycle, plan budget, consents, utilisation | `clients-setup` updated | exit 0 |
 | 2026-06-18 | WP-C.1 | `services` — schedule templates | `services-setup` | exit 0 |
 | 2026-06-18 | WP-B.2 | `delivery` — cancellation policy | `services-setup` updated | exit 0 |

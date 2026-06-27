@@ -587,6 +587,26 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-075 — My Workplace: Contact Rostering communication
+
+| | |
+|--|--|
+| **Users** | Employee (`AvaThomas` or `IslaRobinson`) + Rostering Officer role |
+| **Routes** | `/my/open-shifts`, `/my/shifts`, `/tasks?scope=my-role`, `/tasks/[id]` |
+| **Pass if** | Employee creates a Rostering Communication task, sees it immediately in history, and Rostering Officer can continue the same task conversation |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Employee: My workplace → Open shifts | Prominent **Contact Rostering** button appears above page content |
+| 2 | Click **Contact Rostering** | Modal opens with Subject, Message, Category, Related shift, Priority, Attachments note, Submit, Cancel |
+| 3 | Submit Normal / General Enquiry with no related shift | Modal closes; confirmation shows task reference; history row appears immediately |
+| 4 | Submit Urgent with a related visible shift | History row shows urgent badge and related shift label |
+| 5 | Open communication from history | Task detail opens with description and activity; employee can add update |
+| 6 | Rostering Officer: Tasks → To my role | New Rostering Communication task appears assigned to Rostering Officer |
+| 7 | Rostering Officer adds update and marks In progress / Completed | Employee sees update on same task conversation and status changes in history |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

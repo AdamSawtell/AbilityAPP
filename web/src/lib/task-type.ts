@@ -3,6 +3,7 @@
  */
 
 export const ACTIVITY_DELETE_TASK_TYPE_ID = "tt-activity-delete";
+export const ROSTERING_COMMUNICATION_TASK_TYPE_ID = "tt-rostering-communication";
 
 export type TaskTypeRecord = {
   id: string;
@@ -31,6 +32,13 @@ export const INITIAL_TASK_TYPES: TaskTypeRecord[] = [
     description: "Review and remove an activity line when a staff member requests deletion.",
     active: true,
     sortOrder: 55,
+  },
+  {
+    id: ROSTERING_COMMUNICATION_TASK_TYPE_ID,
+    name: "Rostering communication",
+    description: "Employee message to the rostering team, tracked as a task conversation.",
+    active: true,
+    sortOrder: 60,
   },
   { id: "tt-other", name: "Other", description: "General task not covered by other types.", active: true, sortOrder: 99 },
 ];

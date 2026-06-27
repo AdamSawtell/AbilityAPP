@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { MyWorkplaceActionList } from "@/components/my-workplace/my-workplace-action-list";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
+import { RosteringCommunicationPanel } from "@/components/my-workplace/rostering-communication-panel";
+import { useAuth } from "@/lib/auth-store";
+import { useData } from "@/lib/data-store";
 import type { MyActionItem, MyProfileGap } from "@/lib/my-workplace/compliance-dashboard";
 import type { MyWorkplaceSummary } from "@/lib/my-workplace/types";
+import { isVacantShift } from "@/lib/roster-gap-analysis";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
+import { shiftsAssignedToWorker } from "@/lib/roster-shift-checkin";
+import { requestsForEmployee } from "@/lib/roster-shift-request";
 
 type HubData = {
   employeeName: string;
@@ -52,8 +59,27 @@ function HubTile({
 }
 
 export function MyWorkplaceHubPage() {
+  const { session } = useAuth();
+  const { clients, locations, rosterShifts, allRosterShifts, rosterShiftRequests } = useData();
   const [data, setData] = useState<HubData | null>(null);
   const [error, setError] = useState("");
+  const employeeId = session?.employeeBpId?.trim() ?? "";
+  const employeeName = data?.employeeName ?? session?.displayName ?? "Employee";
+
+  const relatedCommunicationShifts = useMemo(() => {
+    const byId = new Map<string, RosterShiftRecord>();
+    for (const shift of rosterShifts) {
+      if (isVacantShift(shift)) byId.set(shift.id, shift);
+    }
+    for (const shift of shiftsAssignedToWorker(allRosterShifts, employeeId)) {
+      byId.set(shift.id, shift);
+    }
+    for (const request of requestsForEmployee(rosterShiftRequests, employeeId)) {
+      const shift = allRosterShifts.find((row) => row.id === request.rosterShiftId);
+      if (shift) byId.set(shift.id, shift);
+    }
+    return [...byId.values()];
+  }, [allRosterShifts, rosterShifts, rosterShiftRequests, employeeId]);
 
   useEffect(() => {
     void fetch("/api/my", { credentials: "include" })
@@ -78,6 +104,16 @@ export function MyWorkplaceHubPage() {
       >
         <MyWorkplaceSubnav />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        {employeeId ? (
+          <RosteringCommunicationPanel
+            employeeId={employeeId}
+            employeeName={employeeName}
+            relatedShifts={relatedCommunicationShifts}
+            clients={clients}
+            locations={locations}
+          />
+        ) : null}
 
         {data ? (
           <section className="mb-8 rounded-2xl border border-[#f9a8d4]/30 bg-gradient-to-br from-[#fdf2f8]/80 to-white p-5 shadow-sm">

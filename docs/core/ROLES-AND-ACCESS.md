@@ -98,6 +98,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Agency coverage workflow | Rostering Manager, Rostering Officer, Coordinator, Exec Ops, Admin | `rostering` (write), `agency-workers` (write) | `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` |
 | Buddy shifts | Rostering Manager, Team Leader, Coordinator (Support Coordinator), Admin | `rostering` (write), `admin-organization` (system settings) | — (window-write; no numbered process) |
 | Open shifts | Support Worker | `my-open-shifts` | — |
+| Contact Rostering | All staff; assigned to Rostering Officer | `my-open-shifts`, `my-shifts`, task views | `tt-rostering-communication` task type |
 
 ### §10–11 My workplace and timesheets
 
@@ -107,6 +108,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | My timesheets | Support Worker | `my-timesheets` (write) | — |
 | Submit leave | All staff | `my-leave` (write) | `submit-leave-request` |
 | Submit credentials | All staff | `my-credentials` (write) | `submit-employee-credential` |
+| Rostering communication history | All staff creator; Rostering Officer assignee | `my-open-shifts`, `my-shifts`, `tasks-for-my-role` | `tt-rostering-communication` see/create/action |
 | Generate timesheets | Rostering, Team leader, Admin | `generate-timesheets` (write) | — |
 | Approve timesheets | Team leader, Rostering, Admin | `timesheet-approval` (write) | `approve-timesheet` |
 

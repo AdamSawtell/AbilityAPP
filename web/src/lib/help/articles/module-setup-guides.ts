@@ -156,6 +156,8 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Workers complete My workplace → Availability; coordinators review templates on Workforce planning → Worker schedule templates.",
       "Use Workforce planning → Fill board to review vacant shifts, employee requests, and critical fill before publishing — approve requests or assign suggested workers.",
       "Grant My workplace → Open shifts to support workers who request cover; coordinators use Rostering → Open shifts to review applications.",
+      "Confirm the Rostering communication task type is visible/createable for staff roles and Rostering Officer can action tasks assigned to their role.",
+      "Test My workplace → Open shifts → Contact Rostering — submit a General Enquiry and confirm it appears under Tasks → To my role for Rostering Officer.",
       "Publish RoC lines to the roster calendar as Draft shifts, assign workers, then publish before timesheet generation.",
       "Review Rostering → Capacity weekly — unstaffed demand and over-capacity workers should be cleared before go-live.",
       "Keep employee credentials and Skills & languages up to date — matching hints use WWCC, NDIS screening, and specialisations.",
