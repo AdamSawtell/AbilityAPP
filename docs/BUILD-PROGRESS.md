@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | Pay-period alignment across roster review, timesheets, and payroll close (`1c501d1`) |
-| **Next slice** | None on critical path — awaiting direction (candidates: Phase 2 mobile worker app, SCHADS award interpretation) |
-| **Last push** | 2026-06-28 — Pay-period alignment for roster/timesheets/payroll close (`1c501d1`) |
+| **Active slice** | Pay-period picker payroll-archived label (`cbca1e4` follow-up) |
+| **Next slice** | None on critical path — awaiting direction (candidates: Phase 2 mobile worker app; not AB-0004 / AB-0011 / AB-0012 / SCHADS) |
+| **Last push** | 2026-06-28 — Pay-period alignment smoke + payroll-archived picker labels |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -24,9 +24,47 @@
 
 ---
 
+## Pay-period picker — payroll archived label (2026-06-28)
+
+**Status:** Built, ready for Amplify re-smoke after deploy.
+
+**Why:** Amplify smoke showed pay period instances labelled `(open)` while Timesheets → Payroll period close had already archived the same range — confusing when generation was blocked.
+
+| Area | Change |
+|------|--------|
+| `payPeriodInstanceStatusLabel` | Combines instance status (`open` / `locked` / `closed`) with payroll-close archive overlap |
+| `PayPeriodSelector` | Options show `(payroll archived)` when a payroll-close record overlaps; default skips archived periods when possible |
+| `PayPeriodRangePicker` | Date caption repeats non-open status |
+
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · Amplify re-smoke on generate-timesheets picker after deploy
+
+---
+
+## Amplify smoke — pay-period alignment (2026-06-28, `cbca1e4`)
+
+**Status:** Pass — no deployment blockers.
+
+**Environment:** `https://app.abilityvua.com` · Super User / AbilityVua Admin · Sun 28 Jun 2026 ACST
+
+| Flow | Result | Evidence |
+|------|--------|----------|
+| Rostering → Fortnight review | **Pass** | PP 22 Jun–5 Jul 2026; range Mon 22 Jun – Sun 5 Jul; prev → PP 8 Jun–21 Jun |
+| Rostering → Capacity week nav | **Pass** | `?week=2026-06-15` preserved after Week tab switch; horizon 8 weeks; pay period independent |
+| Generate timesheets | **Pass** | Pay period picker; PP 22 Jun blocked (payroll archived); PP 11 May open (0 shifts) |
+| Generate agency timesheets | **Pass** | Closed banner + disabled button on archived current period |
+| Timesheets → Payroll period close | **Pass** | Picker + checklist; PP 22 Jun already marked closed |
+| Financial close → Shift profitability | **Pass** | Pay period selector; June monthly labour unchanged |
+| Page guides | **Pass** | Delivery guide on affected routes; `/help/delivery` updated steps load |
+
+**Follow-up from smoke:** Picker showed `(open)` while payroll archived — fixed in payroll-archived label slice above.
+
+**Not started (per direction):** AB-0004, AB-0011, AB-0012, SCHADS award interpretation.
+
+---
+
 ## Pay-period alignment — roster, timesheets, payroll close (2026-06-28)
 
-**Status:** Built, ready for testing.
+**Status:** Shipped (`1c501d1`), Amplify-smoked.
 
 **Why:** Fortnight review, timesheet generation, agency timesheet generation, and payroll period close were using ad-hoc calendar weeks or rolling 14-day ranges instead of the configured pay period instances from Admin → Pay periods.
 

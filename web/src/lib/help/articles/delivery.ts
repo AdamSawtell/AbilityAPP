@@ -207,7 +207,7 @@ export const deliveryArticle: HelpArticle = {
       title: "Timesheets",
       body: "Generate draft timesheets from published roster shifts for a pay period. Supervisors verify each line against worker check-in/out before approving for payroll export.",
       steps: [
-        "Open Generate timesheets and select the pay period (defaults to the current open period from Admin → Pay periods).",
+        "Open Generate timesheets and select the pay period (defaults to the current open period from Admin → Pay periods). Archived periods show as payroll archived in the picker.",
         "Review the preview — eligible Published or Completed shifts with a worker assigned are included.",
         "Click Generate timesheets — one draft timesheet is created per worker.",
         "Open Timesheets, select a record, and review shift lines linked to roster shifts.",

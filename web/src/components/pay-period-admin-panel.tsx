@@ -16,6 +16,7 @@ import {
   type PayPeriodInstanceRecord,
   type PayPeriodMonthAllocationMethod,
 } from "@/lib/pay-period";
+import { formatPayPeriodInstanceOptionLabel, payPeriodInstanceStatusLabel } from "@/lib/payroll-period-close";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -29,7 +30,7 @@ export function PayPeriodSelector({
   onChange: (instanceId: string) => void;
   className?: string;
 }) {
-  const { payPeriodInstances, payPeriodDefinitions } = useData();
+  const { payPeriodInstances, payPeriodDefinitions, payrollClosedPeriods } = useData();
   const definition = payPeriodDefinitions.find((row) => row.isActive) ?? payPeriodDefinitions[0];
 
   const options = useMemo(() => {
@@ -39,19 +40,26 @@ export function PayPeriodSelector({
       .sort((a, b) => a.startDate.localeCompare(b.startDate));
   }, [payPeriodInstances, definition]);
 
+  const defaultInstanceId = useMemo(() => {
+    const open = options.find(
+      (row) => payPeriodInstanceStatusLabel(row, payrollClosedPeriods) === "open"
+    );
+    return open?.id ?? options[0]?.id ?? "";
+  }, [options, payrollClosedPeriods]);
+
   if (!options.length) {
     return <span className="text-xs text-slate-500">No pay periods configured</span>;
   }
 
   return (
     <select
-      value={value || options.find((row) => row.status === "open")?.id || options[0]?.id || ""}
+      value={value || defaultInstanceId}
       onChange={(e) => onChange(e.target.value)}
       className={`rounded-lg border border-slate-200 px-3 py-2 text-sm ${className}`}
     >
       {options.map((row) => (
         <option key={row.id} value={row.id}>
-          {formatPayPeriodLabel(definition!, row.startDate, row.endDate)} ({row.status})
+          {formatPayPeriodInstanceOptionLabel(definition!, row, payrollClosedPeriods)}
         </option>
       ))}
     </select>
@@ -71,7 +79,7 @@ export function PayPeriodRangePicker({
   showDates?: boolean;
   className?: string;
 }) {
-  const { payPeriodInstances, payPeriodDefinitions } = useData();
+  const { payPeriodInstances, payPeriodDefinitions, payrollClosedPeriods } = useData();
   const definition = activePayPeriodDefinition(payPeriodDefinitions);
   const instance = payPeriodInstances.find((row) => row.id === instanceId);
   const prev =
@@ -82,6 +90,9 @@ export function PayPeriodRangePicker({
     definition && instanceId
       ? findAdjacentPayPeriodInstance(payPeriodInstances, definition.id, instanceId, 1)
       : undefined;
+  const instanceStatusLabel = instance
+    ? payPeriodInstanceStatusLabel(instance, payrollClosedPeriods)
+    : "open";
 
   return (
     <div className={`flex flex-wrap items-end gap-3 ${className}`}>
@@ -112,6 +123,9 @@ export function PayPeriodRangePicker({
       {showDates && instance && definition ? (
         <p className="pb-2 text-sm font-medium text-slate-800">
           {formatPayPeriodLabel(definition, instance.startDate, instance.endDate)}
+          {instanceStatusLabel !== "open" ? (
+            <span className="ml-1 font-normal text-slate-600">({instanceStatusLabel})</span>
+          ) : null}
         </p>
       ) : null}
     </div>

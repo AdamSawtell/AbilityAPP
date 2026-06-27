@@ -2,7 +2,9 @@ import { localDateIso } from "@/lib/booking-cancellation";
 import type { TimesheetRecord } from "@/lib/timesheet";
 import {
   defaultPayPeriodRange as defaultPayPeriodRangeFromInstances,
-  isPayPeriodInstanceClosed,
+  formatPayPeriodLabel,
+  normalizePayPeriodInstance,
+  type PayPeriodDefinitionRecord,
   type PayPeriodInstanceRecord,
 } from "@/lib/pay-period";
 
@@ -102,9 +104,29 @@ export function isPayPeriodClosedForRange(
   if (isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods)) return true;
   return payPeriodInstances.some(
     (instance) =>
-      isPayPeriodInstanceClosed(instance) &&
+      normalizePayPeriodInstance(instance).status === "closed" &&
       periodsOverlap(instance.startDate, instance.endDate, periodStart, periodEnd)
   );
+}
+
+/** User-facing status for pay period picker options (instance status + payroll archive). */
+export function payPeriodInstanceStatusLabel(
+  instance: PayPeriodInstanceRecord,
+  closedPeriods: PayrollPeriodCloseRecord[] = []
+): string {
+  const row = normalizePayPeriodInstance(instance);
+  if (row.status === "closed") return "closed";
+  if (row.status === "locked") return "locked";
+  if (isPayrollPeriodClosed(row.startDate, row.endDate, closedPeriods)) return "payroll archived";
+  return "open";
+}
+
+export function formatPayPeriodInstanceOptionLabel(
+  definition: PayPeriodDefinitionRecord,
+  instance: PayPeriodInstanceRecord,
+  closedPeriods: PayrollPeriodCloseRecord[] = []
+): string {
+  return `${formatPayPeriodLabel(definition, instance.startDate, instance.endDate)} (${payPeriodInstanceStatusLabel(instance, closedPeriods)})`;
 }
 
 export function evaluatePayrollPeriodClose(
