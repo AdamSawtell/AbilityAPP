@@ -130,7 +130,7 @@ export function PayPeriodAdminPanel() {
     <div className="space-y-6">
       <p className="text-sm text-slate-600">
         Define how pay periods are calculated for rostering, contracted hours, timesheets, and financial close. Fortnightly
-        cycles starting on Wednesday are common for SCHADS-aligned providers.
+        cycles starting on a Monday are common for SCHADS-aligned providers.
       </p>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

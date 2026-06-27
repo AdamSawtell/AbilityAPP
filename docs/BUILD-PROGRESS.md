@@ -41,6 +41,11 @@
 
 **Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · `npm run supabase:push-remote` ✅ (`20260702150000`, `20260702151000`, `20260702152000`) · `seed-access.sql` ✅
 
+**Demo data + Amplify smoke (2026-06-28, `debd475`):** Seeded Monday fortnightly definition (anchor `2026-06-22`), 9 pay period instances, employee contracted hours + SCHADS levels, and 22 live Glenelg shifts for the current fortnight via `supabase/seed-pay-period-demo.sql`. Browser-tested on `app.abilityvua.com` as SuperUser/AbilityVua Admin:
+- **Admin → Pay periods** — definition shows Monday start, anchor 22 Jun 2026; generated periods list Monday fortnights with current period 22 Jun–5 Jul 2026 ✅
+- **Rostering → Capacity** — pay period selector defaults to PP 22 Jun–5 Jul 2026; contracted-hours / find-and-fill panel bound to current period ✅
+- **Financial close → Shift profitability** — for PP 22 Jun–5 Jul 2026 the SCHADS calc flags 4 loss-making (weekend casual) shifts ✅
+
 ---
 
 ## Leave-aware roster rollover (2026-06-27)
