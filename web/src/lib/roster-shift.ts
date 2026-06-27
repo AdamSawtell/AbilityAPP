@@ -1,4 +1,10 @@
-/** Roster shift — one worker assignment for a client on a date/time window. */
+/** Roster shift — live session block (one time/location duty) with client and worker lines. */
+import {
+  ensureSessionLinesFromLegacyHeader,
+  syncShiftHeaderFromSessionLines,
+  type RosterShiftClientLine,
+  type RosterShiftWorkerLine,
+} from "@/lib/roster-session";
 import {
   isBuddyShiftPurpose,
   normalizeBillingClassification,
@@ -52,6 +58,10 @@ export type RosterShiftRecord = {
   criticalFillMarkedAt?: string;
   criticalFillMarkedBy?: string;
   openFillStatus?: string;
+  sessionKey?: string;
+  requiredWorkerCount?: number;
+  clientLines?: RosterShiftClientLine[];
+  workerLines?: RosterShiftWorkerLine[];
   createdBy: string;
   updatedBy: string;
 };
@@ -458,60 +468,66 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
       ? record.payStatus
       : ""
     : normalizeShiftPayStatus(record.payStatus);
-  return {
-    ...record,
-    shiftRef: record.shiftRef ?? "",
-    clientId: record.clientId ?? "",
-    employeeId: record.employeeId ?? "",
-    locationId: record.locationId ?? "",
-    serviceBookingId: record.serviceBookingId ?? "",
-    shiftDate: record.shiftDate ?? "",
-    startTime: record.startTime?.slice(0, 5) ?? "",
-    endTime: record.endTime?.slice(0, 5) ?? "",
-    shiftType: record.shiftType || "Standard",
-    status: record.status || "Published",
-    notes: record.notes ?? "",
-    recurrenceGroupId: record.recurrenceGroupId ?? "",
-    checkedInAt: record.checkedInAt ?? "",
-    checkedOutAt: record.checkedOutAt ?? "",
-    checkInNotes: record.checkInNotes ?? "",
-    checkInLatitude: record.checkInLatitude ?? "",
-    checkInLongitude: record.checkInLongitude ?? "",
-    checkOutLatitude: record.checkOutLatitude ?? "",
-    checkOutLongitude: record.checkOutLongitude ?? "",
-    coverageSource:
-      record.coverageSource === "agency"
-        ? "agency"
-        : record.coverageSource === "internal"
-          ? "internal"
-          : record.agencyWorkerId?.trim()
-            ? "agency"
-            : "internal",
-    agencyWorkerId: record.agencyWorkerId ?? "",
-    vendorBpId: record.vendorBpId ?? "",
-    agencyRequestId: record.agencyRequestId ?? "",
-    trainingSessionGroupId: record.trainingSessionGroupId ?? "",
-    sessionTitle: record.sessionTitle ?? "",
-    sessionCategory: record.sessionCategory ?? "",
-    costAllocation:
-      record.costAllocation === "billable" || record.costAllocation === "admin_costed"
-        ? record.costAllocation
-        : "non_billable",
-    costCentre: record.costCentre ?? "",
-    estimatedHourlyCost: Number.isFinite(Number(record.estimatedHourlyCost)) ? Number(record.estimatedHourlyCost) : 0,
-    attendanceStatus: record.attendanceStatus || "Scheduled",
-    attendanceSignedOffAt: record.attendanceSignedOffAt ?? "",
-    attendanceSignedOffBy: record.attendanceSignedOffBy ?? "",
-    shiftPurpose: purpose,
-    billingClassification: normalizeBillingClassification(record.billingClassification),
-    payStatus,
-    primaryRosterShiftId: record.primaryRosterShiftId ?? "",
-    buddyReason: record.buddyReason ?? "",
-    criticalFill: Boolean(record.criticalFill),
-    criticalFillMarkedAt: record.criticalFillMarkedAt ?? "",
-    criticalFillMarkedBy: record.criticalFillMarkedBy ?? "",
-    openFillStatus: record.openFillStatus || "Open",
-  };
+  return syncShiftHeaderFromSessionLines(
+    ensureSessionLinesFromLegacyHeader({
+      ...record,
+      shiftRef: record.shiftRef ?? "",
+      clientId: record.clientId ?? "",
+      employeeId: record.employeeId ?? "",
+      locationId: record.locationId ?? "",
+      serviceBookingId: record.serviceBookingId ?? "",
+      shiftDate: record.shiftDate ?? "",
+      startTime: record.startTime?.slice(0, 5) ?? "",
+      endTime: record.endTime?.slice(0, 5) ?? "",
+      shiftType: record.shiftType || "Standard",
+      status: record.status || "Published",
+      notes: record.notes ?? "",
+      recurrenceGroupId: record.recurrenceGroupId ?? "",
+      checkedInAt: record.checkedInAt ?? "",
+      checkedOutAt: record.checkedOutAt ?? "",
+      checkInNotes: record.checkInNotes ?? "",
+      checkInLatitude: record.checkInLatitude ?? "",
+      checkInLongitude: record.checkInLongitude ?? "",
+      checkOutLatitude: record.checkOutLatitude ?? "",
+      checkOutLongitude: record.checkOutLongitude ?? "",
+      coverageSource:
+        record.coverageSource === "agency"
+          ? "agency"
+          : record.coverageSource === "internal"
+            ? "internal"
+            : record.agencyWorkerId?.trim()
+              ? "agency"
+              : "internal",
+      agencyWorkerId: record.agencyWorkerId ?? "",
+      vendorBpId: record.vendorBpId ?? "",
+      agencyRequestId: record.agencyRequestId ?? "",
+      trainingSessionGroupId: record.trainingSessionGroupId ?? "",
+      sessionTitle: record.sessionTitle ?? "",
+      sessionCategory: record.sessionCategory ?? "",
+      costAllocation:
+        record.costAllocation === "billable" || record.costAllocation === "admin_costed"
+          ? record.costAllocation
+          : "non_billable",
+      costCentre: record.costCentre ?? "",
+      estimatedHourlyCost: Number.isFinite(Number(record.estimatedHourlyCost)) ? Number(record.estimatedHourlyCost) : 0,
+      attendanceStatus: record.attendanceStatus || "Scheduled",
+      attendanceSignedOffAt: record.attendanceSignedOffAt ?? "",
+      attendanceSignedOffBy: record.attendanceSignedOffBy ?? "",
+      shiftPurpose: purpose,
+      billingClassification: normalizeBillingClassification(record.billingClassification),
+      payStatus,
+      primaryRosterShiftId: record.primaryRosterShiftId ?? "",
+      buddyReason: record.buddyReason ?? "",
+      criticalFill: Boolean(record.criticalFill),
+      criticalFillMarkedAt: record.criticalFillMarkedAt ?? "",
+      criticalFillMarkedBy: record.criticalFillMarkedBy ?? "",
+      openFillStatus: record.openFillStatus || "Open",
+      sessionKey: record.sessionKey ?? "",
+      requiredWorkerCount: Math.max(1, Number(record.requiredWorkerCount) || 1),
+      clientLines: record.clientLines,
+      workerLines: record.workerLines,
+    })
+  );
 }
 
 export function createRosterShift(

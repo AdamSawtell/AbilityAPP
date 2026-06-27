@@ -6,8 +6,19 @@ import {
   weekStartFromDate,
   type RosterShiftRecord,
 } from "@/lib/roster-shift";
-import { ROC_WEEKDAY_LABELS, type RosterOfCareRecord } from "@/lib/roster-of-care";
+import { ROC_WEEKDAY_LABELS, type RosterOfCareLine, type RosterOfCareRecord } from "@/lib/roster-of-care";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
+import {
+  emptyRosterShiftClientLine,
+  emptyRosterShiftWorkerLine,
+  normalizeRosterShiftClientLine,
+  normalizeRosterShiftWorkerLine,
+  rocSessionGroupKey,
+  sessionShiftId,
+  syncShiftHeaderFromSessionLines,
+  type RosterShiftClientLine,
+  type RosterShiftWorkerLine,
+} from "@/lib/roster-session";
 
 export type RocPublishInput = {
   weekStart: string;
@@ -30,14 +41,32 @@ export type RocPublishValidation = {
   warnings: string[];
 };
 
+type PendingRocLine = {
+  roc: RosterOfCareRecord;
+  line: RosterOfCareLine;
+  shiftDate: string;
+  groupKey: string;
+};
+
 function shiftIdForRocLine(
   rocId: string,
-  line: { weekday: number; startTime: string; endTime: string },
+  line: Pick<RosterOfCareLine, "weekday" | "startTime" | "endTime">,
   shiftDate: string
 ): string {
   const start = line.startTime.slice(0, 5);
   const end = line.endTime.slice(0, 5);
   return `rsh-${rocId}-w${line.weekday}-${start}-${end}-${shiftDate}`;
+}
+
+function lineGroupKey(rocId: string, line: RosterOfCareLine): string {
+  const session = rocSessionGroupKey(line);
+  if (session) return session;
+  return `legacy-${rocId}-${line.id}`;
+}
+
+function shiftIdForGroup(groupKey: string, shiftDate: string, rocId: string, line: RosterOfCareLine): string {
+  if (groupKey.startsWith("legacy-")) return shiftIdForRocLine(rocId, line, shiftDate);
+  return sessionShiftId(groupKey, shiftDate);
 }
 
 function isDateInRocRange(date: string, validFrom: string, validTo: string): boolean {
@@ -66,11 +95,99 @@ export function resolveServiceBookingId(
   return (withAgreement[0] ?? inRange[0])?.id ?? "";
 }
 
+function clientLineFromRoc(
+  roc: RosterOfCareRecord,
+  line: RosterOfCareLine,
+  shiftDate: string,
+  lineNo: number,
+  serviceBookings: ServiceBookingRecord[]
+): RosterShiftClientLine {
+  const bookingId = resolveServiceBookingId(roc.clientId, roc.serviceAgreementId, shiftDate, serviceBookings);
+  return normalizeRosterShiftClientLine({
+    ...emptyRosterShiftClientLine(lineNo),
+    id: `rscl-${roc.id}-${line.id}-${shiftDate}`,
+    clientId: roc.clientId,
+    serviceBookingId: bookingId,
+    serviceAgreementLineId: line.serviceAgreementLineId,
+    supportRatio: line.supportRatio || "1:1",
+    notes: line.notes?.trim() ? line.notes : "",
+  });
+}
+
+function workerLineFromRoc(line: RosterOfCareLine, shiftDate: string, lineNo: number): RosterShiftWorkerLine | null {
+  const employeeId = line.defaultEmployeeId?.trim() ?? "";
+  const roleRequired = line.workerRequirement?.trim() ?? "";
+  if (!employeeId && !roleRequired) return null;
+  return normalizeRosterShiftWorkerLine({
+    ...emptyRosterShiftWorkerLine(lineNo),
+    id: `rswl-${line.id}-${shiftDate}-${lineNo}`,
+    employeeId,
+    roleRequired,
+    status: employeeId ? "assigned" : "required",
+  });
+}
+
+function mergeWorkerLines(existing: RosterShiftWorkerLine[], incoming: RosterShiftWorkerLine[]): RosterShiftWorkerLine[] {
+  const merged = [...existing];
+  for (const line of incoming) {
+    const duplicate = merged.some(
+      (row) =>
+        (line.employeeId && row.employeeId === line.employeeId) ||
+        (!line.employeeId && !row.employeeId && row.roleRequired === line.roleRequired)
+    );
+    if (!duplicate) merged.push(line);
+  }
+  return merged.map((line, index) => ({ ...line, lineNo: index + 1 }));
+}
+
+function mergeClientLines(existing: RosterShiftClientLine[], incoming: RosterShiftClientLine[]): RosterShiftClientLine[] {
+  const merged = [...existing];
+  for (const line of incoming) {
+    const duplicate = merged.some((row) => row.clientId === line.clientId && row.supportRatio === line.supportRatio);
+    if (!duplicate) merged.push(line);
+  }
+  return merged.map((line, index) => ({ ...line, lineNo: index + 1 }));
+}
+
+function collectPeerLines(
+  primaryRoc: RosterOfCareRecord,
+  allRocs: RosterOfCareRecord[] | undefined
+): RosterOfCareRecord[] {
+  // Only Active peer templates may merge into a live session. Draft / inactive
+  // RoCs must never silently add clients or workers to a published shift.
+  const peers = (allRocs ?? []).filter((roc) => roc.id !== primaryRoc.id && roc.status === "Active");
+  return [primaryRoc, ...peers];
+}
+
+function existingShiftForGroup(
+  id: string,
+  groupKey: string,
+  shiftDate: string,
+  locationId: string,
+  startTime: string,
+  endTime: string,
+  existing: RosterShiftRecord[]
+): RosterShiftRecord | undefined {
+  const byId = existing.find((s) => s.id === id);
+  if (byId) return byId;
+  if (groupKey.startsWith("legacy-")) return undefined;
+  return existing.find(
+    (s) =>
+      s.sessionKey &&
+      s.sessionKey === groupKey.split("|")[0] &&
+      s.shiftDate === shiftDate &&
+      s.locationId === locationId &&
+      s.startTime.slice(0, 5) === startTime.slice(0, 5) &&
+      s.endTime.slice(0, 5) === endTime.slice(0, 5)
+  );
+}
+
 export function buildShiftsFromRosterOfCare(
   roc: RosterOfCareRecord,
   input: RocPublishInput,
   existing: RosterShiftRecord[],
-  serviceBookings: ServiceBookingRecord[]
+  serviceBookings: ServiceBookingRecord[],
+  allRocs?: RosterOfCareRecord[]
 ): RocPublishPreview {
   const weekStart = weekStartFromDate(input.weekStart);
   const weeks = Math.max(1, Math.min(12, input.weekCount));
@@ -83,81 +200,150 @@ export function buildShiftsFromRosterOfCare(
     return { shifts, skippedLines, warnings };
   }
 
+  const rocsInScope = collectPeerLines(roc, allRocs);
   const groupId = `roc-${roc.id}`;
   const bookingWarnings = new Set<string>();
-
   const skippedLineNos = new Set<number>();
 
   for (let w = 0; w < weeks; w += 1) {
     const ws = addDaysIso(weekStart, w * 7);
-    for (const line of roc.lines) {
-      const shiftDate = addDaysIso(ws, line.weekday);
-      if (!isDateInRocRange(shiftDate, roc.validFrom, roc.validTo)) continue;
+    const pendingByGroup = new Map<string, PendingRocLine[]>();
 
-      if (!line.locationId?.trim()) {
-        skippedLineNos.add(line.lineNo);
-        continue;
+    for (const sourceRoc of rocsInScope) {
+      for (const line of sourceRoc.lines) {
+        const shiftDate = addDaysIso(ws, line.weekday);
+        if (!isDateInRocRange(shiftDate, sourceRoc.validFrom, sourceRoc.validTo)) continue;
+        if (!line.locationId?.trim()) {
+          if (sourceRoc.id === roc.id) skippedLineNos.add(line.lineNo);
+          continue;
+        }
+        const groupKey = lineGroupKey(sourceRoc.id, line);
+        const bucket = pendingByGroup.get(groupKey) ?? [];
+        bucket.push({ roc: sourceRoc, line, shiftDate, groupKey });
+        pendingByGroup.set(groupKey, bucket);
+      }
+    }
+
+    for (const [groupKey, pendingLines] of pendingByGroup) {
+      if (!pendingLines.some((row) => row.roc.id === roc.id)) continue;
+      const anchor = pendingLines.find((row) => row.roc.id === roc.id) ?? pendingLines[0];
+      const { line, shiftDate } = anchor;
+      const computedId = shiftIdForGroup(groupKey, shiftDate, anchor.roc.id, line);
+
+      // Match an existing shift by id OR by session metadata (covers legacy
+      // per-RoC ids and manually edited sessions). Reuse its id so re-publishing
+      // updates the existing row instead of inserting a duplicate.
+      const prior = existingShiftForGroup(
+        computedId,
+        groupKey,
+        shiftDate,
+        line.locationId,
+        line.startTime,
+        line.endTime,
+        existing
+      );
+      const id = prior?.id ?? computedId;
+
+      if (input.skipExisting && prior) continue;
+
+      let clientLines: RosterShiftClientLine[] = [...(prior?.clientLines ?? [])];
+      let workerLines: RosterShiftWorkerLine[] = [...(prior?.workerLines ?? [])];
+
+      for (const pending of pendingLines) {
+        const clientLine = clientLineFromRoc(
+          pending.roc,
+          pending.line,
+          pending.shiftDate,
+          clientLines.length + 1,
+          serviceBookings
+        );
+        clientLines = mergeClientLines(clientLines, [clientLine]);
+        if (!clientLine.serviceBookingId) bookingWarnings.add(pending.shiftDate);
+
+        const workerLine = workerLineFromRoc(pending.line, pending.shiftDate, workerLines.length + 1);
+        if (workerLine) workerLines = mergeWorkerLines(workerLines, [workerLine]);
       }
 
-      const id = shiftIdForRocLine(roc.id, line, shiftDate);
-      const alreadyPublished =
-        existing.some((s) => s.id === id) ||
-        existing.some(
-          (s) =>
-            s.recurrenceGroupId === groupId &&
-            s.shiftDate === shiftDate &&
-            s.startTime.slice(0, 5) === line.startTime.slice(0, 5) &&
-            s.endTime.slice(0, 5) === line.endTime.slice(0, 5)
-        );
-      if (input.skipExisting && alreadyPublished) continue;
+      if (!workerLines.length) {
+        workerLines = [
+          normalizeRosterShiftWorkerLine({
+            ...emptyRosterShiftWorkerLine(1),
+            id: prior?.workerLines?.[0]?.id ?? `rswl-${id}`,
+            status: "required",
+          }),
+        ];
+      }
 
-      const prior = existing.find((s) => s.id === id);
-      const bookingId = resolveServiceBookingId(
-        roc.clientId,
-        roc.serviceAgreementId,
-        shiftDate,
-        serviceBookings
-      );
-
+      const sessionKey = groupKey.startsWith("legacy-") ? "" : groupKey.split("|")[0] ?? "";
       const dayLabel = ROC_WEEKDAY_LABELS[line.weekday] ?? "Day";
       const shiftRef =
         prior?.shiftRef ||
-        `${roc.name}-${dayLabel}-${line.startTime}`.replace(/\s+/g, "-").slice(0, 48);
+        (sessionKey
+          ? `${sessionKey}-${dayLabel}`.replace(/\s+/g, "-").slice(0, 48)
+          : `${roc.name}-${dayLabel}-${line.startTime}`.replace(/\s+/g, "-").slice(0, 48));
 
-      shifts.push(
-        normalizeRosterShift({
-          ...(prior ?? {}),
-          id,
-          shiftRef,
-          clientId: roc.clientId,
-          employeeId: prior?.employeeId ?? "",
-          locationId: line.locationId,
-          serviceBookingId: bookingId || prior?.serviceBookingId || "",
-          shiftDate,
-          startTime: line.startTime,
-          endTime: line.endTime,
-          shiftType: line.supportType || "Standard",
-          status: input.status,
-          notes: line.notes?.trim() ? line.notes : `From RoC: ${roc.name}`,
-          recurrenceGroupId: groupId,
-          checkedInAt: prior?.checkedInAt ?? "",
-          checkedOutAt: prior?.checkedOutAt ?? "",
-          checkInNotes: prior?.checkInNotes ?? "",
-          checkInLatitude: prior?.checkInLatitude ?? "",
-          checkInLongitude: prior?.checkInLongitude ?? "",
-          checkOutLatitude: prior?.checkOutLatitude ?? "",
-          checkOutLongitude: prior?.checkOutLongitude ?? "",
-          coverageSource: prior?.coverageSource ?? "internal",
-          agencyWorkerId: prior?.agencyWorkerId ?? "",
-          vendorBpId: prior?.vendorBpId ?? "",
-          agencyRequestId: prior?.agencyRequestId ?? "",
-          createdBy: prior?.createdBy || input.actor,
-          updatedBy: input.actor,
-        })
-      );
+      const notesParts = pendingLines
+        .filter((row) => row.line.notes?.trim())
+        .map((row) => `${row.roc.name}: ${row.line.notes.trim()}`);
+      const notes =
+        notesParts.length > 0
+          ? notesParts.join(" · ")
+          : sessionKey
+            ? `Session ${sessionKey} — from RoC`
+            : `From RoC: ${roc.name}`;
 
-      if (!bookingId) {
-        bookingWarnings.add(shiftDate);
+      const built = syncShiftHeaderFromSessionLines({
+        ...(prior ?? {}),
+        id,
+        shiftRef,
+        clientId: clientLines[0]?.clientId ?? roc.clientId,
+        employeeId: workerLines.find((row) => row.employeeId)?.employeeId ?? prior?.employeeId ?? "",
+        locationId: line.locationId,
+        serviceBookingId: clientLines[0]?.serviceBookingId ?? prior?.serviceBookingId ?? "",
+        shiftDate,
+        startTime: line.startTime,
+        endTime: line.endTime,
+        shiftType: line.supportType || "Standard",
+        status: input.status,
+        notes,
+        recurrenceGroupId: prior?.recurrenceGroupId || groupId,
+        sessionKey,
+        requiredWorkerCount: Math.max(workerLines.length, prior?.requiredWorkerCount ?? 1),
+        clientLines,
+        workerLines,
+        checkedInAt: prior?.checkedInAt ?? "",
+        checkedOutAt: prior?.checkedOutAt ?? "",
+        checkInNotes: prior?.checkInNotes ?? "",
+        checkInLatitude: prior?.checkInLatitude ?? "",
+        checkInLongitude: prior?.checkInLongitude ?? "",
+        checkOutLatitude: prior?.checkOutLatitude ?? "",
+        checkOutLongitude: prior?.checkOutLongitude ?? "",
+        coverageSource: prior?.coverageSource ?? "internal",
+        agencyWorkerId: prior?.agencyWorkerId ?? "",
+        vendorBpId: prior?.vendorBpId ?? "",
+        agencyRequestId: prior?.agencyRequestId ?? "",
+        createdBy: prior?.createdBy || input.actor,
+        updatedBy: input.actor,
+      });
+
+      const shiftIndex = shifts.findIndex((s) => s.id === id);
+      if (shiftIndex >= 0) {
+        shifts[shiftIndex] = normalizeRosterShift(
+          syncShiftHeaderFromSessionLines({
+            ...shifts[shiftIndex],
+            clientLines: mergeClientLines(shifts[shiftIndex].clientLines ?? [], built.clientLines ?? []),
+            workerLines: mergeWorkerLines(shifts[shiftIndex].workerLines ?? [], built.workerLines ?? []),
+            notes: built.notes,
+            sessionKey: built.sessionKey,
+            requiredWorkerCount: Math.max(
+              shifts[shiftIndex].requiredWorkerCount ?? 1,
+              built.requiredWorkerCount ?? 1
+            ),
+            updatedBy: input.actor,
+          })
+        );
+      } else {
+        shifts.push(normalizeRosterShift(built));
       }
     }
   }
@@ -172,6 +358,15 @@ export function buildShiftsFromRosterOfCare(
   if (bookingWarnings.size) {
     warnings.push(
       `${bookingWarnings.size} shift date${bookingWarnings.size === 1 ? "" : "s"} have no matching service booking — shifts are saved without a booking link.`
+    );
+  }
+
+  const sessionGroups = new Set(
+    roc.lines.filter((line) => line.sessionKey?.trim()).map((line) => rocSessionGroupKey(line))
+  );
+  if (sessionGroups.size) {
+    warnings.push(
+      `${sessionGroups.size} session group${sessionGroups.size === 1 ? "" : "s"} on this RoC — lines with the same session key publish to one live shift.`
     );
   }
 

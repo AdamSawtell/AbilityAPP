@@ -69,6 +69,18 @@ function OrgField({
     );
   }
 
+  if (field.type === "select") {
+    return (
+      <select className={base} value={value} onChange={(e) => onChange(field.key, e.target.value)}>
+        {(field.options ?? []).map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
   return (
     <input
       className={base}
@@ -101,6 +113,10 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
       };
       if (key === "gstRegistered") {
         next.gstRegistered = value === "true";
+      } else if (key === "rosterRolloverEnabled") {
+        next.rosterRolloverEnabled = value === "true";
+      } else if (key === "rosterRolloverSkipExisting") {
+        next.rosterRolloverSkipExisting = value === "true";
       } else {
         (next as Record<string, unknown>)[key] = value;
       }

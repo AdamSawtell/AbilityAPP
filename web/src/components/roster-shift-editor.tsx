@@ -39,6 +39,8 @@ import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
 import { StaffClientMatchHintsPanel } from "@/components/staff-client-match-hints-panel";
 import { formatCheckInTimestamp } from "@/lib/roster-shift-checkin";
 import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
+import { RosterSessionLinesPanel } from "@/components/roster-session-lines-panel";
+import { RosterSessionRiskPanel } from "@/components/roster-session-risk-panel";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -95,6 +97,8 @@ export function RosterShiftEditor({
   const [saveError, setSaveError] = useState("");
 
   const validationMode = rosterValidationMode(draft);
+  const isServiceDelivery =
+    !isBuddyShift(draft) && !isTrainingOrMeetingPurpose(normalizeShiftPurpose(draft.shiftPurpose));
   const canRepeatWeekly =
     isNew && !isBuddyShift(draft) && !isTrainingOrMeetingPurpose(normalizeShiftPurpose(draft.shiftPurpose));
 
@@ -255,14 +259,18 @@ export function RosterShiftEditor({
       <div
         role="dialog"
         aria-modal="true"
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-xl"
+        className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-xl"
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
               {buddyFromPrimary ? "New buddy shift" : isNew ? "New shift" : "Edit shift"}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">Link client, worker, location, and optional service booking.</p>
+            <p className="mt-1 text-sm text-slate-600">
+              {isServiceDelivery
+                ? "One session block — add clients for billing and workers for payroll."
+                : "Link client, worker, location, and optional service booking."}
+            </p>
           </div>
           <button type="button" onClick={onClose} className="text-sm text-slate-500 hover:text-slate-800">
             Close
@@ -270,32 +278,36 @@ export function RosterShiftEditor({
         </div>
 
         <fieldset disabled={!canSave} className="grid gap-4 sm:grid-cols-2 disabled:opacity-100">
-          <label>
-            <span className="mb-1.5 block text-xs font-medium text-slate-600">Client</span>
-            <select className={inputClass} value={draft.clientId} onChange={(e) => onChange("clientId", e.target.value)}>
-              <option value="">Select client</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.searchKey} — {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span className="mb-1.5 block text-xs font-medium text-slate-600">Worker</span>
-            <select
-              className={inputClass}
-              value={draft.employeeId}
-              onChange={(e) => onChange("employeeId", e.target.value)}
-            >
-              <option value="">Select worker</option>
-              {employees.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.searchKey} — {e.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          {!isServiceDelivery ? (
+            <>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Client</span>
+                <select className={inputClass} value={draft.clientId} onChange={(e) => onChange("clientId", e.target.value)}>
+                  <option value="">Select client</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.searchKey} — {c.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span className="mb-1.5 block text-xs font-medium text-slate-600">Worker</span>
+                <select
+                  className={inputClass}
+                  value={draft.employeeId}
+                  onChange={(e) => onChange("employeeId", e.target.value)}
+                >
+                  <option value="">Select worker</option>
+                  {employees.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.searchKey} — {e.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          ) : null}
           <label>
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Location</span>
             <select
@@ -311,21 +323,23 @@ export function RosterShiftEditor({
               ))}
             </select>
           </label>
-          <label>
-            <span className="mb-1.5 block text-xs font-medium text-slate-600">Service booking</span>
-            <select
-              className={inputClass}
-              value={draft.serviceBookingId}
-              onChange={(e) => onChange("serviceBookingId", e.target.value)}
-            >
-              <option value="">None</option>
-              {bookingOptions.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.documentNo} — {b.description || "Booking"}
-                </option>
-              ))}
-            </select>
-          </label>
+          {!isServiceDelivery ? (
+            <label>
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">Service booking</span>
+              <select
+                className={inputClass}
+                value={draft.serviceBookingId}
+                onChange={(e) => onChange("serviceBookingId", e.target.value)}
+              >
+                <option value="">None</option>
+                {bookingOptions.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.documentNo} — {b.description || "Booking"}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <label>
             <span className="mb-1.5 block text-xs font-medium text-slate-600">Shift date</span>
             <input
@@ -556,6 +570,24 @@ export function RosterShiftEditor({
             />
           </label>
         </fieldset>
+
+        {isServiceDelivery ? (
+          <>
+            <RosterSessionLinesPanel
+              draft={draft}
+              onChange={(next) => setDraft(normalizeRosterShift({ ...next, updatedBy: actor }))}
+              clients={clients}
+              employees={employees}
+              serviceBookings={serviceBookings}
+              disabled={!canSave}
+            />
+            <RosterSessionRiskPanel
+              clientLines={draft.clientLines ?? []}
+              clients={clients}
+              location={locations.find((l) => l.id === draft.locationId)}
+            />
+          </>
+        ) : null}
 
         <StaffClientMatchHintsPanel
           client={selectedClient}

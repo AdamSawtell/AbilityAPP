@@ -28,6 +28,7 @@
 | UAT-05-S-016 | Add buddy shift | Add buddy shift on staffed card | Linked shift editor opens with pay/billing fields | **Pass** — localhost 2026-06-25; editor opens with purpose, billing, pay, reason, and linked primary |
 | UAT-05-S-017 | Buddy pay policy | `/system/settings/buddy-shifts` | Org policy saves (always pay / don't pay / ask) | **Partial** — localhost 2026-06-25; policy options and audit footer render after System access fix; save not mutated |
 | UAT-05-S-018 | Primary cancel cascade | Cancel primary shift | Linked buddy shift auto-cancelled | Pending seeded DB smoke |
+| UAT-05-S-019 | Multi-client roster session + rollover defaults | `/rostering?week=2026-06-09` New shift; Rostering → RoC | Session editor supports client/worker lines and ratios; RoC publish reads Organisation rollover defaults | **Pass** — localhost 2026-06-27; `SESS-SMOKE-001` saved/reopened with 2 client lines; RoC panel shows rollover defaults |
 
 ## Window checklist
 

@@ -25,6 +25,9 @@ export type RosterOfCareLineRowDb = {
   location_id: string | null;
   service_agreement_line_id: string | null;
   worker_requirement: string;
+  default_employee_id: string | null;
+  support_ratio: string;
+  session_key: string;
   notes: string;
 };
 
@@ -53,6 +56,9 @@ export function rosterOfCareFromRow(
       locationId: line.location_id ?? "",
       serviceAgreementLineId: line.service_agreement_line_id ?? "",
       workerRequirement: line.worker_requirement,
+      defaultEmployeeId: line.default_employee_id ?? "",
+      supportRatio: line.support_ratio || "1:1",
+      sessionKey: line.session_key ?? "",
       notes: line.notes,
     })),
   };
@@ -88,6 +94,9 @@ export function rosterOfCareLineToRow(
     location_id: line.locationId?.trim() ? line.locationId : null,
     service_agreement_line_id: line.serviceAgreementLineId?.trim() ? line.serviceAgreementLineId : null,
     worker_requirement: line.workerRequirement,
+    default_employee_id: line.defaultEmployeeId?.trim() ? line.defaultEmployeeId : null,
+    support_ratio: line.supportRatio || "1:1",
+    session_key: line.sessionKey ?? "",
     notes: line.notes,
   };
 }

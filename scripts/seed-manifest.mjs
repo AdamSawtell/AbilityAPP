@@ -16,4 +16,5 @@ export const REMOTE_SEED_FILES = [
   "supabase/seed-task-automation.sql",
   "supabase/seed-ai.sql",
   "supabase/seed-clients-bulk.sql",
+  "supabase/seed-glenelg-roster.sql",
 ];

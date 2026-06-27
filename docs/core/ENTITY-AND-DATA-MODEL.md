@@ -129,9 +129,9 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Record | Links | Notes |
 |--------|-------|-------|
 | Monthly service plan | `clientId` | Planned hours/spend by month |
-| Roster of care | `clientId`, optional `serviceAgreementId` | Weekly template |
+| Roster of care | `clientId`, optional `serviceAgreementId`; lines: `defaultEmployeeId`, `supportRatio`, `sessionKey` for master grouping | Weekly template |
 | Service planning instance | `clientId`, booking/plan refs | Demand board |
-| Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (typical); agency: `coverageSource`, `agencyWorkerId`, `vendorBpId`, `agencyRequestId`; buddy: `shiftPurpose`, `billingClassification`, `payStatus`, `primaryRosterShiftId`, `buddyReason`; training/meeting: `trainingSessionGroupId`, `sessionTitle`, `sessionCategory`, `costAllocation`, `costCentre`, attendance sign-off fields | Week on `/rostering?week=` and Workforce planning → Training and meetings |
+| Roster shift | `employeeId`, `clientId`, `locationId`, `serviceBookingId` (legacy header mirrors first line); `sessionKey`, `requiredWorkerCount`; child `roster_shift_client_line` (billing ratio per client), `roster_shift_worker_line` (payroll per worker); agency/buddy/training fields as before | Week on `/rostering?week=` and Workforce planning → Training and meetings |
 | Agency worker | `vendorBpId` → `business_partner` | `/agency-workers` register |
 | Agency shift request | `rosterShiftId`, `vendorBpId`, optional `agencyWorkerId` | Drawer from Gaps; not standalone route |
 | Agency timesheet | `vendorBpId`, `periodStart`/`periodEnd`, lines → `roster_shift_id` | `/agency-timesheets`; generate from Completed agency shifts |
@@ -145,6 +145,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Site orientation at confirm | `site-orientation.ts`, `agency-shift-workflow.ts` |
 | Recurrence | `roster_shift` recurrence fields |
 | Buddy pay policy | `organization.buddy_shift_pay_policy` (`always_pay` \| `dont_pay` \| `ask`) | System → Organisation → Buddy shifts |
+| RoC rollover defaults | `organization.roster_rollover_*` | Manual bulk publish defaults for RoC → live roster; future scheduler can reuse |
 | Training/meeting grouping | `roster_shift.training_session_group_id` | One row per attendee; group id ties rows into the session for cost and attendance reporting |
 
 ---

@@ -189,6 +189,14 @@ import {
   type RosterOfCareLineRowDb,
   type RosterOfCareRow,
 } from "@/lib/supabase/roster-of-care-mappers";
+import {
+  rosterShiftClientLineFromRow,
+  rosterShiftClientLineToRow,
+  rosterShiftWorkerLineFromRow,
+  rosterShiftWorkerLineToRow,
+  type RosterShiftClientLineRow,
+  type RosterShiftWorkerLineRow,
+} from "@/lib/supabase/roster-session-mappers";
 import { normalizeRosterOfCare, type RosterOfCareRecord } from "@/lib/roster-of-care";
 import {
   normalizeMonthlyServicePlan,
@@ -486,6 +494,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     bookingsRes,
     bookingLinesRes,
     rosterShiftsRes,
+    rosterShiftClientLinesRes,
+    rosterShiftWorkerLinesRes,
     rosterShiftRequestsRes,
     agencyWorkersRes,
     agencyShiftRequestsRes,
@@ -562,6 +572,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("service_booking").select("*").order("date_promised", { ascending: false }),
     supabase.from("service_booking_line").select("*").order("line_no"),
     supabase.from("roster_shift").select("*").order("shift_date"),
+    supabase.from("roster_shift_client_line").select("*").order("line_no"),
+    supabase.from("roster_shift_worker_line").select("*").order("line_no"),
     supabase.from("roster_shift_request").select("*").order("submitted_at", { ascending: false }),
     supabase.from("agency_worker").select("*").order("name"),
     supabase.from("agency_shift_request").select("*").order("document_no", { ascending: false }),
@@ -640,6 +652,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     bookingsRes.error ??
     bookingLinesRes.error ??
     rosterShiftsRes.error ??
+    rosterShiftClientLinesRes.error ??
+    rosterShiftWorkerLinesRes.error ??
     rosterShiftRequestsRes.error ??
     agencyWorkersRes.error ??
     agencyShiftRequestsRes.error ??
@@ -715,6 +729,14 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const linesByPriceList = groupBy(priceLinesRes.data as PriceListLineRow[], "price_list_id");
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
+  const clientLinesByShift = groupBy(
+    rosterShiftClientLinesRes.data as RosterShiftClientLineRow[],
+    "roster_shift_id"
+  );
+  const workerLinesByShift = groupBy(
+    rosterShiftWorkerLinesRes.data as RosterShiftWorkerLineRow[],
+    "roster_shift_id"
+  );
   const linesByTimesheet = groupBy(timesheetLinesRes.data as TimesheetLineRowDb[], "timesheet_id");
   const linesByAgencyTimesheet = groupBy(
     agencyTimesheetLinesRes.data as AgencyTimesheetLineRowDb[],
@@ -805,7 +827,15 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
       normalizeServiceBooking(serviceBookingFromRow(row, linesByBooking.get(row.id) ?? []))
     ),
     rosterShifts: ((rosterShiftsRes.data ?? []) as RosterShiftRow[]).map((row) =>
-      normalizeRosterShift(rosterShiftFromRow(row))
+      normalizeRosterShift({
+        ...rosterShiftFromRow(row),
+        clientLines: (clientLinesByShift.get(row.id) ?? []).map((line) =>
+          rosterShiftClientLineFromRow(line)
+        ),
+        workerLines: (workerLinesByShift.get(row.id) ?? []).map((line) =>
+          rosterShiftWorkerLineFromRow(line)
+        ),
+      })
     ),
     rosterShiftRequests: ((rosterShiftRequestsRes.data ?? []) as RosterShiftRequestRow[]).map((row) =>
       normalizeShiftRequest(rosterShiftRequestFromRow(row))
@@ -1312,6 +1342,22 @@ export async function saveRosterShift(supabase: SupabaseClient, record: RosterSh
   const shift = normalizeRosterShift(record);
   const { error } = await supabase.from("roster_shift").upsert(rosterShiftToRow(shift));
   if (error) throw error;
+
+  await replaceChildRows(supabase, "roster_shift_client_line", "roster_shift_id", shift.id);
+  if (shift.clientLines?.length) {
+    const { error: clientLineError } = await supabase
+      .from("roster_shift_client_line")
+      .insert(shift.clientLines.map((line) => rosterShiftClientLineToRow(shift.id, line)));
+    if (clientLineError) throw clientLineError;
+  }
+
+  await replaceChildRows(supabase, "roster_shift_worker_line", "roster_shift_id", shift.id);
+  if (shift.workerLines?.length) {
+    const { error: workerLineError } = await supabase
+      .from("roster_shift_worker_line")
+      .insert(shift.workerLines.map((line) => rosterShiftWorkerLineToRow(shift.id, line)));
+    if (workerLineError) throw workerLineError;
+  }
 }
 
 /** Assign worker only when shift is still vacant — returns false if already claimed. */
@@ -1426,10 +1472,9 @@ export async function checkOutRosterShift(
 }
 
 export async function saveRosterShifts(supabase: SupabaseClient, records: RosterShiftRecord[]) {
-  if (!records.length) return;
-  const rows = records.map((record) => rosterShiftToRow(normalizeRosterShift(record)));
-  const { error } = await supabase.from("roster_shift").upsert(rows);
-  if (error) throw error;
+  for (const record of records) {
+    await saveRosterShift(supabase, record);
+  }
 }
 
 export async function saveAgencyWorker(supabase: SupabaseClient, record: AgencyWorkerRecord) {

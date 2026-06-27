@@ -32,6 +32,10 @@ export type OrganizationRow = {
   document_footer_text: string;
   gst_registered: boolean;
   buddy_shift_pay_policy: string;
+  roster_rollover_enabled: boolean;
+  roster_rollover_lookahead_weeks: number;
+  roster_rollover_default_status: string;
+  roster_rollover_skip_existing: boolean;
   theme_primary_colour: string;
   theme_accent_colour: string;
   theme_background_colour: string;
@@ -74,6 +78,11 @@ export function organizationFromRow(row: OrganizationRow): OrganizationRecord {
     documentFooterText: row.document_footer_text ?? "",
     gstRegistered: row.gst_registered ?? false,
     buddyShiftPayPolicy: normalizeBuddyShiftPayPolicy(row.buddy_shift_pay_policy),
+    rosterRolloverEnabled: row.roster_rollover_enabled ?? true,
+    rosterRolloverLookaheadWeeks: row.roster_rollover_lookahead_weeks ?? 6,
+    rosterRolloverDefaultStatus:
+      row.roster_rollover_default_status === "Published" ? "Published" : "Draft",
+    rosterRolloverSkipExisting: row.roster_rollover_skip_existing ?? true,
     themePrimaryColour: row.theme_primary_colour ?? "",
     themeAccentColour: row.theme_accent_colour ?? "",
     themeBackgroundColour: row.theme_background_colour ?? "",
@@ -117,6 +126,10 @@ export function organizationToRow(record: OrganizationRecord): OrganizationRow {
     document_footer_text: record.documentFooterText,
     gst_registered: record.gstRegistered,
     buddy_shift_pay_policy: record.buddyShiftPayPolicy || "ask",
+    roster_rollover_enabled: record.rosterRolloverEnabled ?? true,
+    roster_rollover_lookahead_weeks: record.rosterRolloverLookaheadWeeks || 6,
+    roster_rollover_default_status: record.rosterRolloverDefaultStatus || "Draft",
+    roster_rollover_skip_existing: record.rosterRolloverSkipExisting ?? true,
     theme_primary_colour: record.themePrimaryColour ?? "",
     theme_accent_colour: record.themeAccentColour ?? "",
     theme_background_colour: record.themeBackgroundColour ?? "",

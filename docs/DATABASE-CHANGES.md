@@ -62,6 +62,11 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `agency_timesheet` / `agency_timesheet_line` | Vendor timesheet header + lines from completed agency shifts |
 | `site_orientation` | Site orientation per worker (agency or employee) and location |
 | `roster_shift` AB-0021 fields | Training/meeting grouping, cost allocation, cost centre, estimated cost, attendance sign-off |
+| `roster_shift` session fields (20260702120000) | `session_key`, `required_worker_count` — groups master/live session blocks |
+| `roster_shift_client_line` | Billable client participants per session (ratio, booking link) |
+| `roster_shift_worker_line` | Paid workers per session (role, status, check-in/out) |
+| `roster_of_care_line` session fields (20260702120000) | `default_employee_id`, `support_ratio`, `session_key` — master roster grouping |
+| `app_organization` roster rollover fields (20260702123000) | `roster_rollover_enabled`, `roster_rollover_lookahead_weeks`, `roster_rollover_default_status`, `roster_rollover_skip_existing` — RoC → live roster defaults |
 | `app_organization` theme columns (AB-0017) | `theme_primary_colour`, `theme_accent_colour`, `theme_background_colour`, `theme_text_colour` — empty = AbilityVua defaults |
 
 ## Not built yet (needs migration when added)

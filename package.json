@@ -11,6 +11,8 @@
     "supabase:seed-locations": "cd web && npx tsx ../scripts/generate-location-seed.mjs",
     "supabase:seed-bulk": "cd web && npx tsx ../scripts/generate-bulk-dummy-data.mjs",
     "supabase:seed-clients-bulk": "node scripts/generate-bulk-clients-seed.mjs",
+    "supabase:seed-glenelg-roster": "node scripts/generate-glenelg-roster-seed.mjs",
+    "supabase:seed-glenelg": "node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-glenelg-roster.sql",
     "supabase:push-remote": "node scripts/apply-remote-db.mjs push",
     "supabase:seed-demo-once": "node scripts/run-all-remote-seeds.mjs",
     "supabase:seed-test-window": "node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-delivery-test-window.sql",

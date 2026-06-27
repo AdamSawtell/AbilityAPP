@@ -95,6 +95,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 |----------|---------------|---------|-----------|
 | Service planning | Rostering, Admin | `service-planning`, `multi-provider-budget` | — |
 | Rostering publish | Rostering Manager, Admin | `rostering` (write) | — |
+| RoC rollover settings | System operator / Admin | System → Organisation profile | — (settings only; rollover itself needs `rostering` write) |
 | Agency coverage workflow | Rostering Manager, Rostering Officer, Coordinator, Exec Ops, Admin | `rostering` (write), `agency-workers` (write) | `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` |
 | Buddy shifts | Rostering Manager, Team Leader, Coordinator (Support Coordinator), Admin | `rostering` (write), `admin-organization` (system settings) | — (window-write; no numbered process) |
 | Open shifts | Support Worker | `my-open-shifts` | — |

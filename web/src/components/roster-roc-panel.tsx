@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ClientRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { useOrganization } from "@/lib/organization-store";
 import {
   buildRosterOfCaresFromCsv,
   generateRosterOfCareFromAgreement,
@@ -16,14 +17,16 @@ import {
   validateRocPublishShifts,
 } from "@/lib/roc-publish-shifts";
 import { weekStartFromDate } from "@/lib/roster-shift";
+import type { OrganizationRecord } from "@/lib/organization";
 
 const TEMPLATE_CSV = `client_search_key,day,start_time,end_time,support_type,location_search_key,worker_requirement,notes
 BERN,Mon,09:00,15:00,Standard,GLEN-SIL,Support worker,SIL morning
 BERN,Wed,14:00,20:00,Standard,GLEN-SIL,Support worker,Community access afternoon`;
 
 export function RosterRocPanel() {
-  const { clients, locations, serviceAgreements, rosterOfCares, bulkUpsertRosterOfCares, upsertRosterOfCare } =
+  const { clients, locations, employees, serviceAgreements, rosterOfCares, bulkUpsertRosterOfCares, upsertRosterOfCare } =
     useData();
+  const { organization } = useOrganization();
   const { session, canWriteWindow } = useAuth();
   const canEdit = canWriteWindow("rostering");
   const actor = session?.displayName || "SuperUser";
@@ -124,6 +127,40 @@ export function RosterRocPanel() {
 
       {canEdit ? (
         <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="text-sm font-semibold text-slate-900">Roster rollover defaults</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Manual bulk publish uses these organisation defaults now. The same settings are ready for a scheduled
+            rollover worker later.
+          </p>
+          <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-4">
+            <div className="rounded-lg bg-slate-50 px-3 py-2">
+              <dt className="text-xs font-medium text-slate-500">Mode</dt>
+              <dd className="mt-1 font-medium text-slate-900">
+                {organization.rosterRolloverEnabled ? "Config defaults on" : "Manual only"}
+              </dd>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-3 py-2">
+              <dt className="text-xs font-medium text-slate-500">Maintain ahead</dt>
+              <dd className="mt-1 font-medium text-slate-900">
+                {organization.rosterRolloverLookaheadWeeks} weeks
+              </dd>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-3 py-2">
+              <dt className="text-xs font-medium text-slate-500">Default status</dt>
+              <dd className="mt-1 font-medium text-slate-900">{organization.rosterRolloverDefaultStatus}</dd>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-3 py-2">
+              <dt className="text-xs font-medium text-slate-500">Duplicates</dt>
+              <dd className="mt-1 font-medium text-slate-900">
+                {organization.rosterRolloverSkipExisting ? "Skip existing" : "Allow overwrite"}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      ) : null}
+
+      {canEdit ? (
+        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="text-sm font-semibold text-slate-900">Generate from service agreement</h2>
           <p className="mt-1 text-sm text-slate-600">
             Build a draft weekly RoC from an active agreement schedule — coordinators refine before rostering.
@@ -193,7 +230,10 @@ export function RosterRocPanel() {
                 key={roc.id}
                 roc={roc}
                 clients={clients}
+                employees={employees}
                 locations={locations}
+                allRocs={rosterOfCares}
+                organization={organization}
                 canEdit={canEdit}
                 actor={actor}
               />
@@ -210,38 +250,53 @@ export function RosterRocPanel() {
 function RocCard({
   roc,
   clients,
+  employees,
   locations,
+  allRocs,
+  organization,
   canEdit,
   actor,
 }: {
   roc: RosterOfCareRecord;
   clients: { id: string; searchKey: string; name: string }[];
+  employees: { id: string; searchKey: string; name: string }[];
   locations: { id: string; searchKey: string }[];
+  allRocs: RosterOfCareRecord[];
+  organization: OrganizationRecord;
   canEdit: boolean;
   actor: string;
 }) {
   const { serviceBookings, rosterShifts, addRecurringRosterShifts } = useData();
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate(new Date().toISOString().slice(0, 10)));
-  const [weekCount, setWeekCount] = useState(4);
-  const [shiftStatus, setShiftStatus] = useState<"Draft" | "Published">("Draft");
-  const [skipExisting, setSkipExisting] = useState(true);
+  const [weekCount, setWeekCount] = useState(() =>
+    organization.rosterRolloverEnabled ? organization.rosterRolloverLookaheadWeeks : 4
+  );
+  const [shiftStatus, setShiftStatus] = useState<"Draft" | "Published">(() =>
+    organization.rosterRolloverEnabled ? organization.rosterRolloverDefaultStatus : "Draft"
+  );
+  const [skipExisting, setSkipExisting] = useState(() =>
+    organization.rosterRolloverEnabled ? organization.rosterRolloverSkipExisting : true
+  );
   const [publishError, setPublishError] = useState("");
   const [publishMessage, setPublishMessage] = useState("");
 
   const client = clients.find((c) => c.id === roc.clientId);
   const locationLabel = (id: string) => locations.find((l) => l.id === id)?.searchKey || id || "—";
+  const workerLabel = (id: string) => employees.find((e) => e.id === id)?.searchKey || id || "—";
 
   const previewWithoutSkip = buildShiftsFromRosterOfCare(
     roc,
     { weekStart, weekCount, status: shiftStatus, actor, skipExisting: false },
     rosterShifts,
-    serviceBookings
+    serviceBookings,
+    allRocs
   );
   const preview = buildShiftsFromRosterOfCare(
     roc,
     { weekStart, weekCount, status: shiftStatus, actor, skipExisting },
     rosterShifts,
-    serviceBookings
+    serviceBookings,
+    allRocs
   );
   const allSkippedByExisting =
     skipExisting && previewWithoutSkip.shifts.length > 0 && preview.shifts.length === 0;
@@ -301,6 +356,9 @@ function RocCard({
                 <th className="pr-3 py-1">Time</th>
                 <th className="pr-3 py-1">Type</th>
                 <th className="pr-3 py-1">Location</th>
+                <th className="pr-3 py-1">Worker</th>
+                <th className="pr-3 py-1">Ratio</th>
+                <th className="pr-3 py-1">Session</th>
                 <th className="py-1">Notes</th>
               </tr>
             </thead>
@@ -313,6 +371,11 @@ function RocCard({
                   </td>
                   <td className="pr-3 py-1">{line.supportType}</td>
                   <td className="pr-3 py-1">{locationLabel(line.locationId)}</td>
+                  <td className="pr-3 py-1">
+                    {line.defaultEmployeeId ? workerLabel(line.defaultEmployeeId) : line.workerRequirement || "—"}
+                  </td>
+                  <td className="pr-3 py-1">{line.supportRatio || "1:1"}</td>
+                  <td className="pr-3 py-1">{line.sessionKey?.trim() || "—"}</td>
                   <td className="py-1">{line.notes || "—"}</td>
                 </tr>
               ))}
@@ -325,8 +388,9 @@ function RocCard({
         <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Publish to roster</h3>
           <p className="mt-1 text-xs text-slate-600">
-            Create {shiftStatus.toLowerCase()} shifts from weekly lines for the selected weeks. Vacant shifts stay
-            Draft until a worker is assigned.
+            Create {shiftStatus.toLowerCase()} shifts from weekly lines for the selected weeks. Lines with the same
+            session key at the same time and location publish to one live session. Vacant shifts stay Draft until a
+            worker is assigned.
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <label className="block text-xs">

@@ -10,6 +10,9 @@ export type RosterOfCareLine = {
   locationId: string;
   serviceAgreementLineId: string;
   workerRequirement: string;
+  defaultEmployeeId: string;
+  supportRatio: string;
+  sessionKey: string;
   notes: string;
 };
 
@@ -31,6 +34,7 @@ export const rosterOfCareDropdowns = {
   status: ["Draft", "Active", "Archived"],
   source: ["Manual", "CSV import", "Generated"],
   supportType: ["Standard", "Sleepover", "Active overnight", "Group"],
+  supportRatio: ["1:1", "1:2", "1:3", "1:4", "1:5"],
 };
 
 export const ROC_WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
@@ -54,6 +58,9 @@ export function emptyRosterOfCareLine(lineNo: number, weekday = 0): RosterOfCare
     locationId: "",
     serviceAgreementLineId: "",
     workerRequirement: "",
+    defaultEmployeeId: "",
+    supportRatio: "1:1",
+    sessionKey: "",
     notes: "",
   };
 }
@@ -79,6 +86,9 @@ export function normalizeRosterOfCare(record: RosterOfCareRecord): RosterOfCareR
         locationId: line.locationId ?? "",
         serviceAgreementLineId: line.serviceAgreementLineId ?? "",
         workerRequirement: line.workerRequirement ?? "",
+        defaultEmployeeId: line.defaultEmployeeId ?? "",
+        supportRatio: line.supportRatio || "1:1",
+        sessionKey: line.sessionKey ?? "",
         notes: line.notes ?? "",
       }))
       .sort((a, b) => a.weekday - b.weekday || a.startTime.localeCompare(b.startTime)),

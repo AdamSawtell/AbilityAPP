@@ -2396,6 +2396,8 @@ export type RosterShiftRow = {
   critical_fill_marked_at: string | null;
   critical_fill_marked_by: string;
   open_fill_status: string;
+  session_key: string;
+  required_worker_count: number;
   created_by: string;
   updated_by: string;
 };
@@ -2462,6 +2464,8 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     criticalFillMarkedAt: row.critical_fill_marked_at ?? "",
     criticalFillMarkedBy: row.critical_fill_marked_by ?? "",
     openFillStatus: row.open_fill_status ?? "Open",
+    sessionKey: row.session_key ?? "",
+    requiredWorkerCount: Math.max(1, Number(row.required_worker_count) || 1),
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2511,6 +2515,8 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     critical_fill_marked_at: record.criticalFillMarkedAt?.trim() ? record.criticalFillMarkedAt : null,
     critical_fill_marked_by: record.criticalFillMarkedBy ?? "",
     open_fill_status: record.openFillStatus || "Open",
+    session_key: record.sessionKey ?? "",
+    required_worker_count: Math.max(1, Number(record.requiredWorkerCount) || 1),
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

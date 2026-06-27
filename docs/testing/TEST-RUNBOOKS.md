@@ -112,6 +112,9 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 2 | Publish week panel | 1 ready · 0 blocked |
 | 3 | Publish 1 shift | Shift Published |
 | 4 | (Optional) Oliver `/my/shifts` week view | Shift visible for assigned worker |
+| 5 | Rostering → New shift | Service-delivery editor shows Clients (billing), Workers (payroll), Session key, and collective risks |
+| 6 | Add second client with ratio `1:4`; save as Draft; reopen | Two client lines and ratio persist; vacant worker line persists |
+| 7 | Rostering → RoC | Rollover defaults panel shows Organisation lookahead/status/skip-existing values; RoC table has Worker, Ratio, Session columns |
 
 ---
 

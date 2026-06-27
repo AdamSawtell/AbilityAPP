@@ -36,6 +36,14 @@ export type OrganizationRecord = AuditStampable & {
   gstRegistered: boolean;
   /** Buddy/orientation shift pay default: always_pay | dont_pay | ask */
   buddyShiftPayPolicy: BuddyShiftPayPolicy;
+  /** When enabled, RoC publish uses organisation rollover defaults to maintain a forward live roster. */
+  rosterRolloverEnabled: boolean;
+  /** Number of future weeks to create from active RoC templates during bulk rollover. */
+  rosterRolloverLookaheadWeeks: number;
+  /** Default live shift status created from RoC rollover. */
+  rosterRolloverDefaultStatus: "Draft" | "Published";
+  /** Skip already-created live shifts when rolling RoC templates forward. */
+  rosterRolloverSkipExisting: boolean;
   /** App shell primary brand colour (#RRGGBB). Empty = system default (AB-0017). */
   themePrimaryColour: string;
   /** App shell accent / login gradient colour (#RRGGBB). Empty = default. */
@@ -52,7 +60,8 @@ export type OrganizationRecord = AuditStampable & {
 export type OrganizationFieldDef = {
   key: keyof OrganizationRecord;
   label: string;
-  type: "text" | "email" | "tel" | "url" | "textarea" | "number" | "checkbox";
+  type: "text" | "email" | "tel" | "url" | "textarea" | "number" | "checkbox" | "select";
+  options?: { value: string; label: string }[];
   placeholder?: string;
   hint?: string;
 };
@@ -138,6 +147,39 @@ export const organizationSections: OrganizationSection[] = [
     ],
   },
   {
+    title: "Roster rollover",
+    description: "Defaults for creating live roster sessions from master roster-of-care templates.",
+    fields: [
+      {
+        key: "rosterRolloverEnabled",
+        label: "Use rollover defaults",
+        type: "checkbox",
+        hint: "Manual publish still requires a Rostering Officer; these values prefill the bulk rollover controls.",
+      },
+      {
+        key: "rosterRolloverLookaheadWeeks",
+        label: "Maintain roster ahead (weeks)",
+        type: "number",
+        hint: "How far forward RoC templates should be rolled into live roster sessions.",
+      },
+      {
+        key: "rosterRolloverDefaultStatus",
+        label: "Default rollover status",
+        type: "select",
+        options: [
+          { value: "Draft", label: "Draft (review before publish)" },
+          { value: "Published", label: "Published (worker required)" },
+        ],
+      },
+      {
+        key: "rosterRolloverSkipExisting",
+        label: "Skip existing live shifts",
+        type: "checkbox",
+        hint: "Prevents duplicate live shifts when the same master period is rolled more than once.",
+      },
+    ],
+  },
+  {
     title: "Notes",
     fields: [
       { key: "notes", label: "Internal notes", type: "textarea", placeholder: "Optional context for administrators" },
@@ -180,6 +222,10 @@ export function defaultOrganization(): OrganizationRecord {
     documentFooterText: "",
     gstRegistered: false,
     buddyShiftPayPolicy: "ask",
+    rosterRolloverEnabled: true,
+    rosterRolloverLookaheadWeeks: 6,
+    rosterRolloverDefaultStatus: "Draft",
+    rosterRolloverSkipExisting: true,
     themePrimaryColour: "",
     themeAccentColour: "",
     themeBackgroundColour: "",
@@ -200,6 +246,14 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     incidentInvestigationSlaDays: normalizeInvestigationSlaDays(sla),
     gstRegistered: Boolean(record.gstRegistered),
     buddyShiftPayPolicy: normalizeBuddyShiftPayPolicy(record.buddyShiftPayPolicy),
+    rosterRolloverEnabled: Boolean(record.rosterRolloverEnabled),
+    rosterRolloverLookaheadWeeks: Math.max(
+      1,
+      Math.min(12, Number(record.rosterRolloverLookaheadWeeks) || 6)
+    ),
+    rosterRolloverDefaultStatus:
+      record.rosterRolloverDefaultStatus === "Published" ? "Published" : "Draft",
+    rosterRolloverSkipExisting: record.rosterRolloverSkipExisting !== false,
     bankBsb: (record.bankBsb ?? "").trim(),
     bankAccount: (record.bankAccount ?? "").trim(),
     bankAccountName: (record.bankAccountName ?? "").trim(),

@@ -511,13 +511,21 @@ export function RosteringWeekView() {
                       const draggable = canEditRoster && canRescheduleShiftByDrag(shift).allowed;
                       const isDragging = dragShiftId === shift.id;
                       return (
-                        <button
+                        <div
                           key={shift.id}
-                          type="button"
+                          role="button"
+                          tabIndex={0}
                           draggable={draggable}
                           onDragStart={(e) => handleShiftDragStart(shift, e)}
                           onDragEnd={handleShiftDragEnd}
                           onClick={() => canEditRoster && openShiftEditor(shift)}
+                          onKeyDown={(e) => {
+                            if (!canEditRoster) return;
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              openShiftEditor(shift);
+                            }
+                          }}
                           className={`w-full rounded-lg border p-2 text-left text-xs ${
                             hasError
                               ? "border-rose-300 bg-rose-50/80"
@@ -678,7 +686,7 @@ export function RosteringWeekView() {
                               compact
                             />
                           ) : null}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>

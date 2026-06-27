@@ -39,13 +39,24 @@ export function expandWeeklyRecurrence(
       const shiftDate = addDaysIso(weekStart, offset);
       if (shiftDate < normalized.shiftDate.slice(0, 10)) continue;
       const isAnchor = shiftDate === normalized.shiftDate.slice(0, 10);
+      const shiftId = isAnchor && normalized.id ? normalized.id : `${groupId}-${shiftDate}`;
+      // Child line ids are primary keys, so each generated shift needs its own
+      // client/worker line ids — reusing the template's ids collides on save.
+      const clientLines = (normalized.clientLines ?? []).map((cl, i) =>
+        isAnchor ? cl : { ...cl, id: `rscl-${shiftId}-${i + 1}`, lineNo: i + 1 }
+      );
+      const workerLines = (normalized.workerLines ?? []).map((wl, i) =>
+        isAnchor ? wl : { ...wl, id: `rswl-${shiftId}-${i + 1}`, lineNo: i + 1 }
+      );
       results.push(
         normalizeRosterShift({
           ...normalized,
-          id: isAnchor && normalized.id ? normalized.id : `${groupId}-${shiftDate}`,
+          id: shiftId,
           shiftDate,
           recurrenceGroupId: groupId,
           shiftRef: normalized.shiftRef || `SHIFT-${shiftDate}`,
+          clientLines,
+          workerLines,
         })
       );
     }

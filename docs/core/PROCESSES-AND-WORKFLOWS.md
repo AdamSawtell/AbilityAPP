@@ -122,6 +122,7 @@
 | Workflow | Trigger | Side effects |
 |----------|---------|--------------|
 | Publish roster week | Publish on `/rostering` | Shifts visible in **My shifts**; may create notify tasks |
+| RoC rollover to live roster | Rostering → RoC → Publish to roster | Creates missing live `roster_shift` sessions from master RoC lines for the configured lookahead; session-key peers become one multi-client/worker shift; skip-existing prevents duplicates |
 | Qualification gate | Publish | Blocks if worker missing WWCC / NDIS screening (configurable) |
 | Open shift request | Worker requests on `/my/open-shifts`; coordinator approves on Rostering → Open shifts or fill board | Assigns one worker; rejects other pending requests; critical fill flag — Live |
 | Add buddy shift | **Add buddy shift** on staffed shift card | Creates linked shift with `shiftPurpose` buddy/orientation; inherits client/location/time |
@@ -138,7 +139,7 @@
 
 **Deep doc:** [15-agency-staffing.md](../processes/15-agency-staffing.md)
 
-**No numbered process doc** — other roster actions are window-write operations with server validation (`roster-shift-compliance.ts`).
+**No numbered process doc** — other roster actions are window-write operations with server validation (`roster-shift-compliance.ts`). RoC rollover defaults are held on Organisation and currently drive manual bulk publish; scheduled automation can reuse the same fields.
 
 ---
 
