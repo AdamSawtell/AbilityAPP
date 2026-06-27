@@ -18,4 +18,5 @@ export const REMOTE_SEED_FILES = [
   "supabase/seed-clients-bulk.sql",
   "supabase/seed-glenelg-roster.sql",
   "supabase/seed-glenelg-calendar.sql",
+  "supabase/seed-pay-period-demo.sql",
 ];
