@@ -194,7 +194,6 @@ values
   ('role-admin', 'incident-investigation', 'write'),
   ('role-admin', 'incident-notifications', 'write'),
   ('role-admin', 'incidents-see-all', 'write'),
-  ('role-admin', 'locations-see-all', 'write'),
   ('role-admin', 'incident-manager-override', 'write'),
   ('role-admin', 'incidents-dashboard', 'write'),
   ('role-admin', 'incidents-compliance', 'write'),
@@ -210,6 +209,7 @@ values
   ('role-admin', 'location-site-orientation', 'write'),
   ('role-admin', 'location-products-and-services', 'write'),
   ('role-admin', 'locations', 'write'),
+  ('role-admin', 'locations-see-all', 'write'),
   ('role-admin', 'employee-overview', 'write'),
   ('role-admin', 'employee-activity', 'write'),
   ('role-admin', 'employee-calendar', 'write'),
@@ -291,7 +291,6 @@ values
   ('role-board', 'workforce-organisation', 'write'),
   ('role-board', 'incidents', 'write'),
   ('role-board', 'incidents-see-all', 'write'),
-  ('role-board', 'locations-see-all', 'write'),
   ('role-board', 'board-reporting', 'read'),
   ('role-ceo', 'home', 'write'),
   ('role-ceo', 'reports', 'write'),
@@ -395,8 +394,8 @@ values
   ('role-ceo', 'invoices', 'write'),
   ('role-ceo', 'generate-invoices', 'write'),
   ('role-ceo', 'incidents-see-all', 'write'),
-  ('role-ceo', 'locations-see-all', 'write'),
   ('role-ceo', 'incident-manager-override', 'write'),
+  ('role-ceo', 'locations-see-all', 'write'),
   ('role-ceo', 'home-prompt', 'read'),
   ('role-ceo', 'home-needs-attention', 'read'),
   ('role-ceo', 'home-today', 'read'),
@@ -511,8 +510,8 @@ values
   ('role-exec-operations', 'invoices', 'write'),
   ('role-exec-operations', 'generate-invoices', 'write'),
   ('role-exec-operations', 'incidents-see-all', 'write'),
-  ('role-exec-operations', 'locations-see-all', 'write'),
   ('role-exec-operations', 'incident-manager-override', 'write'),
+  ('role-exec-operations', 'locations-see-all', 'write'),
   ('role-exec-operations', 'home-prompt', 'read'),
   ('role-exec-operations', 'home-needs-attention', 'read'),
   ('role-exec-operations', 'home-today', 'read'),
@@ -627,8 +626,8 @@ values
   ('role-exec-hr', 'invoices', 'write'),
   ('role-exec-hr', 'generate-invoices', 'write'),
   ('role-exec-hr', 'incidents-see-all', 'write'),
-  ('role-exec-hr', 'locations-see-all', 'write'),
   ('role-exec-hr', 'incident-manager-override', 'write'),
+  ('role-exec-hr', 'locations-see-all', 'write'),
   ('role-exec-hr', 'home-prompt', 'read'),
   ('role-exec-hr', 'home-needs-attention', 'read'),
   ('role-exec-hr', 'home-today', 'read'),
@@ -743,8 +742,8 @@ values
   ('role-exec-finance', 'invoices', 'write'),
   ('role-exec-finance', 'generate-invoices', 'write'),
   ('role-exec-finance', 'incidents-see-all', 'write'),
-  ('role-exec-finance', 'locations-see-all', 'write'),
   ('role-exec-finance', 'incident-manager-override', 'write'),
+  ('role-exec-finance', 'locations-see-all', 'write'),
   ('role-exec-finance', 'home-prompt', 'read'),
   ('role-exec-finance', 'home-needs-attention', 'read'),
   ('role-exec-finance', 'home-today', 'read'),
@@ -859,8 +858,8 @@ values
   ('role-exec-ict', 'invoices', 'write'),
   ('role-exec-ict', 'generate-invoices', 'write'),
   ('role-exec-ict', 'incidents-see-all', 'write'),
-  ('role-exec-ict', 'locations-see-all', 'write'),
   ('role-exec-ict', 'incident-manager-override', 'write'),
+  ('role-exec-ict', 'locations-see-all', 'write'),
   ('role-exec-ict', 'home-prompt', 'read'),
   ('role-exec-ict', 'home-needs-attention', 'read'),
   ('role-exec-ict', 'home-today', 'read'),
@@ -975,8 +974,8 @@ values
   ('role-exec-quality', 'invoices', 'write'),
   ('role-exec-quality', 'generate-invoices', 'write'),
   ('role-exec-quality', 'incidents-see-all', 'write'),
-  ('role-exec-quality', 'locations-see-all', 'write'),
   ('role-exec-quality', 'incident-manager-override', 'write'),
+  ('role-exec-quality', 'locations-see-all', 'write'),
   ('role-exec-quality', 'home-prompt', 'read'),
   ('role-exec-quality', 'home-needs-attention', 'read'),
   ('role-exec-quality', 'home-today', 'read'),
@@ -1068,8 +1067,8 @@ values
   ('role-hr-manager', 'employee-skills', 'write'),
   ('role-hr-manager', 'employee-system-access', 'write'),
   ('role-hr-manager', 'incidents-see-all', 'write'),
-  ('role-hr-manager', 'locations-see-all', 'write'),
   ('role-hr-manager', 'incident-manager-override', 'write'),
+  ('role-hr-manager', 'locations-see-all', 'write'),
   ('role-hr-manager', 'home-prompt', 'read'),
   ('role-hr-manager', 'home-needs-attention', 'read'),
   ('role-hr-manager', 'home-today', 'read'),
@@ -1226,8 +1225,8 @@ values
   ('role-ict-manager', 'employee-skills', 'write'),
   ('role-ict-manager', 'employee-system-access', 'write'),
   ('role-ict-manager', 'incidents-see-all', 'write'),
-  ('role-ict-manager', 'locations-see-all', 'write'),
   ('role-ict-manager', 'incident-manager-override', 'write'),
+  ('role-ict-manager', 'locations-see-all', 'write'),
   ('role-ict-manager', 'home-prompt', 'read'),
   ('role-ict-manager', 'home-needs-attention', 'read'),
   ('role-ict-manager', 'home-today', 'read'),
@@ -1383,9 +1382,10 @@ values
   ('role-finance-manager', 'employee-skills', 'write'),
   ('role-finance-manager', 'employee-system-access', 'write'),
   ('role-finance-manager', 'incidents-see-all', 'write'),
-  ('role-finance-manager', 'locations-see-all', 'write'),
   ('role-finance-manager', 'incident-manager-override', 'write'),
+  ('role-finance-manager', 'locations-see-all', 'write'),
   ('role-finance-manager', 'financial-close', 'write'),
+  ('role-finance-manager', 'admin-pay-periods', 'write'),
   ('role-finance-manager', 'plan-reconciliation', 'write'),
   ('role-finance-manager', 'claim-reconciliation', 'write'),
   ('role-finance-manager', 'invoice-reconciliation', 'write'),
@@ -1550,8 +1550,8 @@ values
   ('role-quality-manager', 'employee-skills', 'write'),
   ('role-quality-manager', 'employee-system-access', 'write'),
   ('role-quality-manager', 'incidents-see-all', 'write'),
-  ('role-quality-manager', 'locations-see-all', 'write'),
   ('role-quality-manager', 'incident-manager-override', 'write'),
+  ('role-quality-manager', 'locations-see-all', 'write'),
   ('role-quality-manager', 'home-prompt', 'read'),
   ('role-quality-manager', 'home-needs-attention', 'read'),
   ('role-quality-manager', 'home-today', 'read'),
@@ -1717,8 +1717,8 @@ values
   ('role-rostering-manager', 'employee-skills', 'write'),
   ('role-rostering-manager', 'employee-system-access', 'write'),
   ('role-rostering-manager', 'incidents-see-all', 'write'),
-  ('role-rostering-manager', 'locations-see-all', 'write'),
   ('role-rostering-manager', 'incident-manager-override', 'write'),
+  ('role-rostering-manager', 'locations-see-all', 'write'),
   ('role-rostering-manager', 'home-prompt', 'read'),
   ('role-rostering-manager', 'home-needs-attention', 'read'),
   ('role-rostering-manager', 'home-today', 'read'),
@@ -2619,120 +2619,141 @@ values
   ('role-admin', 'tt-develop', true, true, true),
   ('role-admin', 'tt-decide', true, true, true),
   ('role-admin', 'tt-activity-delete', true, true, true),
+  ('role-admin', 'tt-rostering-communication', true, true, true),
   ('role-admin', 'tt-other', true, true, true),
   ('role-board', 'tt-review', true, true, true),
   ('role-ceo', 'tt-review', true, true, true),
   ('role-ceo', 'tt-approve', true, true, true),
   ('role-ceo', 'tt-check', true, true, true),
   ('role-ceo', 'tt-decide', true, true, true),
+  ('role-ceo', 'tt-rostering-communication', true, true, true),
   ('role-exec-operations', 'tt-review', true, true, true),
   ('role-exec-operations', 'tt-approve', true, true, true),
   ('role-exec-operations', 'tt-check', true, true, true),
   ('role-exec-operations', 'tt-decide', true, true, true),
+  ('role-exec-operations', 'tt-rostering-communication', true, true, true),
   ('role-exec-hr', 'tt-review', true, true, true),
   ('role-exec-hr', 'tt-approve', true, true, true),
   ('role-exec-hr', 'tt-check', true, true, true),
   ('role-exec-hr', 'tt-decide', true, true, true),
+  ('role-exec-hr', 'tt-rostering-communication', true, true, true),
   ('role-exec-finance', 'tt-review', true, true, true),
   ('role-exec-finance', 'tt-approve', true, true, true),
   ('role-exec-finance', 'tt-check', true, true, true),
   ('role-exec-finance', 'tt-decide', true, true, true),
+  ('role-exec-finance', 'tt-rostering-communication', true, true, true),
   ('role-exec-ict', 'tt-review', true, true, true),
   ('role-exec-ict', 'tt-approve', true, true, true),
   ('role-exec-ict', 'tt-check', true, true, true),
   ('role-exec-ict', 'tt-decide', true, true, true),
+  ('role-exec-ict', 'tt-rostering-communication', true, true, true),
   ('role-exec-quality', 'tt-review', true, true, true),
   ('role-exec-quality', 'tt-approve', true, true, true),
   ('role-exec-quality', 'tt-check', true, true, true),
   ('role-exec-quality', 'tt-decide', true, true, true),
+  ('role-exec-quality', 'tt-rostering-communication', true, true, true),
   ('role-hr-manager', 'tt-review', true, true, true),
   ('role-hr-manager', 'tt-approve', true, true, true),
   ('role-hr-manager', 'tt-check', true, true, true),
   ('role-hr-manager', 'tt-decide', true, true, true),
+  ('role-hr-manager', 'tt-rostering-communication', true, true, true),
   ('role-hr-officer', 'tt-review', true, true, true),
   ('role-hr-officer', 'tt-check', true, true, true),
   ('role-hr-officer', 'tt-other', true, true, true),
+  ('role-hr-officer', 'tt-rostering-communication', true, true, true),
   ('role-ict-manager', 'tt-review', true, true, true),
   ('role-ict-manager', 'tt-approve', true, true, true),
   ('role-ict-manager', 'tt-check', true, true, true),
   ('role-ict-manager', 'tt-decide', true, true, true),
+  ('role-ict-manager', 'tt-rostering-communication', true, true, true),
   ('role-ict-officer', 'tt-review', true, true, true),
   ('role-ict-officer', 'tt-check', true, true, true),
   ('role-ict-officer', 'tt-other', true, true, true),
+  ('role-ict-officer', 'tt-rostering-communication', true, true, true),
   ('role-finance-manager', 'tt-review', true, true, true),
   ('role-finance-manager', 'tt-approve', true, true, true),
   ('role-finance-manager', 'tt-check', true, true, true),
   ('role-finance-manager', 'tt-decide', true, true, true),
+  ('role-finance-manager', 'tt-rostering-communication', true, true, true),
   ('role-finance-officer', 'tt-review', true, true, true),
   ('role-finance-officer', 'tt-check', true, true, true),
   ('role-finance-officer', 'tt-other', true, true, true),
+  ('role-finance-officer', 'tt-rostering-communication', true, true, true),
   ('role-quality-manager', 'tt-review', true, true, true),
   ('role-quality-manager', 'tt-approve', true, true, true),
   ('role-quality-manager', 'tt-check', true, true, true),
   ('role-quality-manager', 'tt-decide', true, true, true),
+  ('role-quality-manager', 'tt-rostering-communication', true, true, true),
   ('role-quality-officer', 'tt-review', true, true, true),
   ('role-quality-officer', 'tt-check', true, true, true),
   ('role-quality-officer', 'tt-other', true, true, true),
+  ('role-quality-officer', 'tt-rostering-communication', true, true, true),
   ('role-rostering-manager', 'tt-review', true, true, true),
   ('role-rostering-manager', 'tt-approve', true, true, true),
   ('role-rostering-manager', 'tt-check', true, true, true),
   ('role-rostering-manager', 'tt-decide', true, true, true),
+  ('role-rostering-manager', 'tt-rostering-communication', true, true, true),
   ('role-rostering-officer', 'tt-review', true, true, true),
   ('role-rostering-officer', 'tt-check', true, true, true),
   ('role-rostering-officer', 'tt-other', true, true, true),
+  ('role-rostering-officer', 'tt-rostering-communication', true, true, true),
   ('role-intake', 'tt-review', true, true, true),
   ('role-intake', 'tt-check', true, true, true),
   ('role-intake', 'tt-develop', true, true, true),
   ('role-intake', 'tt-other', true, true, true),
+  ('role-intake', 'tt-rostering-communication', true, true, true),
   ('role-coordinator', 'tt-review', true, true, true),
   ('role-coordinator', 'tt-approve', true, true, true),
   ('role-coordinator', 'tt-check', true, true, true),
   ('role-coordinator', 'tt-decide', true, true, true),
+  ('role-coordinator', 'tt-rostering-communication', true, true, true),
   ('role-team-leader', 'tt-review', true, true, true),
   ('role-team-leader', 'tt-approve', true, true, true),
   ('role-team-leader', 'tt-check', true, true, true),
   ('role-team-leader', 'tt-decide', true, true, true),
+  ('role-team-leader', 'tt-rostering-communication', true, true, true),
   ('role-support-worker', 'tt-check', true, true, true),
   ('role-support-worker', 'tt-other', true, true, true),
-  ('role-support-worker', 'tt-review', true, true, true)
+  ('role-support-worker', 'tt-review', true, true, true),
+  ('role-support-worker', 'tt-rostering-communication', true, true, true)
 on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;
 
 -- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)
-update public.app_user set password = '$2b$10$X7gQxXePTOTI6n6wFPYkYeP7Dydgwi2BcDHeGLWbPNbmA1uh8tjVu' where username = 'SuperUser';
-update public.app_user set password = '$2b$10$WRpG2uRNLwLve8Uiw/CGUOw0X5ZpYL7AEaBuADabLqi7oS/DyC9l2' where username = 'PatriciaChen';
-update public.app_user set password = '$2b$10$B6hfK1MfmDbwUw43LQfjrePG7fA9b7/P0bB1AhEPrXbSY4oXLTWhe' where username = 'MichaelSmith';
-update public.app_user set password = '$2b$10$0SFMS9VgBoDtDH44D1HxG.wyIXD9IfbeWj0r93Mig362zUai3vGaS' where username = 'PiperCollins';
-update public.app_user set password = '$2b$10$gJVDn6K4ejQK97QG8Ll4he1CaD3P.sNk5MommWY.WJENzhwEDxv8G' where username = 'IslaRobinson';
-update public.app_user set password = '$2b$10$Zgs4Q1bs1gFMxwaRuuKik.0WX/bcPG9wOufpJd8tjgFDkPyST/JNG' where username = 'GabrielaWilson';
-update public.app_user set password = '$2b$10$D4ED0E5UzEkkJSVsR90oLuzGH4trugF2n02lNoVWgUvAhQWvoxyHm' where username = 'DianeFoster';
-update public.app_user set password = '$2b$10$g80rGSWqmSqqWufrTcJj2u5W52HFU6ASPacNcT.H6wQD1TDmSXAFW' where username = 'JamesWhitford';
-update public.app_user set password = '$2b$10$OB5Rt8rBvkJ7la20ZreuvOiKURQnvvbtp.mA.hosorrv4f8rrRU32' where username = 'SamRivera';
-update public.app_user set password = '$2b$10$cxrNAlW9cchT6sbsOL7exulXGeWwDvj1bIuN6e7pdtvSSMgsgJBCS' where username = 'MargaretHolt';
-update public.app_user set password = '$2b$10$gDC3MC7IEfS4elMvPSonJe/21m/UKm8PIWtXHTF8uRqTqA2/iT9Sq' where username = 'RileyShaw';
-update public.app_user set password = '$2b$10$3a4Tx2jHp3SxmDH0FvKIW.QqmiIgBgiWJB/RFZ8uNgPXkj4.ZAwMe' where username = 'EleanorWright';
-update public.app_user set password = '$2b$10$d1rnDqucrLDVB24QCBaXkO0/tlhomws5.uG9WlfJyh5nK2UzjwX4a' where username = 'MarcusOBrien';
-update public.app_user set password = '$2b$10$w6IWGzDkVCdmbhKlB0yOGO.IU3vG.eZ3.5hVpyJjBkb6RAwFLUL1i' where username = 'HelenTran';
-update public.app_user set password = '$2b$10$1ODSOoF3v9WE0eSQnTdF6.dCW.TTtm.VM/SNSrIvABKJrmcLbpSwW' where username = 'DavidOkonkwo';
-update public.app_user set password = '$2b$10$mUYGeO4NVCLBbVu0OwvVXe/Wv0HBEQNJqTbC.7Q7C6U7muYg6fYKC' where username = 'SandraBlake';
-update public.app_user set password = '$2b$10$dI7.M1a//kQGjDQVpfRXd.b43kcj3sJcBv04OZOUYGKdi8myBLOa2' where username = 'CalebMurphy';
-update public.app_user set password = '$2b$10$h4IE8S52nfzYHfHPzoqfaevbp7r7FnMih6LIFB/uWUkxDWtpBgnkC' where username = 'AlexKim';
-update public.app_user set password = '$2b$10$8ruHIsQmCRaGfAxRclZ/beFLTfp79XkanoucoFSZoybUzYx3chBoG' where username = 'JordanLee';
-update public.app_user set password = '$2b$10$synoJdxkaC8tvRzXq263v.yIFuvA/Cj7wVTSoxYX8IUkC2ghHouOC' where username = 'QuinnTaylor';
-update public.app_user set password = '$2b$10$ndS4/sD.AFoC0Glkm6bvSu8Eawnm8.6NhXRPouGOTOgkLzxtxbf3G' where username = 'AudreyPatel';
-update public.app_user set password = '$2b$10$ynQYGrjr2tOLLPo/D89UxuFahVp.aOxWxKBxulOH6IHIkqIV7G2jW' where username = 'MorganBlake';
-update public.app_user set password = '$2b$10$tW/i4Dtap/A6iFg14LgBU.EvvR4OYdJBLtDpMrk1XpvTHkL81j0yC' where username = 'TessaNguyen';
-update public.app_user set password = '$2b$10$LQVOlJk.lglw9sR.y4vwKucvNs/y/hT79worb7DizUHUxiXQsEm1O' where username = 'JessicaHancock';
-update public.app_user set password = '$2b$10$0WQPVv9z4oALEZNwtjL8.O97ScREjUjSAlUQxWtKcCxm9Ub8rI/be' where username = 'NaomiSingh';
-update public.app_user set password = '$2b$10$XbkUC.J539bE7GTVcpl25emkcacs6zLYIIByi5s0JNXIDKgLkwS6W' where username = 'RoseDash';
-update public.app_user set password = '$2b$10$aDRoCUVrJuGRo3MFcUdxduFFTbG5RhR6EvDTObW2kFCojUYe7L72u' where username = 'OliverWilliams';
-update public.app_user set password = '$2b$10$wLgoDXF8LU4qZ4DhPiCwseKng11SsbY6XGv0SO8iolN7BZ.DaPsCu' where username = 'AvaThomas';
-update public.app_user set password = '$2b$10$KoS8OoWf4l78Y/lcrGQSDOElHE6je.mNc13XloP6X7rG/7cXAn6Ja' where username = 'NoahJackson';
-update public.app_user set password = '$2b$10$GCB96rWdxCRxTT/mJiSar.frSJniyRC6749Gi3QF93mKzO7a9PQXy' where username = 'MiaWhite';
-update public.app_user set password = '$2b$10$NntQo8sHE5cj7ha.cNdMaeFIVA0XkcKWcTFE7nHR94yVpGggOtFNS' where username = 'LiamHarris';
-update public.app_user set password = '$2b$10$spQO370Lh.yvTnvbhkFErudy7lKqjo2Ci7YvUpjjsPgula1QwE7im' where username = 'ZoeMartin';
-update public.app_user set password = '$2b$10$UEyWOdyCr1IF717lTv1vs.WKTTuYVaLcSqm4Z7FY8n/lF6a36K3KS' where username = 'EthanThompson';
-update public.app_user set password = '$2b$10$SFlFgz7M6QSl0pVGDDs8VO/DEHY/8gvcqo2ATa44kSZvC6k6Zh38K' where username = 'ChloeGarcia';
-update public.app_user set password = '$2b$10$xF.7AV27H0rpxAGNzrCPQ.5K9sjHz7HX/67LWNqiHEzi8M7ZK4URu' where username = 'MasonRobinson';
-update public.app_user set password = '$2b$10$Z99aLVSd1luRZ30IDCK8WetP7BxMwJe7rwni25hhlNRqO7lfXNb6K' where username = 'RubyClark';
-update public.app_user set password = '$2b$10$0OHwfxhh55qXAgL8JyBr4uO.95fcnmUzjOGLMczZs6JR7ibe.fpEO' where username = 'LucasLewis';
+update public.app_user set password = '$2b$10$laEGSFUodLhHEp.5f3wHfO.3oG.dlRCE/V.RHkGe79rTLxCQAfvm2' where username = 'SuperUser';
+update public.app_user set password = '$2b$10$ih/rYK.lRruTArs9pzebBO25tbymw3WoUugPQr9/sX/eSyUJ916Ea' where username = 'PatriciaChen';
+update public.app_user set password = '$2b$10$LyOp2LHIHBjluNctH/Ww0eGNDMeVxwsbWBRjXx3Y96/h7tdiu0fbq' where username = 'MichaelSmith';
+update public.app_user set password = '$2b$10$UYJhAJUA8ApODP.sh8na6OZQrqf4JfPyzrpLJwvRSQ0mzzhxbMxhu' where username = 'PiperCollins';
+update public.app_user set password = '$2b$10$8b947/NCsuwWr0eSU1z/o.u2xqBjlet7mWhn9tcmQT9hAgfQ9Dqoy' where username = 'IslaRobinson';
+update public.app_user set password = '$2b$10$WhNoMWaIpDRaTlMX2YXU9O3lQhd4rSVgnTHKbv9oEK7v6AsCV83Qm' where username = 'GabrielaWilson';
+update public.app_user set password = '$2b$10$v9xYEgmZPst/rTtOm.kUPeoGOc6yGhibUkCl6pOe6kWsiC.rLDAAq' where username = 'DianeFoster';
+update public.app_user set password = '$2b$10$4DnuoHwFnoATgXKKV54C0.2wzomqADQ.SBxrtyYmePHc8z3wig9GK' where username = 'JamesWhitford';
+update public.app_user set password = '$2b$10$pLKgUAftyW.UIWeAIBjwx.7.scJATxTN6Ea54HMP9X99jWIsWd04C' where username = 'SamRivera';
+update public.app_user set password = '$2b$10$hefUVX4SXj1.lbz3aK2MLuJttOTSVEA1602HH1EZeysZ2st8LcdMy' where username = 'MargaretHolt';
+update public.app_user set password = '$2b$10$uWLcnuLC8BNhaAuB5.E5uOYvrOsrcZV9ITOKUSs8NxVMOZyMot7c2' where username = 'RileyShaw';
+update public.app_user set password = '$2b$10$Jw49d2eQt.mNaCkdOiUzYuy3KWB1jRZN5XZxWmoIY5Fk0v/3r0vTi' where username = 'EleanorWright';
+update public.app_user set password = '$2b$10$Qntl6cVEAh0ZGKYvPZZnTeMbUdO3oIH0LmcRhVqePrwfN4v/3JfhS' where username = 'MarcusOBrien';
+update public.app_user set password = '$2b$10$vQQVw2AXpVzy70CCVSmduunpyb.JgYNCgVHe2C/fVEdtlvLSN9y02' where username = 'HelenTran';
+update public.app_user set password = '$2b$10$./n7Zlo3SuBWW5m9hA4a8uwe4OHhwEw.WBD49q1A7xUi/hWrLz7CO' where username = 'DavidOkonkwo';
+update public.app_user set password = '$2b$10$0Ls84oetm47JVmVt2XeE5udCkp1ELgfsCsCg/BkJx7XNbBCa6h0HO' where username = 'SandraBlake';
+update public.app_user set password = '$2b$10$jshw22wKYIeJO6RbZXDqaekBs7kwGn3wS8xNCnOt0ELDn8JqDLzMy' where username = 'CalebMurphy';
+update public.app_user set password = '$2b$10$WCZiuC/Cw9FE.RcR9kClIuMJObB4FWTxTEYUCRi.4BLwH3oc4W5iG' where username = 'AlexKim';
+update public.app_user set password = '$2b$10$ox4u3YlMlvVHIWphIkyhmOn0ShBhEqTSWIg2fzavIxQ1EtEkDGR9u' where username = 'JordanLee';
+update public.app_user set password = '$2b$10$OUBU87lkRdyTzCgiQ.DU4OXh9c5xPuaF7UY5UqCV62iGnzvw3FS9W' where username = 'QuinnTaylor';
+update public.app_user set password = '$2b$10$8SM2wVpnwcIqv1JTb6rLdO19R3jcyXfjMpir.NATz0g6u5DELRouG' where username = 'AudreyPatel';
+update public.app_user set password = '$2b$10$VBzhcPQgaGVTswAKDpR7zu/taXFYgtUtFp/8JcJEbevd4oQRYsl8u' where username = 'MorganBlake';
+update public.app_user set password = '$2b$10$OCH0XD0I7v/uHwGCpQVRTuJUrWEtuZR8kk1IK825h/25dPbmIW5Yu' where username = 'TessaNguyen';
+update public.app_user set password = '$2b$10$Cwyy0p6DmqpejwOUiBFghOG/OQTLWY.zv1sVKGkoKwD/FCmb451yC' where username = 'JessicaHancock';
+update public.app_user set password = '$2b$10$aRq77142Z4ERK1a3ZHZkuOtXVXN4jFE6TujbGP7RE7/bfc0jwr722' where username = 'NaomiSingh';
+update public.app_user set password = '$2b$10$R8ctPztume/fppXugNfMtuuwgsTobwXqBrMuzk9iRX.31b9Co2w3a' where username = 'RoseDash';
+update public.app_user set password = '$2b$10$BdY1agJEIxo3lpdaoWspVeTCLy59krWsIrs34fIhGB71hN/./eUZW' where username = 'OliverWilliams';
+update public.app_user set password = '$2b$10$bw9vYiJq0s1BRgRcVQgB7O6A/SSyW0X4KFL3S0qGrQlziNGiYPJ9y' where username = 'AvaThomas';
+update public.app_user set password = '$2b$10$Vl0pR8cNFi3iXm/UQLfs/O6scQzmr5LckiEx9GnKFEO8uUIOv6Jmu' where username = 'NoahJackson';
+update public.app_user set password = '$2b$10$oze6Nml4kbPMjaaBB2IC4elQW3vLx29x0toNQP.iMzQqf7Pa/whLy' where username = 'MiaWhite';
+update public.app_user set password = '$2b$10$XeEFjTxI7TTMnaX15wCtc.yC.66VAwlNo3w5SGZG/PPL7xSl28RYK' where username = 'LiamHarris';
+update public.app_user set password = '$2b$10$7ZiqYpw6YsnJOO/P4R88iuFAx6AtLEihf3n1W2L6Fkl.v55uTDZs6' where username = 'ZoeMartin';
+update public.app_user set password = '$2b$10$uhUj88zUzFnMj9JQftBBwueIDbnhcqlRKaB4XyLhw5LzdTwfWkWLC' where username = 'EthanThompson';
+update public.app_user set password = '$2b$10$ny4AAmFGmLyKxFxz6MBHuO0FqT2/.lw.yNRtSFb1n1Mhk9utjwB.2' where username = 'ChloeGarcia';
+update public.app_user set password = '$2b$10$LEew355HBgdwghJdxx8bhO.Fma40W9CpKbVbImfQIQ5ku4WuHSRcC' where username = 'MasonRobinson';
+update public.app_user set password = '$2b$10$KT8wuIe/SCMPc02/7jxes.IZk2bIJcTJqdFbpkj3l2SqGc2dxZDuO' where username = 'RubyClark';
+update public.app_user set password = '$2b$10$Owdqnz6mAszvbEsgi1Nzwe6FJF9iwRDF2LgQWEqzbvYPVHOTRbCNi' where username = 'LucasLewis';

@@ -128,7 +128,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Function | Typical roles | Windows | Processes |
 |----------|---------------|---------|-----------|
 | Plan / claim / invoice reconciliation | Finance Manager+, Admin | `plan-reconciliation`, `claim-reconciliation`, `invoice-reconciliation` | `print-remittance-cover` |
-| Financial close | Finance Manager, Admin | `financial-close` | `financial-month-close` |
+| Financial close + pay-period allocation | Finance Manager, Admin | `financial-close`, `admin-pay-periods` | `financial-month-close` |
 | NDIS audit pack / board report | Quality, Exec, Admin | `ndis-audit-pack`, `board-reporting` | `print-audit-pack`, `print-board-report` |
 | Reports hub | Most roles (varies) | `reports` | — |
 

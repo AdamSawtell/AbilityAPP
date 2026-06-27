@@ -11,14 +11,29 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
-| **Active slice** | Pay-period month allocation (financial close) — configurable accrual / period-end / pay-date |
-| **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-28 — Monday fortnightly demo data + Amplify smoke (`ad2364c`) |
+| **Active slice** | Release hardening polish — Amplify smoke, finance grants, final QA |
+| **Next slice** | AB-0021 — Training and meeting scheduling |
+| **Last push** | 2026-06-28 — Realistic profitability demo rates (`14269c4`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+## Release hardening polish (2026-06-28)
+
+**Status:** Built, Amplify-smoked, remote access seed applied.
+
+| Area | Result |
+|------|--------|
+| Amplify financial close | **Monthly labour cost — June 2026** shows 67 staffed shifts, 482.5 hours, `$21,752.54` labour cost, `$33,885.98` income, `$12,133.44` margin / 35.8% |
+| Pay-period allocation | Live page uses **Accrual (work performed)** and lists three contributing June pay periods |
+| Finance access | Finance Manager granted `admin-pay-periods` write access so pay-period month allocation can be maintained from System/Admin |
+| Docs | Role guide corrected; financial close process path corrected from Delivery to Finance |
+
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · `node scripts/run-all-remote-seeds.mjs --file supabase/seed-access.sql` ✅ · Amplify browser smoke ✅
 
 ---
 

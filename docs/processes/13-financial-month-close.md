@@ -16,7 +16,7 @@ Confirm plan delivery, NDIS remittance, participant invoices, and payroll reconc
 
 | Step | Action | System | Pass if |
 |------|--------|--------|---------|
-| 1 | Open **Delivery → Financial close** | `/financial-close` | Checklist loads for selected month |
+| 1 | Open **Finance → Financial close** | `/financial-close` | Checklist loads for selected month |
 | 2 | Resolve **Plan vs actual** blocks | `/plan-reconciliation` | No block status on plan variance rows |
 | 3 | Resolve **Claim remittance** gaps | `/claim-reconciliation` | Claims imported and matched or explained |
 | 4 | Clear **Draft invoices** for the month | `/invoices` | No draft invoices overlapping close month |
