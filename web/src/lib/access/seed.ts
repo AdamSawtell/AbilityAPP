@@ -217,7 +217,7 @@ export const SEED_ROLES: AppRoleRecord[] = [
   defineRole("role-ict-officer", "ICT_Officer", "ICT Officer", "ICT support and administration", officerAccess()),
   defineRole("role-finance-manager", "Finance_Manager", "Finance Manager", "Finance team leadership", {
     ...managerAccess(),
-      windowKeys: [...managerAccess().windowKeys, "financial-close", "plan-reconciliation", "claim-reconciliation", "invoice-reconciliation", "multi-provider-budget", "ndis-audit-pack", "board-reporting"],
+      windowKeys: [...managerAccess().windowKeys, "financial-close", "admin-pay-periods", "plan-reconciliation", "claim-reconciliation", "invoice-reconciliation", "multi-provider-budget", "ndis-audit-pack", "board-reporting"],
     reportIds: [...managerAccess().reportIds, "financial-close-summary", "ndis-audit-pack-summary"],
   }),
   defineRole("role-finance-officer", "Finance_Officer", "Finance Officer", "Finance processing and contracts", officerAccess([...FINANCE_OFFICER_BILLING_WINDOWS])),
