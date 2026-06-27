@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Overall completion** | **100%** |
-| **Current work package** | **AB-0021 — Training and meeting scheduling** |
-| **Active slice** | Release hardening polish — Amplify smoke, finance grants, final QA |
-| **Next slice** | AB-0021 — Training and meeting scheduling |
-| **Last push** | 2026-06-28 — Realistic profitability demo rates (`14269c4`) |
+| **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
+| **Active slice** | Pay-period alignment across roster review, timesheets, and payroll close (`1c501d1`) |
+| **Next slice** | None on critical path — awaiting direction (candidates: Phase 2 mobile worker app, SCHADS award interpretation) |
+| **Last push** | 2026-06-28 — Pay-period alignment for roster/timesheets/payroll close (`1c501d1`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
