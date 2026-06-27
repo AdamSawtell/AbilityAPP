@@ -13,12 +13,30 @@
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
 | **Active slice** | AB-0021 v1 implementation and verification |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-27 — Bulk RoC rollover (all / client / location) |
+| **Last push** | 2026-06-27 — Record Calendar tab on client / employee / location |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+## Record Calendar tab — client / employee / location (2026-06-27)
+
+**Status:** Built, verified, committed and pushed.
+
+Shared **Calendar** tab on client, employee, and location records (sidebar stack directly under **Activity**). Month/week/day view matching Home calendar UX.
+
+| Area | Change |
+|------|--------|
+| Lib | `record-calendar.ts` — aggregates tasks, live shifts, RoC template lines, and activity rows for a record; role-aware hrefs via `canAccessWindow` |
+| UI | `RecordCalendarPanel` — shared calendar component wired on all three record types |
+| Access | Auto window keys `client-calendar`, `employee-calendar`, `location-calendar`; seed grants mirror Activity tab per role |
+
+**What you can test:** Open Bernadette Rose → **Calendar** — see RoC template lines, live shifts after rollover, tasks, and activity notes. Same tab on Jason Brown (employee) and Glenelg SIL House (location).
+
+**Remote DB:** `npm run supabase:seed-demo-once -- --file supabase/seed-access.sql` — calendar grants applied.
 
 ---
 

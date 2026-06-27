@@ -11,6 +11,7 @@ import { useData } from "@/lib/data-store";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { RecordPhotoPanel } from "@/components/record-photo-panel";
 import { SiteOrientationPanel } from "@/components/site-orientation-panel";
+import { RecordCalendarPanel } from "@/components/record-calendar-panel";
 import { orientationsForLocation } from "@/lib/site-orientation";
 import {
   locationActivityTableConfig,
@@ -561,6 +562,15 @@ export function LocationTabbedView({
               }}
             />
           </div>
+        ) : null}
+
+        {activeTab === "Calendar" && canWindow("location-calendar") ? (
+          <RecordCalendarPanel
+            entityKind="location"
+            entityId={location.id}
+            activities={location.activities}
+            description="Tasks, live roster shifts, roster-of-care template lines delivered at this location, and activity notes. Items link to the source record when your role has access."
+          />
         ) : null}
 
         {allowedTabs.length === 0 ? (

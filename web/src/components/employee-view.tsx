@@ -31,6 +31,7 @@ import {
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { EmployeeSchedulePanel } from "@/components/employee-schedule-panel";
 import { EmployeeScheduleTemplatePanel } from "@/components/employee-schedule-template-panel";
+import { RecordCalendarPanel } from "@/components/record-calendar-panel";
 import {
   credentialTableConfig,
   employeeActivityTableConfig,
@@ -618,6 +619,15 @@ export function EmployeeTabbedView({
               entityLabel: `${employee.searchKey} — ${employee.name}`,
               collectionLabel: "Employee activity",
             }}
+          />
+        ) : null}
+
+        {activeTab === "Calendar" && canWindow("employee-calendar") ? (
+          <RecordCalendarPanel
+            entityKind="employee"
+            entityId={employee.id}
+            activities={employee.activities}
+            description="Tasks, live roster shifts, roster-of-care template lines where this worker is rostered, and activity notes. Items link to the source record when your role has access."
           />
         ) : null}
 

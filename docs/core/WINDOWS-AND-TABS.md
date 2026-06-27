@@ -146,6 +146,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 |-----|------------|
 | Overview | `client-overview` |
 | Activity | `client-activity` |
+| Calendar | `client-calendar` |
 | Support Plan | `client-support-plan` |
 | Alerts | `client-alerts` |
 | Service agreements | `client-service-agreements` |
@@ -203,6 +204,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 |-----|------------|
 | Overview | `location-overview` |
 | Activity | `location-activity` |
+| Calendar | `location-calendar` |
 | Alerts | `location-alerts` |
 | Contact & address | `location-contact-and-address` |
 | Clients | `location-clients` |
@@ -401,6 +403,7 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 |-----|------------|
 | Overview | `employee-overview` |
 | Activity | `employee-activity` |
+| Calendar | `employee-calendar` |
 | Contact | `employee-contact` |
 | Address | `employee-locations` |
 | Emergency contacts | `employee-emergency-contacts` |

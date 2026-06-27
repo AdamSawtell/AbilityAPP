@@ -91,6 +91,7 @@ export type LocationRecord = {
 export const locationTabs = [
   "Overview",
   "Activity",
+  "Calendar",
   "Contact & address",
   "Alerts",
   "Clients",
@@ -108,7 +109,7 @@ export type LocationTabGroup = {
 };
 
 export const locationTabGroups: LocationTabGroup[] = [
-  { label: "Core", tabs: ["Overview", "Activity", "Alerts", "Contact & address"] },
+  { label: "Core", tabs: ["Overview", "Activity", "Calendar", "Alerts", "Contact & address"] },
   { label: "Relationships", tabs: ["Clients", "Employees", "Incidents", "Site orientation"] },
   { label: "Services", tabs: ["Products & services"] },
 ];

@@ -17,7 +17,7 @@ export const clientsArticle: HelpArticle = {
   ],
   relatedRoutes: ["/clients", "/service-agreements"],
   windowKeys: ["clients"],
-  lastUpdated: "2026-06-23",
+  lastUpdated: "2026-06-27",
   sections: [
     {
       id: "client-list",
@@ -43,7 +43,7 @@ export const clientsArticle: HelpArticle = {
       title: "Client tab groups",
       body: "Client records use grouped tabs on the left. Your role controls which tabs you see.",
       bullets: [
-        "Core: Overview, Alerts, Activity, Full profile, Service agreements, Service bookings",
+        "Core: Overview, Alerts, Activity, Calendar, Full profile, Service agreements, Service bookings",
         "Relationships: BP Associations, Locations, Contact Activity",
         "Care and compliance: Requests, Restrictive Practices, Consents and Legal Orders, Risks, Incidents",
         "Planning: Plan budget, Plan and Assessment, Support Plan, Goals, Progress Review, Support Receiver Needs and Rules",
@@ -90,6 +90,18 @@ export const clientsArticle: HelpArticle = {
       title: "Alerts and Activity",
       body: "Alerts hold incident and care flags with valid-from and valid-to dates. Activity logs phone calls, visits, and case notes. Client line tabs use a summary list — click a row to open the line drawer for full fields (descriptions, controls, notes). Save the parent record to persist. Activity lines can only be removed by an administrator; other roles use Request deletion to send a task to the admin team.",
       windowKeys: ["client-alerts", "client-activity"],
+    },
+    {
+      id: "record-calendar",
+      title: "Calendar tab (client, employee, location)",
+      body: "The Calendar tab sits under Activity on client, employee, and location records. It shows a month/week/day view of tasks linked to the record, live roster shifts (Draft and Published), roster-of-care template lines expanded for the visible range, and activity notes. Colour-coded chips link to the source record when your role has access — tasks open the task record, shifts open Rostering for that week, RoC templates open the client RoC tab or Rostering → RoC, and activities open the Activity tab.",
+      steps: [
+        "Open a client, employee, or location record → Calendar (below Activity in the sidebar).",
+        "Switch Month, Week, or Day; use Prev/Next or Today to navigate.",
+        "Click a chip to open the linked record when you have access; items without access show without a link.",
+        "Use the legend counts to see how many tasks, live shifts, RoC templates, and activities appear in the current view.",
+      ],
+      windowKeys: ["client-calendar", "employee-calendar", "location-calendar", "rostering", "tasks"],
     },
     {
       id: "consents",
@@ -221,7 +233,7 @@ export const locationsArticle: HelpArticle = {
   keywords: ["location", "support location", "SIL", "address", "assign client", "assign employee"],
   relatedRoutes: ["/locations", "/locations/new"],
   windowKeys: ["locations"],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-27",
   sections: [
     {
       id: "location-list",
@@ -247,7 +259,7 @@ export const locationsArticle: HelpArticle = {
         "Location: Overview, Contact and address",
         "Relationships: Alerts, Clients, Employees",
         "Services: Products and services",
-        "History: Activity",
+        "History: Activity, Calendar",
       ],
     },
     {

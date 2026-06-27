@@ -95,6 +95,7 @@ export const clientTabs = [
   "Overview",
   "Alerts",
   "Activity",
+  "Calendar",
   "Full profile",
   "BP Associations",
   "Locations",
@@ -528,7 +529,7 @@ export const coreOverviewFields: ClientFieldDef[] = profileFields.filter((f) =>
 export const clientTabGroups: ClientTabGroup[] = [
   {
     label: "Core",
-    tabs: ["Overview", "Activity", "Support Plan", "Alerts", "Service agreements", "Service bookings", "Full profile"],
+    tabs: ["Overview", "Activity", "Calendar", "Support Plan", "Alerts", "Service agreements", "Service bookings", "Full profile"],
   },
   {
     label: "Relationships",

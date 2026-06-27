@@ -218,6 +218,7 @@ export const employeeTabGroups: EmployeeTabGroup[] = [
     tabs: [
       "Overview",
       "Activity",
+      "Calendar",
       "Contact",
       "Address",
       "Emergency contacts",

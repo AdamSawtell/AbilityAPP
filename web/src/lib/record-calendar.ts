@@ -1,0 +1,257 @@
+import { canAccessWindow } from "@/lib/access/catalog";
+import type { ClientActivityRow } from "@/lib/client-line-tables";
+import type { EmployeeActivityRow } from "@/lib/employee";
+import type { LocationActivityRow } from "@/lib/location";
+import { addDaysIso, formatShiftTimeRange, weekStartFromDate, type RosterShiftRecord } from "@/lib/roster-shift";
+import { normalizeRosterShift } from "@/lib/roster-shift";
+import type { RosterOfCareLine, RosterOfCareRecord } from "@/lib/roster-of-care";
+import type { TaskRecord } from "@/lib/task";
+import { taskUrgency, type TaskUrgency } from "@/lib/task-hub";
+import { isoFromDate, monthGridDays, weekDays } from "@/lib/personal-calendar";
+
+export type RecordCalendarEntityKind = "client" | "employee" | "location";
+
+export type RecordCalendarEventKind = "task" | "shift-actual" | "shift-template" | "activity";
+
+export type RecordCalendarEvent = {
+  id: string;
+  date: string;
+  kind: RecordCalendarEventKind;
+  title: string;
+  subtitle?: string;
+  /** When null the chip renders without a link (user lacks access). */
+  href: string | null;
+  urgency?: TaskUrgency;
+};
+
+export type RecordCalendarInput = {
+  entityKind: RecordCalendarEntityKind;
+  entityId: string;
+  rangeStart: string;
+  rangeEnd: string;
+  windowKeys: string[];
+  tasks: TaskRecord[];
+  rosterShifts: RosterShiftRecord[];
+  rosterOfCares: RosterOfCareRecord[];
+  activities: ClientActivityRow[] | EmployeeActivityRow[] | LocationActivityRow[];
+  /** Required for client-scoped RoC template expansion. */
+  clientId?: string;
+};
+
+function inRange(date: string, start: string, end: string): boolean {
+  return date >= start && date <= end;
+}
+
+function isDateInRocRange(date: string, validFrom: string, validTo: string): boolean {
+  if (validFrom?.trim() && date < validFrom.slice(0, 10)) return false;
+  if (validTo?.trim() && date > validTo.slice(0, 10)) return false;
+  return true;
+}
+
+function taskEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
+  const canTasks = canAccessWindow(input.windowKeys, "tasks");
+  const entityType =
+    input.entityKind === "client"
+      ? "client"
+      : input.entityKind === "employee"
+        ? "employee"
+        : "location";
+
+  return input.tasks
+    .filter(
+      (task) =>
+        task.entityType === entityType &&
+        task.entityId === input.entityId &&
+        task.status !== "Cancelled" &&
+        task.status !== "Completed" &&
+        task.dueDate?.trim() &&
+        inRange(task.dueDate.slice(0, 10), input.rangeStart, input.rangeEnd)
+    )
+    .map((task) => ({
+      id: `task-${task.id}`,
+      date: task.dueDate.slice(0, 10),
+      kind: "task" as const,
+      title: task.title,
+      subtitle: task.documentNo,
+      href: canTasks ? `/tasks/${task.id}` : null,
+      urgency: taskUrgency(task),
+    }));
+}
+
+function shiftMatchesClient(shift: RosterShiftRecord, clientId: string): boolean {
+  if (shift.clientId === clientId) return true;
+  return (shift.clientLines ?? []).some((line) => line.clientId === clientId);
+}
+
+function shiftMatchesEmployee(shift: RosterShiftRecord, employeeId: string): boolean {
+  if (shift.employeeId === employeeId) return true;
+  return (shift.workerLines ?? []).some((line) => line.employeeId === employeeId);
+}
+
+function actualShiftEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
+  const canRoster = canAccessWindow(input.windowKeys, "rostering");
+  const events: RecordCalendarEvent[] = [];
+
+  for (const raw of input.rosterShifts) {
+    const shift = normalizeRosterShift(raw);
+    if (shift.status === "Cancelled" || !shift.shiftDate?.trim()) continue;
+    if (shift.status === "Completed") continue;
+    if (!inRange(shift.shiftDate.slice(0, 10), input.rangeStart, input.rangeEnd)) continue;
+
+    const matches =
+      input.entityKind === "client"
+        ? shiftMatchesClient(shift, input.entityId)
+        : input.entityKind === "employee"
+          ? shiftMatchesEmployee(shift, input.entityId)
+          : shift.locationId === input.entityId;
+
+    if (!matches) continue;
+
+    const timeRange = formatShiftTimeRange(shift.startTime, shift.endTime);
+    const published = shift.status === "Published";
+    events.push({
+      id: `shift-${shift.id}`,
+      date: shift.shiftDate.slice(0, 10),
+      kind: "shift-actual",
+      title: published ? `Shift ${timeRange}` : `Draft shift ${timeRange}`,
+      subtitle: [shift.shiftRef, shift.status].filter(Boolean).join(" · "),
+      href: canRoster ? `/rostering?week=${weekStartFromDate(shift.shiftDate)}` : null,
+      urgency: published ? "later" : "soon",
+    });
+  }
+
+  return events;
+}
+
+function rocLineMatches(
+  entityKind: RecordCalendarEntityKind,
+  entityId: string,
+  roc: RosterOfCareRecord,
+  line: RosterOfCareLine
+): boolean {
+  if (entityKind === "client") return roc.clientId === entityId;
+  if (entityKind === "employee") return line.defaultEmployeeId?.trim() === entityId;
+  return line.locationId?.trim() === entityId;
+}
+
+function templateShiftEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
+  const canRoc =
+    input.entityKind === "client"
+      ? canAccessWindow(input.windowKeys, "client-roster-of-care")
+      : canAccessWindow(input.windowKeys, "rostering");
+  const events: RecordCalendarEvent[] = [];
+
+  const rangeStart = input.rangeStart;
+  const rangeEnd = input.rangeEnd;
+  let weekStart = weekStartFromDate(rangeStart);
+  const endWeek = weekStartFromDate(rangeEnd);
+
+  while (weekStart <= endWeek) {
+    for (const roc of input.rosterOfCares) {
+      if (roc.status !== "Active") continue;
+      for (const line of roc.lines) {
+        if (!rocLineMatches(input.entityKind, input.entityId, roc, line)) continue;
+        if (!line.locationId?.trim()) continue;
+
+        const shiftDate = addDaysIso(weekStart, line.weekday);
+        if (!inRange(shiftDate, rangeStart, rangeEnd)) continue;
+        if (!isDateInRocRange(shiftDate, roc.validFrom, roc.validTo)) continue;
+
+        const timeRange = formatShiftTimeRange(line.startTime, line.endTime);
+        const href =
+          input.entityKind === "client" && canRoc
+            ? `/clients/${roc.clientId}?tab=Roster%20of%20care`
+            : canRoc
+              ? "/rostering?view=roc"
+              : null;
+
+        events.push({
+          id: `roc-${roc.id}-${line.id}-${shiftDate}`,
+          date: shiftDate,
+          kind: "shift-template",
+          title: `RoC ${timeRange}`,
+          subtitle: roc.name,
+          href,
+          urgency: "later",
+        });
+      }
+    }
+    weekStart = addDaysIso(weekStart, 7);
+  }
+
+  return events;
+}
+
+function activityEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
+  const tab = encodeURIComponent("Activity");
+  const baseHref =
+    input.entityKind === "client"
+      ? `/clients/${input.entityId}?tab=${tab}`
+      : input.entityKind === "employee"
+        ? `/employees/${input.entityId}?tab=${tab}`
+        : `/locations/${input.entityId}?tab=${tab}`;
+
+  return input.activities
+    .filter((row) => row.date?.trim() && inRange(row.date.slice(0, 10), input.rangeStart, input.rangeEnd))
+    .map((row) => ({
+      id: `activity-${row.id}`,
+      date: row.date.slice(0, 10),
+      kind: "activity" as const,
+      title: row.subject?.trim() || row.activityType || "Activity",
+      subtitle: row.activityType,
+      href: baseHref,
+      urgency: "later" as const,
+    }));
+}
+
+/** Calendar events for a client, employee, or location record within a visible date range. */
+export function recordCalendarEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
+  const events = [
+    ...taskEvents(input),
+    ...actualShiftEvents(input),
+    ...templateShiftEvents(input),
+    ...activityEvents(input),
+  ];
+  return events.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
+}
+
+export function recordCalendarEventsByDate(events: RecordCalendarEvent[]): Map<string, RecordCalendarEvent[]> {
+  const map = new Map<string, RecordCalendarEvent[]>();
+  for (const event of events) {
+    const list = map.get(event.date) ?? [];
+    list.push(event);
+    map.set(event.date, list);
+  }
+  return map;
+}
+
+export function recordCalendarKindLabel(kind: RecordCalendarEventKind): string {
+  switch (kind) {
+    case "task":
+      return "Task";
+    case "shift-actual":
+      return "Live shift";
+    case "shift-template":
+      return "RoC template";
+    case "activity":
+      return "Activity";
+    default:
+      return kind;
+  }
+}
+
+export function recordCalendarRangeForView(
+  view: "month" | "week" | "day",
+  anchor: Date
+): { rangeStart: string; rangeEnd: string } {
+  if (view === "month") {
+    const days = monthGridDays(anchor);
+    return { rangeStart: isoFromDate(days[0]), rangeEnd: isoFromDate(days[days.length - 1]) };
+  }
+  if (view === "week") {
+    const days = weekDays(anchor);
+    return { rangeStart: isoFromDate(days[0]), rangeEnd: isoFromDate(days[days.length - 1]) };
+  }
+  const iso = isoFromDate(anchor);
+  return { rangeStart: iso, rangeEnd: iso };
+}

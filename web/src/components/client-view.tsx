@@ -21,6 +21,7 @@ import { LineItemTable } from "@/components/line-item-table";
 import { ClientPortalRequestsPanel } from "@/components/client-portal-requests-panel";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
+import { RecordCalendarPanel } from "@/components/record-calendar-panel";
 import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/access/catalog";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -505,6 +506,15 @@ export function ClientTabbedView({
               }}
             />
           </>
+        ) : null}
+
+        {activeTab === "Calendar" && canClientTab("Calendar") ? (
+          <RecordCalendarPanel
+            entityKind="client"
+            entityId={client.id}
+            activities={client.activity}
+            description="Tasks, live roster shifts, roster-of-care template lines, and activity notes for this support receiver. Items link to the source record when your role has access."
+          />
         ) : null}
 
         {tableTab === "Restrictive Practices" && canClientTab("Restrictive Practices") ? (
