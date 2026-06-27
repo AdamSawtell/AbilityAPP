@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | Pay-period picker payroll-archived label (`cbca1e4` follow-up) |
+| **Active slice** | Pay-period picker payroll-archived label — shipped (`74b8383`) |
 | **Next slice** | None on critical path — awaiting direction (candidates: Phase 2 mobile worker app; not AB-0004 / AB-0011 / AB-0012 / SCHADS) |
-| **Last push** | 2026-06-28 — Pay-period alignment smoke + payroll-archived picker labels |
+| **Last push** | 2026-06-28 — Payroll-archived picker labels + Amplify smoke log (`74b8383`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
