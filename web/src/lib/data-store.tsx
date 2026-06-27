@@ -78,7 +78,7 @@ import {
   validateRosterShiftBatch,
   buildRosterQualificationMaps,
 } from "@/lib/roster-shift-compliance";
-import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
+import { buildCheckInUpdate, buildCheckOutUpdate, shiftCheckInStatus } from "@/lib/roster-shift-checkin";
 import type { GeoCoordinates } from "@/lib/geolocation";
 import {
   createRosterShift,
@@ -298,7 +298,7 @@ type DataStore = {
   upsertServiceAgreement: (record: ServiceAgreementRecord) => void;
   addServiceBooking: (partial: ServiceBookingRecord) => ServiceBookingRecord;
   upsertServiceBooking: (record: ServiceBookingRecord) => void;
-  upsertRosterShift: (record: RosterShiftRecord) => string | null;
+  upsertRosterShift: (record: RosterShiftRecord, options?: { preserveAttendance?: boolean }) => string | null;
   upsertAgencyWorker: (record: AgencyWorkerRecord) => string | null;
   upsertAgencyShiftRequest: (record: AgencyShiftRequestRecord) => string | null;
   upsertSiteOrientation: (record: SiteOrientationRecord) => string | null;
@@ -1321,12 +1321,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const upsertRosterShift = useCallback(
-    (record: RosterShiftRecord): string | null => {
+    (record: RosterShiftRecord, options: { preserveAttendance?: boolean } = {}): string | null => {
       const prev = rosterShiftsRef.current;
       let normalized = normalizeRosterShift(record);
       const before = prev.find((r) => r.id === normalized.id);
       const exists = Boolean(before);
-      if (before && exists) {
+      if (before && exists && options.preserveAttendance !== false) {
+        const priorWorkerLines = before.workerLines ?? [];
+        const incomingWorkerLines = normalized.workerLines?.length ? normalized.workerLines : priorWorkerLines;
         normalized = normalizeRosterShift({
           ...normalized,
           checkedInAt: normalized.checkedInAt?.trim() ? normalized.checkedInAt : before.checkedInAt,
@@ -1340,6 +1342,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           checkOutLongitude: normalized.checkOutLongitude?.trim()
             ? normalized.checkOutLongitude
             : before.checkOutLongitude,
+          workerLines: incomingWorkerLines.map((line) => {
+            const prior =
+              priorWorkerLines.find(
+                (existing) => existing.employeeId?.trim() && existing.employeeId.trim() === line.employeeId?.trim()
+              ) ??
+              priorWorkerLines.find(
+                (existing) =>
+                  existing.id === line.id &&
+                  existing.employeeId?.trim() &&
+                  existing.employeeId.trim() === line.employeeId?.trim()
+              );
+            return {
+              ...line,
+              checkedInAt: line.checkedInAt?.trim() ? line.checkedInAt : prior?.checkedInAt ?? "",
+              checkedOutAt: line.checkedOutAt?.trim() ? line.checkedOutAt : prior?.checkedOutAt ?? "",
+            };
+          }),
         });
       }
 
@@ -1697,13 +1716,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
 
       const latest = rosterShiftsRef.current.find((s) => s.id === shiftId);
-      if (latest?.checkedInAt?.trim()) return "Check-in is no longer available for this shift.";
+      if (latest && shiftCheckInStatus(latest, employeeId) !== "not-started") {
+        return "Check-in is no longer available for this shift.";
+      }
 
       const before = rosterShiftsRef.current.find((r) => r.id === built.shift.id);
       const stamped = persistRecordAudit("roster-shift", built.shift, false, before);
       setRosterShifts((current) => {
         const live = current.find((s) => s.id === shiftId);
-        if (!live || live.checkedInAt?.trim()) return current;
+        if (!live || shiftCheckInStatus(live, employeeId) !== "not-started") return current;
         return current.map((r) => (r.id === stamped.id ? stamped : r));
       });
       return null;
@@ -1750,7 +1771,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
 
       const latest = rosterShiftsRef.current.find((s) => s.id === shiftId);
-      if (!latest?.checkedInAt?.trim() || latest.checkedOutAt?.trim()) {
+      if (!latest || shiftCheckInStatus(latest, employeeId) !== "checked-in") {
         return "Check-out is no longer available for this shift.";
       }
 
@@ -1758,7 +1779,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const stamped = persistRecordAudit("roster-shift", built.shift, false, before);
       setRosterShifts((current) => {
         const live = current.find((s) => s.id === shiftId);
-        if (!live?.checkedInAt?.trim() || live.checkedOutAt?.trim()) return current;
+        if (!live || shiftCheckInStatus(live, employeeId) !== "checked-in") return current;
         return current.map((r) => (r.id === stamped.id ? stamped : r));
       });
       return null;

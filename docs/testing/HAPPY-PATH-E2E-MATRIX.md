@@ -457,6 +457,8 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-244 | Rostering | Assign worker | `/rostering` | Roster admin | Live | HP-051 |
 | FUNC-245 | Rostering | Publish / notify | `/rostering` | Roster admin | Live | HP-052 |
 | FUNC-245a | Rostering | RoC bulk rollover (all / client / location) | `/rostering` RoC | Roster admin | Live | UAT-05-S-020, TEST-060 |
+| FUNC-245b | Rostering | Fortnight RoC vs actual review | `/rostering` Fortnight review | Roster admin | Live | TEST-060 |
+| FUNC-245c | Rostering / My workplace | Multi-worker session visibility and timesheet generation | `/my/shifts`, `/generate-timesheets` | Support worker, Roster admin | Live | TEST-060 |
 | FUNC-246 | Agency workers | Register + vendor link | `/agency-workers` | Roster admin+ | Live | HP-070 |
 | FUNC-246a | Rostering | Request agency coverage | `/rostering` Gaps | Roster admin+ | Live | HP-071, TEST-070 |
 | FUNC-246b | Rostering | Confirm agency shift | Agency drawer | Roster admin+ | Live | HP-072, TEST-070 |

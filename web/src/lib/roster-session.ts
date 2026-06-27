@@ -113,6 +113,53 @@ export function normalizeRosterShiftWorkerLine(line: RosterShiftWorkerLine): Ros
   };
 }
 
+export function workerLineForEmployee(
+  workerLines: RosterShiftWorkerLine[] | undefined,
+  employeeId: string
+): RosterShiftWorkerLine | undefined {
+  const id = employeeId.trim();
+  if (!id) return undefined;
+  return (workerLines ?? []).map(normalizeRosterShiftWorkerLine).find((line) => line.employeeId.trim() === id);
+}
+
+export function shiftHasAssignedWorker(
+  shift: { employeeId?: string; workerLines?: RosterShiftWorkerLine[] },
+  employeeId: string
+): boolean {
+  const id = employeeId.trim();
+  if (!id) return false;
+  if (shift.employeeId?.trim() === id) return true;
+  return Boolean(workerLineForEmployee(shift.workerLines, id));
+}
+
+export function assignedWorkerIdsForShift(shift: {
+  employeeId?: string;
+  workerLines?: RosterShiftWorkerLine[];
+}): string[] {
+  const ids = new Set<string>();
+  if (shift.employeeId?.trim()) ids.add(shift.employeeId.trim());
+  for (const line of shift.workerLines ?? []) {
+    const id = line.employeeId?.trim();
+    if (id) ids.add(id);
+  }
+  return [...ids];
+}
+
+export function updateWorkerLineForEmployee(
+  workerLines: RosterShiftWorkerLine[] | undefined,
+  employeeId: string,
+  update: Partial<Pick<RosterShiftWorkerLine, "checkedInAt" | "checkedOutAt" | "status" | "notes">>
+): RosterShiftWorkerLine[] {
+  const id = employeeId.trim();
+  const normalized = (workerLines ?? []).map(normalizeRosterShiftWorkerLine);
+  if (!id) return normalized;
+  const index = normalized.findIndex((line) => line.employeeId.trim() === id);
+  if (index < 0) return normalized;
+  return normalized.map((line, i) =>
+    i === index ? normalizeRosterShiftWorkerLine({ ...line, ...update }) : line
+  );
+}
+
 /** Session grouping key for master roster lines → one live shift. */
 export function rocSessionGroupKey(line: Pick<RocSessionLineRef, "sessionKey" | "weekday" | "startTime" | "endTime" | "locationId">): string {
   const key = line.sessionKey?.trim();

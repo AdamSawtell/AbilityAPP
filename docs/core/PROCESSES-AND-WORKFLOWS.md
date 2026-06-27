@@ -123,7 +123,8 @@
 |----------|---------|--------------|
 | Publish roster week | Publish on `/rostering` | Shifts visible in **My shifts**; may create notify tasks |
 | RoC rollover to live roster | Rostering → RoC → Publish to roster | Creates missing live `roster_shift` sessions from master RoC lines for the configured lookahead; session-key peers become one multi-client/worker shift; skip-existing prevents duplicates |
-| Bulk RoC rollover | Rostering → RoC → Bulk rollover | One action rolls forward many templates: **All** active RoCs, **By client** (co-resident sessions still merge), or **By location** (only that location's lines). De-duplicates shared sessions by shift id; same week range / status / skip-existing controls as the per-RoC publish |
+| Bulk RoC rollover | Rostering → RoC → Bulk rollover | One action rolls forward many templates: **All** active RoCs, **By client** (co-resident sessions still merge), or **By location** (only that location's lines). De-duplicates shared sessions by shift id; same week range / status / skip-existing controls as the per-RoC publish; the latest batch summary can be undone by cancelling those shifts |
+| Fortnight roster review | Rostering → Fortnight review | Compares active RoC template occurrences with live shifts for the default two-week roster cycle; lists missing actuals, draft shifts, vacant sessions, worker changes, and extra actual shifts |
 | Qualification gate | Publish | Blocks if worker missing WWCC / NDIS screening (configurable) |
 | Open shift request | Worker requests on `/my/open-shifts`; coordinator approves on Rostering → Open shifts or fill board | Assigns one worker; rejects other pending requests; critical fill flag — Live |
 | Add buddy shift | **Add buddy shift** on staffed shift card | Creates linked shift with `shiftPurpose` buddy/orientation; inherits client/location/time |

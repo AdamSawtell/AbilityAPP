@@ -38,6 +38,7 @@ import { addDaysIso, weekStartFromDate } from "@/lib/roster-shift";
 import { shiftTimesheetDeliveryStatus } from "@/lib/shift-timesheet-bridge";
 import { captureGeolocation } from "@/lib/geolocation";
 import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
+import { workerLineForEmployee } from "@/lib/roster-session";
 import {
   DEFAULT_ORGANIZATION_TIMEZONE,
   organizationTodayIso,
@@ -537,12 +538,16 @@ function MyShiftCard({
   highlight: boolean;
   anchorDate: string;
 }) {
-  const status = shiftCheckInStatus(shift);
+  const status = shiftCheckInStatus(shift, employeeId);
+  const workerLine = workerLineForEmployee(shift.workerLines, employeeId);
+  const checkedInAt = workerLine?.checkedInAt || shift.checkedInAt;
+  const checkedOutAt = workerLine?.checkedOutAt || shift.checkedOutAt;
+  const checkInNotes = workerLine?.notes || shift.checkInNotes;
   const canIn = canWorkerCheckIn(shift, employeeId, new Date(), anchorDate).ok;
   const canOut = canWorkerCheckOut(shift, employeeId).ok;
   const checkInGate = canWorkerCheckIn(shift, employeeId, new Date(), anchorDate);
   const isDraft = shift.status === "Draft";
-  const delivery = shiftTimesheetDeliveryStatus({ shift, timesheets, locations });
+  const delivery = shiftTimesheetDeliveryStatus({ shift, timesheets, locations, employeeId });
 
   return (
     <li
@@ -580,17 +585,17 @@ function MyShiftCard({
         </span>
       </div>
 
-      {shift.checkedInAt ? (
+      {checkedInAt ? (
         <p className="mt-3 text-xs text-slate-600">
-          Checked in {formatCheckInTimestamp(shift.checkedInAt)}
-          {shift.checkedOutAt ? ` · Out ${formatCheckInTimestamp(shift.checkedOutAt)}` : null}
+          Checked in {formatCheckInTimestamp(checkedInAt)}
+          {checkedOutAt ? ` · Out ${formatCheckInTimestamp(checkedOutAt)}` : null}
         </p>
       ) : null}
       {!canIn && !canOut && (status === "not-started" || isDraft) && !checkInGate.ok ? (
         <p className="mt-2 text-xs text-slate-500">{checkInGate.message}</p>
       ) : null}
-      {shift.checkInNotes ? (
-        <p className="mt-2 text-sm text-slate-600">Notes: {shift.checkInNotes}</p>
+      {checkInNotes ? (
+        <p className="mt-2 whitespace-pre-line text-sm text-slate-600">Notes: {checkInNotes}</p>
       ) : null}
       <ShiftGeoLinks shift={shift} />
       <ShiftGeofenceAlerts alerts={shiftGeofenceAlerts(shift, location)} />

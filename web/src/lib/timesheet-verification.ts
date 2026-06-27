@@ -1,5 +1,6 @@
 import { shiftCheckInStatus } from "@/lib/roster-shift-checkin";
 import { isTrainingOrMeetingPurpose, normalizeShiftPurpose } from "@/lib/buddy-shift";
+import { workerLineForEmployee } from "@/lib/roster-session";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { TimesheetLine, TimesheetRecord } from "@/lib/timesheet";
 import type { LocationRecord } from "@/lib/location";
@@ -33,10 +34,13 @@ export type TimesheetVerificationSummary = {
 
 const DEFAULT_VARIANCE_THRESHOLD_HOURS = 0.25;
 
-export function actualHoursFromCheckIn(shift: RosterShiftRecord): number | null {
-  if (!shift.checkedInAt?.trim() || !shift.checkedOutAt?.trim()) return null;
-  const start = new Date(shift.checkedInAt);
-  const end = new Date(shift.checkedOutAt);
+export function actualHoursFromCheckIn(shift: RosterShiftRecord, employeeId = ""): number | null {
+  const workerLine = workerLineForEmployee(shift.workerLines, employeeId);
+  const checkedInAt = workerLine?.checkedInAt || shift.checkedInAt;
+  const checkedOutAt = workerLine?.checkedOutAt || shift.checkedOutAt;
+  if (!checkedInAt?.trim() || !checkedOutAt?.trim()) return null;
+  const start = new Date(checkedInAt);
+  const end = new Date(checkedOutAt);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) return null;
   return Math.round(((end.getTime() - start.getTime()) / 3600000) * 100) / 100;
 }
@@ -45,7 +49,8 @@ export function verifyTimesheetLine(
   line: TimesheetLine,
   shift: RosterShiftRecord | undefined,
   varianceThreshold = DEFAULT_VARIANCE_THRESHOLD_HOURS,
-  location?: Pick<LocationRecord, "latitude" | "longitude" | "geofenceRadiusM" | "name"> | null
+  location?: Pick<LocationRecord, "latitude" | "longitude" | "geofenceRadiusM" | "name"> | null,
+  employeeId = ""
 ): TimesheetLineVerification {
   const scheduledHours = line.hours ?? 0;
   const geofenceWarning = shift
@@ -86,7 +91,7 @@ export function verifyTimesheetLine(
     };
   }
 
-  const checkStatus = shiftCheckInStatus(shift);
+  const checkStatus = shiftCheckInStatus(shift, employeeId);
   if (checkStatus === "not-started") {
     return {
       ...base,
@@ -103,7 +108,7 @@ export function verifyTimesheetLine(
     };
   }
 
-  const actualHours = actualHoursFromCheckIn(shift);
+  const actualHours = actualHoursFromCheckIn(shift, employeeId);
   if (actualHours == null) {
     return {
       ...base,
@@ -143,7 +148,7 @@ export function verifyTimesheet(
   const lines = sheet.lines.map((line) => {
     const shift = shiftById.get(line.rosterShiftId?.trim() ?? "");
     const location = shift ? locationById.get(shift.locationId) : undefined;
-    return verifyTimesheetLine(line, shift, varianceThreshold, location);
+    return verifyTimesheetLine(line, shift, varianceThreshold, location, sheet.employeeId);
   });
   const verifiedCount = lines.filter((l) => l.status === "verified").length;
   const issueCount = lines.filter((l) => l.status !== "verified").length;

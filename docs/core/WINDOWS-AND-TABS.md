@@ -285,7 +285,7 @@ Business partners: Overview tab plus **Agency workers** tab when partner type is
 | Multi-provider budget | `multi-provider-budget` | `/multi-provider-budget` | Child of service planning |
 | Rostering | `rostering` | `/rostering` | Service delivery |
 
-Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward plan**, **Capacity**, **Gaps**, **Open shifts**, **RoC**. No record tabs — grid/calendar UI.
+Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward plan**, **Fortnight review**, **Capacity**, **Gaps**, **Open shifts**, **RoC**. No record tabs — grid/calendar UI.
 
 **Open shifts (request workflow):** Vacant shifts appear on **Open shifts** and **My workplace → Open shifts**. Workers **Request shift** (or **Available if critical** / **Decline** on urgent shifts). Coordinators **Review requests**, **Approve & assign**, **Reject**, **Assign worker**, or **Mark critical fill**. **Workforce planning → Fill board** triages the focus week with the same review panel and filters (open / requested / critical fill).
 
@@ -294,6 +294,8 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 **Buddy shifts (AB-0022):** On staffed shift cards, **Add buddy shift** creates a linked shadow/orientation shift. Calendar badges: **Buddy**, **Non-payable**, **Non-billable**. Org pay default: System → Organisation → **Buddy shifts** (`/system/settings/buddy-shifts`). Participant portal does not show buddy shifts (v1).
 
 **RoC tab:** Import RoC CSV, generate a draft from a service agreement, per-RoC **Publish to roster**, and **Bulk rollover** (scope **All active RoCs** / **By client** / **By location**) — all gated on `rostering` write. Bulk rollover de-duplicates shared session-key shifts and honours the Organisation rollover defaults.
+
+**Fortnight review tab:** Default two-week command-centre view comparing active RoC templates with live roster shifts. It highlights missing actuals, draft shifts, vacant sessions, worker changes, and extra actual shifts before the roster is published.
 
 **Processes:** `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` (rostering + agency-workers grants).
 

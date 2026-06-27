@@ -33,6 +33,13 @@ import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-chec
 import { normalizeGeoInput, geoToDbNumber, type GeoCoordinates } from "@/lib/geolocation";
 import { normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
 import { rosterShiftFromRow, type RosterShiftRow } from "@/lib/supabase/mappers";
+import {
+  rosterShiftClientLineFromRow,
+  rosterShiftWorkerLineFromRow,
+  rosterShiftWorkerLineToRow,
+  type RosterShiftClientLineRow,
+  type RosterShiftWorkerLineRow,
+} from "@/lib/supabase/roster-session-mappers";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
@@ -57,6 +64,26 @@ export {
   dayLabels,
   isStaffContractDocument,
 } from "@/lib/my-workplace/types";
+
+async function loadRosterShiftWithSessionLines(
+  supabase: SupabaseClient | null,
+  row: RosterShiftRow
+): Promise<RosterShiftRecord> {
+  if (!supabase) return normalizeRosterShift(rosterShiftFromRow(row));
+
+  const [clientLinesRes, workerLinesRes] = await Promise.all([
+    supabase.from("roster_shift_client_line").select("*").eq("roster_shift_id", row.id).order("line_no"),
+    supabase.from("roster_shift_worker_line").select("*").eq("roster_shift_id", row.id).order("line_no"),
+  ]);
+  if (clientLinesRes.error) throw clientLinesRes.error;
+  if (workerLinesRes.error) throw workerLinesRes.error;
+
+  return normalizeRosterShift({
+    ...rosterShiftFromRow(row),
+    clientLines: ((clientLinesRes.data ?? []) as RosterShiftClientLineRow[]).map(rosterShiftClientLineFromRow),
+    workerLines: ((workerLinesRes.data ?? []) as RosterShiftWorkerLineRow[]).map(rosterShiftWorkerLineFromRow),
+  });
+}
 
 export type MyWorkplaceContext = {
   session: AuthSession;
@@ -439,7 +466,7 @@ export async function performMyShiftCheckIn(
 
   if (supabase && (error || !row)) throw new Error("Shift not found.");
   const shift = row
-    ? normalizeRosterShift(rosterShiftFromRow(row as RosterShiftRow))
+    ? await loadRosterShiftWithSessionLines(supabase, row as RosterShiftRow)
     : null;
   if (!shift) throw new Error("Shift not found.");
 
@@ -447,21 +474,61 @@ export async function performMyShiftCheckIn(
   if (!built.ok) throw new Error(built.message);
 
   if (supabase) {
-    const { data, error: updateError } = await supabase
-      .from("roster_shift")
+    const workerLine = (built.shift.workerLines ?? []).find((line) => line.employeeId.trim() === ctx.employeeId);
+    if (!workerLine && shift.employeeId !== ctx.employeeId) throw new Error("This shift is not assigned to you.");
+    if (!workerLine) {
+      const { data, error: headerOnlyError } = await supabase
+        .from("roster_shift")
+        .update({
+          checked_in_at: built.shift.checkedInAt,
+          check_in_latitude: geoToDbNumber(built.shift.checkInLatitude),
+          check_in_longitude: geoToDbNumber(built.shift.checkInLongitude),
+          updated_by: built.shift.updatedBy,
+        })
+        .eq("id", shiftId)
+        .eq("employee_id", ctx.employeeId)
+        .is("checked_in_at", null)
+        .select("*");
+      if (headerOnlyError) throw headerOnlyError;
+      if (!data?.length) throw new Error("Check-in is no longer available for this shift.");
+      return loadRosterShiftWithSessionLines(supabase, data[0] as RosterShiftRow);
+    }
+    const workerRow = rosterShiftWorkerLineToRow(shiftId, workerLine);
+    const { data: updatedLines, error: workerUpdateError } = await supabase
+      .from("roster_shift_worker_line")
       .update({
-        checked_in_at: built.shift.checkedInAt,
-        check_in_latitude: geoToDbNumber(built.shift.checkInLatitude),
-        check_in_longitude: geoToDbNumber(built.shift.checkInLongitude),
-        updated_by: built.shift.updatedBy,
+        checked_in_at: workerRow.checked_in_at,
+        status: workerRow.status,
+        notes: workerRow.notes,
       })
-      .eq("id", shiftId)
+      .eq("id", workerRow.id)
       .eq("employee_id", ctx.employeeId)
       .is("checked_in_at", null)
       .select("*");
-    if (updateError) throw updateError;
-    if (!data?.length) throw new Error("Check-in is no longer available for this shift.");
-    return normalizeRosterShift(rosterShiftFromRow(data[0] as RosterShiftRow));
+    if (workerUpdateError) throw workerUpdateError;
+    if (!updatedLines?.length) throw new Error("Check-in is no longer available for this shift.");
+
+    if (shift.employeeId === ctx.employeeId) {
+      const { error: headerError } = await supabase
+        .from("roster_shift")
+        .update({
+          checked_in_at: built.shift.checkedInAt,
+          check_in_latitude: geoToDbNumber(built.shift.checkInLatitude),
+          check_in_longitude: geoToDbNumber(built.shift.checkInLongitude),
+          updated_by: built.shift.updatedBy,
+        })
+        .eq("id", shiftId)
+        .is("checked_in_at", null);
+      if (headerError) throw headerError;
+    }
+
+    const { data: nextRow, error: reloadError } = await supabase
+      .from("roster_shift")
+      .select("*")
+      .eq("id", shiftId)
+      .maybeSingle();
+    if (reloadError || !nextRow) throw reloadError ?? new Error("Shift not found.");
+    return loadRosterShiftWithSessionLines(supabase, nextRow as RosterShiftRow);
   }
 
   return built.shift;
@@ -480,7 +547,7 @@ export async function performMyShiftCheckOut(
 
   if (supabase && (error || !row)) throw new Error("Shift not found.");
   const shift = row
-    ? normalizeRosterShift(rosterShiftFromRow(row as RosterShiftRow))
+    ? await loadRosterShiftWithSessionLines(supabase, row as RosterShiftRow)
     : null;
   if (!shift) throw new Error("Shift not found.");
 
@@ -488,24 +555,77 @@ export async function performMyShiftCheckOut(
   if (!built.ok) throw new Error(built.message);
 
   if (supabase) {
-    const { data, error: updateError } = await supabase
-      .from("roster_shift")
+    const workerLine = (built.shift.workerLines ?? []).find((line) => line.employeeId.trim() === ctx.employeeId);
+    if (!workerLine && shift.employeeId !== ctx.employeeId) throw new Error("This shift is not assigned to you.");
+    if (!workerLine) {
+      const { data, error: headerOnlyError } = await supabase
+        .from("roster_shift")
+        .update({
+          checked_out_at: built.shift.checkedOutAt,
+          check_in_notes: built.shift.checkInNotes ?? "",
+          check_out_latitude: geoToDbNumber(built.shift.checkOutLatitude),
+          check_out_longitude: geoToDbNumber(built.shift.checkOutLongitude),
+          status: built.shift.status,
+          updated_by: built.shift.updatedBy,
+        })
+        .eq("id", shiftId)
+        .eq("employee_id", ctx.employeeId)
+        .not("checked_in_at", "is", null)
+        .is("checked_out_at", null)
+        .select("*");
+      if (headerOnlyError) throw headerOnlyError;
+      if (!data?.length) throw new Error("Check-out is no longer available for this shift.");
+      return loadRosterShiftWithSessionLines(supabase, data[0] as RosterShiftRow);
+    }
+    const workerRow = rosterShiftWorkerLineToRow(shiftId, workerLine);
+    const { data: updatedLines, error: workerUpdateError } = await supabase
+      .from("roster_shift_worker_line")
       .update({
-        checked_out_at: built.shift.checkedOutAt,
-        check_in_notes: built.shift.checkInNotes ?? "",
-        check_out_latitude: geoToDbNumber(built.shift.checkOutLatitude),
-        check_out_longitude: geoToDbNumber(built.shift.checkOutLongitude),
-        status: built.shift.status,
-        updated_by: built.shift.updatedBy,
+        checked_out_at: workerRow.checked_out_at,
+        notes: workerRow.notes,
       })
-      .eq("id", shiftId)
+      .eq("id", workerRow.id)
       .eq("employee_id", ctx.employeeId)
       .not("checked_in_at", "is", null)
       .is("checked_out_at", null)
       .select("*");
-    if (updateError) throw updateError;
-    if (!data?.length) throw new Error("Check-out is no longer available for this shift.");
-    return normalizeRosterShift(rosterShiftFromRow(data[0] as RosterShiftRow));
+    if (workerUpdateError) throw workerUpdateError;
+    if (!updatedLines?.length) throw new Error("Check-out is no longer available for this shift.");
+
+    const { data: allWorkerRows, error: workerReloadError } = await supabase
+      .from("roster_shift_worker_line")
+      .select("*")
+      .eq("roster_shift_id", shiftId);
+    if (workerReloadError) throw workerReloadError;
+    const workerRows = (allWorkerRows ?? []) as RosterShiftWorkerLineRow[];
+    const headerWorkerHasNoWorkerLine =
+      Boolean(shift.employeeId?.trim()) &&
+      !workerRows.some((line) => line.employee_id?.trim() === shift.employeeId.trim());
+    const allCheckedInWorkersCheckedOut =
+      workerRows.every((line) => !line.employee_id?.trim() || !line.checked_in_at || Boolean(line.checked_out_at)) &&
+      (!headerWorkerHasNoWorkerLine ||
+        !shift.checkedInAt?.trim() ||
+        Boolean((shift.employeeId === ctx.employeeId ? built.shift.checkedOutAt : shift.checkedOutAt)?.trim()));
+    const headerUpdate: Partial<RosterShiftRow> = {
+      status: shift.status === "Published" && allCheckedInWorkersCheckedOut ? "Completed" : shift.status,
+      updated_by: built.shift.updatedBy,
+    };
+    if (shift.employeeId === ctx.employeeId) {
+      headerUpdate.checked_out_at = built.shift.checkedOutAt;
+      headerUpdate.check_in_notes = built.shift.checkInNotes ?? "";
+      headerUpdate.check_out_latitude = geoToDbNumber(built.shift.checkOutLatitude);
+      headerUpdate.check_out_longitude = geoToDbNumber(built.shift.checkOutLongitude);
+    }
+    const { error: headerError } = await supabase.from("roster_shift").update(headerUpdate).eq("id", shiftId);
+    if (headerError) throw headerError;
+
+    const { data: nextRow, error: reloadError } = await supabase
+      .from("roster_shift")
+      .select("*")
+      .eq("id", shiftId)
+      .maybeSingle();
+    if (reloadError || !nextRow) throw reloadError ?? new Error("Shift not found.");
+    return loadRosterShiftWithSessionLines(supabase, nextRow as RosterShiftRow);
   }
 
   return built.shift;

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { AgencyShiftRequestDrawer } from "@/components/agency-shift-request-drawer";
 import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
 import { RosterCapacityPanel } from "@/components/roster-capacity-panel";
 import { RosterForwardPanel } from "@/components/roster-forward-panel";
 import { RosterGapsPanel } from "@/components/roster-gaps-panel";
+import { RosterFortnightReviewPanel } from "@/components/roster-fortnight-review-panel";
 import { RosterPublishWeekPanel } from "@/components/roster-publish-week-panel";
 import { RosterRocPanel } from "@/components/roster-roc-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
@@ -45,6 +46,18 @@ import {
 } from "@/lib/roster-week-csv-export";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+type RosterView = "week" | "forward" | "review" | "gaps" | "open" | "roc" | "capacity";
+
+function rosterViewFromParam(value: string | null): RosterView {
+  return value === "forward" ||
+    value === "review" ||
+    value === "gaps" ||
+    value === "open" ||
+    value === "roc" ||
+    value === "capacity"
+    ? value
+    : "week";
+}
 
 export function RosteringWeekView() {
   const router = useRouter();
@@ -55,6 +68,7 @@ export function RosteringWeekView() {
     employees,
     locations,
     serviceBookings,
+    rosterOfCares,
     rosterShifts,
     rosterShiftRequests,
     agencyWorkers,
@@ -69,16 +83,33 @@ export function RosteringWeekView() {
   const canEditRoster = canWriteWindow("rostering");
   const canRequestAgency = canProcess("request-agency-coverage");
   const dragStartedRef = useRef(false);
-  const [view, setView] = useState<"week" | "forward" | "gaps" | "open" | "roc" | "capacity">("week");
+  const [view, setViewState] = useState<RosterView>(() => rosterViewFromParam(searchParams.get("view")));
   const [forwardWeeks, setForwardWeeks] = useState(8);
   const [weekStart, setWeekStartState] = useState(() =>
     resolveRosterWeekStart(searchParams.get("week"), localDateIso())
   );
+  const queryString = searchParams.toString();
+
+  useEffect(() => {
+    setViewState(rosterViewFromParam(searchParams.get("view")));
+    setWeekStartState(resolveRosterWeekStart(searchParams.get("week"), localDateIso()));
+  }, [queryString, searchParams]);
 
   function setWeekStart(next: string) {
     setWeekStartState(next);
     const params = new URLSearchParams(searchParams.toString());
     params.set("week", next);
+    if (view !== "week") params.set("view", view);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  function setView(next: RosterView, nextWeekStart = weekStart) {
+    setViewState(next);
+    setWeekStartState(nextWeekStart);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("week", nextWeekStart);
+    if (next === "week") params.delete("view");
+    else params.set("view", next);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
@@ -248,6 +279,8 @@ export function RosteringWeekView() {
             ? "Week calendar — drag shifts between days to reschedule, or click to edit."
             : view === "forward"
               ? "Forward plan — roster hours and conflicts across the next 4–12 weeks."
+            : view === "review"
+              ? "Fortnight review — compare RoC templates with the live roster before publishing or filling gaps."
               : view === "gaps"
                 ? "Gap analysis — vacant shifts and weeks missing staffed coverage for active bookings."
                 : view === "roc"
@@ -291,6 +324,15 @@ export function RosteringWeekView() {
                     {weekGaps.length}
                   </span>
                 ) : null}
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("review")}
+                className={`rounded-md px-3 py-1.5 font-medium ${
+                  view === "review" ? "bg-[#d4147a] text-white" : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Fortnight review
               </button>
               <button
                 type="button"
@@ -346,6 +388,18 @@ export function RosteringWeekView() {
             weekCount={forwardWeeks}
             onAnchorChange={setWeekStart}
             onWeekCountChange={setForwardWeeks}
+          />
+        ) : view === "review" ? (
+          <RosterFortnightReviewPanel
+            rosterOfCares={rosterOfCares}
+            rosterShifts={rosterShifts}
+            clients={clients}
+            locations={locations}
+            anchorWeekStart={weekStart}
+            onAnchorChange={setWeekStart}
+            onOpenIssue={(issue) => {
+              setView(issue.rosterShiftId ? "week" : "roc", weekStartFromDate(issue.date));
+            }}
           />
         ) : view === "gaps" ? (
           <RosterGapsPanel

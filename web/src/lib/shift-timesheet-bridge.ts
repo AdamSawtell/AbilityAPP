@@ -14,12 +14,14 @@ export type ShiftTimesheetLink = {
 
 export function findTimesheetForShift(
   timesheets: TimesheetRecord[],
-  shiftId: string
+  shiftId: string,
+  employeeId = ""
 ): ShiftTimesheetLink | null {
   const id = shiftId.trim();
   if (!id) return null;
 
   for (const sheet of timesheets) {
+    if (employeeId.trim() && sheet.employeeId !== employeeId.trim()) continue;
     const line = sheet.lines.find((l) => l.rosterShiftId === id);
     if (!line) continue;
     return {
@@ -37,6 +39,7 @@ export function shiftTimesheetDeliveryStatus(params: {
   shift: RosterShiftRecord;
   timesheets: TimesheetRecord[];
   locations: LocationRecord[];
+  employeeId?: string;
 }): {
   checkInStatus: ReturnType<typeof shiftCheckInStatus>;
   timesheetLink: ShiftTimesheetLink | null;
@@ -44,16 +47,16 @@ export function shiftTimesheetDeliveryStatus(params: {
   message: string;
   href: string | null;
 } {
-  const { shift, timesheets, locations } = params;
-  const checkInStatus = shiftCheckInStatus(shift);
+  const { shift, timesheets, locations, employeeId = "" } = params;
+  const checkInStatus = shiftCheckInStatus(shift, employeeId);
   const location = locations.find((l) => l.id === shift.locationId);
-  let timesheetLink = findTimesheetForShift(timesheets, shift.id);
+  let timesheetLink = findTimesheetForShift(timesheets, shift.id, employeeId);
 
   if (timesheetLink) {
     const sheet = timesheets.find((t) => t.id === timesheetLink!.timesheetId);
     const line = sheet?.lines.find((l) => l.rosterShiftId === shift.id);
     if (sheet && line) {
-      const verification = verifyTimesheetLine(line, shift, undefined, location);
+      const verification = verifyTimesheetLine(line, shift, undefined, location, employeeId);
       timesheetLink = {
         ...timesheetLink,
         lineVerified: verification.status === "verified",

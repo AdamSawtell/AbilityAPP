@@ -1,7 +1,8 @@
 import { normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
+import { shiftCheckInStatus } from "@/lib/roster-shift-checkin";
 
 export function canRescheduleShiftByDrag(shift: RosterShiftRecord): { allowed: boolean; reason?: string } {
-  if (shift.checkedInAt?.trim()) {
+  if (shiftCheckInStatus(shift) !== "not-started") {
     return {
       allowed: false,
       reason: "Cannot drag a shift after worker check-in — open the shift to reschedule.",

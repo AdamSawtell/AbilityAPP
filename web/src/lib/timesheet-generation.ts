@@ -1,5 +1,6 @@
 import { isLineBillable, isTrainingOrMeetingPurpose, normalizeShiftPurpose } from "@/lib/buddy-shift";
 import { shiftDurationHours, type RosterShiftRecord } from "@/lib/roster-shift";
+import { assignedWorkerIdsForShift } from "@/lib/roster-session";
 import {
   createTimesheet,
   emptyTimesheetLine,
@@ -39,27 +40,32 @@ function shiftInPeriod(shift: RosterShiftRecord, periodStart: string, periodEnd:
   return shift.shiftDate >= periodStart && shift.shiftDate <= periodEnd;
 }
 
-function isEligibleShift(shift: RosterShiftRecord): boolean {
+function isEligibleShift(shift: RosterShiftRecord, employeeId?: string): boolean {
+  const hasWorker = employeeId ? assignedWorkerIdsForShift(shift).includes(employeeId) : assignedWorkerIdsForShift(shift).length > 0;
   if (isTrainingOrMeetingPurpose(normalizeShiftPurpose(shift.shiftPurpose))) {
-    return Boolean(shift.employeeId?.trim()) && ELIGIBLE_STATUSES.has(shift.status) && shift.attendanceStatus === "Attended";
+    return hasWorker && ELIGIBLE_STATUSES.has(shift.status) && shift.attendanceStatus === "Attended";
   }
-  return Boolean(shift.employeeId?.trim()) && ELIGIBLE_STATUSES.has(shift.status);
+  return hasWorker && ELIGIBLE_STATUSES.has(shift.status);
+}
+
+function workerShiftKey(employeeId: string, rosterShiftId: string): string {
+  return `${employeeId.trim()}::${rosterShiftId.trim()}`;
 }
 
 export function linkedRosterShiftIds(timesheets: TimesheetRecord[]): Set<string> {
   const ids = new Set<string>();
   for (const sheet of timesheets) {
     for (const line of sheet.lines) {
-      if (line.rosterShiftId?.trim()) ids.add(line.rosterShiftId);
+      if (line.rosterShiftId?.trim()) ids.add(workerShiftKey(sheet.employeeId, line.rosterShiftId));
     }
   }
   return ids;
 }
 
-function lineFromShift(shift: RosterShiftRecord, lineNo: number): TimesheetLine {
+function lineFromShift(shift: RosterShiftRecord, employeeId: string, lineNo: number): TimesheetLine {
   return {
     ...emptyTimesheetLine(lineNo),
-    id: `tsl-${shift.id}`,
+    id: `tsl-${shift.id}-${employeeId}`,
     lineNo,
     rosterShiftId: shift.id,
     clientId: shift.clientId,
@@ -92,17 +98,21 @@ export function previewTimesheetGeneration(
 
   for (const shift of rosterShifts) {
     if (!shiftInPeriod(shift, periodStart, periodEnd)) continue;
+    const employeeIds = assignedWorkerIdsForShift(shift);
     if (!isEligibleShift(shift)) continue;
-    if (linked.has(shift.id)) {
-      alreadyLinkedCount += 1;
+    const unlinkedEmployeeIds = employeeIds.filter((employeeId) => !linked.has(workerShiftKey(employeeId, shift.id)));
+    alreadyLinkedCount += employeeIds.length - unlinkedEmployeeIds.length;
+    if (!unlinkedEmployeeIds.length) {
       continue;
     }
-    eligibleShiftCount += 1;
+    eligibleShiftCount += unlinkedEmployeeIds.length;
     const hours = shiftDurationHours(shift);
-    const row = byEmployee.get(shift.employeeId) ?? { shiftCount: 0, totalHours: 0 };
-    row.shiftCount += 1;
-    row.totalHours = Math.round((row.totalHours + hours) * 100) / 100;
-    byEmployee.set(shift.employeeId, row);
+    for (const employeeId of unlinkedEmployeeIds) {
+      const row = byEmployee.get(employeeId) ?? { shiftCount: 0, totalHours: 0 };
+      row.shiftCount += 1;
+      row.totalHours = Math.round((row.totalHours + hours) * 100) / 100;
+      byEmployee.set(employeeId, row);
+    }
   }
 
   const rows = [...byEmployee.entries()]
@@ -155,13 +165,15 @@ export function generateTimesheetsFromShifts(
   for (const shift of rosterShifts) {
     if (!shiftInPeriod(shift, periodStart, periodEnd)) continue;
     if (!isEligibleShift(shift)) continue;
-    if (linked.has(shift.id)) {
-      skippedAlreadyLinked += 1;
-      continue;
+    for (const employeeId of assignedWorkerIdsForShift(shift)) {
+      if (linked.has(workerShiftKey(employeeId, shift.id))) {
+        skippedAlreadyLinked += 1;
+        continue;
+      }
+      const list = shiftsByEmployee.get(employeeId) ?? [];
+      list.push(shift);
+      shiftsByEmployee.set(employeeId, list);
     }
-    const list = shiftsByEmployee.get(shift.employeeId) ?? [];
-    list.push(shift);
-    shiftsByEmployee.set(shift.employeeId, list);
   }
 
   const created: TimesheetRecord[] = [];
@@ -179,7 +191,7 @@ export function generateTimesheetsFromShifts(
     shifts.sort((a, b) =>
       `${a.shiftDate}${a.startTime}`.localeCompare(`${b.shiftDate}${b.startTime}`)
     );
-    const newLines = shifts.map((shift, index) => lineFromShift(shift, index + 1));
+    const newLines = shifts.map((shift, index) => lineFromShift(shift, employeeId, index + 1));
 
     const existingDraft = findDraftTimesheet(working, employeeId, periodStart, periodEnd);
     if (existingDraft) {

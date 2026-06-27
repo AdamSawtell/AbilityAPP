@@ -11,14 +11,35 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
-| **Active slice** | AB-0021 v1 implementation and verification |
+| **Active slice** | Rostering fortnight command centre + multi-worker session hardening |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-27 — Record Calendar fortnight view + RoC template toggle |
+| **Last push** | 2026-06-27 — Rostering fortnight command centre + multi-worker session hardening |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+## Rostering fortnight command centre + multi-worker hardening (2026-06-27)
+
+**Status:** Built, verified, committed and pushed.
+
+Adds the next rostering polish slice after the Record Calendar review:
+
+| Area | Change |
+|------|--------|
+| Worker visibility | Session `workerLines` are now authoritative for My shifts, check-in/out, employee Schedule, and timesheet generation; secondary workers are no longer hidden behind the primary `employeeId` header |
+| Fortnight review | New Rostering → **Fortnight review** tab compares active RoC templates with live shifts over the default two-week roster cycle and lists missing actuals, draft shifts, vacant sessions, worker changes, and extra actuals |
+| Rollover audit/undo | Bulk rollover now keeps the last publish batch summary and offers **Undo last rollover**, cancelling the shifts from that batch |
+| Demo data | New `supabase/seed-glenelg-calendar.sql` adds Glenelg-linked tasks and activity rows for client, employee, and location calendar smoke tests |
+
+**What you can test:** Rostering → Fortnight review for the current fortnight; Rostering → RoC → Bulk rollover and then Undo last rollover; My workplace → My shifts as a secondary worker on a shared Glenelg session; Generate timesheets for that period and confirm each assigned worker gets a line.
+
+**Verification:** `npm run build` ✅ (exit 0) · `npm run page-guides:check` ✅ · `npm run supabase:seed-demo-once -- --file supabase/seed-glenelg-calendar.sql` ✅ · localhost smoke: Fortnight review + RoC bulk rollover tabs render ✅
+
+**Code review log:** 2026-06-27 — Bugbot on roster hardening slice — multiple High/Medium findings remediated (multi-worker check-in/out, undo safety, fortnight navigation, attendance preservation); final build pass ✅
 
 ---
 

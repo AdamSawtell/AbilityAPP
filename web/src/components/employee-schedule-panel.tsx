@@ -12,6 +12,7 @@ import {
   weekStartFromDate,
   type RosterShiftRecord,
 } from "@/lib/roster-shift";
+import { shiftHasAssignedWorker } from "@/lib/roster-session";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -25,7 +26,7 @@ function shiftsForEmployeeWeek(
     .map(normalizeRosterShift)
     .filter(
       (s) =>
-        s.employeeId === employeeId &&
+        shiftHasAssignedWorker(s, employeeId) &&
         s.status !== "Cancelled" &&
         s.shiftDate >= weekStart &&
         s.shiftDate <= end

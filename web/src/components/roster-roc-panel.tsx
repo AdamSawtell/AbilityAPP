@@ -29,6 +29,19 @@ const TEMPLATE_CSV = `client_search_key,day,start_time,end_time,support_type,loc
 BERN,Mon,09:00,15:00,Standard,GLEN-SIL,Support worker,SIL morning
 BERN,Wed,14:00,20:00,Standard,GLEN-SIL,Support worker,Community access afternoon`;
 
+type RolloverUndoSnapshot = {
+  id: string;
+  before: RosterShiftRecord | null;
+};
+
+function shiftHasAttendance(shift: RosterShiftRecord): boolean {
+  return Boolean(
+    shift.checkedInAt?.trim() ||
+      shift.checkedOutAt?.trim() ||
+      (shift.workerLines ?? []).some((line) => line.checkedInAt?.trim() || line.checkedOutAt?.trim())
+  );
+}
+
 export function RosterRocPanel() {
   const {
     clients,
@@ -534,6 +547,7 @@ function BulkRolloverPanel({
   );
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [lastPublishedUndo, setLastPublishedUndo] = useState<RolloverUndoSnapshot[]>([]);
 
   const activeRocs = useMemo(() => rosterOfCares.filter((roc) => roc.status === "Active"), [rosterOfCares]);
 
@@ -593,12 +607,18 @@ function BulkRolloverPanel({
     }
     if (allSkippedByExisting) {
       setMessage("All shifts in this range were already published.");
+      setLastPublishedUndo([]);
       return;
     }
     if (validation?.blocked) {
       setError(validation.errors.join(" "));
       return;
     }
+    const currentById = new Map(rosterShifts.map((shift) => [shift.id, shift]));
+    const undoSnapshot = preview.shifts.map((shift) => ({
+      id: shift.id,
+      before: currentById.get(shift.id) ?? null,
+    }));
     const saveError = addRecurringRosterShifts(preview.shifts);
     if (saveError) {
       setError(saveError);
@@ -611,6 +631,47 @@ function BulkRolloverPanel({
     setMessage(
       `Published ${preview.shifts.length} ${shiftStatus.toLowerCase()} shift${preview.shifts.length === 1 ? "" : "s"} from ${preview.rocCount} roster of care template${preview.rocCount === 1 ? "" : "s"}.${note}`
     );
+    setLastPublishedUndo(undoSnapshot);
+  }
+
+  function handleUndoLastPublish() {
+    setError("");
+    setMessage("");
+    if (!lastPublishedUndo.length) return;
+    const currentById = new Map(rosterShifts.map((shift) => [shift.id, shift]));
+    const attended = lastPublishedUndo
+      .map((snapshot) => currentById.get(snapshot.id))
+      .filter((shift): shift is RosterShiftRecord => Boolean(shift))
+      .filter(shiftHasAttendance);
+    if (attended.length) {
+      setError(
+        `Undo blocked because ${attended.length} shift${attended.length === 1 ? " has" : "s have"} check-in/out activity. Cancel or adjust those shifts manually.`
+      );
+      return;
+    }
+    const undoRecords: RosterShiftRecord[] = [];
+    for (const snapshot of lastPublishedUndo) {
+      const current = currentById.get(snapshot.id);
+      const next = snapshot.before
+        ? { ...snapshot.before, updatedBy: actor }
+        : current
+          ? {
+              ...current,
+              status: "Cancelled" as const,
+              updatedBy: actor,
+              notes: `${current.notes || ""}\nCancelled by rollover undo.`.trim(),
+            }
+          : null;
+      if (!next) continue;
+      undoRecords.push(next);
+    }
+    const err = addRecurringRosterShifts(undoRecords);
+    if (err) {
+      setError(`Undo failed: ${err}`);
+      return;
+    }
+    setMessage(`Undid ${lastPublishedUndo.length} shift${lastPublishedUndo.length === 1 ? "" : "s"} from the last rollover.`);
+    setLastPublishedUndo([]);
   }
 
   const scopeIncomplete =
@@ -750,6 +811,15 @@ function BulkRolloverPanel({
       </button>
       {error ? <p className="mt-2 text-xs text-rose-700">{error}</p> : null}
       {message ? <p className="mt-2 text-xs text-emerald-800">{message}</p> : null}
+      {lastPublishedUndo.length ? (
+        <button
+          type="button"
+          onClick={handleUndoLastPublish}
+          className="mt-2 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50"
+        >
+          Undo last rollover ({lastPublishedUndo.length} shift{lastPublishedUndo.length === 1 ? "" : "s"})
+        </button>
+      ) : null}
     </section>
   );
 }

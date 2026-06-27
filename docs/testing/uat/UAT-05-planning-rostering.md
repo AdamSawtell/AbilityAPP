@@ -30,6 +30,8 @@
 | UAT-05-S-018 | Primary cancel cascade | Cancel primary shift | Linked buddy shift auto-cancelled | Pending seeded DB smoke |
 | UAT-05-S-019 | Multi-client roster session + rollover defaults | `/rostering?week=2026-06-09` New shift; Rostering → RoC | Session editor supports client/worker lines and ratios; RoC publish reads Organisation rollover defaults | **Pass** — localhost 2026-06-27; `SESS-SMOKE-001` saved/reopened with 2 client lines; RoC panel shows rollover defaults |
 | UAT-05-S-020 | Bulk rollover (all / client / location) | Rostering → RoC → Bulk rollover | Scope selector publishes many RoCs in one action; shared session keys merge; skip-existing avoids duplicates | Pending browser smoke |
+| UAT-05-S-021 | Fortnight roster command centre | Rostering → Fortnight review | Two-week review compares active RoC template lines with live roster shifts and lists missing/draft/vacant/worker-changed/extra issues | Pending browser smoke |
+| UAT-05-S-022 | Multi-worker session self-service | My workplace → My shifts; Generate timesheets | Secondary workers on session worker lines can see/check in/out and receive generated timesheet lines | Pending browser smoke |
 
 ## Window checklist
 

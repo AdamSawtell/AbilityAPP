@@ -16,6 +16,7 @@ When you add or change app behaviour, also:
    - Entities: `npm run supabase:seed-entities`
    - Users/roles: `npm run supabase:seed-access`
    - Employees: `npm run supabase:seed-employees`
+   - Glenelg roster/calendar demo data: `npm run supabase:seed-demo-once -- --file supabase/seed-glenelg-calendar.sql`
 5. **One-off rebrand / data fix** (existing remote DB): `node scripts/run-all-remote-seeds.mjs -- --file supabase/seed-rebrand-abilityvua.sql`
 6. Add new **windows** to `web/src/lib/access/catalog.ts` when shipping a new module.
 
