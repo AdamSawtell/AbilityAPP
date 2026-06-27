@@ -13,7 +13,7 @@
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
 | **Active slice** | AB-0021 v1 implementation and verification |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-27 — Record Calendar tab on client / employee / location |
+| **Last push** | 2026-06-27 — Record Calendar fortnight view + RoC template toggle |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |

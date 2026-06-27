@@ -513,7 +513,7 @@ export function ClientTabbedView({
             entityKind="client"
             entityId={client.id}
             activities={client.activity}
-            description="Tasks, live roster shifts, roster-of-care template lines, and activity notes for this support receiver. Items link to the source record when your role has access."
+            description="Fortnight view of tasks, live roster shifts, and activity notes. Toggle Show RoC templates to overlay the master roster for comparison."
           />
         ) : null}
 

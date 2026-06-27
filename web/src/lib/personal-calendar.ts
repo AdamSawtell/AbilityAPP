@@ -81,6 +81,22 @@ export function weekDays(anchor: Date): Date[] {
   return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 }
 
+/** Mon–Sun × 2 — standard NDIS roster cycle. */
+export function fortnightDays(anchor: Date): Date[] {
+  const start = startOfWeekMonday(anchor);
+  return Array.from({ length: 14 }, (_, i) => addDays(start, i));
+}
+
+export function formatFortnightRange(anchor: Date): string {
+  const days = fortnightDays(anchor);
+  const start = days[0];
+  const end = days[13];
+  const sameMonth = start.getMonth() === end.getMonth();
+  const startStr = start.toLocaleDateString("en-AU", { day: "numeric", month: sameMonth ? undefined : "short" });
+  const endStr = end.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+  return `${startStr} – ${endStr} (fortnight)`;
+}
+
 export function isSameMonth(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }

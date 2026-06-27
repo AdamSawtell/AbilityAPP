@@ -79,7 +79,7 @@ export function organizationFromRow(row: OrganizationRow): OrganizationRecord {
     gstRegistered: row.gst_registered ?? false,
     buddyShiftPayPolicy: normalizeBuddyShiftPayPolicy(row.buddy_shift_pay_policy),
     rosterRolloverEnabled: row.roster_rollover_enabled ?? true,
-    rosterRolloverLookaheadWeeks: row.roster_rollover_lookahead_weeks ?? 6,
+    rosterRolloverLookaheadWeeks: row.roster_rollover_lookahead_weeks ?? 2,
     rosterRolloverDefaultStatus:
       row.roster_rollover_default_status === "Published" ? "Published" : "Draft",
     rosterRolloverSkipExisting: row.roster_rollover_skip_existing ?? true,
@@ -127,7 +127,7 @@ export function organizationToRow(record: OrganizationRecord): OrganizationRow {
     gst_registered: record.gstRegistered,
     buddy_shift_pay_policy: record.buddyShiftPayPolicy || "ask",
     roster_rollover_enabled: record.rosterRolloverEnabled ?? true,
-    roster_rollover_lookahead_weeks: record.rosterRolloverLookaheadWeeks || 6,
+    roster_rollover_lookahead_weeks: record.rosterRolloverLookaheadWeeks || 2,
     roster_rollover_default_status: record.rosterRolloverDefaultStatus || "Draft",
     roster_rollover_skip_existing: record.rosterRolloverSkipExisting ?? true,
     theme_primary_colour: record.themePrimaryColour ?? "",

@@ -94,12 +94,12 @@ export const clientsArticle: HelpArticle = {
     {
       id: "record-calendar",
       title: "Calendar tab (client, employee, location)",
-      body: "The Calendar tab sits under Activity on client, employee, and location records. It shows a month/week/day view of tasks linked to the record, live roster shifts (Draft and Published), roster-of-care template lines expanded for the visible range, and activity notes. Colour-coded chips link to the source record when your role has access — tasks open the task record, shifts open Rostering for that week, RoC templates open the client RoC tab or Rostering → RoC, and activities open the Activity tab.",
+      body: "The Calendar tab sits under Activity on client, employee, and location records. Default view is **Fortnight** (14 days) to match the standard roster cycle. Live shifts, tasks, and activity notes always show; tick **Show RoC templates** to overlay master roster-of-care lines for comparison. Colour-coded chips link to the source record when your role has access.",
       steps: [
         "Open a client, employee, or location record → Calendar (below Activity in the sidebar).",
-        "Switch Month, Week, or Day; use Prev/Next or Today to navigate.",
-        "Click a chip to open the linked record when you have access; items without access show without a link.",
-        "Use the legend counts to see how many tasks, live shifts, RoC templates, and activities appear in the current view.",
+        "Use the Fortnight view (default) to plan the current roster cycle; switch Week, Month, or Day as needed.",
+        "Tick Show RoC templates to compare master roster lines against published live shifts.",
+        "Click a chip to open the linked record when you have access.",
       ],
       windowKeys: ["client-calendar", "employee-calendar", "location-calendar", "rostering", "tasks"],
     },

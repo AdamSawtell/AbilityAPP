@@ -160,7 +160,7 @@ export const organizationSections: OrganizationSection[] = [
         key: "rosterRolloverLookaheadWeeks",
         label: "Maintain roster ahead (weeks)",
         type: "number",
-        hint: "How far forward RoC templates should be rolled into live roster sessions.",
+        hint: "How far forward RoC templates should be rolled into live roster sessions. Default is 2 weeks (one fortnight).",
       },
       {
         key: "rosterRolloverDefaultStatus",
@@ -223,7 +223,7 @@ export function defaultOrganization(): OrganizationRecord {
     gstRegistered: false,
     buddyShiftPayPolicy: "ask",
     rosterRolloverEnabled: true,
-    rosterRolloverLookaheadWeeks: 6,
+    rosterRolloverLookaheadWeeks: 2,
     rosterRolloverDefaultStatus: "Draft",
     rosterRolloverSkipExisting: true,
     themePrimaryColour: "",
@@ -249,7 +249,7 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     rosterRolloverEnabled: Boolean(record.rosterRolloverEnabled),
     rosterRolloverLookaheadWeeks: Math.max(
       1,
-      Math.min(12, Number(record.rosterRolloverLookaheadWeeks) || 6)
+      Math.min(12, Number(record.rosterRolloverLookaheadWeeks) || 2)
     ),
     rosterRolloverDefaultStatus:
       record.rosterRolloverDefaultStatus === "Published" ? "Published" : "Draft",

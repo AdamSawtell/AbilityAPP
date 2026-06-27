@@ -7,7 +7,9 @@ import { normalizeRosterShift } from "@/lib/roster-shift";
 import type { RosterOfCareLine, RosterOfCareRecord } from "@/lib/roster-of-care";
 import type { TaskRecord } from "@/lib/task";
 import { taskUrgency, type TaskUrgency } from "@/lib/task-hub";
-import { isoFromDate, monthGridDays, weekDays } from "@/lib/personal-calendar";
+import { fortnightDays, isoFromDate, monthGridDays, weekDays } from "@/lib/personal-calendar";
+
+export type RecordCalendarViewMode = "fortnight" | "month" | "week" | "day";
 
 export type RecordCalendarEntityKind = "client" | "employee" | "location";
 
@@ -34,8 +36,8 @@ export type RecordCalendarInput = {
   rosterShifts: RosterShiftRecord[];
   rosterOfCares: RosterOfCareRecord[];
   activities: ClientActivityRow[] | EmployeeActivityRow[] | LocationActivityRow[];
-  /** Required for client-scoped RoC template expansion. */
-  clientId?: string;
+  /** When false, RoC master template lines are omitted (live shifts only). */
+  includeRocTemplates?: boolean;
 };
 
 function inRange(date: string, start: string, end: string): boolean {
@@ -209,7 +211,7 @@ export function recordCalendarEvents(input: RecordCalendarInput): RecordCalendar
   const events = [
     ...taskEvents(input),
     ...actualShiftEvents(input),
-    ...templateShiftEvents(input),
+    ...(input.includeRocTemplates ? templateShiftEvents(input) : []),
     ...activityEvents(input),
   ];
   return events.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
@@ -241,9 +243,13 @@ export function recordCalendarKindLabel(kind: RecordCalendarEventKind): string {
 }
 
 export function recordCalendarRangeForView(
-  view: "month" | "week" | "day",
+  view: RecordCalendarViewMode,
   anchor: Date
 ): { rangeStart: string; rangeEnd: string } {
+  if (view === "fortnight") {
+    const days = fortnightDays(anchor);
+    return { rangeStart: isoFromDate(days[0]), rangeEnd: isoFromDate(days[days.length - 1]) };
+  }
   if (view === "month") {
     const days = monthGridDays(anchor);
     return { rangeStart: isoFromDate(days[0]), rangeEnd: isoFromDate(days[days.length - 1]) };

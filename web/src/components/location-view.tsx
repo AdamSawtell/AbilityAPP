@@ -569,7 +569,7 @@ export function LocationTabbedView({
             entityKind="location"
             entityId={location.id}
             activities={location.activities}
-            description="Tasks, live roster shifts, roster-of-care template lines delivered at this location, and activity notes. Items link to the source record when your role has access."
+            description="Fortnight view of tasks, live roster shifts, and activity notes. Toggle Show RoC templates to overlay master roster lines delivered at this site."
           />
         ) : null}
 

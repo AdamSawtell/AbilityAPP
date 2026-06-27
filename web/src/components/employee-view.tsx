@@ -627,7 +627,7 @@ export function EmployeeTabbedView({
             entityKind="employee"
             entityId={employee.id}
             activities={employee.activities}
-            description="Tasks, live roster shifts, roster-of-care template lines where this worker is rostered, and activity notes. Items link to the source record when your role has access."
+            description="Fortnight view of tasks, live roster shifts, and activity notes. Toggle Show RoC templates to see master roster lines where this worker is assigned."
           />
         ) : null}
 

@@ -10,14 +10,15 @@ import type { LocationActivityRow } from "@/lib/location";
 import {
   addDays,
   formatDayHeading,
+  formatFortnightRange,
   formatMonthYear,
   formatWeekRange,
+  fortnightDays,
   isoFromDate,
   isSameDay,
   isSameMonth,
   monthGridDays,
   weekDays,
-  type CalendarViewMode,
 } from "@/lib/personal-calendar";
 import {
   recordCalendarEvents,
@@ -26,6 +27,7 @@ import {
   recordCalendarRangeForView,
   type RecordCalendarEntityKind,
   type RecordCalendarEvent,
+  type RecordCalendarViewMode,
 } from "@/lib/record-calendar";
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -137,7 +139,8 @@ export function RecordCalendarPanel({
   const windowKeys = session?.windowKeys ?? [];
 
   const today = useMemo(() => new Date(), []);
-  const [view, setView] = useState<CalendarViewMode>("month");
+  const [view, setView] = useState<RecordCalendarViewMode>("fortnight");
+  const [showRocTemplates, setShowRocTemplates] = useState(false);
   const [anchor, setAnchor] = useState(() => new Date());
 
   const { rangeStart, rangeEnd } = useMemo(
@@ -157,18 +160,32 @@ export function RecordCalendarPanel({
         rosterShifts,
         rosterOfCares,
         activities,
+        includeRocTemplates: showRocTemplates,
       }),
-    [entityKind, entityId, rangeStart, rangeEnd, windowKeys, tasks, rosterShifts, rosterOfCares, activities]
+    [
+      entityKind,
+      entityId,
+      rangeStart,
+      rangeEnd,
+      windowKeys,
+      tasks,
+      rosterShifts,
+      rosterOfCares,
+      activities,
+      showRocTemplates,
+    ]
   );
 
   const byDate = useMemo(() => recordCalendarEventsByDate(events), [events]);
 
   const heading =
-    view === "month"
-      ? formatMonthYear(anchor)
-      : view === "week"
-        ? formatWeekRange(anchor)
-        : formatDayHeading(anchor);
+    view === "fortnight"
+      ? formatFortnightRange(anchor)
+      : view === "month"
+        ? formatMonthYear(anchor)
+        : view === "week"
+          ? formatWeekRange(anchor)
+          : formatDayHeading(anchor);
 
   function goToday() {
     setAnchor(new Date());
@@ -176,6 +193,7 @@ export function RecordCalendarPanel({
 
   function goPrev() {
     setAnchor((current) => {
+      if (view === "fortnight") return addDays(current, -14);
       if (view === "month") return new Date(current.getFullYear(), current.getMonth() - 1, 1, 12);
       if (view === "week") return addDays(current, -7);
       return addDays(current, -1);
@@ -184,6 +202,7 @@ export function RecordCalendarPanel({
 
   function goNext() {
     setAnchor((current) => {
+      if (view === "fortnight") return addDays(current, 14);
       if (view === "month") return new Date(current.getFullYear(), current.getMonth() + 1, 1, 12);
       if (view === "week") return addDays(current, 7);
       return addDays(current, 1);
@@ -192,8 +211,13 @@ export function RecordCalendarPanel({
 
   const monthDays = view === "month" ? monthGridDays(anchor) : [];
   const week = view === "week" ? weekDays(anchor) : [];
+  const fortnight = view === "fortnight" ? fortnightDays(anchor) : [];
   const dayIso = isoFromDate(anchor);
   const dayEvents = byDate.get(dayIso) ?? [];
+
+  const visibleKinds = showRocTemplates
+    ? (["task", "shift-actual", "shift-template", "activity"] as const)
+    : (["task", "shift-actual", "activity"] as const);
 
   const kindCounts = useMemo(() => {
     const counts = { task: 0, "shift-actual": 0, "shift-template": 0, activity: 0 };
@@ -206,10 +230,23 @@ export function RecordCalendarPanel({
       <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
         <h3 className="text-sm font-semibold text-slate-900">Calendar</h3>
         <p className="mt-1 text-sm text-slate-600">{description}</p>
+        <div className="mt-3 flex flex-wrap items-center gap-4">
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              checked={showRocTemplates}
+              onChange={(e) => setShowRocTemplates(e.target.checked)}
+              className="rounded border-slate-300"
+            />
+            Show RoC templates (master roster)
+          </label>
+        </div>
         <dl className="mt-3 flex flex-wrap gap-3 text-xs">
-          {(["task", "shift-actual", "shift-template", "activity"] as const).map((kind) => (
+          {visibleKinds.map((kind) => (
             <div key={kind} className="flex items-center gap-1.5">
-              <span className={`rounded-full px-2 py-0.5 font-medium ring-1 ${eventStyles({ kind, id: "", date: "", title: "", href: null })}`}>
+              <span
+                className={`rounded-full px-2 py-0.5 font-medium ring-1 ${eventStyles({ kind, id: "", date: "", title: "", href: null })}`}
+              >
                 {recordCalendarKindLabel(kind)}
               </span>
               <span className="text-slate-500">{kindCounts[kind]}</span>
@@ -223,7 +260,7 @@ export function RecordCalendarPanel({
           <p className="text-sm font-semibold text-slate-900">{heading}</p>
           <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-              {(["month", "week", "day"] as const).map((mode) => (
+              {(["fortnight", "week", "month", "day"] as const).map((mode) => (
                 <button
                   key={mode}
                   type="button"
@@ -243,14 +280,69 @@ export function RecordCalendarPanel({
             >
               Today
             </button>
-            <button type="button" onClick={goPrev} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
+            <button
+              type="button"
+              onClick={goPrev}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
+            >
               Prev
             </button>
-            <button type="button" onClick={goNext} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
+            <button
+              type="button"
+              onClick={goNext}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
+            >
               Next
             </button>
           </div>
         </div>
+
+        {view === "fortnight" ? (
+          <div className="overflow-x-auto p-4">
+            <div className="min-w-[56rem]">
+              <div
+                className="grid gap-px rounded-lg border border-slate-200 bg-slate-200 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                style={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}
+              >
+                {fortnight.map((day, index) => (
+                  <div
+                    key={isoFromDate(day)}
+                    className={`bg-slate-50 py-2 ${index === 7 ? "border-l-2 border-slate-300" : ""}`}
+                  >
+                    {WEEKDAY_LABELS[index % 7]}
+                  </div>
+                ))}
+              </div>
+              <div
+                className="grid gap-px border border-t-0 border-slate-200 bg-slate-200"
+                style={{ gridTemplateColumns: "repeat(14, minmax(0, 1fr))" }}
+              >
+                {fortnight.map((day, index) => {
+                  const iso = isoFromDate(day);
+                  const dayItems = byDate.get(iso) ?? [];
+                  const isToday = isSameDay(day, today);
+                  return (
+                    <div
+                      key={iso}
+                      className={`min-h-[120px] bg-white p-1.5 ${index === 7 ? "border-l-2 border-slate-300" : ""}`}
+                    >
+                      <p
+                        className={`mb-1 text-right text-xs font-medium ${isToday ? "text-[#b51266]" : "text-slate-700"}`}
+                      >
+                        {day.getDate()}
+                      </p>
+                      <div className="space-y-0.5">
+                        {dayItems.map((event) => (
+                          <CalendarEventChip key={event.id} event={event} compact />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {view === "month" ? (
           <div className="p-4">
@@ -299,7 +391,9 @@ export function RecordCalendarPanel({
               const dayItems = byDate.get(iso) ?? [];
               return (
                 <div key={iso} className="min-h-[120px] border-r border-slate-100 p-2 last:border-r-0">
-                  <p className={`mb-2 text-xs font-semibold ${isSameDay(day, today) ? "text-[#b51266]" : "text-slate-700"}`}>
+                  <p
+                    className={`mb-2 text-xs font-semibold ${isSameDay(day, today) ? "text-[#b51266]" : "text-slate-700"}`}
+                  >
                     {day.toLocaleDateString("en-AU", { weekday: "short", day: "numeric" })}
                   </p>
                   <div className="space-y-1">

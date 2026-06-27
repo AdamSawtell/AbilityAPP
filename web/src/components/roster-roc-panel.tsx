@@ -298,7 +298,7 @@ function RocCard({
   const { serviceBookings, rosterShifts, addRecurringRosterShifts } = useData();
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate(new Date().toISOString().slice(0, 10)));
   const [weekCount, setWeekCount] = useState(() =>
-    organization.rosterRolloverEnabled ? organization.rosterRolloverLookaheadWeeks : 4
+    organization.rosterRolloverEnabled ? organization.rosterRolloverLookaheadWeeks : 2
   );
   const [shiftStatus, setShiftStatus] = useState<"Draft" | "Published">(() =>
     organization.rosterRolloverEnabled ? organization.rosterRolloverDefaultStatus : "Draft"
@@ -524,7 +524,7 @@ function BulkRolloverPanel({
   const [locationId, setLocationId] = useState("");
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate(new Date().toISOString().slice(0, 10)));
   const [weekCount, setWeekCount] = useState(() =>
-    organization.rosterRolloverEnabled ? organization.rosterRolloverLookaheadWeeks : 4
+    organization.rosterRolloverEnabled ? organization.rosterRolloverLookaheadWeeks : 2
   );
   const [shiftStatus, setShiftStatus] = useState<"Draft" | "Published">(() =>
     organization.rosterRolloverEnabled ? organization.rosterRolloverDefaultStatus : "Draft"
