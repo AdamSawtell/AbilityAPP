@@ -189,6 +189,11 @@ export type EmployeeRecord = {
   superFund: string;
   superMemberNumber: string;
   standardHoursPerWeek: string;
+  contractedHoursPerPeriod: number | "";
+  contractedHoursPeriod: string;
+  schadsClassificationLevel: string;
+  schadsPayPoint: string;
+  superRate: number | "";
   fte: string;
   leavePolicy: string;
   medicalRestrictionsNotes: string;
@@ -265,6 +270,10 @@ export const employeeEmploymentFields: (keyof EmployeeRecord)[] = [
   "department",
   "siteBranch",
   "costCentre",
+  "standardHoursPerWeek",
+  "contractedHoursPerPeriod",
+  "contractedHoursPeriod",
+  "fte",
   "startDate",
   "probationEndDate",
   "confirmationDate",
@@ -290,9 +299,12 @@ export const employeePayrollFields: (keyof EmployeeRecord)[] = [
   "taxDeclaration",
   "superFund",
   "superMemberNumber",
+  "schadsClassificationLevel",
+  "schadsPayPoint",
+  "superRate",
 ];
 
-export const employeeLeaveFields: (keyof EmployeeRecord)[] = ["leavePolicy", "standardHoursPerWeek", "fte"];
+export const employeeLeaveFields: (keyof EmployeeRecord)[] = ["leavePolicy"];
 
 export const genderOptions = defaultReferenceData.gender;
 export const employmentStatusOptions = defaultReferenceData.employmentStatus;
@@ -321,7 +333,7 @@ const emptyLineCollections = {
   leaveRequests: [] as EmployeeLeaveRequestRow[],
 };
 
-export const initialEmployees: EmployeeRecord[] = [
+const rawInitialEmployees = [
   {
     id: "emp-isla",
     searchKey: "IslaR",
@@ -922,6 +934,10 @@ export const initialEmployees: EmployeeRecord[] = [
     ...emptyLineCollections,
   },
   ...leadershipEmployees,
+];
+
+export const initialEmployees: EmployeeRecord[] = [
+  ...rawInitialEmployees.map((row) => normalizeEmployee(row as unknown as EmployeeRecord)),
   ...bulkEmployees,
 ];
 
@@ -962,6 +978,11 @@ export function normalizeEmployee(record: EmployeeRecord): EmployeeRecord {
     activities: renumber(record.activities ?? []),
     leaveEntitlements: renumber(record.leaveEntitlements ?? []),
     leaveRequests: renumber(record.leaveRequests ?? []),
+    contractedHoursPerPeriod: record.contractedHoursPerPeriod ?? "",
+    contractedHoursPeriod: record.contractedHoursPeriod ?? "fortnight",
+    schadsClassificationLevel: record.schadsClassificationLevel ?? "",
+    schadsPayPoint: record.schadsPayPoint ?? "",
+    superRate: record.superRate === "" || record.superRate == null ? 12 : record.superRate,
   };
 }
 
@@ -1017,6 +1038,13 @@ export function employeeProfileFields(): {
     { key: "jobTitle", label: "Job title", type: "text" },
     { key: "department", label: "Department", type: "select", optionsKey: "department" },
     { key: "employmentStatus", label: "Employment status", type: "select", optionsKey: "employmentStatus" },
+    { key: "standardHoursPerWeek", label: "Standard hours / week", type: "number" },
+    { key: "contractedHoursPerPeriod", label: "Contracted hours (minimum)", type: "number" },
+    { key: "contractedHoursPeriod", label: "Contracted hours period", type: "select", optionsKey: "contractedHoursPeriod" },
+    { key: "fte", label: "FTE", type: "number" },
+    { key: "schadsClassificationLevel", label: "SCHADS classification", type: "select", optionsKey: "schadsClassificationLevel" },
+    { key: "schadsPayPoint", label: "SCHADS pay point", type: "text" },
+    { key: "superRate", label: "Super guarantee (%)", type: "number" },
     { key: "startDate", label: "Start date", type: "date" },
     { key: "endDate", label: "End date", type: "date" },
     { key: "notes", label: "Notes", type: "text" },

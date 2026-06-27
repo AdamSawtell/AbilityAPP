@@ -12,6 +12,8 @@ import { RosterGapsPanel } from "@/components/roster-gaps-panel";
 import { RosterFortnightReviewPanel } from "@/components/roster-fortnight-review-panel";
 import { RosterPublishWeekPanel } from "@/components/roster-publish-week-panel";
 import { RosterRocPanel } from "@/components/roster-roc-panel";
+import { PayPeriodSelector } from "@/components/pay-period-admin-panel";
+import { ContractedHoursPanel } from "@/components/contracted-hours-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
 import { useAuth } from "@/lib/auth-store";
@@ -44,6 +46,7 @@ import {
   downloadRosterWeekCsv,
   rosterWeekCsvFilename,
 } from "@/lib/roster-week-csv-export";
+import { findCurrentPayPeriodInstance } from "@/lib/pay-period";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 type RosterView = "week" | "forward" | "review" | "gaps" | "open" | "roc" | "capacity";
@@ -77,6 +80,7 @@ export function RosteringWeekView() {
     approveShiftRequest,
     rejectShiftRequest,
     setShiftCriticalFill,
+    payPeriodInstances,
   } = useData();
   const { session, canWriteWindow, canProcess } = useAuth();
   const actor = session?.displayName ?? "SuperUser";
@@ -126,6 +130,16 @@ export function RosteringWeekView() {
     null
   );
   const [agencyShift, setAgencyShift] = useState<ReturnType<typeof normalizeRosterShift> | null>(null);
+  const [payPeriodInstanceId, setPayPeriodInstanceId] = useState(() => {
+    const current = findCurrentPayPeriodInstance(payPeriodInstances, localDateIso());
+    return current?.id ?? "";
+  });
+
+  useEffect(() => {
+    if (payPeriodInstanceId) return;
+    const current = findCurrentPayPeriodInstance(payPeriodInstances, localDateIso());
+    if (current) setPayPeriodInstanceId(current.id);
+  }, [payPeriodInstances, payPeriodInstanceId]);
 
   const shifts = useMemo(
     () => shiftsForWeek(rosterShifts.map(normalizeRosterShift), weekStart),
@@ -430,14 +444,23 @@ export function RosteringWeekView() {
         ) : view === "roc" ? (
           <RosterRocPanel />
         ) : view === "capacity" ? (
-          <RosterCapacityPanel
-            rosterShifts={rosterShifts}
-            employees={employees}
-            anchorWeekStart={weekStart}
-            weekCount={forwardWeeks}
-            onAnchorChange={setWeekStart}
-            onWeekCountChange={setForwardWeeks}
-          />
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <label className="text-sm">
+                <span className="mb-1 block text-xs font-medium text-slate-600">Pay period</span>
+                <PayPeriodSelector value={payPeriodInstanceId} onChange={setPayPeriodInstanceId} />
+              </label>
+            </div>
+            <RosterCapacityPanel
+              rosterShifts={rosterShifts}
+              employees={employees}
+              anchorWeekStart={weekStart}
+              weekCount={forwardWeeks}
+              onAnchorChange={setWeekStart}
+              onWeekCountChange={setForwardWeeks}
+            />
+            <ContractedHoursPanel payPeriodInstanceId={payPeriodInstanceId} />
+          </div>
         ) : (
           <>
         <div className="mb-4 flex flex-wrap items-center gap-3">

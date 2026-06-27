@@ -108,6 +108,8 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   employeeDocumentStatus: { label: "Employee document status", group: "People" },
   emergencyContactType: { label: "Emergency contact type", group: "People" },
   employmentType: { label: "Employment type", group: "People" },
+  contractedHoursPeriod: { label: "Contracted hours period", group: "People" },
+  schadsClassificationLevel: { label: "SCHADS classification", group: "People" },
   payMethod: { label: "Pay method", group: "People" },
   credentialType: { label: "Credential type", group: "People" },
   credentialStatus: { label: "Credential status", group: "People" },
@@ -549,6 +551,8 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   contactRelationship: ["Spouse", "Partner", "Parent", "Sibling", "Child", "Friend", "Other"],
   emergencyContactType: ["Emergency", "Next of kin"],
   employmentType: ["Full-time", "Part-time", "Casual", "Contractor", "Volunteer"],
+  contractedHoursPeriod: ["fortnight", "week", "month"],
+  schadsClassificationLevel: ["level-2.1", "level-2.2", "level-3.1"],
   payMethod: ["Bank", "Cash", "Cheque"],
   credentialType: [
     "NDIS Worker Screening",

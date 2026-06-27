@@ -118,6 +118,17 @@ import {
   type InvoiceRecord,
 } from "@/lib/invoice";
 import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
+import {
+  defaultPayPeriodDefinitionSeed,
+  defaultPayPeriodInstancesSeed,
+  findPayPeriodInstanceForDate,
+  generatePayPeriodInstances,
+  normalizePayPeriodDefinition,
+  normalizePayPeriodInstance,
+  type PayPeriodDefinitionRecord,
+  type PayPeriodInstanceRecord,
+} from "@/lib/pay-period";
+import { enrichShiftWithProfitability } from "@/lib/shift-profitability";
 import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
 import {
   normalizeBoardReportPack,
@@ -222,6 +233,8 @@ import {
   saveRosterOfCares,
   saveMonthlyServicePlan,
   savePayrollClosedPeriod,
+  savePayPeriodDefinition,
+  savePayPeriodInstance,
   saveFinancialClosedMonth,
   saveBoardReportPack,
   saveRosterShifts,
@@ -271,6 +284,8 @@ type DataStore = {
   claimRemittances: ClaimRemittanceRecord[];
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
+  payPeriodDefinitions: PayPeriodDefinitionRecord[];
+  payPeriodInstances: PayPeriodInstanceRecord[];
   financialClosedMonths: FinancialClosedMonthRecord[];
   boardReportTemplates: BoardReportTemplateRecord[];
   boardReportPacks: BoardReportPackRecord[];
@@ -346,6 +361,8 @@ type DataStore = {
   upsertInvoice: (record: InvoiceRecord, audit?: AuditLogOptions) => void;
   bulkUpsertInvoices: (records: InvoiceRecord[]) => void;
   closePayrollPeriod: (record: PayrollPeriodCloseRecord) => void;
+  upsertPayPeriodDefinition: (record: PayPeriodDefinitionRecord) => void;
+  updatePayPeriodInstance: (record: PayPeriodInstanceRecord) => void;
   closeFinancialMonth: (record: FinancialClosedMonthRecord) => void;
   upsertBoardReportPack: (record: BoardReportPackRecord, audit?: AuditLogOptions) => void;
   getServiceBookingsByClientId: (clientId: string) => ServiceBookingRecord[];
@@ -433,6 +450,8 @@ type Persisted = {
   claimRemittances?: ClaimRemittanceRecord[];
   invoices?: InvoiceRecord[];
   payrollClosedPeriods?: PayrollPeriodCloseRecord[];
+  payPeriodDefinitions?: PayPeriodDefinitionRecord[];
+  payPeriodInstances?: PayPeriodInstanceRecord[];
   financialClosedMonths?: FinancialClosedMonthRecord[];
   boardReportTemplates?: BoardReportTemplateRecord[];
   boardReportPacks?: BoardReportPackRecord[];
@@ -468,6 +487,8 @@ function seedData(): Required<Persisted> {
     claimRemittances: [],
     invoices: seedInvoices.map(normalizeInvoice),
     payrollClosedPeriods: [],
+    payPeriodDefinitions: [defaultPayPeriodDefinitionSeed()],
+    payPeriodInstances: defaultPayPeriodInstancesSeed(),
     financialClosedMonths: [],
     boardReportTemplates: [defaultBoardReportTemplate()],
     boardReportPacks: [],
@@ -504,6 +525,8 @@ function portalEmptyData(): Required<Persisted> {
     claimRemittances: [],
     invoices: [],
     payrollClosedPeriods: [],
+    payPeriodDefinitions: [defaultPayPeriodDefinitionSeed()],
+    payPeriodInstances: defaultPayPeriodInstancesSeed(),
     financialClosedMonths: [],
     boardReportTemplates: [defaultBoardReportTemplate()],
     boardReportPacks: [],
@@ -556,6 +579,12 @@ function loadLocal(): Required<Persisted> {
       claimRemittances: (parsed.claimRemittances ?? []).map(normalizeRemittance),
       invoices: (parsed.invoices ?? seedInvoices).map(normalizeInvoice),
       payrollClosedPeriods: parsed.payrollClosedPeriods ?? [],
+      payPeriodDefinitions: (parsed.payPeriodDefinitions ?? [defaultPayPeriodDefinitionSeed()]).map(
+        normalizePayPeriodDefinition
+      ),
+      payPeriodInstances: (parsed.payPeriodInstances ?? defaultPayPeriodInstancesSeed()).map(
+        normalizePayPeriodInstance
+      ),
       financialClosedMonths: parsed.financialClosedMonths ?? [],
       boardReportTemplates: (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()]).length
         ? (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()])
@@ -616,6 +645,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [invoices, setInvoices] = useState<InvoiceRecord[]>(defaults.invoices);
   const [payrollClosedPeriods, setPayrollClosedPeriods] = useState<PayrollPeriodCloseRecord[]>(
     defaults.payrollClosedPeriods
+  );
+  const [payPeriodDefinitions, setPayPeriodDefinitions] = useState<PayPeriodDefinitionRecord[]>(
+    defaults.payPeriodDefinitions
+  );
+  const [payPeriodInstances, setPayPeriodInstances] = useState<PayPeriodInstanceRecord[]>(
+    defaults.payPeriodInstances
   );
   const [financialClosedMonths, setFinancialClosedMonths] = useState<FinancialClosedMonthRecord[]>(
     defaults.financialClosedMonths
@@ -693,6 +728,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const priceListsRef = useSyncRef(priceLists);
   const serviceAgreementsRef = useSyncRef(serviceAgreements);
   const serviceBookingsRef = useSyncRef(serviceBookings);
+  const payPeriodInstancesRef = useSyncRef(payPeriodInstances);
   const rosterShiftsRef = useSyncRef(rosterShifts);
   const rosterShiftRequestsRef = useSyncRef(rosterShiftRequests);
   const agencyWorkersRef = useSyncRef(agencyWorkers);
@@ -760,6 +796,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
       setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
       setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
+      setPayPeriodDefinitions(
+        (data.payPeriodDefinitions ?? [defaultPayPeriodDefinitionSeed()]).map(normalizePayPeriodDefinition)
+      );
+      setPayPeriodInstances(
+        (data.payPeriodInstances ?? defaultPayPeriodInstancesSeed()).map(normalizePayPeriodInstance)
+      );
       setFinancialClosedMonths(data.financialClosedMonths ?? []);
       setBoardReportTemplates(
         data.boardReportTemplates?.length ? data.boardReportTemplates : [defaultBoardReportTemplate()]
@@ -884,6 +926,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
         setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
         setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
+        setPayPeriodDefinitions(
+          (data.payPeriodDefinitions ?? [defaultPayPeriodDefinitionSeed()]).map(normalizePayPeriodDefinition)
+        );
+        setPayPeriodInstances(
+          (data.payPeriodInstances ?? defaultPayPeriodInstancesSeed()).map(normalizePayPeriodInstance)
+        );
         setFinancialClosedMonths(data.financialClosedMonths ?? []);
         setSupportPlans(data.supportPlans);
         setPlanDocuments(data.planDocuments);
@@ -931,6 +979,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       claimRemittances,
       invoices,
       payrollClosedPeriods,
+      payPeriodDefinitions,
+      payPeriodInstances,
       financialClosedMonths,
       boardReportTemplates,
       boardReportPacks,
@@ -964,6 +1014,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       claimRemittances,
       invoices,
       payrollClosedPeriods,
+      payPeriodDefinitions,
+      payPeriodInstances,
       financialClosedMonths,
       boardReportTemplates,
       boardReportPacks,
@@ -1362,6 +1414,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         });
       }
 
+      const payPeriod = findPayPeriodInstanceForDate(
+        payPeriodInstancesRef.current,
+        normalized.shiftDate
+      );
+      normalized = enrichShiftWithProfitability(
+        {
+          ...normalized,
+          payPeriodInstanceId: payPeriod?.id ?? normalized.payPeriodInstanceId ?? "",
+        },
+        employeesRef.current,
+        serviceBookingsRef.current
+      );
+
       const mode = rosterValidationMode(normalized);
       const qualification = buildRosterQualificationMaps(clientsRef.current, employeesRef.current);
       const saveIssues = validateRosterShift(normalized, { existing: prev }, mode, qualification, prev).filter(
@@ -1395,7 +1460,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       void persistRemote((supabase) => saveRosterShift(supabase, stamped));
       return null;
     },
-    [persistRemote, rosterShiftsRef, clientsRef, employeesRef]
+    [persistRemote, rosterShiftsRef, clientsRef, employeesRef, payPeriodInstancesRef, serviceBookingsRef]
   );
 
   const upsertAgencyWorker = useCallback(
@@ -1999,6 +2064,36 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote]
   );
 
+  const upsertPayPeriodDefinition = useCallback(
+    (record: PayPeriodDefinitionRecord) => {
+      const definition = normalizePayPeriodDefinition(record);
+      setPayPeriodDefinitions((current) => {
+        const next = current.filter((row) => row.id !== definition.id);
+        return [...next, definition];
+      });
+      setPayPeriodInstances((current) => {
+        const existing = current.filter((row) => row.definitionId === definition.id);
+        const generated = generatePayPeriodInstances(definition, { existing });
+        const other = current.filter((row) => row.definitionId !== definition.id);
+        return [...other, ...generated];
+      });
+      void persistRemote((supabase) => savePayPeriodDefinition(supabase, definition));
+    },
+    [persistRemote]
+  );
+
+  const updatePayPeriodInstance = useCallback(
+    (record: PayPeriodInstanceRecord) => {
+      const instance = normalizePayPeriodInstance(record);
+      setPayPeriodInstances((current) => {
+        const next = current.filter((row) => row.id !== instance.id);
+        return [...next, instance];
+      });
+      void persistRemote((supabase) => savePayPeriodInstance(supabase, instance));
+    },
+    [persistRemote]
+  );
+
   const closeFinancialMonth = useCallback(
     (record: FinancialClosedMonthRecord) => {
       setFinancialClosedMonths((current) => {
@@ -2356,6 +2451,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       claimRemittances,
       invoices: scopedView.invoices,
       payrollClosedPeriods,
+      payPeriodDefinitions,
+      payPeriodInstances,
       financialClosedMonths,
       boardReportTemplates,
       boardReportPacks,
@@ -2411,6 +2508,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertInvoice,
       bulkUpsertInvoices,
       closePayrollPeriod,
+      upsertPayPeriodDefinition,
+      updatePayPeriodInstance,
       closeFinancialMonth,
       upsertBoardReportPack,
       upsertSupportPlan,
@@ -2453,6 +2552,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       vendorInvoices,
       claimRemittances,
       payrollClosedPeriods,
+      payPeriodDefinitions,
+      payPeriodInstances,
       financialClosedMonths,
       boardReportTemplates,
       boardReportPacks,
@@ -2504,6 +2605,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertInvoice,
       bulkUpsertInvoices,
       closePayrollPeriod,
+      upsertPayPeriodDefinition,
+      updatePayPeriodInstance,
       closeFinancialMonth,
       upsertBoardReportPack,
       upsertSupportPlan,

@@ -517,6 +517,14 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "admin-pay-periods",
+    label: "Pay periods",
+    group: "Admin",
+    href: "/admin/pay-periods",
+    abilityErpName: "Pay period definitions",
+    showInSidebar: false,
+  },
+  {
     key: "admin-roles",
     label: "Roles",
     group: "Admin",

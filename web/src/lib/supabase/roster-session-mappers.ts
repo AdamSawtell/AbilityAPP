@@ -26,6 +26,8 @@ export type RosterShiftWorkerLineRow = {
   employee_id: string | null;
   role_required: string;
   status: string;
+  coverage_role: string;
+  leave_request_id: string | null;
   notes: string;
   checked_in_at: string | null;
   checked_out_at: string | null;
@@ -71,6 +73,8 @@ export function rosterShiftWorkerLineFromRow(row: RosterShiftWorkerLineRow): Ros
     employeeId: row.employee_id ?? "",
     roleRequired: row.role_required ?? "",
     status: (row.status as RosterShiftWorkerLine["status"]) || "required",
+    coverageRole: row.coverage_role ?? "fill",
+    leaveRequestId: row.leave_request_id ?? "",
     notes: row.notes ?? "",
     checkedInAt: row.checked_in_at ?? "",
     checkedOutAt: row.checked_out_at ?? "",
@@ -89,6 +93,8 @@ export function rosterShiftWorkerLineToRow(
     employee_id: normalized.employeeId?.trim() ? normalized.employeeId : null,
     role_required: normalized.roleRequired ?? "",
     status: normalized.status,
+    coverage_role: normalized.coverageRole ?? "fill",
+    leave_request_id: normalized.leaveRequestId?.trim() ? normalized.leaveRequestId : null,
     notes: normalized.notes ?? "",
     checked_in_at: normalized.checkedInAt?.trim() ? normalized.checkedInAt : null,
     checked_out_at: normalized.checkedOutAt?.trim() ? normalized.checkedOutAt : null,

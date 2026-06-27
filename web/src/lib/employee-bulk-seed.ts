@@ -1,7 +1,7 @@
-import type { EmployeeRecord } from "@/lib/employee";
+import { normalizeEmployee, type EmployeeRecord } from "@/lib/employee";
 
 /** Generated bulk staff — run scripts/generate-bulk-dummy-data.mjs to refresh. */
-export const bulkEmployees: EmployeeRecord[] = [
+const rawBulkEmployees = [
   {
     id: "emp-sw-001",
     searchKey: "AvThN101",
@@ -7093,6 +7093,10 @@ export const bulkEmployees: EmployeeRecord[] = [
     leaveRequests: [],
   }
 ];
+
+export const bulkEmployees: EmployeeRecord[] = rawBulkEmployees.map((row) =>
+  normalizeEmployee(row as unknown as EmployeeRecord)
+);
 
 export const bulkSupportWorkerIds = bulkEmployees
   .filter((e) => e.jobTitle === "Support Worker")

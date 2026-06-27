@@ -28,6 +28,7 @@ export function WorkforceFillBoardPanel() {
     rosterShiftRequests,
     employees,
     clients,
+    payPeriodInstances,
     upsertRosterShift,
     approveShiftRequest,
     rejectShiftRequest,
@@ -56,8 +57,9 @@ export function WorkforceFillBoardPanel() {
         employees,
         clients,
         weekStart,
+        payPeriodInstances,
       }),
-    [filteredShifts, employees, clients, weekStart]
+    [filteredShifts, employees, clients, weekStart, payPeriodInstances]
   );
 
   function assignWorker(shiftId: string, employeeId: string) {

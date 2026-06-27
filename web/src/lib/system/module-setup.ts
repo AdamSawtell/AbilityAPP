@@ -233,6 +233,7 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
     ],
     setupLinks: [
       { href: "/admin/roles", label: "Roles", description: "Windows and permissions (workspace Admin)." },
+      { href: "/admin/pay-periods", label: "Pay periods", description: "Pay cycle definition and open/close." },
       { href: "/system/reference-data/admin", label: "Shared reference data", description: "Cross-module lists." },
     ],
     workspaceLinks: [{ href: "/admin/roles", label: "Roles", description: "Security roles for workspace access." }],

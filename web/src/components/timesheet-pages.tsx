@@ -258,8 +258,8 @@ export function GenerateTimesheetsView() {
   const [generating, setGenerating] = useState(false);
 
   const preview = useMemo(
-    () => previewTimesheetGeneration(rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods),
-    [rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods]
+    () => previewTimesheetGeneration(rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods, employees),
+    [rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods, employees]
   );
 
   const handleGenerate = () => {
@@ -283,7 +283,8 @@ export function GenerateTimesheetsView() {
       periodStart,
       periodEnd,
       actor,
-      payrollClosedPeriods
+      payrollClosedPeriods,
+      employees
     );
     const all = [...result.created, ...result.updated];
     bulkUpsertTimesheets(all);

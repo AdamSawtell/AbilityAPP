@@ -8,6 +8,7 @@ import {
 } from "@/lib/roster-shift";
 import { ROC_WEEKDAY_LABELS, type RosterOfCareLine, type RosterOfCareRecord } from "@/lib/roster-of-care";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
+import { applyLeaveToWorkerLines, type EmployeeLeaveContext } from "@/lib/roster-leave";
 import {
   emptyRosterShiftClientLine,
   emptyRosterShiftWorkerLine,
@@ -33,6 +34,8 @@ export type RocPublishPreview = {
   shifts: RosterShiftRecord[];
   skippedLines: { lineNo: number; reason: string }[];
   warnings: string[];
+  /** Template workers on approved leave — shift vacated for fill, leave-pay line added. */
+  leaveAppliedCount: number;
 };
 
 export type RocPublishValidation = {
@@ -187,17 +190,19 @@ export function buildShiftsFromRosterOfCare(
   input: RocPublishInput,
   existing: RosterShiftRecord[],
   serviceBookings: ServiceBookingRecord[],
-  allRocs?: RosterOfCareRecord[]
+  allRocs?: RosterOfCareRecord[],
+  employees: EmployeeLeaveContext[] = []
 ): RocPublishPreview {
   const weekStart = weekStartFromDate(input.weekStart);
   const weeks = Math.max(1, Math.min(12, input.weekCount));
   const shifts: RosterShiftRecord[] = [];
   const skippedLines: { lineNo: number; reason: string }[] = [];
   const warnings: string[] = [];
+  let leaveAppliedCount = 0;
 
   if (!roc.lines.length) {
     warnings.push("This roster of care has no weekly lines.");
-    return { shifts, skippedLines, warnings };
+    return { shifts, skippedLines, warnings, leaveAppliedCount: 0 };
   }
 
   const rocsInScope = collectPeerLines(roc, allRocs);
@@ -263,6 +268,10 @@ export function buildShiftsFromRosterOfCare(
         const workerLine = workerLineFromRoc(pending.line, pending.shiftDate, workerLines.length + 1);
         if (workerLine) workerLines = mergeWorkerLines(workerLines, [workerLine]);
       }
+
+      const leaveResult = applyLeaveToWorkerLines(workerLines, employees, shiftDate);
+      workerLines = leaveResult.workerLines;
+      leaveAppliedCount += leaveResult.leaveAppliedCount;
 
       if (!workerLines.length) {
         workerLines = [
@@ -370,7 +379,13 @@ export function buildShiftsFromRosterOfCare(
     );
   }
 
-  return { shifts, skippedLines, warnings };
+  if (leaveAppliedCount > 0) {
+    warnings.push(
+      `${leaveAppliedCount} template worker assignment${leaveAppliedCount === 1 ? "" : "s"} on approved leave — vacant fill slot created with planned leave pay.`
+    );
+  }
+
+  return { shifts, skippedLines, warnings, leaveAppliedCount };
 }
 
 /** Bulk rollover scope — roll forward every active RoC, one client, or one location. */
@@ -385,6 +400,7 @@ export type BulkRocPublishPreview = {
   rocCount: number;
   skippedLines: { rocId: string; lineNo: number; reason: string }[];
   warnings: string[];
+  leaveAppliedCount: number;
 };
 
 /** Restrict a RoC's lines to a single location (used by location-scoped rollover). */
@@ -408,7 +424,8 @@ export function buildShiftsFromRosterOfCares(
   input: RocPublishInput,
   existing: RosterShiftRecord[],
   serviceBookings: ServiceBookingRecord[],
-  allRocs: RosterOfCareRecord[]
+  allRocs: RosterOfCareRecord[],
+  employees: EmployeeLeaveContext[] = []
 ): BulkRocPublishPreview {
   const activeRocs = (allRocs ?? []).filter((roc) => roc.status === "Active");
 
@@ -431,9 +448,11 @@ export function buildShiftsFromRosterOfCares(
   const byId = new Map<string, RosterShiftRecord>();
   const skippedLines: { rocId: string; lineNo: number; reason: string }[] = [];
   const warnings = new Set<string>();
+  let leaveAppliedCount = 0;
 
   for (const roc of scopeRocs) {
-    const preview = buildShiftsFromRosterOfCare(roc, input, existing, serviceBookings, mergeRocs);
+    const preview = buildShiftsFromRosterOfCare(roc, input, existing, serviceBookings, mergeRocs, employees);
+    leaveAppliedCount += preview.leaveAppliedCount;
     for (const reason of preview.warnings) warnings.add(reason);
     for (const skip of preview.skippedLines) {
       skippedLines.push({ rocId: roc.id, lineNo: skip.lineNo, reason: skip.reason });
@@ -466,6 +485,7 @@ export function buildShiftsFromRosterOfCares(
     rocCount: scopeRocs.length,
     skippedLines,
     warnings: [...warnings],
+    leaveAppliedCount,
   };
 }
 

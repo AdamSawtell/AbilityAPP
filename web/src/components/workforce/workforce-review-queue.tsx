@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import type { EmployeeRecord } from "@/lib/employee";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { WorkforceReviewQueue } from "@/lib/workforce/review-queue";
 
 const inputClass =
@@ -12,7 +13,7 @@ const inputClass =
 
 export function WorkforceReviewQueuePanel() {
   const { canProcess } = useAuth();
-  const { upsertEmployee } = useData();
+  const { upsertEmployee, addRecurringRosterShifts } = useData();
   const canReviewCredentials = canProcess("review-employee-credential");
   const canApproveLeave = canProcess("approve-leave-request");
   const [queue, setQueue] = useState<WorkforceReviewQueue | null>(null);
@@ -74,10 +75,27 @@ export function WorkforceReviewQueuePanel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const body = (await res.json()) as { error?: string; employee?: EmployeeRecord };
+      const body = (await res.json()) as {
+        error?: string;
+        employee?: EmployeeRecord;
+        leaveRosterRelease?: { releasedCount: number; skippedAttendance: number; updatedShifts: RosterShiftRecord[] };
+      };
       if (!res.ok) throw new Error(body.error ?? "Review action failed");
       if (body.employee) upsertEmployee(body.employee);
-      setMessage("Review saved.");
+      if (body.leaveRosterRelease?.updatedShifts?.length) {
+        addRecurringRosterShifts(body.leaveRosterRelease.updatedShifts);
+      }
+      if (body.leaveRosterRelease?.releasedCount) {
+        setMessage(
+          `Review saved. ${body.leaveRosterRelease.releasedCount} rolled shift${body.leaveRosterRelease.releasedCount === 1 ? "" : "s"} released for fill with planned leave pay.${
+            body.leaveRosterRelease.skippedAttendance
+              ? ` ${body.leaveRosterRelease.skippedAttendance} skipped — check-in already recorded.`
+              : ""
+          }`
+        );
+      } else {
+        setMessage("Review saved.");
+      }
       await loadQueue();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Review action failed");

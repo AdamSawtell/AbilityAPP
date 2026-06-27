@@ -20,7 +20,7 @@ export const employeesArticle: HelpArticle = {
   ],
   relatedRoutes: ["/employees", "/employees/new", "/workforce-planning#reviews"],
   windowKeys: ["employees"],
-  lastUpdated: "2026-06-25",
+  lastUpdated: "2026-06-27",
   sections: [
     {
       id: "employee-list",
@@ -73,7 +73,7 @@ export const employeesArticle: HelpArticle = {
     {
       id: "leave",
       title: "Leave tab (HR view)",
-      body: "Shows leave entitlements, balances, and requests. Staff submit from My workplace; managers and HR approve in Workforce planning → Review queue or on this tab. Approved leave reduces the matching entitlement balance.",
+      body: "Shows leave entitlements, balances, and requests. Staff submit from My workplace; managers and HR approve in Workforce planning → Review queue or on this tab. Approved leave reduces the matching entitlement balance.\n\nWhen leave is approved after roster rollover, shifts in the leave date range are released for fill (vacant slot) and a planned leave-pay line is added for timesheet generation. Shifts where the worker already checked in are left unchanged.",
       windowKeys: ["employee-leave"],
       relatedRoutes: ["/workforce-planning#reviews", "/help/workforce-leave-calendar"],
     },

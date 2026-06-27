@@ -1682,6 +1682,11 @@ export type EmployeeRow = {
   super_fund: string;
   super_member_number: string;
   standard_hours_per_week: number | null;
+  contracted_hours_per_period: number | null;
+  contracted_hours_period: string;
+  schads_classification_level: string;
+  schads_pay_point: string;
+  super_rate: number | null;
   fte: number | null;
   leave_policy: string;
   medical_restrictions_notes: string;
@@ -2068,6 +2073,12 @@ export function employeeFromRow(row: EmployeeRow, children: EmployeeChildRows = 
     superFund: row.super_fund ?? "",
     superMemberNumber: row.super_member_number ?? "",
     standardHoursPerWeek: row.standard_hours_per_week != null ? String(row.standard_hours_per_week) : "",
+    contractedHoursPerPeriod:
+      row.contracted_hours_per_period != null ? Number(row.contracted_hours_per_period) : "",
+    contractedHoursPeriod: row.contracted_hours_period ?? "fortnight",
+    schadsClassificationLevel: row.schads_classification_level ?? "",
+    schadsPayPoint: row.schads_pay_point ?? "",
+    superRate: row.super_rate != null ? Number(row.super_rate) : 12,
     fte: row.fte != null ? String(row.fte) : "",
     leavePolicy: row.leave_policy ?? "",
     medicalRestrictionsNotes: row.medical_restrictions_notes ?? "",
@@ -2132,6 +2143,15 @@ export function employeeToRow(record: EmployeeRecord): EmployeeRow {
     super_fund: record.superFund,
     super_member_number: record.superMemberNumber,
     standard_hours_per_week: record.standardHoursPerWeek?.trim() ? Number(record.standardHoursPerWeek) : null,
+    contracted_hours_per_period:
+      record.contractedHoursPerPeriod === "" || record.contractedHoursPerPeriod == null
+        ? null
+        : Number(record.contractedHoursPerPeriod),
+    contracted_hours_period: record.contractedHoursPeriod?.trim() || "fortnight",
+    schads_classification_level: record.schadsClassificationLevel ?? "",
+    schads_pay_point: record.schadsPayPoint ?? "",
+    super_rate:
+      record.superRate === "" || record.superRate == null ? 12 : Number(record.superRate),
     fte: record.fte?.trim() ? Number(record.fte) : null,
     leave_policy: record.leavePolicy,
     medical_restrictions_notes: record.medicalRestrictionsNotes,
@@ -2398,6 +2418,10 @@ export type RosterShiftRow = {
   open_fill_status: string;
   session_key: string;
   required_worker_count: number;
+  pay_period_instance_id: string | null;
+  calculated_cost: number | null;
+  calculated_income: number | null;
+  calculated_margin: number | null;
   created_by: string;
   updated_by: string;
 };
@@ -2466,6 +2490,10 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     openFillStatus: row.open_fill_status ?? "Open",
     sessionKey: row.session_key ?? "",
     requiredWorkerCount: Math.max(1, Number(row.required_worker_count) || 1),
+    payPeriodInstanceId: row.pay_period_instance_id ?? "",
+    calculatedCost: row.calculated_cost != null ? Number(row.calculated_cost) : undefined,
+    calculatedIncome: row.calculated_income != null ? Number(row.calculated_income) : undefined,
+    calculatedMargin: row.calculated_margin != null ? Number(row.calculated_margin) : undefined,
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -2517,6 +2545,10 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     open_fill_status: record.openFillStatus || "Open",
     session_key: record.sessionKey ?? "",
     required_worker_count: Math.max(1, Number(record.requiredWorkerCount) || 1),
+    pay_period_instance_id: record.payPeriodInstanceId?.trim() ? record.payPeriodInstanceId : null,
+    calculated_cost: record.calculatedCost != null ? Number(record.calculatedCost) : null,
+    calculated_income: record.calculatedIncome != null ? Number(record.calculatedIncome) : null,
+    calculated_margin: record.calculatedMargin != null ? Number(record.calculatedMargin) : null,
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

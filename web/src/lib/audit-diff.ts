@@ -87,6 +87,11 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     pictureUrl: "Photo",
     jobTitle: "Job title",
     department: "Department",
+    contractedHoursPerPeriod: "Contracted hours per period",
+    contractedHoursPeriod: "Contracted hours period",
+    schadsClassificationLevel: "SCHADS classification level",
+    schadsPayPoint: "SCHADS pay point",
+    superRate: "Superannuation rate (%)",
   },
   location: {
     searchKey: "Search key",

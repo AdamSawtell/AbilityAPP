@@ -1,6 +1,7 @@
 import { isLineBillable, isTrainingOrMeetingPurpose, normalizeShiftPurpose } from "@/lib/buddy-shift";
 import { shiftDurationHours, type RosterShiftRecord } from "@/lib/roster-shift";
-import { assignedWorkerIdsForShift } from "@/lib/roster-session";
+import { assignedWorkerIdsForShift, leavePayWorkerIdsForShift } from "@/lib/roster-session";
+import { leavePayNote, leavePayWorkersForShift, type EmployeeLeaveContext } from "@/lib/roster-leave";
 import {
   createTimesheet,
   emptyTimesheetLine,
@@ -83,12 +84,74 @@ function lineFromShift(shift: RosterShiftRecord, employeeId: string, lineNo: num
   };
 }
 
+function isEligibleLeavePayShift(shift: RosterShiftRecord, employeeId: string): boolean {
+  return leavePayWorkerIdsForShift(shift).includes(employeeId) && ELIGIBLE_STATUSES.has(shift.status);
+}
+
+function lineFromLeavePayShift(
+  shift: RosterShiftRecord,
+  employeeId: string,
+  lineNo: number,
+  leaveType: string
+): TimesheetLine {
+  return {
+    ...emptyTimesheetLine(lineNo),
+    id: `tsl-leave-${shift.id}-${employeeId}`,
+    lineNo,
+    rosterShiftId: shift.id,
+    clientId: shift.clientId,
+    locationId: shift.locationId,
+    serviceBookingId: shift.serviceBookingId,
+    shiftDate: shift.shiftDate,
+    startTime: shift.startTime,
+    endTime: shift.endTime,
+    shiftType: shift.shiftType,
+    hours: shiftDurationHours(shift),
+    notes: leavePayNote(leaveType),
+    shiftPurpose: shift.shiftPurpose,
+    billingClassification: "non_billable_internal_cost",
+    payStatus: "payable",
+  };
+}
+
+type PayrollLineSource = {
+  shift: RosterShiftRecord;
+  employeeId: string;
+  leaveType?: string;
+};
+
+function payrollSourcesForShift(
+  shift: RosterShiftRecord,
+  employees: EmployeeLeaveContext[] = []
+): PayrollLineSource[] {
+  const sources: PayrollLineSource[] = [];
+  for (const employeeId of assignedWorkerIdsForShift(shift)) {
+    sources.push({ shift, employeeId });
+  }
+  for (const ref of leavePayWorkersForShift(shift, employees)) {
+    if (assignedWorkerIdsForShift(shift).includes(ref.employeeId)) continue;
+    sources.push({ shift, employeeId: ref.employeeId, leaveType: ref.leaveType });
+  }
+  return sources;
+}
+
+function isEligiblePayrollSource(source: PayrollLineSource, employeeId: string): boolean {
+  if (source.leaveType) return isEligibleLeavePayShift(source.shift, employeeId);
+  return isEligibleShift(source.shift, employeeId);
+}
+
+function lineFromPayrollSource(source: PayrollLineSource, employeeId: string, lineNo: number): TimesheetLine {
+  if (source.leaveType) return lineFromLeavePayShift(source.shift, employeeId, lineNo, source.leaveType);
+  return lineFromShift(source.shift, employeeId, lineNo);
+}
+
 export function previewTimesheetGeneration(
   rosterShifts: RosterShiftRecord[],
   timesheets: TimesheetRecord[],
   periodStart: string,
   periodEnd: string,
-  closedPeriods: PayrollPeriodCloseRecord[] = []
+  closedPeriods: PayrollPeriodCloseRecord[] = [],
+  employees: EmployeeLeaveContext[] = []
 ): TimesheetGenerationPreview {
   const periodClosed = isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods);
   const linked = linkedRosterShiftIds(timesheets);
@@ -98,16 +161,15 @@ export function previewTimesheetGeneration(
 
   for (const shift of rosterShifts) {
     if (!shiftInPeriod(shift, periodStart, periodEnd)) continue;
-    const employeeIds = assignedWorkerIdsForShift(shift);
-    if (!isEligibleShift(shift)) continue;
-    const unlinkedEmployeeIds = employeeIds.filter((employeeId) => !linked.has(workerShiftKey(employeeId, shift.id)));
-    alreadyLinkedCount += employeeIds.length - unlinkedEmployeeIds.length;
-    if (!unlinkedEmployeeIds.length) {
-      continue;
-    }
-    eligibleShiftCount += unlinkedEmployeeIds.length;
-    const hours = shiftDurationHours(shift);
-    for (const employeeId of unlinkedEmployeeIds) {
+    for (const source of payrollSourcesForShift(shift, employees)) {
+      const employeeId = source.employeeId;
+      if (!employeeId || !isEligiblePayrollSource(source, employeeId)) continue;
+      if (linked.has(workerShiftKey(employeeId, shift.id))) {
+        alreadyLinkedCount += 1;
+        continue;
+      }
+      eligibleShiftCount += 1;
+      const hours = shiftDurationHours(shift);
       const row = byEmployee.get(employeeId) ?? { shiftCount: 0, totalHours: 0 };
       row.shiftCount += 1;
       row.totalHours = Math.round((row.totalHours + hours) * 100) / 100;
@@ -152,27 +214,29 @@ export function generateTimesheetsFromShifts(
   periodStart: string,
   periodEnd: string,
   actorName = "SuperUser",
-  closedPeriods: PayrollPeriodCloseRecord[] = []
+  closedPeriods: PayrollPeriodCloseRecord[] = [],
+  employees: EmployeeLeaveContext[] = []
 ): TimesheetGenerationResult {
   if (isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods)) {
     return { created: [], updated: [], skippedAlreadyLinked: 0, skippedLockedPeriod: 0, periodClosed: true };
   }
 
   const linked = linkedRosterShiftIds(timesheets);
-  const shiftsByEmployee = new Map<string, RosterShiftRecord[]>();
+  const sourcesByEmployee = new Map<string, PayrollLineSource[]>();
   let skippedAlreadyLinked = 0;
 
   for (const shift of rosterShifts) {
     if (!shiftInPeriod(shift, periodStart, periodEnd)) continue;
-    if (!isEligibleShift(shift)) continue;
-    for (const employeeId of assignedWorkerIdsForShift(shift)) {
+    for (const source of payrollSourcesForShift(shift, employees)) {
+      const employeeId = source.employeeId;
+      if (!employeeId || !isEligiblePayrollSource(source, employeeId)) continue;
       if (linked.has(workerShiftKey(employeeId, shift.id))) {
         skippedAlreadyLinked += 1;
         continue;
       }
-      const list = shiftsByEmployee.get(employeeId) ?? [];
-      list.push(shift);
-      shiftsByEmployee.set(employeeId, list);
+      const list = sourcesByEmployee.get(employeeId) ?? [];
+      list.push(source);
+      sourcesByEmployee.set(employeeId, list);
     }
   }
 
@@ -181,17 +245,17 @@ export function generateTimesheetsFromShifts(
   let working = [...timesheets];
   let skippedLockedPeriod = 0;
 
-  for (const [employeeId, shifts] of shiftsByEmployee) {
+  for (const [employeeId, sources] of sourcesByEmployee) {
     const existingPeriod = findTimesheetForPeriod(working, employeeId, periodStart, periodEnd);
     if (existingPeriod && existingPeriod.status !== "Draft") {
-      skippedLockedPeriod += shifts.length;
+      skippedLockedPeriod += sources.length;
       continue;
     }
 
-    shifts.sort((a, b) =>
-      `${a.shiftDate}${a.startTime}`.localeCompare(`${b.shiftDate}${b.startTime}`)
+    sources.sort((a, b) =>
+      `${a.shift.shiftDate}${a.shift.startTime}`.localeCompare(`${b.shift.shiftDate}${b.shift.startTime}`)
     );
-    const newLines = shifts.map((shift, index) => lineFromShift(shift, employeeId, index + 1));
+    const newLines = sources.map((source, index) => lineFromPayrollSource(source, employeeId, index + 1));
 
     const existingDraft = findDraftTimesheet(working, employeeId, periodStart, periodEnd);
     if (existingDraft) {

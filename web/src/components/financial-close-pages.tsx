@@ -1,8 +1,10 @@
 "use client";
 
 import { FinancialCloseMonthPanel } from "@/components/financial-close-month-panel";
+import { PayPeriodSelector } from "@/components/pay-period-admin-panel";
+import { ShiftProfitabilityPanel } from "@/components/shift-profitability-panel";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
@@ -12,6 +14,7 @@ import {
   type FinancialCloseContext,
 } from "@/lib/financial-close";
 import { formatPlanMonthLabel, currentPlanMonthIso } from "@/lib/monthly-service-plan";
+import { findCurrentPayPeriodInstance } from "@/lib/pay-period";
 import { downloadCsv } from "@/lib/reports/export";
 
 function buildContext(data: ReturnType<typeof useData>): FinancialCloseContext {
@@ -34,6 +37,19 @@ export function FinancialCloseView() {
   const canExport = canWriteWindow("financial-close");
 
   const [closeMonth, setCloseMonth] = useState(currentPlanMonthIso());
+  const { payPeriodInstances } = data;
+  const [payPeriodInstanceId, setPayPeriodInstanceId] = useState("");
+
+  useEffect(() => {
+    if (payPeriodInstanceId) return;
+    const current = findCurrentPayPeriodInstance(payPeriodInstances, `${closeMonth}-15`);
+    if (current) setPayPeriodInstanceId(current.id);
+  }, [payPeriodInstances, payPeriodInstanceId, closeMonth]);
+
+  const selectedPayPeriod = useMemo(
+    () => payPeriodInstances.find((row) => row.id === payPeriodInstanceId),
+    [payPeriodInstances, payPeriodInstanceId]
+  );
 
   const ctx = useMemo(() => buildContext(data), [data]);
   const evaluation = useMemo(() => evaluateFinancialClose(ctx, closeMonth), [ctx, closeMonth]);
@@ -188,6 +204,31 @@ export function FinancialCloseView() {
       </div>
 
       <FinancialCloseMonthPanel />
+
+      <section className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Shift profitability</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Cost vs income by pay period (SCHADS planning baseline). Use this alongside month close for roster margin
+              review.
+            </p>
+          </div>
+          <label className="text-sm">
+            <span className="mb-1 block text-xs font-medium text-slate-600">Pay period</span>
+            <PayPeriodSelector value={payPeriodInstanceId} onChange={setPayPeriodInstanceId} />
+          </label>
+        </div>
+        {selectedPayPeriod ? (
+          <ShiftProfitabilityPanel
+            periodStart={selectedPayPeriod.startDate}
+            periodEnd={selectedPayPeriod.endDate}
+            title="Period profitability"
+          />
+        ) : (
+          <p className="text-sm text-slate-500">Configure pay periods under Admin → Pay periods.</p>
+        )}
+      </section>
     </div>
   );
 }

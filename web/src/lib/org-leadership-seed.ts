@@ -1,9 +1,10 @@
 import type { EmployeeRecord } from "@/lib/employee";
+import { normalizeEmployee } from "@/lib/employee";
 import type { OrgPositionRecord, PositionAssignmentRecord } from "@/lib/org-structure";
 import { withResolvedChartTier } from "@/lib/org-chart-tier-defaults";
 
 function staff(partial: Partial<EmployeeRecord> & Pick<EmployeeRecord, "id" | "searchKey" | "name" | "firstName" | "lastName" | "email" | "jobTitle" | "department">): EmployeeRecord {
-  return {
+  return normalizeEmployee({
     preferredName: partial.firstName,
     middleName: "",
     phone: "",
@@ -52,7 +53,7 @@ function staff(partial: Partial<EmployeeRecord> & Pick<EmployeeRecord, "id" | "s
     updatedBy: "SuperUser",
     startDate: "2020-01-01",
     ...partial,
-  };
+  } as EmployeeRecord);
 }
 
 /** Executive and corporate leadership — merged into employee seed. */

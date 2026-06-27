@@ -65,9 +65,12 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `roster_shift` AB-0021 fields | Training/meeting grouping, cost allocation, cost centre, estimated cost, attendance sign-off |
 | `roster_shift` session fields (20260702120000) | `session_key`, `required_worker_count` — groups master/live session blocks |
 | `roster_shift_client_line` | Billable client participants per session (ratio, booking link) |
-| `roster_shift_worker_line` | Paid workers per session (role, status, check-in/out) |
+| `roster_shift_worker_line` | Paid workers per session (role, status, check-in/out); `coverage_role` (`fill` \| `leave_pay`) and `leave_request_id` (20260702140000) for leave-aware rollover |
 | `roster_of_care_line` session fields (20260702120000) | `default_employee_id`, `support_ratio`, `session_key` — master roster grouping |
 | `app_organization` roster rollover fields (20260702123000) | `roster_rollover_enabled`, `roster_rollover_lookahead_weeks`, `roster_rollover_default_status`, `roster_rollover_skip_existing` — RoC → live roster defaults |
+| `pay_period_definition` / `pay_period_instance` (20260702150000) | Organisation pay cycle config and generated open/closed period buckets (AB-0033) |
+| `employee` contracted/SCHADS columns (20260702151000) | `contracted_hours_per_period`, `contracted_hours_period`, `schads_classification_level`, `schads_pay_point`, `super_rate` (AB-0032 / AB-0031) |
+| `roster_shift` profitability columns (20260702152000) | `pay_period_instance_id`, `calculated_cost`, `calculated_income`, `calculated_margin` (AB-0031) |
 | `app_organization` theme columns (AB-0017) | `theme_primary_colour`, `theme_accent_colour`, `theme_background_colour`, `theme_text_colour` — empty = AbilityVua defaults |
 
 ## Not built yet (needs migration when added)

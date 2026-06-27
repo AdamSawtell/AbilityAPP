@@ -1,5 +1,7 @@
 import type { ClientRecord } from "@/lib/client";
 import type { EmployeeRecord } from "@/lib/employee";
+import { compareContractedHoursPriority } from "@/lib/contracted-hours";
+import { findPayPeriodInstanceForDate, type PayPeriodInstanceRecord } from "@/lib/pay-period";
 import { employeeCapacityForWeek, weeklyCapacityHours } from "@/lib/roster-capacity-planning";
 import { rankWorkersForClient } from "@/lib/roster-staff-client-matching";
 import { isVacantShift, type RosterGap } from "@/lib/roster-gap-analysis";
@@ -38,9 +40,10 @@ export function buildFillBoardVacancies(params: {
   employees: EmployeeRecord[];
   clients: ClientRecord[];
   weekStart: string;
+  payPeriodInstances?: PayPeriodInstanceRecord[];
   limit?: number;
 }): FillBoardVacancy[] {
-  const { shifts, employees, clients, weekStart, limit = 40 } = params;
+  const { shifts, employees, clients, weekStart, payPeriodInstances = [], limit = 40 } = params;
   const vacant = vacantShiftsForFillBoard(shiftsForWeek(shifts, weekStart)).slice(0, limit);
   const activeEmployees = employees.filter((e) => e.employmentStatus === "Active");
   const capacityCache = new Map<string, ReturnType<typeof employeeCapacityForWeek>>();
@@ -58,7 +61,7 @@ export function buildFillBoardVacancies(params: {
   return vacant.map((shift) => {
     const shiftHours = shiftDurationHours(shift);
     const client = clients.find((c) => c.id === shift.clientId);
-    const ranked = client
+    let ranked = client
       ? rankWorkersForClient({
           client,
           employees: activeEmployees,
@@ -66,6 +69,17 @@ export function buildFillBoardVacancies(params: {
           excludeShiftId: shift.id,
         })
       : [];
+    const payPeriod = findPayPeriodInstanceForDate(payPeriodInstances, shift.shiftDate);
+    if (payPeriod && ranked.length > 1) {
+      ranked = [...ranked].sort((a, b) => {
+        const employeeA = activeEmployees.find((e) => e.id === a.employeeId);
+        const employeeB = activeEmployees.find((e) => e.id === b.employeeId);
+        if (!employeeA || !employeeB) return b.score - a.score;
+        const contractCmp = compareContractedHoursPriority(employeeA, employeeB, payPeriod, shifts);
+        if (contractCmp !== 0) return contractCmp;
+        return b.score - a.score;
+      });
+    }
 
     const capacityByEmployee = new Map(
       capacityForShiftWeek(shift.shiftDate).map((row) => [row.employeeId, row])

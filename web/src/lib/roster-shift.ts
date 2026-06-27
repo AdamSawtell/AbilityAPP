@@ -60,6 +60,10 @@ export type RosterShiftRecord = {
   openFillStatus?: string;
   sessionKey?: string;
   requiredWorkerCount?: number;
+  payPeriodInstanceId?: string;
+  calculatedCost?: number;
+  calculatedIncome?: number;
+  calculatedMargin?: number;
   clientLines?: RosterShiftClientLine[];
   workerLines?: RosterShiftWorkerLine[];
   createdBy: string;

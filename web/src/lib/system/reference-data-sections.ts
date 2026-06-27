@@ -148,6 +148,8 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   employeeDocumentStatus: "people",
   emergencyContactType: "people",
   employmentType: "people",
+  contractedHoursPeriod: "people",
+  schadsClassificationLevel: "people",
   payMethod: "people",
   credentialType: "people",
   credentialStatus: "people",

@@ -3,6 +3,20 @@
 export const SUPPORT_RATIO_OPTIONS = ["1:1", "1:2", "1:3", "1:4", "1:5"] as const;
 export type SupportRatio = (typeof SUPPORT_RATIO_OPTIONS)[number];
 
+export type WorkerCoverageRole = "fill" | "leave_pay";
+
+export function normalizeWorkerCoverageRole(value: unknown): WorkerCoverageRole {
+  return value === "leave_pay" ? "leave_pay" : "fill";
+}
+
+export function isLeavePayWorkerLine(line: Pick<RosterShiftWorkerLine, "coverageRole">): boolean {
+  return normalizeWorkerCoverageRole(line.coverageRole) === "leave_pay";
+}
+
+export function isFillWorkerLine(line: Pick<RosterShiftWorkerLine, "coverageRole">): boolean {
+  return !isLeavePayWorkerLine(line);
+}
+
 export type RosterShiftClientLine = {
   id: string;
   lineNo: number;
@@ -20,6 +34,9 @@ export type RosterShiftWorkerLine = {
   employeeId: string;
   roleRequired: string;
   status: "required" | "assigned" | "absent" | "replacement_needed";
+  /** fill = covering delivery; leave_pay = planned roster pay while absent. */
+  coverageRole?: WorkerCoverageRole | string;
+  leaveRequestId?: string;
   notes: string;
   checkedInAt: string;
   checkedOutAt: string;
@@ -107,6 +124,8 @@ export function normalizeRosterShiftWorkerLine(line: RosterShiftWorkerLine): Ros
     roleRequired: line.roleRequired ?? "",
     status:
       status === "assigned" || status === "absent" || status === "replacement_needed" ? status : "required",
+    coverageRole: normalizeWorkerCoverageRole(line.coverageRole),
+    leaveRequestId: line.leaveRequestId ?? "",
     notes: line.notes ?? "",
     checkedInAt: line.checkedInAt ?? "",
     checkedOutAt: line.checkedOutAt ?? "",
@@ -128,18 +147,39 @@ export function shiftHasAssignedWorker(
 ): boolean {
   const id = employeeId.trim();
   if (!id) return false;
-  if (shift.employeeId?.trim() === id) return true;
-  return Boolean(workerLineForEmployee(shift.workerLines, id));
+  const workerLines = (shift.workerLines ?? []).map(normalizeRosterShiftWorkerLine);
+  if (workerLines.some((line) => isFillWorkerLine(line) && line.employeeId.trim() === id)) return true;
+  if (!workerLines.length && shift.employeeId?.trim() === id) return true;
+  return false;
 }
 
+/** Workers assigned to cover delivery (excludes leave-pay lines). */
 export function assignedWorkerIdsForShift(shift: {
   employeeId?: string;
   workerLines?: RosterShiftWorkerLine[];
 }): string[] {
   const ids = new Set<string>();
+  const workerLines = (shift.workerLines ?? []).map(normalizeRosterShiftWorkerLine);
+  if (workerLines.length) {
+    for (const line of workerLines) {
+      if (!isFillWorkerLine(line)) continue;
+      const id = line.employeeId?.trim();
+      if (id) ids.add(id);
+    }
+    return [...ids];
+  }
   if (shift.employeeId?.trim()) ids.add(shift.employeeId.trim());
+  return [...ids];
+}
+
+export function leavePayWorkerIdsForShift(shift: {
+  workerLines?: RosterShiftWorkerLine[];
+}): string[] {
+  const ids = new Set<string>();
   for (const line of shift.workerLines ?? []) {
-    const id = line.employeeId?.trim();
+    const normalized = normalizeRosterShiftWorkerLine(line);
+    if (!isLeavePayWorkerLine(normalized)) continue;
+    const id = normalized.employeeId.trim();
     if (id) ids.add(id);
   }
   return [...ids];
@@ -185,8 +225,13 @@ export function syncShiftHeaderFromSessionLines<
   const clientLines = (shift.clientLines ?? []).map(normalizeRosterShiftClientLine);
   const workerLines = (shift.workerLines ?? []).map(normalizeRosterShiftWorkerLine);
   const primaryClient = clientLines.find((line) => line.clientId.trim()) ?? clientLines[0];
-  const primaryWorker = workerLines.find((line) => line.employeeId.trim()) ?? workerLines[0];
-  const assignedWorkers = workerLines.filter((line) => line.employeeId.trim()).length;
+  const primaryWorker =
+    workerLines.find((line) => isFillWorkerLine(line) && line.employeeId.trim()) ??
+    workerLines.find((line) => isFillWorkerLine(line)) ??
+    workerLines[0];
+  const assignedWorkers = workerLines.filter(
+    (line) => isFillWorkerLine(line) && line.employeeId.trim()
+  ).length;
   const requiredWorkerCount = Math.max(
     shift.requiredWorkerCount ?? 1,
     workerLines.length,

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { EmployeeRecordLink } from "@/components/record-link";
 import type { ClientRecord } from "@/lib/client";
 import type { EmployeeAvailabilityRow, EmployeeRecord } from "@/lib/employee";
+import { useData } from "@/lib/data-store";
 import {
   buildRequestSuitability,
   rankShiftRequestCandidates,
@@ -44,6 +45,7 @@ export function ShiftRequestReviewPanel({
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const { payPeriodInstances } = useData();
 
   const shiftRequests = useMemo(() => requestsForShift(requests, shift.id), [requests, shift.id]);
   const rankedPending = useMemo(
@@ -54,8 +56,9 @@ export function ShiftRequestReviewPanel({
         employees,
         clients,
         rosterShifts,
+        payPeriodInstances,
       }),
-    [shift, shiftRequests, employees, clients, rosterShifts]
+    [shift, shiftRequests, employees, clients, rosterShifts, payPeriodInstances]
   );
   const history = useMemo(
     () =>

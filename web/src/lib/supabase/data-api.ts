@@ -215,6 +215,22 @@ import {
   type PayrollClosedPeriodRow,
 } from "@/lib/supabase/payroll-closed-period-mappers";
 import type { PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
+import type {
+  PayPeriodDefinitionRecord,
+  PayPeriodInstanceRecord,
+} from "@/lib/pay-period";
+import {
+  generatePayPeriodInstances,
+  normalizePayPeriodDefinition,
+} from "@/lib/pay-period";
+import {
+  payPeriodDefinitionFromRow,
+  payPeriodDefinitionToRow,
+  payPeriodInstanceFromRow,
+  payPeriodInstanceToRow,
+  type PayPeriodDefinitionRow,
+  type PayPeriodInstanceRow,
+} from "@/lib/supabase/pay-period-mappers";
 import type { FinancialClosedMonthRecord } from "@/lib/financial-close-period";
 import {
   financialClosedMonthFromRow,
@@ -272,6 +288,8 @@ export type AppData = {
   claimRemittances: ClaimRemittanceRecord[];
   invoices: InvoiceRecord[];
   payrollClosedPeriods: PayrollPeriodCloseRecord[];
+  payPeriodDefinitions: PayPeriodDefinitionRecord[];
+  payPeriodInstances: PayPeriodInstanceRecord[];
   financialClosedMonths: FinancialClosedMonthRecord[];
   boardReportTemplates: BoardReportTemplateRecord[];
   boardReportPacks: BoardReportPackRecord[];
@@ -543,6 +561,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     monthlyServicePlansRes,
     monthlyServicePlanLinesRes,
     payrollClosedPeriodsRes,
+    payPeriodDefinitionsRes,
+    payPeriodInstancesRes,
     financialClosedMonthsRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
@@ -621,6 +641,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("monthly_service_plan").select("*").order("plan_month", { ascending: false }),
     supabase.from("monthly_service_plan_line").select("*").order("line_no"),
     supabase.from("payroll_closed_period").select("*").order("period_start", { ascending: false }),
+    supabase.from("pay_period_definition").select("*").order("name"),
+    supabase.from("pay_period_instance").select("*").order("start_date"),
     supabase.from("financial_closed_month").select("*").order("close_month", { ascending: false }),
   ]);
 
@@ -701,6 +723,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     monthlyServicePlansRes.error ??
     monthlyServicePlanLinesRes.error ??
     payrollClosedPeriodsRes.error ??
+    payPeriodDefinitionsRes.error ??
+    payPeriodInstancesRes.error ??
     financialClosedMonthsRes.error;
 
   if (firstError) throw firstError;
@@ -879,6 +903,12 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     ),
     payrollClosedPeriods: ((payrollClosedPeriodsRes.data ?? []) as PayrollClosedPeriodRow[]).map(
       payrollClosedPeriodFromRow
+    ),
+    payPeriodDefinitions: ((payPeriodDefinitionsRes.data ?? []) as PayPeriodDefinitionRow[]).map(
+      payPeriodDefinitionFromRow
+    ),
+    payPeriodInstances: ((payPeriodInstancesRes.data ?? []) as PayPeriodInstanceRow[]).map(
+      payPeriodInstanceFromRow
     ),
     financialClosedMonths: ((financialClosedMonthsRes.data ?? []) as FinancialClosedMonthRow[]).map(
       financialClosedMonthFromRow
@@ -2381,6 +2411,41 @@ export async function saveMonthlyServicePlan(supabase: SupabaseClient, record: M
 
 export async function savePayrollClosedPeriod(supabase: SupabaseClient, record: PayrollPeriodCloseRecord) {
   const { error } = await supabase.from("payroll_closed_period").upsert(payrollClosedPeriodToRow(record));
+  if (error) throw error;
+}
+
+export async function savePayPeriodDefinition(supabase: SupabaseClient, record: PayPeriodDefinitionRecord) {
+  const definition = normalizePayPeriodDefinition(record);
+  const { error } = await supabase.from("pay_period_definition").upsert(payPeriodDefinitionToRow(definition));
+  if (error) throw error;
+
+  const { data: existingRows, error: fetchError } = await supabase
+    .from("pay_period_instance")
+    .select("*")
+    .eq("definition_id", definition.id);
+  if (fetchError) throw fetchError;
+
+  const existing = ((existingRows ?? []) as PayPeriodInstanceRow[]).map(payPeriodInstanceFromRow);
+  const instances = generatePayPeriodInstances(definition, { existing });
+
+  await replaceChildRows(supabase, "pay_period_instance", "definition_id", definition.id);
+
+  if (instances.length) {
+    const { error: insertError } = await supabase
+      .from("pay_period_instance")
+      .insert(instances.map(payPeriodInstanceToRow));
+    if (insertError) throw insertError;
+  }
+}
+
+export async function savePayPeriodInstance(supabase: SupabaseClient, record: PayPeriodInstanceRecord) {
+  const { error } = await supabase.from("pay_period_instance").upsert(payPeriodInstanceToRow(record));
+  if (error) throw error;
+}
+
+export async function savePayPeriodInstances(supabase: SupabaseClient, records: PayPeriodInstanceRecord[]) {
+  if (!records.length) return;
+  const { error } = await supabase.from("pay_period_instance").upsert(records.map(payPeriodInstanceToRow));
   if (error) throw error;
 }
 

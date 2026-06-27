@@ -29,7 +29,7 @@ export const financeArticle: HelpArticle = {
     "/financial-close",
   ],
   windowKeys: [],
-  lastUpdated: "2026-06-25",
+  lastUpdated: "2026-06-27",
   sections: [
     {
       id: "finance-menu",
@@ -93,6 +93,13 @@ export const financeArticle: HelpArticle = {
         "/claim-reconciliation",
         "/invoice-reconciliation",
         "/financial-close",
+        "/admin/pay-periods",
+      ],
+      steps: [
+        "Open Financial close and pick the close month.",
+        "Review the checklist — plan variance, claims, invoices, payroll blocks.",
+        "Scroll to Shift profitability — select a pay period to see SCHADS-based cost vs billable income, total margin, and loss-making shifts.",
+        "Configure pay cycle boundaries under Admin → Pay periods before relying on period close.",
       ],
     },
   ],

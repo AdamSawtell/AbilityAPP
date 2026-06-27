@@ -58,7 +58,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const employee = await applyWorkforceReview(session, body);
+    const result = await applyWorkforceReview(session, body);
     const processId = body.type === "leave" ? "approve-leave-request" : "review-employee-credential";
     await recordProcessExecution({
       session,
@@ -67,10 +67,10 @@ export async function POST(request: Request) {
       request,
       entityType: "employee",
       entityId: body.employeeId,
-      entityLabel: employee.name,
+      entityLabel: result.employee.name,
       detail: `${body.decision} ${body.type}`,
     });
-    return NextResponse.json({ employee });
+    return NextResponse.json(result);
   } catch (err) {
     const processId = body.type === "leave" ? "approve-leave-request" : "review-employee-credential";
     await recordProcessExecution({

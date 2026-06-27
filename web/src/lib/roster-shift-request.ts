@@ -16,6 +16,8 @@ import { classifyShiftAvailability } from "@/lib/roster-open-shifts";
 import type { EmployeeAvailabilityRow } from "@/lib/employee";
 import { employeeCapacityForWeek, weeklyCapacityHours } from "@/lib/roster-capacity-planning";
 import { weekStartFromDate } from "@/lib/roster-shift";
+import { contractedHoursPriorityScore } from "@/lib/contracted-hours";
+import { findPayPeriodInstanceForDate, type PayPeriodInstanceRecord } from "@/lib/pay-period";
 
 export type ShiftRequestResponseType = "request" | "available_if_critical" | "decline";
 
@@ -350,20 +352,32 @@ export function rankShiftRequestCandidates(params: {
   employees: EmployeeRecord[];
   clients: ClientRecord[];
   rosterShifts: RosterShiftRecord[];
+  payPeriodInstances?: PayPeriodInstanceRecord[];
 }): RosterShiftRequestRecord[] {
-  const { shift, requests, employees, clients, rosterShifts } = params;
+  const { shift, requests, employees, clients, rosterShifts, payPeriodInstances = [] } = params;
   const client = clients.find((c) => c.id === shift.clientId);
   const pending = requestsForShift(requests, shift.id).filter((r) => r.status === "requested");
   const ranked = client
     ? rankWorkersForClient({ client, employees, rosterShifts, excludeShiftId: shift.id })
     : [];
   const scoreByEmployee = new Map(ranked.map((row) => [row.employeeId, row.score]));
+  const payPeriod = findPayPeriodInstanceForDate(payPeriodInstances, shift.shiftDate);
+  const employeeById = new Map(employees.map((row) => [row.id, row]));
 
   return [...pending].sort((a, b) => {
     const typeRank = (r: RosterShiftRequestRecord) =>
       r.responseType === "request" ? 0 : r.responseType === "available_if_critical" ? 1 : 2;
     const typeCmp = typeRank(a) - typeRank(b);
     if (typeCmp !== 0) return typeCmp;
+    if (payPeriod) {
+      const employeeA = employeeById.get(a.employeeId);
+      const employeeB = employeeById.get(b.employeeId);
+      if (employeeA && employeeB) {
+        const contractA = contractedHoursPriorityScore(employeeA, payPeriod, rosterShifts);
+        const contractB = contractedHoursPriorityScore(employeeB, payPeriod, rosterShifts);
+        if (contractA !== contractB) return contractB - contractA;
+      }
+    }
     const scoreA = scoreByEmployee.get(a.employeeId) ?? 0;
     const scoreB = scoreByEmployee.get(b.employeeId) ?? 0;
     if (scoreA !== scoreB) return scoreB - scoreA;

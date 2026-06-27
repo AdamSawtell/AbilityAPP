@@ -5,6 +5,8 @@ import type { EmployeeCredentialRow, EmployeeLeaveRequestRow, EmployeeRecord } f
 import { initialEmployees } from "@/lib/employee";
 import { loadMyEmployee } from "@/lib/my-workplace/server";
 import { persistCredentialReview, persistLeaveEntitlementBalance, persistLeaveReview } from "@/lib/my-workplace/persist";
+import { releaseRosterShiftsForApprovedLeave } from "@/lib/roster-leave-server";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
 import { closeWorkforceAutomationTasks } from "@/lib/task-automation/run-server";
 import { fetchUsers } from "@/lib/supabase/access-api";
 import {
@@ -165,10 +167,19 @@ export type LeaveReviewDecision = {
 
 export type WorkforceReviewAction = CredentialReviewDecision | LeaveReviewDecision;
 
+export type WorkforceReviewResult = {
+  employee: EmployeeRecord;
+  leaveRosterRelease?: {
+    releasedCount: number;
+    skippedAttendance: number;
+    updatedShifts: RosterShiftRecord[];
+  };
+};
+
 export async function applyWorkforceReview(
   session: AuthSession,
   action: WorkforceReviewAction
-): Promise<EmployeeRecord> {
+): Promise<WorkforceReviewResult> {
   const employee = await loadMyEmployee(action.employeeId);
   if (!employee) throw new Error("Employee record not found");
 
@@ -211,7 +222,7 @@ export async function applyWorkforceReview(
 
     const reloaded = await loadMyEmployee(action.employeeId);
     if (!reloaded) throw new Error("Employee record not found");
-    return reloaded;
+    return { employee: reloaded };
   }
 
   if (!canApproveLeave(session)) throw new Error("Leave approval not permitted");
@@ -245,6 +256,8 @@ export async function applyWorkforceReview(
       declineReason,
     }, activity);
 
+    let leaveRosterRelease: WorkforceReviewResult["leaveRosterRelease"];
+
     if (action.decision === "approve") {
       const entitlement = employee.leaveEntitlements.find(
         (row) => row.leaveType.trim().toLowerCase() === request.leaveType.trim().toLowerCase()
@@ -258,6 +271,14 @@ export async function applyWorkforceReview(
           newBalance
         );
       }
+
+      const approvedRequest = { ...request, status: "Approved" as const };
+      leaveRosterRelease = await releaseRosterShiftsForApprovedLeave(
+        serviceClient(),
+        employee,
+        approvedRequest,
+        session.displayName
+      );
     }
 
     await closeWorkforceAutomationTasks(serviceClient(), {
@@ -267,9 +288,13 @@ export async function applyWorkforceReview(
       reviewerName: session.displayName,
       summary: `${request.leaveType}: ${request.startDate} to ${request.endDate} — ${status}`,
     });
+
+    const reloaded = await loadMyEmployee(action.employeeId);
+    if (!reloaded) throw new Error("Employee record not found");
+    return { employee: reloaded, leaveRosterRelease };
   }
 
   const reloaded = await loadMyEmployee(action.employeeId);
   if (!reloaded) throw new Error("Employee record not found");
-  return reloaded;
+  return { employee: reloaded };
 }

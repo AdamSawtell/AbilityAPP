@@ -1,4 +1,5 @@
 import { addDaysIso, normalizeRosterShift, shiftsForWeek, type RosterShiftRecord } from "@/lib/roster-shift";
+import { assignedWorkerIdsForShift, isFillWorkerLine } from "@/lib/roster-session";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
 
 export type RosterGap = {
@@ -15,9 +16,13 @@ export type RosterGap = {
 export function isVacantShift(shift: RosterShiftRecord): boolean {
   const normalized = normalizeRosterShift(shift);
   if (normalized.status === "Cancelled") return false;
-  if (normalized.employeeId?.trim()) return false;
   if (normalized.coverageSource === "agency" && normalized.agencyWorkerId?.trim()) return false;
-  return true;
+  const assignedFillWorkers = assignedWorkerIdsForShift(normalized).length;
+  const required = Math.max(
+    normalized.requiredWorkerCount ?? 1,
+    (normalized.workerLines ?? []).filter((line) => isFillWorkerLine(line)).length || 1
+  );
+  return assignedFillWorkers < required;
 }
 
 export function bookingActiveInRange(

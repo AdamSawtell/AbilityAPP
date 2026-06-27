@@ -122,8 +122,8 @@
 | Workflow | Trigger | Side effects |
 |----------|---------|--------------|
 | Publish roster week | Publish on `/rostering` | Shifts visible in **My shifts**; may create notify tasks |
-| RoC rollover to live roster | Rostering → RoC → Publish to roster | Creates missing live `roster_shift` sessions from master RoC lines for the configured lookahead; session-key peers become one multi-client/worker shift; skip-existing prevents duplicates |
-| Bulk RoC rollover | Rostering → RoC → Bulk rollover | One action rolls forward many templates: **All** active RoCs, **By client** (co-resident sessions still merge), or **By location** (only that location's lines). De-duplicates shared sessions by shift id; same week range / status / skip-existing controls as the per-RoC publish; the latest batch summary can be undone by cancelling those shifts |
+| RoC rollover to live roster | Rostering → RoC → Publish to roster | Creates missing live `roster_shift` sessions from master RoC lines for the configured lookahead; session-key peers become one multi-client/worker shift; skip-existing prevents duplicates; template workers on approved leave become a vacant fill slot plus a `leave_pay` worker line for planned payroll |
+| Bulk RoC rollover | Rostering → RoC → Bulk rollover | One action rolls forward many templates: **All** active RoCs, **By client** (co-resident sessions still merge), or **By location** (only that location's lines). De-duplicates shared sessions by shift id; same week range / status / skip-existing controls as the per-RoC publish; warns when leave splits apply; the latest batch summary can be undone by cancelling those shifts |
 | Fortnight roster review | Rostering → Fortnight review | Compares active RoC template occurrences with live shifts for the default two-week roster cycle; lists missing actuals, draft shifts, vacant sessions, worker changes, and extra actual shifts |
 | Qualification gate | Publish | Blocks if worker missing WWCC / NDIS screening (configurable) |
 | Open shift request | Worker requests on `/my/open-shifts`; coordinator approves on Rostering → Open shifts or fill board | Assigns one worker; rejects other pending requests; critical fill flag — Live |
@@ -154,7 +154,7 @@
 | `submit-leave-request` | Submit on `/my/leave` | Leave row → entitlement check → **task** to manager/HR → `approve-leave-request` closes loop |
 | `submit-employee-credential` | Submit on `/my/credentials` | Credential row pending → task → `review-employee-credential` |
 | `submit-leave-on-behalf` | Workforce planning form | Same as leave submit for chosen employee |
-| `approve-leave-request` | Workforce review queue | Approve/decline → balance update → task complete |
+| `approve-leave-request` | Workforce review queue | Approve/decline → balance update → releases rolled shifts in leave range (vacant fill + leave-pay line; skips check-in) → task complete |
 | `review-employee-credential` | Workforce review queue | Approve/reject → HR file updated |
 | `approve-timesheet` | Timesheet approval page | Submitted → Approved/Rejected; blocks if workflow rules fail |
 

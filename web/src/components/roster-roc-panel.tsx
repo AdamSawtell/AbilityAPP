@@ -308,7 +308,7 @@ function RocCard({
   canEdit: boolean;
   actor: string;
 }) {
-  const { serviceBookings, rosterShifts, addRecurringRosterShifts } = useData();
+  const { serviceBookings, rosterShifts, addRecurringRosterShifts, employees: allEmployees } = useData();
   const [weekStart, setWeekStart] = useState(() => weekStartFromDate(new Date().toISOString().slice(0, 10)));
   const [weekCount, setWeekCount] = useState(() =>
     organization.rosterRolloverEnabled ? organization.rosterRolloverLookaheadWeeks : 2
@@ -331,14 +331,16 @@ function RocCard({
     { weekStart, weekCount, status: shiftStatus, actor, skipExisting: false },
     rosterShifts,
     serviceBookings,
-    allRocs
+    allRocs,
+    allEmployees
   );
   const preview = buildShiftsFromRosterOfCare(
     roc,
     { weekStart, weekCount, status: shiftStatus, actor, skipExisting },
     rosterShifts,
     serviceBookings,
-    allRocs
+    allRocs,
+    allEmployees
   );
   const allSkippedByExisting =
     skipExisting && previewWithoutSkip.shifts.length > 0 && preview.shifts.length === 0;
@@ -532,6 +534,7 @@ function BulkRolloverPanel({
   actor: string;
   addRecurringRosterShifts: (records: RosterShiftRecord[]) => string | null;
 }) {
+  const { employees } = useData();
   const [scopeKind, setScopeKind] = useState<RocRolloverScope["kind"]>("all");
   const [clientId, setClientId] = useState("");
   const [locationId, setLocationId] = useState("");
@@ -580,16 +583,16 @@ function BulkRolloverPanel({
   const previewWithoutSkip = useMemo(
     () =>
       scope
-        ? buildShiftsFromRosterOfCares(scope, { ...input, skipExisting: false }, rosterShifts, serviceBookings, rosterOfCares)
+        ? buildShiftsFromRosterOfCares(scope, { ...input, skipExisting: false }, rosterShifts, serviceBookings, rosterOfCares, employees)
         : null,
-    [scope, input, rosterShifts, serviceBookings, rosterOfCares]
+    [scope, input, rosterShifts, serviceBookings, rosterOfCares, employees]
   );
   const preview = useMemo(
     () =>
       scope
-        ? buildShiftsFromRosterOfCares(scope, { ...input, skipExisting }, rosterShifts, serviceBookings, rosterOfCares)
+        ? buildShiftsFromRosterOfCares(scope, { ...input, skipExisting }, rosterShifts, serviceBookings, rosterOfCares, employees)
         : null,
-    [scope, input, skipExisting, rosterShifts, serviceBookings, rosterOfCares]
+    [scope, input, skipExisting, rosterShifts, serviceBookings, rosterOfCares, employees]
   );
 
   const allSkippedByExisting =

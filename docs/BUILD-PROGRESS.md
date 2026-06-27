@@ -11,14 +11,50 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
-| **Active slice** | Rostering fortnight command centre + multi-worker session hardening |
+| **Active slice** | AB-0033 / AB-0032 / AB-0031 — Pay periods, contracted hours, shift profitability |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-27 — Rostering fortnight command centre + multi-worker session hardening |
+| **Last push** | 2026-06-27 — Pay periods, contracted hours, shift profitability (local — not committed) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+## Pay periods, contracted hours, shift profitability (2026-06-27)
+
+**Status:** Built, ready for testing (not committed).
+
+| Backlog | Feature |
+|---------|---------|
+| AB-0033 | Pay period definition + generated instances; Admin → Pay periods; open/close |
+| AB-0032 | Employee contracted hours per period; shortfall report on Rostering → Capacity; find-and-fill priority |
+| AB-0031 | SCHADS-based shift cost vs income; Financial close profitability panel; stored on shift save |
+
+**What you can test:**
+- **Admin → Pay periods** (`/admin/pay-periods`) — edit fortnightly definition, save/regenerate, close/reopen a period
+- **Employee → Employment** — contracted hours, SCHADS level, super rate
+- **Rostering → Capacity** — pay period selector + contracted hours shortfall table
+- **Workforce planning → Fill board** / **Open shifts → Review requests** — workers with contracted shortfall rank higher
+- **Financial close** — Shift profitability section by pay period (cost, income, margin, loss-making shifts)
+
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · `npm run supabase:push-remote` ✅ (`20260702150000`, `20260702151000`, `20260702152000`) · `seed-access.sql` ✅
+
+---
+
+## Leave-aware roster rollover (2026-06-27)
+
+| Area | Change |
+|------|--------|
+| RoC rollover | Template workers on **Approved/Taken** leave → vacant **fill** slot + **leave_pay** worker line (planned roster payroll) |
+| Post-approval leave | Workforce review queue approval releases rolled shifts in leave range; skips shifts with check-in |
+| Timesheets | Generate timesheets picks up leave-pay lines (`Leave pay — planned roster`) as payable, non-billable internal |
+| Schema | `roster_shift_worker_line.coverage_role`, `leave_request_id` |
+
+**What you can test:** Employee with approved leave spanning a rollover week → RoC publish shows leave warning; shift is vacant on Open shifts; Generate timesheets includes leave-pay hours for absent worker. Approve leave mid-fortnight after rollover → shifts in range vacated + message in Review queue.
+
+**Verification:** `npm run build` ✅ · `npm run supabase:push-remote` ✅ (`20260702140000_roster_worker_line_leave`)
 
 ---
 
@@ -114,7 +150,7 @@ Introduces the session model: one live `roster_shift` block with multiple client
 | Rollover config | Organisation profile now stores manual rollover defaults: enabled flag, lookahead weeks, default Draft/Published status, skip-existing |
 | Dev warning fix | Roster shift cards no longer nest buttons/links inside a button; dev hydration warning from smoke is addressed |
 | Bugbot fixes | Open-shift claim/approve now reconciles the header worker into a vacant session line (no longer dropped on normalize); RoC publish reuses the matched existing shift id (no duplicate rows) and `skipExisting` recognises legacy/metadata-matched shifts; only **Active** peer RoCs merge into a session; weekly Repeat regenerates child line ids per shift (no PK collision) |
-| Deferred | Multi-worker discovery: secondary `workerLines` workers are not yet surfaced in My shifts / check-in / timesheets (these still key off the header `employeeId`); leave → auto-vacate worker line; scheduled 4–6 week roll-forward automation |
+| Deferred | Scheduled 4–6 week roll-forward automation |
 
 **What you can test:** Open Rostering → edit a service-delivery shift → add multiple clients/workers; RoC publish uses Organisation rollover defaults and matching `session_key` on two clients merges to one shift.
 

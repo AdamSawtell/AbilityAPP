@@ -1,5 +1,7 @@
 import { localDateIso } from "@/lib/booking-cancellation";
 import type { TimesheetRecord } from "@/lib/timesheet";
+import type { PayPeriodInstanceRecord } from "@/lib/pay-period";
+import { isPayPeriodInstanceClosed } from "@/lib/pay-period";
 
 export type PayrollPeriodCloseCheckStatus = "pass" | "warning" | "block";
 
@@ -80,6 +82,20 @@ export function isPayrollPeriodClosed(
   closedPeriods: PayrollPeriodCloseRecord[]
 ): boolean {
   return closedPeriods.some((row) => periodsOverlap(row.periodStart, row.periodEnd, periodStart, periodEnd));
+}
+
+export function isPayPeriodClosedForRange(
+  periodStart: string,
+  periodEnd: string,
+  closedPeriods: PayrollPeriodCloseRecord[],
+  payPeriodInstances: PayPeriodInstanceRecord[] = []
+): boolean {
+  if (isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods)) return true;
+  return payPeriodInstances.some(
+    (instance) =>
+      isPayPeriodInstanceClosed(instance) &&
+      periodsOverlap(instance.startDate, instance.endDate, periodStart, periodEnd)
+  );
 }
 
 export function evaluatePayrollPeriodClose(
