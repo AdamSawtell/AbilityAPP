@@ -13,7 +13,7 @@
 | **Current work package** | **AB-0021 — Training and meeting scheduling** |
 | **Active slice** | AB-0033 / AB-0032 / AB-0031 — Pay periods, contracted hours, shift profitability |
 | **Next slice** | Release hardening polish (Finance role grants, stale labels) |
-| **Last push** | 2026-06-27 — Pay periods, contracted hours, shift profitability (local — not committed) |
+| **Last push** | 2026-06-28 — Pay periods, contracted hours, shift profitability (`e2b14c7`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -24,7 +24,7 @@
 
 ## Pay periods, contracted hours, shift profitability (2026-06-27)
 
-**Status:** Built, ready for testing (not committed).
+**Status:** Built, pushed (`e2b14c7`), ready for testing.
 
 | Backlog | Feature |
 |---------|---------|
