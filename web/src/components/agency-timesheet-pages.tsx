@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { PayPeriodRangePicker } from "@/components/pay-period-admin-panel";
 import { AppShell } from "@/components/app-shell";
 import { LineItemTable } from "@/components/line-item-table";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
@@ -23,11 +24,10 @@ import {
 import { agencyTimesheetLineTableConfig } from "@/lib/agency-timesheet-line-tables";
 import { auditMetaFrom } from "@/lib/audit";
 import { useAuth } from "@/lib/auth-store";
+import { localDateIso } from "@/lib/booking-cancellation";
 import { useData } from "@/lib/data-store";
-import { weekStartFromDate } from "@/lib/roster-shift";
-
-const inputClass =
-  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
+import { defaultPayPeriodRange } from "@/lib/pay-period";
+import { isPayPeriodClosedForRange } from "@/lib/payroll-period-close";
 
 const statusTone: Record<string, string> = {
   Draft: "bg-slate-100 text-slate-700",
@@ -130,20 +130,31 @@ export function GenerateAgencyTimesheetsView() {
     agencyTimesheets,
     businessPartners,
     agencyShiftRequests,
+    payPeriodInstances,
+    payrollClosedPeriods,
     bulkUpsertAgencyTimesheets,
   } = useData();
   const { session, canWriteWindow } = useAuth();
   const canGenerate = canWriteWindow("generate-agency-timesheets");
   const router = useRouter();
-  const defaultWeekStart = weekStartFromDate("2025-10-06");
-  const defaultWeekEnd = useMemo(() => {
-    const d = new Date(`${defaultWeekStart}T12:00:00`);
-    d.setDate(d.getDate() + 6);
-    return d.toISOString().slice(0, 10);
-  }, [defaultWeekStart]);
 
-  const [periodStart, setPeriodStart] = useState(defaultWeekStart);
-  const [periodEnd, setPeriodEnd] = useState(defaultWeekEnd);
+  const defaultInstanceId = useMemo(
+    () => defaultPayPeriodRange(payPeriodInstances, localDateIso()).instanceId ?? "",
+    [payPeriodInstances]
+  );
+  const [payPeriodInstanceId, setPayPeriodInstanceId] = useState(defaultInstanceId);
+  const effectiveInstanceId = payPeriodInstanceId || defaultInstanceId;
+  const selectedPeriod = payPeriodInstances.find((row) => row.id === effectiveInstanceId);
+  const periodStart = selectedPeriod?.startDate ?? "";
+  const periodEnd = selectedPeriod?.endDate ?? "";
+
+  const periodClosed = useMemo(
+    () =>
+      Boolean(periodStart && periodEnd) &&
+      isPayPeriodClosedForRange(periodStart, periodEnd, payrollClosedPeriods, payPeriodInstances),
+    [periodStart, periodEnd, payrollClosedPeriods, payPeriodInstances]
+  );
+
   const [message, setMessage] = useState("");
   const [generating, setGenerating] = useState(false);
 
@@ -168,6 +179,14 @@ export function GenerateAgencyTimesheetsView() {
       setMessage(
         "No eligible agency shifts in this period — check dates and that shifts are Completed with agency coverage."
       );
+      return;
+    }
+    if (!periodStart || !periodEnd) {
+      setMessage("Select a pay period before generating agency timesheets.");
+      return;
+    }
+    if (periodClosed) {
+      setMessage("This pay period is marked closed — choose an open period before generating agency timesheets.");
       return;
     }
     setGenerating(true);
@@ -204,17 +223,17 @@ export function GenerateAgencyTimesheetsView() {
         staffing vendor gets one timesheet per period; vendor cost uses the vendor default hourly rate (editable on
         lines).
       </p>
-      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:max-w-xl">
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Period start</span>
-          <input type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} className={inputClass} />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Period end</span>
-          <input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} className={inputClass} />
-        </label>
-      </div>
+      <PayPeriodRangePicker
+        instanceId={effectiveInstanceId}
+        onInstanceIdChange={setPayPeriodInstanceId}
+        showNavigation
+      />
       <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-700">
+        {periodClosed ? (
+          <p className="font-medium text-rose-800">
+            This pay period is marked closed — agency timesheet generation is blocked until you choose an open period.
+          </p>
+        ) : null}
         <p>
           <strong>{preview.eligibleShiftCount}</strong> completed agency shift(s) eligible
           {preview.alreadyLinkedCount ? ` · ${preview.alreadyLinkedCount} already linked` : ""}
@@ -235,7 +254,7 @@ export function GenerateAgencyTimesheetsView() {
       {message ? <p className="text-sm text-slate-700">{message}</p> : null}
       <button
         type="button"
-        disabled={!canGenerate || generating || !preview.eligibleShiftCount}
+        disabled={!canGenerate || generating || !preview.eligibleShiftCount || periodClosed}
         onClick={handleGenerate}
         className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:cursor-not-allowed disabled:opacity-50"
       >

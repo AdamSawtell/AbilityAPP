@@ -7,6 +7,8 @@ import {
   PAY_PERIOD_FREQUENCY_OPTIONS,
   PAY_PERIOD_MONTH_ALLOCATION_OPTIONS,
   PAY_PERIOD_START_DAY_LABELS,
+  activePayPeriodDefinition,
+  findAdjacentPayPeriodInstance,
   formatPayPeriodLabel,
   generatePayPeriodInstances,
   normalizePayPeriodDefinition,
@@ -53,6 +55,66 @@ export function PayPeriodSelector({
         </option>
       ))}
     </select>
+  );
+}
+
+export function PayPeriodRangePicker({
+  instanceId,
+  onInstanceIdChange,
+  showNavigation = false,
+  showDates = true,
+  className = "",
+}: {
+  instanceId: string;
+  onInstanceIdChange: (id: string) => void;
+  showNavigation?: boolean;
+  showDates?: boolean;
+  className?: string;
+}) {
+  const { payPeriodInstances, payPeriodDefinitions } = useData();
+  const definition = activePayPeriodDefinition(payPeriodDefinitions);
+  const instance = payPeriodInstances.find((row) => row.id === instanceId);
+  const prev =
+    definition && instanceId
+      ? findAdjacentPayPeriodInstance(payPeriodInstances, definition.id, instanceId, -1)
+      : undefined;
+  const next =
+    definition && instanceId
+      ? findAdjacentPayPeriodInstance(payPeriodInstances, definition.id, instanceId, 1)
+      : undefined;
+
+  return (
+    <div className={`flex flex-wrap items-end gap-3 ${className}`}>
+      {showNavigation ? (
+        <button
+          type="button"
+          disabled={!prev}
+          onClick={() => prev && onInstanceIdChange(prev.id)}
+          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+        >
+          Previous period
+        </button>
+      ) : null}
+      <label className="text-sm">
+        <span className="mb-1 block text-xs font-medium text-slate-600">Pay period</span>
+        <PayPeriodSelector value={instanceId} onChange={onInstanceIdChange} />
+      </label>
+      {showNavigation ? (
+        <button
+          type="button"
+          disabled={!next}
+          onClick={() => next && onInstanceIdChange(next.id)}
+          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+        >
+          Next period
+        </button>
+      ) : null}
+      {showDates && instance && definition ? (
+        <p className="pb-2 text-sm font-medium text-slate-800">
+          {formatPayPeriodLabel(definition, instance.startDate, instance.endDate)}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

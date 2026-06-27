@@ -9,8 +9,10 @@ import { EmployeeRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { localDateIso } from "@/lib/booking-cancellation";
 import { useData } from "@/lib/data-store";
-import { weekStartFromDate } from "@/lib/roster-shift";
+import { defaultPayPeriodRange } from "@/lib/pay-period";
+import { PayPeriodRangePicker } from "@/components/pay-period-admin-panel";
 import {
   generateTimesheetsFromShifts,
   previewTimesheetGeneration,
@@ -241,25 +243,37 @@ export function TimesheetListView() {
 }
 
 export function GenerateTimesheetsView() {
-  const { rosterShifts, timesheets, payrollClosedPeriods, employees, bulkUpsertTimesheets } = useData();
+  const { rosterShifts, timesheets, payrollClosedPeriods, payPeriodInstances, employees, bulkUpsertTimesheets } =
+    useData();
   const { session, canWriteWindow } = useAuth();
   const canGenerate = canWriteWindow("generate-timesheets");
   const router = useRouter();
-  const defaultWeekStart = weekStartFromDate("2025-10-06");
-  const defaultWeekEnd = useMemo(() => {
-    const d = new Date(`${defaultWeekStart}T12:00:00`);
-    d.setDate(d.getDate() + 6);
-    return d.toISOString().slice(0, 10);
-  }, [defaultWeekStart]);
 
-  const [periodStart, setPeriodStart] = useState(defaultWeekStart);
-  const [periodEnd, setPeriodEnd] = useState(defaultWeekEnd);
+  const defaultInstanceId = useMemo(
+    () => defaultPayPeriodRange(payPeriodInstances, localDateIso()).instanceId ?? "",
+    [payPeriodInstances]
+  );
+  const [payPeriodInstanceId, setPayPeriodInstanceId] = useState(defaultInstanceId);
+  const effectiveInstanceId = payPeriodInstanceId || defaultInstanceId;
+  const selectedPeriod = payPeriodInstances.find((row) => row.id === effectiveInstanceId);
+  const periodStart = selectedPeriod?.startDate ?? "";
+  const periodEnd = selectedPeriod?.endDate ?? "";
+
   const [message, setMessage] = useState("");
   const [generating, setGenerating] = useState(false);
 
   const preview = useMemo(
-    () => previewTimesheetGeneration(rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods, employees),
-    [rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods, employees]
+    () =>
+      previewTimesheetGeneration(
+        rosterShifts,
+        timesheets,
+        periodStart,
+        periodEnd,
+        payrollClosedPeriods,
+        employees,
+        payPeriodInstances
+      ),
+    [rosterShifts, timesheets, periodStart, periodEnd, payrollClosedPeriods, employees, payPeriodInstances]
   );
 
   const handleGenerate = () => {
@@ -275,6 +289,10 @@ export function GenerateTimesheetsView() {
       setMessage("No eligible roster shifts in this period — check dates and shift status (Published or Completed).");
       return;
     }
+    if (!periodStart || !periodEnd) {
+      setMessage("Select a pay period before generating timesheets.");
+      return;
+    }
     setGenerating(true);
     const actor = session?.displayName || "SuperUser";
     const result = generateTimesheetsFromShifts(
@@ -284,7 +302,8 @@ export function GenerateTimesheetsView() {
       periodEnd,
       actor,
       payrollClosedPeriods,
-      employees
+      employees,
+      payPeriodInstances
     );
     const all = [...result.created, ...result.updated];
     bulkUpsertTimesheets(all);
@@ -312,21 +331,11 @@ export function GenerateTimesheetsView() {
         Bulk-create draft timesheets from published roster shifts in a pay period. Each worker gets one timesheet; shifts
         already linked to a timesheet are skipped.
       </p>
-      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:max-w-xl">
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Period start</span>
-          <input
-            type="date"
-            value={periodStart}
-            onChange={(e) => setPeriodStart(e.target.value)}
-            className={inputClass}
-          />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">Period end</span>
-          <input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} className={inputClass} />
-        </label>
-      </div>
+      <PayPeriodRangePicker
+        instanceId={effectiveInstanceId}
+        onInstanceIdChange={setPayPeriodInstanceId}
+        showNavigation
+      />
       <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-700">
         {preview.periodClosed ? (
           <p className="font-medium text-rose-800">

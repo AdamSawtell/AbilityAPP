@@ -409,8 +409,8 @@ export function RosteringWeekView() {
             rosterShifts={rosterShifts}
             clients={clients}
             locations={locations}
-            anchorWeekStart={weekStart}
-            onAnchorChange={setWeekStart}
+            payPeriodInstanceId={payPeriodInstanceId}
+            onPayPeriodChange={setPayPeriodInstanceId}
             onOpenIssue={(issue) => {
               setView(issue.rosterShiftId ? "week" : "roc", weekStartFromDate(issue.date));
             }}

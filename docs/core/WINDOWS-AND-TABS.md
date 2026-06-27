@@ -295,9 +295,9 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 
 **RoC tab:** Import RoC CSV, generate a draft from a service agreement, per-RoC **Publish to roster**, and **Bulk rollover** (scope **All active RoCs** / **By client** / **By location**) — all gated on `rostering` write. Bulk rollover de-duplicates shared session-key shifts and honours the Organisation rollover defaults.
 
-**Capacity tab:** Pay period selector and **Contracted hours** shortfall table — rostered vs contracted minimum per employee for the selected pay period. Find-and-fill (Fill board, open shift request ranking) prioritises workers below contracted hours.
+**Capacity tab:** Pay period selector and **Contracted hours** shortfall table — rostered vs contracted minimum per employee for the selected pay period. Changing the pay period aligns the capacity grid to that fortnight (two weeks from period start). Find-and-fill (Fill board, open shift request ranking) prioritises workers below contracted hours.
 
-**Fortnight review tab:** Default two-week command-centre view comparing active RoC templates with live roster shifts. It highlights missing actuals, draft shifts, vacant sessions, worker changes, and extra actual shifts before the roster is published.
+**Fortnight review tab:** Pay-period-aligned command-centre view comparing active RoC templates with live roster shifts for the selected pay period. It highlights missing actuals, draft shifts, vacant sessions, worker changes, and extra actual shifts before the roster is published.
 
 **Processes:** `request-agency-coverage`, `send-agency-shift-pack`, `confirm-agency-shift`, `complete-agency-shift` (rostering + agency-workers grants).
 

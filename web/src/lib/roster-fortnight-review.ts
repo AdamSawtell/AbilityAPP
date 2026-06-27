@@ -1,4 +1,4 @@
-import { addDaysIso, formatShiftTimeRange, normalizeRosterShift, weekStartFromDate, type RosterShiftRecord } from "@/lib/roster-shift";
+import { addDaysIso, formatShiftTimeRange, normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
 import { ROC_WEEKDAY_LABELS, type RosterOfCareRecord } from "@/lib/roster-of-care";
 
 export type FortnightReviewIssueType =
@@ -40,11 +40,6 @@ type TemplateOccurrence = {
   defaultEmployeeId: string;
   sessionKey: string;
 };
-
-function fortnightRange(anchorWeekStart: string): { start: string; end: string } {
-  const start = weekStartFromDate(anchorWeekStart);
-  return { start, end: addDaysIso(start, 13) };
-}
 
 function clientMatchesShift(shift: RosterShiftRecord, clientId: string): boolean {
   if (shift.clientId === clientId) return true;
@@ -99,9 +94,11 @@ function buildTemplateOccurrences(rocs: RosterOfCareRecord[], rangeStart: string
 export function buildFortnightRosterReview(
   rocs: RosterOfCareRecord[],
   shifts: RosterShiftRecord[],
-  anchorWeekStart: string
+  rangeStart: string,
+  rangeEnd: string
 ): FortnightReviewSummary {
-  const { start, end } = fortnightRange(anchorWeekStart);
+  const start = rangeStart.slice(0, 10);
+  const end = rangeEnd.slice(0, 10);
   const templates = buildTemplateOccurrences(rocs, start, end);
   const actuals = shifts
     .map(normalizeRosterShift)

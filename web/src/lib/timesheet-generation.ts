@@ -10,7 +10,8 @@ import {
   type TimesheetLine,
   type TimesheetRecord,
 } from "@/lib/timesheet";
-import { isPayrollPeriodClosed, type PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
+import { isPayPeriodClosedForRange, type PayrollPeriodCloseRecord } from "@/lib/payroll-period-close";
+import type { PayPeriodInstanceRecord } from "@/lib/pay-period";
 
 const ELIGIBLE_STATUSES = new Set(["Published", "Completed"]);
 
@@ -151,9 +152,15 @@ export function previewTimesheetGeneration(
   periodStart: string,
   periodEnd: string,
   closedPeriods: PayrollPeriodCloseRecord[] = [],
-  employees: EmployeeLeaveContext[] = []
+  employees: EmployeeLeaveContext[] = [],
+  payPeriodInstances: PayPeriodInstanceRecord[] = []
 ): TimesheetGenerationPreview {
-  const periodClosed = isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods);
+  const periodClosed = isPayPeriodClosedForRange(
+    periodStart,
+    periodEnd,
+    closedPeriods,
+    payPeriodInstances
+  );
   const linked = linkedRosterShiftIds(timesheets);
   const byEmployee = new Map<string, { shiftCount: number; totalHours: number }>();
   let eligibleShiftCount = 0;
@@ -215,9 +222,10 @@ export function generateTimesheetsFromShifts(
   periodEnd: string,
   actorName = "SuperUser",
   closedPeriods: PayrollPeriodCloseRecord[] = [],
-  employees: EmployeeLeaveContext[] = []
+  employees: EmployeeLeaveContext[] = [],
+  payPeriodInstances: PayPeriodInstanceRecord[] = []
 ): TimesheetGenerationResult {
-  if (isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods)) {
+  if (isPayPeriodClosedForRange(periodStart, periodEnd, closedPeriods, payPeriodInstances)) {
     return { created: [], updated: [], skippedAlreadyLinked: 0, skippedLockedPeriod: 0, periodClosed: true };
   }
 

@@ -264,6 +264,59 @@ export function findCurrentPayPeriodInstance(
   return findPayPeriodInstanceForDate(instances, day);
 }
 
+export function activePayPeriodDefinition(
+  definitions: PayPeriodDefinitionRecord[]
+): PayPeriodDefinitionRecord | undefined {
+  return definitions.find((row) => row.isActive) ?? definitions[0];
+}
+
+export function payPeriodInstancesForDefinition(
+  instances: PayPeriodInstanceRecord[],
+  definitionId?: string
+): PayPeriodInstanceRecord[] {
+  if (!definitionId) return [];
+  return instances
+    .filter((row) => row.definitionId === definitionId)
+    .map(normalizePayPeriodInstance)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+}
+
+export function payPeriodRange(instance: PayPeriodInstanceRecord): {
+  periodStart: string;
+  periodEnd: string;
+} {
+  const row = normalizePayPeriodInstance(instance);
+  return { periodStart: row.startDate, periodEnd: row.endDate };
+}
+
+export function findAdjacentPayPeriodInstance(
+  instances: PayPeriodInstanceRecord[],
+  definitionId: string,
+  currentId: string,
+  direction: -1 | 1
+): PayPeriodInstanceRecord | undefined {
+  const ordered = payPeriodInstancesForDefinition(instances, definitionId);
+  const index = ordered.findIndex((row) => row.id === currentId);
+  if (index < 0) return undefined;
+  return ordered[index + direction];
+}
+
+export function defaultPayPeriodRange(
+  instances: PayPeriodInstanceRecord[],
+  asOf: Date | string = new Date()
+): { periodStart: string; periodEnd: string; instanceId?: string } {
+  const current = findCurrentPayPeriodInstance(instances, asOf);
+  if (current) {
+    const range = payPeriodRange(current);
+    return { ...range, instanceId: current.id };
+  }
+  const day = typeof asOf === "string" ? asOf.slice(0, 10) : asOf.toISOString().slice(0, 10);
+  const end = parseIsoDate(day);
+  const start = new Date(end);
+  start.setDate(start.getDate() - 13);
+  return { periodStart: localIso(start), periodEnd: day };
+}
+
 export function findNextPayPeriodInstance(
   instances: PayPeriodInstanceRecord[],
   asOf = new Date()

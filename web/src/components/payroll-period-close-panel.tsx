@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { PayPeriodRangePicker } from "@/components/pay-period-admin-panel";
 import { useAuth } from "@/lib/auth-store";
+import { localDateIso } from "@/lib/booking-cancellation";
 import { useData } from "@/lib/data-store";
+import { defaultPayPeriodRange } from "@/lib/pay-period";
 import {
   buildPayrollPeriodCloseRecord,
-  defaultPayrollPeriodRange,
   evaluatePayrollPeriodClose,
   type PayrollPeriodCloseCheck,
 } from "@/lib/payroll-period-close";
@@ -17,27 +19,42 @@ function checkClass(status: PayrollPeriodCloseCheck["status"]): string {
 }
 
 export function PayrollPeriodClosePanel() {
-  const { timesheets, payrollClosedPeriods, closePayrollPeriod } = useData();
+  const { timesheets, payrollClosedPeriods, payPeriodInstances, closePayrollPeriod } = useData();
   const { session, canWriteWindow } = useAuth();
   const canClose = canWriteWindow("timesheets");
   const actor = session?.displayName || "SuperUser";
 
-  const defaults = useMemo(() => defaultPayrollPeriodRange(), []);
-  const [periodStart, setPeriodStart] = useState(defaults.periodStart);
-  const [periodEnd, setPeriodEnd] = useState(defaults.periodEnd);
+  const defaultInstanceId = useMemo(
+    () => defaultPayPeriodRange(payPeriodInstances, localDateIso()).instanceId ?? "",
+    [payPeriodInstances]
+  );
+  const [payPeriodInstanceId, setPayPeriodInstanceId] = useState(defaultInstanceId);
+  const selectedPeriod = payPeriodInstances.find((row) => row.id === payPeriodInstanceId);
+  const periodStart = selectedPeriod?.startDate ?? "";
+  const periodEnd = selectedPeriod?.endDate ?? "";
+
+  useEffect(() => {
+    if (payPeriodInstanceId || !defaultInstanceId) return;
+    setPayPeriodInstanceId(defaultInstanceId);
+  }, [payPeriodInstanceId, defaultInstanceId]);
+
   const [payRunRef, setPayRunRef] = useState("");
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   const evaluation = useMemo(
-    () => evaluatePayrollPeriodClose(timesheets, periodStart, periodEnd, payrollClosedPeriods),
-    [timesheets, periodStart, periodEnd, payrollClosedPeriods]
+    () => evaluatePayrollPeriodClose(timesheets, periodStart, periodEnd, payrollClosedPeriods, payPeriodInstances),
+    [timesheets, periodStart, periodEnd, payrollClosedPeriods, payPeriodInstances]
   );
 
   function markClosed() {
     setError("");
     setMessage("");
+    if (!periodStart || !periodEnd) {
+      setError("Select a pay period before closing.");
+      return;
+    }
     if (!evaluation.readyToClose) {
       setError("Complete all checklist items before closing the pay period.");
       return;
@@ -69,36 +86,24 @@ export function PayrollPeriodClosePanel() {
         </p>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Period start</span>
-          <input
-            type="date"
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
-            value={periodStart}
-            onChange={(e) => setPeriodStart(e.target.value)}
-          />
-        </label>
-        <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Period end</span>
-          <input
-            type="date"
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
-            value={periodEnd}
-            onChange={(e) => setPeriodEnd(e.target.value)}
-          />
-        </label>
-        <label className="text-sm sm:col-span-2">
-          <span className="mb-1 block text-xs font-medium text-slate-600">Pay run reference</span>
-          <input
-            type="text"
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
-            value={payRunRef}
-            onChange={(e) => setPayRunRef(e.target.value)}
-            placeholder="Keypay or Xero pay run ID"
-          />
-        </label>
+      <div className="mt-4">
+        <PayPeriodRangePicker
+          instanceId={payPeriodInstanceId || defaultInstanceId}
+          onInstanceIdChange={setPayPeriodInstanceId}
+          showNavigation
+        />
       </div>
+
+      <label className="mt-4 block text-sm sm:max-w-md">
+        <span className="mb-1 block text-xs font-medium text-slate-600">Pay run reference</span>
+        <input
+          type="text"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+          value={payRunRef}
+          onChange={(e) => setPayRunRef(e.target.value)}
+          placeholder="Keypay or Xero pay run ID"
+        />
+      </label>
 
       <ul className="mt-4 space-y-2">
         {evaluation.checks.map((check) => (
@@ -142,7 +147,7 @@ export function PayrollPeriodClosePanel() {
           </label>
           <button
             type="button"
-            disabled={!evaluation.readyToClose || !payRunRef.trim()}
+            disabled={!evaluation.readyToClose || !payRunRef.trim() || !periodStart}
             onClick={markClosed}
             className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
           >

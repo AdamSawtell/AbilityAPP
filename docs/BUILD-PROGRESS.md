@@ -22,6 +22,29 @@
 
 ---
 
+---
+
+## Pay-period alignment — roster, timesheets, payroll close (2026-06-28)
+
+**Status:** Built, ready for testing.
+
+**Why:** Fortnight review, timesheet generation, agency timesheet generation, and payroll period close were using ad-hoc calendar weeks or rolling 14-day ranges instead of the configured pay period instances from Admin → Pay periods.
+
+| Area | Change |
+|------|--------|
+| Shared helpers | `defaultPayPeriodRange`, `findAdjacentPayPeriodInstance`, `PayPeriodRangePicker` |
+| Rostering → Fortnight review | Pay period selector + prev/next; review range matches pay period boundaries |
+| Rostering → Capacity | Pay period change aligns capacity grid to that fortnight |
+| Generate timesheets | Pay period picker (defaults to current period); closed pay period instances block generation |
+| Generate agency timesheets | Same pay period picker |
+| Payroll period close | Pay period picker replaces manual date fields |
+
+**What you can test:** Admin → Pay periods shows Monday fortnights; Rostering → Fortnight review and Capacity use the same period boundaries; Generate timesheets and Payroll period close default to the current open period.
+
+**Verification:** `npm run build` ✅
+
+---
+
 ## Release hardening polish (2026-06-28)
 
 **Status:** Built, Amplify-smoked, remote access seed applied.

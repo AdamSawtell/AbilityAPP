@@ -1,7 +1,10 @@
 import { localDateIso } from "@/lib/booking-cancellation";
 import type { TimesheetRecord } from "@/lib/timesheet";
-import type { PayPeriodInstanceRecord } from "@/lib/pay-period";
-import { isPayPeriodInstanceClosed } from "@/lib/pay-period";
+import {
+  defaultPayPeriodRange as defaultPayPeriodRangeFromInstances,
+  isPayPeriodInstanceClosed,
+  type PayPeriodInstanceRecord,
+} from "@/lib/pay-period";
 
 export type PayrollPeriodCloseCheckStatus = "pass" | "warning" | "block";
 
@@ -44,7 +47,13 @@ export function payrollClosedPeriodId(periodStart: string, periodEnd: string): s
   return `pcp-${periodStart}-${periodEnd}`;
 }
 
-export function defaultPayrollPeriodRange(asOf = new Date()): { periodStart: string; periodEnd: string } {
+export function defaultPayrollPeriodRange(
+  asOf = new Date(),
+  payPeriodInstances: PayPeriodInstanceRecord[] = []
+): { periodStart: string; periodEnd: string; instanceId?: string } {
+  if (payPeriodInstances.length) {
+    return defaultPayPeriodRangeFromInstances(payPeriodInstances, localDateIso(asOf));
+  }
   const end = new Date(`${localDateIso(asOf)}T12:00:00`);
   const start = new Date(end);
   start.setDate(start.getDate() - 13);
@@ -102,10 +111,11 @@ export function evaluatePayrollPeriodClose(
   timesheets: TimesheetRecord[],
   periodStart: string,
   periodEnd: string,
-  closedPeriods: PayrollPeriodCloseRecord[]
+  closedPeriods: PayrollPeriodCloseRecord[],
+  payPeriodInstances: PayPeriodInstanceRecord[] = []
 ): PayrollPeriodCloseEvaluation {
   const inPeriod = timesheetsInPeriod(timesheets, periodStart, periodEnd);
-  const closed = isPayrollPeriodClosed(periodStart, periodEnd, closedPeriods);
+  const closed = isPayPeriodClosedForRange(periodStart, periodEnd, closedPeriods, payPeriodInstances);
 
   const draftOrSubmitted = inPeriod.filter((s) => s.status === "Draft" || s.status === "Submitted");
   const approved = inPeriod.filter((s) => s.status === "Approved");

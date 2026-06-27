@@ -116,7 +116,7 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | 6 | Add second client with ratio `1:4`; save as Draft; reopen | Two client lines and ratio persist; vacant worker line persists |
 | 7 | Rostering → RoC | Rollover defaults panel shows Organisation lookahead/status/skip-existing values; RoC table has Worker, Ratio, Session columns |
 | 8 | Rostering → RoC → Bulk rollover, Scope = By location → Glenelg SIL House, 4 weeks, Draft | Preview shows shifts across 3 RoC templates; Publish creates merged multi-client sessions; re-running with Skip dates already published reports all skipped |
-| 9 | Rostering → Fortnight review | Two-week command centre lists RoC vs live roster issues; missing/draft/vacant/worker-changed/extra badges link back to the roster week or RoC |
+| 9 | Rostering → Fortnight review | Select pay period; command centre lists RoC vs live roster issues for that fortnight; missing/draft/vacant/worker-changed/extra badges link back to the roster week or RoC |
 | 10 | My workplace → My shifts as a secondary worker on a shared session | Worker sees the shared shift, can check in/out from their worker line, and timesheet generation creates a line for that employee |
 
 ---
