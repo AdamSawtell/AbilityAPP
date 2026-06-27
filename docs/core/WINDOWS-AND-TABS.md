@@ -87,7 +87,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Home | `home` | `/` | Yes | Dashboard |
 | Assistant & briefing | `home-prompt` | `/` (panel) | — | Home panel grant |
 | Needs attention | `home-needs-attention` | `/` (panel) | — | Home panel grant |
-| Today | `home-today` | `/` (panel) | — | Home panel grant |
+| Today | `home-today` | `/` (panel) | — | Home panel grant; **My calendar** shows allocated shifts, pending open-shift requests, leave, credential/document expiry, and tasks for linked employees |
 | Module counts / recent lists | `home-module-*`, `home-recent-*` | `/` (panels) | — | Per-panel grants |
 | Quick actions | `home-quick-new-enquiry`, `home-quick-report-incident` | `/` | — | Home panel grants |
 

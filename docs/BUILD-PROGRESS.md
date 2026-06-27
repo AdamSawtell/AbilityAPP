@@ -22,6 +22,23 @@
 
 ---
 
+## Home My calendar — shifts, requests, leave, tasks (2026-06-27)
+
+**Status:** Shipped.
+
+Extends the Home **Today → My calendar** to show a worker's full personal schedule, not just tasks and compliance dates.
+
+| Area | Change |
+|------|--------|
+| Events | `personalCalendarEvents` now also emits **allocated roster shifts** (`shiftsAssignedToWorker`, all locations) and **pending open-shift requests** (`status === "requested"`, deduped against approved/allocated) |
+| UI | `HomeCalendar` accepts `rosterShifts` + `shiftRequests`; new teal **Allocated shifts** and cyan **Shift requests** chips + legend; shift chips link to `/my/shifts`, request chips to `/my/open-shifts` |
+| Wiring | `HomeDashboard` passes `allRosterShifts` + `rosterShiftRequests` from the data store |
+| Docs/tests | Home + foundation help, SYSTEM-FUNCTION-GUIDE §10, WINDOWS-AND-TABS Home, FUNC-251, TEST-076 |
+
+**What you can test:** TEST-076.
+
+---
+
 ## My Workplace Contact Rostering (2026-06-27)
 
 **Status:** Shipped.
@@ -2261,6 +2278,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-27 | Home My calendar uncommitted | 1 Medium, fixed | **Pass** | Pending shift-request chip now suppressed when the linked shift is already allocated to the worker (covers direct fill-board assignment, not just request approval) |
 | 2026-06-27 | Contact Rostering uncommitted | 1 High + 3 Medium, fixed; rerun 2 Medium, fixed | **Pass** | Fixed: related-shift privacy on Open shifts; submit busy guard; history `canSeeTaskType`; My shifts request lookup via `allRosterShifts`; `canCreateTaskType` on submit; panel on `/my` overview |
 | 2026-06-26 | SuperUser all-roles uncommitted | 1 High + 1 Medium, fixed | **Pass** | SuperUser detection keyed on seeded `user-superuser` id (not the mutable username) so renaming an account cannot escalate it; `upsertUser` mirrors the all-roles expansion into client state so the UI matches what is persisted |
 | 2026-06-26 | Karen AiTester seed uncommitted | 1 High + 1 Medium, fixed | **Pass** | `app_user` upsert now links `employee_bp_id` to `emp-karen` when unset so the session resolves an employee; shift/timesheet/incident/activity dates are relative to `current_date` so the fixture stays valid when re-run |

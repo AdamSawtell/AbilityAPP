@@ -607,6 +607,25 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-076 — Home: My calendar shows shifts, requests, leave, tasks
+
+| | |
+|--|--|
+| **Users** | Support worker with a linked employee record and allocated shifts (`AvaThomas` or `IslaRobinson`) |
+| **Routes** | `/` (Home → Today → My calendar) |
+| **Pass if** | The personal calendar shows the worker's allocated shifts, pending open-shift requests, leave, and tasks on the correct dates |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in and open Home → **Today** → **My calendar** | Calendar renders in month view; legend lists Allocated shifts and Shift requests |
+| 2 | Navigate to a week with an allocated shift | Teal **Shift HH:MM–HH:MM** chip appears on the shift date |
+| 3 | Submit an open-shift request (`/my/open-shifts`), return to Home | Cyan **Requested HH:MM–HH:MM** chip appears on that shift's date while the request is awaiting decision |
+| 4 | Click a shift chip / a request chip | Shift opens `/my/shifts`; request opens `/my/open-shifts` |
+| 5 | With pending/approved leave, switch to week or day view | Leave appears on the correct dates alongside shifts and tasks |
+| 6 | Fill the requested shift for this worker (approve the request **or** assign directly via the fill board), return to Home | Shift now shows as an allocated (teal) shift only; the request (cyan) chip no longer shows even if the request row is still `requested` |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

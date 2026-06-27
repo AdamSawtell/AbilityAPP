@@ -147,10 +147,10 @@ export const homeArticle: HelpArticle = {
   title: "Home dashboard",
   summary: "Your AI-first landing page with a daily briefing, collapsible sections, and the sidebar assistant.",
   category: "Core",
-  keywords: ["home", "dashboard", "calendar", "welcome", "assistant", "briefing"],
+  keywords: ["home", "dashboard", "calendar", "welcome", "assistant", "briefing", "shifts", "roster", "leave"],
   relatedRoutes: ["/"],
   windowKeys: ["home"],
-  lastUpdated: "2026-06-26",
+  lastUpdated: "2026-06-27",
   sections: [
     {
       id: "overview",
@@ -166,7 +166,7 @@ export const homeArticle: HelpArticle = {
     {
       id: "today",
       title: "Today",
-      body: "Task summary and your personal calendar live here. The calendar shows tasks with due dates plus compliance dates for your employee record.",
+      body: "Task summary and your personal calendar live here. When your login is linked to an employee record, the calendar shows your allocated roster shifts, pending open-shift requests, approved and pending leave, and credential/document expiry dates — alongside tasks assigned to you and your role. Use the month, week, and day views to plan around your shifts. Click a shift to open My shifts, a request to open Open shifts, or a task to open it.",
       windowKeys: ["home"],
     },
     {

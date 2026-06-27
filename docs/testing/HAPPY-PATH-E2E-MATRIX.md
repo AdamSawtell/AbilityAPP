@@ -464,6 +464,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-248 | My workplace | Check-in/out | `/my/shifts` | Support worker | Live | HP-054 |
 | FUNC-249 | Open shifts | Request marketplace shift | `/my/open-shifts` | Support worker | Live | TEST-074 |
 | FUNC-250 | My workplace | Contact Rostering task conversation | `/my/open-shifts`, `/my/shifts` | All staff, Rostering Officer | Live | TEST-075 |
+| FUNC-251 | Home | My calendar — allocated shifts + pending requests + leave + tasks | `/` | Support worker (linked employee) | Live | TEST-076 |
 
 ### 5.4 Timesheets
 

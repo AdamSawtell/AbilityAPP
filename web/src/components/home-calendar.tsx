@@ -24,6 +24,8 @@ import {
 } from "@/lib/personal-calendar";
 import type { TaskRecord } from "@/lib/task";
 import type { IncidentRecord } from "@/lib/incident";
+import type { RosterShiftRecord } from "@/lib/roster-shift";
+import type { RosterShiftRequestRecord } from "@/lib/roster-shift-request";
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -36,6 +38,10 @@ function eventStyles(event: PersonalCalendarEvent): string {
       return "bg-[#fdf2f8] text-[#9d174d] ring-[#f9a8d4]/60 hover:bg-[#fce7f3]";
     case "task-role":
       return "bg-violet-50 text-violet-900 ring-violet-200 hover:bg-violet-100";
+    case "roster-shift":
+      return "bg-teal-50 text-teal-900 ring-teal-200 hover:bg-teal-100";
+    case "shift-request":
+      return "bg-cyan-50 text-cyan-900 ring-cyan-200 hover:bg-cyan-100";
     case "leave-request":
       return "bg-emerald-50 text-emerald-900 ring-emerald-200 hover:bg-emerald-100";
     case "credential-expiry":
@@ -105,12 +111,16 @@ export function HomeCalendar({
   session,
   users,
   employees,
+  rosterShifts = [],
+  shiftRequests = [],
 }: {
   tasks: TaskRecord[];
   incidents: IncidentRecord[];
   session: AuthSession;
   users: AppUserRecord[];
   employees: EmployeeRecord[];
+  rosterShifts?: RosterShiftRecord[];
+  shiftRequests?: RosterShiftRequestRecord[];
 }) {
   const today = useMemo(() => new Date(), []);
   const [view, setView] = useState<CalendarViewMode>("month");
@@ -119,8 +129,8 @@ export function HomeCalendar({
   const employee = useMemo(() => employeeForUser(users, employees, session.userId), [users, employees, session.userId]);
 
   const events = useMemo(
-    () => personalCalendarEvents(tasks, session, employee, incidents),
-    [tasks, session, employee, incidents]
+    () => personalCalendarEvents(tasks, session, employee, incidents, rosterShifts, shiftRequests),
+    [tasks, session, employee, incidents, rosterShifts, shiftRequests]
   );
 
   const byDate = useMemo(() => eventsByDate(events), [events]);
@@ -164,7 +174,7 @@ export function HomeCalendar({
           <h2 className="text-lg font-semibold text-slate-900">My calendar</h2>
           <p className="mt-0.5 text-sm text-slate-500">
             Tasks for you and {session.activeRoleName}
-            {employee ? " · your credentials and documents" : ""}
+            {employee ? " · your shifts, requests, leave, credentials" : ""}
             {incidents.length ? " · NDIS incident deadlines" : ""}
           </p>
         </div>
@@ -314,6 +324,12 @@ export function HomeCalendar({
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-violet-300" /> Role tasks
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-teal-300" /> Allocated shifts
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-cyan-300" /> Shift requests
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-indigo-300" /> Credential / document expiry

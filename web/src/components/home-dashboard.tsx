@@ -193,7 +193,7 @@ function HomePromptHero({
 }
 
 export function HomeDashboard() {
-  const { enquiries, clients, employees, tasks, incidents, timesheets, rosterShifts, locations } = useData();
+  const { enquiries, clients, employees, tasks, incidents, timesheets, rosterShifts, allRosterShifts, rosterShiftRequests, locations } = useData();
   const { canWindow, canProcess, canHomePanel, session, users } = useAuth();
   const { setCollapsed } = useAiChatShell();
   const router = useRouter();
@@ -430,7 +430,15 @@ export function HomeDashboard() {
             ) : null}
 
             {session ? (
-              <HomeCalendar tasks={tasks} incidents={incidents} session={session} users={users} employees={employees} />
+              <HomeCalendar
+                tasks={tasks}
+                incidents={incidents}
+                session={session}
+                users={users}
+                employees={employees}
+                rosterShifts={allRosterShifts}
+                shiftRequests={rosterShiftRequests}
+              />
             ) : null}
           </div>
         </HomeCollapsibleSection>
