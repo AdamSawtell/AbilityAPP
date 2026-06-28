@@ -11,8 +11,8 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | Pay-period picker payroll-archived label — shipped (`74b8383`) |
-| **Next slice** | None on critical path — awaiting direction (candidates: Phase 2 mobile worker app; not AB-0004 / AB-0011 / AB-0012 / SCHADS) |
+| **Active slice** | AB-0011 Stage 0 — NDIS pricing foundation — shipped |
+| **Next slice** | AB-0011 importer UI/apply (after foundation verification) |
 | **Last push** | 2026-06-28 — Payroll-archived picker labels + Amplify smoke log (`74b8383`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
@@ -22,11 +22,32 @@
 
 ---
 
+## AB-0011 Stage 0 — NDIS pricing foundation (2026-06-28)
+
+**Status:** Shipped.
+
+**Why:** AB-0012 must consume auditable AB-0011 price import batches, not raw CSV or flat price-list rows. The foundation adds the durable product/price metadata and import history contract before any importer UI or dependant-record mutation.
+
+| Area | Change |
+|------|--------|
+| Data model | `ndis_price_import_batch` / `ndis_price_import_row`; NDIS metadata on `product`; guide/effective fields on `price_list`; region/effective/source fields on `price_list_line` |
+| TypeScript contract | `ndis-price-import.ts` defines supported CSV formats, batch/row history, normalised rows, price cleaning and explicit format adapters |
+| Mappers/API | Supabase mappers and data API can read/write extended product/price rows and import batch history |
+| Guardrails | Uses `support_item_number` as the natural key; preserves effective-dated price rows; importer history is retained; no AB-0012 dependant records mutate in this slice |
+
+**What you can test:** Foundation-only slice — run build/page-guide checks and confirm existing Products, Price lists, Service agreements, Claims, and Invoices still load. AB-0011 upload/preview/apply UI comes next.
+
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · `npm run supabase:push-remote` ✅ (`20260727160000`, `20260727161000`) · `npm run lint` ❌ pre-existing unrelated lint errors (admin/session/process/enquiry pages; no AB-0011 files reported) · Bugbot final pass ✅
+
+**Code review log:** 2026-06-28 — Bugbot on AB-0011 foundation found price lookup fallback, import-row replacement, CSV action validation, and support-item index safety issues; all remediated. Final Bugbot pass found no bugs.
+
+---
+
 ---
 
 ## Pay-period picker — payroll archived label (2026-06-28)
 
-**Status:** Built, ready for Amplify re-smoke after deploy.
+**Status:** Shipped (`74b8383`).
 
 **Why:** Amplify smoke showed pay period instances labelled `(open)` while Timesheets → Payroll period close had already archived the same range — confusing when generation was blocked.
 

@@ -46,6 +46,7 @@ import type {
   PriceListRecord,
   ProductRecord,
 } from "@/lib/product";
+import type { NdisPriceImportBatch, NdisPriceImportRow, NdisPriceImportFormat } from "@/lib/ndis-price-import";
 import type { ServiceAgreementLine, ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { ServiceBookingLine, ServiceBookingRecord } from "@/lib/service-booking";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
@@ -674,6 +675,15 @@ export type ProductRow = {
   sold: boolean;
   price_list_id: string | null;
   ndis_support_item: string;
+  registration_group_number?: string;
+  registration_group_name?: string;
+  support_category_number?: string;
+  support_category_name?: string;
+  support_category_name_pace?: string;
+  price_type?: string;
+  claiming_flags?: Record<string, boolean> | null;
+  source_import_batch_id?: string | null;
+  end_dated_at?: string | null;
   created_by: string;
   updated_by: string;
 };
@@ -684,7 +694,12 @@ export type PriceListRow = {
   schema_name: string;
   base_price_list_id: string;
   valid_from: string | null;
+  valid_to?: string | null;
   currency: string;
+  source?: string;
+  source_import_batch_id?: string | null;
+  guide_year?: string;
+  status?: string;
   created_by: string;
   updated_by: string;
 };
@@ -697,6 +712,52 @@ export type PriceListLineRow = {
   list_price: number | null;
   standard_price: number | null;
   limit_price: number | null;
+  support_item_number?: string;
+  region?: string;
+  jurisdiction?: string;
+  effective_start?: string | null;
+  effective_end?: string | null;
+  price_type?: string;
+  quote_required?: boolean;
+  no_specified_price?: boolean;
+  source_import_batch_id?: string | null;
+  source_row_hash?: string;
+};
+
+export type NdisPriceImportBatchRow = {
+  id: string;
+  source_file_name: string;
+  source_document: string;
+  guide_year: string;
+  format_type: string;
+  status: string;
+  imported_by: string;
+  imported_at: string | null;
+  applied_at: string | null;
+  row_count: number;
+  add_count: number;
+  update_count: number;
+  unchanged_count: number;
+  skipped_count: number;
+  error_count: number;
+  warning_count: number;
+  warnings_json: string[] | null;
+  notes: string;
+};
+
+export type NdisPriceImportRowDb = {
+  id: string;
+  batch_id: string;
+  row_no: number;
+  support_item_number: string;
+  action: string;
+  status: string;
+  message: string;
+  raw_json: Record<string, string> | null;
+  normalized_json: NdisPriceImportRow["normalized"];
+  matched_product_id: string | null;
+  matched_price_line_id: string | null;
+  row_hash: string;
 };
 
 export function productFromRow(row: ProductRow): ProductRecord {
@@ -712,6 +773,15 @@ export function productFromRow(row: ProductRow): ProductRecord {
     sold: row.sold,
     priceListId: row.price_list_id ?? "",
     ndisSupportItem: row.ndis_support_item || undefined,
+    registrationGroupNumber: row.registration_group_number ?? "",
+    registrationGroupName: row.registration_group_name ?? "",
+    supportCategoryNumber: row.support_category_number ?? "",
+    supportCategoryName: row.support_category_name ?? "",
+    supportCategoryNamePace: row.support_category_name_pace ?? "",
+    priceType: row.price_type ?? "",
+    claimingFlags: row.claiming_flags ?? {},
+    sourceImportBatchId: row.source_import_batch_id ?? "",
+    endDatedAt: strDate(row.end_dated_at),
     createdBy: row.created_by,
     updatedBy: row.updated_by,
   };
@@ -730,6 +800,15 @@ export function productToRow(record: ProductRecord): ProductRow {
     sold: record.sold,
     price_list_id: record.priceListId?.trim() ? record.priceListId : null,
     ndis_support_item: record.ndisSupportItem ?? "",
+    registration_group_number: record.registrationGroupNumber ?? "",
+    registration_group_name: record.registrationGroupName ?? "",
+    support_category_number: record.supportCategoryNumber ?? "",
+    support_category_name: record.supportCategoryName ?? "",
+    support_category_name_pace: record.supportCategoryNamePace ?? "",
+    price_type: record.priceType ?? "",
+    claiming_flags: record.claimingFlags ?? {},
+    source_import_batch_id: record.sourceImportBatchId?.trim() ? record.sourceImportBatchId : null,
+    end_dated_at: toDate(record.endDatedAt ?? ""),
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };
@@ -742,7 +821,12 @@ export function priceListFromRow(row: PriceListRow, lines: PriceListLineRow[]): 
     schema: row.schema_name,
     basePriceListId: row.base_price_list_id,
     validFrom: strDate(row.valid_from),
+    validTo: strDate(row.valid_to),
     currency: row.currency,
+    source: row.source ?? "",
+    sourceImportBatchId: row.source_import_batch_id ?? "",
+    guideYear: row.guide_year ?? "",
+    status: row.status ?? "active",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     lines: lines.map(
@@ -753,6 +837,16 @@ export function priceListFromRow(row: PriceListRow, lines: PriceListLineRow[]): 
         listPrice: strMoney(line.list_price),
         standardPrice: strMoney(line.standard_price),
         limitPrice: strMoney(line.limit_price),
+        supportItemNumber: line.support_item_number ?? "",
+        region: line.region ?? "",
+        jurisdiction: line.jurisdiction ?? "",
+        effectiveStart: strDate(line.effective_start),
+        effectiveEnd: strDate(line.effective_end),
+        priceType: line.price_type ?? "",
+        quoteRequired: Boolean(line.quote_required),
+        noSpecifiedPrice: Boolean(line.no_specified_price),
+        sourceImportBatchId: line.source_import_batch_id ?? "",
+        sourceRowHash: line.source_row_hash ?? "",
       })
     ),
   };
@@ -765,7 +859,12 @@ export function priceListToRow(record: PriceListRecord): PriceListRow {
     schema_name: record.schema,
     base_price_list_id: record.basePriceListId,
     valid_from: toDate(record.validFrom),
+    valid_to: toDate(record.validTo ?? ""),
     currency: record.currency,
+    source: record.source ?? "",
+    source_import_batch_id: record.sourceImportBatchId?.trim() ? record.sourceImportBatchId : null,
+    guide_year: record.guideYear ?? "",
+    status: record.status ?? "active",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };
@@ -780,6 +879,96 @@ export function priceListLineToRow(listId: string, line: PriceListLine): PriceLi
     list_price: toMoney(line.listPrice),
     standard_price: toMoney(line.standardPrice),
     limit_price: toMoney(line.limitPrice),
+    support_item_number: line.supportItemNumber ?? "",
+    region: line.region ?? "",
+    jurisdiction: line.jurisdiction ?? "",
+    effective_start: toDate(line.effectiveStart ?? ""),
+    effective_end: toDate(line.effectiveEnd ?? ""),
+    price_type: line.priceType ?? "",
+    quote_required: Boolean(line.quoteRequired),
+    no_specified_price: Boolean(line.noSpecifiedPrice),
+    source_import_batch_id: line.sourceImportBatchId?.trim() ? line.sourceImportBatchId : null,
+    source_row_hash: line.sourceRowHash ?? "",
+  };
+}
+
+export function ndisPriceImportBatchFromRow(row: NdisPriceImportBatchRow): NdisPriceImportBatch {
+  return {
+    id: row.id,
+    sourceFileName: row.source_file_name,
+    sourceDocument: row.source_document,
+    guideYear: row.guide_year,
+    formatType: (row.format_type || "unknown") as NdisPriceImportFormat,
+    status: (row.status || "draft") as NdisPriceImportBatch["status"],
+    importedBy: row.imported_by,
+    importedAt: row.imported_at ?? "",
+    appliedAt: row.applied_at ?? "",
+    rowCount: row.row_count,
+    addCount: row.add_count,
+    updateCount: row.update_count,
+    unchangedCount: row.unchanged_count,
+    skippedCount: row.skipped_count,
+    errorCount: row.error_count,
+    warningCount: row.warning_count,
+    warnings: row.warnings_json ?? [],
+    notes: row.notes,
+  };
+}
+
+export function ndisPriceImportBatchToRow(record: NdisPriceImportBatch): NdisPriceImportBatchRow {
+  return {
+    id: record.id,
+    source_file_name: record.sourceFileName,
+    source_document: record.sourceDocument,
+    guide_year: record.guideYear,
+    format_type: record.formatType,
+    status: record.status,
+    imported_by: record.importedBy,
+    imported_at: record.importedAt?.trim() ? record.importedAt : null,
+    applied_at: record.appliedAt?.trim() ? record.appliedAt : null,
+    row_count: record.rowCount,
+    add_count: record.addCount,
+    update_count: record.updateCount,
+    unchanged_count: record.unchangedCount,
+    skipped_count: record.skippedCount,
+    error_count: record.errorCount,
+    warning_count: record.warningCount,
+    warnings_json: record.warnings,
+    notes: record.notes,
+  };
+}
+
+export function ndisPriceImportRowFromRow(row: NdisPriceImportRowDb): NdisPriceImportRow {
+  return {
+    id: row.id,
+    batchId: row.batch_id,
+    rowNo: row.row_no,
+    supportItemNumber: row.support_item_number,
+    action: row.action as NdisPriceImportRow["action"],
+    status: row.status as NdisPriceImportRow["status"],
+    message: row.message,
+    raw: row.raw_json ?? {},
+    normalized: row.normalized_json ?? null,
+    matchedProductId: row.matched_product_id ?? "",
+    matchedPriceLineId: row.matched_price_line_id ?? "",
+    rowHash: row.row_hash,
+  };
+}
+
+export function ndisPriceImportRowToRow(record: NdisPriceImportRow): NdisPriceImportRowDb {
+  return {
+    id: record.id,
+    batch_id: record.batchId,
+    row_no: record.rowNo,
+    support_item_number: record.supportItemNumber,
+    action: record.action,
+    status: record.status,
+    message: record.message,
+    raw_json: record.raw,
+    normalized_json: record.normalized,
+    matched_product_id: record.matchedProductId?.trim() ? record.matchedProductId : null,
+    matched_price_line_id: record.matchedPriceLineId?.trim() ? record.matchedPriceLineId : null,
+    row_hash: record.rowHash,
   };
 }
 

@@ -34,7 +34,8 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `incident_party` / `incident_action` / `incident_notification` | Incident line tables |
 | `client` | Support received (header) |
 | `client_alert` / `client_activity` / `client_location` | Client line tables |
-| `product` / `price_list` / `price_list_line` | Catalog & pricing |
+| `product` / `price_list` / `price_list_line` | Catalog & pricing; NDIS metadata, region, effective dates, quote/no-price flags and source import linkage (AB-0011 foundation) |
+| `ndis_price_import_batch` / `ndis_price_import_row` | NDIS price guide import history, row-level preview/apply results and AB-0012 changed-item handoff |
 | `service_agreement` / `service_agreement_line` | Service agreements |
 | `service_booking` / `service_booking_line` | Service bookings (document + lines) |
 | `contract` / `contract_audit` | Legacy contracts module |

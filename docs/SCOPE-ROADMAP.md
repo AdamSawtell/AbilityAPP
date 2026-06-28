@@ -38,7 +38,7 @@ The largest greenfield work is **Chunk 4 (Rostering)**. Upstream modules must be
 | Locations, incidents, tasks | ✅ Live | Core CRUD + line tables |
 | Business partners | ✅ Live | Registry + client billing prefs |
 | Service agreements | ✅ Live | E-sign, print pack, lifecycle states |
-| Products, price lists, contracts | ✅ Live | Reference + agreement linking |
+| Products, price lists, contracts | ✅ Live | Reference + agreement linking; AB-0011 NDIS import foundation adds effective-dated regional price metadata and import batch history |
 | Service bookings | ✅ Live | Compliance on save, client reverse nav |
 | Rostering | ✅ Live | Week grid, publish, open shifts, RoC publish, training/meeting rows |
 | Service planning | ✅ Live | Monthly plans, multi-provider budget, utilisation |

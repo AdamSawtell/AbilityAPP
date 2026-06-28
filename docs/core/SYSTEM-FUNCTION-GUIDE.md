@@ -152,7 +152,8 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | Function | Who | Outcome | Status |
 |----------|-----|---------|--------|
 | **Product catalogue** ÔÇö NDIS support items and internal products | Admin | Standard items for agreements and claims | Live |
-| **Price lists** ÔÇö rate tables by product | Admin | Consistent pricing on agreements | Live |
+| **Price lists** ÔÇö rate tables by product, guide year, region and effective window | Admin | Consistent pricing on agreements while preserving historical NDIS price limits | Live |
+| **NDIS price import foundation** ÔÇö batch and row history, source row hash, regional/effective-dated price metadata | System operators | Safe base for AB-0011 importer and AB-0012 dependant updater; no dependant records mutated | Foundation |
 | **Contracts (vendor)** ÔÇö third-party contract register | Admin | Non-participant contract tracking | Live |
 
 ---

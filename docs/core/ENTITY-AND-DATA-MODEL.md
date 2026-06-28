@@ -59,6 +59,7 @@ Business partner ◄── associations ── Client; plan manager on billing; 
 | Complaint | `complaint` | `id` | `/complaints` | Register |
 | Product | `product` | `id` | `/products` | Overview + Pricing |
 | Price list | `price_list` | `id` | `/price-lists` | Overview + Lines |
+| NDIS price import batch | `ndis_price_import_batch` | `id` | Planned System route | Import history + row results |
 
 ---
 
@@ -244,9 +245,18 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 
 | Catalogue | Used by |
 |-----------|---------|
-| Product | Agreement lines, booking lines, claims |
-| Price list | Agreement pricing |
+| Product | Agreement lines, booking lines, claims; `ndisSupportItem` / `support_item_number` is the natural key for NDIS imports |
+| Price list | Agreement pricing; AB-0011 adds guide year, source batch, status, and valid-from/to windows |
+| Price list line | Product rates by region/jurisdiction and effective start/end; quote/no-specified-price rows are flagged, not treated as normal fixed price limits |
 | Contract (vendor) | Non-participant contracts |
+
+### NDIS pricing foundation (AB-0011)
+
+| Record/table | Purpose | Guardrail |
+|--------------|---------|-----------|
+| `ndis_price_import_batch` | One validated/applied source file with counts, status, guide year, user and notes | Import history is retained; no silent master-data changes |
+| `ndis_price_import_row` | Row-level raw + normalised source data, support item number, action, status, warnings/errors and row hash | AB-0012 consumes batch output instead of raw CSV |
+| `price_list_line` effective fields | `support_item_number`, `region`, `jurisdiction`, `effective_start`, `effective_end`, `source_row_hash` | Historical prices are preserved; imports append/version rows rather than blind overwrite |
 
 ---
 

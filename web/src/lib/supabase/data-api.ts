@@ -30,6 +30,7 @@ import type { LocationRecord } from "@/lib/location";
 import { normalizeLocation } from "@/lib/location";
 import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { normalizePriceList } from "@/lib/product";
+import type { NdisPriceImportBatch, NdisPriceImportRow } from "@/lib/ndis-price-import";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import { normalizeServiceAgreement } from "@/lib/service-agreement";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
@@ -74,6 +75,10 @@ import {
   priceListToRow,
   productFromRow,
   productToRow,
+  ndisPriceImportBatchFromRow,
+  ndisPriceImportBatchToRow,
+  ndisPriceImportRowFromRow,
+  ndisPriceImportRowToRow,
   serviceAgreementFromRow,
   serviceAgreementLineToRow,
   serviceAgreementToRow,
@@ -159,6 +164,8 @@ import {
   type PriceListLineRow,
   type PriceListRow,
   type ProductRow,
+  type NdisPriceImportBatchRow,
+  type NdisPriceImportRowDb,
   type ServiceAgreementLineRow,
   type ServiceAgreementRow,
   type ServiceBookingRow,
@@ -1337,6 +1344,45 @@ export async function savePriceList(supabase: SupabaseClient, record: PriceListR
       .from("price_list_line")
       .insert(list.lines.map((line) => priceListLineToRow(list.id, line)));
     if (lineError) throw lineError;
+  }
+}
+
+export async function fetchNdisPriceImportBatches(supabase: SupabaseClient): Promise<NdisPriceImportBatch[]> {
+  const { data, error } = await supabase
+    .from("ndis_price_import_batch")
+    .select("*")
+    .order("imported_at", { ascending: false });
+  if (error) throw error;
+  return ((data ?? []) as NdisPriceImportBatchRow[]).map(ndisPriceImportBatchFromRow);
+}
+
+export async function fetchNdisPriceImportRows(
+  supabase: SupabaseClient,
+  batchId: string
+): Promise<NdisPriceImportRow[]> {
+  const { data, error } = await supabase
+    .from("ndis_price_import_row")
+    .select("*")
+    .eq("batch_id", batchId)
+    .order("row_no");
+  if (error) throw error;
+  return ((data ?? []) as NdisPriceImportRowDb[]).map(ndisPriceImportRowFromRow);
+}
+
+export async function saveNdisPriceImportBatch(
+  supabase: SupabaseClient,
+  batch: NdisPriceImportBatch,
+  rows: NdisPriceImportRow[] = []
+) {
+  const { error } = await supabase.from("ndis_price_import_batch").upsert(ndisPriceImportBatchToRow(batch));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "ndis_price_import_row", "batch_id", batch.id);
+  if (rows.length) {
+    const { error: rowsError } = await supabase
+      .from("ndis_price_import_row")
+      .insert(rows.map(ndisPriceImportRowToRow));
+    if (rowsError) throw rowsError;
   }
 }
 
