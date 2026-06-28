@@ -367,7 +367,7 @@ Adds a task-backed communication channel on the employee rostering surfaces.
 
 ## AB-0030 — My Workplace Services and Demand Advisory (2026-06-28)
 
-**Status:** Shipped (pending verification).
+**Status:** Shipped.
 
 Read-only **Services I can work at** widget at the top of `/my` for qualified employees (active location assignment, current WWCC + NDIS Worker Screening, valid site orientation). High demand from ≥2 vacant Published/Draft shifts in the next 14 days and/or `support_location.high_demand_advisory`. Rostering managers toggle the manual flag on **Locations → Overview → Staff demand signal**.
 
@@ -379,6 +379,8 @@ Read-only **Services I can work at** widget at the top of `/my` for qualified em
 | Docs/tests | Help `my-workplace`, core docs, FUNC-252, TEST-077 |
 
 **What you can test:** TEST-077.
+
+**Verification (2026-06-28):** `npm run build` ✅ (exit 0), `npm run page-guides:check` ✅ (131 routes, 0 gaps), `npm run supabase:push-remote` ✅ (`20260728180000_location_high_demand_advisory.sql` applied), Bugbot ✅ (2 High + 1 Medium fixed before push). Amplify smoke ✅ — `app.abilityvua.com/my` as **Isla Robinson** (`AbilityVua Admin` role) shows **Services I can work at**, **Glenelg SIL House**, and **High demand — open shifts** with 41 open shifts in the next two weeks.
 
 ---
 
@@ -2604,6 +2606,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-28 | AB-0030 uncommitted | 2 High + 1 Medium, fixed | **Pass** | Scoped `/api/my` advisory data load (no full `fetchAllData`), no live/seed fallback mixing on Supabase query failure, and `Expiring soon` credentials still qualify because they are not expired |
 | 2026-06-27 | Roster Sessions v1 + Glenelg roster uncommitted | 4 High + 2 Medium; 4 High + 1 Medium fixed, 1 Medium deferred | **Pass** | Fixed: claim/approve worker no longer dropped on normalize; RoC publish reuses matched shift id (no duplicates) + `skipExisting` covers legacy shifts; only Active peer RoCs merge; weekly Repeat regenerates child line ids. Deferred (Medium): multi-worker discovery in My shifts/check-in/timesheets (broad cross-file change) |
 | 2026-06-27 | Home My calendar uncommitted | 1 Medium, fixed | **Pass** | Pending shift-request chip now suppressed when the linked shift is already allocated to the worker (covers direct fill-board assignment, not just request approval) |
 | 2026-06-27 | Contact Rostering uncommitted | 1 High + 3 Medium, fixed; rerun 2 Medium, fixed | **Pass** | Fixed: related-shift privacy on Open shifts; submit busy guard; history `canSeeTaskType`; My shifts request lookup via `allRosterShifts`; `canCreateTaskType` on submit; panel on `/my` overview |
