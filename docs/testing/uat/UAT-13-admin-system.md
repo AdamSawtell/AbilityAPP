@@ -21,6 +21,8 @@
 | UAT-13-S-011 | Time and date | `/system/settings/time-and-date` | Org timezone settings | **Pass** — system System Settings menu |
 | UAT-13-S-012 | Record retention | `/system/settings/record-retention` | Retention policies | **Pass** — linked from session audit footer |
 | UAT-13-S-013 | AI agents | `/admin/ai-agents` | Assistant config | **Pass** — workspace assistant agents on home |
+| UAT-13-S-014 | NDIS Price Guide Importer | `/system/services/ndis-price-importer` | Upload CSV, preview, apply, import history | **Pass** — Amplify 2026-06-28; sample 2026–27 CSV applied; history + revert visible |
+| UAT-13-S-015 | Price Dependant Updater | `/system/services/price-update-review` | Select applied batch, analyse impacts, consent gate, apply | **Pass** — Amplify 2026-06-28; 108 scanned / 81 impacts; Active agreements consent-required; 0 ready without evidence |
 
 ## Window checklist
 

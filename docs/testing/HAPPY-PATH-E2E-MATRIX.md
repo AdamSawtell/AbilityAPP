@@ -374,6 +374,20 @@ flowchart LR
 
 ---
 
+### Flow 12 — NDIS price import and dependant update (System)
+
+**Goal:** Import NDIS price guide, analyse dependent records, apply only safe/approved updates.
+
+| Step | HP ID | Actor | Action | Route / surface | Expected outcome | Build | TEST ID |
+|------|-------|-------|--------|-----------------|------------------|-------|---------|
+| 12.1 | HP-121 | SuperUser | Import NDIS price guide | `/system/services/ndis-price-importer` | Preview + apply batch; history row | Live | TEST-100 |
+| 12.2 | HP-122 | SuperUser | Analyse price impacts | `/system/services/price-update-review` | >0 scanned; consent/protected classifications | Live | TEST-101 |
+| 12.3 | HP-123 | SuperUser | Consent gate on active agreement | Price Dependant Updater decision panel | Apply blocked until evidence recorded | Live | TEST-101 |
+
+**Flow 12 exit criteria:** Applied import batch drives impact analysis; active agreements require consent evidence before apply.
+
+---
+
 ### AI browser instructions (full spine)
 
 **Recommended order** (log failures to [ISSUE-LOG-TEMPLATE.md](./ISSUE-LOG-TEMPLATE.md)):
@@ -523,6 +537,13 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-424 | Reporting | NDIS audit pack | `/ndis-audit-pack` | Quality+ | Partial | HP-080, HP-118 |
 | FUNC-425 | Reporting | Board reporting | `/board-reporting` | Exec+ | Partial | HP-081, HP-119 |
 | FUNC-426 | Reporting | Enquiry register | Reports hub | Intake+ | Live | HP-120 |
+
+### 5.9 System pricing (AB-0011 / AB-0012)
+
+| FUNC ID | Module | Function | Route | Roles | Build | Refs |
+|---------|--------|----------|-------|-------|-------|------|
+| FUNC-500 | System | NDIS Price Guide Importer | `/system/services/ndis-price-importer` | SuperUser | Live | HP-121, TEST-100 |
+| FUNC-501 | System | Price Dependant Updater | `/system/services/price-update-review` | SuperUser | Live | HP-122, HP-123, TEST-101 |
 
 ### 5.8 Workforce and exit
 

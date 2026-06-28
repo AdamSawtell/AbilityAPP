@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | AB-0012 Price Dependant Updater — shipped |
 | **Next slice** | Awaiting direction (AB-0013 SCHADS not started) |
-| **Last push** | 2026-06-28 — AB-0012 Price Dependant Updater (`7924c69`) |
+| **Last push** | 2026-06-28 — AB-0012 smoke/Bugbot fixes (`51a0057`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -41,7 +41,7 @@
 
 **What you can test:** Apply AB-0011 batch → Price Dependant Updater → analyse → verify Active agreement is consent-required → create task → approve safe draft booking → apply → verify booking rate changed; submitted claims protected.
 
-**Verification:** `npm run build` ✅ · `npx tsc --noEmit` ✅ · `npm run page-guides:check` ✅ (131 routes) · `npm run supabase:push-remote` ✅ (`20260728120000`) · localhost smoke ✅ end-to-end (importer apply → analyse 108 scanned / 82 impacts → consent-gated approve → apply 1; `price_update_run` persisted `applied`) · Amplify smoke **Pending deploy**
+**Verification:** `npm run build` ✅ · `npx tsc --noEmit` ✅ · `npm run page-guides:check` ✅ (131 routes) · `npm run supabase:push-remote` ✅ (`20260728120000`) · localhost smoke ✅ end-to-end (importer apply → analyse 108 scanned / 82 impacts → consent-gated approve → apply 1; `price_update_run` persisted `applied`) · Amplify smoke ✅ (2026-06-28 — `/system/services/ndis-price-importer` + `/system/services/price-update-review`; analyse 108 scanned / 81 impacts; consent-required agreements; apply disabled without evidence)
 
 **Code review log:** 2026-06-28 — localhost smoke of AB-0011 + AB-0012 surfaced five defects, all fixed same slice: (1) AB-0011 apply persisted child products/price-list lines and import rows before their parent batch/products → FK violations; reordered to batch → price-list header → product → price-list lines → import rows and added `savePriceListHeader` to break the `product`↔`price_list_line` cycle. (2) Supabase (non-`Error`) failures hidden behind generic copy → added `describeError`. (3) AB-0012 read location-scoped `useData` (empty in the System context) so analysis scanned 0 records → now loads the unscoped dataset via `fetchAllData` and writes changes back with direct `saveServiceAgreement/Booking/MonthlyServicePlan/Claim/Invoice`. (4) Bugbot: first batch save wrote terminal `applied` status before child writes → now writes `validated` first, commits `applied` only after all children succeed. (5) Bugbot: apply used analysis-time classifications on freshly loaded records → re-runs classify functions at apply time; status changes since analysis skip with re-review message.
 

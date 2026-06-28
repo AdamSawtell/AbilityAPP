@@ -37,7 +37,7 @@ Controlled price-change impact workflow: select an applied AB-0011 batch, dry-ru
 | page-guides:check | PASS (131 routes) |
 | Migration push | PASS (`20260728120000`) |
 | Localhost smoke | PASS (see below) |
-| Amplify smoke | Pending deploy |
+| Amplify smoke | PASS (2026-06-28 — 108 scanned / 81 impacts; consent gate; help links) |
 | Bugbot | PASS (2 HIGH fixed — batch status + apply re-check) |
 
 ## Localhost smoke result (2026-06-28)
@@ -85,3 +85,12 @@ End-to-end run against the remote Supabase project:
 4. Record an evidence reference → **Approve for apply** → row becomes ready; or **Create variation task**.
 5. Tick the confirmation → **Apply approved updates**.
 6. Verify the agreement/booking line rate updated and `price_update_run` shows `applied_count`.
+
+## Amplify smoke result (2026-06-28)
+
+Live `https://app.abilityvua.com` after push `51a0057`:
+
+1. `/system/services/ndis-price-importer` — page loads; import history shows multiple applied batches; link to Price Dependant Updater resolves.
+2. `/system/services/price-update-review` — select applied batch → **Run impact analysis** → **108 scanned, 81 impacts** (Consent required 45, Protected 34, Review required 2).
+3. Active service agreement (e.g. AMHA16) shows **Consent required** with **0 ready to apply**; apply button disabled without evidence.
+4. Run history shows prior applied run (82 impacts) and new analysed run; help guide link present.

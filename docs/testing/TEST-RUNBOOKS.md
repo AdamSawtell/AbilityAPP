@@ -632,6 +632,45 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-100 — NDIS Price Guide Importer (AB-0011)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo (System sign-in) |
+| **Route** | `/system/services/ndis-price-importer` |
+| **Fixture** | `web/fixtures/ndis-price/sample-2026-27-update.csv` |
+| **Pass if** | Preview counts render; apply succeeds; import history shows applied batch; link to Price Dependant Updater |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | System sign-in → Services → NDIS Price Guide Importer | Page loads; audit module label; help link resolves |
+| 2 | Upload sample 2026–27 CSV | Preview shows new/updated/error counts; no validation blockers |
+| 3 | Confirm and apply | Success message; batch in import history with **applied** status |
+| 4 | Open import history **View rows** | Row-level actions and matched products visible |
+| 5 | Follow **Review dependent price updates** link | Opens Price Dependant Updater with batch available |
+
+---
+
+## TEST-101 — Price Dependant Updater (AB-0012)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo (System sign-in) |
+| **Route** | `/system/services/price-update-review` |
+| **Precondition** | Applied AB-0011 batch (TEST-100) |
+| **Pass if** | Analysis scans >0 records; Active/Signed agreements are consent-required; apply blocked without evidence; protected billing unchanged |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Select applied import batch → **Run impact analysis** | Summary shows scanned count >0 and impacts by classification |
+| 2 | Filter **Consent required** | Active/Signed service agreements listed; **0 ready to apply** |
+| 3 | Select a consent-required agreement row | Decision panel requires evidence ref; **Apply approved updates** disabled |
+| 4 | Enter evidence ref → **Approve for apply** | Row becomes ready; apply count increases |
+| 5 | Tick confirmation → **Apply approved updates** (optional) | Success message; run history shows **applied**; one impact `applied` |
+| 6 | Filter **Protected** | Submitted claims / issued invoices present; no apply actions |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text
