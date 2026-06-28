@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | AB-0012 Price Dependant Updater — shipped |
 | **Next slice** | Awaiting direction (AB-0013 SCHADS not started) |
-| **Last push** | Pending — AB-0012 commit |
+| **Last push** | 2026-06-28 — AB-0012 Price Dependant Updater (`7924c69`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
