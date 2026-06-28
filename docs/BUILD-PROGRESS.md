@@ -28,7 +28,7 @@
 
 ## AB-0034 — Admin Communications Hub (2026-06-28)
 
-**Status:** Shipped (local verify).
+**Status:** Shipped.
 
 **Why:** Administrators need an in-app channel to broadcast operational notices with acknowledgment audit trails — without relying on email alone.
 
@@ -42,7 +42,7 @@
 
 **What you can test:** Admin → Communications — publish to Support Worker role with acknowledgment → sign in as `AvaThomas` / `welcome` → modal blocks until acknowledged → register shows acknowledged timestamp → export CSV.
 
-**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ (132 routes) · `npm run supabase:push-remote` ✅ (`20260728210000`) · `supabase:seed-demo-once` ✅ (access grant) · localhost smoke pending
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ (132 routes) · `npm run supabase:push-remote` ✅ (`20260728210000`) · `supabase:seed-demo-once` ✅ (access grant) · **Amplify smoke ✅** (2026-06-28, commit `bed8d6a`) — Isla (admin) published role-targeted ack-required message (est. 14 recipients); appeared in sent log; `AvaThomas` saw forced modal, acknowledged, modal did not re-show on reload; admin register showed Ava acknowledged + CSV export route. Also confirmed: a pre-existing live "all" broadcast correctly blocked the admin until acknowledged (modal gating works with real data).
 
 ---
 
