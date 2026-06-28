@@ -613,7 +613,25 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
-## TEST-077 — My Workplace: Services I can work at (AB-0030)
+## TEST-078 — Admin Communications Hub (AB-0034)
+
+| | |
+|--|--|
+| **Users** | AbilityVua Admin (`IslaRobinson` / `welcome`); recipient Support Worker (`AvaThomas` / `welcome`) |
+| **Routes** | `/admin/communications`, `/` (home after login) |
+| **Pass if** | Admin publishes role-targeted message; recipient sees forced modal; acknowledgment recorded; modal does not re-show |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in as Isla Robinson → Admin → Communications | Compose tab loads |
+| 2 | Compose title/body, audience Support Worker, require acknowledgment, Publish | Message appears in Sent messages |
+| 3 | Open sent message | Stats and acknowledgment register load |
+| 4 | Sign in as Ava Thomas → Home | Company message modal appears |
+| 5 | Wait 3s → **I have read and understood** | Modal closes; app usable |
+| 6 | Refresh home | Modal does not re-show |
+| 7 | Admin → export CSV | Download contains Ava acknowledged row |
+
+---
 
 | | |
 |--|--|

@@ -151,6 +151,7 @@ export const adminArticle: HelpArticle = {
   keywords: ["admin", "organisation", "reference data", "roles", "users", "task management", "access", "system"],
   relatedRoutes: [
     "/admin/roles",
+    "/admin/communications",
     "/system",
     "/system/organization",
     "/system/reference-data/admin",
@@ -162,10 +163,11 @@ export const adminArticle: HelpArticle = {
     "admin-organization",
     "admin-reference-data",
     "admin-roles",
+    "admin-communications",
     "admin-task-management",
     "admin-task-automations",
   ],
-  lastUpdated: "2026-06-17",
+  lastUpdated: "2026-06-28",
   sections: [
     {
       id: "system-setup",
@@ -206,6 +208,13 @@ export const adminArticle: HelpArticle = {
       body: "User accounts link to employee records on the System access tab. Assign roles per user from Admin → Roles.",
       relatedRoutes: ["/admin/roles", "/employees"],
       windowKeys: ["admin-roles", "employee-system-access"],
+    },
+    {
+      id: "communications",
+      title: "Communications hub",
+      body: "Send in-app messages to all staff or selected roles with acknowledgment tracking. See [Admin communications hub](/help/admin-communications).",
+      relatedRoutes: ["/admin/communications"],
+      windowKeys: ["admin-communications"],
     },
     {
       id: "task-management",

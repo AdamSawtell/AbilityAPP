@@ -32,7 +32,8 @@ export type AuditEntityType =
   | "organization"
   | "board-report-pack"
   | "document-template"
-  | "generated-document";
+  | "generated-document"
+  | "admin-message";
 
 export type AuditAction = "created" | "updated" | "deleted" | "converted" | "assigned" | "status_changed" | "imported";
 
@@ -109,6 +110,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   "board-report-pack": "Board report pack",
   "document-template": "Document template",
   "generated-document": "Generated document",
+  "admin-message": "Admin message",
 };
 
 export const auditActionLabels: Record<AuditAction, string> = {

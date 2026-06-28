@@ -284,6 +284,7 @@ values
   ('role-admin', 'admin-reference-data', 'write'),
   ('role-admin', 'admin-pay-periods', 'write'),
   ('role-admin', 'admin-roles', 'write'),
+  ('role-admin', 'admin-communications', 'write'),
   ('role-admin', 'admin-ai-agents', 'write'),
   ('role-board', 'home', 'write'),
   ('role-board', 'reports', 'write'),

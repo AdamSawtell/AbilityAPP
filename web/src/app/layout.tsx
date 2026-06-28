@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AdminCommunicationsGate } from "@/components/communications/admin-communications-gate";
 import { AuthGate, AuthProvider } from "@/lib/auth-store";
 import { DataProvider } from "@/lib/data-store";
 import { ReferenceDataProvider } from "@/lib/config-store";
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className="min-h-full font-sans antialiased">
         <AuthProvider>
           <AuthGate>
+            <AdminCommunicationsGate>
             <ReferenceDataProvider>
               <TaskTypeProvider>
                 <DataProvider>
@@ -66,6 +68,7 @@ export default function RootLayout({
                 </DataProvider>
               </TaskTypeProvider>
             </ReferenceDataProvider>
+            </AdminCommunicationsGate>
           </AuthGate>
         </AuthProvider>
       </body>

@@ -351,6 +351,7 @@ AI does **not** auto-save records. Staff review drafts and click Save.
 | Function | Who | Outcome | Status |
 |----------|-----|---------|--------|
 | **Roles and access** ÔÇö windows, processes, reports per role | Admin | Least-privilege security model | Live |
+| **Admin communications hub** — broadcast messages with acknowledgment register | Admin | Staff see in-app notices; compliance audit trail | Live |
 | **Organisation profile** — legal entity, logo, app theme colours, document branding, bank, GST | System admin | Branded sign-in and app shell; organisation banner; headers/footers on all documents | Live |
 | **Reference data** ÔÇö dropdowns and lookups | System admin | Consistent coding across modules | Live |
 | **User session audit** ÔÇö login sessions, risk flags | System admin | Security investigation | Live |

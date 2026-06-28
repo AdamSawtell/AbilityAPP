@@ -24,6 +24,28 @@
 
 ---
 
+---
+
+## AB-0034 — Admin Communications Hub (2026-06-28)
+
+**Status:** Shipped (local verify).
+
+**Why:** Administrators need an in-app channel to broadcast operational notices with acknowledgment audit trails — without relying on email alone.
+
+| Area | Change |
+|------|--------|
+| Data model | `admin_message`, `admin_message_acknowledgment` migration |
+| Admin UI | `/admin/communications` — compose, preview, sent log, acknowledgment register, CSV export |
+| Recipient UX | Forced acknowledgment modal (3s minimum read) + dismissible home banner; queued modals |
+| API | `/api/admin/communications`, `/api/communications/pending`, `/api/communications/acknowledge` |
+| Access | `admin-communications` window (AbilityVua Admin write in seed) |
+
+**What you can test:** Admin → Communications — publish to Support Worker role with acknowledgment → sign in as `AvaThomas` / `welcome` → modal blocks until acknowledged → register shows acknowledged timestamp → export CSV.
+
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ (132 routes) · `npm run supabase:push-remote` ✅ (`20260728210000`) · `supabase:seed-demo-once` ✅ (access grant) · localhost smoke pending
+
+---
+
 ## AB-0012 — Price Dependant Updater (2026-06-28)
 
 **Status:** Shipped.

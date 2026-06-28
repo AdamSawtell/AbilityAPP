@@ -1,3 +1,4 @@
+import { adminCommunicationsArticle } from "@/lib/help/articles/admin-communications";
 import { deliveryArticle, servicePlanningArticle } from "@/lib/help/articles/delivery";
 import { SYSTEM_SETUP_ARTICLES } from "@/lib/help/articles/system-setup";
 import { quickTaskArticles } from "@/lib/help/articles/quick-tasks";
@@ -49,6 +50,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   servicePlanningArticle,
   reportsArticle,
   adminArticle,
+  adminCommunicationsArticle,
   taskAutomationsArticle,
   documentTemplatesArticle,
   userSessionAuditArticle,

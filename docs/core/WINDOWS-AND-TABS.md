@@ -488,6 +488,7 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 | Reference data | `admin-reference-data` | `/admin/reference-data` | Workspace |
 | Pay periods | `admin-pay-periods` | `/admin/pay-periods` | Workspace |
 | Roles | `admin-roles` | `/admin/roles` | Workspace |
+| Communications hub | `admin-communications` | `/admin/communications` | Workspace |
 | AI assistants | `admin-ai-agents` | `/admin/ai-agents` | Workspace |
 
 Roles admin is where **windows** and **processes** are granted per security role.

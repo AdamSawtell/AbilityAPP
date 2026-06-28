@@ -533,6 +533,14 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: true,
   },
   {
+    key: "admin-communications",
+    label: "Communications",
+    group: "Admin",
+    href: "/admin/communications",
+    abilityErpName: "Admin communications hub",
+    showInSidebar: true,
+  },
+  {
     key: "admin-task-management",
     label: "Task management",
     group: "Admin",
