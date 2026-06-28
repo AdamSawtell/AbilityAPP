@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | AB-0011 NDIS Price Guide Importer — shipped |
 | **Next slice** | AB-0012 Price Dependant Updater (depends on AB-0011 applied batches) |
-| **Last push** | Pending — AB-0011 importer UI/apply |
+| **Last push** | Pending — AB-0011 importer UI/apply commit |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
