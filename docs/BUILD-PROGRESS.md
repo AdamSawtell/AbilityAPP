@@ -11,14 +11,37 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0011 Stage 0 — NDIS pricing foundation — shipped |
-| **Next slice** | AB-0011 importer UI/apply (after foundation verification) |
-| **Last push** | 2026-06-28 — Payroll-archived picker labels + Amplify smoke log (`74b8383`) |
+| **Active slice** | AB-0011 NDIS Price Guide Importer — shipped |
+| **Next slice** | AB-0012 Price Dependant Updater (depends on AB-0011 applied batches) |
+| **Last push** | Pending — AB-0011 importer UI/apply |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+## AB-0011 — NDIS Price Guide Importer (2026-06-28)
+
+**Status:** Shipped.
+
+**Why:** System operators need a controlled path to load NDIS support catalogue CSV files into master products and price lists with preview, audit history, and explicit apply — without mutating service agreements, bookings, claims, or invoices.
+
+| Area | Change |
+|------|--------|
+| Engine | `ndis-price-import-engine.ts` — preview, diff counts, apply (append effective-dated regional rows), revert, AB-0012 handoff row filter |
+| System UI | `/system/services/ndis-price-importer` — upload, validation preview, row review, confirm apply, import history, revert |
+| Nav / access | System Services submenu, `system-ndis-price-importer` window, page guide + help article |
+| Fixture | `web/fixtures/ndis-price/sample-2026-27-update.csv` for smoke and manual test |
+
+**Assumptions documented:** Imported products default `sold=false` until enabled in Products; 2026–27 before 2025–26 baseline is a warning not a block; revert removes batch-sourced price lines and deactivates batch-sourced products; AB-0012 route not built yet.
+
+**What you can test:** System → Services → NDIS Price Guide Importer — upload 2025–26 wide/long or 2026–27 update CSV, review counts, apply with confirmation, confirm Products/Price lists update; import history shows batch; revert on applied batch.
+
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · `npx tsc --noEmit` ✅ · `npm run lint` ❌ pre-existing unrelated failures (no AB-0011 files) · Bugbot ✅ remediated (revert row fetch, sourceImportBatchId on new products only, changed-record upserts only, apply error status) · localhost smoke **Partial** — route loads at `127.0.0.1:3000/system/services/ndis-price-importer` (System sign-in required for upload/apply) · Amplify smoke pending after push
+
+**Code review log:** 2026-06-28 — Bugbot on AB-0011 importer found revert row persistence, revert deactivating updated products, full-catalogue upsert, and apply status issues; remediated before commit.
 
 ---
 

@@ -1,0 +1,4 @@
+action,support_item_number,support_item_name,unit,national_2026_27,remote_2026_27,very_remote_2026_27,price_type_2026_27,effective_start,effective_end
+Update,01_011_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Daytime,Hour,105.00,147.00,157.50,Price limited,2026-07-01,2027-06-30
+Update,04_104_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Daytime,Hour,72.00,100.80,108.00,Price limited,2026-07-01,2027-06-30
+New,01_013_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Evening,Hour,115.00,161.00,172.50,Price limited,2026-07-01,2027-06-30

@@ -512,6 +512,7 @@ System routes use **System** sign-in (`/system/...`). Navigation: `web/src/lib/s
 | Email content | `/system/admin/document-email` | Tasks |
 | Document registry | `/system/admin/document-registry` | Tasks |
 | Reports Advance | `/system/admin/reports-advance` | Reports |
+| NDIS Price Guide Importer | `/system/services/ndis-price-importer` | Services |
 | AI assistants | `/system/ai/assistants` | AI |
 | User Session Audit | `/system/admin/user-session-audit` | Admin |
 | Process Audit | `/system/admin/process-audit` | Admin |

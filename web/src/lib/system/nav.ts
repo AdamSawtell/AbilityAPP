@@ -186,7 +186,13 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "services",
     label: "Services",
     icon: "services",
-    links: withModuleNav("services", []),
+    links: withModuleNav("services", [
+      {
+        href: "/system/services/ndis-price-importer",
+        label: "NDIS Price Guide Importer",
+        match: (p) => p.startsWith("/system/services/ndis-price-importer"),
+      },
+    ]),
   },
   {
     key: "reports",
@@ -308,6 +314,12 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/admin/document-registry",
     title: "Document registry",
     description: "Generated documents from print, batch export, and e-sign — search and audit trail.",
+  },
+  {
+    sectionKey: "services",
+    href: "/system/services/ndis-price-importer",
+    title: "NDIS Price Guide Importer",
+    description: "Upload NDIS support catalogue CSV files, preview counts, and apply master product and price list updates.",
   },
   {
     sectionKey: "reports",

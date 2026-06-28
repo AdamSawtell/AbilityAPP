@@ -623,6 +623,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "system-ndis-price-importer",
+    label: "NDIS Price Guide Importer",
+    group: "Services",
+    surface: "system",
+    href: "/system/services/ndis-price-importer",
+    abilityErpName: "NDIS Price Guide Importer",
+    showInSidebar: true,
+  },
+  {
     key: "admin-record-retention",
     label: "Record retention settings",
     group: "Admin",

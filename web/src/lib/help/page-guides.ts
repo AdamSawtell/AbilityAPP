@@ -57,6 +57,7 @@ type RouteGuideRule = {
  */
 const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   // System — specific admin setup
+  { prefix: "/system/services/ndis-price-importer", slug: "ndis-price-importer", surface: "system" },
   { prefix: "/system/admin/user-session-audit", slug: "user-session-audit", surface: "system" },
   { prefix: "/system/admin/process-audit", slug: "process-audit", surface: "system" },
   { prefix: "/system/admin/ai-query-audit", slug: "ai-query-audit", surface: "system" },
