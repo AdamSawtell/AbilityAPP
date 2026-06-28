@@ -11,7 +11,7 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0006 Vehicle and Fleet Management — verification in progress |
+| **Active slice** | AB-0006 Vehicle and Fleet Management — shipped (Amplify smoke pass) |
 | **Next slice** | Awaiting direction |
 | **Last push** | 2026-06-28 — AB-0012 smoke/Bugbot fixes (`51a0057`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
@@ -42,7 +42,15 @@
 
 **What you can test:** `/fleet` → open `VEH-001` → edit notes/save → add a booking → attempt overlapping booking (blocked) → add failed inspection/save → vehicle status changes to `off_road`.
 
-**Verification:** Pending final build, Supabase remote push, seed, localhost smoke, Bugbot, commit/push.
+**Verification (2026-06-29):**
+- `npm run build` — exit 0 (clean rebuild after `.next` cache clear)
+- `npm run page-guides:check` — exit 0 (135 routes, 0 gaps)
+- `npx tsc --noEmit` — exit 0
+- `npm run supabase:push-remote` — exit 0 (`20260729120000_fleet_vehicle_management`)
+- `npm run supabase:seed-demo-once -- --file supabase/seed-access.sql` — exit 0 (Admin + Rostering fleet grants)
+- Amplify smoke (`https://app.abilityvua.com/fleet`) — **PASS**: register + 3 vehicles + sidebar Fleet link; vehicle detail 9 tabs + audit footer; booking saved; overlapping booking blocked with conflict message.
+- Bugbot — 3 High / 2 Medium, all fixed (inspection ordering, draft-fail booking guard, no auto-reactivate on pass, rostering grants, sidebar link).
+- Push: `94c7923` (`feat: AB-0006 Vehicle and Fleet Management`).
 
 ---
 
