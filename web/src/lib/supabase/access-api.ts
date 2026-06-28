@@ -30,6 +30,35 @@ type RoleRow = {
   active: boolean;
 };
 
+/**
+ * Supabase/PostgREST caps a single SELECT at 1000 rows by default. `app_role_window`
+ * grows past that (24 roles x ~60 windows), so an un-paginated read silently drops
+ * grants for whichever roles fall beyond row 1000 — making those roles look like they
+ * have no window access in the Roles editor, and a subsequent save then prunes their
+ * real grants. Page through every row so the full access map is always loaded.
+ */
+async function selectAllRows<T>(
+  supabase: SupabaseClient,
+  table: string,
+  columns: string,
+  pageSize = 1000
+): Promise<{ data: T[]; error: { code?: string; message: string } | null }> {
+  const all: T[] = [];
+  let from = 0;
+  for (;;) {
+    const { data, error } = await supabase
+      .from(table)
+      .select(columns)
+      .range(from, from + pageSize - 1);
+    if (error) return { data: all, error };
+    const rows = (data ?? []) as T[];
+    all.push(...rows);
+    if (rows.length < pageSize) break;
+    from += pageSize;
+  }
+  return { data: all, error: null };
+}
+
 function userFromRow(row: UserRow, roleIds: string[]): AppUserRecord {
   return {
     id: row.id,
@@ -98,10 +127,21 @@ export async function fetchUsers(supabase: SupabaseClient): Promise<AppUserRecor
 export async function fetchRoles(supabase: SupabaseClient): Promise<AppRoleRecord[]> {
   const [rolesRes, windowsRes, processesRes, reportsRes, taskTypesRes] = await Promise.all([
     supabase.from("app_role").select("*").order("name"),
-    supabase.from("app_role_window").select("role_id, window_key, access_level"),
-    supabase.from("app_role_process").select("role_id, process_id"),
-    supabase.from("app_role_report").select("role_id, report_id"),
-    supabase.from("app_role_task_type").select("role_id, task_type_id, can_see, can_select, can_create"),
+    // Paginate: app_role_window exceeds PostgREST's 1000-row default cap.
+    selectAllRows<{ role_id: string; window_key: string; access_level: string | null }>(
+      supabase,
+      "app_role_window",
+      "role_id, window_key, access_level"
+    ),
+    selectAllRows<{ role_id: string; process_id: string }>(supabase, "app_role_process", "role_id, process_id"),
+    selectAllRows<{ role_id: string; report_id: string }>(supabase, "app_role_report", "role_id, report_id"),
+    selectAllRows<{
+      role_id: string;
+      task_type_id: string;
+      can_see: boolean;
+      can_select: boolean;
+      can_create: boolean;
+    }>(supabase, "app_role_task_type", "role_id, task_type_id, can_see, can_select, can_create"),
   ]);
   if (rolesRes.error) throw rolesRes.error;
   if (windowsRes.error) throw windowsRes.error;
