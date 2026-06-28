@@ -13,6 +13,7 @@
 | UAT-03-S-005 | Price lists | `/price-lists` — lines | Rates for NDIS products | **Pass** — pl-ndis-2024 linked on products |
 | UAT-03-S-006 | Contracts | `/contracts` | HR/NDIA contract record | **Pass** — contracts list loads (coordinator Services menu) |
 | UAT-03-S-007 | Business partners | `/business-partners` — plan manager | BP for billing path | **Pass** — plan manager BP on Bern (TEST-042) |
+| UAT-03-S-008 | Fleet vehicles | `/fleet` → open seeded vehicle → booking/inspection tabs | Vehicle register, bookings, service/inspection lines | Pending — AB-0006 smoke TEST-096 |
 
 ## Window checklist
 

@@ -86,6 +86,7 @@ export type IncidentRecord = {
   primaryClientId: string;
   primaryEmployeeId: string;
   primaryLocationId: string;
+  vehicleId?: string;
   linkedRestrictivePracticeId: string;
   managerReviewedAt: string;
   managerReviewedBy: string;
@@ -285,6 +286,7 @@ export function normalizeIncident(record: IncidentRecord): IncidentRecord {
 
   return {
     ...record,
+    vehicleId: record.vehicleId ?? "",
     reportDeadlineAt,
     parties: renumberParties(record.parties ?? []),
     actions: renumberActions(record.actions ?? []),

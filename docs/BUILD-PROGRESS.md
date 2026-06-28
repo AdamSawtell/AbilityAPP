@@ -11,8 +11,8 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0012 Price Dependant Updater — shipped |
-| **Next slice** | Awaiting direction (AB-0013 SCHADS not started) |
+| **Active slice** | AB-0006 Vehicle and Fleet Management — verification in progress |
+| **Next slice** | Awaiting direction |
 | **Last push** | 2026-06-28 — AB-0012 smoke/Bugbot fixes (`51a0057`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
@@ -23,6 +23,26 @@
 ---
 
 ---
+
+---
+
+## AB-0006 — Vehicle and Fleet Management (2026-06-29)
+
+**Status:** Verification in progress.
+
+**Why:** Providers need a first-class fleet register for participant transport, including registration, servicing, pre-start inspections, bookings, and vehicle links to shifts/incidents.
+
+| Area | Change |
+|------|--------|
+| Data model | `fleet_vehicle`, `fleet_service_record`, `fleet_inspection`, `fleet_fuel_log`, `fleet_booking`; `roster_shift.vehicle_id`; `incident.vehicle_id`; employee driver qualification fields |
+| App UI | `/fleet` register, `/fleet/new`, `/fleet/[id]` detail tabs for overview, calendar, registration/insurance, servicing, inspections, bookings, mileage, compliance, incidents |
+| Compliance | Booking overlap prevention; off-road gating; failed inspection marks vehicle off road; driver licence/screening warning checks |
+| Access | `fleet` parent window plus `fleet-*` tab windows; Admin seed write grants |
+| Docs | Fleet help article, page guide, core docs, database changes, TEST-096 and UAT-03 scenario |
+
+**What you can test:** `/fleet` → open `VEH-001` → edit notes/save → add a booking → attempt overlapping booking (blocked) → add failed inspection/save → vehicle status changes to `off_road`.
+
+**Verification:** Pending final build, Supabase remote push, seed, localhost smoke, Bugbot, commit/push.
 
 ---
 

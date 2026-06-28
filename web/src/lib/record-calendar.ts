@@ -11,7 +11,7 @@ import { fortnightDays, isoFromDate, monthGridDays, weekDays } from "@/lib/perso
 
 export type RecordCalendarViewMode = "fortnight" | "month" | "week" | "day";
 
-export type RecordCalendarEntityKind = "client" | "employee" | "location";
+export type RecordCalendarEntityKind = "client" | "employee" | "location" | "vehicle";
 
 export type RecordCalendarEventKind = "task" | "shift-actual" | "shift-template" | "activity";
 
@@ -57,7 +57,9 @@ function taskEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
       ? "client"
       : input.entityKind === "employee"
         ? "employee"
-        : "location";
+        : input.entityKind === "vehicle"
+          ? "fleet-vehicle"
+          : "location";
 
   return input.tasks
     .filter(
@@ -105,7 +107,9 @@ function actualShiftEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
         ? shiftMatchesClient(shift, input.entityId)
         : input.entityKind === "employee"
           ? shiftMatchesEmployee(shift, input.entityId)
-          : shift.locationId === input.entityId;
+          : input.entityKind === "vehicle"
+            ? shift.vehicleId === input.entityId
+            : shift.locationId === input.entityId;
 
     if (!matches) continue;
 
@@ -133,6 +137,7 @@ function rocLineMatches(
 ): boolean {
   if (entityKind === "client") return roc.clientId === entityId;
   if (entityKind === "employee") return line.defaultEmployeeId?.trim() === entityId;
+  if (entityKind === "vehicle") return false;
   return line.locationId?.trim() === entityId;
 }
 

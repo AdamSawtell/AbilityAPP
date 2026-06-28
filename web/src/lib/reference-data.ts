@@ -21,7 +21,8 @@ export type ReferenceDataGroup =
   | "Locations"
   | "Products & services"
   | "Contracts"
-  | "Incidents";
+  | "Incidents"
+  | "Fleet";
 
 export type ReferenceDataMeta = {
   label: string;
@@ -155,6 +156,10 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   ndisReportableType: { label: "NDIS reportable type", group: "Incidents" },
   incidentCategory: { label: "Incident category", group: "Incidents" },
   incidentServiceType: { label: "Incident service type", group: "Incidents" },
+  fleetServiceType: { label: "Fleet service type", group: "Fleet" },
+  fleetServiceCostStatus: { label: "Fleet service cost status", group: "Fleet" },
+  fleetInspectionResult: { label: "Fleet inspection result", group: "Fleet" },
+  fleetVehicleStatus: { label: "Fleet vehicle status", group: "Fleet" },
 };
 
 export type ReferenceDataKey = keyof typeof referenceDataMeta;
@@ -628,6 +633,10 @@ export const defaultReferenceData: ReferenceDataCatalog = {
     "Administration",
     "Unassigned",
   ],
+  fleetServiceType: ["Scheduled", "Repair", "Inspection", "Tyres", "Other"],
+  fleetServiceCostStatus: ["pending", "reviewed", "approved", "rejected"],
+  fleetInspectionResult: ["pass", "fail"],
+  fleetVehicleStatus: ["active", "inactive", "off_road", "disposed"],
 };
 
 /** @deprecated Use useReferenceData().getOptions instead */

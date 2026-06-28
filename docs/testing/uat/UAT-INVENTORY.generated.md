@@ -1,6 +1,6 @@
 # UAT window inventory (generated)
 
-**Generated:** 2026-06-26
+**Generated:** 2026-06-28
 **Do not edit by hand.** Regenerate with `npm run uat:inventory`.
 
 Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | Fail | Skip | N/A.
@@ -9,8 +9,8 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | Metric | Count |
 |--------|------:|
-| App windows (incl. tabs) | 140 |
-| System windows | 12 |
+| App windows (incl. tabs) | 156 |
+| System windows | 14 |
 | Access processes | 48 |
 | Reports | 10 |
 
@@ -51,25 +51,26 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-02-W-002 | `client-overview` | Overview | tab: Overview | clients | |
 | UAT-02-W-003 | `client-alerts` | Alerts | tab: Alerts | clients | |
 | UAT-02-W-004 | `client-activity` | Activity | tab: Activity | clients | |
-| UAT-02-W-005 | `client-full-profile` | Full profile | tab: Full profile | clients | |
-| UAT-02-W-006 | `client-bp-associations` | BP Associations | tab: BP Associations | clients | |
-| UAT-02-W-007 | `client-locations` | Locations | tab: Locations | clients | |
-| UAT-02-W-008 | `client-incidents` | Incidents | tab: Incidents | clients | |
-| UAT-02-W-009 | `client-requests` | Requests | tab: Requests | clients | |
-| UAT-02-W-010 | `client-restrictive-practices` | Restrictive Practices | tab: Restrictive Practices | clients | |
-| UAT-02-W-011 | `client-consents-and-legal-orders` | Consents and Legal Orders | tab: Consents and Legal Orders | clients | |
-| UAT-02-W-012 | `client-plan-budget` | Plan budget | tab: Plan budget | clients | |
-| UAT-02-W-013 | `client-monthly-service-plan` | Monthly service plan | tab: Monthly service plan | clients | |
-| UAT-02-W-014 | `client-plan-and-assessment` | Plan & Assessment | tab: Plan & Assessment | clients | |
-| UAT-02-W-015 | `client-support-plan` | Support Plan | tab: Support Plan | clients | |
-| UAT-02-W-016 | `client-goals` | Goals | tab: Goals | clients | |
-| UAT-02-W-017 | `client-progress-review` | Progress Review | tab: Progress Review | clients | |
-| UAT-02-W-018 | `client-contact-activity` | Contact Activity | tab: Contact Activity | clients | |
-| UAT-02-W-019 | `client-risks` | Risks | tab: Risks | clients | |
-| UAT-02-W-020 | `client-service-agreements` | Service agreements | tab: Service agreements | clients | |
-| UAT-02-W-021 | `client-service-bookings` | Service bookings | tab: Service bookings | clients | |
-| UAT-02-W-022 | `client-roster-of-care` | Roster of care | tab: Roster of care | clients | |
-| UAT-02-W-023 | `client-support-receiver-needs-and-rules` | Support Receiver Needs and Rules | tab: Support Receiver Needs and Rules | clients | |
+| UAT-02-W-005 | `client-calendar` | Calendar | tab: Calendar | clients | |
+| UAT-02-W-006 | `client-full-profile` | Full profile | tab: Full profile | clients | |
+| UAT-02-W-007 | `client-bp-associations` | BP Associations | tab: BP Associations | clients | |
+| UAT-02-W-008 | `client-locations` | Locations | tab: Locations | clients | |
+| UAT-02-W-009 | `client-incidents` | Incidents | tab: Incidents | clients | |
+| UAT-02-W-010 | `client-requests` | Requests | tab: Requests | clients | |
+| UAT-02-W-011 | `client-restrictive-practices` | Restrictive Practices | tab: Restrictive Practices | clients | |
+| UAT-02-W-012 | `client-consents-and-legal-orders` | Consents and Legal Orders | tab: Consents and Legal Orders | clients | |
+| UAT-02-W-013 | `client-plan-budget` | Plan budget | tab: Plan budget | clients | |
+| UAT-02-W-014 | `client-monthly-service-plan` | Monthly service plan | tab: Monthly service plan | clients | |
+| UAT-02-W-015 | `client-plan-and-assessment` | Plan & Assessment | tab: Plan & Assessment | clients | |
+| UAT-02-W-016 | `client-support-plan` | Support Plan | tab: Support Plan | clients | |
+| UAT-02-W-017 | `client-goals` | Goals | tab: Goals | clients | |
+| UAT-02-W-018 | `client-progress-review` | Progress Review | tab: Progress Review | clients | |
+| UAT-02-W-019 | `client-contact-activity` | Contact Activity | tab: Contact Activity | clients | |
+| UAT-02-W-020 | `client-risks` | Risks | tab: Risks | clients | |
+| UAT-02-W-021 | `client-service-agreements` | Service agreements | tab: Service agreements | clients | |
+| UAT-02-W-022 | `client-service-bookings` | Service bookings | tab: Service bookings | clients | |
+| UAT-02-W-023 | `client-roster-of-care` | Roster of care | tab: Roster of care | clients | |
+| UAT-02-W-024 | `client-support-receiver-needs-and-rules` | Support Receiver Needs and Rules | tab: Support Receiver Needs and Rules | clients | |
 
 ## UAT-03
 
@@ -77,24 +78,26 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 |--------|------------|-------|-------------|--------|--------|
 | UAT-03-W-001 | `location-overview` | Overview | tab: Overview | locations | |
 | UAT-03-W-002 | `location-activity` | Activity | tab: Activity | locations | |
-| UAT-03-W-003 | `location-contact-and-address` | Contact & address | tab: Contact & address | locations | |
-| UAT-03-W-004 | `location-alerts` | Alerts | tab: Alerts | locations | |
-| UAT-03-W-005 | `location-clients` | Clients | tab: Clients | locations | |
-| UAT-03-W-006 | `location-employees` | Employees | tab: Employees | locations | |
-| UAT-03-W-007 | `location-incidents` | Incidents | tab: Incidents | locations | |
-| UAT-03-W-008 | `location-site-orientation` | Site orientation | tab: Site orientation | locations | |
-| UAT-03-W-009 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
-| UAT-03-W-010 | `locations` | Locations | /locations | — | |
-| UAT-03-W-011 | `business-partners` | Business partners | /business-partners | — | |
-| UAT-03-W-012 | `products` | Products | /products | — | |
-| UAT-03-W-013 | `product-overview` | Overview | tab: Overview | products | |
-| UAT-03-W-014 | `product-pricing` | Pricing | tab: Pricing | products | |
-| UAT-03-W-015 | `price-lists` | Price lists | /price-lists | — | |
-| UAT-03-W-016 | `price-list-overview` | Overview | tab: Overview | price-lists | |
-| UAT-03-W-017 | `price-list-lines` | Lines | tab: Lines | price-lists | |
-| UAT-03-W-018 | `contracts` | Contracts | /contracts | — | |
-| UAT-03-W-019 | `contract-overview` | Overview | tab: Overview | contracts | |
-| UAT-03-W-020 | `contract-audit` | Audit | tab: Audit | contracts | |
+| UAT-03-W-003 | `location-calendar` | Calendar | tab: Calendar | locations | |
+| UAT-03-W-004 | `location-contact-and-address` | Contact & address | tab: Contact & address | locations | |
+| UAT-03-W-005 | `location-alerts` | Alerts | tab: Alerts | locations | |
+| UAT-03-W-006 | `location-clients` | Clients | tab: Clients | locations | |
+| UAT-03-W-007 | `location-employees` | Employees | tab: Employees | locations | |
+| UAT-03-W-008 | `location-incidents` | Incidents | tab: Incidents | locations | |
+| UAT-03-W-009 | `location-site-orientation` | Site orientation | tab: Site orientation | locations | |
+| UAT-03-W-010 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
+| UAT-03-W-011 | `locations` | Locations | /locations | — | |
+| UAT-03-W-012 | `locations-see-all` | Unrestricted location access (can see all) | /locations | locations | |
+| UAT-03-W-013 | `business-partners` | Business partners | /business-partners | — | |
+| UAT-03-W-014 | `products` | Products | /products | — | |
+| UAT-03-W-015 | `product-overview` | Overview | tab: Overview | products | |
+| UAT-03-W-016 | `product-pricing` | Pricing | tab: Pricing | products | |
+| UAT-03-W-017 | `price-lists` | Price lists | /price-lists | — | |
+| UAT-03-W-018 | `price-list-overview` | Overview | tab: Overview | price-lists | |
+| UAT-03-W-019 | `price-list-lines` | Lines | tab: Lines | price-lists | |
+| UAT-03-W-020 | `contracts` | Contracts | /contracts | — | |
+| UAT-03-W-021 | `contract-overview` | Overview | tab: Overview | contracts | |
+| UAT-03-W-022 | `contract-audit` | Audit | tab: Audit | contracts | |
 
 ## UAT-04
 
@@ -164,27 +167,28 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 |--------|------------|-------|-------------|--------|--------|
 | UAT-10-W-001 | `employee-overview` | Overview | tab: Overview | employees | |
 | UAT-10-W-002 | `employee-activity` | Activity | tab: Activity | employees | |
-| UAT-10-W-003 | `employee-contact` | Contact | tab: Contact | employees | |
-| UAT-10-W-004 | `employee-locations` | Address | tab: Address | employees | |
-| UAT-10-W-005 | `employee-emergency-contacts` | Emergency contacts | tab: Emergency contacts | employees | |
-| UAT-10-W-006 | `employee-employment` | Employment | tab: Employment | employees | |
-| UAT-10-W-007 | `employee-work-rights` | Work rights | tab: Work rights | employees | |
-| UAT-10-W-008 | `employee-payroll` | Payroll | tab: Payroll | employees | |
-| UAT-10-W-009 | `employee-leave` | Leave | tab: Leave | employees | |
-| UAT-10-W-010 | `employee-incidents` | Incidents | tab: Incidents | employees | |
-| UAT-10-W-011 | `employee-schedule` | Schedule | tab: Schedule | employees | |
-| UAT-10-W-012 | `employee-schedule-template` | Schedule template | tab: Schedule template | employees | |
-| UAT-10-W-013 | `employee-credentials-assigned` | Credentials Assigned | tab: Credentials Assigned | employees | |
-| UAT-10-W-014 | `employee-alerts` | Alerts | tab: Alerts | employees | |
-| UAT-10-W-015 | `employee-documents` | Documents | tab: Documents | employees | |
-| UAT-10-W-016 | `employee-skills` | Skills & languages | tab: Skills & languages | employees | |
-| UAT-10-W-017 | `employee-system-access` | System access | tab: System access | employees | |
-| UAT-10-W-018 | `employees` | Employees | /employees | — | |
-| UAT-10-W-019 | `workforce-planning` | Workforce planning | /workforce-planning | — | |
-| UAT-10-W-020 | `workforce-organisation` | Organisation structure | /workforce-planning/organisation | workforce-planning | |
-| UAT-10-W-021 | `training-meetings` | Training and meetings | /workforce-planning/training | workforce-planning | |
-| UAT-10-W-022 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | |
-| UAT-10-W-023 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | |
+| UAT-10-W-003 | `employee-calendar` | Calendar | tab: Calendar | employees | |
+| UAT-10-W-004 | `employee-contact` | Contact | tab: Contact | employees | |
+| UAT-10-W-005 | `employee-locations` | Address | tab: Address | employees | |
+| UAT-10-W-006 | `employee-emergency-contacts` | Emergency contacts | tab: Emergency contacts | employees | |
+| UAT-10-W-007 | `employee-employment` | Employment | tab: Employment | employees | |
+| UAT-10-W-008 | `employee-work-rights` | Work rights | tab: Work rights | employees | |
+| UAT-10-W-009 | `employee-payroll` | Payroll | tab: Payroll | employees | |
+| UAT-10-W-010 | `employee-leave` | Leave | tab: Leave | employees | |
+| UAT-10-W-011 | `employee-incidents` | Incidents | tab: Incidents | employees | |
+| UAT-10-W-012 | `employee-schedule` | Schedule | tab: Schedule | employees | |
+| UAT-10-W-013 | `employee-schedule-template` | Schedule template | tab: Schedule template | employees | |
+| UAT-10-W-014 | `employee-credentials-assigned` | Credentials Assigned | tab: Credentials Assigned | employees | |
+| UAT-10-W-015 | `employee-alerts` | Alerts | tab: Alerts | employees | |
+| UAT-10-W-016 | `employee-documents` | Documents | tab: Documents | employees | |
+| UAT-10-W-017 | `employee-skills` | Skills & languages | tab: Skills & languages | employees | |
+| UAT-10-W-018 | `employee-system-access` | System access | tab: System access | employees | |
+| UAT-10-W-019 | `employees` | Employees | /employees | — | |
+| UAT-10-W-020 | `workforce-planning` | Workforce planning | /workforce-planning | — | |
+| UAT-10-W-021 | `workforce-organisation` | Organisation structure | /workforce-planning/organisation | workforce-planning | |
+| UAT-10-W-022 | `training-meetings` | Training and meetings | /workforce-planning/training | workforce-planning | |
+| UAT-10-W-023 | `workforce-org-edit` | Edit organisation structure | — | workforce-organisation | |
+| UAT-10-W-024 | `workforce-org-chart-tier` | Edit org chart tiers | — | workforce-organisation | |
 
 ## UAT-11
 
@@ -218,28 +222,42 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-13-W-001 | `reports-advance` | Reports Advance | /system/admin/reports-advance | reports | |
 | UAT-13-W-002 | `admin-organization` | Organisation | /admin/organization | — | |
 | UAT-13-W-003 | `admin-reference-data` | Reference data | /admin/reference-data | — | |
-| UAT-13-W-004 | `admin-roles` | Roles | /admin/roles | — | |
-| UAT-13-W-005 | `admin-task-management` | Task management | /system/admin/task-management | — | |
-| UAT-13-W-006 | `admin-task-automations` | Task automations | /system/admin/task-automations | — | |
-| UAT-13-W-007 | `admin-document-templates` | Document templates | /system/admin/document-templates | — | |
-| UAT-13-W-008 | `admin-document-email` | Email content | /system/admin/document-email | — | |
-| UAT-13-W-009 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | |
-| UAT-13-W-010 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | |
-| UAT-13-W-011 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | |
-| UAT-13-W-012 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
-| UAT-13-W-013 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
-| UAT-13-W-014 | `system-incident-management` | Incident management | /system/settings/incident-management | — | |
-| UAT-13-W-015 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
-| UAT-13-W-016 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
+| UAT-13-W-004 | `admin-pay-periods` | Pay periods | /admin/pay-periods | — | |
+| UAT-13-W-005 | `admin-roles` | Roles | /admin/roles | — | |
+| UAT-13-W-006 | `admin-communications` | Communications | /admin/communications | — | |
+| UAT-13-W-007 | `admin-task-management` | Task management | /system/admin/task-management | — | |
+| UAT-13-W-008 | `admin-task-automations` | Task automations | /system/admin/task-automations | — | |
+| UAT-13-W-009 | `admin-document-templates` | Document templates | /system/admin/document-templates | — | |
+| UAT-13-W-010 | `admin-document-email` | Email content | /system/admin/document-email | — | |
+| UAT-13-W-011 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | |
+| UAT-13-W-012 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | |
+| UAT-13-W-013 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | |
+| UAT-13-W-014 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
+| UAT-13-W-015 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
+| UAT-13-W-016 | `system-incident-management` | Incident management | /system/settings/incident-management | — | |
+| UAT-13-W-017 | `system-price-update-review` | Price Dependant Updater | /system/services/price-update-review | — | |
+| UAT-13-W-018 | `system-ndis-price-importer` | NDIS Price Guide Importer | /system/services/ndis-price-importer | — | |
+| UAT-13-W-019 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
+| UAT-13-W-020 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
 
 ## UAT-99
 
 | UAT ID | Window key | Label | Route / tab | Parent | Result |
 |--------|------------|-------|-------------|--------|--------|
-| UAT-99-W-001 | `agency-workers` | Agency workers | /agency-workers | — | |
-| UAT-99-W-002 | `agency-timesheets` | Agency timesheets | /agency-timesheets | — | |
-| UAT-99-W-003 | `generate-agency-timesheets` | Generate agency timesheets | /generate-agency-timesheets | — | |
-| UAT-99-W-004 | `vendor-invoices` | Vendor invoices | /vendor-invoices | — | |
+| UAT-99-W-001 | `fleet-overview` | Overview | tab: Overview | fleet | |
+| UAT-99-W-002 | `fleet-calendar` | Calendar | tab: Calendar | fleet | |
+| UAT-99-W-003 | `fleet-registration-and-insurance` | Registration & insurance | tab: Registration & insurance | fleet | |
+| UAT-99-W-004 | `fleet-servicing` | Servicing | tab: Servicing | fleet | |
+| UAT-99-W-005 | `fleet-inspections` | Inspections | tab: Inspections | fleet | |
+| UAT-99-W-006 | `fleet-bookings` | Bookings | tab: Bookings | fleet | |
+| UAT-99-W-007 | `fleet-fuel-and-mileage` | Fuel & mileage | tab: Fuel & mileage | fleet | |
+| UAT-99-W-008 | `fleet-accessibility-and-compliance` | Accessibility & compliance | tab: Accessibility & compliance | fleet | |
+| UAT-99-W-009 | `fleet-incidents` | Incidents | tab: Incidents | fleet | |
+| UAT-99-W-010 | `fleet` | Fleet | /fleet | — | |
+| UAT-99-W-011 | `agency-workers` | Agency workers | /agency-workers | — | |
+| UAT-99-W-012 | `agency-timesheets` | Agency timesheets | /agency-timesheets | — | |
+| UAT-99-W-013 | `generate-agency-timesheets` | Generate agency timesheets | /generate-agency-timesheets | — | |
+| UAT-99-W-014 | `vendor-invoices` | Vendor invoices | /vendor-invoices | — | |
 
 ## Processes (UAT-15)
 

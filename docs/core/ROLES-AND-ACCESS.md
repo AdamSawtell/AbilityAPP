@@ -171,6 +171,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | AI prepare record | Write on target module | Process `ai-prepare-record` |
 | Workspace roles admin | Admin | `admin-roles` |
 | Admin communications hub | Admin | `admin-communications` (write) — compose, close/reopen, register, CSV export |
+| Fleet management | Admin / Rostering | `fleet` + `fleet-*` tab windows — Admin, Rostering Manager, and Rostering Officer in seed |
 | Session / process / AI audit | Security, Admin | System → Admin |
 
 ---
@@ -185,6 +186,8 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | View invoices | `invoices` (read) | — |
 | Issue invoice to plan manager | `invoices` (write) | `send-invoice` |
 | Convert enquiry | `enquiries` (write) | `enquiry-to-client` |
+| Book a fleet vehicle | `fleet-bookings` (write) | — |
+| Record pre-start inspection | `fleet-inspections` (write) | — |
 
 A user with **Write** on invoices but **without** `send-invoice` can edit records but will not see **Send via Email**.
 

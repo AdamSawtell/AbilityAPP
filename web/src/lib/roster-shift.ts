@@ -21,6 +21,7 @@ export type RosterShiftRecord = {
   clientId: string;
   employeeId: string;
   locationId: string;
+  vehicleId?: string;
   serviceBookingId: string;
   shiftDate: string;
   startTime: string;
@@ -479,6 +480,7 @@ export function normalizeRosterShift(record: RosterShiftRecord): RosterShiftReco
       clientId: record.clientId ?? "",
       employeeId: record.employeeId ?? "",
       locationId: record.locationId ?? "",
+      vehicleId: record.vehicleId ?? "",
       serviceBookingId: record.serviceBookingId ?? "",
       shiftDate: record.shiftDate ?? "",
       startTime: record.startTime?.slice(0, 5) ?? "",

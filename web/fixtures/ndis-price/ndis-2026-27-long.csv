@@ -1,0 +1,987 @@
+﻿support_item_number,support_item_name,jurisdiction,price,unit,effective_start,effective_end,schedule,table
+01_002_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Night,National,$82.57,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_002_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Night,Remote,$115.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_002_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Night,Very Remote,$123.86,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_010_0107_1_1,Assistance With Self-Care Activities - Night-Time Sleepover,National,$311.79,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_010_0107_1_1,Assistance With Self-Care Activities - Night-Time Sleepover,Remote,$436.51,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_010_0107_1_1,Assistance With Self-Care Activities - Night-Time Sleepover,Very Remote,$467.69,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_011_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_011_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_011_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_012_0107_1_1,Assistance With Self-Care Activities - Standard - Public Holiday,National,$163.46,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_012_0107_1_1,Assistance With Self-Care Activities - Standard - Public Holiday,Remote,$228.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_012_0107_1_1,Assistance With Self-Care Activities - Standard - Public Holiday,Very Remote,$245.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_013_0107_1_1,Assistance With Self-Care Activities - Standard - Saturday,National,$103.54,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_013_0107_1_1,Assistance With Self-Care Activities - Standard - Saturday,Remote,$144.96,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_013_0107_1_1,Assistance With Self-Care Activities - Standard - Saturday,Very Remote,$155.31,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_014_0107_1_1,Assistance With Self-Care Activities - Standard - Sunday,National,$133.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_014_0107_1_1,Assistance With Self-Care Activities - Standard - Sunday,Remote,$186.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_014_0107_1_1,Assistance With Self-Care Activities - Standard - Sunday,Very Remote,$200.25,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_015_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Evening,National,$81.07,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_015_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Evening,Remote,$113.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_015_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Evening,Very Remote,$121.61,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_200_0115_1_1,Short Term Accommodation - Standard - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_200_0115_1_1,Short Term Accommodation - Standard - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_200_0115_1_1,Short Term Accommodation - Standard - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_201_0115_1_1,Short Term Accommodation - Standard - Weekday Evening,National,$81.07,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_201_0115_1_1,Short Term Accommodation - Standard - Weekday Evening,Remote,$113.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_201_0115_1_1,Short Term Accommodation - Standard - Weekday Evening,Very Remote,$121.61,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_202_0115_1_1,Short Term Accommodation - Standard - Saturday,National,$103.54,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_202_0115_1_1,Short Term Accommodation - Standard - Saturday,Remote,$144.96,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_202_0115_1_1,Short Term Accommodation - Standard - Saturday,Very Remote,$155.31,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_203_0115_1_1,Short Term Accommodation - Standard - Sunday,National,$133.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_203_0115_1_1,Short Term Accommodation - Standard - Sunday,Remote,$186.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_203_0115_1_1,Short Term Accommodation - Standard - Sunday,Very Remote,$200.25,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_204_0115_1_1,Short Term Accommodation - Standard - Public Holiday,National,$163.46,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_204_0115_1_1,Short Term Accommodation - Standard - Public Holiday,Remote,$228.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_204_0115_1_1,Short Term Accommodation - Standard - Public Holiday,Very Remote,$245.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_205_0115_1_1,Short Term Accommodation - Standard - Weekday Night,National,$82.57,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_205_0115_1_1,Short Term Accommodation - Standard - Weekday Night,Remote,$115.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_205_0115_1_1,Short Term Accommodation - Standard - Weekday Night,Very Remote,$123.86,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_206_0115_1_1,Short Term Accommodation - Sleepover,National,$311.79,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_206_0115_1_1,Short Term Accommodation - Sleepover,Remote,$436.51,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_206_0115_1_1,Short Term Accommodation - Sleepover,Very Remote,$467.69,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_801_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_801_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_801_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_802_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Evening,National,$81.07,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_802_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Evening,Remote,$113.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_802_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Evening,Very Remote,$121.61,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_803_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Night,National,$82.57,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_803_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Night,Remote,$115.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_803_0115_1_1,Assistance in Supported Independent Living - Standard - Weekday Night,Very Remote,$123.86,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_804_0115_1_1,Assistance in Supported Independent Living - Standard - Saturday,National,$103.54,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_804_0115_1_1,Assistance in Supported Independent Living - Standard - Saturday,Remote,$144.96,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_804_0115_1_1,Assistance in Supported Independent Living - Standard - Saturday,Very Remote,$155.31,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_805_0115_1_1,Assistance in Supported Independent Living - Standard - Sunday,National,$133.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_805_0115_1_1,Assistance in Supported Independent Living - Standard - Sunday,Remote,$186.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_805_0115_1_1,Assistance in Supported Independent Living - Standard - Sunday,Very Remote,$200.25,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_806_0115_1_1,Assistance in Supported Independent Living - Standard - Public Holiday,National,$163.46,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_806_0115_1_1,Assistance in Supported Independent Living - Standard - Public Holiday,Remote,$228.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_806_0115_1_1,Assistance in Supported Independent Living - Standard - Public Holiday,Very Remote,$245.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_832_0115_1_1,Assistance in Supported Independent Living - Night-Time Sleepover,National,$311.79,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_832_0115_1_1,Assistance in Supported Independent Living - Night-Time Sleepover,Remote,$436.51,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_832_0115_1_1,Assistance in Supported Independent Living - Night-Time Sleepover,Very Remote,$467.69,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_801_0138_1_1,Supported Independent Living - Standard - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_801_0138_1_1,Supported Independent Living - Standard - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_801_0138_1_1,Supported Independent Living - Standard - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_802_0138_1_1,Supported Independent Living - Standard - Weekday Evening,National,$81.07,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_802_0138_1_1,Supported Independent Living - Standard - Weekday Evening,Remote,$113.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_802_0138_1_1,Supported Independent Living - Standard - Weekday Evening,Very Remote,$121.61,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_803_0138_1_1,Supported Independent Living - Standard - Weekday Night,National,$82.57,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_803_0138_1_1,Supported Independent Living - Standard - Weekday Night,Remote,$115.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_803_0138_1_1,Supported Independent Living - Standard - Weekday Night,Very Remote,$123.86,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_804_0138_1_1,Supported Independent Living - Standard - Saturday,National,$103.54,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_804_0138_1_1,Supported Independent Living - Standard - Saturday,Remote,$144.96,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_804_0138_1_1,Supported Independent Living - Standard - Saturday,Very Remote,$155.31,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_805_0138_1_1,Supported Independent Living - Standard - Sunday,National,$133.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_805_0138_1_1,Supported Independent Living - Standard - Sunday,Remote,$186.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_805_0138_1_1,Supported Independent Living - Standard - Sunday,Very Remote,$200.25,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_806_0138_1_1,Supported Independent Living - Standard - Public Holiday,National,$163.46,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_806_0138_1_1,Supported Independent Living - Standard - Public Holiday,Remote,$228.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_806_0138_1_1,Supported Independent Living - Standard - Public Holiday,Very Remote,$245.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_832_0138_1_1,Supported Independent Living - Night-Time Sleepover,National,$311.79,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_832_0138_1_1,Supported Independent Living - Night-Time Sleepover,Remote,$436.51,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_832_0138_1_1,Supported Independent Living - Night-Time Sleepover,Very Remote,$467.69,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_049_0104_1_1,Establishment Fee For Personal Care/Participation,National,$735.80,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_049_0104_1_1,Establishment Fee For Personal Care/Participation,Remote,"$1,030.12",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_049_0104_1_1,Establishment Fee For Personal Care/Participation,Very Remote,"$1,103.70",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_049_0107_1_1,Establishment Fee For Personal Care/Participation,National,$735.80,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_049_0107_1_1,Establishment Fee For Personal Care/Participation,Remote,"$1,030.12",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_049_0107_1_1,Establishment Fee For Personal Care/Participation,Very Remote,"$1,103.70",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0104_1_1,Establishment Fee For Personal Care/Participation,National,$735.80,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0104_1_1,Establishment Fee For Personal Care/Participation,Remote,"$1,030.12",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0104_1_1,Establishment Fee For Personal Care/Participation,Very Remote,"$1,103.70",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0125_1_1,Establishment Fee For Personal Care/Participation,National,$735.80,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0125_1_1,Establishment Fee For Personal Care/Participation,Remote,"$1,030.12",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0125_1_1,Establishment Fee For Personal Care/Participation,Very Remote,"$1,103.70",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0133_5_1,Establishment Fee For Personal Care/Participation,National,$735.80,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0133_5_1,Establishment Fee For Personal Care/Participation,Remote,"$1,030.12",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0133_5_1,Establishment Fee For Personal Care/Participation,Very Remote,"$1,103.70",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0136_1_1,Establishment Fee For Personal Care/Participation,National,$735.80,Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0136_1_1,Establishment Fee For Personal Care/Participation,Remote,"$1,030.12",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_049_0136_1_1,Establishment Fee For Personal Care/Participation,Very Remote,"$1,103.70",Each,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_102_0125_6_1,Access Community Social and Rec Activ - Standard - Public Holiday,National,$163.46,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_102_0125_6_1,Access Community Social and Rec Activ - Standard - Public Holiday,Remote,$228.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_102_0125_6_1,Access Community Social and Rec Activ - Standard - Public Holiday,Very Remote,$245.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_105_0125_6_1,Access Community Social and Rec Activ - Standard - Saturday,National,$103.54,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_105_0125_6_1,Access Community Social and Rec Activ - Standard - Saturday,Remote,$144.96,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_105_0125_6_1,Access Community Social and Rec Activ - Standard - Saturday,Very Remote,$155.31,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_106_0125_6_1,Access Community Social and Rec Activ - Standard - Sunday,National,$133.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_106_0125_6_1,Access Community Social and Rec Activ - Standard - Sunday,Remote,$186.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_106_0125_6_1,Access Community Social and Rec Activ - Standard - Sunday,Very Remote,$200.25,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_103_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Evening,National,$81.07,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_103_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Evening,Remote,$113.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_103_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Evening,Very Remote,$121.61,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_104_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_104_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_104_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_106_0136_6_1,Group Activities - Standard - Public Holiday,National,$163.46,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_106_0136_6_1,Group Activities - Standard - Public Holiday,Remote,$228.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_106_0136_6_1,Group Activities - Standard - Public Holiday,Very Remote,$245.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_104_0136_6_1,Group Activities - Standard - Saturday,National,$103.54,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_104_0136_6_1,Group Activities - Standard - Saturday,Remote,$144.96,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_104_0136_6_1,Group Activities - Standard - Saturday,Very Remote,$155.31,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_105_0136_6_1,Group Activities - Standard - Sunday,National,$133.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_105_0136_6_1,Group Activities - Standard - Sunday,Remote,$186.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_105_0136_6_1,Group Activities - Standard - Sunday,Very Remote,$200.25,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_102_0136_6_1,Group Activities - Standard - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_102_0136_6_1,Group Activities - Standard - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_102_0136_6_1,Group Activities - Standard - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_103_0136_6_1,Group Activities - Standard - Weekday Evening,National,$81.07,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_103_0136_6_1,Group Activities - Standard - Weekday Evening,Remote,$113.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_103_0136_6_1,Group Activities - Standard - Weekday Evening,Very Remote,$121.61,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_801_0133_5_1,Supports in Employment - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_801_0133_5_1,Supports in Employment - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_801_0133_5_1,Supports in Employment - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_802_0133_5_1,Supports in Employment - Weekday Evening,National,$81.07,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_802_0133_5_1,Supports in Employment - Weekday Evening,Remote,$113.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_802_0133_5_1,Supports in Employment - Weekday Evening,Very Remote,$121.61,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_803_0133_5_1,Supports in Employment - Saturday,National,$103.54,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_803_0133_5_1,Supports in Employment - Saturday,Remote,$144.96,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_803_0133_5_1,Supports in Employment - Saturday,Very Remote,$155.31,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_804_0133_5_1,Supports in Employment - Sunday,National,$133.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_804_0133_5_1,Supports in Employment - Sunday,Remote,$186.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_804_0133_5_1,Supports in Employment - Sunday,Very Remote,$200.25,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_805_0133_5_1,Supports in Employment - Public Holiday,National,$163.46,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_805_0133_5_1,Supports in Employment - Public Holiday,Remote,$228.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+04_805_0133_5_1,Supports in Employment - Public Holiday,Very Remote,$245.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+10_806_0133_5_1,Supports in Employment - Weekday Daytime,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+10_806_0133_5_1,Supports in Employment - Weekday Daytime,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+10_806_0133_5_1,Supports in Employment - Weekday Daytime,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+15_035_0106_1_3,Assistance With Decision Making Daily Planning and Budgeting,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+15_035_0106_1_3,Assistance With Decision Making Daily Planning and Budgeting,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+15_035_0106_1_3,Assistance With Decision Making Daily Planning and Budgeting,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+15_037_0117_1_3,Skill Development And Training including Public Transport Training,National,$73.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+15_037_0117_1_3,Skill Development And Training including Public Transport Training,Remote,$103.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+15_037_0117_1_3,Skill Development And Training including Public Transport Training,Very Remote,$110.37,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_066_0115_1_1,Unplanned onsite shared supports in Specialist Disability Accommodation,National,"$1,616.26",Week,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_066_0115_1_1,Unplanned onsite shared supports in Specialist Disability Accommodation,Remote,"$2,262.76",Week,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_066_0115_1_1,Unplanned onsite shared supports in Specialist Disability Accommodation,Very Remote,"$2,424.39",Week,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 1
+01_450_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0107_1_1,Intensive and Complex Behaviour Supports - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0107_1_1,Intensive and Complex Behaviour Supports - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0107_1_1,Intensive and Complex Behaviour Supports - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0107_1_1,Intensive and Complex Behaviour Supports - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0107_1_1,Intensive and Complex Behaviour Supports - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0107_1_1,Intensive and Complex Behaviour Supports - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0107_1_1,Intensive and Complex Behaviour Supports - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0107_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0107_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Night,National,$89.32,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Night,Remote,$125.05,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0107_1_1,Intensive and Complex Behaviour Supports - Weekday Night,Very Remote,$133.98,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_400_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_400_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_400_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_401_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_401_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_401_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_402_0104_1_1,Assistance With Self-Care Activities - High Intensity - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_402_0104_1_1,Assistance With Self-Care Activities - High Intensity - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_402_0104_1_1,Assistance With Self-Care Activities - High Intensity - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_403_0104_1_1,Assistance With Self-Care Activities - High Intensity - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_403_0104_1_1,Assistance With Self-Care Activities - High Intensity - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_403_0104_1_1,Assistance With Self-Care Activities - High Intensity - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_404_0104_1_1,Assistance With Self-Care Activities - High Intensity - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_404_0104_1_1,Assistance With Self-Care Activities - High Intensity - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_404_0104_1_1,Assistance With Self-Care Activities - High Intensity - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_405_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Night,National,$89.32,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_405_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Night,Remote,$125.05,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_405_0104_1_1,Assistance With Self-Care Activities - High Intensity - Weekday Night,Very Remote,$133.98,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_252_0115_1_1,Short Term Accommodation - High Intensity - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_252_0115_1_1,Short Term Accommodation - High Intensity - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_252_0115_1_1,Short Term Accommodation - High Intensity - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_253_0115_1_1,Short Term Accommodation - High Intensity - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_253_0115_1_1,Short Term Accommodation - High Intensity - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_253_0115_1_1,Short Term Accommodation - High Intensity - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_254_0115_1_1,Short Term Accommodation - High Intensity - Weekday Night,National,$89.32,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_254_0115_1_1,Short Term Accommodation - High Intensity - Weekday Night,Remote,$125.05,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_254_0115_1_1,Short Term Accommodation - High Intensity - Weekday Night,Very Remote,$133.98,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_255_0115_1_1,Short Term Accommodation - High Intensity - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_255_0115_1_1,Short Term Accommodation - High Intensity - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_255_0115_1_1,Short Term Accommodation - High Intensity - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_256_0115_1_1,Short Term Accommodation - High Intensity - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_256_0115_1_1,Short Term Accommodation - High Intensity - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_256_0115_1_1,Short Term Accommodation - High Intensity - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_257_0115_1_1,Short Term Accommodation - High Intensity - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_257_0115_1_1,Short Term Accommodation - High Intensity - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_257_0115_1_1,Short Term Accommodation - High Intensity - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0115_1_1,Intensive and Complex Behaviour Supports - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0115_1_1,Intensive and Complex Behaviour Supports - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0115_1_1,Intensive and Complex Behaviour Supports - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0115_1_1,Intensive and Complex Behaviour Supports - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0115_1_1,Intensive and Complex Behaviour Supports - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0115_1_1,Intensive and Complex Behaviour Supports - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0115_1_1,Intensive and Complex Behaviour Supports - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0115_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0115_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Night,National,$89.32,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Night,Remote,$125.05,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0115_1_1,Intensive and Complex Behaviour Supports - Weekday Night,Very Remote,$133.98,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_811_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_811_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_811_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_812_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_812_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_812_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_813_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Night,National,$89.32,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_813_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Night,Remote,$125.05,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_813_0115_1_1,Assistance in Supported Independent Living - High Intensity - Weekday Night,Very Remote,$133.98,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_814_0115_1_1,Assistance in Supported Independent Living - High Intensity - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_814_0115_1_1,Assistance in Supported Independent Living - High Intensity - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_814_0115_1_1,Assistance in Supported Independent Living - High Intensity - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_815_0115_1_1,Assistance in Supported Independent Living - High Intensity - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_815_0115_1_1,Assistance in Supported Independent Living - High Intensity - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_815_0115_1_1,Assistance in Supported Independent Living - High Intensity - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_816_0115_1_1,Assistance in Supported Independent Living - High Intensity - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_816_0115_1_1,Assistance in Supported Independent Living - High Intensity - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_816_0115_1_1,Assistance in Supported Independent Living - High Intensity - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_450_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_451_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0138_1_1,Intensive and Complex Behaviour Supports - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0138_1_1,Intensive and Complex Behaviour Supports - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_452_0138_1_1,Intensive and Complex Behaviour Supports - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0138_1_1,Intensive and Complex Behaviour Supports - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0138_1_1,Intensive and Complex Behaviour Supports - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_453_0138_1_1,Intensive and Complex Behaviour Supports - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0138_1_1,Intensive and Complex Behaviour Supports - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0138_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_454_0138_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Night,National,$89.32,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Night,Remote,$125.05,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_455_0138_1_1,Intensive and Complex Behaviour Supports - Weekday Night,Very Remote,$133.98,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_811_0138_1_1,Supported Independent Living - High Intensity - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_811_0138_1_1,Supported Independent Living - High Intensity - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_811_0138_1_1,Supported Independent Living - High Intensity - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_812_0138_1_1,Supported Independent Living - High Intensity - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_812_0138_1_1,Supported Independent Living - High Intensity - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_812_0138_1_1,Supported Independent Living - High Intensity - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_813_0138_1_1,Supported Independent Living - High Intensity - Weekday Night,National,$89.32,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_813_0138_1_1,Supported Independent Living - High Intensity - Weekday Night,Remote,$125.05,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_813_0138_1_1,Supported Independent Living - High Intensity - Weekday Night,Very Remote,$133.98,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_814_0138_1_1,Supported Independent Living - High Intensity - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_814_0138_1_1,Supported Independent Living - High Intensity - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_814_0138_1_1,Supported Independent Living - High Intensity - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_815_0138_1_1,Supported Independent Living - High Intensity - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_815_0138_1_1,Supported Independent Living - High Intensity - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_815_0138_1_1,Supported Independent Living - High Intensity - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_816_0138_1_1,Supported Independent Living - High Intensity - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_816_0138_1_1,Supported Independent Living - High Intensity - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_816_0138_1_1,Supported Independent Living - High Intensity - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_400_0104_1_1,Access Community Social and Rec Activ - High Intensity - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_400_0104_1_1,Access Community Social and Rec Activ - High Intensity - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_400_0104_1_1,Access Community Social and Rec Activ - High Intensity - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_401_0104_1_1,Access Community Social and Rec Activ - High Intensity - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_401_0104_1_1,Access Community Social and Rec Activ - High Intensity - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_401_0104_1_1,Access Community Social and Rec Activ - High Intensity - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_402_0104_1_1,Access Community Social and Rec Activ - High Intensity - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_402_0104_1_1,Access Community Social and Rec Activ - High Intensity - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_402_0104_1_1,Access Community Social and Rec Activ - High Intensity - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_403_0104_1_1,Access Community Social and Rec Activ - High Intensity - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_403_0104_1_1,Access Community Social and Rec Activ - High Intensity - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_403_0104_1_1,Access Community Social and Rec Activ - High Intensity - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_404_0104_1_1,Access Community Social and Rec Activ - High Intensity - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_404_0104_1_1,Access Community Social and Rec Activ - High Intensity - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_404_0104_1_1,Access Community Social and Rec Activ - High Intensity - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_450_0125_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_450_0125_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_450_0125_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_451_0125_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_451_0125_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_451_0125_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_452_0125_1_1,Intensive and Complex Behaviour Supports - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_452_0125_1_1,Intensive and Complex Behaviour Supports - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_452_0125_1_1,Intensive and Complex Behaviour Supports - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_453_0125_1_1,Intensive and Complex Behaviour Supports - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_453_0125_1_1,Intensive and Complex Behaviour Supports - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_453_0125_1_1,Intensive and Complex Behaviour Supports - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_454_0125_1_1,Intensive and Complex Behaviour Supports - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_454_0125_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_454_0125_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_450_0136_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_450_0136_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_450_0136_1_1,Intensive and Complex Behaviour Supports - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_451_0136_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_451_0136_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_451_0136_1_1,Intensive and Complex Behaviour Supports - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_452_0136_1_1,Intensive and Complex Behaviour Supports - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_452_0136_1_1,Intensive and Complex Behaviour Supports - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_452_0136_1_1,Intensive and Complex Behaviour Supports - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_453_0136_1_1,Intensive and Complex Behaviour Supports - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_453_0136_1_1,Intensive and Complex Behaviour Supports - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_453_0136_1_1,Intensive and Complex Behaviour Supports - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_454_0136_1_1,Intensive and Complex Behaviour Supports - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_454_0136_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_454_0136_1_1,Intensive and Complex Behaviour Supports - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_600_0104_6_1,Group Activities - High Intensity - Weekday Daytime,National,$79.60,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_600_0104_6_1,Group Activities - High Intensity - Weekday Daytime,Remote,$111.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_600_0104_6_1,Group Activities - High Intensity - Weekday Daytime,Very Remote,$119.40,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_601_0104_6_1,Group Activities - High Intensity - Weekday Evening,National,$87.70,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_601_0104_6_1,Group Activities - High Intensity - Weekday Evening,Remote,$122.78,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_601_0104_6_1,Group Activities - High Intensity - Weekday Evening,Very Remote,$131.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_602_0104_6_1,Group Activities - High Intensity - Saturday,National,$112.01,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_602_0104_6_1,Group Activities - High Intensity - Saturday,Remote,$156.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_602_0104_6_1,Group Activities - High Intensity - Saturday,Very Remote,$168.02,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_603_0104_6_1,Group Activities - High Intensity - Sunday,National,$144.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_603_0104_6_1,Group Activities - High Intensity - Sunday,Remote,$202.19,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_603_0104_6_1,Group Activities - High Intensity - Sunday,Very Remote,$216.63,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_604_0104_6_1,Group Activities - High Intensity - Public Holiday,National,$176.84,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_604_0104_6_1,Group Activities - High Intensity - Public Holiday,Remote,$247.58,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+04_604_0104_6_1,Group Activities - High Intensity - Public Holiday,Very Remote,$265.26,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 2
+01_134_0117_8_1,Capacity Building and Training in Self-Management and Plan Management,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+01_134_0117_8_1,Capacity Building and Training in Self-Management and Plan Management,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+01_134_0117_8_1,Capacity Building and Training in Self-Management and Plan Management,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+08_005_0106_2_3,Assistance With Accommodation And Tenancy Obligations,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+08_005_0106_2_3,Assistance With Accommodation And Tenancy Obligations,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+08_005_0106_2_3,Assistance With Accommodation And Tenancy Obligations,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+09_006_0106_6_3,Life Transition Planning Incl. Mentoring Peer-Support And Indiv Skill Develop,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+09_006_0106_6_3,Life Transition Planning Incl. Mentoring Peer-Support And Indiv Skill Develop,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+09_006_0106_6_3,Life Transition Planning Incl. Mentoring Peer-Support And Indiv Skill Develop,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+09_009_0117_6_3,Skills Development And Training,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+09_009_0117_6_3,Skills Development And Training,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+09_009_0117_6_3,Skills Development And Training,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+10_016_0102_5_3,Employment Assistance,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+10_016_0102_5_3,Employment Assistance,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+10_016_0102_5_3,Employment Assistance,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+11_024_0117_7_3,Individual Social Skills Development,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+11_024_0117_7_3,Individual Social Skills Development,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+11_024_0117_7_3,Individual Social Skills Development,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+13_030_0102_4_3,Transition Through School And To Further Education,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+13_030_0102_4_3,Transition Through School And To Further Education,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+13_030_0102_4_3,Transition Through School And To Further Education,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+15_038_0117_1_3,Training For Carers/Parents,National,$83.87,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+15_038_0117_1_3,Training For Carers/Parents,Remote,$117.42,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+15_038_0117_1_3,Training For Carers/Parents,Very Remote,$125.81,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level 3
+07_101_0106_6_3,Psychosocial Recovery Coaching - Weekday Daytime,National,$110.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_101_0106_6_3,Psychosocial Recovery Coaching - Weekday Daytime,Remote,$154.62,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_101_0106_6_3,Psychosocial Recovery Coaching - Weekday Daytime,Very Remote,$165.66,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_102_0106_6_3,Psychosocial Recovery Coaching - Weekday Evening,National,$121.68,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_102_0106_6_3,Psychosocial Recovery Coaching - Weekday Evening,Remote,$170.35,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_102_0106_6_3,Psychosocial Recovery Coaching - Weekday Evening,Very Remote,$182.52,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_103_0106_6_3,Psychosocial Recovery Coaching - Weekday Night,National,$123.93,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_103_0106_6_3,Psychosocial Recovery Coaching - Weekday Night,Remote,$173.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_103_0106_6_3,Psychosocial Recovery Coaching - Weekday Night,Very Remote,$185.90,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_104_0106_6_3,Psychosocial Recovery Coaching - Saturday,National,$155.41,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_104_0106_6_3,Psychosocial Recovery Coaching - Saturday,Remote,$217.57,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_104_0106_6_3,Psychosocial Recovery Coaching - Saturday,Very Remote,$233.12,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_105_0106_6_3,Psychosocial Recovery Coaching - Sunday,National,$200.39,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_105_0106_6_3,Psychosocial Recovery Coaching - Sunday,Remote,$280.55,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_105_0106_6_3,Psychosocial Recovery Coaching - Sunday,Very Remote,$300.59,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_106_0106_6_3,Psychosocial Recovery Coaching - Public Holiday,National,$245.36,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_106_0106_6_3,Psychosocial Recovery Coaching - Public Holiday,Remote,$343.50,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+07_106_0106_6_3,Psychosocial Recovery Coaching - Public Holiday,Very Remote,$368.04,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+10_101_0106_6_3,Psychosocial Recovery Coaching - Weekday Daytime,National,$110.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+10_101_0106_6_3,Psychosocial Recovery Coaching - Weekday Daytime,Remote,$154.62,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+10_101_0106_6_3,Psychosocial Recovery Coaching - Weekday Daytime,Very Remote,$165.66,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+15_300_0103_1_3,Assistive Technology Mentoring,National,$110.44,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+15_300_0103_1_3,Assistive Technology Mentoring,Remote,$154.62,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+15_300_0103_1_3,Assistive Technology Mentoring,Very Remote,$165.66,Hour,2026-07-01,2027-06-30,Schedule 1: Disability Support Workers,Disability Support Worker Level
+04_599_0104_6_1,Centre Capital Cost,National,$2.71,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0104_6_1,Centre Capital Cost,Remote,$3.79,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0104_6_1,Centre Capital Cost,Very Remote,$4.07,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0133_5_1,Centre Capital Cost,National,$2.71,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0133_5_1,Centre Capital Cost,Remote,$3.79,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0133_5_1,Centre Capital Cost,Very Remote,$4.07,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0136_6_1,Centre Capital Cost,National,$2.71,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0136_6_1,Centre Capital Cost,Remote,$3.79,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+04_599_0136_6_1,Centre Capital Cost,Very Remote,$4.07,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+10_599_0133_5_3,Centre Capital Cost,National,$2.71,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+10_599_0133_5_3,Centre Capital Cost,Remote,$3.79,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+10_599_0133_5_3,Centre Capital Cost,Very Remote,$4.07,Each,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Centre Capital Costs
+01_250_0115_1_1,Short Term Accommodation - Participant Accommodation,National,$162.85,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Short Term Accommodation Participant and Worker Accommodation
+01_250_0115_1_1,Short Term Accommodation - Participant Accommodation,Remote,$227.99,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Short Term Accommodation Participant and Worker Accommodation
+01_250_0115_1_1,Short Term Accommodation - Participant Accommodation,Very Remote,$244.28,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Short Term Accommodation Participant and Worker Accommodation
+01_251_0115_1_1,Short Term Accommodation - Support Worker Accommodation,National,$162.85,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Short Term Accommodation Participant and Worker Accommodation
+01_251_0115_1_1,Short Term Accommodation - Support Worker Accommodation,Remote,$227.99,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Short Term Accommodation Participant and Worker Accommodation
+01_251_0115_1_1,Short Term Accommodation - Support Worker Accommodation,Very Remote,$244.28,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Short Term Accommodation Participant and Worker Accommodation
+01_082_0115_1_1,Medium Term Accommodation,National,$162.85,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Medium Term Accommodation
+01_082_0115_1_1,Medium Term Accommodation,Remote,$227.99,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Medium Term Accommodation
+01_082_0115_1_1,Medium Term Accommodation,Very Remote,$244.28,Day,2026-07-01,2027-06-30,Schedule 2: Accommodation and Capital Costs,Medium Term Accommodation
+01_600_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Daytime,National,$103.44,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_600_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Daytime,Remote,$144.82,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_600_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Daytime,Very Remote,$155.16,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_601_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Evening,National,$114.10,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_601_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Evening,Remote,$159.74,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_601_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Evening,Very Remote,$171.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_602_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Saturday,National,$147.55,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_602_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Saturday,Remote,$206.57,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_602_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Saturday,Very Remote,$221.33,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_603_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Sunday,National,$169.62,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_603_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Sunday,Remote,$237.47,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_603_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Sunday,Very Remote,$254.43,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_604_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Public Holiday,National,$191.67,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_604_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Public Holiday,Remote,$268.34,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_604_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Public Holiday,Very Remote,$287.51,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_605_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Night,National,$116.22,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_605_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Night,Remote,$162.71,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_605_0114_1_1,Delivery of Health Supports by an Enrolled Nurse - Weekday Night,Very Remote,$174.33,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_400_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Daytime,National,$103.44,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_400_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Daytime,Remote,$144.82,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_400_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Daytime,Very Remote,$155.16,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_401_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Evening,National,$114.10,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_401_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Evening,Remote,$159.74,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_401_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Evening,Very Remote,$171.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_402_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Saturday,National,$147.55,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_402_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Saturday,Remote,$206.57,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_402_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Saturday,Very Remote,$221.33,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_403_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Sunday,National,$169.62,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_403_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Sunday,Remote,$237.47,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_403_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Sunday,Very Remote,$254.43,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_404_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Public Holiday,National,$191.67,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_404_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Public Holiday,Remote,$268.34,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_404_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Public Holiday,Very Remote,$287.51,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_405_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Night,National,$116.22,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_405_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Night,Remote,$162.71,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+15_405_0114_1_3,Delivery of Health Supports by an Enrolled Nurse - Weekday Night,Very Remote,$174.33,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by an Enrolled Nurse
+01_606_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Daytime,National,$128.05,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_606_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Daytime,Remote,$179.27,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_606_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Daytime,Very Remote,$192.08,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_607_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Evening,National,$141.27,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_607_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Evening,Remote,$197.78,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_607_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Evening,Very Remote,$211.91,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_608_0114_1_1,Delivery of Health Supports by a Registered Nurse - Saturday,National,$182.75,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_608_0114_1_1,Delivery of Health Supports by a Registered Nurse - Saturday,Remote,$255.85,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_608_0114_1_1,Delivery of Health Supports by a Registered Nurse - Saturday,Very Remote,$274.13,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_609_0114_1_1,Delivery of Health Supports by a Registered Nurse - Sunday,National,$210.09,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_609_0114_1_1,Delivery of Health Supports by a Registered Nurse - Sunday,Remote,$294.13,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_609_0114_1_1,Delivery of Health Supports by a Registered Nurse - Sunday,Very Remote,$315.14,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_610_0114_1_1,Delivery of Health Supports by a Registered Nurse - Public Holiday,National,$237.43,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_610_0114_1_1,Delivery of Health Supports by a Registered Nurse - Public Holiday,Remote,$332.40,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_610_0114_1_1,Delivery of Health Supports by a Registered Nurse - Public Holiday,Very Remote,$356.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_611_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Night,National,$143.90,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_611_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Night,Remote,$201.46,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_611_0114_1_1,Delivery of Health Supports by a Registered Nurse - Weekday Night,Very Remote,$215.85,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_406_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Daytime,National,$128.05,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_406_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Daytime,Remote,$179.27,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_406_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Daytime,Very Remote,$192.08,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_407_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Evening,National,$141.27,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_407_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Evening,Remote,$197.78,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_407_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Evening,Very Remote,$211.91,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_408_0114_1_3,Delivery of Health Supports by a Registered Nurse - Saturday,National,$182.75,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_408_0114_1_3,Delivery of Health Supports by a Registered Nurse - Saturday,Remote,$255.85,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_408_0114_1_3,Delivery of Health Supports by a Registered Nurse - Saturday,Very Remote,$274.13,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_409_0114_1_3,Delivery of Health Supports by a Registered Nurse - Sunday,National,$210.09,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_409_0114_1_3,Delivery of Health Supports by a Registered Nurse - Sunday,Remote,$294.13,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_409_0114_1_3,Delivery of Health Supports by a Registered Nurse - Sunday,Very Remote,$315.14,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_410_0114_1_3,Delivery of Health Supports by a Registered Nurse - Public Holiday,National,$237.43,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_410_0114_1_3,Delivery of Health Supports by a Registered Nurse - Public Holiday,Remote,$332.40,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_410_0114_1_3,Delivery of Health Supports by a Registered Nurse - Public Holiday,Very Remote,$356.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_411_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Night,National,$143.90,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_411_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Night,Remote,$201.46,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_411_0114_1_3,Delivery of Health Supports by a Registered Nurse - Weekday Night,Very Remote,$215.85,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_612_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Daytime,National,$148.13,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_612_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Daytime,Remote,$207.38,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_612_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Daytime,Very Remote,$222.20,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_613_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Evening,National,$163.39,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_613_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Evening,Remote,$228.75,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_613_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Evening,Very Remote,$245.09,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_614_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Saturday,National,$211.39,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_614_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Saturday,Remote,$295.95,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_614_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Saturday,Very Remote,$317.09,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_615_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Sunday,National,$243.02,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_615_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Sunday,Remote,$340.23,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_615_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Sunday,Very Remote,$364.53,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_616_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Public Holiday,National,$274.64,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_616_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Public Holiday,Remote,$384.50,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_616_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Public Holiday,Very Remote,$411.96,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_617_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Night,National,$166.45,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_617_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Night,Remote,$233.03,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_617_0114_1_1,Delivery of Health Supports by a Clinical Nurse - Weekday Night,Very Remote,$249.68,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_412_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Daytime,National,$148.13,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_412_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Daytime,Remote,$207.38,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_412_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Daytime,Very Remote,$222.20,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_413_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Evening,National,$163.39,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_413_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Evening,Remote,$228.75,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_413_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Evening,Very Remote,$245.09,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_414_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Saturday,National,$211.39,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_414_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Saturday,Remote,$295.95,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_414_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Saturday,Very Remote,$317.09,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_415_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Sunday,National,$243.02,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_415_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Sunday,Remote,$340.23,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_415_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Sunday,Very Remote,$364.53,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_416_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Public Holiday,National,$274.64,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_416_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Public Holiday,Remote,$384.50,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_416_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Public Holiday,Very Remote,$411.96,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_417_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Night,National,$166.45,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_417_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Night,Remote,$233.03,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+15_417_0114_1_3,Delivery of Health Supports by a Clinical Nurse - Weekday Night,Very Remote,$249.68,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Registered Nurse
+01_618_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Daytime,National,$175.18,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_618_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Daytime,Remote,$245.25,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_618_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Daytime,Very Remote,$262.77,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_619_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Evening,National,$193.27,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_619_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Evening,Remote,$270.58,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_619_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Evening,Very Remote,$289.91,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_620_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Saturday,National,$250.12,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_620_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Saturday,Remote,$350.17,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_620_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Saturday,Very Remote,$375.18,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_621_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Sunday,National,$287.58,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_621_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Sunday,Remote,$402.61,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_621_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Sunday,Very Remote,$431.37,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_622_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Public Holiday,National,$325.03,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_622_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Public Holiday,Remote,$455.04,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_622_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Public Holiday,Very Remote,$487.55,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_623_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Night,National,$196.89,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_623_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Night,Remote,$275.65,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_623_0114_1_1,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Night,Very Remote,$295.34,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_418_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Daytime,National,$175.18,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_418_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Daytime,Remote,$245.25,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_418_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Daytime,Very Remote,$262.77,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_419_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Evening,National,$193.27,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_419_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Evening,Remote,$270.58,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_419_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Evening,Very Remote,$289.91,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_420_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Saturday,National,$250.12,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_420_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Saturday,Remote,$350.17,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_420_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Saturday,Very Remote,$375.18,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_421_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Sunday,National,$287.58,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_421_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Sunday,Remote,$402.61,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_421_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Sunday,Very Remote,$431.37,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_422_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Public Holiday,National,$325.03,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_422_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Public Holiday,Remote,$455.04,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_422_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Public Holiday,Very Remote,$487.55,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_423_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Night,National,$196.89,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_423_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Night,Remote,$275.65,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+15_423_0114_1_3,Delivery of Health Supports by a Clinical Nurse Consultant - Weekday Night,Very Remote,$295.34,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Clinical Nurse Consultant
+01_624_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Daytime,National,$183.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_624_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Daytime,Remote,$256.41,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_624_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Daytime,Very Remote,$274.73,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_625_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Evening,National,$202.04,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_625_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Evening,Remote,$282.86,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_625_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Evening,Very Remote,$303.06,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_626_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Saturday,National,$261.50,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_626_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Saturday,Remote,$366.10,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_626_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Saturday,Very Remote,$392.25,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_627_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Sunday,National,$300.67,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_627_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Sunday,Remote,$420.94,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_627_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Sunday,Very Remote,$451.01,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_628_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Public Holiday,National,$339.84,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_628_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Public Holiday,Remote,$475.78,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_628_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Public Holiday,Very Remote,$509.76,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_629_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Night,National,$205.83,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_629_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Night,Remote,$288.16,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_629_0114_1_1,Delivery of Health Supports by a Nurse Practitioner - Weekday Night,Very Remote,$308.75,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_424_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Daytime,National,$183.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_424_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Daytime,Remote,$256.41,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_424_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Daytime,Very Remote,$274.73,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_425_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Evening,National,$202.04,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_425_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Evening,Remote,$282.86,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_425_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Evening,Very Remote,$303.06,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_426_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Saturday,National,$261.50,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_426_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Saturday,Remote,$366.10,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_426_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Saturday,Very Remote,$392.25,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_427_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Sunday,National,$300.67,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_427_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Sunday,Remote,$420.94,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_427_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Sunday,Very Remote,$451.01,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_428_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Public Holiday,National,$339.84,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_428_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Public Holiday,Remote,$475.78,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_428_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Public Holiday,Very Remote,$509.76,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_429_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Night,National,$205.83,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_429_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Night,Remote,$288.16,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+15_429_0114_1_3,Delivery of Health Supports by a Nurse Practitioner - Weekday Night,Very Remote,$308.75,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Nursing Supports Delivered by a Nurse Practitioner
+01_004_0107_1_1,Assistance with Personal Domestic Activities,National,$61.16,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_004_0107_1_1,Assistance with Personal Domestic Activities,Remote,$85.62,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_004_0107_1_1,Assistance with Personal Domestic Activities,Very Remote,$91.74,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_016_0104_1_1,Specialised Home Based Assistance For A Child,National,$61.16,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_016_0104_1_1,Specialised Home Based Assistance For A Child,Remote,$85.62,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_016_0104_1_1,Specialised Home Based Assistance For A Child,Very Remote,$91.74,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_019_0120_1_1,House or Yard Maintenance,National,$59.01,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_019_0120_1_1,House or Yard Maintenance,Remote,$82.61,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_019_0120_1_1,House or Yard Maintenance,Very Remote,$88.52,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_020_0120_1_1,House Cleaning And Other Household Activities,National,$60.10,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_020_0120_1_1,House Cleaning And Other Household Activities,Remote,$84.14,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+01_020_0120_1_1,House Cleaning And Other Household Activities,Very Remote,$90.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+12_029_0126_3_3,Personal training provided by a Personal Trainer to a participant,National,$69.39,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+12_029_0126_3_3,Personal training provided by a Personal Trainer to a participant,Remote,$97.15,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+12_029_0126_3_3,Personal training provided by a Personal Trainer to a participant,Very Remote,$104.09,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+15_045_0128_1_3,Community Engagement Assistance,National,$53.02,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+15_045_0128_1_3,Community Engagement Assistance,Remote,$74.23,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+15_045_0128_1_3,Community Engagement Assistance,Very Remote,$79.53,Hour,2026-07-01,2027-06-30,Schedule 3: Nursing and other labour supports,Other Labour Indexed Supports
+15_610_0128_1_3,Therapy - Art Therapist - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Art Therapist
+15_610_0128_1_3,Therapy - Art Therapist - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Art Therapist
+15_610_0128_1_3,Therapy - Art Therapist - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Art Therapist
+15_611_0128_1_3,Therapy - Audiologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_611_0128_1_3,Therapy - Audiologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_611_0128_1_3,Therapy - Audiologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_501_0119_1_3,Audiologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_501_0119_1_3,Audiologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_501_0119_1_3,Audiologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_502_0134_1_3,Audiologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_502_0134_1_3,Audiologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_502_0134_1_3,Audiologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiologist
+15_503_0134_1_3,Audiometrist - Direct Service,National,$166.83,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiometrist
+15_503_0134_1_3,Audiometrist - Direct Service,Remote,$233.56,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiometrist
+15_503_0134_1_3,Audiometrist - Direct Service,Very Remote,$250.25,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Audiometrist
+15_043_0128_1_3,Therapy - Counsellor - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Counsellor
+15_043_0128_1_3,Therapy - Counsellor - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Counsellor
+15_043_0128_1_3,Therapy - Counsellor - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Counsellor
+10_613_0128_5_3,Employment Therapy - Developmental Educator - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Developmental Educator
+10_613_0128_5_3,Employment Therapy - Developmental Educator - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Developmental Educator
+10_613_0128_5_3,Employment Therapy - Developmental Educator - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Developmental Educator
+15_613_0128_1_3,Therapy - Developmental Educator - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Developmental Educator
+15_613_0128_1_3,Therapy - Developmental Educator - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Developmental Educator
+15_613_0128_1_3,Therapy - Developmental Educator - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Developmental Educator
+01_760_0128_3_3,Therapy - Dietitian - Direct Service,National,$178.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+01_760_0128_3_3,Therapy - Dietitian - Direct Service,Remote,$250.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+01_760_0128_3_3,Therapy - Dietitian - Direct Service,Very Remote,$268.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+12_025_0128_3_3,Therapy - Dietitian - Direct Service,National,$178.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+12_025_0128_3_3,Therapy - Dietitian - Direct Service,Remote,$250.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+12_025_0128_3_3,Therapy - Dietitian - Direct Service,Very Remote,$268.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+15_062_0128_3_3,Therapy - Dietitian - Direct Service,National,$178.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+15_062_0128_3_3,Therapy - Dietitian - Direct Service,Remote,$250.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+15_062_0128_3_3,Therapy - Dietitian - Direct Service,Very Remote,$268.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Dietitian
+12_027_0126_3_3,Therapy - Exercise Physiologist - Direct Service,National,$161.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+12_027_0126_3_3,Therapy - Exercise Physiologist - Direct Service,Remote,$226.79,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+12_027_0126_3_3,Therapy - Exercise Physiologist - Direct Service,Very Remote,$242.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+12_027_0128_3_3,Therapy - Exercise Physiologist - Direct Service,National,$161.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+12_027_0128_3_3,Therapy - Exercise Physiologist - Direct Service,Remote,$226.79,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+12_027_0128_3_3,Therapy - Exercise Physiologist - Direct Service,Very Remote,$242.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+15_200_0126_1_3,Therapy - Exercise Physiologist - Direct Service,National,$161.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+15_200_0126_1_3,Therapy - Exercise Physiologist - Direct Service,Remote,$226.79,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+15_200_0126_1_3,Therapy - Exercise Physiologist - Direct Service,Very Remote,$242.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+15_200_0128_1_3,Therapy - Exercise Physiologist - Direct Service,National,$161.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+15_200_0128_1_3,Therapy - Exercise Physiologist - Direct Service,Remote,$226.79,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+15_200_0128_1_3,Therapy - Exercise Physiologist - Direct Service,Very Remote,$242.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Exercise Physiologist
+15_615_0128_1_3,Therapy - Music Therapist - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Music Therapist
+15_615_0128_1_3,Therapy - Music Therapist - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Music Therapist
+15_615_0128_1_3,Therapy - Music Therapist - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Music Therapist
+01_661_0128_1_3,Therapy - Occupational Therapist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+01_661_0128_1_3,Therapy - Occupational Therapist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+01_661_0128_1_3,Therapy - Occupational Therapist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+10_617_0128_5_3,Employment Therapy - Occupational Therapist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+10_617_0128_5_3,Employment Therapy - Occupational Therapist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+10_617_0128_5_3,Employment Therapy - Occupational Therapist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+15_617_0128_1_3,Therapy - Occupational Therapist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+15_617_0128_1_3,Therapy - Occupational Therapist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+15_617_0128_1_3,Therapy - Occupational Therapist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Occupational Therapist
+15_626_0128_1_3,Therapy - Orientation Mobility Specialist - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Orientation and Mobility Specialist
+15_626_0128_1_3,Therapy - Orientation Mobility Specialist - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Orientation and Mobility Specialist
+15_626_0128_1_3,Therapy - Orientation Mobility Specialist - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Orientation and Mobility Specialist
+15_618_0128_1_3,Therapy - Orthoptist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Orthoptist
+15_618_0128_1_3,Therapy - Orthoptist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Orthoptist
+15_618_0128_1_3,Therapy - Orthoptist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Orthoptist
+01_721_0128_1_3,Therapy - Physiotherapist - Direct Service,National,$183.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+01_721_0128_1_3,Therapy - Physiotherapist - Direct Service,Remote,$257.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+01_721_0128_1_3,Therapy - Physiotherapist - Direct Service,Very Remote,$275.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+10_055_0128_5_3,Employment Therapy - Physiotherapist - Direct Service,National,$183.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+10_055_0128_5_3,Employment Therapy - Physiotherapist - Direct Service,Remote,$257.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+10_055_0128_5_3,Employment Therapy - Physiotherapist - Direct Service,Very Remote,$275.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+15_055_0128_1_3,Therapy - Physiotherapist - Direct Service,National,$183.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+15_055_0128_1_3,Therapy - Physiotherapist - Direct Service,Remote,$257.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+15_055_0128_1_3,Therapy - Physiotherapist - Direct Service,Very Remote,$275.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Physiotherapist
+01_663_0128_1_3,Therapy - Podiatrist - Direct Service,National,$188.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Podiatrist
+01_663_0128_1_3,Therapy - Podiatrist - Direct Service,Remote,$264.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Podiatrist
+01_663_0128_1_3,Therapy - Podiatrist - Direct Service,Very Remote,$283.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Podiatrist
+15_619_0128_1_3,Therapy - Podiatrist - Direct Service,National,$188.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Podiatrist
+15_619_0128_1_3,Therapy - Podiatrist - Direct Service,Remote,$264.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Podiatrist
+15_619_0128_1_3,Therapy - Podiatrist - Direct Service,Very Remote,$283.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Podiatrist
+01_701_0128_1_3,Therapy - Psychologist - Direct Service,National,$252.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+01_701_0128_1_3,Therapy - Psychologist - Direct Service,Remote,$354.19,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+01_701_0128_1_3,Therapy - Psychologist - Direct Service,Very Remote,$379.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+10_054_0128_5_3,Employment Therapy - Psychologist - Direct Service,National,$252.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+10_054_0128_5_3,Employment Therapy - Psychologist - Direct Service,Remote,$354.19,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+10_054_0128_5_3,Employment Therapy - Psychologist - Direct Service,Very Remote,$379.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+15_054_0128_1_3,Therapy - Psychologist - Direct Service,National,$252.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+15_054_0128_1_3,Therapy - Psychologist - Direct Service,Remote,$354.19,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+15_054_0128_1_3,Therapy - Psychologist - Direct Service,Very Remote,$379.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Psychologist
+10_620_0128_5_3,Employment Therapy - Rehabilitation Counsellor - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Rehabilitation Counsellor
+10_620_0128_5_3,Employment Therapy - Rehabilitation Counsellor - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Rehabilitation Counsellor
+10_620_0128_5_3,Employment Therapy - Rehabilitation Counsellor - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Rehabilitation Counsellor
+15_620_0128_1_3,Therapy - Rehabilitation Counsellor - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Rehabilitation Counsellor
+15_620_0128_1_3,Therapy - Rehabilitation Counsellor - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Rehabilitation Counsellor
+15_620_0128_1_3,Therapy - Rehabilitation Counsellor - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Rehabilitation Counsellor
+15_621_0128_1_3,Therapy - Social Worker - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Social Worker
+15_621_0128_1_3,Therapy - Social Worker - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Social Worker
+15_621_0128_1_3,Therapy - Social Worker - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Social Worker
+01_665_0128_1_3,Therapy - Speech Pathologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+01_665_0128_1_3,Therapy - Speech Pathologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+01_665_0128_1_3,Therapy - Speech Pathologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+10_622_0128_5_3,Employment Therapy - Speech Pathologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+10_622_0128_5_3,Employment Therapy - Speech Pathologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+10_622_0128_5_3,Employment Therapy - Speech Pathologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+15_622_0128_1_3,Therapy - Speech Pathologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+15_622_0128_1_3,Therapy - Speech Pathologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+15_622_0128_1_3,Therapy - Speech Pathologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Speech Pathologist
+01_741_0128_1_3,Therapy - Other Professional - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+01_741_0128_1_3,Therapy - Other Professional - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+01_741_0128_1_3,Therapy - Other Professional - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+10_011_0128_5_3,Employment Therapy - Other Professional - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+10_011_0128_5_3,Employment Therapy - Other Professional - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+10_011_0128_5_3,Employment Therapy - Other Professional - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+15_056_0128_1_3,Therapy - Other Professional - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+15_056_0128_1_3,Therapy - Other Professional - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+15_056_0128_1_3,Therapy - Other Professional - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Other Professional
+15_047_0135_1_3,Selection or Manufacture of Individualised Technology - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Selection and/or Manufacture of Customised or Wearable Technology
+15_047_0135_1_3,Selection or Manufacture of Individualised Technology - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Selection and/or Manufacture of Customised or Wearable Technology
+15_047_0135_1_3,Selection or Manufacture of Individualised Technology - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Selection and/or Manufacture of Customised or Wearable Technology
+11_022_0110_7_3,Specialist Behavioural Intervention Support - Direct Service,National,$252.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Specialist Behavioural Intervention Support including Training in Behaviour Management Strategies
+11_022_0110_7_3,Specialist Behavioural Intervention Support - Direct Service,Remote,$354.19,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Specialist Behavioural Intervention Support including Training in Behaviour Management Strategies
+11_022_0110_7_3,Specialist Behavioural Intervention Support - Direct Service,Very Remote,$379.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Specialist Behavioural Intervention Support including Training in Behaviour Management Strategies
+11_023_0110_7_3,Behaviour Management Plan Implementation - Direct Service,National,$252.99,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Specialist Behavioural Intervention Support including Training in Behaviour Management Strategies
+11_023_0110_7_3,Behaviour Management Plan Implementation - Direct Service,Remote,$354.19,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Specialist Behavioural Intervention Support including Training in Behaviour Management Strategies
+11_023_0110_7_3,Behaviour Management Plan Implementation - Direct Service,Very Remote,$379.49,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Specialist Behavioural Intervention Support including Training in Behaviour Management Strategies
+15_052_0128_1_3,Therapy Assistant - Level 1 - Direct Service,National,$56.16,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Therapy Assistant - Level 1
+15_052_0128_1_3,Therapy Assistant - Level 1 - Direct Service,Remote,$78.62,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Therapy Assistant - Level 1
+15_052_0128_1_3,Therapy Assistant - Level 1 - Direct Service,Very Remote,$84.24,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Therapy Assistant - Level 1
+15_053_0128_1_3,Therapy Assistant - Level 2 - Direct Service,National,$86.79,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Therapy Assistant - Level 2
+15_053_0128_1_3,Therapy Assistant - Level 2 - Direct Service,Remote,$121.51,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Therapy Assistant - Level 2
+15_053_0128_1_3,Therapy Assistant - Level 2 - Direct Service,Very Remote,$130.19,Hour,2026-07-01,2027-06-30,Schedule 4: Therapeutic Supports,Therapy Assistant - Level 2
+15_610_0118_1_3,ECI Professional - Art Therapist - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Art Therapist
+15_610_0118_1_3,ECI Professional - Art Therapist - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Art Therapist
+15_610_0118_1_3,ECI Professional - Art Therapist - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Art Therapist
+15_606_0118_1_3,ECI Professional - Counsellor - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Counsellor
+15_606_0118_1_3,ECI Professional - Counsellor - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Counsellor
+15_606_0118_1_3,ECI Professional - Counsellor - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Counsellor
+15_613_0118_1_3,ECI Professional - Developmental Educator - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Developmental Educator
+15_613_0118_1_3,ECI Professional - Developmental Educator - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Developmental Educator
+15_613_0118_1_3,ECI Professional - Developmental Educator - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Developmental Educator
+01_760_0118_1_3,ECI Professional - Dietitian - Direct Service,National,$178.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Dietitian
+01_760_0118_1_3,ECI Professional - Dietitian - Direct Service,Remote,$250.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Dietitian
+01_760_0118_1_3,ECI Professional - Dietitian - Direct Service,Very Remote,$268.49,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Dietitian
+15_062_0118_1_3,ECI Professional - Dietitian - Direct Service,National,$178.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Dietitian
+15_062_0118_1_3,ECI Professional - Dietitian - Direct Service,Remote,$250.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Dietitian
+15_062_0118_1_3,ECI Professional - Dietitian - Direct Service,Very Remote,$268.49,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Dietitian
+15_625_0118_1_3,ECI Professional - Early Childhood Teacher or Educator - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Early Childhood Teacher or Educator
+15_625_0118_1_3,ECI Professional - Early Childhood Teacher or Educator - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Early Childhood Teacher or Educator
+15_625_0118_1_3,ECI Professional - Early Childhood Teacher or Educator - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Early Childhood Teacher or Educator
+15_609_0118_1_3,ECI Professional - Exercise Physiologist - Direct Service,National,$161.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Exercise Physiologist
+15_609_0118_1_3,ECI Professional - Exercise Physiologist - Direct Service,Remote,$226.79,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Exercise Physiologist
+15_609_0118_1_3,ECI Professional - Exercise Physiologist - Direct Service,Very Remote,$242.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Exercise Physiologist
+15_615_0118_1_3,ECI Professional - Music Therapist - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Music Therapist
+15_615_0118_1_3,ECI Professional - Music Therapist - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Music Therapist
+15_615_0118_1_3,ECI Professional - Music Therapist - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Music Therapist
+01_650_0118_1_3,ECI Professional - Occupational Therapist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Occupational Therapist
+01_650_0118_1_3,ECI Professional - Occupational Therapist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Occupational Therapist
+01_650_0118_1_3,ECI Professional - Occupational Therapist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Occupational Therapist
+15_617_0118_1_3,ECI Professional - Occupational Therapist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Occupational Therapist
+15_617_0118_1_3,ECI Professional - Occupational Therapist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Occupational Therapist
+15_617_0118_1_3,ECI Professional - Occupational Therapist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Occupational Therapist
+15_626_0118_1_3,ECI Professional - Orientation Mobility Specialist - Direct Service,National,$156.16,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Orientation and Mobility Specialist
+15_626_0118_1_3,ECI Professional - Orientation Mobility Specialist - Direct Service,Remote,$218.62,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Orientation and Mobility Specialist
+15_626_0118_1_3,ECI Professional - Orientation Mobility Specialist - Direct Service,Very Remote,$234.24,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Orientation and Mobility Specialist
+01_720_0118_1_3,ECI Professional - Physiotherapist - Direct Service,National,$183.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Physiotherapist
+01_720_0118_1_3,ECI Professional - Physiotherapist - Direct Service,Remote,$257.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Physiotherapist
+01_720_0118_1_3,ECI Professional - Physiotherapist - Direct Service,Very Remote,$275.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Physiotherapist
+15_003_0118_1_3,ECI Professional - Physiotherapist - Direct Service,National,$183.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Physiotherapist
+15_003_0118_1_3,ECI Professional - Physiotherapist - Direct Service,Remote,$257.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Physiotherapist
+15_003_0118_1_3,ECI Professional - Physiotherapist - Direct Service,Very Remote,$275.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Physiotherapist
+01_663_0118_1_3,ECI Professional - Podiatrist - Direct Service,National,$188.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Podiatrist
+01_663_0118_1_3,ECI Professional - Podiatrist - Direct Service,Remote,$264.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Podiatrist
+01_663_0118_1_3,ECI Professional - Podiatrist - Direct Service,Very Remote,$283.49,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Podiatrist
+15_619_0118_1_3,ECI Professional - Podiatrist - Direct Service,National,$188.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Podiatrist
+15_619_0118_1_3,ECI Professional - Podiatrist - Direct Service,Remote,$264.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Podiatrist
+15_619_0118_1_3,ECI Professional - Podiatrist - Direct Service,Very Remote,$283.49,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Podiatrist
+01_700_0118_1_3,ECI Professional - Psychologist - Direct Service,National,$252.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Psychologist
+01_700_0118_1_3,ECI Professional - Psychologist - Direct Service,Remote,$354.19,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Psychologist
+01_700_0118_1_3,ECI Professional - Psychologist - Direct Service,Very Remote,$379.49,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Psychologist
+15_001_0118_1_3,ECI Professional - Psychologist - Direct Service,National,$252.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Psychologist
+15_001_0118_1_3,ECI Professional - Psychologist - Direct Service,Remote,$354.19,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Psychologist
+15_001_0118_1_3,ECI Professional - Psychologist - Direct Service,Very Remote,$379.49,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Psychologist
+15_621_0118_1_3,ECI Professional - Social worker - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Social Worker
+15_621_0118_1_3,ECI Professional - Social worker - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Social Worker
+15_621_0118_1_3,ECI Professional - Social worker - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Social Worker
+01_653_0118_1_3,ECI Professional - Speech Pathologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Speech Pathologist
+01_653_0118_1_3,ECI Professional - Speech Pathologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Speech Pathologist
+01_653_0118_1_3,ECI Professional - Speech Pathologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Speech Pathologist
+15_622_0118_1_3,ECI Professional - Speech Pathologist - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Speech Pathologist
+15_622_0118_1_3,ECI Professional - Speech Pathologist - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Speech Pathologist
+15_622_0118_1_3,ECI Professional - Speech Pathologist - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Speech Pathologist
+01_740_0118_1_3,ECI Professional - Other Early Childhood Professional - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Other Early Childhood Professional
+01_740_0118_1_3,ECI Professional - Other Early Childhood Professional - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Other Early Childhood Professional
+01_740_0118_1_3,ECI Professional - Other Early Childhood Professional - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Other Early Childhood Professional
+15_005_0118_1_3,ECI Professional - Other Early Childhood Professional - Direct Service,National,$193.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Other Early Childhood Professional
+15_005_0118_1_3,ECI Professional - Other Early Childhood Professional - Direct Service,Remote,$271.59,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Other Early Childhood Professional
+15_005_0118_1_3,ECI Professional - Other Early Childhood Professional - Direct Service,Very Remote,$290.99,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Other Early Childhood Professional
+15_007_0118_1_3,ECI Professional - Therapy Assistant - Level 1 - Direct Service,National,$56.16,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Therapy Assistants Level 1
+15_007_0118_1_3,ECI Professional - Therapy Assistant - Level 1 - Direct Service,Remote,$78.62,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Therapy Assistants Level 1
+15_007_0118_1_3,ECI Professional - Therapy Assistant - Level 1 - Direct Service,Very Remote,$84.24,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Therapy Assistants Level 1
+15_008_0118_1_3,ECI Professional - Therapy Assistant - Level 2 - Direct Service,National,$86.79,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Therapy Assistants Level 2
+15_008_0118_1_3,ECI Professional - Therapy Assistant - Level 2 - Direct Service,Remote,$121.51,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Therapy Assistants Level 2
+15_008_0118_1_3,ECI Professional - Therapy Assistant - Level 2 - Direct Service,Very Remote,$130.19,Hour,2026-07-01,2027-06-30,Schedule 5: Early Childhood Supports,Therapy Assistants Level 2
+01_850_0106_1_1,Individualised Living Options - Exploration and Design,National,$100.14,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+01_850_0106_1_1,Individualised Living Options - Exploration and Design,Remote,$140.19,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+01_850_0106_1_1,Individualised Living Options - Exploration and Design,Very Remote,$150.21,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_001_0106_8_3,Support Coordination Level 1: Support Connection,National,$80.06,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_001_0106_8_3,Support Coordination Level 1: Support Connection,Remote,$112.08,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_001_0106_8_3,Support Coordination Level 1: Support Connection,Very Remote,$120.09,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_002_0106_8_3,Support Coordination Level 2: Coordination of Supports,National,$100.14,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_002_0106_8_3,Support Coordination Level 2: Coordination of Supports,Remote,$140.19,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_002_0106_8_3,Support Coordination Level 2: Coordination of Supports,Very Remote,$150.21,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_004_0132_8_3,Support Coordination Level 3: Specialist Support Coordination,National,$190.54,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_004_0132_8_3,Support Coordination Level 3: Specialist Support Coordination,Remote,$266.75,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+07_004_0132_8_3,Support Coordination Level 3: Specialist Support Coordination,Very Remote,$285.80,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+10_002_0106_8_3,Support Coordination Level 2: Coordination of Supports,National,$100.14,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+10_002_0106_8_3,Support Coordination Level 2: Coordination of Supports,Remote,$140.19,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+10_002_0106_8_3,Support Coordination Level 2: Coordination of Supports,Very Remote,$150.21,Hour,2026-07-01,2027-06-30,Schedule 6: Support Coordination,Support Coordination and Individualised Living Options
+14_034_0127_8_3,Plan Management - Monthly Fee,National,$104.45,Month,2026-07-01,2027-06-30,Schedule 7: Plan Management,Plan Management
+01_023_0120_1_1,Assistance with the cost of the preparation and delivery of meals,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Labour Notional Unit Items
+01_050_0115_1_1,Assistance With Daily Life Tasks Provided In Residential Aged Care Facility,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Labour Notional Unit Items
+03_050903053_0103_1_1,Incontinence Alarms,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_060000911_0135_1_1,Low Cost AT - Prosthetics And Orthotics,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_090000911_0103_1_1,Low Cost AT - Personal Care And Safety,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_040000919_0103_1_1,Disability-Related Health Consumables - Low Cost,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_090348111_0103_1_2,Extra cost for adapted or adapting clothing and/or footwear for disability need,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_090900111_0103_1_2,Assistive products for dressing or undressing,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_091800084_0103_1_1,Continence - bowel care,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_092100082_0103_1_1,Continence - consumables,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_092400080_0103_1_1,Continence - catheters/sheaths,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_092700081_0103_1_1,Continence - drain/leg bags,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_092700083_0103_1_1,Continence - urinary collection items and accessories,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_093021078_0103_1_1,Continence - reusable/washable personal protection,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_093021079_0103_1_1,Continence - disposable personal protection,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_093040085_0103_1_1,Continence - bed/chair/floor protection,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_120000911_0105_1_1,Low Cost AT - Personal Mobility,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_220300911_0113_1_1,Low Cost AT - Vision Related AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_220600911_0122_1_1,Low Cost AT - Hearing Related AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_222100911_0124_1_1,Low Cost AT - Communication Or Cognitive Support,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_501509092_0103_1_1,Repairs and Maintenance - HEN AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_710400002_0103_1_1,Disability-Related Health Equipment and Consumables - Set Up/Training,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_710930080_0103_1_1,Delivery - Personal care Safety and Disability-related Health Consumables,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Low Cost Assistance Technology Equipment
+03_900100156_0130_1_1,Assistance Animal - Dog Guide - Dietary Needs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistance Animal Ongoing Costs
+03_900100157_0130_1_1,Assistance Animal - Dog Guide - Grooming,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistance Animal Ongoing Costs
+03_900100158_0130_1_1,Assistance Animal - Dog Guide - Veterinary Services,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistance Animal Ongoing Costs
+03_900100159_0130_1_1,Assistance Animal - Dog Guide - Annual Accreditation,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistance Animal Ongoing Costs
+05_0002_0103_1_2,AT Supplementary Charge - AT Personal Care/Safety,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0105_1_2,AT Supplementary Charge - Personal Mobility or Transfer,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0109_1_2,AT Supplementary Charge - Vehicle modifications,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0112_1_2,AT Supplementary Charge - Recreation including sport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0113_1_2,AT Supplementary Charge - Vision,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0122_1_2,AT Supplementary Charge - Hearing products,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0123_1_2,AT Supplementary Charge - Household Tasks and Control,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0124_1_2,AT Supplementary Charge - Communication and Information support,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_0002_0135_1_2,AT Supplementary Charge - Prosthesis or Orthosis,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Supplementary Charges
+05_040312115_0103_1_2,AT Rental - Assistive Products for Respiration Support,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_060000115_0135_1_2,AT Rental - Prosthesis and Orthosis,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_090000155_0103_1_2,AT Rental - Personal Care and Safety,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_121227125_0108_1_2,AT Rental - Vehicle modified for Access,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_150000115_0123_1_2,AT Rental - Assistive Products for Household Tasks,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_222100115_0124_1_2,AT Rental - Communication and Computer access,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_300000115_0112_1_2,AT Rental - Modified for accessible recreation,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_220300115_0113_1_2,AT Rental - Vision support or alternate access,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_220600112_0122_1_2,AT Rental - Hearing Devices and Accessories,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Rental
+05_150300111_0123_2_2,Assistive products for preparing food and drink,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Products
+05_150600111_0123_2_2,Assistive products for dishwashing,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Products
+05_150900111_0123_2_2,Assistive products for eating and drinking,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Products
+05_151200111_0123_2_2,Assistive products to facilitate house cleaning,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Products
+05_151600111_0123_2_2,Assistive products to facilitate laundry,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Products
+05_151800111_0123_2_2,Assistive products to facilitate gardening,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Products
+05_189900111_0123_2_2,"Customisation, adaptions, or upgrade cost to standard household items",National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Customisation and adaptations
+05_221300111_0124_1_2,Communication and Information AT - Computer/Device Interfaces,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Adaptive Assistive Technology
+05_222102112_0124_1_2,Adaptive software for a communication or information access disability need,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Adaptive Assistive Technology
+05_222404259_0113_1_2,Vision - modification to a standard item for vision impairment,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Adaptive Assistive Technology
+05_300000113_0112_1_2,Modification to a standard Recreation/Sporting Equipment,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Adaptive Assistive Technology
+05_500000303_0103_1_2,Repairs and Maintenance - Other AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_500403159_0103_1_1,Repairs and Maintenance - Disability-Related Health Machines,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_500433443_0103_1_2,Repairs and Maintenance - Personal Care/Safety After-Hours,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_500612441_0135_1_2,Repairs and Maintenance - Orthosis,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_500624304_0135_1_2,Repairs and Maintenance - Prosthesis - Minor,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_500933306_0103_1_2,Repairs and Maintenance - Bathing And Toileting AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_501200307_0105_1_2,Repairs and Maintenance - Wheeled Mobility Minor,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_501212373_0109_1_2,Repairs and Maintenance - Vehicle Modification,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_501224309_0105_1_2,Tyre - Wheeled mobility,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_501236025_0105_1_2,Repairs and Maintenance - Transfer AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_501288435_0105_1_2,Repairs and Maintenance - Mobility and Transfer - After-Hours,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_501812311_0103_1_2,Repairs and Maintenance - Electric Bed,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_502200312_0124_1_2,Repairs and Maintenance - Communication Cognitive or ECU AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_502206151_0122_1_2,Repairs and Maintenance - Hearing AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_502218315_0113_1_2,Repairs and Maintenance - Vision AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_503000316_0112_1_2,Repairs and Maintenance - Specialised Recreation AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Repairs and Maintenance
+05_711000080_0103_1_2,Delivery - Personal Care and Safety AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0105_1_2,Delivery - Personal Mobility and Transfer AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0109_1_2,Delivery - Vehicle modifications AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0112_1_2,Delivery - Recreation AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0113_1_2,Delivery - Vision AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0119_1_2,Delivery - Specialised Hearing AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0122_1_2,Delivery - Hearing AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0123_1_2,Delivery - Household Tasks or Control AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0124_1_2,Delivery - Communication and Information AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+05_711000080_0135_1_2,Delivery - Prosthesis or Orthosis,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Assistive Technology Delivery
+06_180000111_0111_2_2,HM Rental - Bathroom Toilet Ramp,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182100401_0111_2_2,MHM - Electrical and Door Automation,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182409401_0111_2_2,MHM - External Door,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182409402_0111_2_2,MHM - Internal Door,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182415401_0111_2_2,MHM - Flooring,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182495322_0111_2_2,MHM - Practical Completion,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182495401_0111_2_2,MHM - Bathroom,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182495402_0111_2_2,MHM - Kitchen,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182495405_0111_2_2,MHM - Laundry,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182495407_0111_2_2,MHM - Other works including Bedroom,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182495413_0111_2_2,MHM - Toilet Replacement,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182495414_0111_2_2,MHM - Cabinetry Alterations,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_182499311_0111_2_2,HM - Design Consultation with Builder,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_183018404_0111_2_2,MHM - Ramp,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_183090401_0111_2_2,MHM - Pathway - External,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_270303401_0111_2_2,MHM - Airconditioning,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_501824150_0111_2_2,Building Modifications due to damage caused by disability-related behaviours,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+06_501824151_0111_2_2,Building Modifications due to damage caused by AT,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Home Modifications
+01_799_0102_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0104_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0106_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0107_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0110_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0114_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0115_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0117_8_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0118_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0119_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0120_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0126_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0128_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0129_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0132_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0134_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+01_799_0135_1_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+04_799_0104_6_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+04_799_0125_6_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+04_799_0133_5_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+04_799_0136_6_1,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+07_799_0106_6_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+07_799_0117_8_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+07_799_0132_8_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+08_799_0106_2_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+09_799_0106_6_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+09_799_0117_6_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+10_799_0102_5_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+10_799_0128_5_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+10_799_0133_5_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+11_799_0110_7_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+11_799_0117_7_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+12_799_0126_3_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+12_799_0128_3_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+13_799_0102_4_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0103_6_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0106_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0114_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0117_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0118_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0119_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0126_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0128_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0134_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+15_799_0135_1_3,Provider travel - non-labour costs,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Non-labour Travel Costs
+04_590_0125_6_1,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+04_591_0136_6_1,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+04_592_0104_6_1,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+04_821_0133_6_1,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+07_501_0106_6_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+08_590_0106_2_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+09_590_0106_6_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+09_591_0117_6_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+10_590_0102_5_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+10_590_0133_5_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+11_590_0117_7_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport
+13_590_0102_4_3,Activity Based Transport,National,$1.00,Each,2026-07-01,2027-06-30,Schedule 8: Notional Unit Priced Items,Activity Based Transport

@@ -138,6 +138,10 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   locationEmployeeRole: "locations",
   locationAlertType: "locations",
   locationActivityType: "locations",
+  fleetServiceType: "locations",
+  fleetServiceCostStatus: "locations",
+  fleetInspectionResult: "locations",
+  fleetVehicleStatus: "locations",
 
   // People
   employeeAlertType: "people",

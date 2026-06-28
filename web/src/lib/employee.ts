@@ -177,6 +177,12 @@ export type EmployeeRecord = {
   reportsToId: string;
   driverLicenceClass: string;
   driverLicenceExpiry: string;
+  driverLicenceNumber?: string;
+  medicalExpiry?: string;
+  ndisScreeningExpiry?: string;
+  wwccExpiry?: string;
+  driverHistoryCheckDate?: string;
+  vehicleCertifications?: string;
   visaSubclass: string;
   visaExpiry: string;
   workRightsNotes: string;
@@ -982,6 +988,14 @@ export function normalizeEmployee(record: EmployeeRecord): EmployeeRecord {
     contractedHoursPeriod: record.contractedHoursPeriod ?? "fortnight",
     schadsClassificationLevel: record.schadsClassificationLevel ?? "",
     schadsPayPoint: record.schadsPayPoint ?? "",
+    driverLicenceClass: record.driverLicenceClass ?? "",
+    driverLicenceExpiry: record.driverLicenceExpiry ?? "",
+    driverLicenceNumber: record.driverLicenceNumber ?? "",
+    medicalExpiry: record.medicalExpiry ?? "",
+    ndisScreeningExpiry: record.ndisScreeningExpiry ?? "",
+    wwccExpiry: record.wwccExpiry ?? "",
+    driverHistoryCheckDate: record.driverHistoryCheckDate ?? "",
+    vehicleCertifications: record.vehicleCertifications ?? "",
     superRate: record.superRate === "" || record.superRate == null ? 12 : record.superRate,
   };
 }

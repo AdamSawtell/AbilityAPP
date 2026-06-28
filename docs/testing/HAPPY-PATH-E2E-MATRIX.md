@@ -444,6 +444,9 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-130 | Business partners | Registry | `/business-partners` | Admin+ | Live | HP-034 |
 | FUNC-131 | Admin | Role document print/send | `/admin/roles` | Admin | Live | UAT-13-S-003 |
 | FUNC-132 | Documents | Record Documents section | Record detail tabs | Coordinator+ | Live | TEST-033 |
+| FUNC-133 | Fleet | Vehicle register | `/fleet` | Admin / Rostering | Live | TEST-096 |
+| FUNC-134 | Fleet | Vehicle booking + conflict prevention | Fleet → Bookings | Admin / Rostering | Live | TEST-096 |
+| FUNC-135 | Fleet | Pre-start inspection + off-road status | Fleet → Inspections | Admin / Driver | Live | TEST-096 |
 
 ### 5.2 Services — agreements and bookings
 

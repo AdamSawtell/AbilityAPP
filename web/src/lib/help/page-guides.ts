@@ -78,6 +78,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/system/tasks/task-management", slug: "task-setup", surface: "system" },
   { prefix: "/system/ai/assistants", slug: "ai-assistants-setup", surface: "system" },
   { prefix: "/system/org-chart-tiers", slug: "organisation-setup", surface: "system" },
+  { prefix: "/fleet", slug: "fleet", surface: "app" },
   { prefix: "/system/organization", slug: "organisation-setup", surface: "system" },
   { prefix: "/system/reference-data", slug: "reference-data", surface: "system" },
   { prefix: "/system", slug: "core-system-setup", surface: "system" },

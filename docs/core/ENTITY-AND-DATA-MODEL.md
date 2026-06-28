@@ -248,6 +248,18 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 |-----------------|---------|
 | `high_demand_advisory` | Manual high-demand flag for My Workplace **Services I can work at** (AB-0030) |
 
+### Fleet vehicles (AB-0006)
+
+| Record/table | Links | Purpose |
+|--------------|-------|---------|
+| `fleet_vehicle` | `location_id` → `support_location`, `assigned_driver_id` → `employee` | Vehicle register, registration/insurance dates, status, odometer, accessibility and asset fields |
+| `fleet_service_record` | `vehicle_id` → `fleet_vehicle` | Service and repair history, provider, odometer, cost status, next due date |
+| `fleet_inspection` | `vehicle_id`, optional `employee_id`, optional `shift_id` | Pre-start pass/fail inspection; failed inspections set the vehicle off road in the app |
+| `fleet_fuel_log` | `vehicle_id`, optional `employee_id` | MVP odometer readings and optional fuel/mileage notes |
+| `fleet_booking` | `vehicle_id`, optional driver/client/location/shift | Vehicle availability bookings with overlap prevention |
+
+Additional links: `roster_shift.vehicle_id` and `incident.vehicle_id` let roster shifts and incident reports reference a fleet vehicle. Employee driver qualification fields include licence number/class/expiry, medical expiry, NDIS screening, WWCC, driver history check, and vehicle certifications.
+
 | Catalogue | Used by |
 |-----------|---------|
 | Product | Agreement lines, booking lines, claims; `ndisSupportItem` / `support_item_number` is the natural key for NDIS imports |
@@ -288,6 +300,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Service agreement | client, price list | Client → Service agreements | lifecycle validation |
 | Service booking | client; agreement when funded | Client → Service bookings | `booking-compliance.ts` |
 | Incident | client | Client → Incidents | workflow rules |
+| Fleet vehicle | location, driver, bookings, service/inspection/fuel lines | Fleet register; roster shift and incident links | booking overlap + off-road status checks |
 | Task | entityType + entityId | Client → Requests | — |
 | Timesheet / roster shift | employee **or** agency worker + vendor, client, location, booking (typical) | Roster week view | `roster-shift-compliance.ts` |
 | Agency shift request | roster shift, vendor; worker when proposed | Gaps drawer | `agency-shift-workflow.ts` |

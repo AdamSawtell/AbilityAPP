@@ -28,6 +28,8 @@ import type { EmployeeRecord } from "@/lib/employee";
 import { normalizeEmployee } from "@/lib/employee";
 import type { LocationRecord } from "@/lib/location";
 import { normalizeLocation } from "@/lib/location";
+import type { FleetBookingRow, FleetVehicleRecord } from "@/lib/fleet-vehicle";
+import { normalizeFleetVehicle } from "@/lib/fleet-vehicle";
 import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { normalizePriceList } from "@/lib/product";
 import type { NdisPriceImportBatch, NdisPriceImportRow } from "@/lib/ndis-price-import";
@@ -197,6 +199,23 @@ import {
   type SupportLocationRow,
 } from "@/lib/supabase/location-mappers";
 import {
+  fleetBookingFromRow,
+  fleetBookingToRow,
+  fleetFuelLogFromRow,
+  fleetFuelLogToRow,
+  fleetInspectionFromRow,
+  fleetInspectionToRow,
+  fleetServiceRecordFromRow,
+  fleetServiceRecordToRow,
+  fleetVehicleFromRow,
+  fleetVehicleToRow,
+  type FleetBookingRowDb,
+  type FleetFuelLogRowDb,
+  type FleetInspectionRowDb,
+  type FleetServiceRecordRowDb,
+  type FleetVehicleRowDb,
+} from "@/lib/supabase/fleet-mappers";
+import {
   rosterOfCareFromRow,
   rosterOfCareLineToRow,
   rosterOfCareToRow,
@@ -311,6 +330,8 @@ export type AppData = {
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
   locations: LocationRecord[];
+  fleetVehicles: FleetVehicleRecord[];
+  fleetBookings: FleetBookingRow[];
 };
 
 async function replaceChildRows(
@@ -578,6 +599,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     payPeriodDefinitionsRes,
     payPeriodInstancesRes,
     financialClosedMonthsRes,
+    fleetVehiclesRes,
+    fleetServiceRecordsRes,
+    fleetInspectionsRes,
+    fleetFuelLogsRes,
+    fleetBookingsRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
@@ -658,6 +684,11 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("pay_period_definition").select("*").order("name"),
     supabase.from("pay_period_instance").select("*").order("start_date"),
     supabase.from("financial_closed_month").select("*").order("close_month", { ascending: false }),
+    supabase.from("fleet_vehicle").select("*").order("search_key"),
+    supabase.from("fleet_service_record").select("*").order("line_no"),
+    supabase.from("fleet_inspection").select("*").order("inspection_date", { ascending: false }),
+    supabase.from("fleet_fuel_log").select("*").order("line_no"),
+    supabase.from("fleet_booking").select("*").order("start_datetime", { ascending: false }),
   ]);
 
   const firstError =
@@ -739,7 +770,12 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     payrollClosedPeriodsRes.error ??
     payPeriodDefinitionsRes.error ??
     payPeriodInstancesRes.error ??
-    financialClosedMonthsRes.error;
+    financialClosedMonthsRes.error ??
+    fleetVehiclesRes.error ??
+    fleetServiceRecordsRes.error ??
+    fleetInspectionsRes.error ??
+    fleetFuelLogsRes.error ??
+    fleetBookingsRes.error;
 
   if (firstError) throw firstError;
 
@@ -819,6 +855,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const employeesByLocation = groupBy(supportLocationEmployeesRes.data as SupportLocationEmployeeRowDb[], "location_id");
   const productsByLocation = groupBy(supportLocationProductsRes.data as SupportLocationProductRowDb[], "location_id");
   const activitiesByLocation = groupBy(supportLocationActivitiesRes.data as SupportLocationActivityRowDb[], "location_id");
+  const serviceRecordsByVehicle = groupBy(fleetServiceRecordsRes.data as FleetServiceRecordRowDb[], "vehicle_id");
+  const inspectionsByVehicle = groupBy(fleetInspectionsRes.data as FleetInspectionRowDb[], "vehicle_id");
+  const fuelLogsByVehicle = groupBy(fleetFuelLogsRes.data as FleetFuelLogRowDb[], "vehicle_id");
   const boardReporting = await fetchBoardReporting(supabase);
 
   return {
@@ -973,6 +1012,16 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
         })
       )
     ),
+    fleetVehicles: ((fleetVehiclesRes.data ?? []) as FleetVehicleRowDb[]).map((row) =>
+      normalizeFleetVehicle(
+        fleetVehicleFromRow(row, {
+          serviceRecords: serviceRecordsByVehicle.get(row.id) ?? [],
+          inspections: inspectionsByVehicle.get(row.id) ?? [],
+          fuelLogs: fuelLogsByVehicle.get(row.id) ?? [],
+        })
+      )
+    ),
+    fleetBookings: ((fleetBookingsRes.data ?? []) as FleetBookingRowDb[]).map(fleetBookingFromRow),
     boardReportTemplates: boardReporting.templates,
     boardReportPacks: boardReporting.packs,
   };
@@ -2648,5 +2697,40 @@ export async function saveProcessDocumentBinding(
 
 export async function saveGeneratedDocument(supabase: SupabaseClient, record: GeneratedDocumentRecord) {
   const { error } = await supabase.from("app_generated_document").upsert(generatedDocumentToRow(record));
+  if (error) throw error;
+}
+
+export async function saveFleetVehicle(supabase: SupabaseClient, record: FleetVehicleRecord) {
+  const normalized = normalizeFleetVehicle(record);
+  const { error } = await supabase.from("fleet_vehicle").upsert(fleetVehicleToRow(normalized));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "fleet_service_record", "vehicle_id", normalized.id);
+  if (normalized.serviceRecords.length) {
+    const { error: svcError } = await supabase.from("fleet_service_record").insert(
+      normalized.serviceRecords.map((row) => fleetServiceRecordToRow(normalized.id, row))
+    );
+    if (svcError) throw svcError;
+  }
+
+  await replaceChildRows(supabase, "fleet_inspection", "vehicle_id", normalized.id);
+  if (normalized.inspections.length) {
+    const { error: inspError } = await supabase.from("fleet_inspection").insert(
+      normalized.inspections.map((row) => fleetInspectionToRow(normalized.id, row))
+    );
+    if (inspError) throw inspError;
+  }
+
+  await replaceChildRows(supabase, "fleet_fuel_log", "vehicle_id", normalized.id);
+  if (normalized.fuelLogs.length) {
+    const { error: fuelError } = await supabase.from("fleet_fuel_log").insert(
+      normalized.fuelLogs.map((row) => fleetFuelLogToRow(normalized.id, row))
+    );
+    if (fuelError) throw fuelError;
+  }
+}
+
+export async function saveFleetBooking(supabase: SupabaseClient, record: FleetBookingRow) {
+  const { error } = await supabase.from("fleet_booking").upsert(fleetBookingToRow(record));
   if (error) throw error;
 }

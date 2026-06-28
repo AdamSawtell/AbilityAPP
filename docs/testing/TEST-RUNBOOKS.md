@@ -707,6 +707,25 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-096 — Fleet Vehicle Management (AB-0006)
+
+| | |
+|--|--|
+| **User** | SuperUser / Admin role |
+| **Route** | `/fleet` |
+| **Pass if** | Fleet register loads, vehicle detail saves, booking conflict is blocked, failed inspection sets status off road |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/fleet` | Fleet register loads with seeded vehicles and audit footer |
+| 2 | Open `VEH-001` | Detail page shows Overview, Calendar, Registration & insurance, Servicing, Inspections, Bookings, Fuel & mileage, Accessibility & compliance, Incidents |
+| 3 | Edit Overview notes and save | Success message appears; audit footer remains visible |
+| 4 | Add a booking for this vehicle | Booking saves and appears in the Bookings table |
+| 5 | Add another booking with overlapping start/end for the same vehicle | Save is blocked with an overlap/conflict message |
+| 6 | Add a failed inspection and save the vehicle | Vehicle status changes to `off_road` |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

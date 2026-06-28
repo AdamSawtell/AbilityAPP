@@ -162,6 +162,18 @@ import {
   type LocationRecord,
 } from "@/lib/location";
 import {
+  applyFailedInspectionStatus,
+  latestFleetInspection,
+  validateFleetBooking,
+} from "@/lib/fleet-compliance";
+import {
+  createFleetVehicle,
+  initialFleetVehicles as seedFleetVehicles,
+  normalizeFleetVehicle,
+  type FleetBookingRow,
+  type FleetVehicleRecord,
+} from "@/lib/fleet-vehicle";
+import {
   createTask,
   describeAssignee,
   initialTasks as seedTasks,
@@ -218,6 +230,8 @@ import {
   saveEnquiry,
   saveIncident,
   saveLocation,
+  saveFleetVehicle,
+  saveFleetBooking,
   savePriceList,
   saveProduct,
   saveServiceAgreement,
@@ -293,6 +307,8 @@ type DataStore = {
   planDocuments: PlanAssessmentDocument[];
   employees: EmployeeRecord[];
   locations: LocationRecord[];
+  fleetVehicles: FleetVehicleRecord[];
+  fleetBookings: FleetBookingRow[];
   tasks: TaskRecord[];
   taskAutomations: TaskAutomationRecord[];
   locationScope: LocationScope;
@@ -371,6 +387,9 @@ type DataStore = {
   addEmployee: (partial: EmployeeRecord) => EmployeeRecord;
   upsertLocation: (record: LocationRecord) => void;
   addLocation: (partial: LocationRecord) => LocationRecord;
+  upsertFleetVehicle: (record: FleetVehicleRecord) => void;
+  addFleetVehicle: (partial: Partial<FleetVehicleRecord>) => FleetVehicleRecord;
+  upsertFleetBooking: (record: FleetBookingRow, vehicleForValidation?: FleetVehicleRecord) => string | null;
   getEmployeeById: (id: string) => EmployeeRecord | undefined;
   getClientByEnquiryId: (enquiryId: string) => ClientRecord | undefined;
   getContractsByClientId: (clientId: string) => ContractRecord[];
@@ -459,6 +478,8 @@ type Persisted = {
   planDocuments?: PlanAssessmentDocument[];
   employees?: EmployeeRecord[];
   locations?: LocationRecord[];
+  fleetVehicles?: FleetVehicleRecord[];
+  fleetBookings?: FleetBookingRow[];
   tasks?: TaskRecord[];
 };
 
@@ -496,6 +517,8 @@ function seedData(): Required<Persisted> {
     planDocuments: seedPlanDocuments,
     employees: seedEmployees.map(normalizeEmployee),
     locations: seedLocations.map(normalizeLocation),
+    fleetVehicles: seedFleetVehicles.map(normalizeFleetVehicle),
+    fleetBookings: [],
     tasks: seedTasks.map(normalizeTask),
   };
 }
@@ -534,6 +557,8 @@ function portalEmptyData(): Required<Persisted> {
     planDocuments: [],
     employees: [],
     locations: [],
+    fleetVehicles: [],
+    fleetBookings: [],
     tasks: [],
   };
 }
@@ -594,6 +619,8 @@ function loadLocal(): Required<Persisted> {
       planDocuments: parsed.planDocuments ?? seedPlanDocuments,
       employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
       locations: (parsed.locations ?? seedLocations).map(normalizeLocation),
+      fleetVehicles: (parsed.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle),
+      fleetBookings: parsed.fleetBookings ?? [],
       tasks: (parsed.tasks ?? seedTasks).map(normalizeTask),
     };
   } catch {
@@ -663,6 +690,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [planDocuments, setPlanDocuments] = useState<PlanAssessmentDocument[]>(defaults.planDocuments);
   const [employees, setEmployees] = useState<EmployeeRecord[]>(defaults.employees);
   const [locations, setLocations] = useState<LocationRecord[]>(defaults.locations);
+  const [fleetVehicles, setFleetVehicles] = useState<FleetVehicleRecord[]>(defaults.fleetVehicles);
+  const [fleetBookings, setFleetBookings] = useState<FleetBookingRow[]>(defaults.fleetBookings);
   const [tasks, setTasks] = useState<TaskRecord[]>(defaults.tasks);
   const [taskAutomations, setTaskAutomations] = useState<TaskAutomationRecord[]>(initialTaskAutomations);
   const [hydrated, setHydrated] = useState(false);
@@ -747,6 +776,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const supportPlansRef = useSyncRef(supportPlans);
   const employeesRef = useSyncRef(employees);
   const locationsRef = useSyncRef(locations);
+  const fleetVehiclesRef = useSyncRef(fleetVehicles);
+  const fleetBookingsRef = useSyncRef(fleetBookings);
   const tasksRef = useSyncRef(tasks);
   const automationsRef = useSyncRef(taskAutomations);
 
@@ -811,6 +842,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setPlanDocuments(data.planDocuments);
       setEmployees(data.employees);
       setLocations(data.locations ?? seedLocations.map(normalizeLocation));
+      setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
+      setFleetBookings(data.fleetBookings ?? []);
       setTasks(loadedTasks);
       setTaskAutomations(loadedAutomations);
       setSource("supabase");
@@ -886,6 +919,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setPlanDocuments(data.planDocuments);
             setEmployees(data.employees);
             setLocations(data.locations ?? seedLocations.map(normalizeLocation));
+            setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
+            setFleetBookings(data.fleetBookings ?? []);
             setTasks(loadedTasks);
             setTaskAutomations(loadedAutomations);
             setSource("supabase");
@@ -937,6 +972,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setPlanDocuments(data.planDocuments);
         setEmployees(data.employees);
         setLocations(data.locations);
+        setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
+        setFleetBookings(data.fleetBookings ?? []);
         setTasks(data.tasks);
         setTaskAutomations(initialTaskAutomations);
         setSource("local");
@@ -988,6 +1025,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       planDocuments,
       employees,
       locations,
+      fleetVehicles,
+      fleetBookings,
       tasks,
     });
   }, [
@@ -1023,6 +1062,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     planDocuments,
     employees,
     locations,
+    fleetVehicles,
+    fleetBookings,
     tasks,
     hydrated,
     source,
@@ -2257,6 +2298,53 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, locationsRef, runAutomationEvents]
   );
 
+  const upsertFleetVehicle = useCallback(
+    (record: FleetVehicleRecord) => {
+      const prev = fleetVehiclesRef.current;
+      let normalized = normalizeFleetVehicle(record);
+      const latestInspection = latestFleetInspection(normalized.inspections);
+      if (latestInspection?.passFail === "fail") {
+        normalized = applyFailedInspectionStatus(normalized, "fail");
+      }
+      const before = prev.find((v) => v.id === normalized.id);
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("fleet-vehicle", normalized, !exists, before);
+      setFleetVehicles((current) =>
+        exists ? current.map((v) => (v.id === stamped.id ? stamped : v)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveFleetVehicle(supabase, stamped));
+    },
+    [persistRemote, fleetVehiclesRef]
+  );
+
+  const addFleetVehicle = useCallback(
+    (partial: Partial<FleetVehicleRecord> = {}) => {
+      const created = persistRecordAudit("fleet-vehicle", createFleetVehicle(partial), true);
+      setFleetVehicles((current) => [...current, created]);
+      void persistRemote((supabase) => saveFleetVehicle(supabase, created));
+      return created;
+    },
+    [persistRemote]
+  );
+
+  const upsertFleetBooking = useCallback(
+    (record: FleetBookingRow, vehicleForValidation?: FleetVehicleRecord): string | null => {
+      const vehicle =
+        vehicleForValidation ?? fleetVehiclesRef.current.find((v) => v.id === record.vehicleId);
+      const driver = employeesRef.current.find((e) => e.id === record.employeeId);
+      const issues = validateFleetBooking(record, fleetBookingsRef.current, vehicle, driver);
+      const blocking = issues.find((i) => i.severity === "error");
+      if (blocking) return blocking.message;
+      setFleetBookings((current) => {
+        const exists = current.some((b) => b.id === record.id);
+        return exists ? current.map((b) => (b.id === record.id ? record : b)) : [...current, record];
+      });
+      void persistRemote((supabase) => saveFleetBooking(supabase, record));
+      return null;
+    },
+    [persistRemote, fleetVehiclesRef, fleetBookingsRef, employeesRef]
+  );
+
   const getEmployeeById = useCallback(
     (id: string) => employees.find((e) => e.id === id),
     [employees]
@@ -2460,6 +2548,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       planDocuments: scopedView.planDocuments,
       employees,
       locations: scopedView.locations,
+      fleetVehicles,
+      fleetBookings,
       tasks: scopedView.tasks,
       taskAutomations,
       locationScope,
@@ -2517,6 +2607,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addEmployee,
       upsertLocation,
       addLocation,
+      upsertFleetVehicle,
+      addFleetVehicle,
+      upsertFleetBooking,
       getEmployeeById,
       getClientByEnquiryId,
       getContractsByClientId,
@@ -2558,6 +2651,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       boardReportTemplates,
       boardReportPacks,
       employees,
+      fleetVehicles,
+      fleetBookings,
       taskAutomations,
       locationScope,
       hydrated,
@@ -2614,6 +2709,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addEmployee,
       upsertLocation,
       addLocation,
+      upsertFleetVehicle,
+      addFleetVehicle,
+      upsertFleetBooking,
       getEmployeeById,
       getClientByEnquiryId,
       getContractsByClientId,

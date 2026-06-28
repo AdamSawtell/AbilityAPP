@@ -2029,6 +2029,12 @@ export type EmployeeRow = {
   emergency_contact_phone: string;
   driver_licence_class: string;
   driver_licence_expiry: string | null;
+  driver_licence_number: string;
+  medical_expiry: string | null;
+  ndis_screening_expiry: string | null;
+  wwcc_expiry: string | null;
+  driver_history_check_date: string | null;
+  vehicle_certifications: string;
   visa_subclass: string;
   visa_expiry: string | null;
   work_rights_notes: string;
@@ -2420,6 +2426,12 @@ export function employeeFromRow(row: EmployeeRow, children: EmployeeChildRows = 
     reportsToId: row.reports_to_id ?? "",
     driverLicenceClass: row.driver_licence_class ?? "",
     driverLicenceExpiry: strDate(row.driver_licence_expiry),
+    driverLicenceNumber: row.driver_licence_number ?? "",
+    medicalExpiry: strDate(row.medical_expiry),
+    ndisScreeningExpiry: strDate(row.ndis_screening_expiry),
+    wwccExpiry: strDate(row.wwcc_expiry),
+    driverHistoryCheckDate: strDate(row.driver_history_check_date),
+    vehicleCertifications: row.vehicle_certifications ?? "",
     visaSubclass: row.visa_subclass ?? "",
     visaExpiry: strDate(row.visa_expiry),
     workRightsNotes: row.work_rights_notes ?? "",
@@ -2490,6 +2502,12 @@ export function employeeToRow(record: EmployeeRecord): EmployeeRow {
     emergency_contact_phone: "",
     driver_licence_class: record.driverLicenceClass,
     driver_licence_expiry: toDate(record.driverLicenceExpiry),
+    driver_licence_number: record.driverLicenceNumber ?? "",
+    medical_expiry: toDate(record.medicalExpiry ?? ""),
+    ndis_screening_expiry: toDate(record.ndisScreeningExpiry ?? ""),
+    wwcc_expiry: toDate(record.wwccExpiry ?? ""),
+    driver_history_check_date: toDate(record.driverHistoryCheckDate ?? ""),
+    vehicle_certifications: record.vehicleCertifications ?? "",
     visa_subclass: record.visaSubclass,
     visa_expiry: toDate(record.visaExpiry),
     work_rights_notes: record.workRightsNotes,
@@ -2543,6 +2561,7 @@ export type IncidentRow = {
   primary_client_id: string | null;
   primary_employee_id: string | null;
   primary_location_id: string | null;
+  vehicle_id: string | null;
   linked_restrictive_practice_id: string | null;
   manager_reviewed_at: string | null;
   manager_reviewed_by: string;
@@ -2631,6 +2650,7 @@ export function incidentFromRow(
     primaryClientId: row.primary_client_id ?? "",
     primaryEmployeeId: row.primary_employee_id ?? "",
     primaryLocationId: row.primary_location_id ?? "",
+    vehicleId: row.vehicle_id ?? "",
     linkedRestrictivePracticeId: row.linked_restrictive_practice_id ?? "",
     managerReviewedAt: row.manager_reviewed_at ?? "",
     managerReviewedBy: row.manager_reviewed_by ?? "",
@@ -2715,6 +2735,7 @@ export function incidentToRow(record: IncidentRecord): IncidentRow {
     primary_client_id: normalized.primaryClientId?.trim() ? normalized.primaryClientId : null,
     primary_employee_id: normalized.primaryEmployeeId?.trim() ? normalized.primaryEmployeeId : null,
     primary_location_id: normalized.primaryLocationId?.trim() ? normalized.primaryLocationId : null,
+    vehicle_id: normalized.vehicleId?.trim() ? normalized.vehicleId : null,
     linked_restrictive_practice_id: normalized.linkedRestrictivePracticeId?.trim()
       ? normalized.linkedRestrictivePracticeId
       : null,
@@ -2738,6 +2759,7 @@ export type RosterShiftRow = {
   client_id: string | null;
   employee_id: string | null;
   location_id: string | null;
+  vehicle_id: string | null;
   service_booking_id: string | null;
   shift_date: string;
   start_time: string;
@@ -2803,6 +2825,7 @@ export function rosterShiftFromRow(row: RosterShiftRow): RosterShiftRecord {
     clientId: row.client_id ?? "",
     employeeId: row.employee_id ?? "",
     locationId: row.location_id ?? "",
+    vehicleId: row.vehicle_id ?? "",
     serviceBookingId: row.service_booking_id ?? "",
     shiftDate: strDate(row.shift_date),
     startTime: String(row.start_time ?? "").slice(0, 5),
@@ -2865,6 +2888,7 @@ export function rosterShiftToRow(record: RosterShiftRecord): RosterShiftRow {
     client_id: record.clientId?.trim() ? record.clientId : null,
     employee_id: record.employeeId?.trim() ? record.employeeId : null,
     location_id: record.locationId?.trim() ? record.locationId : null,
+    vehicle_id: record.vehicleId?.trim() ? record.vehicleId : null,
     service_booking_id: record.serviceBookingId?.trim() ? record.serviceBookingId : null,
     shift_date: toDate(record.shiftDate) ?? record.shiftDate,
     start_time: record.startTime?.slice(0, 5) || "09:00",

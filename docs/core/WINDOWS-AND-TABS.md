@@ -196,6 +196,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Function area | Window key | Route | Sidebar |
 |---------------|------------|-------|---------|
 | Locations | `locations` | `/locations` | Yes |
+| Fleet | `fleet` | `/fleet` | Yes |
 | Business partners | `business-partners` | `/business-partners` | Yes |
 
 ### Location record tabs
@@ -214,6 +215,22 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Products & services | `location-products-and-services` |
 
 **Processes:** `assign-location-client`, `assign-location-employee`, `assign-location-product`.
+
+### Fleet vehicle record tabs
+
+| Tab | Window key |
+|-----|------------|
+| Overview | `fleet-overview` |
+| Calendar | `fleet-calendar` |
+| Registration & insurance | `fleet-registration-and-insurance` |
+| Servicing | `fleet-servicing` |
+| Inspections | `fleet-inspections` |
+| Bookings | `fleet-bookings` |
+| Fuel & mileage | `fleet-fuel-and-mileage` |
+| Accessibility & compliance | `fleet-accessibility-and-compliance` |
+| Incidents | `fleet-incidents` |
+
+Fleet routes: `/fleet`, `/fleet/new`, `/fleet/[id]`.
 
 Business partners: Overview tab plus **Agency workers** tab when partner type is Vendor or NDIS agency (`?tab=Agency workers`). No separate window keys — uses `business-partners` + `agency-workers` for add worker.
 

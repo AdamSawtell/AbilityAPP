@@ -330,6 +330,7 @@ export function SidebarNav() {
   const showClients = canWindow("clients");
   const showIncidents = canWindow("incidents");
   const showLocations = canWindow("locations");
+  const showFleet = canWindow("fleet");
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
   const visibleMyWorkplaceLinks = myWorkplaceLinks.filter((l) => l.canShow(canWindow));
   const visibleWorkforceLinks = workforceLinks.filter((l) => l.canShow(canWindow));
@@ -359,6 +360,7 @@ export function SidebarNav() {
     showClients ||
     showIncidents ||
     showLocations ||
+    showFleet ||
     visiblePeopleLinks.length > 0 ||
     visibleMyWorkplaceLinks.length > 0 ||
     visibleWorkforceLinks.length > 0 ||
@@ -535,12 +537,14 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {showLocations ? (
+      {showLocations || showFleet ? (
         <div
           className={sectionDividerClass(
             hasCoreNav || showEnquiries || showClients
           )}
         >
+          {showLocations ? (
+            <>
           <SectionHeader
             label="Locations"
             icon={<NavIcon name="location" />}
@@ -580,13 +584,30 @@ export function SidebarNav() {
               ) : null}
             </div>
           ) : null}
+            </>
+          ) : null}
+          {showFleet ? (
+            <div className={showLocations ? "mt-2" : ""}>
+              <Link
+                href="/fleet"
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
+                  pathname.startsWith("/fleet")
+                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <NavIcon name="location" />
+                Fleet
+              </Link>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
       {visiblePeopleLinks.length > 0 ? (
         <div
           className={sectionDividerClass(
-            hasCoreNav || showEnquiries || showClients || showLocations
+            hasCoreNav || showEnquiries || showClients || showLocations || showFleet
           )}
         >
           <SectionHeader
@@ -642,7 +663,7 @@ export function SidebarNav() {
       {visibleWorkforceLinks.length > 0 ? (
         <div
           className={sectionDividerClass(
-            hasCoreNav || showEnquiries || showClients || showLocations || visiblePeopleLinks.length > 0
+            hasCoreNav || showEnquiries || showClients || showLocations || showFleet || visiblePeopleLinks.length > 0
           )}
         >
           <SectionHeader

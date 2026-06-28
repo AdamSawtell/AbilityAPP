@@ -35,7 +35,7 @@ The largest greenfield work is **Chunk 4 (Rostering)**. Upstream modules must be
 | Enquiries | ✅ Live | Pipeline, qualification, convert, HubSpot sync |
 | Clients | ✅ Live | Full tabs, plan budget import, lifecycle, portal email |
 | Employees | ✅ Live | Credentials, leave, My workplace, HR documents, training/meeting scheduling |
-| Locations, incidents, tasks | ✅ Live | Core CRUD + line tables |
+| Locations, fleet, incidents, tasks | ✅ Live | Core CRUD + line tables; AB-0006 Fleet adds vehicle register, bookings, inspections |
 | Business partners | ✅ Live | Registry + client billing prefs |
 | Service agreements | ✅ Live | E-sign, print pack, lifecycle states |
 | Products, price lists, contracts | ✅ Live | Reference + agreement linking; AB-0011 NDIS import foundation adds effective-dated regional price metadata and import batch history |
