@@ -569,6 +569,29 @@ function isPersisted(value: unknown): value is Persisted {
   return Array.isArray(v.enquiries) && Array.isArray(v.clients);
 }
 
+// The full hydrate fans out ~70 parallel queries; a single transient failure
+// (network blip, connection-limit timeout) rejects the whole batch. Without a
+// retry the store silently falls back to seed-only data, which hides every
+// live record added after seeding (e.g. newly created employees). Retry with
+// backoff so a momentary failure no longer wipes live data from the UI.
+async function fetchAllDataWithRetry(
+  supabase: ReturnType<typeof createClient>,
+  attempts = 3
+): Promise<Awaited<ReturnType<typeof fetchAllData>>> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await fetchAllData(supabase);
+    } catch (err) {
+      lastError = err;
+      if (attempt < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 400 * 2 ** attempt));
+      }
+    }
+  }
+  throw lastError;
+}
+
 function loadLocal(): Required<Persisted> {
   const defaults = seedData();
   if (typeof window === "undefined") return defaults;
@@ -785,7 +808,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (!isSupabaseConfigured()) return;
     try {
       const supabase = createClient();
-      const data = await fetchAllData(supabase);
+      const data = await fetchAllDataWithRetry(supabase);
       let loadedTasks = tasksRef.current;
       let loadedAutomations = automationsRef.current;
       try {
@@ -867,7 +890,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (isSupabaseConfigured()) {
         try {
           const supabase = createClient();
-          const data = await fetchAllData(supabase);
+          const data = await fetchAllDataWithRetry(supabase);
           let loadedTasks = loadLocal().tasks;
           let loadedAutomations = initialTaskAutomations;
           try {
