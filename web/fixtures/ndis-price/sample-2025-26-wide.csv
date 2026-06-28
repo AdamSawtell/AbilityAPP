@@ -1,0 +1,4 @@
+support_item_number,support_item_name,unit,quote,start_date_iso,end_date_iso,ACT,NSW,NT,QLD,SA,TAS,VIC,WA,Remote,Very Remote
+01_011_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Daytime,Hour,N,2025-07-01,2026-06-30,70.23,70.23,70.23,70.23,70.23,70.23,70.23,70.23,98.32,105.35
+04_104_0125_6_1,Access Community Social and Rec Activ - Standard - Weekday Daytime,Hour,N,2025-07-01,2026-06-30,68.54,68.54,68.54,68.54,68.54,68.54,68.54,68.54,95.96,102.81
+01_013_0107_1_1,Assistance With Self-Care Activities - Standard - Weekday Evening,Hour,N,2025-07-01,2026-06-30,77.38,77.38,77.38,77.38,77.38,77.38,77.38,77.38,108.33,116.07
