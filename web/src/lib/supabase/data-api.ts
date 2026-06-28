@@ -1340,6 +1340,16 @@ export async function saveProduct(supabase: SupabaseClient, record: ProductRecor
   if (error) throw error;
 }
 
+// Upserts only the price_list header (no line rows). Used to break the circular
+// foreign key between product.price_list_id and price_list_line.product_id: the
+// header must exist before products are written, and the lines (which reference
+// products) must be written after products exist.
+export async function savePriceListHeader(supabase: SupabaseClient, record: PriceListRecord) {
+  const list = normalizePriceList(record);
+  const { error } = await supabase.from("price_list").upsert(priceListToRow(list));
+  if (error) throw error;
+}
+
 export async function savePriceList(supabase: SupabaseClient, record: PriceListRecord) {
   const list = normalizePriceList(record);
   const { error } = await supabase.from("price_list").upsert(priceListToRow(list));

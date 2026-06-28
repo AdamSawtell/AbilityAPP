@@ -26,11 +26,17 @@ import {
 import { useSystemAuthOptional } from "@/lib/system-auth-store";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
+  fetchAllData,
   fetchNdisPriceImportBatches,
   fetchNdisPriceImportRows,
   fetchPriceUpdateImpacts,
   fetchPriceUpdateRuns,
+  saveClaim,
+  saveInvoice,
+  saveMonthlyServicePlan,
   savePriceUpdateRun,
+  saveServiceAgreement,
+  saveServiceBooking,
 } from "@/lib/supabase/data-api";
 
 const inputClass =
@@ -77,11 +83,6 @@ export function PriceUpdateReviewView() {
     monthlyServicePlans,
     claims,
     invoices,
-    upsertServiceAgreement,
-    upsertServiceBooking,
-    upsertMonthlyServicePlan,
-    upsertClaim,
-    upsertInvoice,
     addTask,
   } = useData();
 
@@ -146,6 +147,27 @@ export function PriceUpdateReviewView() {
     void loadMeta();
   }, [loadMeta]);
 
+  // The System workspace has no location-scoped session, so the scoped useData
+  // collections come back empty here. The Price Dependant Updater is a tenant-
+  // wide tool, so it loads the unscoped dataset straight from Supabase. The
+  // scoped collections are kept only as a local-mode fallback.
+  const loadDataset = useCallback(async () => {
+    if (isSupabaseConfigured()) {
+      const data = await fetchAllData(createClient());
+      return {
+        products: data.products,
+        priceLists: data.priceLists,
+        serviceAgreements: data.serviceAgreements,
+        serviceBookings: data.serviceBookings,
+        clients: data.clients,
+        monthlyServicePlans: data.monthlyServicePlans,
+        claims: data.claims,
+        invoices: data.invoices,
+      };
+    }
+    return { products, priceLists, serviceAgreements, serviceBookings, clients, monthlyServicePlans, claims, invoices };
+  }, [products, priceLists, serviceAgreements, serviceBookings, clients, monthlyServicePlans, claims, invoices]);
+
   async function persistRun(nextRun: PriceUpdateRun, nextImpacts: PriceUpdateImpact[], isCreate: boolean) {
     if (isSupabaseConfigured()) {
       const supabase = createClient();
@@ -170,18 +192,12 @@ export function PriceUpdateReviewView() {
         const supabase = createClient();
         importRows = await fetchNdisPriceImportRows(supabase, selectedBatch.id);
       }
+      const dataset = await loadDataset();
       const draftRun = createEmptyRun(selectedBatch, actorName);
       const result = analysePriceUpdateRun(draftRun, {
         batch: selectedBatch,
         importRows,
-        products,
-        priceLists,
-        serviceAgreements,
-        serviceBookings,
-        clients,
-        monthlyServicePlans,
-        claims,
-        invoices,
+        ...dataset,
         actorName,
       });
       setRun(result.run);
@@ -274,42 +290,44 @@ export function PriceUpdateReviewView() {
       if (selectedBatch && isSupabaseConfigured()) {
         importRows = await fetchNdisPriceImportRows(createClient(), selectedBatch.id);
       }
+      const dataset = await loadDataset();
       const result = applyApprovedPriceUpdates({
         run,
         impacts,
         batch: selectedBatch!,
         importRows,
-        products,
-        priceLists,
-        serviceAgreements,
-        serviceBookings,
-        clients,
-        monthlyServicePlans,
-        claims,
-        invoices,
+        ...dataset,
         actorName,
       });
 
-      result.changedAgreementIds.forEach((id) => {
-        const record = result.serviceAgreements.find((entry) => entry.id === id);
-        if (record) upsertServiceAgreement(record);
-      });
-      result.changedBookingIds.forEach((id) => {
-        const record = result.serviceBookings.find((entry) => entry.id === id);
-        if (record) upsertServiceBooking(record);
-      });
-      result.changedMonthlyPlanIds.forEach((id) => {
-        const record = result.monthlyServicePlans.find((entry) => entry.id === id);
-        if (record) upsertMonthlyServicePlan(record);
-      });
-      result.changedClaimIds.forEach((id) => {
-        const record = result.claims.find((entry) => entry.id === id);
-        if (record) upsertClaim(record);
-      });
-      result.changedInvoiceIds.forEach((id) => {
-        const record = result.invoices.find((entry) => entry.id === id);
-        if (record) upsertInvoice(record);
-      });
+      // Persist updated dependent records directly. The System context has an
+      // empty location scope, so the scoped store upserts would drop these
+      // writes and log false "created" audit events; direct Supabase saves are
+      // the source of truth for this tenant-wide tool. The price_update_run
+      // record (persisted below) carries the audit trail for the change.
+      if (isSupabaseConfigured()) {
+        const supabase = createClient();
+        for (const id of result.changedAgreementIds) {
+          const record = result.serviceAgreements.find((entry) => entry.id === id);
+          if (record) await saveServiceAgreement(supabase, record);
+        }
+        for (const id of result.changedBookingIds) {
+          const record = result.serviceBookings.find((entry) => entry.id === id);
+          if (record) await saveServiceBooking(supabase, record);
+        }
+        for (const id of result.changedMonthlyPlanIds) {
+          const record = result.monthlyServicePlans.find((entry) => entry.id === id);
+          if (record) await saveMonthlyServicePlan(supabase, record);
+        }
+        for (const id of result.changedClaimIds) {
+          const record = result.claims.find((entry) => entry.id === id);
+          if (record) await saveClaim(supabase, record);
+        }
+        for (const id of result.changedInvoiceIds) {
+          const record = result.invoices.find((entry) => entry.id === id);
+          if (record) await saveInvoice(supabase, record);
+        }
+      }
 
       setRun(result.run);
       setImpacts(result.impacts);

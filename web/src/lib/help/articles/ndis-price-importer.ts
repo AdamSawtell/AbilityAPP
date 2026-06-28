@@ -53,7 +53,7 @@ export const ndisPriceImporterArticle: HelpArticle = {
     {
       id: "revert",
       title: "Revert an import batch",
-      body: "Applied batches can be reverted from Import history. Revert deactivates products created by that batch and removes price list lines sourced from it. Use revert only when the wrong file was applied — downstream agreements still need AB-0012 review when pricing changes affect participants.",
+      body: "Applied batches can be reverted from Import history. Revert deactivates products created by that batch and removes price list lines sourced from it. Use revert only when the wrong file was applied — downstream agreements still need Price Dependant Updater review when pricing changes affect participants.",
       relatedRoutes: ["/system/services/ndis-price-importer"],
     },
     {
@@ -64,7 +64,7 @@ export const ndisPriceImporterArticle: HelpArticle = {
         "Quote and no-specified-price items are flagged; fixed limits are not invented.",
         "Apply is blocked when blocking row errors exist.",
         "Import batch history records source file, guide year, counts, status, and row-level results.",
-        "Dependent record updates belong in AB-0012 Price Dependant Updater (planned).",
+        "Dependent record updates belong in the Price Dependant Updater (System → Services).",
       ],
       relatedRoutes: ["/system/services/ndis-price-importer"],
     },

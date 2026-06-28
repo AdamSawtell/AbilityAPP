@@ -33,17 +33,55 @@ Controlled price-change impact workflow: select an applied AB-0011 batch, dry-ru
 | Check | Result |
 |-------|--------|
 | Dev build | PASS |
+| `npx tsc --noEmit` | PASS (exit 0) |
 | page-guides:check | PASS (131 routes) |
 | Migration push | PASS (`20260728120000`) |
-| Localhost smoke | NOT RUN |
-| Amplify smoke | NOT RUN (after deploy) |
-| Bugbot | NOT RUN |
+| Localhost smoke | PASS (see below) |
+| Amplify smoke | Pending deploy |
+| Bugbot | PASS (2 HIGH fixed — batch status + apply re-check) |
 
-## Test scenario
+## Localhost smoke result (2026-06-28)
+
+End-to-end run against the remote Supabase project:
+
+1. Applied the 2026–27 sample CSV in the NDIS Price Guide Importer → 3 new, 6 updated, 0 errors.
+2. Price Dependant Updater → selected the applied batch → **Run impact analysis** →
+   **108 scanned, 82 impacts** (Consent required 46, Protected 34, Review required 2, Safe 0).
+3. Active/signed agreements correctly classified **Consent required** (apply blocked, 0 ready to apply).
+4. Recorded `evidenceRef`, **Approve for apply** → row moved to **1 ready to apply** (consent guard works).
+5. **Apply approved updates** → `Applied 1 update(s)`; `price_update_run` persisted with
+   `status=applied, applied_count=1, impact_count=82, scanned_count=108`; one `price_update_impact`
+   row `apply_status=applied`. No FK errors.
+
+## Bugs found and fixed during smoke (same slice)
+
+1. **AB-0011 apply wrote children before parents** — products/price lists were upserted before the
+   import batch existed, and `ndis_price_import_row.matched_product_id` / `price_list_line.product_id`
+   violated their FKs. Fixed by persisting in FK order: batch → price list header → product →
+   price list (with lines) → import rows. Added `savePriceListHeader` to break the
+   `product` ↔ `price_list_line` cycle. (`ndis-price-importer-page.tsx`, `data-api.ts`)
+2. **Supabase errors hidden behind generic copy** — Supabase/PostgREST errors are not `Error`
+   instances, so failures showed a bare "Apply failed." Added `describeError` to surface the real
+   message/details. (`ndis-price-importer-page.tsx`)
+3. **AB-0012 analysis scanned 0 records** — the page read location-scoped `useData` collections,
+   which are empty in the System context (no workspace session). Now loads the unscoped dataset via
+   `fetchAllData` and writes changed records straight to Supabase
+   (`saveServiceAgreement/Booking/MonthlyServicePlan/Claim/Invoice`). (`price-update-review-page.tsx`)
+4. **Batch marked applied before children persisted** — the first batch save wrote terminal
+   `applied` status and cleared import rows; a mid-sequence failure left an orphan applied batch.
+   Fixed by writing the batch with `validated` status first, then committing `applied` + rows only
+   after all child writes succeed. (`ndis-price-importer-page.tsx`)
+5. **Apply skipped live status re-check** — apply used analysis-time classifications even though
+   records were reloaded at apply time. A draft agreement signed after analysis could still be
+   price-mutated. Fixed by re-running `classifyAgreement/Booking/Claim/Invoice/MonthlyPlan` on the
+   live record before each mutation; status changes since analysis skip with a re-review message.
+   (`price-update-engine.ts`)
+
+## Test scenario (repeatable)
 
 1. Apply AB-0011 import (2026–27 sample or production CSV).
 2. Open Price Dependant Updater → select batch → Run impact analysis.
-3. Confirm Active service agreement (`sa-rose-ni`) shows **Consent required**.
-4. Create variation task — verify task appears in Tasks.
-5. Approve safe draft booking row → Apply approved updates.
-6. Verify booking line rate updated; agreement unchanged without evidence.
+3. Confirm an Active/Signed service agreement shows **Consent required** with **0 ready to apply**.
+4. Record an evidence reference → **Approve for apply** → row becomes ready; or **Create variation task**.
+5. Tick the confirmation → **Apply approved updates**.
+6. Verify the agreement/booking line rate updated and `price_update_run` shows `applied_count`.

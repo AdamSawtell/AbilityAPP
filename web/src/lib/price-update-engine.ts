@@ -470,7 +470,7 @@ export function summarizeImpacts(impacts: PriceUpdateImpact[]) {
 }
 
 export function canApplyImpact(impact: PriceUpdateImpact): boolean {
-  if (impact.applyStatus === "applied" || impact.applyStatus === "protected") return false;
+  if (impact.applyStatus === "applied" || impact.applyStatus === "protected" || impact.applyStatus === "skipped") return false;
   if (impact.classification === "protected" || impact.classification === "no_action" || impact.classification === "blocked") {
     return false;
   }
@@ -537,17 +537,38 @@ export function applyApprovedPriceUpdates(context: PriceUpdateApplyContext): Pri
   const changedClaimIds = new Set<string>();
   const changedInvoiceIds = new Set<string>();
 
+  // Re-validate eligibility against the record's *current* status at apply time.
+  // Classifications were captured at analysis time, so a record that became
+  // Signed/Active, Submitted, or Sent in between must not be price-mutated even
+  // if it was approved while still a draft. Returns a skipped impact when the
+  // live status no longer permits the approved action, otherwise null.
+  const blockedByStatusChange = (
+    impact: PriceUpdateImpact,
+    currentClassification: PriceUpdateClassification,
+    currentStatus: string
+  ): PriceUpdateImpact | null => {
+    if (canApplyImpact({ ...impact, classification: currentClassification })) return null;
+    return {
+      ...impact,
+      applyStatus: "skipped" as PriceUpdateApplyStatus,
+      applyMessage: `Record status changed to "${currentStatus}" since analysis — re-review required before applying.`,
+    };
+  };
+
   const nextImpacts: PriceUpdateImpact[] = context.impacts.map((impact) => {
     if (!canApplyImpact(impact)) return impact;
     if (impact.newPrice == null) {
       return { ...impact, applyStatus: "error" as PriceUpdateApplyStatus, applyMessage: "No fixed new price to apply." };
     }
+    const effectiveStart = impact.effectiveStart || context.run.effectiveStart;
 
     if (impact.entityType === "service-agreement") {
       const agreement = agreements.find((entry) => entry.id === impact.entityId);
       if (!agreement) {
         return { ...impact, applyStatus: "error", applyMessage: "Service agreement not found." };
       }
+      const blocked = blockedByStatusChange(impact, classifyAgreement(agreement.status), agreement.status);
+      if (blocked) return blocked;
       const lines = agreement.lines.map((line) => {
         if (line.id !== impact.entityLineId) return line;
         return { ...line, plannedPrice: impact.newPrice!.toFixed(2) };
@@ -571,6 +592,13 @@ export function applyApprovedPriceUpdates(context: PriceUpdateApplyContext): Pri
     if (impact.entityType === "service-booking") {
       const booking = bookings.find((entry) => entry.id === impact.entityId);
       if (!booking) return { ...impact, applyStatus: "error", applyMessage: "Service booking not found." };
+      const currentLine = booking.lines.find((entry) => entry.id === impact.entityLineId);
+      const blocked = blockedByStatusChange(
+        impact,
+        classifyBooking(booking.documentStatus, currentLine?.endDate || booking.endDate, effectiveStart),
+        booking.documentStatus
+      );
+      if (blocked) return blocked;
       const lines = booking.lines.map((line) => {
         if (line.id !== impact.entityLineId) return line;
         const qty = parseMoney(line.orderedQuantity) ?? 1;
@@ -592,6 +620,12 @@ export function applyApprovedPriceUpdates(context: PriceUpdateApplyContext): Pri
     if (impact.entityType === "monthly-service-plan") {
       const plan = monthlyPlans.find((entry) => entry.id === impact.entityId);
       if (!plan) return { ...impact, applyStatus: "error", applyMessage: "Monthly service plan not found." };
+      const blocked = blockedByStatusChange(
+        impact,
+        classifyMonthlyPlan(plan.status, plan.planMonth, effectiveStart),
+        plan.status
+      );
+      if (blocked) return blocked;
       const lines = plan.lines.map((line) => {
         if (line.id !== impact.entityLineId) return line;
         return { ...line, plannedAmount: impact.newPrice! };
@@ -605,6 +639,13 @@ export function applyApprovedPriceUpdates(context: PriceUpdateApplyContext): Pri
     if (impact.entityType === "claim") {
       const claim = claims.find((entry) => entry.id === impact.entityId);
       if (!claim) return { ...impact, applyStatus: "error", applyMessage: "Claim not found." };
+      const currentClaimLine = claim.lines.find((entry) => entry.id === impact.entityLineId);
+      const blocked = blockedByStatusChange(
+        impact,
+        classifyClaim(claim.status, currentClaimLine?.serviceDate ?? "", effectiveStart),
+        claim.status
+      );
+      if (blocked) return blocked;
       const lines = claim.lines.map((line) => {
         if (line.id !== impact.entityLineId) return line;
         const amount = line.quantity * impact.newPrice!;
@@ -619,6 +660,8 @@ export function applyApprovedPriceUpdates(context: PriceUpdateApplyContext): Pri
     if (impact.entityType === "invoice") {
       const invoice = invoices.find((entry) => entry.id === impact.entityId);
       if (!invoice) return { ...impact, applyStatus: "error", applyMessage: "Invoice not found." };
+      const blocked = blockedByStatusChange(impact, classifyInvoice(invoice.status), invoice.status);
+      if (blocked) return blocked;
       const lines = invoice.lines.map((line) => {
         if (line.id !== impact.entityLineId) return line;
         const amount = line.quantity * impact.newPrice!;

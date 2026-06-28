@@ -21,10 +21,26 @@ import {
   fetchNdisPriceImportBatches,
   fetchNdisPriceImportRows,
   saveNdisPriceImportBatch,
+  savePriceList,
+  savePriceListHeader,
+  saveProduct,
 } from "@/lib/supabase/data-api";
 
 const inputClass =
   "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
+
+// Supabase/PostgREST errors are plain objects, not Error instances, so a bare
+// `instanceof Error` check hides the real cause behind a generic fallback.
+function describeError(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object") {
+    const record = err as { message?: unknown; details?: unknown; hint?: unknown };
+    const parts = [record.message, record.details, record.hint]
+      .filter((part): part is string => typeof part === "string" && part.length > 0);
+    if (parts.length) return parts.join(" — ");
+  }
+  return fallback;
+}
 
 function statusBadge(status: string) {
   const styles: Record<string, string> = {
@@ -123,19 +139,6 @@ export function NdisPriceImporterView() {
     })();
   }, [selectedBatchId]);
 
-  async function persistBatch(
-    batch: NdisPriceImportBatch & { createdBy?: string; updatedBy?: string; createdAt?: string; updatedAt?: string },
-    rows: NdisPriceImportRow[],
-    isCreate: boolean
-  ) {
-    if (isSupabaseConfigured()) {
-      const supabase = createClient();
-      await saveNdisPriceImportBatch(supabase, batch, rows);
-      await loadHistory();
-    }
-    persistRecordAudit("ndis-price-import-batch", batch, isCreate);
-  }
-
   async function onFileSelected(file: File | null) {
     setError("");
     setMessage("");
@@ -165,7 +168,7 @@ export function NdisPriceImporterView() {
         );
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not read the uploaded file.");
+      setError(describeError(err, "Could not read the uploaded file."));
     } finally {
       setBusy("");
     }
@@ -187,35 +190,62 @@ export function NdisPriceImporterView() {
         actorName,
       });
 
-      applied.changedProductIds.forEach((id) => {
-        const product = applied.products.find((entry) => entry.id === id);
-        if (product) upsertProduct(product);
-      });
+      const changedLists = applied.changedPriceListIds
+        .map((id) => applied.priceLists.find((entry) => entry.id === id))
+        .filter((list): list is NonNullable<typeof list> => Boolean(list));
+      const changedProducts = applied.changedProductIds
+        .map((id) => applied.products.find((entry) => entry.id === id))
+        .filter((product): product is NonNullable<typeof product> => Boolean(product));
 
-      applied.changedPriceListIds.forEach((id) => {
-        const list = applied.priceLists.find((entry) => entry.id === id);
-        if (list) upsertPriceList(list);
-      });
+      const batchRecord = {
+        ...applied.batch,
+        createdBy: applied.batch.importedBy,
+        updatedBy: actorName,
+        createdAt: applied.batch.importedAt,
+        updatedAt: new Date().toISOString(),
+      } as NdisPriceImportBatch & { createdBy: string; updatedBy: string; createdAt: string; updatedAt: string };
 
-      await persistBatch(
-        {
-          ...applied.batch,
-          createdBy: applied.batch.importedBy,
-          updatedBy: actorName,
-          createdAt: applied.batch.importedAt,
-          updatedAt: new Date().toISOString(),
-        } as NdisPriceImportBatch & { createdBy: string; updatedBy: string; createdAt: string; updatedAt: string },
-        applied.rows,
-        true
-      );
+      // Persist remotely in foreign-key order so every child reference resolves.
+      // product.price_list_id and price_list_line.product_id form a cycle, so the
+      // price list header is written before products and its lines after:
+      //   1. ndis_price_import_batch — parent of price lists and import rows
+      //   2. price_list (header)     — references source_import_batch_id
+      //   3. product                 — references price_list_id; rows reference it
+      //   4. price_list (with lines) — lines reference product_id
+      //   5. ndis_price_import_row   — references batch_id and matched_product_id
+      // The batch is saved first without its rows, then re-saved with rows once
+      // the matched products exist, otherwise matched_product_id violates its FK.
+      if (isSupabaseConfigured()) {
+        const supabase = createClient();
+        // Write the batch with a non-terminal status first so a mid-sequence
+        // failure never leaves an "applied" batch with missing products, price
+        // list lines, or import rows. The terminal status + rows are only
+        // committed in the final save once every child write has succeeded.
+        await saveNdisPriceImportBatch(supabase, { ...batchRecord, status: "validated" }, []);
+        for (const list of changedLists) {
+          await savePriceListHeader(supabase, list);
+        }
+        for (const product of changedProducts) {
+          await saveProduct(supabase, product);
+        }
+        for (const list of changedLists) {
+          await savePriceList(supabase, list);
+        }
+        await saveNdisPriceImportBatch(supabase, batchRecord, applied.rows);
+        await loadHistory();
+      }
+      persistRecordAudit("ndis-price-import-batch", batchRecord, true);
+
+      changedLists.forEach((list) => upsertPriceList(list));
+      changedProducts.forEach((product) => upsertProduct(product));
       const handoffCount = ndisImportHandoffRows(applied.rows).length;
       setMessage(
         applied.batch.status === "applied"
-          ? `Import applied — ${applied.batch.addCount} new, ${applied.batch.updateCount} updated, ${applied.batch.unchangedCount} unchanged. ${handoffCount} rows ready for AB-0012 review when that workflow ships.`
+          ? `Import applied — ${applied.batch.addCount} new, ${applied.batch.updateCount} updated, ${applied.batch.unchangedCount} unchanged. ${handoffCount} rows ready for review in the Price Dependant Updater.`
           : `Import finished with errors — review import history. ${applied.batch.errorCount} row(s) failed during apply.`
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Apply failed.");
+      setError(describeError(err, "Apply failed."));
     } finally {
       setBusy("");
     }
@@ -276,7 +306,7 @@ export function NdisPriceImporterView() {
       );
       setMessage(`Batch ${batch.sourceFileName} marked reverted. Lines and products from this batch were deactivated.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Revert failed.");
+      setError(describeError(err, "Revert failed."));
     } finally {
       setBusy("");
     }
