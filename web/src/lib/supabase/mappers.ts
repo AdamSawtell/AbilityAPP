@@ -47,6 +47,7 @@ import type {
   ProductRecord,
 } from "@/lib/product";
 import type { NdisPriceImportBatch, NdisPriceImportRow, NdisPriceImportFormat } from "@/lib/ndis-price-import";
+import type { PriceUpdateImpact, PriceUpdateRun } from "@/lib/price-update";
 import type { ServiceAgreementLine, ServiceAgreementRecord } from "@/lib/service-agreement";
 import type { ServiceBookingLine, ServiceBookingRecord } from "@/lib/service-booking";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
@@ -969,6 +970,175 @@ export function ndisPriceImportRowToRow(record: NdisPriceImportRow): NdisPriceIm
     matched_product_id: record.matchedProductId?.trim() ? record.matchedProductId : null,
     matched_price_line_id: record.matchedPriceLineId?.trim() ? record.matchedPriceLineId : null,
     row_hash: record.rowHash,
+  };
+}
+
+// --- Price update run (AB-0012) ---
+
+export type PriceUpdateRunRow = {
+  id: string;
+  source_import_batch_id: string;
+  status: string;
+  effective_start: string | null;
+  guide_year: string;
+  created_by: string;
+  created_at: string | null;
+  applied_by: string;
+  applied_at: string | null;
+  closed_by: string;
+  closed_at: string | null;
+  scanned_count: number;
+  impact_count: number;
+  safe_count: number;
+  review_count: number;
+  consent_count: number;
+  protected_count: number;
+  blocked_count: number;
+  applied_count: number;
+  notes: string;
+};
+
+export type PriceUpdateImpactRow = {
+  id: string;
+  run_id: string;
+  entity_type: string;
+  entity_id: string;
+  entity_line_id: string;
+  client_id: string;
+  client_name: string;
+  product_id: string;
+  support_item_number: string;
+  region: string;
+  record_label: string;
+  record_status: string;
+  old_price: number | null;
+  new_price: number | null;
+  delta_amount: number | null;
+  delta_percent: number | null;
+  effective_start: string | null;
+  classification: string;
+  recommended_action: string;
+  decision: string;
+  decision_reason: string;
+  approved_by: string;
+  approved_at: string | null;
+  evidence_ref: string;
+  apply_status: string;
+  apply_message: string;
+  task_id: string;
+};
+
+export function priceUpdateRunFromRow(row: PriceUpdateRunRow): PriceUpdateRun {
+  return {
+    id: row.id,
+    sourceImportBatchId: row.source_import_batch_id,
+    status: (row.status || "draft") as PriceUpdateRun["status"],
+    effectiveStart: row.effective_start ?? "",
+    guideYear: row.guide_year,
+    createdBy: row.created_by,
+    createdAt: row.created_at ?? "",
+    appliedBy: row.applied_by,
+    appliedAt: row.applied_at ?? "",
+    closedBy: row.closed_by,
+    closedAt: row.closed_at ?? "",
+    scannedCount: row.scanned_count,
+    impactCount: row.impact_count,
+    safeCount: row.safe_count,
+    reviewCount: row.review_count,
+    consentCount: row.consent_count,
+    protectedCount: row.protected_count,
+    blockedCount: row.blocked_count,
+    appliedCount: row.applied_count,
+    notes: row.notes,
+  };
+}
+
+export function priceUpdateRunToRow(record: PriceUpdateRun): PriceUpdateRunRow {
+  return {
+    id: record.id,
+    source_import_batch_id: record.sourceImportBatchId,
+    status: record.status,
+    effective_start: record.effectiveStart?.trim() ? record.effectiveStart.slice(0, 10) : null,
+    guide_year: record.guideYear,
+    created_by: record.createdBy,
+    created_at: record.createdAt?.trim() ? record.createdAt : null,
+    applied_by: record.appliedBy,
+    applied_at: record.appliedAt?.trim() ? record.appliedAt : null,
+    closed_by: record.closedBy,
+    closed_at: record.closedAt?.trim() ? record.closedAt : null,
+    scanned_count: record.scannedCount,
+    impact_count: record.impactCount,
+    safe_count: record.safeCount,
+    review_count: record.reviewCount,
+    consent_count: record.consentCount,
+    protected_count: record.protectedCount,
+    blocked_count: record.blockedCount,
+    applied_count: record.appliedCount,
+    notes: record.notes,
+  };
+}
+
+export function priceUpdateImpactFromRow(row: PriceUpdateImpactRow): PriceUpdateImpact {
+  return {
+    id: row.id,
+    runId: row.run_id,
+    entityType: row.entity_type as PriceUpdateImpact["entityType"],
+    entityId: row.entity_id,
+    entityLineId: row.entity_line_id,
+    clientId: row.client_id,
+    clientName: row.client_name,
+    productId: row.product_id,
+    supportItemNumber: row.support_item_number,
+    region: row.region,
+    recordLabel: row.record_label,
+    recordStatus: row.record_status,
+    oldPrice: row.old_price,
+    newPrice: row.new_price,
+    deltaAmount: row.delta_amount,
+    deltaPercent: row.delta_percent,
+    effectiveStart: row.effective_start ?? "",
+    classification: row.classification as PriceUpdateImpact["classification"],
+    recommendedAction: row.recommended_action,
+    decision: row.decision as PriceUpdateImpact["decision"],
+    decisionReason: row.decision_reason,
+    approvedBy: row.approved_by,
+    approvedAt: row.approved_at ?? "",
+    evidenceRef: row.evidence_ref,
+    applyStatus: row.apply_status as PriceUpdateImpact["applyStatus"],
+    applyMessage: row.apply_message,
+    taskId: row.task_id,
+  };
+}
+
+export function priceUpdateImpactToRow(record: PriceUpdateImpact): PriceUpdateImpactRow {
+  return {
+    id: record.id,
+    run_id: record.runId,
+    entity_type: record.entityType,
+    entity_id: record.entityId,
+    entity_line_id: record.entityLineId,
+    client_id: record.clientId,
+    client_name: record.clientName,
+    product_id: record.productId,
+    support_item_number: record.supportItemNumber,
+    region: record.region,
+    record_label: record.recordLabel,
+    record_status: record.recordStatus,
+    old_price: record.oldPrice,
+    new_price: record.newPrice,
+    delta_amount: record.deltaAmount,
+    delta_percent: record.deltaPercent,
+    effective_start: record.effectiveStart?.trim() ? record.effectiveStart.slice(0, 10) : null,
+    classification: record.classification,
+    recommended_action: record.recommendedAction,
+    decision: record.decision,
+    decision_reason: record.decisionReason,
+    approved_by: record.approvedBy,
+    approved_at: record.approvedAt?.trim() ? record.approvedAt : null,
+    evidence_ref: record.evidenceRef,
+    apply_status: record.applyStatus,
+    apply_message: record.applyMessage,
+    task_id: record.taskId,
   };
 }
 

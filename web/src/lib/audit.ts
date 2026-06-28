@@ -10,6 +10,7 @@ export type AuditEntityType =
   | "product"
   | "price-list"
   | "ndis-price-import-batch"
+  | "price-update-run"
   | "service-agreement"
   | "service-booking"
   | "roster-shift"
@@ -85,6 +86,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   product: "Product",
   "price-list": "Price list",
   "ndis-price-import-batch": "NDIS price import batch",
+  "price-update-run": "Price update run",
   "service-agreement": "Service agreement",
   "service-booking": "Service booking",
   "roster-shift": "Roster shift",

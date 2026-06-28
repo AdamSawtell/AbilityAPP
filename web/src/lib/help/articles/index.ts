@@ -18,6 +18,7 @@ import { financeArticle } from "@/lib/help/articles/finance";
 import { trainingMeetingsArticle, workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
 import { recordRetentionArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle, timeAndDateArticle } from "@/lib/help/articles/session-audit";
 import { ndisPriceImporterArticle } from "@/lib/help/articles/ndis-price-importer";
+import { priceUpdateReviewArticle } from "@/lib/help/articles/price-update-review";
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -56,6 +57,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   recordRetentionArticle,
   timeAndDateArticle,
   ndisPriceImporterArticle,
+  priceUpdateReviewArticle,
   maintainingGuideArticle,
   ...SYSTEM_SETUP_ARTICLES,
 ];

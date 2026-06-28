@@ -160,6 +160,17 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     updateCount: "Updated items",
     errorCount: "Errors",
   },
+  "price-update-run": {
+    sourceImportBatchId: "Import batch",
+    status: "Status",
+    effectiveStart: "Effective start",
+    guideYear: "Guide year",
+    impactCount: "Impacts",
+    safeCount: "Safe updates",
+    reviewCount: "Review required",
+    consentCount: "Consent required",
+    appliedCount: "Applied",
+  },
   "service-agreement": {
     searchKey: "Search key",
     name: "Name",

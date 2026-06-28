@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SystemShell } from "@/components/system/system-shell";
 import { useData } from "@/lib/data-store";
@@ -550,7 +551,10 @@ export function NdisPriceImporterView() {
           ) : null}
           {activeGuide?.batch.status === "applied" ? (
             <p className="mt-4 text-sm text-slate-600">
-              After apply, use Products and Price lists in the workspace to confirm imported items. AB-0012 Price Dependant Updater will consume changed-item rows from applied batches when that workflow ships.
+              Next:{" "}
+              <Link href="/system/services/price-update-review" className="text-[#d4147a] underline">
+                Review dependent price updates (Price Dependant Updater)
+              </Link>
             </p>
           ) : null}
         </section>

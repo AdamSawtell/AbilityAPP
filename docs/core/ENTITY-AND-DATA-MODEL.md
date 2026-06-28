@@ -59,7 +59,8 @@ Business partner ◄── associations ── Client; plan manager on billing; 
 | Complaint | `complaint` | `id` | `/complaints` | Register |
 | Product | `product` | `id` | `/products` | Overview + Pricing |
 | Price list | `price_list` | `id` | `/price-lists` | Overview + Lines |
-| NDIS price import batch | `ndis_price_import_batch` | `id` | Planned System route | Import history + row results |
+| Price update run | `price_update_run` | `id` | `/system/services/price-update-review` | AB-0012 analysis/apply history |
+| NDIS price import batch | `ndis_price_import_batch` | `id` | `/system/services/ndis-price-importer` | Import history + row results |
 
 ---
 

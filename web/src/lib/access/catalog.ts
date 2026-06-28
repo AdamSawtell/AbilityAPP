@@ -623,6 +623,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "system-price-update-review",
+    label: "Price Dependant Updater",
+    group: "Services",
+    surface: "system",
+    href: "/system/services/price-update-review",
+    abilityErpName: "Price Dependant Updater",
+    showInSidebar: true,
+  },
+  {
     key: "system-ndis-price-importer",
     label: "NDIS Price Guide Importer",
     group: "Services",

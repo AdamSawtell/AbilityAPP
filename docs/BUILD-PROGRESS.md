@@ -11,14 +11,37 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0011 NDIS Price Guide Importer — shipped |
-| **Next slice** | AB-0012 Price Dependant Updater (depends on AB-0011 applied batches) |
-| **Last push** | 2026-06-28 — AB-0011 importer UI/apply (`52bbb31`, `215fc16`) |
+| **Active slice** | AB-0012 Price Dependant Updater — shipped |
+| **Next slice** | Awaiting direction (AB-0013 SCHADS not started) |
+| **Last push** | Pending — AB-0012 commit |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
 
 ---
+
+---
+
+---
+
+## AB-0012 — Price Dependant Updater (2026-06-28)
+
+**Status:** Shipped.
+
+**Why:** After AB-0011 imports NDIS master pricing, providers need a controlled workflow to analyse downstream impacts on agreements, bookings, plans, and draft billing — without silently changing active/signed agreements or protected claims/invoices.
+
+| Area | Change |
+|------|--------|
+| Data model | `price_update_run` / `price_update_impact` migration |
+| Engine | `price-update-engine.ts` — analyse, classify, approve/apply, variation tasks, CSV export |
+| System UI | `/system/services/price-update-review` — batch select, dry-run analysis, impact table, decisions, apply, run history |
+| Integration | Driven by applied AB-0011 import batches; links from NDIS Price Guide Importer |
+
+**Assumptions:** Client region defaults to National (no Remote/Very Remote flag yet) — ambiguous cases flagged review; plan budget funding totals never auto-updated; consent-required agreements need evidence ref before apply; variation tasks assigned to Support Coordinator role.
+
+**What you can test:** Apply AB-0011 batch → Price Dependant Updater → analyse → verify Active agreement is consent-required → create task → approve safe draft booking → apply → verify booking rate changed; submitted claims protected.
+
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ (131 routes) · `npm run supabase:push-remote` ✅ (`20260728120000`) · localhost/Amplify smoke pending
 
 ---
 

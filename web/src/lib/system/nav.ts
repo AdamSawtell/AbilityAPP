@@ -192,6 +192,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "NDIS Price Guide Importer",
         match: (p) => p.startsWith("/system/services/ndis-price-importer"),
       },
+      {
+        href: "/system/services/price-update-review",
+        label: "Price Dependant Updater",
+        match: (p) => p.startsWith("/system/services/price-update-review"),
+      },
     ]),
   },
   {
@@ -314,6 +319,12 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/admin/document-registry",
     title: "Document registry",
     description: "Generated documents from print, batch export, and e-sign — search and audit trail.",
+  },
+  {
+    sectionKey: "services",
+    href: "/system/services/price-update-review",
+    title: "Price Dependant Updater",
+    description: "Review NDIS import impacts and safely apply approved rate changes to dependent records.",
   },
   {
     sectionKey: "services",

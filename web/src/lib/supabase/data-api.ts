@@ -31,6 +31,7 @@ import { normalizeLocation } from "@/lib/location";
 import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { normalizePriceList } from "@/lib/product";
 import type { NdisPriceImportBatch, NdisPriceImportRow } from "@/lib/ndis-price-import";
+import type { PriceUpdateImpact, PriceUpdateRun } from "@/lib/price-update";
 import type { ServiceAgreementRecord } from "@/lib/service-agreement";
 import { normalizeServiceAgreement } from "@/lib/service-agreement";
 import type { ServiceBookingRecord } from "@/lib/service-booking";
@@ -79,6 +80,10 @@ import {
   ndisPriceImportBatchToRow,
   ndisPriceImportRowFromRow,
   ndisPriceImportRowToRow,
+  priceUpdateRunFromRow,
+  priceUpdateRunToRow,
+  priceUpdateImpactFromRow,
+  priceUpdateImpactToRow,
   serviceAgreementFromRow,
   serviceAgreementLineToRow,
   serviceAgreementToRow,
@@ -166,6 +171,8 @@ import {
   type ProductRow,
   type NdisPriceImportBatchRow,
   type NdisPriceImportRowDb,
+  type PriceUpdateRunRow,
+  type PriceUpdateImpactRow,
   type ServiceAgreementLineRow,
   type ServiceAgreementRow,
   type ServiceBookingRow,
@@ -1383,6 +1390,42 @@ export async function saveNdisPriceImportBatch(
       .from("ndis_price_import_row")
       .insert(rows.map(ndisPriceImportRowToRow));
     if (rowsError) throw rowsError;
+  }
+}
+
+export async function fetchPriceUpdateRuns(supabase: SupabaseClient): Promise<PriceUpdateRun[]> {
+  const { data, error } = await supabase
+    .from("price_update_run")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return ((data ?? []) as PriceUpdateRunRow[]).map(priceUpdateRunFromRow);
+}
+
+export async function fetchPriceUpdateImpacts(supabase: SupabaseClient, runId: string): Promise<PriceUpdateImpact[]> {
+  const { data, error } = await supabase
+    .from("price_update_impact")
+    .select("*")
+    .eq("run_id", runId)
+    .order("entity_type");
+  if (error) throw error;
+  return ((data ?? []) as PriceUpdateImpactRow[]).map(priceUpdateImpactFromRow);
+}
+
+export async function savePriceUpdateRun(
+  supabase: SupabaseClient,
+  run: PriceUpdateRun,
+  impacts: PriceUpdateImpact[] = []
+) {
+  const { error } = await supabase.from("price_update_run").upsert(priceUpdateRunToRow(run));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "price_update_impact", "run_id", run.id);
+  if (impacts.length) {
+    const { error: impactError } = await supabase
+      .from("price_update_impact")
+      .insert(impacts.map(priceUpdateImpactToRow));
+    if (impactError) throw impactError;
   }
 }
 
