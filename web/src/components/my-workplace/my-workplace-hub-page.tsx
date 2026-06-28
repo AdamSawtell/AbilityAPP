@@ -6,10 +6,12 @@ import { AppShell } from "@/components/app-shell";
 import { MyWorkplaceActionList } from "@/components/my-workplace/my-workplace-action-list";
 import { MyWorkplaceGuard, myWorkplaceBreadcrumbs } from "@/components/my-workplace/my-workplace-guard";
 import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav";
+import { MyWorkplaceServicesAdvisoryPanel } from "@/components/my-workplace/my-workplace-services-advisory-panel";
 import { RosteringCommunicationPanel } from "@/components/my-workplace/rostering-communication-panel";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import type { MyActionItem, MyProfileGap } from "@/lib/my-workplace/compliance-dashboard";
+import type { MyWorkplaceServicesAdvisory } from "@/lib/my-workplace/services-advisory";
 import type { MyWorkplaceSummary } from "@/lib/my-workplace/types";
 import { isVacantShift } from "@/lib/roster-gap-analysis";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
@@ -21,6 +23,7 @@ type HubData = {
   summary: MyWorkplaceSummary;
   actionItems: MyActionItem[];
   profileGaps: MyProfileGap[];
+  servicesAdvisory?: MyWorkplaceServicesAdvisory;
 };
 
 function HubTile({
@@ -104,6 +107,10 @@ export function MyWorkplaceHubPage() {
       >
         <MyWorkplaceSubnav />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        {data?.servicesAdvisory ? (
+          <MyWorkplaceServicesAdvisoryPanel advisory={data.servicesAdvisory} />
+        ) : null}
 
         {employeeId ? (
           <RosteringCommunicationPanel

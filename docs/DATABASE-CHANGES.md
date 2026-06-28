@@ -60,6 +60,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `employee_document` | HR documents |
 | `employee_activity` | Employee activity log |
 | `employee_leave_entitlement` | Leave entitlements / balances |
+| `support_location.high_demand_advisory` | AB-0030 manual high-demand flag for My Workplace **Services I can work at** advisory |
 | `agency_worker` | Agency relief workers (vendor-linked; not employees) |
 | `agency_shift_request` | Agency coverage requests linked to vacant `roster_shift` |
 | `agency_timesheet` / `agency_timesheet_line` | Vendor timesheet header + lines from completed agency shifts |

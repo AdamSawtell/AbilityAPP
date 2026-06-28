@@ -114,6 +114,7 @@ export function LocationDetailView({ id }: { id: string }) {
           <LocationTabbedView
             location={location}
             onChange={onFieldChange}
+            onPatch={patchDraft}
             onAlertsChange={(alerts) => patchDraft({ alerts })}
             onClientLinksChange={(clientLinks) => patchDraft({ clientLinks })}
             onEmployeeLinksChange={(employeeLinks) => patchDraft({ employeeLinks })}

@@ -192,6 +192,7 @@ function tabCount(location: LocationRecord, tab: string, siteOrientationCount?: 
 export function LocationTabbedView({
   location,
   onChange,
+  onPatch,
   onAlertsChange,
   onClientLinksChange,
   onEmployeeLinksChange,
@@ -200,6 +201,7 @@ export function LocationTabbedView({
 }: {
   location: LocationRecord;
   onChange: (key: keyof LocationRecord, value: string) => void;
+  onPatch?: (patch: Partial<LocationRecord>) => void;
   onAlertsChange: (rows: LocationRecord["alerts"]) => void;
   onClientLinksChange: (rows: LocationRecord["clientLinks"]) => void;
   onEmployeeLinksChange: (rows: LocationRecord["employeeLinks"]) => void;
@@ -340,6 +342,28 @@ export function LocationTabbedView({
                 getOptions={getOptions}
                 readOnly={!canWriteLocationTab("Overview")}
               />
+            </div>
+            <div className="mt-6 border-t border-slate-100 pt-4">
+              <h4 className="text-sm font-medium text-slate-900">Staff demand signal</h4>
+              <p className="mt-1 text-xs text-slate-500">
+                Qualified staff see a friendly high-demand advisory on My Workplace when this is on, or when open shifts
+                exceed the roster threshold.
+              </p>
+              {canWriteLocationTab("Overview") && onPatch ? (
+                <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 rounded border-slate-300"
+                    checked={Boolean(location.highDemandAdvisory)}
+                    onChange={(event) => onPatch({ highDemandAdvisory: event.target.checked })}
+                  />
+                  <span>Flag as high demand for My Workplace staff advisory</span>
+                </label>
+              ) : location.highDemandAdvisory ? (
+                <p className="mt-2 text-sm text-amber-900">High demand advisory is enabled for this site.</p>
+              ) : (
+                <p className="mt-2 text-sm text-slate-500">High demand advisory is off (vacant-shift signal may still apply).</p>
+              )}
             </div>
           </div>
         ) : null}

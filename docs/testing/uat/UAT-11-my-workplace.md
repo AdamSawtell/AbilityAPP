@@ -16,6 +16,7 @@
 | UAT-11-S-008 | `/my/profile` | Edit profile fields | **Pass** — profile / about me page |
 | UAT-11-S-009 | `/my/open-shifts` | Open shift request marketplace | **Pass** — request / withdraw / critical fill flow covered by TEST-074 |
 | UAT-11-S-010 | `/my`, `/my/open-shifts`, `/my/shifts` | Contact Rostering communication | **Pass** — Amplify TEST-075 created **REQ-3220**, history opened `/tasks/task-1782528595749`, Rostering Officer saw it in To my role |
+| UAT-11-S-011 | `/my` | Services I can work at + high-demand advisory | Pending — TEST-077 |
 
 ## Window checklist
 

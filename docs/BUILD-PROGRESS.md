@@ -365,6 +365,23 @@ Adds a task-backed communication channel on the employee rostering surfaces.
 
 ---
 
+## AB-0030 — My Workplace Services and Demand Advisory (2026-06-28)
+
+**Status:** Shipped (pending verification).
+
+Read-only **Services I can work at** widget at the top of `/my` for qualified employees (active location assignment, current WWCC + NDIS Worker Screening, valid site orientation). High demand from ≥2 vacant Published/Draft shifts in the next 14 days and/or `support_location.high_demand_advisory`. Rostering managers toggle the manual flag on **Locations → Overview → Staff demand signal**.
+
+| Area | Change |
+|------|--------|
+| Schema | `20260728180000_location_high_demand_advisory.sql` — column + Glenelg demo flag + site orientations for Isla/Gabriela |
+| Engine | `web/src/lib/my-workplace/services-advisory.ts`; `loadMyServicesAdvisory()` on `/api/my` |
+| UI | `MyWorkplaceServicesAdvisoryPanel` on hub; location Overview checkbox |
+| Docs/tests | Help `my-workplace`, core docs, FUNC-252, TEST-077 |
+
+**What you can test:** TEST-077.
+
+---
+
 ## Fix — record line "Created by" stamps the signed-in user (2026-06-26)
 
 **Status:** Shipped.

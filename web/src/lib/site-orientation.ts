@@ -19,6 +19,30 @@ export const SITE_ORIENTATION_GAP_MONTHS = 1;
 
 export const initialSiteOrientations: SiteOrientationRecord[] = [
   {
+    id: "so-isla-glenelg",
+    workerType: "employee",
+    workerId: "emp-isla",
+    locationId: "loc-glenelg-sil",
+    orientedAt: "2024-03-01",
+    expiresAt: "2027-03-01",
+    acknowledgedBy: "Isla Robinson",
+    notes: "Initial SIL site orientation",
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  },
+  {
+    id: "so-gab-glenelg",
+    workerType: "employee",
+    workerId: "emp-gabriela",
+    locationId: "loc-glenelg-sil",
+    orientedAt: "2024-06-01",
+    expiresAt: "2027-06-01",
+    acknowledgedBy: "Isla Robinson",
+    notes: "SIL routines and emergency procedures",
+    createdBy: "SuperUser",
+    updatedBy: "SuperUser",
+  },
+  {
     id: "so-aw-jane-glenelg",
     workerType: "agency",
     workerId: "aw-sp-jane",

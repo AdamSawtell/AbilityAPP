@@ -104,6 +104,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     longitude: "Longitude",
     geofenceRadiusM: "Geofence radius (m)",
     accessNotes: "Access notes",
+    highDemandAdvisory: "High demand advisory (My Workplace)",
     alerts: "Alerts",
     activities: "Activities",
   },

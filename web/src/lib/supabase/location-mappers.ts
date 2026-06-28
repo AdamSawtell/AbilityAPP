@@ -27,6 +27,7 @@ export type SupportLocationRow = {
   latitude: number | null;
   longitude: number | null;
   geofence_radius_m: number;
+  high_demand_advisory: boolean;
   created_by: string;
   updated_by: string;
 };
@@ -124,6 +125,7 @@ export function locationFromRow(
     capacity: row.capacity != null ? String(row.capacity) : "",
     validFrom: strDate(row.valid_from),
     validTo: strDate(row.valid_to),
+    highDemandAdvisory: Boolean(row.high_demand_advisory),
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     alerts: children.alerts.map((a) => ({
@@ -206,6 +208,7 @@ export function locationToRow(record: LocationRecord): SupportLocationRow {
     capacity: record.capacity?.trim() ? Number(record.capacity) : null,
     valid_from: toDate(record.validFrom),
     valid_to: toDate(record.validTo),
+    high_demand_advisory: Boolean(record.highDemandAdvisory),
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };

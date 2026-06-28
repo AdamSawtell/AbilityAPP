@@ -613,6 +613,24 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-077 — My Workplace: Services I can work at (AB-0030)
+
+| | |
+|--|--|
+| **Users** | Support worker with assignment + credentials + site orientation (`IslaRobinson` / `welcome`) |
+| **Routes** | `/my`, `/locations/loc-glenelg-sil` (rostering manager for flag) |
+| **Pass if** | Qualified sites list at top of My workplace; high-demand sites show amber badge and advisory; list is read-only |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in as Isla Robinson → `/my` | **Services I can work at** section appears above Contact Rostering |
+| 2 | Review site cards | Glenelg SIL (or other assigned, oriented sites) listed with type and address |
+| 3 | High-demand site | Amber highlight + badge; advisory mentions contacting rostering |
+| 4 | Rostering manager: Location → Glenelg SIL → Overview | **Staff demand signal** checkbox visible; save persists flag |
+| 5 | Employee refresh `/my` | Manual flag still shows high demand (even without vacant shifts) |
+
+---
+
 ## TEST-076 — Home: My calendar shows shifts, requests, leave, tasks
 
 | | |

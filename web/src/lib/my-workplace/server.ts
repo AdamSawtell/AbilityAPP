@@ -32,7 +32,18 @@ import { persistMyCredential, persistMyLeaveRequest, persistMyProfile } from "@/
 import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
 import { normalizeGeoInput, geoToDbNumber, type GeoCoordinates } from "@/lib/geolocation";
 import { normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
-import { rosterShiftFromRow, type RosterShiftRow } from "@/lib/supabase/mappers";
+import {
+  rosterShiftFromRow,
+  siteOrientationFromRow,
+  type RosterShiftRow,
+  type SiteOrientationRow,
+} from "@/lib/supabase/mappers";
+import {
+  locationFromRow,
+  type SupportLocationRow,
+  type SupportLocationEmployeeRowDb,
+} from "@/lib/supabase/location-mappers";
+import { normalizeLocation } from "@/lib/location";
 import {
   rosterShiftClientLineFromRow,
   rosterShiftWorkerLineFromRow,
@@ -47,23 +58,27 @@ import {
   myWorkplaceLeaveRequestedEvent,
 } from "@/lib/task-automation/employee-triggers";
 import { closeWorkforceAutomationTasks, runServerAutomationEvents } from "@/lib/task-automation/run-server";
-import {
-  DEFAULT_AVAILABILITY_WEEKDAYS,
-  isStaffContractDocument,
-  type MyCredentialSubmitPayload,
-  type MyLeaveSubmitPayload,
-  type MyProfilePayload,
-} from "@/lib/my-workplace/types";
+import { buildMyWorkplaceServicesAdvisory, type MyWorkplaceServicesAdvisory } from "@/lib/my-workplace/services-advisory";
 
-export type { MyContractView, MyCredentialSubmitPayload, MyLeaveSubmitPayload, MyProfilePayload, MyWorkplaceSummary } from "@/lib/my-workplace/types";
-export type { MyActionItem, MyProfileGap } from "@/lib/my-workplace/compliance-dashboard";
-export { buildMyWorkplaceDashboard } from "@/lib/my-workplace/compliance-dashboard";
-export {
+import type {
+  MyContractView,
+  MyCredentialSubmitPayload,
+  MyLeaveSubmitPayload,
+  MyProfilePayload,
+  MyWorkplaceSummary,
+} from "@/lib/my-workplace/types";
+import {
   buildMyContracts,
   buildMySummary,
   dayLabels,
+  DEFAULT_AVAILABILITY_WEEKDAYS,
   isStaffContractDocument,
 } from "@/lib/my-workplace/types";
+
+export type { MyContractView, MyCredentialSubmitPayload, MyLeaveSubmitPayload, MyProfilePayload, MyWorkplaceSummary };
+export type { MyActionItem, MyProfileGap } from "@/lib/my-workplace/compliance-dashboard";
+export { buildMyWorkplaceDashboard } from "@/lib/my-workplace/compliance-dashboard";
+export { buildMyContracts, buildMySummary, dayLabels, isStaffContractDocument };
 
 async function loadRosterShiftWithSessionLines(
   supabase: SupabaseClient | null,
@@ -702,4 +717,89 @@ export function defaultAvailabilityRows(): EmployeeAvailabilityRow[] {
     availability: "Available",
     notes: "",
   }));
+}
+
+const EMPTY_ADVISORY: MyWorkplaceServicesAdvisory = {
+  sites: [],
+  highDemandCount: 0,
+  advisoryMessage: null,
+};
+
+/**
+ * Loads only the tables the services advisory needs (locations + employee
+ * assignment lines, site orientations, roster shifts) rather than the whole
+ * organisation dataset.
+ */
+async function loadServicesAdvisorySupportData(supabase: SupabaseClient) {
+  const [locationsRes, locationEmployeesRes, siteOrientationsRes, rosterShiftsRes] = await Promise.all([
+    supabase.from("support_location").select("*").order("search_key"),
+    supabase.from("support_location_employee").select("*").order("line_no"),
+    supabase.from("site_orientation").select("*"),
+    supabase.from("roster_shift").select("*"),
+  ]);
+
+  const firstError =
+    locationsRes.error ??
+    locationEmployeesRes.error ??
+    siteOrientationsRes.error ??
+    rosterShiftsRes.error;
+  if (firstError) throw firstError;
+
+  const employeesByLocation = new Map<string, SupportLocationEmployeeRowDb[]>();
+  for (const row of (locationEmployeesRes.data ?? []) as SupportLocationEmployeeRowDb[]) {
+    const list = employeesByLocation.get(row.location_id) ?? [];
+    list.push(row);
+    employeesByLocation.set(row.location_id, list);
+  }
+
+  const locations = ((locationsRes.data ?? []) as SupportLocationRow[]).map((row) =>
+    normalizeLocation(
+      locationFromRow(row, {
+        alerts: [],
+        clientLinks: [],
+        employeeLinks: employeesByLocation.get(row.id) ?? [],
+        productLinks: [],
+        activities: [],
+      })
+    )
+  );
+  const siteOrientations = ((siteOrientationsRes.data ?? []) as SiteOrientationRow[]).map(siteOrientationFromRow);
+  const rosterShifts = ((rosterShiftsRes.data ?? []) as RosterShiftRow[]).map((row) =>
+    normalizeRosterShift(rosterShiftFromRow(row))
+  );
+
+  return { locations, siteOrientations, rosterShifts };
+}
+
+export async function loadMyServicesAdvisory(ctx: MyWorkplaceContext): Promise<MyWorkplaceServicesAdvisory> {
+  const employee = await loadMyEmployee(ctx.employeeId);
+  if (!employee) return EMPTY_ADVISORY;
+
+  if (isSupabaseConfigured()) {
+    // Live employee data must pair with live support data — never mix the live
+    // employee record with bundled demo seeds. On query failure, degrade to an
+    // empty advisory rather than showing stale/seed sites.
+    try {
+      const data = await loadServicesAdvisorySupportData(serviceClient());
+      return buildMyWorkplaceServicesAdvisory({
+        employee,
+        locations: data.locations,
+        siteOrientations: data.siteOrientations,
+        rosterShifts: data.rosterShifts,
+      });
+    } catch {
+      return EMPTY_ADVISORY;
+    }
+  }
+
+  const { initialLocations } = await import("@/lib/location");
+  const { initialSiteOrientations } = await import("@/lib/site-orientation");
+  const { initialRosterShifts } = await import("@/lib/roster-shift");
+
+  return buildMyWorkplaceServicesAdvisory({
+    employee,
+    locations: initialLocations,
+    siteOrientations: initialSiteOrientations,
+    rosterShifts: initialRosterShifts,
+  });
 }

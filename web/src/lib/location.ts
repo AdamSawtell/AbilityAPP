@@ -79,6 +79,8 @@ export type LocationRecord = {
   capacity: string;
   validFrom: string;
   validTo: string;
+  /** When true, My Workplace shows high-demand advisory for qualified staff (AB-0030). */
+  highDemandAdvisory: boolean;
   createdBy: string;
   updatedBy: string;
   alerts: LocationAlertRow[];
@@ -197,6 +199,7 @@ export function createLocation(
     capacity: partial.capacity ?? "",
     validFrom: partial.validFrom ?? new Date().toISOString().slice(0, 10),
     validTo: partial.validTo ?? "",
+    highDemandAdvisory: partial.highDemandAdvisory ?? false,
     createdBy: partial.createdBy ?? "SuperUser",
     updatedBy: partial.updatedBy ?? "SuperUser",
     alerts: partial.alerts ?? [],
@@ -210,6 +213,7 @@ export function createLocation(
 export function normalizeLocation(record: LocationRecord): LocationRecord {
   return {
     ...record,
+    highDemandAdvisory: Boolean(record.highDemandAdvisory),
     latitude: record.latitude ?? "",
     longitude: record.longitude ?? "",
     geofenceRadiusM: record.geofenceRadiusM ?? "150",
@@ -252,6 +256,7 @@ export const initialLocations: LocationRecord[] = [
     capacity: "3",
     validFrom: "2022-03-01",
     validTo: "",
+    highDemandAdvisory: true,
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
     alerts: [
@@ -357,6 +362,7 @@ export const initialLocations: LocationRecord[] = [
     capacity: "20",
     validFrom: "2021-01-15",
     validTo: "",
+    highDemandAdvisory: false,
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
     alerts: [],
@@ -387,6 +393,12 @@ export const initialLocations: LocationRecord[] = [
     activities: [],
   },
   ...bulkLocations.map((location) =>
-    normalizeLocation({ ...location, latitude: "", longitude: "", geofenceRadiusM: "150" })
+    normalizeLocation({
+      ...location,
+      highDemandAdvisory: location.highDemandAdvisory ?? false,
+      latitude: "",
+      longitude: "",
+      geofenceRadiusM: "150",
+    })
   ),
 ];

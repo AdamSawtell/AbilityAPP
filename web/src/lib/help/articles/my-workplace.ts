@@ -30,15 +30,18 @@ export const myWorkplaceArticle: HelpArticle = {
     "staff portal",
     "task",
     "how to",
+    "services i can work at",
+    "high demand",
+    "qualified sites",
   ],
   relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/timesheets", "/my/contracts", "/my/credentials"],
   windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-timesheets", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-27",
+  lastUpdated: "2026-06-28",
   sections: [
     {
       id: "overview",
       title: "What My workplace is",
-      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, contracts needing acknowledgement, and items awaiting HR review.\n\nAbilityVua does not send workforce notifications by email. When you submit leave or a credential, the system creates a task for your manager or HR. You can track status on My workplace and in your Tasks list.",
+      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, contracts needing acknowledgement, and items awaiting HR review.\n\nAt the top of the overview, **Services I can work at** lists sites where you are assigned, credentialed, and site-oriented. High-demand services are highlighted with a friendly prompt to contact rostering — use **Contact Rostering** below to start a conversation.\n\nAbilityVua does not send workforce notifications by email. When you submit leave or a credential, the system creates a task for your manager or HR. You can track status on My workplace and in your Tasks list.",
       relatedRoutes: ["/my"],
     },
     {
@@ -230,6 +233,18 @@ export const myWorkplaceArticle: HelpArticle = {
         "Open Tasks → Assigned to me or My role to action your work",
       ],
       relatedRoutes: ["/tasks", "/workforce-planning#reviews", "/help/workforce-leave-calendar"],
+    },
+    {
+      id: "services-advisory",
+      title: "Services I can work at",
+      body: "The overview shows sites where you have an active location assignment, current mandatory credentials (Working with Children Check and NDIS Worker Screening), and a valid site orientation.\n\nSites with high demand — two or more open shifts in the next two weeks, or a rostering manager flag on the location — show an amber highlight and a short advisory to contact rostering. The list is read-only; you cannot assign yourself to new services from My workplace.",
+      steps: [
+        "Open My workplace → Overview.",
+        "Review **Services I can work at** at the top of the page.",
+        "For high-demand sites, use **Contact Rostering** below to ask about extra shifts.",
+      ],
+      relatedRoutes: ["/my"],
+      windowKeys: ["my-workplace"],
     },
     {
       id: "future",

@@ -194,6 +194,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **My contracts** ÔÇö view generated HR documents | All staff | Access to offer/contract copies | Live |
 | **My availability** ÔÇö set availability patterns | Support workers | Input to roster planning | Live |
 | **Contact Rostering** — task-backed roster communication | All staff | Message assigned to Rostering Officer, visible in employee history | Live |
+| **Services I can work at** — qualified sites + high-demand advisory | Support workers | See assignable sites; high-demand prompt to contact rostering | Live |
 | **Home My calendar** — allocated shifts, pending shift requests, leave, credential/document expiry, tasks | All staff (linked employee) | One personal view of what is on for them, by month/week/day | Live |
 
 ---

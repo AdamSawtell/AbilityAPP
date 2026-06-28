@@ -323,6 +323,8 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 
 **Contact Rostering:** Open shifts and My shifts show a prominent **Contact Rostering** panel. Submissions create `tt-rostering-communication` tasks assigned to the Rostering Officer role; the employee sees the communication history on the same My Workplace pages and can open the task conversation.
 
+**Services I can work at:** The `/my` hub shows a read-only list of sites where the employee has an active assignment, current mandatory credentials, and valid site orientation. High demand is signalled when a location has `high_demand_advisory` set on Overview, or when two or more vacant Published/Draft shifts exist in the next 14 days. Rostering managers set the manual flag on **Locations → Overview → Staff demand signal**.
+
 **Processes:** `submit-leave-request`, `submit-employee-credential`.
 
 ---

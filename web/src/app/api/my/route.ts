@@ -6,6 +6,7 @@ import {
   loadMyAcknowledgements,
   loadMyAvailability,
   loadMyEmployee,
+  loadMyServicesAdvisory,
   requireMyWorkplace,
 } from "@/lib/my-workplace/server";
 
@@ -17,9 +18,10 @@ export async function GET() {
   const employee = await loadMyEmployee(ctx.employeeId);
   if (!employee) return NextResponse.json({ error: "No linked employee record" }, { status: 404 });
 
-  const [availability, acknowledgements] = await Promise.all([
+  const [availability, acknowledgements, servicesAdvisory] = await Promise.all([
     loadMyAvailability(ctx.employeeId),
     loadMyAcknowledgements(ctx.employeeId),
+    loadMyServicesAdvisory(ctx),
   ]);
   const contracts = buildMyContracts(employee.documents, acknowledgements);
   const dashboard = buildMyWorkplaceDashboard({ employee, availability, contracts });
@@ -35,5 +37,6 @@ export async function GET() {
     leaveRequests: employee.leaveRequests,
     entitlements: employee.leaveEntitlements,
     credentials: employee.credentials,
+    servicesAdvisory,
   });
 }

@@ -244,6 +244,10 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Location ↔ Employee | `support_location` | `employee` |
 | Location ↔ Product | `support_location` | `product` |
 
+| Location column | Purpose |
+|-----------------|---------|
+| `high_demand_advisory` | Manual high-demand flag for My Workplace **Services I can work at** (AB-0030) |
+
 | Catalogue | Used by |
 |-----------|---------|
 | Product | Agreement lines, booking lines, claims; `ndisSupportItem` / `support_item_number` is the natural key for NDIS imports |
