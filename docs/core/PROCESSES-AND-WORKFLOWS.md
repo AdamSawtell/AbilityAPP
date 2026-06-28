@@ -270,6 +270,28 @@ All document processes follow the same pattern:
 
 ---
 
+## 13a. Admin communications (AB-0034)
+
+Window `admin-communications` (workspace Admin, write). Messages are **immutable after publish** — admins can only close, re-open, or remind.
+
+**Publish workflow**
+
+1. Admin composes title + body, picks audience (All users or selected roles), acknowledgment requirement, and display method (forced modal or home banner).
+2. Optional schedule (`publish_at`) and expiry (`expires_at`); recurrence is one-off, keep-open, or weekly re-acknowledge.
+3. Publish writes one `admin_message` row (`status` = `active`, or `scheduled` when `publish_at` is future). A past publish time is treated as immediate.
+4. The **sender is excluded** from their own audience — they never see the modal/banner and are absent from the register and counts.
+
+**Recipient workflow**
+
+1. `GET /api/communications/pending` lazily syncs status (scheduled → active → expired) and returns the per-user modal queue + banners.
+2. Forced modals block the app until **I have read and understood** (3s minimum read); `POST /api/communications/acknowledge` records `seen_at` then `acknowledged_at` (immutable). Banners record `banner_dismissed_at`.
+3. Multiple pending modals show oldest first; acknowledged or expired/closed messages never re-show.
+4. Graceful degradation — a failed fetch never locks users out.
+
+**Management:** close early, re-open, remind pending (clears non-acknowledged seen/dismissed flags so the message re-surfaces), and export the acknowledgment register as CSV.
+
+---
+
 ## 14. Governance and audit processes
 
 | Process ID | Purpose |

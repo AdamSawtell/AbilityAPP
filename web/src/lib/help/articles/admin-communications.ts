@@ -9,7 +9,7 @@ export const adminCommunicationsArticle: HelpArticle = {
   keywords: ["communications", "message", "announcement", "acknowledgment", "compliance", "broadcast"],
   relatedRoutes: ["/admin/communications"],
   windowKeys: ["admin-communications"],
-  lastUpdated: "2026-06-28",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "overview",
@@ -44,6 +44,13 @@ export const adminCommunicationsArticle: HelpArticle = {
       id: "recipients",
       title: "What staff see",
       body: "When a message requires acknowledgment, staff see a company message modal after sign-in until they confirm I have read and understood. FYI banner messages appear at the top of the workspace and can be dismissed.",
+    },
+    {
+      id: "sender-excluded",
+      title: "Senders are excluded automatically",
+      body: "You never receive or have to acknowledge your own broadcast — even a message sent to All users. The estimated recipient count, acknowledgment register, and totals all exclude you as the sender, so you are never blocked by a message you published.",
+      relatedRoutes: ["/admin/communications"],
+      windowKeys: ["admin-communications"],
     },
   ],
 };

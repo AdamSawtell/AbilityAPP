@@ -170,6 +170,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Document registry | System operator | System → Document registry |
 | AI prepare record | Write on target module | Process `ai-prepare-record` |
 | Workspace roles admin | Admin | `admin-roles` |
+| Admin communications hub | Admin | `admin-communications` (write) — compose, close/reopen, register, CSV export |
 | Session / process / AI audit | Security, Admin | System → Admin |
 
 ---

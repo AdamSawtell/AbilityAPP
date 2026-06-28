@@ -272,8 +272,12 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Generated document | `entityType`, `entityId`, `templateId` | Supabase storage + `document_registry` |
 | Record audit event | `entityType`, `entityId` | `app_audit_log` |
 | Process audit | `processId`, user, outcome | Process audit tables |
+| Admin message (AB-0034) | `sender_user_id` → `app_user`; `audience_role_ids[]` → `app_role` | `admin_message` |
+| Admin message acknowledgment | `message_id` → `admin_message`, `user_id` → `app_user` | `admin_message_acknowledgment` (unique on message + user + recurrence period) |
 
 **Not a relational FK:** Document registry references entities by type + id string.
+
+**Admin communications (AB-0034):** `admin_message` carries the broadcast (title, body, audience, publish/expiry, recurrence, status). `admin_message_acknowledgment` is an immutable per-recipient seen/acknowledged record — never edited or deleted. The **sender is excluded** from their own message's audience, register, and acknowledgment totals.
 
 ---
 

@@ -42,7 +42,7 @@ function statusBadge(status: string) {
 
 export function CommunicationsHubAdminView() {
   const { hasAccess } = useAdminPageAccess("workspace");
-  const { users, roles } = useAuth();
+  const { users, roles, session } = useAuth();
   const [messages, setMessages] = useState<AdminMessageSummary[]>([]);
   const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -80,11 +80,11 @@ export function CommunicationsHubAdminView() {
   }, [hasAccess, load]);
 
   const recipientEstimate = useMemo(() => {
-    const activeUsers = users.filter((u) => u.active);
+    const activeUsers = users.filter((u) => u.active && u.id !== session?.userId);
     if (compose.audienceType === "all") return activeUsers.length;
     const roleSet = new Set(compose.audienceRoleIds);
     return activeUsers.filter((u) => u.roleIds.some((id) => roleSet.has(id))).length;
-  }, [compose.audienceType, compose.audienceRoleIds, users]);
+  }, [compose.audienceType, compose.audienceRoleIds, users, session?.userId]);
 
   const selected = messages.find((m) => m.id === activeId) ?? null;
 
@@ -223,7 +223,9 @@ export function CommunicationsHubAdminView() {
                     ))}
                   </div>
                 ) : null}
-                <p className="mt-2 text-xs text-slate-500">Estimated recipients: {recipientEstimate}</p>
+                <p className="mt-2 text-xs text-slate-500">
+                  Estimated recipients: {recipientEstimate} · you (the sender) are excluded automatically
+                </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">

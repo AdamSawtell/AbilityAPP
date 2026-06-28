@@ -106,12 +106,17 @@ export function messageStatusNeedsSync(message: AdminMessageRecord, now = new Da
   return effective;
 }
 
+/** A sender never receives or has to acknowledge their own broadcast. */
+export function userIsSender(message: AdminMessageRecord, userId: string): boolean {
+  return Boolean(message.senderUserId) && message.senderUserId === userId;
+}
+
 export function resolveAudienceUserIds(
   message: AdminMessageRecord,
   users: AppUserRow[],
   userRoles: UserRoleRow[]
 ): string[] {
-  const activeUsers = users.filter((u) => u.active);
+  const activeUsers = users.filter((u) => u.active && !userIsSender(message, u.id));
   if (message.audienceType === "all") return activeUsers.map((u) => u.id);
   const roleSet = new Set(message.audienceRoleIds);
   const byUser = new Map<string, string[]>();
@@ -157,6 +162,7 @@ export function isPendingForUser(
 ): PendingAdminMessage | null {
   const status = effectiveMessageStatus(message, now);
   if (status !== "active") return null;
+  if (userIsSender(message, userId)) return null;
   if (!userMatchesAudience(message, userId, userRoleIds)) return null;
 
   const period = recurrencePeriodKey(message.recurrence, now);
