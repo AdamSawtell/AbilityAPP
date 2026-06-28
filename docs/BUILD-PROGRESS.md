@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | AB-0011 NDIS Price Guide Importer — shipped |
 | **Next slice** | AB-0012 Price Dependant Updater (depends on AB-0011 applied batches) |
-| **Last push** | Pending — AB-0011 importer UI/apply commit |
+| **Last push** | 2026-06-28 — AB-0011 importer UI/apply (`52bbb31`, `215fc16`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -39,7 +39,7 @@
 
 **What you can test:** System → Services → NDIS Price Guide Importer — upload 2025–26 wide/long or 2026–27 update CSV, review counts, apply with confirmation, confirm Products/Price lists update; import history shows batch; revert on applied batch.
 
-**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · `npx tsc --noEmit` ✅ · `npm run lint` ❌ pre-existing unrelated failures (no AB-0011 files) · Bugbot ✅ remediated (revert row fetch, sourceImportBatchId on new products only, changed-record upserts only, apply error status) · localhost smoke **Partial** — route loads at `127.0.0.1:3000/system/services/ndis-price-importer` (System sign-in required for upload/apply) · Amplify smoke pending after push
+**Verification:** `npm run build` ✅ · `npm run page-guides:check` ✅ · `npx tsc --noEmit` ✅ · `npm run lint` ❌ pre-existing unrelated failures (no AB-0011 files) · Bugbot ✅ remediated · localhost smoke **Partial** — route loads at `127.0.0.1:3000/system/services/ndis-price-importer` (System sign-in required for upload/apply) · Amplify smoke **Pending deploy** — route URL resolves pre-deploy; re-smoke after Amplify build completes
 
 **Code review log:** 2026-06-28 — Bugbot on AB-0011 importer found revert row persistence, revert deactivating updated products, full-catalogue upsert, and apply status issues; remediated before commit.
 
