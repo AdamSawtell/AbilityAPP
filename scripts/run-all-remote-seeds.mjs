@@ -5,8 +5,15 @@
  * Requires SUPABASE_DB_URL in web/.env.local or the environment.
  *
  * Usage:
- *   npm run supabase:seed-demo-once
+ *   npm run supabase:seed-demo-once -- supabase/seed-clients-bulk.sql   (single file — recommended)
  *   npm run supabase:seed-demo-once -- --file supabase/seed-clients-bulk.sql
+ *   npm run supabase:seed-demo-once -- --all                            (FULL destructive manifest)
+ *
+ * SAFETY: running with no target now ERRORS instead of silently applying the
+ * entire manifest. The full manifest is destructive (it deletes + reinserts
+ * support_location_employee and all role grants), so it must be opted into with
+ * --all. Any argument ending in .sql is treated as a target file, so the npm
+ * "--file" flag being stripped can no longer trigger an accidental full reseed.
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -74,11 +81,31 @@ function runWithSupabaseCli(flag, sqlPath) {
 async function main() {
   loadEnvLocal();
 
-  const fileArg = process.argv.indexOf("--file");
-  const files =
-    fileArg >= 0 && process.argv[fileArg + 1]
-      ? [process.argv[fileArg + 1]]
-      : REMOTE_SEED_FILES;
+  const argv = process.argv.slice(2);
+  const wantsAll = argv.includes("--all");
+
+  // Collect explicit targets: anything ending in .sql (covers both the
+  // "--file X.sql" form, where npm may strip "--file", and bare positional X.sql).
+  const explicitFiles = argv.filter((a) => a.toLowerCase().endsWith(".sql"));
+
+  let files;
+  if (explicitFiles.length) {
+    files = explicitFiles;
+  } else if (wantsAll) {
+    files = REMOTE_SEED_FILES;
+  } else {
+    console.error(`
+Refusing to run the FULL seed manifest without an explicit target.
+
+The full manifest is destructive — it deletes and reinserts support_location_employee
+(employee↔location links) and every role's window/process/report/task grants.
+
+Run one of:
+  node scripts/run-all-remote-seeds.mjs supabase/seed-ai.sql   # single file (recommended)
+  node scripts/run-all-remote-seeds.mjs --all                  # full manifest (destructive)
+`);
+    process.exit(1);
+  }
 
   const dbUrl = resolveDbUrl();
 

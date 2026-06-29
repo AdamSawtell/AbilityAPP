@@ -40,5 +40,5 @@ jobs:
           if [ -n "${{ inputs.seed_file }}" ]; then
             node scripts/run-all-remote-seeds.mjs --file "${{ inputs.seed_file }}"
           else
-            node scripts/run-all-remote-seeds.mjs
+            node scripts/run-all-remote-seeds.mjs --all
           fi

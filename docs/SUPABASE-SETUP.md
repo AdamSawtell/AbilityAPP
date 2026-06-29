@@ -115,9 +115,17 @@ npm run supabase:push-remote
 **Demo data only** (one-off, e.g. after adding a new seed file):
 
 ```powershell
-npm run supabase:seed-demo-once
-npm run supabase:seed-demo-once -- --file supabase/seed-clients-bulk.sql
+# Single file (recommended — non-destructive to unrelated data):
+npm run supabase:seed-demo-once -- supabase/seed-clients-bulk.sql
+
+# Full manifest — DESTRUCTIVE (deletes + reinserts support_location_employee and
+# all role grants). Must be opted into explicitly:
+npm run supabase:seed-demo-once -- --all
 ```
+
+> Safety: running `supabase:seed-demo-once` with no target now errors instead of
+> silently applying the full manifest. Any `.sql` path is treated as the target,
+> so a stripped `--file` flag can no longer trigger an accidental full reseed.
 
 Or from GitHub: **Actions → Supabase seed demo data → Run workflow**.
 
