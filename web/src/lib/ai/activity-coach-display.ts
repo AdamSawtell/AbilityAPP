@@ -7,7 +7,7 @@ export type ActivityCoachClient = {
 };
 
 const ACTIVITY_INTENT_RE =
-  /\b(activity note|visit note|progress note|activity update|log (?:an? )?activity|create\b[\s\S]{0,48}\bactivity|write\b[\s\S]{0,32}\bactivity|home visit|meal prep|write (?:an? )?note|add (?:an? )?note)\b/i;
+  /\b(activity note|visit note|progress note|activity update|(?:log|add|create|write|record|enter|make|new|start)\b[\s\S]{0,48}\bactivit(?:y|ies)\b|home visit|meal prep|write (?:an? )?note|add (?:an? )?note)\b/i;
 
 // Words that signal the captured phrase is not a person's name (pronouns, time
 // words, and common activity vocabulary). Used to reject false matches like

@@ -8,7 +8,10 @@
  *  - KAREN-BUG-0004: claimed/assigned shifts visible in My shifts "All".
  */
 import { dayLabels, DEFAULT_AVAILABILITY_WEEKDAYS } from "../src/lib/my-workplace/types.ts";
-import { clientNameFromActivityMessage } from "../src/lib/ai/activity-coach-display.ts";
+import {
+  clientNameFromActivityMessage,
+  isActivityCoachIntent,
+} from "../src/lib/ai/activity-coach-display.ts";
 import { pickBestMatch, scoreClientMatch } from "../src/lib/ai/tools/client-resolve.ts";
 import { shiftsAssignedToWorker } from "../src/lib/roster-shift-checkin.ts";
 import { filterMyShiftsView } from "../src/lib/my-shifts-grouping.ts";
@@ -70,6 +73,14 @@ check(
   clientNameFromActivityMessage("add a note for the visit today"),
   null
 );
+
+// ---- Activity coach intent (add/record activity must start the coach) ------
+check("INTENT 'add an activity' starts coach", isActivityCoachIntent("add an activity for Karen"), true);
+check("INTENT 'add activities' starts coach", isActivityCoachIntent("I want to add activities"), true);
+check("INTENT 'record activity' starts coach", isActivityCoachIntent("record activity for Bernadette Rose"), true);
+check("INTENT 'log an activity' still starts coach", isActivityCoachIntent("log an activity for Karen"), true);
+check("INTENT 'create activity note' still starts coach", isActivityCoachIntent("create an activity note"), true);
+check("INTENT plain question does not start coach", isActivityCoachIntent("what activities does Karen have?"), false);
 
 // ---- KAREN-BUG-0003 (match grounding) -------------------------------------
 const bernadette = {
