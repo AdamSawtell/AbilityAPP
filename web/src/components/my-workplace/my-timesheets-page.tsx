@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { formatTimesheetPeriod, type TimesheetRecord } from "@/lib/timesheet";
 import { timesheetSubmitBlocked } from "@/lib/timesheet-workflow";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const statusTone: Record<string, string> = {
   Draft: "bg-slate-100 text-slate-700",
@@ -48,6 +49,7 @@ export function MyTimesheetsPage() {
       updatedBy: actor,
     });
     setMessage(`${sheet.documentNo} submitted for supervisor approval.`);
+    showSuccessToast(SAVE_TOAST_MESSAGES.timesheetSubmit);
   }
 
   return (

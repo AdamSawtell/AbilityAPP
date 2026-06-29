@@ -8,6 +8,7 @@ import {
   SHIFT_CHECKIN_MONITORING_FIELDS,
   type ShiftCheckinMonitoringSettings,
 } from "@/lib/shift-checkin-monitoring";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
   "w-full max-w-xs rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -80,6 +81,7 @@ export function ShiftCheckinMonitoringSettingsView() {
       setSaved(value);
       setDraft(value);
       setMessage("Shift check-in monitoring saved.");
+      showSuccessToast(SAVE_TOAST_MESSAGES.settings);
     } catch {
       setError("Could not save settings.");
     } finally {

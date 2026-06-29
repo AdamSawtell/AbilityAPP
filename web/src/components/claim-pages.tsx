@@ -10,6 +10,7 @@ import { ClientRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import {
   claimRecordIsLocked,
   claimSaveBlocked,
@@ -487,6 +488,7 @@ export function ClaimDetailView({ id }: { id: string }) {
     setDraft(null);
     setDirty(false);
     setSaveError("");
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
   };
 
   const handleDiscard = () => {

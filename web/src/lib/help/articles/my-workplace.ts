@@ -98,7 +98,7 @@ export const myWorkplaceArticle: HelpArticle = {
       steps: [
         "Set From / To times and a preference (Available, Preferred, Unavailable) for each day.",
         "Check the summary: weekly hours vs your contracted minimum and the organisation maximum.",
-        "Save availability — saves below your contracted minimum are blocked.",
+        "Save availability — saves below your contracted minimum are blocked. A green confirmation toast appears top-right when the save succeeds.",
         "If you are above the organisation maximum, confirm the request for manager approval; the summary then shows pending review until a manager decides.",
       ],
       relatedRoutes: ["/my/availability"],

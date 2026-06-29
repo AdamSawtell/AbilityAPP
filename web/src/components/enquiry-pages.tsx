@@ -18,6 +18,7 @@ import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { EnquiryActivityRow, EnquiryRecord } from "@/lib/enquiry";
 import { normalizeEnquiry } from "@/lib/enquiry";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
@@ -120,6 +121,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
     updateEnquiry(normalizeEnquiry(record));
     setDraft(null);
     setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
   }
 
   function onDiscard() {

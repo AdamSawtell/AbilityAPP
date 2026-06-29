@@ -9,6 +9,7 @@ import { BUDDY_SHIFT_PAY_POLICIES, normalizeBuddyShiftPayPolicy, type BuddyShift
 import { ORGANIZATION_ID } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
 import { useSystemAuthOptional } from "@/lib/system-auth-store";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
   "w-full max-w-md rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -31,6 +32,7 @@ export function BuddyShiftSettingsView() {
     });
     setDraftPolicy(null);
     setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.settings);
   }
 
   function onDiscard() {

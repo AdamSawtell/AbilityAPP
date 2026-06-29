@@ -11,8 +11,8 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AI activity coach (support worker / client assistant) — shipped + full Amplify browser test |
-| **Next slice** | Awaiting direction |
+| **Active slice** | AB-0038 Save confirmation toast — implemented (Phase 1 + 2) |
+| **Next slice** | AB-0041 Consistent save UX across line-item tables |
 | **Last push** | 2026-06-29 — AB-0007 Animal and Pet tab (`6b1e4ce`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
@@ -25,6 +25,26 @@
 ---
 
 ---
+
+---
+
+---
+
+## Save confirmation toast AB-0038 (2026-06-29)
+
+**Status:** Shipped.
+
+**Why:** Frontline testing showed users could not tell whether Save worked. A brief green toast confirms persistence without blocking work.
+
+| Area | Change |
+|------|--------|
+| Library | `sonner` + `@/lib/toast` (`showSuccessToast`, `SAVE_TOAST_MESSAGES`) |
+| UI | Top-right emerald toast, checkmark, 3s auto-dismiss, single-slot (replaces on rapid saves) |
+| Coverage | My availability, shifts, timesheets, clients, activity notes, leave, settings, locations, staff, documents, all major record saves |
+
+**What you can test:** See TEST-065 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0038-save-confirmation-toast-handoff.md`.
+
+**Code review log:** 2026-06-29 — Bugbot 2 Medium: timesheet save bar showed generic toast when status changed to Submitted/Approved (fixed status-aware message); client detail save showed activity-note toast when `aiDraft` query still loaded (fixed — always Client saved ✓ on record save bar; activity toast only on PrepareSaveActions).
 
 ---
 

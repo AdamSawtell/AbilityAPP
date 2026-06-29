@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useReferenceData } from "@/lib/config-store";
 import type { EmployeeLeaveRequestRow, EmployeeRecord } from "@/lib/employee";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -78,6 +79,7 @@ export function MyLeavePage() {
       setEndDate("");
       setNotes("");
       setMessage("Leave request submitted for manager approval.");
+      showSuccessToast(SAVE_TOAST_MESSAGES.leaveSubmit);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submit failed");
     } finally {

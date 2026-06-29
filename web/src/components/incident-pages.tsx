@@ -11,6 +11,7 @@ import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { canSeeAllIncidents, canViewIncidentRecord } from "@/lib/incident-list-access";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
@@ -148,6 +149,7 @@ export function IncidentDetailView({ id }: { id: string }) {
     updateIncident(record);
     setDraft(null);
     setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
   }
 
   function onDiscard() {

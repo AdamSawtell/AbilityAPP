@@ -10,6 +10,7 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { agencyWorkersForVendor, isAgencyVendorPartner } from "@/lib/agency-worker";
 import {
   businessPartnerSections,
@@ -272,6 +273,7 @@ function BusinessPartnerDetailViewInner({ id }: { id: string }) {
       upsertBusinessPartner(partner);
       setDraft(null);
       setSaved(true);
+      showSuccessToast(SAVE_TOAST_MESSAGES.saved);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Could not save business partner.");
     }

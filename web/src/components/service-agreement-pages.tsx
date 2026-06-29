@@ -16,6 +16,7 @@ import { ServiceAgreementList } from "@/components/service-agreement-list";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { exportServiceAgreementHtml, printServiceAgreement } from "@/lib/agreement-print";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { useAuth } from "@/lib/auth-store";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
@@ -519,6 +520,7 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           upsertServiceAgreement(record);
           setDraft(null);
           setSaved(true);
+          showSuccessToast(SAVE_TOAST_MESSAGES.saved);
         }}
         onDiscard={() => {
           setDraft(null);

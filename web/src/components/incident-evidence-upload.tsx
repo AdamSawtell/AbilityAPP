@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { newLineId } from "@/lib/client-line-tables";
 import type { IncidentEvidenceRow } from "@/lib/incident";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const BUCKET = "incident-evidence";
 
@@ -54,6 +55,7 @@ export function IncidentEvidenceUpload({
         uploadedBy,
         notes: "",
       });
+      showSuccessToast(SAVE_TOAST_MESSAGES.documentUpload);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {

@@ -9,6 +9,7 @@ import {
   type AvailabilityHoursPolicy,
   type OvernightHoursMode,
 } from "@/lib/availability-hours-policy";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { CONTRACTED_HOURS_PERIOD_OPTIONS } from "@/lib/contracted-hours";
 
 const inputClass =
@@ -89,6 +90,7 @@ export function AvailabilityHoursSettingsView() {
       setSaved(value);
       setDraft(value);
       setMessage("Availability hours policy saved.");
+      showSuccessToast(SAVE_TOAST_MESSAGES.settings);
     } catch {
       setError("Could not save settings.");
     } finally {

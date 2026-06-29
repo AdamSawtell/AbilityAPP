@@ -41,6 +41,7 @@ import { formatCheckInTimestamp } from "@/lib/roster-shift-checkin";
 import { shiftGeofenceAlerts } from "@/lib/shift-geofence";
 import { RosterSessionLinesPanel } from "@/components/roster-session-lines-panel";
 import { RosterSessionRiskPanel } from "@/components/roster-session-risk-panel";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -250,6 +251,7 @@ export function RosterShiftEditor({
         return;
       }
     }
+    showSuccessToast(SAVE_TOAST_MESSAGES.shift);
     onSaved?.();
     onClose();
   }

@@ -752,6 +752,25 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+---
+
+## TEST-065 — Save confirmation toast (AB-0038)
+
+| | |
+|--|--|
+| **User** | OliverWilliams / welcome → Support Worker (or any role with save access) |
+| **Pass if** | Green toast top-right after each save; auto-dismiss ~3s; no modal block |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/my/availability` → change a time → **Save availability** | Toast **Availability saved ✓** top-right |
+| 2 | `/clients/bp-bern` → edit a field → **Save changes** | Toast **Client saved ✓** |
+| 3 | `/my/timesheets` → submit a draft timesheet | Toast **Timesheet submitted ✓** |
+| 4 | AI chat on client → prepare activity → **Save activity** | Toast **Activity note saved ✓** |
+| 5 | Rapid double-save on same record | Second toast replaces first (no stack) |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text

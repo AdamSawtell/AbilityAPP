@@ -5,6 +5,7 @@ import type { AppUserRecord } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
 import type { EmployeeRecord } from "@/lib/employee";
 import { useAuth } from "@/lib/auth-store";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 function newUserId() {
   return `user-${Date.now()}`;
@@ -102,6 +103,7 @@ export function EmployeeSystemAccessPanel({
       setPassword("");
       setConfirmPassword("");
       setSaved(true);
+      showSuccessToast(SAVE_TOAST_MESSAGES.settings);
     } catch {
       setError("Could not save system access.");
     } finally {

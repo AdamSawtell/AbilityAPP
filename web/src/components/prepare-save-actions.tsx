@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { savePreparedActivityDraft } from "@/lib/ai/prepare-save.client";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 type PrepareSaveActionsProps = {
   draftId?: string;
@@ -31,6 +32,7 @@ export function PrepareSaveActions({
     setError("");
     try {
       const result = await savePreparedActivityDraft(draftId);
+      showSuccessToast(SAVE_TOAST_MESSAGES.activityNote);
       onSaved?.({
         clientName: result.clientName,
         subject: result.subject,

@@ -19,6 +19,7 @@ import {
   classifyShiftAvailability,
   sortOpenShiftsByAvailability,
 } from "../src/lib/roster-open-shifts.ts";
+import { SAVE_TOAST_MESSAGES, SAVE_SUCCESS_TOAST_ID, showSuccessToast } from "../src/lib/toast.ts";
 
 let failures = 0;
 
@@ -200,6 +201,11 @@ check(
   ).map((s) => s.id),
   ["ok", "ot"]
 );
+
+checkTruthy("AB-0038 showSuccessToast is exported", typeof showSuccessToast === "function");
+check("AB-0038 save toast id is stable", SAVE_SUCCESS_TOAST_ID, "save-success");
+checkTruthy("AB-0038 availability toast message", SAVE_TOAST_MESSAGES.availability.includes("✓"));
+checkTruthy("AB-0038 client toast message", SAVE_TOAST_MESSAGES.client.includes("✓"));
 
 if (failures > 0) {
   console.error(`\n${failures} regression check(s) failed.`);

@@ -17,6 +17,7 @@ import { useOrganization } from "@/lib/organization-store";
 import { OrgAppThemeSection } from "@/components/admin/org-app-theme-section";
 import { OrganizationCoreSummary } from "@/components/organization-core-summary";
 import { useOrgThemePreviewState } from "@/components/org-theme-provider";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 function OrgField({
   field,
@@ -133,6 +134,7 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
     });
     setDraft(null);
     setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.settings);
   }
 
   function onDiscard() {

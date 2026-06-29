@@ -10,6 +10,7 @@ import { useReferenceData } from "@/lib/config-store";
 import type { ProductRecord } from "@/lib/product";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 function Field({
   label,
@@ -225,6 +226,7 @@ export function ProductDetailView({ id }: { id: string }) {
           upsertProduct(product);
           setDraft(null);
           setSaved(true);
+          showSuccessToast(SAVE_TOAST_MESSAGES.saved);
         }}
         onDiscard={() => {
           setDraft(null);

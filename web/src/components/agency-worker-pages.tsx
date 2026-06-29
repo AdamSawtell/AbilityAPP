@@ -9,6 +9,7 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import {
   agencyWorkerDisplayName,
   agencyWorkersForVendor,
@@ -296,6 +297,7 @@ export function AgencyWorkerDetailView({ id }: { id: string }) {
     }
     setDraft(null);
     setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
   }
 
   const vendor = businessPartners.find((p) => p.id === worker.vendorBpId);
@@ -413,6 +415,7 @@ export function NewAgencyWorkerView({ vendorBpId }: { vendorBpId?: string }) {
       alert(err);
       return;
     }
+    showSuccessToast(SAVE_TOAST_MESSAGES.staff);
     router.push(`/agency-workers/${worker.id}`);
   }
 

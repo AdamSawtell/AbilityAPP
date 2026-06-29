@@ -15,6 +15,7 @@ import { WorkspaceProvider } from "@/lib/workspace-store";
 import { AiChatShellProvider } from "@/lib/ai/chat-shell-store";
 import { SystemTimezoneProvider } from "@/lib/system-timezone-store";
 import { OrgThemePreviewStateProvider, OrgThemeProvider } from "@/components/org-theme-provider";
+import { SuccessToaster } from "@/components/success-toaster";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
+        <SuccessToaster />
         <AuthProvider>
           <AuthGate>
             <AdminCommunicationsGate>

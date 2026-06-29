@@ -15,6 +15,7 @@ import {
   type AvailabilityOverMaxApprovalStatus,
 } from "@/lib/availability-hours-policy";
 import type { AvailabilityOverMaxRequest } from "@/lib/availability-hours-policy.server";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -162,6 +163,11 @@ export function MyAvailabilityPage() {
         body.overMaxRequest?.status === "pending"
           ? "Availability saved — manager approval is pending for hours above the maximum."
           : "Availability saved."
+      );
+      showSuccessToast(
+        body.overMaxRequest?.status === "pending"
+          ? "Availability saved — approval pending ✓"
+          : SAVE_TOAST_MESSAGES.availability
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");

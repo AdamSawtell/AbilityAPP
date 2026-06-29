@@ -12,6 +12,7 @@ import {
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
@@ -92,6 +93,7 @@ export function MaintenanceRequestDetailView({ id }: { id: string }) {
     }
     setDraft(null);
     setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
     setSaveError(null);
   }
 

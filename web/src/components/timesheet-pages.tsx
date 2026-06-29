@@ -9,6 +9,7 @@ import { EmployeeRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { localDateIso } from "@/lib/booking-cancellation";
 import { useData } from "@/lib/data-store";
 import { defaultPayPeriodRange } from "@/lib/pay-period";
@@ -485,6 +486,13 @@ export function TimesheetDetailView({ id }: { id: string }) {
     setDraft(null);
     setDirty(false);
     setSaveError("");
+    const toastMessage =
+      record.status === "Approved" && stored?.status !== "Approved"
+        ? "Timesheet approved ✓"
+        : record.status === "Submitted" && stored?.status !== "Submitted"
+          ? SAVE_TOAST_MESSAGES.timesheetSubmit
+          : SAVE_TOAST_MESSAGES.saved;
+    showSuccessToast(toastMessage);
   };
 
   const handleSubmit = () => {
@@ -499,6 +507,7 @@ export function TimesheetDetailView({ id }: { id: string }) {
     setDraft(null);
     setDirty(false);
     setSaveError("");
+    showSuccessToast(SAVE_TOAST_MESSAGES.timesheetSubmit);
   };
 
   const handleApprove = () => {
@@ -513,6 +522,7 @@ export function TimesheetDetailView({ id }: { id: string }) {
     setDraft(null);
     setDirty(false);
     setSaveError("");
+    showSuccessToast("Timesheet approved ✓");
   };
 
   const handleDiscard = () => {

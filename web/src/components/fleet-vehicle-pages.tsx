@@ -8,6 +8,7 @@ import { FleetVehicleTabbedView } from "@/components/fleet-vehicle-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { useData } from "@/lib/data-store";
 import { findFleetVehicleByRouteId, normalizeFleetVehicle, type FleetVehicleRecord } from "@/lib/fleet-vehicle";
 
@@ -73,6 +74,7 @@ export function FleetVehicleDetailView({ id }: { id: string }) {
     upsertFleetVehicle(vehicle);
     setDraft(null);
     setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
   }
 
   function onDiscard() {
