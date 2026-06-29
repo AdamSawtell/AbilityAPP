@@ -65,6 +65,9 @@ export function SystemLoginView() {
         <p className="mt-1 text-center text-xs text-slate-500">
           Separate from workspace sign-in. Use your System operator account.
         </p>
+        <p className="mt-2 text-center text-[11px] text-slate-400">
+          Username or full name — e.g. SuperUser or Super User
+        </p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>

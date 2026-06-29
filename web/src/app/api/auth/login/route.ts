@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { AppUserRecord } from "@/lib/access/types";
+import { normalizeLoginUsername } from "@/lib/auth/login-username";
 import { hashPassword, isPasswordHashed, verifyPassword } from "@/lib/auth/password.server";
 import { SEED_LOGIN_PASSWORDS } from "@/lib/auth/passwords.server";
 import { SEED_USERS } from "@/lib/access/seed";
@@ -68,9 +69,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const username = body.username?.trim() ?? "";
+  const usernameInput = body.username?.trim() ?? "";
+  const username = normalizeLoginUsername(usernameInput);
   const password = body.password ?? "";
-  if (!username || !password) {
+  if (!usernameInput || !password) {
     return NextResponse.json({ error: "Username and password are required" }, { status: 400 });
   }
 
@@ -88,7 +90,7 @@ export async function POST(request: Request) {
       if (!data || !verifyPassword(password, (data as UserRow).password)) {
         await recordFailedLogin({
           userId: data ? (data as UserRow).id : undefined,
-          userName: username,
+          userName: usernameInput,
           ipAddress: clientIpFromRequest(request),
           userAgent: request.headers.get("user-agent") ?? "",
           failureReason: "Invalid username or password",
@@ -105,12 +107,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ user: userFromRow(row, roleIds) });
     }
 
-    const seedUser = SEED_USERS.find((u) => u.username === username && u.active);
-    const seedPassword = SEED_LOGIN_PASSWORDS[username];
+    const seedUser = SEED_USERS.find(
+      (u) => u.active && normalizeLoginUsername(u.username) === username
+    );
+    const seedPassword = seedUser ? SEED_LOGIN_PASSWORDS[seedUser.username] : undefined;
     if (!seedUser || seedPassword !== password) {
       await recordFailedLogin({
         userId: seedUser?.id,
-        userName: username,
+        userName: usernameInput,
         ipAddress: clientIpFromRequest(request),
         userAgent: request.headers.get("user-agent") ?? "",
         failureReason: "Invalid username or password",

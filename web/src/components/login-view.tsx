@@ -112,6 +112,11 @@ export function LoginView() {
         <p className="mt-1 text-center text-xs text-slate-500">
           {showRoleStep ? "Choose the role for this session." : "Enter your username and password."}
         </p>
+        {!showRoleStep ? (
+          <p className="mt-2 text-center text-[11px] text-slate-400">
+            Username or full name — e.g. JasonBrown or Jason Brown
+          </p>
+        ) : null}
 
         {!showRoleStep ? (
           <form onSubmit={onCredentialsSubmit} className="mt-6 space-y-4">

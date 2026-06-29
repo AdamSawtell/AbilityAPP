@@ -10,7 +10,7 @@ export const gettingStartedArticle: HelpArticle = {
   keywords: ["login", "sign in", "role", "welcome", "overview", "introduction"],
   relatedRoutes: ["/login", "/"],
   windowKeys: [],
-  lastUpdated: "2026-06-26",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "what-is-abilityvua",
@@ -27,10 +27,10 @@ export const gettingStartedArticle: HelpArticle = {
     {
       id: "sign-in",
       title: "Sign in",
-      body: "Open the login page and enter your username and password. Your organisation administrator creates accounts and assigns roles.",
+      body: "Open the login page and enter your username and password. You can sign in with either one word (JasonBrown) or your full name with a space (Jason Brown) — both match the same account until Microsoft SSO is enabled. Your organisation administrator creates accounts and assigns roles.",
       steps: [
         "Go to the login page for your hosted site.",
-        "Enter your username and password.",
+        "Enter your username (or first and last name with a space) and password.",
         "Click Sign in.",
         "If you have more than one role, choose the role for this session from the profile menu at the bottom of the sidebar.",
         "The SuperUser demo account can switch to any active role for testing.",
