@@ -104,7 +104,9 @@ export async function runServerShiftCheckinEscalation(supabase: SupabaseClient):
         completedAt: "",
         resolutionNotes: "",
         updates: [],
-        automationRuleId: SHIFT_CHECKIN_ESCALATION_RULE_ID,
+        // No automationRuleId: there is no task_automation rule row for this
+        // synthetic sweep, and app_task.automation_rule_id has an FK. The
+        // dedupe key alone prevents duplicate open tasks per shift/worker/kind.
         automationDedupeKey: dedupeKey,
       },
       working

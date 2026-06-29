@@ -27,13 +27,36 @@ export async function POST() {
     return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
   }
 
+  const supabase = serviceClient();
+  const errors: string[] = [];
+
+  let created = 0;
   try {
-    const supabase = serviceClient();
-    const created = await runServerScheduledAutomations(supabase);
-    const shiftEscalations = await runServerShiftCheckinEscalation(supabase);
-    return NextResponse.json({ created: created + shiftEscalations, shiftEscalations });
+    created = await runServerScheduledAutomations(supabase);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Scheduled automation run failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    errors.push(`automations: ${err instanceof Error ? err.message : "failed"}`);
   }
+
+  let shiftEscalations = 0;
+  try {
+    shiftEscalations = await runServerShiftCheckinEscalation(supabase);
+  } catch (err) {
+    const detail =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err && "message" in err
+          ? String((err as { message: unknown }).message)
+          : JSON.stringify(err);
+    console.error("shift-checkin escalation failed:", err);
+    errors.push(`shift-checkin: ${detail}`);
+  }
+
+  if (errors.length === 2) {
+    return NextResponse.json({ error: errors.join("; ") }, { status: 500 });
+  }
+  return NextResponse.json({
+    created: created + shiftEscalations,
+    shiftEscalations,
+    ...(errors.length ? { warnings: errors } : {}),
+  });
 }

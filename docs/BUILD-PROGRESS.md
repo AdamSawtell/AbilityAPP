@@ -45,6 +45,8 @@
 
 **What you can test:** System → Workforce planning → **Shift check-in monitoring** → adjust grace/escalation minutes and hours variance → Save. With a published shift past its start and no check-in, run the scheduled workforce automations → a follow-up task appears for the worker's manager and a critical item shows on a coordinator's Home **Needs attention**. Sign in as a Support Worker → escalation items are not shown. Submit a timesheet with hours over the configured variance → approval is blocked.
 
+**Browser smoke (2026-06-29):** Settings page loads, saves and persists all four values after reload. Home **Needs attention** shows missed check-in items for a rostering-capable user (with worker name and minutes past start); a Support Worker (Oliver Williams) sees only personal items, no escalations. Scheduled sweep created 7 escalation tasks — assignee resolved to the reports-to manager (`user-michael`) with `role-coordinator` fallback when no manager user; a re-run created 0 (dedupe). **Fixes during smoke:** the sweep set a non-existent `automationRuleId` that violated `app_task` FK — dropped it (dedupe key alone prevents duplicates); and the scheduled-automation route now runs each automation independently so a pre-existing failure in incident/credential automations no longer blocks shift escalation (surfaced as a `warnings` entry instead of a 500).
+
 ---
 
 ## AB-0005 — Maintenance Request Tool (2026-06-29)
