@@ -738,8 +738,8 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | Step | Action | Pass if |
 |------|--------|---------|
 | 1 | Open `/maintenance` | Maintenance register loads with audit footer |
-| 2 | Open a location (e.g. Glenelg) → Maintenance tab → New request | Create form opens with location pre-filled |
-| 3 | Enter title, description, priority, save | Request appears in location list and central register |
+| 2 | Open a location (e.g. Glenelg) → Maintenance tab → Log maintenance request | Create form opens (title, location pre-filled, category, priority, description) with Cancel / Create request actions — no record is created yet |
+| 3 | Enter title, description, priority, click Create request | Record is created and opens on its Overview tab; request appears in location list and central register |
 | 4 | Open the request → Assignment tab | Assign employee or contractor details and save |
 | 5 | Set scheduled visit date on Overview, save | Date persists after refresh |
 | 6 | Location → Calendar → tick Show maintenance | Maintenance chip appears on scheduled date; overdue bar shows if applicable |

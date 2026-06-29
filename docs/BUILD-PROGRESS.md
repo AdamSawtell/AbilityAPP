@@ -55,6 +55,8 @@
 - Amplify smoke (`https://app.abilityvua.com`) — **PASS** as Super User: `/maintenance` register loads with all 5 locations; created MR-0001 "Leaking tap in laundry" from Glenelg (location pre-filled, SLA computed, 4 tabs, audit footer); save persisted (register shows 1 request); Glenelg Calendar **Show maintenance** chip renders alongside fleet bookings; no RLS error, no render loop.
 - Push: `1af7074` (`feat: AB-0005 Maintenance Request Tool`).
 
+**UX follow-up (2026-06-29):** User feedback — the maintenance create flow opened the full tabbed detail (instant-create), unlike every other module, and Fleet/Maintenance sidebar items used a bespoke grey pill with a duplicated map-pin icon. Fixed: (1) `/maintenance/new` is now a form-first create page (title, location, category, priority, description; Cancel / Create request) matching the enquiry pattern — the record is only created on submit and then opens on Overview; (2) Fleet and Maintenance now render with the standard `TopNavLink` (pink active state) and dedicated truck / wrench icons. `npm run build` exit 0, `npx tsc --noEmit` exit 0, `npm run page-guides:check` exit 0; Fleet sidebar item visually confirmed on localhost. Help article (maintenance) + TEST-102 step wording updated.
+
 ---
 
 ## AB-0006 — Vehicle and Fleet Management (2026-06-29)

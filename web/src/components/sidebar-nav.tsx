@@ -165,6 +165,28 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     );
   }
+  if (name === "fleet") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+        />
+      </svg>
+    );
+  }
+  if (name === "maintenance") {
+    return (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75"
+        />
+      </svg>
+    );
+  }
   if (name === "help") {
     return (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -588,33 +610,23 @@ export function SidebarNav() {
             </>
           ) : null}
           {showFleet ? (
-            <div className={showLocations ? "mt-2" : ""}>
-              <Link
+            <div className={showLocations ? "mt-1" : ""}>
+              <TopNavLink
                 href="/fleet"
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
-                  pathname.startsWith("/fleet")
-                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                }`}
-              >
-                <NavIcon name="location" />
-                Fleet
-              </Link>
+                active={pathname.startsWith("/fleet")}
+                icon={<NavIcon name="fleet" />}
+                label="Fleet"
+              />
             </div>
           ) : null}
           {showMaintenance ? (
-            <div className={showLocations || showFleet ? "mt-2" : ""}>
-              <Link
+            <div className={showLocations || showFleet ? "mt-1" : ""}>
+              <TopNavLink
                 href="/maintenance"
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
-                  pathname.startsWith("/maintenance")
-                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                }`}
-              >
-                <NavIcon name="location" />
-                Maintenance
-              </Link>
+                active={pathname.startsWith("/maintenance")}
+                icon={<NavIcon name="maintenance" />}
+                label="Maintenance"
+              />
             </div>
           ) : null}
         </div>
