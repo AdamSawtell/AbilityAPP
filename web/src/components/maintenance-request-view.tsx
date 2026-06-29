@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { FleetBookingForm } from "@/components/fleet-booking-form";
 import { LineItemTable } from "@/components/line-item-table";
 import { useAuth } from "@/lib/auth-store";
 import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/access/catalog";
@@ -16,6 +17,7 @@ import {
   maintenanceSlaDueAt,
 } from "@/lib/maintenance-compliance";
 import { maintenancePhotoTableConfig } from "@/lib/maintenance-line-tables";
+import { fleetBookingPrefillFromMaintenance } from "@/lib/fleet-vehicle";
 import {
   maintenanceRequestCategoryOptions,
   maintenanceRequestPriorityOptions,
@@ -99,6 +101,30 @@ export function MaintenanceRequestTabbedView({
   const breached = maintenanceSlaBreached(record);
   const needsApproval = maintenanceRequiresCostApproval(record);
   const varianceAlert = maintenanceCostVarianceExceeded(record);
+  const actor = session?.displayName ?? session?.username ?? "User";
+  const canBookVehicle = canWindow("fleet-bookings");
+  const canSaveBooking = canBookVehicle && canWriteWindow("fleet-bookings");
+  const bookingPrefill = useMemo(
+    () =>
+      fleetBookingPrefillFromMaintenance({
+        maintenanceRequestId: record.id,
+        documentNo: record.documentNo,
+        title: record.title,
+        locationId: record.locationId,
+        assignedEmployeeId: record.assignedEmployeeId,
+        scheduledAt: record.scheduledAt,
+        actor,
+      }),
+    [
+      record.id,
+      record.documentNo,
+      record.title,
+      record.locationId,
+      record.assignedEmployeeId,
+      record.scheduledAt,
+      actor,
+    ]
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[240px,1fr]">
@@ -262,6 +288,30 @@ export function MaintenanceRequestTabbedView({
                 <input className={inputClass} value={record.contractorEmail} onChange={(e) => onFieldChange("contractorEmail", e.target.value)} disabled={!canEditTab} />
               </label>
             </div>
+
+            {canBookVehicle ? (
+              <div className="mt-6 border-t border-slate-100 pt-6">
+                <p className="mb-4 text-sm text-slate-600">
+                  Book a vehicle for the site visit using the same form as Fleet → Bookings. Driver, location, and
+                  scheduled visit are prefilled from this request when set.
+                </p>
+                <FleetBookingForm
+                  maintenanceRequestId={record.id}
+                  prefill={bookingPrefill}
+                  readOnly={!canSaveBooking}
+                  formTitle="Book a vehicle for this visit"
+                  listFilter={{ maintenanceRequestId: record.id }}
+                />
+              </div>
+            ) : (
+              <p className="mt-6 border-t border-slate-100 pt-6 text-sm text-slate-500">
+                Vehicle bookings require Fleet → Bookings access. Open{" "}
+                <Link href="/fleet" className="font-medium text-[#b51266] hover:underline">
+                  Fleet
+                </Link>{" "}
+                to reserve a vehicle, or ask your administrator for access.
+              </p>
+            )}
           </TabSection>
         ) : null}
 

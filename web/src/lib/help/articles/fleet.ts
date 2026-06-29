@@ -41,7 +41,7 @@ export const fleetArticle: HelpArticle = {
     {
       id: "fleet-bookings",
       title: "Book a vehicle",
-      body: "Use the Bookings tab to reserve a vehicle for a time window, driver, optional client, location, and purpose. The system prevents overlapping confirmed bookings for the same vehicle and checks vehicle/driver compliance before saving.",
+      body: "Use the Bookings tab to reserve a vehicle for a time window, driver, optional client, location, and purpose. The system prevents overlapping confirmed bookings for the same vehicle and checks vehicle/driver compliance before saving. The same booking form is available on a maintenance request → Assignment tab when transport is needed for a site visit.",
       relatedRoutes: ["/fleet"],
       windowKeys: ["fleet-bookings"],
     },

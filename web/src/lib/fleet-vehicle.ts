@@ -53,6 +53,7 @@ export type FleetBookingRow = {
   clientId: string;
   locationId: string;
   shiftId: string;
+  maintenanceRequestId: string;
   startDatetime: string;
   endDatetime: string;
   purpose: string;
@@ -403,4 +404,76 @@ export function fleetVehicleServiceSummary(vehicle: FleetVehicleRecord): string 
   if (warn) return `${warn.label} in ${warn.daysUntil}d`;
   if (vehicle.nextServiceDue) return `Next service ${vehicle.nextServiceDue}`;
   return vehicle.status === "active" ? "Current" : String(vehicle.status);
+}
+
+/** Empty booking row — same defaults as the Fleet → Bookings tab. */
+export function createEmptyFleetBooking(partial: Partial<FleetBookingRow> = {}): FleetBookingRow {
+  const start = new Date();
+  start.setMinutes(0, 0, 0);
+  start.setHours(start.getHours() + 1);
+  const end = new Date(start);
+  end.setHours(end.getHours() + 2);
+  return {
+    id: partial.id ?? `fleet-book-${Date.now()}`,
+    vehicleId: partial.vehicleId ?? "",
+    employeeId: partial.employeeId ?? "",
+    clientId: partial.clientId ?? "",
+    locationId: partial.locationId ?? "",
+    shiftId: partial.shiftId ?? "",
+    maintenanceRequestId: partial.maintenanceRequestId ?? "",
+    startDatetime: partial.startDatetime ?? start.toISOString().slice(0, 16),
+    endDatetime: partial.endDatetime ?? end.toISOString().slice(0, 16),
+    purpose: partial.purpose ?? "Transport",
+    recurringConfig: partial.recurringConfig ?? null,
+    status: partial.status ?? "confirmed",
+    createdBy: partial.createdBy ?? "",
+    updatedBy: partial.updatedBy ?? "",
+  };
+}
+
+/**
+ * Add hours to a `datetime-local` wall-time string (YYYY-MM-DDTHH:MM) without
+ * any UTC conversion, so prefilled booking windows keep the visit's local time.
+ */
+function addHoursToWallTime(wall: string, hours: number): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(wall.trim());
+  if (!match) return wall;
+  const [, y, mo, d, h, mi] = match;
+  const date = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi));
+  if (Number.isNaN(date.getTime())) return wall;
+  date.setHours(date.getHours() + hours);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+/** Prefill a maintenance visit booking from the request record. */
+export function fleetBookingPrefillFromMaintenance(input: {
+  maintenanceRequestId: string;
+  documentNo: string;
+  title: string;
+  locationId: string;
+  assignedEmployeeId: string;
+  scheduledAt: string;
+  actor: string;
+}): Partial<FleetBookingRow> {
+  const purpose = input.title?.trim()
+    ? `Maintenance — ${input.title.trim()}`
+    : `Maintenance visit — ${input.documentNo || input.maintenanceRequestId}`;
+  const partial: Partial<FleetBookingRow> = {
+    maintenanceRequestId: input.maintenanceRequestId,
+    locationId: input.locationId,
+    employeeId: input.assignedEmployeeId,
+    purpose,
+    createdBy: input.actor,
+    updatedBy: input.actor,
+  };
+  if (input.scheduledAt?.trim()) {
+    // scheduledAt is a wall-time string; keep it as-is and add 2h locally.
+    const start = input.scheduledAt.slice(0, 16);
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(start)) {
+      partial.startDatetime = start;
+      partial.endDatetime = addHoursToWallTime(start, 2);
+    }
+  }
+  return partial;
 }

@@ -90,6 +90,7 @@ export type FleetBookingRowDb = {
   client_id: string | null;
   location_id: string | null;
   shift_id: string | null;
+  maintenance_request_id: string | null;
   start_datetime: string;
   end_datetime: string;
   purpose: string;
@@ -215,6 +216,7 @@ export function fleetBookingFromRow(row: FleetBookingRowDb): FleetBookingRow {
     clientId: str(row.client_id),
     locationId: str(row.location_id),
     shiftId: str(row.shift_id),
+    maintenanceRequestId: str(row.maintenance_request_id),
     startDatetime: row.start_datetime,
     endDatetime: row.end_datetime,
     purpose: row.purpose,
@@ -233,6 +235,7 @@ export function fleetBookingToRow(row: FleetBookingRow): FleetBookingRowDb {
     client_id: row.clientId?.trim() || null,
     location_id: row.locationId?.trim() || null,
     shift_id: row.shiftId?.trim() || null,
+    maintenance_request_id: row.maintenanceRequestId?.trim() || null,
     start_datetime: row.startDatetime,
     end_datetime: row.endDatetime,
     purpose: row.purpose,

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { FleetBookingForm } from "@/components/fleet-booking-form";
 import { LineItemTable } from "@/components/line-item-table";
 import { RecordCalendarPanel } from "@/components/record-calendar-panel";
 import { fleetFuelLogTableConfig, fleetInspectionTableConfig, fleetServiceRecordTableConfig } from "@/lib/fleet-line-tables";
@@ -9,7 +10,6 @@ import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/acces
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
-  fleetBookingStatusOptions,
   fleetVehicleComplianceFieldKeys,
   fleetVehicleOverviewFieldKeys,
   fleetVehicleRegistrationFieldKeys,
@@ -18,11 +18,9 @@ import {
   fleetVehicleTabs,
   fleetVehicleExpiryAlerts,
   fleetVehicleServiceSummary,
-  type FleetBookingRow,
   type FleetVehicleRecord,
   type FleetVehicleTab,
 } from "@/lib/fleet-vehicle";
-import { validateFleetBooking } from "@/lib/fleet-compliance";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -111,29 +109,6 @@ function TabSection({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-function newBooking(vehicleId: string): FleetBookingRow {
-  const start = new Date();
-  start.setMinutes(0, 0, 0);
-  start.setHours(start.getHours() + 1);
-  const end = new Date(start);
-  end.setHours(end.getHours() + 2);
-  return {
-    id: `fleet-book-${Date.now()}`,
-    vehicleId,
-    employeeId: "",
-    clientId: "",
-    locationId: "",
-    shiftId: "",
-    startDatetime: start.toISOString().slice(0, 16),
-    endDatetime: end.toISOString().slice(0, 16),
-    purpose: "Transport",
-    recurringConfig: null,
-    status: "confirmed",
-    createdBy: "SuperUser",
-    updatedBy: "SuperUser",
-  };
-}
-
 export function FleetVehicleTabbedView({
   vehicle,
   onFieldChange,
@@ -146,10 +121,8 @@ export function FleetVehicleTabbedView({
   readOnly?: boolean;
 }) {
   const { session, canWindow, canWriteWindow } = useAuth();
-  const { clients, employees, locations, incidents, rosterShifts, fleetBookings, upsertFleetBooking } = useData();
+  const { employees, locations, incidents, rosterShifts, fleetBookings } = useData();
   const [activeTab, setActiveTab] = useState<FleetVehicleTab>("Overview");
-  const [booking, setBooking] = useState<FleetBookingRow>(() => newBooking(vehicle.id));
-  const [bookingMessage, setBookingMessage] = useState<string | null>(null);
 
   const allowedTabs = allowedDetailTabsFromGroups("fleet", fleetVehicleTabGroups, session?.windowKeys ?? []);
   const safeAllowedTabs = allowedTabs.length ? allowedTabs : [...fleetVehicleTabs];
@@ -182,10 +155,6 @@ export function FleetVehicleTabbedView({
     value: employee.id,
     label: `${employee.searchKey} — ${employee.name}`,
   }));
-  const clientOptions = clients.map((client) => ({
-    value: client.id,
-    label: `${client.searchKey} — ${client.name}`,
-  }));
   const statusOptions = fleetVehicleStatusOptions.map((status) => ({ value: status, label: status.replace("_", " ") }));
 
   const vehicleBookings = fleetBookings
@@ -194,28 +163,6 @@ export function FleetVehicleTabbedView({
   const vehicleIncidents = incidents.filter((incident) => incident.vehicleId === vehicle.id);
   const linkedShifts = rosterShifts.filter((shift) => shift.vehicleId === vehicle.id);
   const expiryAlerts = fleetVehicleExpiryAlerts(vehicle);
-
-  function submitBooking() {
-    setBookingMessage(null);
-    const issues = validateFleetBooking(
-      booking,
-      fleetBookings,
-      vehicle,
-      employees.find((employee) => employee.id === booking.employeeId)
-    );
-    const blocking = issues.find((issue) => issue.severity === "error");
-    if (blocking) {
-      setBookingMessage(blocking.message);
-      return;
-    }
-    const error = upsertFleetBooking(booking, vehicle);
-    if (error) {
-      setBookingMessage(error);
-      return;
-    }
-    setBookingMessage("Vehicle booking saved.");
-    setBooking(newBooking(vehicle.id));
-  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[240px,1fr]">
@@ -348,99 +295,11 @@ export function FleetVehicleTabbedView({
 
         {activeTab === "Bookings" && canWindow("fleet-bookings") ? (
           <TabSection title="Vehicle bookings">
-            <div className="rounded-xl border border-slate-200 p-4">
-              <h3 className="font-medium text-slate-900">Book this vehicle</h3>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Driver</span>
-                  <select className={inputClass} value={booking.employeeId} onChange={(e) => setBooking({ ...booking, employeeId: e.target.value })} disabled={!canEditTab}>
-                    <option value="">Select driver…</option>
-                    {employeeOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Client (optional)</span>
-                  <select className={inputClass} value={booking.clientId} onChange={(e) => setBooking({ ...booking, clientId: e.target.value })} disabled={!canEditTab}>
-                    <option value="">None</option>
-                    {clientOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Location</span>
-                  <select className={inputClass} value={booking.locationId} onChange={(e) => setBooking({ ...booking, locationId: e.target.value })} disabled={!canEditTab}>
-                    <option value="">None</option>
-                    {locationOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Status</span>
-                  <select className={inputClass} value={booking.status} onChange={(e) => setBooking({ ...booking, status: e.target.value })} disabled={!canEditTab}>
-                    {fleetBookingStatusOptions.map((status) => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Start</span>
-                  <input type="datetime-local" className={inputClass} value={booking.startDatetime} onChange={(e) => setBooking({ ...booking, startDatetime: e.target.value })} disabled={!canEditTab} />
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">End</span>
-                  <input type="datetime-local" className={inputClass} value={booking.endDatetime} onChange={(e) => setBooking({ ...booking, endDatetime: e.target.value })} disabled={!canEditTab} />
-                </label>
-                <label className="block sm:col-span-2">
-                  <span className="mb-1.5 block text-xs font-medium text-slate-600">Purpose</span>
-                  <input className={inputClass} value={booking.purpose} onChange={(e) => setBooking({ ...booking, purpose: e.target.value })} disabled={!canEditTab} />
-                </label>
-              </div>
-              <div className="mt-4 flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={submitBooking}
-                  disabled={!canEditTab}
-                  className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-50"
-                >
-                  Save booking
-                </button>
-                {bookingMessage ? <p className="text-sm text-slate-600">{bookingMessage}</p> : null}
-              </div>
-            </div>
-
-            <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3">When</th>
-                    <th className="px-4 py-3">Driver</th>
-                    <th className="px-4 py-3">Client</th>
-                    <th className="px-4 py-3">Purpose</th>
-                    <th className="px-4 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {vehicleBookings.map((row) => (
-                    <tr key={row.id}>
-                      <td className="px-4 py-3">{row.startDatetime} to {row.endDatetime}</td>
-                      <td className="px-4 py-3">{optionLabels[row.employeeId] ?? "—"}</td>
-                      <td className="px-4 py-3">{clients.find((client) => client.id === row.clientId)?.name ?? "—"}</td>
-                      <td className="px-4 py-3">{row.purpose}</td>
-                      <td className="px-4 py-3">{row.status}</td>
-                    </tr>
-                  ))}
-                  {!vehicleBookings.length ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-6 text-center text-slate-500">No bookings yet.</td>
-                    </tr>
-                  ) : null}
-                </tbody>
-              </table>
-            </div>
+            <FleetBookingForm
+              fixedVehicle={vehicle}
+              readOnly={!canEditTab}
+              listFilter={{ vehicleId: vehicle.id }}
+            />
           </TabSection>
         ) : null}
 

@@ -35,13 +35,26 @@ export const maintenanceArticle: HelpArticle = {
       title: "Work a request through to close",
       steps: [
         "Overview — edit status through the lifecycle: Reported → Assigned → In Progress → Resolved → Closed.",
-        "Assignment — assign an internal employee or record contractor contact details.",
+        "Assignment — assign an internal employee or record contractor contact details. Book a vehicle for the site visit on the same form as Fleet → Bookings (driver, location, and scheduled visit prefilled from the request).",
         "Costs — enter estimated and actual cost, invoice references, and cost status. Costs above $500 need finance approval before they are treated as approved.",
         "Photos — attach issue, completion, or invoice images by URL.",
         "When resolved, the original requestor confirms completion before you move to Closed.",
       ],
       relatedRoutes: ["/maintenance"],
-      windowKeys: ["maintenance-overview", "maintenance-assignment", "maintenance-costs", "maintenance-photos"],
+      windowKeys: ["maintenance-overview", "maintenance-assignment", "maintenance-costs", "maintenance-photos", "fleet-bookings"],
+    },
+    {
+      id: "maintenance-vehicle-booking",
+      title: "Book a vehicle for a maintenance visit",
+      body: "When staff or a contractor need transport to the site, open the maintenance request → Assignment tab → Book a vehicle for this visit. The form matches Fleet → Bookings: pick a vehicle, driver, optional client, location, start/end times, and purpose. Driver, location, and scheduled visit are prefilled from the assignment when set. Saved bookings link back to the maintenance request and appear on the vehicle Bookings tab and location calendar.",
+      steps: [
+        "Open the maintenance request and go to Assignment.",
+        "Set assigned employee and scheduled visit if known — these prefilled the booking form.",
+        "Under Book a vehicle for this visit, select a vehicle and confirm driver, times, and purpose.",
+        "Click Save booking — the same overlap and compliance checks as Fleet → Bookings apply.",
+      ],
+      relatedRoutes: ["/maintenance", "/fleet"],
+      windowKeys: ["maintenance-assignment", "fleet-bookings"],
     },
     {
       id: "maintenance-incident",
