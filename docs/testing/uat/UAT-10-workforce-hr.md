@@ -20,6 +20,7 @@
 | UAT-10-S-012 | Employee exit checklist | Employment tab — separation | **Pass** — TEST-096 emp-staff-147 + DOC-28994158 |
 | UAT-10-S-013 | Employee line drawers | Credentials/leave/activity child rows open in side drawer | **Pass** — TEST-094 Amplify smoke (2026-06-25) |
 | UAT-10-S-014 | Training and meeting scheduling | `/workforce-planning/training`; roster badges; attendance sign-off; cost summary | Pending — TEST-063 |
+| UAT-10-S-015 | Availability over-maximum review | `/workforce-planning` → "Availability above maximum" panel lists staff who submitted weekly availability above the organisation maximum; Approve / Decline | **Pass** (2026-06-29, localhost) — RileyShaw (Rostering Manager) saw "Oliver Williams · 42 h/week submitted — organisation maximum 40 h/week"; Approve cleared the request from the pending queue |
 
 ## Employee tabs
 

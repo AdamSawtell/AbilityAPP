@@ -17,7 +17,10 @@
 | UAT-11-S-009 | `/my/open-shifts` | Open shift request marketplace | **Pass** — request / withdraw / critical fill flow covered by TEST-074 |
 | UAT-11-S-010 | `/my`, `/my/open-shifts`, `/my/shifts` | Contact Rostering communication | **Pass** — Amplify TEST-075 created **REQ-3220**, history opened `/tasks/task-1782528595749`, Rostering Officer saw it in To my role |
 | UAT-11-S-011 | `/my` | Services I can work at + high-demand advisory | Pending — TEST-077 |
+| UAT-11-S-012 | `/my/availability` | Hours summary shows weekly total vs contracted minimum and organisation maximum | **Pass** (2026-06-29, localhost) — OliverWilliams default Mon–Fri 09:00–17:00 showed "Weekly hours: 40h · Within organisation maximum (40h/week from 80h fortnight)" |
+| UAT-11-S-013 | `/my/availability` | Save within range succeeds | **Pass** (2026-06-29) — saved 40h pattern, "Availability saved" confirmation |
+| UAT-11-S-014 | `/my/availability` | Availability above organisation maximum requires manager approval | **Pass** (2026-06-29) — Monday set 07:00–17:00 → live "Weekly availability (42h) exceeds the organisation maximum… Manager approval is required"; save created request and showed "Over-maximum approval: pending review" + "Availability saved — manager approval is pending for hours above the maximum" |
 
 ## Window checklist
 
-[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-11** — **Pass** on Amplify (2026-06-27); S-009/S-010 updated by TEST-074/075 coverage.
+[UAT-INVENTORY.generated.md](./UAT-INVENTORY.generated.md) § **UAT-11** — **Pass** on Amplify (2026-06-27); S-009/S-010 updated by TEST-074/075 coverage; S-012/S-013/S-014 (availability hours policy) verified on localhost 2026-06-29.

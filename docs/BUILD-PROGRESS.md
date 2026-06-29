@@ -11,7 +11,7 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | My availability hours policy (min contract / max org / over-max approval) — in progress |
+| **Active slice** | My availability hours policy (min contract / max org / over-max approval) — shipped + full localhost browser test |
 | **Next slice** | Awaiting direction |
 | **Last push** | 2026-06-29 — AB-0007 Animal and Pet tab (`6b1e4ce`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
@@ -37,7 +37,7 @@
 | Area | Change |
 |------|--------|
 | Minimum | From employee **Contracted hours (minimum)** on the employee record (`contractedHoursPerPeriod`) |
-| Maximum | System setting `availability_max_hours_per_period` + period (default 76h fortnight) |
+| Maximum | System setting `availability_max_hours_per_period` + period (default 80h fortnight = 40h/week, matching the default Mon–Fri 09:00–17:00 template) |
 | Over-max | Approval role setting + `employee_availability_over_max_request` table; Workforce planning review panel |
 | Overnight | System tri-state: include / exclude / ask when end time is before start time |
 | My workplace | Hours summary banner, save validation, approval prompt when above max |
@@ -46,6 +46,8 @@
 **Deferred:** Apply same overnight mode to rostered-hours vs contracted shortfall calculations; block roster assignment when availability below minimum.
 
 **What you can test:** System → Workforce planning → **Availability hours** → set max + approval role + overnight mode. As a worker with contracted hours, open **My availability** — summary shows min/max; reduce hours below contract → save blocked; raise above max → approval prompt. As rostering manager, approve on **Workforce planning** → Availability above maximum panel.
+
+**Browser smoke (2026-06-29, localhost — full end-to-end):** As OliverWilliams (Support Worker), `/my/availability` summary showed "Weekly hours: 40h · Within organisation maximum (40h/week from 80h fortnight)" — the default template no longer trips approval. Within-range save → "Availability saved". Setting Monday 07:00–17:00 (42h) → live "exceeds the organisation maximum… Manager approval is required"; save created the request and showed "Over-maximum approval: pending review". As RileyShaw (Rostering Manager), `/workforce-planning` → **Availability above maximum** listed "Oliver Williams · 42 h/week submitted — organisation maximum 40 h/week"; Approve cleared it from the queue. UAT rows added: UAT-11-S-012/013/014, UAT-10-S-015, UAT-13-S-016.
 
 ---
 

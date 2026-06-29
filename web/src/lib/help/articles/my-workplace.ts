@@ -94,7 +94,13 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "availability",
       title: "Working availability",
-      body: "Set your preferred weekly pattern so rostering can see when you are available, preferred, or unavailable. The default pattern is Monday to Friday. Save availability stays disabled until your weekly pattern has finished loading, so an empty form can never overwrite and clear your saved days.\n\nYour weekly total must meet or exceed your contracted minimum hours (from your employment contract on your employee record). It must also stay within the organisation maximum unless a manager approves extra hours.\n\nIf a day spans overnight (end time before start time), the organisation setting controls whether those hours count: always included, always excluded, or you are asked each time you save.",
+      body: "Set your preferred weekly pattern so rostering can see when you are available, preferred, or unavailable. The default pattern is Monday to Friday. Save availability stays disabled until your weekly pattern has finished loading, so an empty form can never overwrite and clear your saved days.\n\nThe summary at the top of the page shows your weekly hours total and how it compares to your limits. Your weekly total must meet or exceed your contracted minimum hours (from your employment contract on your employee record) — saves below the minimum are blocked. It must also stay within the organisation maximum unless a manager approves extra hours.\n\nIf your pattern is above the organisation maximum, saving submits a request to the configured approver (for example the Rostering Manager) and the summary shows Over-maximum approval: pending review. Once the manager approves, your above-maximum pattern stays saved; if they decline, reduce your hours and save again.\n\nIf a day spans overnight (end time before start time), the organisation setting controls whether those hours count: always included, always excluded, or you are asked each time you save.",
+      steps: [
+        "Set From / To times and a preference (Available, Preferred, Unavailable) for each day.",
+        "Check the summary: weekly hours vs your contracted minimum and the organisation maximum.",
+        "Save availability — saves below your contracted minimum are blocked.",
+        "If you are above the organisation maximum, confirm the request for manager approval; the summary then shows pending review until a manager decides.",
+      ],
       relatedRoutes: ["/my/availability"],
       windowKeys: ["my-availability"],
     },
