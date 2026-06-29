@@ -45,5 +45,12 @@ export const fleetArticle: HelpArticle = {
       relatedRoutes: ["/fleet"],
       windowKeys: ["fleet-bookings"],
     },
+    {
+      id: "fleet-calendar",
+      title: "See bookings on calendars",
+      body: "The Calendar tab on a vehicle shows that vehicle's confirmed and completed bookings alongside any shifts assigned to it and fleet tasks. Bookings that span several days appear on each covered day. The same booking also shows on the calendar of the linked location, employee, or client when set. Cancelled bookings are hidden.",
+      relatedRoutes: ["/fleet"],
+      windowKeys: ["fleet-calendar"],
+    },
   ],
 };

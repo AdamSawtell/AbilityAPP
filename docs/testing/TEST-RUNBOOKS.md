@@ -721,8 +721,9 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 2 | Open `VEH-001` | Detail page shows Overview, Calendar, Registration & insurance, Servicing, Inspections, Bookings, Fuel & mileage, Accessibility & compliance, Incidents |
 | 3 | Edit Overview notes and save | Success message appears; audit footer remains visible |
 | 4 | Add a booking for this vehicle | Booking saves and appears in the Bookings table |
-| 5 | Add another booking with overlapping start/end for the same vehicle | Save is blocked with an overlap/conflict message |
-| 6 | Add a failed inspection and save the vehicle | Vehicle status changes to `off_road` |
+| 5 | Open the Calendar tab and navigate to the booking date | Booking shows as a **Vehicle booking** chip on each day it covers; cancelled bookings do not appear |
+| 6 | Add another booking with overlapping start/end for the same vehicle | Save is blocked with an overlap/conflict message |
+| 7 | Add a failed inspection and save the vehicle | Vehicle status changes to `off_road` |
 
 ---
 

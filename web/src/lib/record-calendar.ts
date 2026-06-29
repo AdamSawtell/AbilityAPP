@@ -1,6 +1,7 @@
 import { canAccessWindow } from "@/lib/access/catalog";
 import type { ClientActivityRow } from "@/lib/client-line-tables";
 import type { EmployeeActivityRow } from "@/lib/employee";
+import type { FleetBookingRow } from "@/lib/fleet-vehicle";
 import type { LocationActivityRow } from "@/lib/location";
 import { addDaysIso, formatShiftTimeRange, weekStartFromDate, type RosterShiftRecord } from "@/lib/roster-shift";
 import { normalizeRosterShift } from "@/lib/roster-shift";
@@ -13,7 +14,7 @@ export type RecordCalendarViewMode = "fortnight" | "month" | "week" | "day";
 
 export type RecordCalendarEntityKind = "client" | "employee" | "location" | "vehicle";
 
-export type RecordCalendarEventKind = "task" | "shift-actual" | "shift-template" | "activity";
+export type RecordCalendarEventKind = "task" | "shift-actual" | "shift-template" | "activity" | "booking";
 
 export type RecordCalendarEvent = {
   id: string;
@@ -35,6 +36,7 @@ export type RecordCalendarInput = {
   tasks: TaskRecord[];
   rosterShifts: RosterShiftRecord[];
   rosterOfCares: RosterOfCareRecord[];
+  fleetBookings?: FleetBookingRow[];
   activities: ClientActivityRow[] | EmployeeActivityRow[] | LocationActivityRow[];
   /** When false, RoC master template lines are omitted (live shifts only). */
   includeRocTemplates?: boolean;
@@ -189,6 +191,68 @@ function templateShiftEvents(input: RecordCalendarInput): RecordCalendarEvent[] 
   return events;
 }
 
+function bookingTimeLabel(datetime: string | undefined): string {
+  if (!datetime?.includes("T")) return "";
+  return datetime.slice(11, 16);
+}
+
+function bookingMatchesEntity(
+  entityKind: RecordCalendarEntityKind,
+  entityId: string,
+  booking: FleetBookingRow
+): boolean {
+  switch (entityKind) {
+    case "vehicle":
+      return booking.vehicleId === entityId;
+    case "location":
+      return booking.locationId === entityId;
+    case "employee":
+      return booking.employeeId === entityId;
+    case "client":
+      return booking.clientId === entityId;
+    default:
+      return false;
+  }
+}
+
+function bookingEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
+  const bookings = input.fleetBookings ?? [];
+  if (!bookings.length) return [];
+  const canFleet = canAccessWindow(input.windowKeys, "fleet");
+  const events: RecordCalendarEvent[] = [];
+
+  for (const booking of bookings) {
+    if (booking.status === "cancelled") continue;
+    if (!booking.startDatetime?.trim()) continue;
+    if (!bookingMatchesEntity(input.entityKind, input.entityId, booking)) continue;
+
+    const startDate = booking.startDatetime.slice(0, 10);
+    const endDate = (booking.endDatetime?.trim() ? booking.endDatetime : booking.startDatetime).slice(0, 10);
+    const startTime = bookingTimeLabel(booking.startDatetime);
+    const endTime = bookingTimeLabel(booking.endDatetime);
+    const timeRange = startTime && endTime ? `${startTime}–${endTime}` : startTime;
+
+    // A booking may span multiple days; surface a chip on each covered day that
+    // falls inside the visible range.
+    let day = startDate < input.rangeStart ? input.rangeStart : startDate;
+    const lastDay = endDate > input.rangeEnd ? input.rangeEnd : endDate;
+    while (day <= lastDay) {
+      events.push({
+        id: `booking-${booking.id}-${day}`,
+        date: day,
+        kind: "booking",
+        title: timeRange ? `Booking ${timeRange}` : "Vehicle booking",
+        subtitle: [booking.purpose, booking.status].filter(Boolean).join(" · ") || undefined,
+        href: canFleet ? `/fleet/${booking.vehicleId}?tab=Bookings` : null,
+        urgency: "later",
+      });
+      day = addDaysIso(day, 1);
+    }
+  }
+
+  return events;
+}
+
 function activityEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
   const tab = encodeURIComponent("Activity");
   const baseHref =
@@ -217,6 +281,7 @@ export function recordCalendarEvents(input: RecordCalendarInput): RecordCalendar
     ...taskEvents(input),
     ...actualShiftEvents(input),
     ...(input.includeRocTemplates ? templateShiftEvents(input) : []),
+    ...bookingEvents(input),
     ...activityEvents(input),
   ];
   return events.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
@@ -240,6 +305,8 @@ export function recordCalendarKindLabel(kind: RecordCalendarEventKind): string {
       return "Live shift";
     case "shift-template":
       return "RoC template";
+    case "booking":
+      return "Vehicle booking";
     case "activity":
       return "Activity";
     default:

@@ -44,6 +44,8 @@ function eventStyles(event: RecordCalendarEvent): string {
       return "bg-teal-50 text-teal-900 ring-teal-200 hover:bg-teal-100";
     case "shift-template":
       return "bg-indigo-50 text-indigo-900 ring-indigo-200 hover:bg-indigo-100";
+    case "booking":
+      return "bg-amber-50 text-amber-900 ring-amber-200 hover:bg-amber-100";
     case "activity":
       return "bg-slate-50 text-slate-800 ring-slate-200 hover:bg-slate-100";
     default:
@@ -134,7 +136,7 @@ export function RecordCalendarPanel({
   activities: ClientActivityRow[] | EmployeeActivityRow[] | LocationActivityRow[];
   description: string;
 }) {
-  const { tasks, rosterShifts, rosterOfCares } = useData();
+  const { tasks, rosterShifts, rosterOfCares, fleetBookings } = useData();
   const { session } = useAuth();
   const windowKeys = session?.windowKeys ?? [];
 
@@ -159,6 +161,7 @@ export function RecordCalendarPanel({
         tasks,
         rosterShifts,
         rosterOfCares,
+        fleetBookings,
         activities,
         includeRocTemplates: showRocTemplates,
       }),
@@ -171,6 +174,7 @@ export function RecordCalendarPanel({
       tasks,
       rosterShifts,
       rosterOfCares,
+      fleetBookings,
       activities,
       showRocTemplates,
     ]
@@ -216,11 +220,11 @@ export function RecordCalendarPanel({
   const dayEvents = byDate.get(dayIso) ?? [];
 
   const visibleKinds = showRocTemplates
-    ? (["task", "shift-actual", "shift-template", "activity"] as const)
-    : (["task", "shift-actual", "activity"] as const);
+    ? (["task", "shift-actual", "shift-template", "booking", "activity"] as const)
+    : (["task", "shift-actual", "booking", "activity"] as const);
 
   const kindCounts = useMemo(() => {
-    const counts = { task: 0, "shift-actual": 0, "shift-template": 0, activity: 0 };
+    const counts = { task: 0, "shift-actual": 0, "shift-template": 0, booking: 0, activity: 0 };
     for (const event of events) counts[event.kind] += 1;
     return counts;
   }, [events]);
