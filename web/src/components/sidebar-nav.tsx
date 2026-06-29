@@ -408,6 +408,8 @@ export function SidebarNav() {
     if (key === "clients" && (pathname.startsWith("/clients") || pathname.startsWith("/service-agreements")))
       return true;
     if (key === "locations" && pathname.startsWith("/locations")) return true;
+    if (key === "fleet" && pathname.startsWith("/fleet")) return true;
+    if (key === "maintenance" && pathname.startsWith("/maintenance")) return true;
     if (key === "people" && pathname.startsWith("/employees")) return true;
     if (key === "workforce" && pathname.startsWith("/workforce-planning")) return true;
     if (key === "incidents" && pathname.startsWith("/incidents")) return true;
@@ -560,14 +562,12 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {showLocations || showFleet || showMaintenance ? (
+      {showLocations ? (
         <div
           className={sectionDividerClass(
             hasCoreNav || showEnquiries || showClients
           )}
         >
-          {showLocations ? (
-            <>
           <SectionHeader
             label="Locations"
             icon={<NavIcon name="location" />}
@@ -607,26 +607,50 @@ export function SidebarNav() {
               ) : null}
             </div>
           ) : null}
-            </>
-          ) : null}
-          {showFleet ? (
-            <div className={showLocations ? "mt-1" : ""}>
-              <TopNavLink
-                href="/fleet"
-                active={pathname.startsWith("/fleet")}
-                icon={<NavIcon name="fleet" />}
-                label="Fleet"
-              />
+        </div>
+      ) : null}
+
+      {showFleet ? (
+        <div className={sectionDividerClass(hasCoreNav || showEnquiries || showClients || showLocations)}>
+          <SectionHeader
+            label="Fleet"
+            icon={<NavIcon name="fleet" />}
+            sectionKey="fleet"
+            open={isOpen("fleet")}
+            onToggle={toggleSection}
+            href="/fleet"
+            active={pathname.startsWith("/fleet")}
+          />
+          {isOpen("fleet") ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              <Link href="/fleet" className={subLinkClass(pathname === "/fleet")}>
+                All vehicles
+              </Link>
             </div>
           ) : null}
-          {showMaintenance ? (
-            <div className={showLocations || showFleet ? "mt-1" : ""}>
-              <TopNavLink
-                href="/maintenance"
-                active={pathname.startsWith("/maintenance")}
-                icon={<NavIcon name="maintenance" />}
-                label="Maintenance"
-              />
+        </div>
+      ) : null}
+
+      {showMaintenance ? (
+        <div
+          className={sectionDividerClass(
+            hasCoreNav || showEnquiries || showClients || showLocations || showFleet
+          )}
+        >
+          <SectionHeader
+            label="Maintenance"
+            icon={<NavIcon name="maintenance" />}
+            sectionKey="maintenance"
+            open={isOpen("maintenance")}
+            onToggle={toggleSection}
+            href="/maintenance"
+            active={pathname.startsWith("/maintenance")}
+          />
+          {isOpen("maintenance") ? (
+            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
+              <Link href="/maintenance" className={subLinkClass(pathname === "/maintenance")}>
+                All requests
+              </Link>
             </div>
           ) : null}
         </div>
