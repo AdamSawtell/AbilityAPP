@@ -11,8 +11,8 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0005 Maintenance Request Tool — verification in progress |
-| **Next slice** | Amplify smoke + commit when approved |
+| **Active slice** | AB-0005 Maintenance Request Tool — shipped (Amplify smoke pass) |
+| **Next slice** | Awaiting direction |
 | **Last push** | 2026-06-28 — AB-0012 smoke/Bugbot fixes (`51a0057`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
@@ -51,7 +51,9 @@
 - `npm run supabase:push-remote` — exit 0 (`20260729140000_maintenance_requests`, `20260729150000_maintenance_requests_rls_anon`)
 - `npm run supabase:seed-demo-once -- --file supabase/seed-access.sql` — exit 0
 - Localhost smoke — register loads; create lifecycle redirects to detail with audit footer. Fixed two bugs found in smoke: (1) infinite render loop — `addMaintenanceRequest` depended on `maintenanceRequests` state so the new-page effect re-fired; switched to a ref + create-once guard; (2) RLS insert rejection (42501) — initial policies were `authenticated`-only; added `20260729150000` to allow `anon, authenticated` like fleet. Also guarded `/maintenance/new` against the non-null `location_id` FK by defaulting to the first visible location (or a "no location" notice).
-- Amplify smoke (location-scoped create + calendar chips) — pending (localhost demo user has no location access)
+- Bugbot — 3 High / 3 Medium, all fixed: (H) status lifecycle validation never ran on save — now validates from persisted status to target; (H) maintenance fetch errors omitted from `fetchAllData` error chain — added; (H) maintenance bypassed location scope — added `filterByLocationIdField` + wired `maintenanceRequests` into `applyLocationScopeToView`; (M) empty-location save blocked in `upsertMaintenanceRequest`; (M) overdue bar counted resolved requests — aligned to `isOpenMaintenanceStatus`; (M) detail tab stuck across records — reset on `record.id`/`?tab=` change.
+- Amplify smoke (`https://app.abilityvua.com`) — **PASS** as Super User: `/maintenance` register loads with all 5 locations; created MR-0001 "Leaking tap in laundry" from Glenelg (location pre-filled, SLA computed, 4 tabs, audit footer); save persisted (register shows 1 request); Glenelg Calendar **Show maintenance** chip renders alongside fleet bookings; no RLS error, no render loop.
+- Push: `1af7074` (`feat: AB-0005 Maintenance Request Tool`).
 
 ---
 
