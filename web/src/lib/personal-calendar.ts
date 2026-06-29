@@ -19,6 +19,7 @@ import {
   shiftRequestResponseLabels,
   type RosterShiftRequestRecord,
 } from "@/lib/roster-shift-request";
+import { calendarEventsByDate, sortCalendarEvents } from "@/lib/calendar-sort";
 
 export type CalendarViewMode = "month" | "week" | "day";
 
@@ -40,6 +41,8 @@ export type PersonalCalendarEvent = {
   kind: PersonalCalendarEventKind;
   title: string;
   subtitle?: string;
+  /** HH:MM — used to order timed items earliest-first within a day. */
+  startTime?: string;
   href: string;
   urgency?: TaskUrgency;
 };
@@ -262,6 +265,7 @@ function rosterShiftEvents(
         kind: "roster-shift" as const,
         title: `Shift ${timeRange}`,
         subtitle: shift.shiftRef || shift.status || "Allocated shift",
+        startTime: shift.startTime,
         href: "/my/shifts",
         urgency: "later" as const,
       };
@@ -293,6 +297,7 @@ function shiftRequestEvents(
       kind: "shift-request",
       title: `Requested ${timeRange}`,
       subtitle: shiftRequestResponseLabels[request.responseType],
+      startTime: shift.startTime,
       href: "/my/open-shifts",
       urgency: "soon",
     });
@@ -338,19 +343,18 @@ export function personalCalendarEvents(
   const shifts = employee ? rosterShiftEvents(rosterShifts, employee.id) : [];
   const requests = employee ? shiftRequestEvents(shiftRequests, rosterShifts, employee.id) : [];
   const incidentDeadlines = incidentDeadlineEvents(incidents, session);
-  return [...taskEvents, ...shifts, ...requests, ...compliance, ...leave, ...incidentDeadlines].sort(
-    (a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title)
-  );
+  return sortCalendarEvents([
+    ...taskEvents,
+    ...shifts,
+    ...requests,
+    ...compliance,
+    ...leave,
+    ...incidentDeadlines,
+  ]);
 }
 
 export function eventsByDate(events: PersonalCalendarEvent[]): Map<string, PersonalCalendarEvent[]> {
-  const map = new Map<string, PersonalCalendarEvent[]>();
-  for (const event of events) {
-    const list = map.get(event.date) ?? [];
-    list.push(event);
-    map.set(event.date, list);
-  }
-  return map;
+  return calendarEventsByDate(events);
 }
 
 export function eventKindLabel(kind: PersonalCalendarEventKind): string {

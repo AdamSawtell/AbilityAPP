@@ -17,6 +17,7 @@ import type { RosterOfCareLine, RosterOfCareRecord } from "@/lib/roster-of-care"
 import type { TaskRecord } from "@/lib/task";
 import { taskUrgency, type TaskUrgency } from "@/lib/task-hub";
 import { fortnightDays, isoFromDate, monthGridDays, weekDays } from "@/lib/personal-calendar";
+import { calendarEventsByDate, sortCalendarEvents } from "@/lib/calendar-sort";
 
 export type RecordCalendarViewMode = "fortnight" | "month" | "week" | "day";
 
@@ -30,6 +31,8 @@ export type RecordCalendarEvent = {
   kind: RecordCalendarEventKind;
   title: string;
   subtitle?: string;
+  /** HH:MM — used to order timed items earliest-first within a day. */
+  startTime?: string;
   /** When null the chip renders without a link (user lacks access). */
   href: string | null;
   urgency?: TaskUrgency;
@@ -133,6 +136,7 @@ function actualShiftEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
       kind: "shift-actual",
       title: published ? `Shift ${timeRange}` : `Draft shift ${timeRange}`,
       subtitle: [shift.shiftRef, shift.status].filter(Boolean).join(" · "),
+      startTime: shift.startTime,
       href: canRoster ? `/rostering?week=${weekStartFromDate(shift.shiftDate)}` : null,
       urgency: published ? "later" : "soon",
     });
@@ -190,6 +194,7 @@ function templateShiftEvents(input: RecordCalendarInput): RecordCalendarEvent[] 
           kind: "shift-template",
           title: `RoC ${timeRange}`,
           subtitle: roc.name,
+          startTime: line.startTime,
           href,
           urgency: "later",
         });
@@ -253,6 +258,7 @@ function bookingEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
         kind: "booking",
         title: timeRange ? `Booking ${timeRange}` : "Vehicle booking",
         subtitle: [booking.purpose, booking.status].filter(Boolean).join(" · ") || undefined,
+        startTime: startTime || undefined,
         href: canFleet ? `/fleet/${booking.vehicleId}?tab=Bookings` : null,
         urgency: "later",
       });
@@ -275,6 +281,8 @@ function maintenanceEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
     if (row.status === "cancelled") continue;
     const date = maintenanceCalendarDate(row);
     if (!date || !inRange(date, input.rangeStart, input.rangeEnd)) continue;
+    const scheduled = row.scheduledAt?.trim();
+    const startTime = scheduled?.includes("T") ? scheduled.slice(11, 16) : undefined;
     const breached = maintenanceSlaBreached(row);
     const escalated = maintenanceSlaEscalated(row);
     events.push({
@@ -283,6 +291,7 @@ function maintenanceEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
       kind: "maintenance",
       title: row.title || row.documentNo,
       subtitle: [row.priority, row.status.replace(/_/g, " ")].filter(Boolean).join(" · "),
+      startTime,
       href: canMaintenance ? `/maintenance/${row.id}` : null,
       urgency: breached || escalated ? "overdue" : row.priority === "urgent" || row.priority === "high" ? "soon" : "later",
     });
@@ -323,17 +332,11 @@ export function recordCalendarEvents(input: RecordCalendarInput): RecordCalendar
     ...maintenanceEvents(input),
     ...activityEvents(input),
   ];
-  return events.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
+  return sortCalendarEvents(events);
 }
 
 export function recordCalendarEventsByDate(events: RecordCalendarEvent[]): Map<string, RecordCalendarEvent[]> {
-  const map = new Map<string, RecordCalendarEvent[]>();
-  for (const event of events) {
-    const list = map.get(event.date) ?? [];
-    list.push(event);
-    map.set(event.date, list);
-  }
-  return map;
+  return calendarEventsByDate(events);
 }
 
 export function recordCalendarKindLabel(kind: RecordCalendarEventKind): string {
