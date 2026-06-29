@@ -65,6 +65,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `admin_message_acknowledgment` | AB-0034 immutable per-user seen/acknowledged records (with optional weekly recurrence period key) |
 | `fleet_vehicle` | AB-0006 vehicle register — registration, insurance, status, odometer, assigned location/driver, accessibility and asset fields |
 | `fleet_service_record` / `fleet_inspection` / `fleet_fuel_log` / `fleet_booking` | AB-0006 fleet child tables for servicing, pre-start checks, mileage, and vehicle bookings |
+| `maintenance_request` / `maintenance_request_photo` | AB-0005 maintenance register — location-linked requests with SLA, cost approval fields, optional incident link, and photo lines |
 | `employee` driver qualification fields | AB-0006 licence number/class/expiry, medical, NDIS screening, WWCC, driver history, vehicle certifications |
 | `roster_shift.vehicle_id` / `incident.vehicle_id` | AB-0006 links shifts and incidents to provider-owned fleet vehicles |
 | `agency_worker` | Agency relief workers (vendor-linked; not employees) |

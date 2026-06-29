@@ -331,6 +331,7 @@ export function SidebarNav() {
   const showIncidents = canWindow("incidents");
   const showLocations = canWindow("locations");
   const showFleet = canWindow("fleet");
+  const showMaintenance = canWindow("maintenance");
   const visiblePeopleLinks = peopleLinks.filter((l) => canWindow(l.windowKey));
   const visibleMyWorkplaceLinks = myWorkplaceLinks.filter((l) => l.canShow(canWindow));
   const visibleWorkforceLinks = workforceLinks.filter((l) => l.canShow(canWindow));
@@ -537,7 +538,7 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {showLocations || showFleet ? (
+      {showLocations || showFleet || showMaintenance ? (
         <div
           className={sectionDividerClass(
             hasCoreNav || showEnquiries || showClients
@@ -598,6 +599,21 @@ export function SidebarNav() {
               >
                 <NavIcon name="location" />
                 Fleet
+              </Link>
+            </div>
+          ) : null}
+          {showMaintenance ? (
+            <div className={showLocations || showFleet ? "mt-2" : ""}>
+              <Link
+                href="/maintenance"
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
+                  pathname.startsWith("/maintenance")
+                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <NavIcon name="location" />
+                Maintenance
               </Link>
             </div>
           ) : null}

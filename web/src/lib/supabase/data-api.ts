@@ -30,6 +30,8 @@ import type { LocationRecord } from "@/lib/location";
 import { normalizeLocation } from "@/lib/location";
 import type { FleetBookingRow, FleetVehicleRecord } from "@/lib/fleet-vehicle";
 import { normalizeFleetVehicle } from "@/lib/fleet-vehicle";
+import type { MaintenanceRequestRecord } from "@/lib/maintenance-request";
+import { normalizeMaintenanceRequest } from "@/lib/maintenance-request";
 import type { PriceListRecord, ProductRecord } from "@/lib/product";
 import { normalizePriceList } from "@/lib/product";
 import type { NdisPriceImportBatch, NdisPriceImportRow } from "@/lib/ndis-price-import";
@@ -216,6 +218,14 @@ import {
   type FleetVehicleRowDb,
 } from "@/lib/supabase/fleet-mappers";
 import {
+  maintenancePhotoFromRow,
+  maintenancePhotoToRow,
+  maintenanceRequestFromRow,
+  maintenanceRequestToRow,
+  type MaintenancePhotoRowDb,
+  type MaintenanceRequestRowDb,
+} from "@/lib/supabase/maintenance-mappers";
+import {
   rosterOfCareFromRow,
   rosterOfCareLineToRow,
   rosterOfCareToRow,
@@ -332,6 +342,7 @@ export type AppData = {
   locations: LocationRecord[];
   fleetVehicles: FleetVehicleRecord[];
   fleetBookings: FleetBookingRow[];
+  maintenanceRequests: MaintenanceRequestRecord[];
 };
 
 async function replaceChildRows(
@@ -604,6 +615,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     fleetInspectionsRes,
     fleetFuelLogsRes,
     fleetBookingsRes,
+    maintenanceRequestsRes,
+    maintenancePhotosRes,
   ] = await Promise.all([
     supabase.from("enquiry").select("*").order("date_received", { ascending: false }),
     supabase.from("enquiry_activity").select("*").order("line_no"),
@@ -689,6 +702,8 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("fleet_inspection").select("*").order("inspection_date", { ascending: false }),
     supabase.from("fleet_fuel_log").select("*").order("line_no"),
     supabase.from("fleet_booking").select("*").order("start_datetime", { ascending: false }),
+    supabase.from("maintenance_request").select("*").order("reported_at", { ascending: false }),
+    supabase.from("maintenance_request_photo").select("*").order("line_no"),
   ]);
 
   const firstError =
@@ -775,7 +790,9 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     fleetServiceRecordsRes.error ??
     fleetInspectionsRes.error ??
     fleetFuelLogsRes.error ??
-    fleetBookingsRes.error;
+    fleetBookingsRes.error ??
+    maintenanceRequestsRes.error ??
+    maintenancePhotosRes.error;
 
   if (firstError) throw firstError;
 
@@ -858,6 +875,10 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const serviceRecordsByVehicle = groupBy(fleetServiceRecordsRes.data as FleetServiceRecordRowDb[], "vehicle_id");
   const inspectionsByVehicle = groupBy(fleetInspectionsRes.data as FleetInspectionRowDb[], "vehicle_id");
   const fuelLogsByVehicle = groupBy(fleetFuelLogsRes.data as FleetFuelLogRowDb[], "vehicle_id");
+  const photosByMaintenanceRequest = groupBy(
+    maintenancePhotosRes.data as MaintenancePhotoRowDb[],
+    "request_id"
+  );
   const boardReporting = await fetchBoardReporting(supabase);
 
   return {
@@ -1022,6 +1043,13 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
       )
     ),
     fleetBookings: ((fleetBookingsRes.data ?? []) as FleetBookingRowDb[]).map(fleetBookingFromRow),
+    maintenanceRequests: ((maintenanceRequestsRes.data ?? []) as MaintenanceRequestRowDb[]).map((row) =>
+      normalizeMaintenanceRequest(
+        maintenanceRequestFromRow(row, {
+          photos: (photosByMaintenanceRequest.get(row.id) ?? []).map(maintenancePhotoFromRow),
+        })
+      )
+    ),
     boardReportTemplates: boardReporting.templates,
     boardReportPacks: boardReporting.packs,
   };
@@ -2733,4 +2761,18 @@ export async function saveFleetVehicle(supabase: SupabaseClient, record: FleetVe
 export async function saveFleetBooking(supabase: SupabaseClient, record: FleetBookingRow) {
   const { error } = await supabase.from("fleet_booking").upsert(fleetBookingToRow(record));
   if (error) throw error;
+}
+
+export async function saveMaintenanceRequest(supabase: SupabaseClient, record: MaintenanceRequestRecord) {
+  const normalized = normalizeMaintenanceRequest(record);
+  const { error } = await supabase.from("maintenance_request").upsert(maintenanceRequestToRow(normalized));
+  if (error) throw error;
+
+  await replaceChildRows(supabase, "maintenance_request_photo", "request_id", normalized.id);
+  if (normalized.photos.length) {
+    const { error: photoError } = await supabase.from("maintenance_request_photo").insert(
+      normalized.photos.map((row) => maintenancePhotoToRow(normalized.id, row))
+    );
+    if (photoError) throw photoError;
+  }
 }

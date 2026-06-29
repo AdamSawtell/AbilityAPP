@@ -97,6 +97,19 @@ export function filterByClientIdField<T>(
   });
 }
 
+export function filterByLocationIdField<T>(
+  records: T[],
+  visibleLocationIds: Set<string> | null,
+  getLocationId: (row: T) => string | undefined | null
+): T[] {
+  if (!visibleLocationIds) return records;
+  return records.filter((row) => {
+    const locationId = getLocationId(row)?.trim();
+    if (!locationId) return true;
+    return visibleLocationIds.has(locationId);
+  });
+}
+
 export function incidentLinkedClientIds(record: IncidentRecord): string[] {
   const ids = new Set<string>();
   const primary = record.primaryClientId?.trim();
@@ -219,6 +232,7 @@ export type LocationScopedViewCollections = {
   claims: { clientId: string }[];
   invoices: { clientId: string }[];
   tasks: { entityType: string; entityId: string }[];
+  maintenanceRequests: { locationId: string }[];
 };
 
 export function applyLocationScopeToView<T extends LocationScopedViewCollections>(
@@ -244,5 +258,10 @@ export function applyLocationScopeToView<T extends LocationScopedViewCollections
     claims: filterByClientIdField(data.claims, visibleClientIds, (row) => row.clientId),
     invoices: filterByClientIdField(data.invoices, visibleClientIds, (row) => row.clientId),
     tasks: filterTasksByLocationScope(data.tasks, visibleClientIds),
+    maintenanceRequests: filterByLocationIdField(
+      data.maintenanceRequests,
+      visibleLocationIds,
+      (row) => row.locationId
+    ),
   };
 }

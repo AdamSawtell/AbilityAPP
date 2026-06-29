@@ -2,6 +2,7 @@ import { clientTabs } from "@/lib/client";
 import { contractTabs } from "@/lib/contract-fields";
 import { employeeTabGroups } from "@/lib/employee";
 import { fleetVehicleTabs } from "@/lib/fleet-vehicle";
+import { maintenanceRequestTabs } from "@/lib/maintenance-request";
 import { locationTabs } from "@/lib/location";
 import type { AccessWindow, AccessWindowGroup } from "@/lib/access/catalog-types";
 
@@ -204,6 +205,16 @@ export const FLEET_DEPENDENT_WINDOWS = buildDetailWindows(
   "Fleet Vehicle"
 );
 
+export const MAINTENANCE_DETAIL_TABS = [...maintenanceRequestTabs];
+
+export const MAINTENANCE_DEPENDENT_WINDOWS = buildDetailWindows(
+  "maintenance",
+  "maintenance",
+  MAINTENANCE_DETAIL_TABS,
+  "Locations",
+  "Maintenance Request"
+);
+
 /** Parent window keys plus all dependent tab windows beneath them. */
 export function windowKeysWithDependents(...parentKeys: string[]): string[] {
   const keys = new Set<string>();
@@ -230,6 +241,8 @@ function buildDependentsForParent(parentKey: string): AccessWindow[] {
       return LOCATION_DEPENDENT_WINDOWS;
     case "fleet":
       return FLEET_DEPENDENT_WINDOWS;
+    case "maintenance":
+      return MAINTENANCE_DEPENDENT_WINDOWS;
     case "contracts":
       return CONTRACT_DEPENDENT_WINDOWS;
     case "products":

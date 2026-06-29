@@ -34,7 +34,8 @@ export type AuditEntityType =
   | "document-template"
   | "generated-document"
   | "admin-message"
-  | "fleet-vehicle";
+  | "fleet-vehicle"
+  | "maintenance-request";
 
 export type AuditAction = "created" | "updated" | "deleted" | "converted" | "assigned" | "status_changed" | "imported";
 
@@ -113,6 +114,7 @@ export const auditEntityLabels: Record<AuditEntityType, string> = {
   "generated-document": "Generated document",
   "admin-message": "Admin message",
   "fleet-vehicle": "Fleet vehicle",
+  "maintenance-request": "Maintenance request",
 };
 
 export const auditActionLabels: Record<AuditAction, string> = {

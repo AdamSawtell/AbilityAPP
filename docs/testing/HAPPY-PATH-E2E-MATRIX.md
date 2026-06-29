@@ -447,6 +447,9 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-133 | Fleet | Vehicle register | `/fleet` | Admin / Rostering | Live | TEST-096 |
 | FUNC-134 | Fleet | Vehicle booking + conflict prevention | Fleet → Bookings | Admin / Rostering | Live | TEST-096 |
 | FUNC-135 | Fleet | Pre-start inspection + off-road status | Fleet → Inspections | Admin / Driver | Live | TEST-096 |
+| FUNC-136 | Maintenance | Central register + filters | `/maintenance` | All staff | Live | TEST-102 |
+| FUNC-137 | Maintenance | Create and lifecycle save | `/maintenance/new`, detail | All staff / Admin | Live | TEST-102 |
+| FUNC-138 | Maintenance | Location tab + calendar chips | Location → Maintenance, Calendar | Coordinator+ | Live | TEST-102 |
 
 ### 5.2 Services — agreements and bookings
 

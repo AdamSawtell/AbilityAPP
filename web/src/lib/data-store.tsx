@@ -174,6 +174,18 @@ import {
   type FleetVehicleRecord,
 } from "@/lib/fleet-vehicle";
 import {
+  createMaintenanceRequest,
+  normalizeMaintenanceRequest,
+  type MaintenanceRequestRecord,
+  type MaintenanceRequestStatus,
+} from "@/lib/maintenance-request";
+import {
+  applyMaintenanceLifecycleTimestamps,
+  canAdvanceMaintenanceStatus,
+  maintenanceSlaBreached,
+} from "@/lib/maintenance-compliance";
+import { maintenanceRequestsForLocation } from "@/lib/maintenance-queries";
+import {
   createTask,
   describeAssignee,
   initialTasks as seedTasks,
@@ -232,6 +244,7 @@ import {
   saveLocation,
   saveFleetVehicle,
   saveFleetBooking,
+  saveMaintenanceRequest,
   savePriceList,
   saveProduct,
   saveServiceAgreement,
@@ -309,6 +322,7 @@ type DataStore = {
   locations: LocationRecord[];
   fleetVehicles: FleetVehicleRecord[];
   fleetBookings: FleetBookingRow[];
+  maintenanceRequests: MaintenanceRequestRecord[];
   tasks: TaskRecord[];
   taskAutomations: TaskAutomationRecord[];
   locationScope: LocationScope;
@@ -390,6 +404,9 @@ type DataStore = {
   upsertFleetVehicle: (record: FleetVehicleRecord) => void;
   addFleetVehicle: (partial: Partial<FleetVehicleRecord>) => FleetVehicleRecord;
   upsertFleetBooking: (record: FleetBookingRow, vehicleForValidation?: FleetVehicleRecord) => string | null;
+  upsertMaintenanceRequest: (record: MaintenanceRequestRecord) => string | null;
+  addMaintenanceRequest: (partial?: Partial<MaintenanceRequestRecord>) => MaintenanceRequestRecord;
+  getMaintenanceRequestsForLocation: (locationId: string) => MaintenanceRequestRecord[];
   getEmployeeById: (id: string) => EmployeeRecord | undefined;
   getClientByEnquiryId: (enquiryId: string) => ClientRecord | undefined;
   getContractsByClientId: (clientId: string) => ContractRecord[];
@@ -480,6 +497,7 @@ type Persisted = {
   locations?: LocationRecord[];
   fleetVehicles?: FleetVehicleRecord[];
   fleetBookings?: FleetBookingRow[];
+  maintenanceRequests?: MaintenanceRequestRecord[];
   tasks?: TaskRecord[];
 };
 
@@ -519,6 +537,7 @@ function seedData(): Required<Persisted> {
     locations: seedLocations.map(normalizeLocation),
     fleetVehicles: seedFleetVehicles.map(normalizeFleetVehicle),
     fleetBookings: [],
+    maintenanceRequests: [],
     tasks: seedTasks.map(normalizeTask),
   };
 }
@@ -559,6 +578,7 @@ function portalEmptyData(): Required<Persisted> {
     locations: [],
     fleetVehicles: [],
     fleetBookings: [],
+    maintenanceRequests: [],
     tasks: [],
   };
 }
@@ -644,6 +664,7 @@ function loadLocal(): Required<Persisted> {
       locations: (parsed.locations ?? seedLocations).map(normalizeLocation),
       fleetVehicles: (parsed.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle),
       fleetBookings: parsed.fleetBookings ?? [],
+      maintenanceRequests: parsed.maintenanceRequests ?? [],
       tasks: (parsed.tasks ?? seedTasks).map(normalizeTask),
     };
   } catch {
@@ -715,6 +736,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [locations, setLocations] = useState<LocationRecord[]>(defaults.locations);
   const [fleetVehicles, setFleetVehicles] = useState<FleetVehicleRecord[]>(defaults.fleetVehicles);
   const [fleetBookings, setFleetBookings] = useState<FleetBookingRow[]>(defaults.fleetBookings);
+  const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequestRecord[]>(
+    defaults.maintenanceRequests
+  );
   const [tasks, setTasks] = useState<TaskRecord[]>(defaults.tasks);
   const [taskAutomations, setTaskAutomations] = useState<TaskAutomationRecord[]>(initialTaskAutomations);
   const [hydrated, setHydrated] = useState(false);
@@ -750,6 +774,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         claims,
         invoices,
         tasks,
+        maintenanceRequests,
       }),
     [
       locationScope,
@@ -768,6 +793,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       claims,
       invoices,
       tasks,
+      maintenanceRequests,
     ]
   );
 
@@ -801,6 +827,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const locationsRef = useSyncRef(locations);
   const fleetVehiclesRef = useSyncRef(fleetVehicles);
   const fleetBookingsRef = useSyncRef(fleetBookings);
+  const maintenanceRequestsRef = useSyncRef(maintenanceRequests);
   const tasksRef = useSyncRef(tasks);
   const automationsRef = useSyncRef(taskAutomations);
 
@@ -867,6 +894,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setLocations(data.locations ?? seedLocations.map(normalizeLocation));
       setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
       setFleetBookings(data.fleetBookings ?? []);
+      setMaintenanceRequests(data.maintenanceRequests ?? []);
       setTasks(loadedTasks);
       setTaskAutomations(loadedAutomations);
       setSource("supabase");
@@ -944,6 +972,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             setLocations(data.locations ?? seedLocations.map(normalizeLocation));
             setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
             setFleetBookings(data.fleetBookings ?? []);
+            setMaintenanceRequests(data.maintenanceRequests ?? []);
             setTasks(loadedTasks);
             setTaskAutomations(loadedAutomations);
             setSource("supabase");
@@ -997,6 +1026,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setLocations(data.locations);
         setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
         setFleetBookings(data.fleetBookings ?? []);
+        setMaintenanceRequests(data.maintenanceRequests ?? []);
         setTasks(data.tasks);
         setTaskAutomations(initialTaskAutomations);
         setSource("local");
@@ -1050,6 +1080,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       locations,
       fleetVehicles,
       fleetBookings,
+      maintenanceRequests,
       tasks,
     });
   }, [
@@ -1087,6 +1118,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     locations,
     fleetVehicles,
     fleetBookings,
+    maintenanceRequests,
     tasks,
     hydrated,
     source,
@@ -2368,6 +2400,49 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [persistRemote, fleetVehiclesRef, fleetBookingsRef, employeesRef]
   );
 
+  const upsertMaintenanceRequest = useCallback(
+    (record: MaintenanceRequestRecord): string | null => {
+      if (!record.locationId.trim()) return "Select a location before saving the maintenance request.";
+      const prev = maintenanceRequestsRef.current;
+      const before = prev.find((row) => row.id === record.id);
+      // Validate the transition from the persisted status to the new status.
+      // canAdvanceMaintenanceStatus reads `record.status` as the current status,
+      // so pass the previous status there and the requested status as the target.
+      if (before && before.status !== record.status) {
+        const statusError = canAdvanceMaintenanceStatus(
+          { ...record, status: before.status },
+          record.status as MaintenanceRequestStatus
+        );
+        if (statusError) return statusError;
+      }
+      let normalized = normalizeMaintenanceRequest(record);
+      normalized = applyMaintenanceLifecycleTimestamps(normalized, before?.status);
+      normalized = { ...normalized, slaBreached: maintenanceSlaBreached(normalized) };
+      const exists = Boolean(before);
+      const stamped = persistRecordAudit("maintenance-request", normalized, !exists, before);
+      setMaintenanceRequests((current) =>
+        exists ? current.map((row) => (row.id === stamped.id ? stamped : row)) : [...current, stamped]
+      );
+      void persistRemote((supabase) => saveMaintenanceRequest(supabase, stamped));
+      return null;
+    },
+    [persistRemote, maintenanceRequestsRef]
+  );
+
+  const addMaintenanceRequest = useCallback(
+    (partial: Partial<MaintenanceRequestRecord> = {}) => {
+      const created = persistRecordAudit(
+        "maintenance-request",
+        createMaintenanceRequest(partial, maintenanceRequestsRef.current),
+        true
+      );
+      setMaintenanceRequests((current) => [...current, created]);
+      void persistRemote((supabase) => saveMaintenanceRequest(supabase, created));
+      return created;
+    },
+    [persistRemote, maintenanceRequestsRef]
+  );
+
   const getEmployeeById = useCallback(
     (id: string) => employees.find((e) => e.id === id),
     [employees]
@@ -2532,6 +2607,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [scopedView.incidents]
   );
 
+  const getMaintenanceRequestsForLocation = useCallback(
+    (locationId: string) => maintenanceRequestsForLocation(maintenanceRequests, locationId),
+    [maintenanceRequests]
+  );
+
   const getTaskById = useCallback((id: string) => tasks.find((t) => t.id === id), [tasks]);
 
   const value = useMemo(
@@ -2573,6 +2653,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       locations: scopedView.locations,
       fleetVehicles,
       fleetBookings,
+      maintenanceRequests: scopedView.maintenanceRequests,
       tasks: scopedView.tasks,
       taskAutomations,
       locationScope,
@@ -2633,6 +2714,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertFleetVehicle,
       addFleetVehicle,
       upsertFleetBooking,
+      upsertMaintenanceRequest,
+      addMaintenanceRequest,
       getEmployeeById,
       getClientByEnquiryId,
       getContractsByClientId,
@@ -2651,6 +2734,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getIncidentsForClient,
       getIncidentsForEmployee,
       getIncidentsForLocation,
+      getMaintenanceRequestsForLocation,
       getTaskById,
     }),
     [
@@ -2735,6 +2819,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       upsertFleetVehicle,
       addFleetVehicle,
       upsertFleetBooking,
+      upsertMaintenanceRequest,
+      addMaintenanceRequest,
       getEmployeeById,
       getClientByEnquiryId,
       getContractsByClientId,
@@ -2753,6 +2839,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       getIncidentsForClient,
       getIncidentsForEmployee,
       getIncidentsForLocation,
+      getMaintenanceRequestsForLocation,
       getTaskById,
     ]
   );

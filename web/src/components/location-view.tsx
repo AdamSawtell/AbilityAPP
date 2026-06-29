@@ -9,6 +9,7 @@ import { allowedDetailTabsFromGroups, resolveDetailWindowKey } from "@/lib/acces
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
+import { RecordMaintenancePanel } from "@/components/record-maintenance-panel";
 import { RecordPhotoPanel } from "@/components/record-photo-panel";
 import { SiteOrientationPanel } from "@/components/site-orientation-panel";
 import { RecordCalendarPanel } from "@/components/record-calendar-panel";
@@ -510,6 +511,14 @@ export function LocationTabbedView({
               entityLabel={`${location.searchKey} — ${location.name}`}
             />
           </div>
+        ) : null}
+
+        {activeTab === "Maintenance" && canWindow("location-maintenance") ? (
+          <RecordMaintenancePanel
+            locationId={location.id}
+            entityLabel={`${location.searchKey} — ${location.name}`}
+            canCreate={canWriteWindow("maintenance")}
+          />
         ) : null}
 
         {activeTab === "Products & services" && canWindow("location-products-and-services") ? (

@@ -17,6 +17,7 @@ import { participantPortalGuideArticle } from "@/lib/help/articles/participant-p
 import { agencyVendorPortalArticle } from "@/lib/help/articles/agency-vendor-portal";
 import { financeArticle } from "@/lib/help/articles/finance";
 import { fleetArticle } from "@/lib/help/articles/fleet";
+import { maintenanceArticle } from "@/lib/help/articles/maintenance";
 import { trainingMeetingsArticle, workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
 import { recordRetentionArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle, timeAndDateArticle } from "@/lib/help/articles/session-audit";
 import { ndisPriceImporterArticle } from "@/lib/help/articles/ndis-price-importer";
@@ -50,6 +51,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   deliveryArticle,
   servicePlanningArticle,
   fleetArticle,
+  maintenanceArticle,
   reportsArticle,
   adminArticle,
   adminCommunicationsArticle,

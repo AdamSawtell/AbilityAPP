@@ -196,6 +196,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Function area | Window key | Route | Sidebar |
 |---------------|------------|-------|---------|
 | Locations | `locations` | `/locations` | Yes |
+| Maintenance | `maintenance` | `/maintenance` | Yes |
 | Fleet | `fleet` | `/fleet` | Yes |
 | Business partners | `business-partners` | `/business-partners` | Yes |
 
@@ -206,6 +207,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Overview | `location-overview` |
 | Activity | `location-activity` |
 | Calendar | `location-calendar` |
+| Maintenance | `location-maintenance` |
 | Alerts | `location-alerts` |
 | Contact & address | `location-contact-and-address` |
 | Clients | `location-clients` |
@@ -215,6 +217,17 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Products & services | `location-products-and-services` |
 
 **Processes:** `assign-location-client`, `assign-location-employee`, `assign-location-product`.
+
+### Maintenance request record tabs
+
+| Tab | Window key |
+|-----|------------|
+| Overview | `maintenance-overview` |
+| Assignment | `maintenance-assignment` |
+| Costs | `maintenance-costs` |
+| Photos | `maintenance-photos` |
+
+Maintenance routes: `/maintenance`, `/maintenance/new`, `/maintenance/[id]`.
 
 ### Fleet vehicle record tabs
 

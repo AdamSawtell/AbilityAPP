@@ -11,8 +11,8 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0006 Vehicle and Fleet Management — shipped (Amplify smoke pass) |
-| **Next slice** | Awaiting direction |
+| **Active slice** | AB-0005 Maintenance Request Tool — verification in progress |
+| **Next slice** | Amplify smoke + commit when approved |
 | **Last push** | 2026-06-28 — AB-0012 smoke/Bugbot fixes (`51a0057`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
@@ -23,6 +23,35 @@
 ---
 
 ---
+
+---
+
+---
+
+## AB-0005 — Maintenance Request Tool (2026-06-29)
+
+**Status:** Verification in progress.
+
+**Why:** SIL homes and day programs need a structured way to log repairs, track SLA, record costs, and see open work on the location calendar — instead of ad-hoc phone calls and whiteboards.
+
+| Area | Change |
+|------|--------|
+| Data model | `maintenance_request`, `maintenance_request_photo` — location link, lifecycle status, SLA breach flag, cost approval fields, optional incident link, scheduled visit |
+| App UI | `/maintenance` register, `/maintenance/new`, `/maintenance/[id]` (Overview, Assignment, Costs, Photos); location **Maintenance** tab; calendar chips + overdue summary bar |
+| Compliance | Priority SLA hours; cost approval threshold ($500); estimated vs actual variance warning (20%); lifecycle validation; requestor confirmation before close |
+| Access | `maintenance` + tab windows; `location-maintenance`; Admin, Rostering Manager, Support Worker seed grants |
+| Docs | Maintenance help article, page guide, core docs, DATABASE-CHANGES, TEST-102 |
+
+**Deferred (backlog):** assignment notifications, reporting dashboard, duplicate merge, budget caps per location, contractor directory, mobile photo upload to storage.
+
+**What you can test:** `/maintenance` → create request from Glenelg location → assign + schedule → location Calendar with Show maintenance → create incident link → resolve and close with requestor confirmation.
+
+**Verification (2026-06-29):**
+- `npm run build` — exit 0
+- `npm run supabase:push-remote` — exit 0 (`20260729140000_maintenance_requests`, `20260729150000_maintenance_requests_rls_anon`)
+- `npm run supabase:seed-demo-once -- --file supabase/seed-access.sql` — exit 0
+- Localhost smoke — register loads; create lifecycle redirects to detail with audit footer. Fixed two bugs found in smoke: (1) infinite render loop — `addMaintenanceRequest` depended on `maintenanceRequests` state so the new-page effect re-fired; switched to a ref + create-once guard; (2) RLS insert rejection (42501) — initial policies were `authenticated`-only; added `20260729150000` to allow `anon, authenticated` like fleet. Also guarded `/maintenance/new` against the non-null `location_id` FK by defaulting to the first visible location (or a "no location" notice).
+- Amplify smoke (location-scoped create + calendar chips) — pending (localhost demo user has no location access)
 
 ---
 

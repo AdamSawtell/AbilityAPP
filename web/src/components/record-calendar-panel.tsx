@@ -7,6 +7,8 @@ import { useData } from "@/lib/data-store";
 import type { ClientActivityRow } from "@/lib/client-line-tables";
 import type { EmployeeActivityRow } from "@/lib/employee";
 import type { LocationActivityRow } from "@/lib/location";
+import { isOpenMaintenanceRequest } from "@/lib/maintenance-request";
+import { overdueMaintenanceWithoutSchedule } from "@/lib/maintenance-queries";
 import {
   addDays,
   formatDayHeading,
@@ -46,6 +48,8 @@ function eventStyles(event: RecordCalendarEvent): string {
       return "bg-indigo-50 text-indigo-900 ring-indigo-200 hover:bg-indigo-100";
     case "booking":
       return "bg-amber-50 text-amber-900 ring-amber-200 hover:bg-amber-100";
+    case "maintenance":
+      return "bg-orange-50 text-orange-900 ring-orange-200 hover:bg-orange-100";
     case "activity":
       return "bg-slate-50 text-slate-800 ring-slate-200 hover:bg-slate-100";
     default:
@@ -136,13 +140,14 @@ export function RecordCalendarPanel({
   activities: ClientActivityRow[] | EmployeeActivityRow[] | LocationActivityRow[];
   description: string;
 }) {
-  const { tasks, rosterShifts, rosterOfCares, fleetBookings } = useData();
+  const { tasks, rosterShifts, rosterOfCares, fleetBookings, maintenanceRequests } = useData();
   const { session } = useAuth();
   const windowKeys = session?.windowKeys ?? [];
 
   const today = useMemo(() => new Date(), []);
   const [view, setView] = useState<RecordCalendarViewMode>("fortnight");
   const [showRocTemplates, setShowRocTemplates] = useState(false);
+  const [showMaintenance, setShowMaintenance] = useState(true);
   const [anchor, setAnchor] = useState(() => new Date());
 
   const { rangeStart, rangeEnd } = useMemo(
@@ -162,6 +167,8 @@ export function RecordCalendarPanel({
         rosterShifts,
         rosterOfCares,
         fleetBookings,
+        maintenanceRequests,
+        includeMaintenance: entityKind === "location" ? showMaintenance : false,
         activities,
         includeRocTemplates: showRocTemplates,
       }),
@@ -175,10 +182,19 @@ export function RecordCalendarPanel({
       rosterShifts,
       rosterOfCares,
       fleetBookings,
+      maintenanceRequests,
+      showMaintenance,
       activities,
       showRocTemplates,
     ]
   );
+
+  const overdueMaintenance = useMemo(() => {
+    if (entityKind !== "location" || !showMaintenance) return [];
+    return overdueMaintenanceWithoutSchedule(
+      maintenanceRequests.filter((row) => row.locationId === entityId && isOpenMaintenanceRequest(row))
+    );
+  }, [entityKind, entityId, maintenanceRequests, showMaintenance]);
 
   const byDate = useMemo(() => recordCalendarEventsByDate(events), [events]);
 
@@ -220,11 +236,13 @@ export function RecordCalendarPanel({
   const dayEvents = byDate.get(dayIso) ?? [];
 
   const visibleKinds = showRocTemplates
-    ? (["task", "shift-actual", "shift-template", "booking", "activity"] as const)
-    : (["task", "shift-actual", "booking", "activity"] as const);
+    ? (["task", "shift-actual", "shift-template", "booking", "maintenance", "activity"] as const)
+    : showMaintenance
+      ? (["task", "shift-actual", "booking", "maintenance", "activity"] as const)
+      : (["task", "shift-actual", "booking", "activity"] as const);
 
   const kindCounts = useMemo(() => {
-    const counts = { task: 0, "shift-actual": 0, "shift-template": 0, booking: 0, activity: 0 };
+    const counts = { task: 0, "shift-actual": 0, "shift-template": 0, booking: 0, maintenance: 0, activity: 0 };
     for (const event of events) counts[event.kind] += 1;
     return counts;
   }, [events]);
@@ -244,7 +262,24 @@ export function RecordCalendarPanel({
             />
             Show RoC templates (master roster)
           </label>
+          {entityKind === "location" ? (
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={showMaintenance}
+                onChange={(e) => setShowMaintenance(e.target.checked)}
+                className="rounded border-slate-300"
+              />
+              Show maintenance
+            </label>
+          ) : null}
         </div>
+        {overdueMaintenance.length ? (
+          <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+            {overdueMaintenance.length} overdue maintenance request{overdueMaintenance.length === 1 ? "" : "s"} with no
+            scheduled visit date.
+          </p>
+        ) : null}
         <dl className="mt-3 flex flex-wrap gap-3 text-xs">
           {visibleKinds.map((kind) => (
             <div key={kind} className="flex items-center gap-1.5">

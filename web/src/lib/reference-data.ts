@@ -22,7 +22,8 @@ export type ReferenceDataGroup =
   | "Products & services"
   | "Contracts"
   | "Incidents"
-  | "Fleet";
+  | "Fleet"
+  | "Maintenance";
 
 export type ReferenceDataMeta = {
   label: string;
@@ -160,6 +161,11 @@ export const referenceDataMeta: Record<string, ReferenceDataMeta> = {
   fleetServiceCostStatus: { label: "Fleet service cost status", group: "Fleet" },
   fleetInspectionResult: { label: "Fleet inspection result", group: "Fleet" },
   fleetVehicleStatus: { label: "Fleet vehicle status", group: "Fleet" },
+  maintenanceCategory: { label: "Maintenance category", group: "Maintenance" },
+  maintenancePriority: { label: "Maintenance priority", group: "Maintenance" },
+  maintenanceStatus: { label: "Maintenance status", group: "Maintenance" },
+  maintenanceCostStatus: { label: "Maintenance cost status", group: "Maintenance" },
+  maintenancePhotoType: { label: "Maintenance photo type", group: "Maintenance" },
 };
 
 export type ReferenceDataKey = keyof typeof referenceDataMeta;
@@ -637,6 +643,11 @@ export const defaultReferenceData: ReferenceDataCatalog = {
   fleetServiceCostStatus: ["pending", "reviewed", "approved", "rejected"],
   fleetInspectionResult: ["pass", "fail"],
   fleetVehicleStatus: ["active", "inactive", "off_road", "disposed"],
+  maintenanceCategory: ["plumbing", "electrical", "structural", "equipment", "general"],
+  maintenancePriority: ["urgent", "high", "medium", "low"],
+  maintenanceStatus: ["reported", "assigned", "in_progress", "resolved", "closed", "cancelled"],
+  maintenanceCostStatus: ["pending", "reviewed", "approved", "rejected"],
+  maintenancePhotoType: ["issue", "completion", "invoice"],
 };
 
 /** @deprecated Use useReferenceData().getOptions instead */

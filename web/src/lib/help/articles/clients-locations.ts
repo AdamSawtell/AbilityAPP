@@ -17,7 +17,7 @@ export const clientsArticle: HelpArticle = {
   ],
   relatedRoutes: ["/clients", "/service-agreements"],
   windowKeys: ["clients"],
-  lastUpdated: "2026-06-27",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "client-list",
@@ -94,11 +94,12 @@ export const clientsArticle: HelpArticle = {
     {
       id: "record-calendar",
       title: "Calendar tab (client, employee, location)",
-      body: "The Calendar tab sits under Activity on client, employee, and location records. Default view is **Fortnight** (14 days) to match the standard roster cycle. Live shifts, tasks, and activity notes always show; tick **Show RoC templates** to overlay master roster-of-care lines for comparison. Colour-coded chips link to the source record when your role has access.",
+      body: "The Calendar tab sits under Activity on client, employee, and location records. Default view is **Fortnight** (14 days) to match the standard roster cycle. Live shifts, tasks, and activity notes always show; tick **Show RoC templates** to overlay master roster-of-care lines for comparison. On location calendars, tick **Show maintenance** for scheduled repairs and open requests, and **Show vehicle bookings** for fleet reservations linked to the site. Colour-coded chips link to the source record when your role has access.",
       steps: [
         "Open a client, employee, or location record → Calendar (below Activity in the sidebar).",
         "Use the Fortnight view (default) to plan the current roster cycle; switch Week, Month, or Day as needed.",
         "Tick Show RoC templates to compare master roster lines against published live shifts.",
+        "On a location, tick Show maintenance or Show vehicle bookings when you need facilities or transport context.",
         "Click a chip to open the linked record when you have access.",
       ],
       windowKeys: ["client-calendar", "employee-calendar", "location-calendar", "rostering", "tasks"],
@@ -233,7 +234,7 @@ export const locationsArticle: HelpArticle = {
   keywords: ["location", "support location", "SIL", "address", "assign client", "assign employee"],
   relatedRoutes: ["/locations", "/locations/new"],
   windowKeys: ["locations"],
-  lastUpdated: "2026-06-27",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "location-list",

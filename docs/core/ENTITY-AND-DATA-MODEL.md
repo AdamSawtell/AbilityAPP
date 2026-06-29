@@ -258,6 +258,15 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | `fleet_fuel_log` | `vehicle_id`, optional `employee_id` | MVP odometer readings and optional fuel/mileage notes |
 | `fleet_booking` | `vehicle_id`, optional driver/client/location/shift | Vehicle availability bookings with overlap prevention |
 
+### Maintenance requests (AB-0005)
+
+| Record/table | Links | Purpose |
+|--------------|-------|---------|
+| `maintenance_request` | `location_id` → `support_location`, optional `assigned_employee_id` → `employee`, optional `incident_id` → `incident` | Reactive maintenance register — priority, SLA breach flag, lifecycle status, scheduled visit, cost fields, contractor free-text |
+| `maintenance_request_photo` | `request_id` → `maintenance_request` | Issue, completion, and invoice photo/document URLs |
+
+Location calendars read open and scheduled maintenance requests for compact chips and an overdue summary bar when no `scheduled_at` is set.
+
 Additional links: `roster_shift.vehicle_id` and `incident.vehicle_id` let roster shifts and incident reports reference a fleet vehicle. Employee driver qualification fields include licence number/class/expiry, medical expiry, NDIS screening, WWCC, driver history check, and vehicle certifications.
 
 | Catalogue | Used by |

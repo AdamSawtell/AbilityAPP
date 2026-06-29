@@ -142,6 +142,11 @@ export const REFERENCE_DATA_SYSTEM_SECTION: Record<string, SystemReferenceSectio
   fleetServiceCostStatus: "locations",
   fleetInspectionResult: "locations",
   fleetVehicleStatus: "locations",
+  maintenanceCategory: "locations",
+  maintenancePriority: "locations",
+  maintenanceStatus: "locations",
+  maintenanceCostStatus: "locations",
+  maintenancePhotoType: "locations",
 
   // People
   employeeAlertType: "people",

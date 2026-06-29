@@ -126,6 +126,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **Assign employees to location** | Admin+ | Workforce by site | Live |
 | **Assign products to location** ÔÇö services offered at site | Admin+ | Catalogue scoped to delivery location | Live |
 | **Fleet register** — provider-owned vehicles, registration, service state, odometer | Admin / Rostering | Vehicles managed as operational assets for participant transport | Live |
+| **Maintenance requests** — log repairs and upkeep against a location, assign staff or contractors, track SLA, costs, and photos | All staff (create); Admin / Rostering (assign and close) | Central register plus location Maintenance tab and calendar chips | Live (foundation — reporting dashboard, duplicate merge, and budget caps deferred) |
 | **Vehicle bookings** — reserve a vehicle for a driver, client, location, and time window | Admin / Rostering | Prevents double-booking and checks vehicle/driver compliance | Live |
 | **Pre-start inspections** — pass/fail inspection lines on a vehicle | Drivers / Admin | Failed inspections mark a vehicle off road | Live |
 | **Business partner register** ÔÇö plan managers, referrers, vendors | Admin+ | Shared directory for invoices and associations, with provider-style record banner and contact summary | Live |

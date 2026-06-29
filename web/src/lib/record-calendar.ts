@@ -2,6 +2,14 @@ import { canAccessWindow } from "@/lib/access/catalog";
 import type { ClientActivityRow } from "@/lib/client-line-tables";
 import type { EmployeeActivityRow } from "@/lib/employee";
 import type { FleetBookingRow } from "@/lib/fleet-vehicle";
+import type { MaintenanceRequestRecord } from "@/lib/maintenance-request";
+import {
+  maintenanceCalendarDate,
+  maintenanceSlaBreached,
+  maintenanceSlaEscalated,
+} from "@/lib/maintenance-compliance";
+import { isOpenMaintenanceRequest } from "@/lib/maintenance-request";
+import { overdueMaintenanceWithoutSchedule } from "@/lib/maintenance-queries";
 import type { LocationActivityRow } from "@/lib/location";
 import { addDaysIso, formatShiftTimeRange, weekStartFromDate, type RosterShiftRecord } from "@/lib/roster-shift";
 import { normalizeRosterShift } from "@/lib/roster-shift";
@@ -14,7 +22,7 @@ export type RecordCalendarViewMode = "fortnight" | "month" | "week" | "day";
 
 export type RecordCalendarEntityKind = "client" | "employee" | "location" | "vehicle";
 
-export type RecordCalendarEventKind = "task" | "shift-actual" | "shift-template" | "activity" | "booking";
+export type RecordCalendarEventKind = "task" | "shift-actual" | "shift-template" | "activity" | "booking" | "maintenance";
 
 export type RecordCalendarEvent = {
   id: string;
@@ -37,6 +45,8 @@ export type RecordCalendarInput = {
   rosterShifts: RosterShiftRecord[];
   rosterOfCares: RosterOfCareRecord[];
   fleetBookings?: FleetBookingRow[];
+  maintenanceRequests?: MaintenanceRequestRecord[];
+  includeMaintenance?: boolean;
   activities: ClientActivityRow[] | EmployeeActivityRow[] | LocationActivityRow[];
   /** When false, RoC master template lines are omitted (live shifts only). */
   includeRocTemplates?: boolean;
@@ -253,6 +263,34 @@ function bookingEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
   return events;
 }
 
+function maintenanceEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
+  if (input.includeMaintenance === false) return [];
+  const rows = input.maintenanceRequests ?? [];
+  if (!rows.length || input.entityKind !== "location") return [];
+  const canMaintenance = canAccessWindow(input.windowKeys, "maintenance");
+  const events: RecordCalendarEvent[] = [];
+
+  for (const row of rows) {
+    if (row.locationId !== input.entityId) continue;
+    if (row.status === "cancelled") continue;
+    const date = maintenanceCalendarDate(row);
+    if (!date || !inRange(date, input.rangeStart, input.rangeEnd)) continue;
+    const breached = maintenanceSlaBreached(row);
+    const escalated = maintenanceSlaEscalated(row);
+    events.push({
+      id: `maintenance-${row.id}-${date}`,
+      date,
+      kind: "maintenance",
+      title: row.title || row.documentNo,
+      subtitle: [row.priority, row.status.replace(/_/g, " ")].filter(Boolean).join(" · "),
+      href: canMaintenance ? `/maintenance/${row.id}` : null,
+      urgency: breached || escalated ? "overdue" : row.priority === "urgent" || row.priority === "high" ? "soon" : "later",
+    });
+  }
+
+  return events;
+}
+
 function activityEvents(input: RecordCalendarInput): RecordCalendarEvent[] {
   const tab = encodeURIComponent("Activity");
   const baseHref =
@@ -282,6 +320,7 @@ export function recordCalendarEvents(input: RecordCalendarInput): RecordCalendar
     ...actualShiftEvents(input),
     ...(input.includeRocTemplates ? templateShiftEvents(input) : []),
     ...bookingEvents(input),
+    ...maintenanceEvents(input),
     ...activityEvents(input),
   ];
   return events.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
@@ -307,6 +346,8 @@ export function recordCalendarKindLabel(kind: RecordCalendarEventKind): string {
       return "RoC template";
     case "booking":
       return "Vehicle booking";
+    case "maintenance":
+      return "Maintenance";
     case "activity":
       return "Activity";
     default:

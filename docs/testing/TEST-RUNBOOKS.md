@@ -727,6 +727,27 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-102 — Maintenance Request Tool (AB-0005)
+
+| | |
+|--|--|
+| **User** | SuperUser / Admin role |
+| **Route** | `/maintenance` |
+| **Pass if** | Register loads, request saves from location tab, calendar shows maintenance chips, incident link action works |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/maintenance` | Maintenance register loads with audit footer |
+| 2 | Open a location (e.g. Glenelg) → Maintenance tab → New request | Create form opens with location pre-filled |
+| 3 | Enter title, description, priority, save | Request appears in location list and central register |
+| 4 | Open the request → Assignment tab | Assign employee or contractor details and save |
+| 5 | Set scheduled visit date on Overview, save | Date persists after refresh |
+| 6 | Location → Calendar → tick Show maintenance | Maintenance chip appears on scheduled date; overdue bar shows if applicable |
+| 7 | Use Create incident from this request | Incident opens with location/description; maintenance record stores incident link |
+| 8 | Move status to Resolved, confirm completion, then Closed | Lifecycle validation passes; requestor confirmation recorded |
+
+---
+
 ## Quick chain (release candidate)
 
 ```text
