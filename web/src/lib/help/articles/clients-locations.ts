@@ -183,7 +183,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "animal-pet-tab",
       title: "Animal and Pet tab",
-      body: "Register assistance animals and companion pets with care requirements, vet contacts, vaccination dates, and transport notes. Set an animal allergy alert for the profile header. Assistance and therapy roles may be NDIS-billable when in the support plan; companion pets are never billable. Use Report animal-related incident to open a draft incident linked to the animal. Support workers see a compact summary on My shifts.",
+      body: "Register assistance animals and companion pets with care requirements, vet contacts, vaccination dates, and transport notes. Link each animal to a support location (and optional client address) so workers see the right pets on rostered shifts and on the location overview. Set an animal allergy alert for the profile header. Assistance and therapy roles may be NDIS-billable when in the support plan; companion pets are never billable.",
       windowKeys: ["client-animal-and-pet"],
     },
     {

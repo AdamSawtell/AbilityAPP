@@ -12,6 +12,7 @@ import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { RecordMaintenancePanel } from "@/components/record-maintenance-panel";
 import { RecordPhotoPanel } from "@/components/record-photo-panel";
 import { SiteOrientationPanel } from "@/components/site-orientation-panel";
+import { LocationAnimalsPanel } from "@/components/location-animals-panel";
 import { RecordCalendarPanel } from "@/components/record-calendar-panel";
 import { orientationsForLocation } from "@/lib/site-orientation";
 import {
@@ -365,6 +366,9 @@ export function LocationTabbedView({
               ) : (
                 <p className="mt-2 text-sm text-slate-500">High demand advisory is off (vacant-shift signal may still apply).</p>
               )}
+            </div>
+            <div className="mt-6">
+              <LocationAnimalsPanel location={location} clients={clients} />
             </div>
           </div>
         ) : null}

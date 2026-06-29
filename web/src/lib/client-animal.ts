@@ -1,4 +1,6 @@
 import type { ClientAnimalRow } from "@/lib/client-line-tables";
+import type { ClientRecord } from "@/lib/client";
+import type { LocationRecord } from "@/lib/location";
 
 export type ClientAnimalRole = "assistance" | "companion" | "therapy";
 export type ClientAnimalStatus = "active" | "deceased" | "transferred";
@@ -36,12 +38,23 @@ export function activeClientAnimals(animals: ClientAnimalRow[]): ClientAnimalRow
   return sortClientAnimals(animals.filter((a) => a.status === "active"));
 }
 
+/** Animals relevant at a support location — blank location means all sites for this client. */
+export function animalsAtSupportLocation(animals: ClientAnimalRow[], locationId: string): ClientAnimalRow[] {
+  const active = activeClientAnimals(animals);
+  if (!locationId.trim()) return active;
+  return active.filter((a) => !a.locationId?.trim() || a.locationId === locationId);
+}
+
 export function clientHasActiveAssistanceAnimal(animals: ClientAnimalRow[]): boolean {
   return activeClientAnimals(animals).some((a) => a.role === "assistance" || a.role === "therapy");
 }
 
-export function animalSummaryForShift(animals: ClientAnimalRow[], allergyAlert: string): string | null {
-  const active = activeClientAnimals(animals);
+export function animalSummaryForShift(
+  animals: ClientAnimalRow[],
+  allergyAlert: string,
+  shiftLocationId = ""
+): string | null {
+  const active = animalsAtSupportLocation(animals, shiftLocationId);
   if (!active.length && !allergyAlert.trim()) return null;
   const parts: string[] = [];
   if (allergyAlert.trim()) parts.push("Animal allergy alert");
@@ -54,10 +67,14 @@ export function animalSummaryForShift(animals: ClientAnimalRow[], allergyAlert: 
   return parts.join(" · ");
 }
 
-export function animalShiftAlerts(animals: ClientAnimalRow[], allergyAlert: string): string[] {
+export function animalShiftAlerts(
+  animals: ClientAnimalRow[],
+  allergyAlert: string,
+  shiftLocationId = ""
+): string[] {
   const alerts: string[] = [];
   if (allergyAlert.trim()) alerts.push(allergyAlert.trim());
-  for (const animal of activeClientAnimals(animals)) {
+  for (const animal of animalsAtSupportLocation(animals, shiftLocationId)) {
     if (animal.role === "assistance" || animal.role === "therapy") {
       alerts.push(`Assistance animal: ${animal.name || animal.animalType}`);
     }
@@ -66,4 +83,59 @@ export function animalShiftAlerts(animals: ClientAnimalRow[], allergyAlert: stri
     }
   }
   return alerts;
+}
+
+export type AnimalAtLocationRow = {
+  client: ClientRecord;
+  animal: ClientAnimalRow;
+};
+
+export function animalsRegisteredAtLocation(clients: ClientRecord[], locationId: string): AnimalAtLocationRow[] {
+  if (!locationId.trim()) return [];
+  const rows: AnimalAtLocationRow[] = [];
+  for (const client of clients) {
+    for (const animal of activeClientAnimals(client.animals ?? [])) {
+      if (animal.locationId === locationId) {
+        rows.push({ client, animal });
+      }
+    }
+  }
+  return rows.sort(
+    (a, b) =>
+      (a.animal.displayPriority || defaultAnimalDisplayPriority(a.animal.role)) -
+        (b.animal.displayPriority || defaultAnimalDisplayPriority(b.animal.role)) ||
+      a.client.name.localeCompare(b.client.name)
+  );
+}
+
+export function animalDropdownOptionsForClient(
+  client: ClientRecord,
+  locations: LocationRecord[]
+): {
+  dropdowns: { animalSupportLocation: string[]; animalClientAddress: string[] };
+  optionLabels: Record<string, string>;
+} {
+  const assignedLocations = locations.filter((location) =>
+    location.clientLinks.some((link) => link.clientId === client.id)
+  );
+  const locationChoices = assignedLocations.length ? assignedLocations : locations;
+  const optionLabels: Record<string, string> = {
+    "": "All locations (follows participant)",
+  };
+  const animalSupportLocation = [""];
+  for (const location of locationChoices) {
+    animalSupportLocation.push(location.id);
+    optionLabels[location.id] = `${location.searchKey} — ${location.name}`;
+  }
+
+  const animalClientAddress = [""];
+  for (const address of client.locations ?? []) {
+    animalClientAddress.push(address.id);
+    optionLabels[address.id] = `${address.name}${address.address1 ? ` · ${address.address1}` : ""}`;
+  }
+
+  return {
+    dropdowns: { animalSupportLocation, animalClientAddress },
+    optionLabels,
+  };
 }

@@ -8,10 +8,12 @@ import { useAuth } from "@/lib/auth-store";
 import {
   activeClientAnimals,
   ANIMAL_ROLE_BILLABLE,
+  animalDropdownOptionsForClient,
   sortClientAnimals,
 } from "@/lib/client-animal";
 import { animalTableConfig, type ClientAnimalRow } from "@/lib/client-line-tables";
 import type { ClientRecord } from "@/lib/client";
+import { clientDropdowns } from "@/lib/client";
 import { useData } from "@/lib/data-store";
 import { emptyIncident } from "@/lib/incident";
 import { defaultReferenceData } from "@/lib/reference-data";
@@ -152,8 +154,17 @@ export function ClientAnimalsPanel({
   onLineItemsChange: (rows: ClientAnimalRow[]) => void;
   onAllergyAlertChange: (value: string) => void;
 }) {
+  const { locations } = useData();
   const animals = useMemo(() => sortClientAnimals(client.animals ?? []), [client.animals]);
   const active = activeClientAnimals(animals);
+  const { dropdowns: animalLocationDropdowns, optionLabels: animalOptionLabels } = useMemo(
+    () => animalDropdownOptionsForClient(client, locations),
+    [client, locations]
+  );
+  const animalDropdowns = useMemo(
+    () => ({ ...clientDropdowns, ...animalLocationDropdowns }),
+    [animalLocationDropdowns]
+  );
   const billableRoles = useMemo(
     () =>
       Object.entries(ANIMAL_ROLE_BILLABLE)
@@ -170,6 +181,7 @@ export function ClientAnimalsPanel({
         <p className="mt-1 text-xs leading-relaxed">
           {billableRoles} care may be included in billable support hours when documented in the support plan.
           Companion pet care is never NDIS-billable — time tracking should exclude companion-only tasks.
+          Link each animal to a support location so workers see the right pets on rostered shifts at that site.
         </p>
       </div>
 
@@ -208,6 +220,8 @@ export function ClientAnimalsPanel({
         config={animalTableConfig}
         rows={animals}
         readOnly={readOnly}
+        dropdowns={animalDropdowns}
+        optionLabels={animalOptionLabels}
         onChange={onLineItemsChange}
       />
 

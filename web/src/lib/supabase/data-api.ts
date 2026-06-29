@@ -1426,6 +1426,8 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
         client_id: client.id,
         line_no: a.lineNo,
         display_priority: a.displayPriority,
+        location_id: a.locationId?.trim() ? a.locationId : null,
+        client_location_id: a.clientLocationId?.trim() ? a.clientLocationId : null,
         animal_type: a.animalType,
         name: a.name,
         breed: a.breed,

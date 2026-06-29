@@ -408,6 +408,8 @@ export type ClientAnimalRowDb = {
   client_id: string;
   line_no: number;
   display_priority: number;
+  location_id: string | null;
+  client_location_id: string | null;
   animal_type: string;
   name: string;
   breed: string;
@@ -442,6 +444,8 @@ export function clientAnimalFromRow(row: ClientAnimalRowDb): import("@/lib/clien
     id: row.id,
     lineNo: row.line_no,
     displayPriority: row.display_priority,
+    locationId: row.location_id ?? "",
+    clientLocationId: row.client_location_id ?? "",
     animalType: row.animal_type,
     name: row.name,
     breed: row.breed,

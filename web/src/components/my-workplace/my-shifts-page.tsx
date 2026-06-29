@@ -50,7 +50,7 @@ import type { LocationRecord } from "@/lib/location";
 import {
   animalShiftAlerts,
   animalSummaryForShift,
-  sortClientAnimals,
+  animalsAtSupportLocation,
 } from "@/lib/client-animal";
 
 function statusBadgeClass(status: ReturnType<typeof shiftCheckInStatus>): string {
@@ -604,7 +604,7 @@ function MyShiftCard({
       ) : null}
       <ShiftGeoLinks shift={shift} />
       <ShiftGeofenceAlerts alerts={shiftGeofenceAlerts(shift, location)} />
-      {client ? <ShiftAnimalSummary client={client} /> : null}
+      {client ? <ShiftAnimalSummary client={client} shiftLocationId={shift.locationId} /> : null}
 
       {delivery.message ? (
         <p className="mt-3 text-sm text-slate-600">
@@ -658,13 +658,19 @@ function MyShiftCard({
   );
 }
 
-function ShiftAnimalSummary({ client }: { client: ClientRecord }) {
+function ShiftAnimalSummary({
+  client,
+  shiftLocationId,
+}: {
+  client: ClientRecord;
+  shiftLocationId: string;
+}) {
   const [expanded, setExpanded] = useState(false);
-  const summary = animalSummaryForShift(client.animals ?? [], client.animalAllergyAlert ?? "");
-  const alerts = animalShiftAlerts(client.animals ?? [], client.animalAllergyAlert ?? "");
+  const summary = animalSummaryForShift(client.animals ?? [], client.animalAllergyAlert ?? "", shiftLocationId);
+  const alerts = animalShiftAlerts(client.animals ?? [], client.animalAllergyAlert ?? "", shiftLocationId);
   if (!summary) return null;
 
-  const active = sortClientAnimals((client.animals ?? []).filter((a) => a.status === "active"));
+  const active = animalsAtSupportLocation(client.animals ?? [], shiftLocationId);
 
   return (
     <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/80 p-3">

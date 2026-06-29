@@ -119,6 +119,8 @@ export type ClientAnimalRow = {
   id: string;
   lineNo: number;
   displayPriority: number;
+  locationId: string;
+  clientLocationId: string;
   animalType: string;
   name: string;
   breed: string;
@@ -523,11 +525,13 @@ export const animalTableConfig: ClientTabTableConfig<ClientAnimalRow> = {
   emptyMessage: "No animals recorded. Log assistance animals, companion pets, and care requirements for support workers.",
   layout: "list-drawer",
   drawerTitle: "Animal or pet",
-  listColumnKeys: ["name", "animalType", "role", "status"],
+  listColumnKeys: ["name", "animalType", "role", "locationId", "status"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "displayPriority", label: "Display priority", type: "number", className: "w-24" },
     { key: "name", label: "Name", type: "text", required: true },
+    { key: "locationId", label: "Support location", type: "select", optionsKey: "animalSupportLocation" },
+    { key: "clientLocationId", label: "Client address", type: "select", optionsKey: "animalClientAddress" },
     { key: "animalType", label: "Type", type: "select", optionsKey: "animalType", required: true },
     { key: "breed", label: "Breed", type: "text" },
     { key: "role", label: "Role", type: "select", optionsKey: "animalRole", required: true },
@@ -559,6 +563,8 @@ export const animalTableConfig: ClientTabTableConfig<ClientAnimalRow> = {
     id: newLineId("animal"),
     lineNo,
     displayPriority: 10,
+    locationId: "",
+    clientLocationId: "",
     animalType: "dog",
     name: "",
     breed: "",

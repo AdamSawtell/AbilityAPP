@@ -344,6 +344,8 @@ export const initialClients: ClientRecord[] = [
         id: "animal-bern-guide",
         lineNo: 1,
         displayPriority: 1,
+        locationId: "loc-glenelg-sil",
+        clientLocationId: "loc-home",
         animalType: "dog",
         name: "Scout",
         breed: "Labrador",

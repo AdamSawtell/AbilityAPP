@@ -33,7 +33,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `incident` | Incident reports (NDIS-aligned header) |
 | `incident_party` / `incident_action` / `incident_notification` | Incident line tables |
 | `client` | Support received (header); `animal_allergy_alert` for profile header flag |
-| `client_alert` / `client_activity` / `client_location` / `client_animal` | Client line tables; animals include role, care, vet, vaccination, display priority |
+| `client_alert` / `client_activity` / `client_location` / `client_animal` | Client line tables; animals include role, care, vet, vaccination, display priority; optional `location_id` and `client_location_id` |
 | `product` / `price_list` / `price_list_line` | Catalog & pricing; NDIS metadata, region, effective dates, quote/no-price flags and source import linkage (AB-0011 foundation) |
 | `ndis_price_import_batch` / `ndis_price_import_row` | NDIS price guide import history, row-level preview/apply results and AB-0012 changed-item handoff |
 | `price_update_run` / `price_update_impact` | AB-0012 price dependant updater — analysis runs, row-level classifications, decisions, and apply results |
