@@ -17,6 +17,7 @@ import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
 import { filterPageChatContextForRole } from "@/lib/ai/suggestion-access";
 import { buildHomeBriefing, type HomeAttentionItem } from "@/lib/home-briefing";
 import { isNdisReportOverdue } from "@/lib/incident";
+import { canSeeAllIncidents, visibleIncidentsForSession } from "@/lib/incident-list-access";
 import { incidentHomeStats, recentIncidents } from "@/lib/incident-hub";
 import { taskCountsForSession, visibleTaskViews } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
@@ -203,6 +204,7 @@ export function HomeDashboard() {
   const showEmployees = canWindow("employees");
   const canReportIncident = canProcess("report-incident") || canWindow("incidents");
   const showIncidents = canWindow("incidents");
+  const showIncidentCompliance = canSeeAllIncidents(canWindow);
   const taskViews = session ? visibleTaskViews(session.windowKeys) : [];
   const taskCounts = session ? taskCountsForSession(tasks, session) : null;
   const taskStats = session ? taskDashboardStats(tasks, session) : null;
@@ -239,16 +241,20 @@ export function HomeDashboard() {
   }, [showWorkforceReviews]);
 
   const myAttentionCount = mySummary?.actionItemsCount ?? 0;
-  const overdueIncidents = useMemo(
-    () => incidents.filter((i) => i.isReportable && isNdisReportOverdue(i)),
-    [incidents]
+  const visibleIncidents = useMemo(
+    () => (session ? visibleIncidentsForSession(incidents, session, showIncidentCompliance) : []),
+    [incidents, session, showIncidentCompliance]
   );
-  const incidentStats = useMemo(() => incidentHomeStats(incidents), [incidents]);
+  const overdueIncidents = useMemo(
+    () => visibleIncidents.filter((i) => i.isReportable && isNdisReportOverdue(i)),
+    [visibleIncidents]
+  );
+  const incidentStats = useMemo(() => incidentHomeStats(visibleIncidents), [visibleIncidents]);
   const openEnquiries = useMemo(() => enquiries.filter((e) => !e.status.startsWith("5_")).length, [enquiries]);
   const convertedCount = useMemo(() => enquiries.filter((e) => e.status.startsWith("4_")).length, [enquiries]);
   const recentEnquiries = useMemo(() => enquiries.slice(0, 5), [enquiries]);
   const recentClients = useMemo(() => clients.slice(0, 5), [clients]);
-  const latestIncidents = useMemo(() => recentIncidents(incidents, 5), [incidents]);
+  const latestIncidents = useMemo(() => recentIncidents(visibleIncidents, 5), [visibleIncidents]);
 
   const pageCtx = useMemo(
     () =>
@@ -288,7 +294,7 @@ export function HomeDashboard() {
         showTasks,
         showMyWorkplace,
         showWorkforceReviews,
-        showIncidents,
+        showIncidentCompliance,
         openTaskCount,
         taskStats,
         myActionItems,
@@ -301,7 +307,7 @@ export function HomeDashboard() {
       showTasks,
       showMyWorkplace,
       showWorkforceReviews,
-      showIncidents,
+      showIncidentCompliance,
       openTaskCount,
       taskStats,
       myActionItems,
@@ -358,7 +364,7 @@ export function HomeDashboard() {
           showTasks={showTasks}
           showMyWorkplace={showMyWorkplace}
           showEnquiriesBrowse={canWindow("enquiries")}
-          incidentOverdue={incidentStats.overdue}
+          incidentOverdue={showIncidentCompliance ? incidentStats.overdue : 0}
           openTaskCount={openTaskCount}
           myAttentionCount={myAttentionCount}
           onReportIncident={() => setReportOpen(true)}

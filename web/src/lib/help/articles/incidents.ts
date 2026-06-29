@@ -19,7 +19,7 @@ export const incidentsArticle: HelpArticle = {
   ],
   relatedRoutes: ["/incidents", "/incidents/new", "/incidents/dashboard"],
   windowKeys: ["incidents"],
-  lastUpdated: "2026-06-26",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "overview",
@@ -41,6 +41,7 @@ export const incidentsArticle: HelpArticle = {
         "Submit incident here on the Incidents list — wide button below the summary cards (managers) or at the top of your list (support workers)",
         "Without Can see all incidents: My incidents shows reports you submitted that are not yet closed",
         "With Can see all incidents: open/reportable/all summary cards, full list, and Dashboard & analytics in the sidebar",
+        "Home reflects the same access — NDIS reporting overdue alerts, incident counts, and recent incidents only appear for roles with Can see all incidents",
         "Administrators configure Can see all incidents on Admin → Roles under the Incidents module",
       ],
       relatedRoutes: ["/incidents", "/admin/roles"],

@@ -32,7 +32,8 @@ export function buildHomeBriefing(input: {
   showTasks: boolean;
   showMyWorkplace: boolean;
   showWorkforceReviews: boolean;
-  showIncidents: boolean;
+  /** Org-wide NDIS reporting overdue items require "Can see all incidents". */
+  showIncidentCompliance: boolean;
   openTaskCount: number;
   taskStats: TaskDashboardStats | null;
   myActionItems: MyActionItem[];
@@ -42,7 +43,7 @@ export function buildHomeBriefing(input: {
 }): HomeBriefing {
   const items: HomeAttentionItem[] = [];
 
-  if (input.showIncidents && input.overdueIncidents.length > 0) {
+  if (input.showIncidentCompliance && input.overdueIncidents.length > 0) {
     for (const incident of input.overdueIncidents.slice(0, 3)) {
       items.push({
         id: `ndis-${incident.id}`,
