@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
+import { describeLeaveSelfServicePolicy, getLeaveSelfServiceMinimumHours } from "@/lib/leave-self-service-policy";
 import { loadMyEmployee, requireMyWorkplace, submitMyLeave } from "@/lib/my-workplace/server";
 import { recordProcessExecution } from "@/lib/process-audit/server";
+import { ORGANIZATION_ID } from "@/lib/organization";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { serviceClient } from "@/lib/session-audit/server";
 
 export async function GET() {
   const session = await getAuthSessionFromRequest();
@@ -11,9 +15,24 @@ export async function GET() {
   const employee = await loadMyEmployee(ctx.employeeId);
   if (!employee) return NextResponse.json({ error: "No linked employee record" }, { status: 404 });
 
+  const minimumHours = await getLeaveSelfServiceMinimumHours();
+  let contactPhone = "";
+  if (isSupabaseConfigured()) {
+    const { data } = await serviceClient()
+      .from("app_organization")
+      .select("phone, primary_contact_phone")
+      .eq("id", ORGANIZATION_ID)
+      .maybeSingle();
+    const row = data as { phone?: string; primary_contact_phone?: string } | null;
+    contactPhone = String(row?.primary_contact_phone ?? row?.phone ?? "").trim();
+  }
+
   return NextResponse.json({
     leaveRequests: employee.leaveRequests,
     entitlements: employee.leaveEntitlements,
+    selfServiceMinimumHours: minimumHours,
+    selfServicePolicyHint: describeLeaveSelfServicePolicy(minimumHours, contactPhone),
+    contactPhone,
   });
 }
 
@@ -66,6 +85,7 @@ export async function POST(request: Request) {
       });
     }
     const message = err instanceof Error ? err.message : "Could not submit leave";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = message.includes("must be requested by phone") ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }

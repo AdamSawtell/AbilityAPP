@@ -193,7 +193,7 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 | **My shifts** ÔÇö view published roster | Support workers | Know when and where to work | Live |
 | **Check-in / check-out** on shift | Support workers | Attendance captured for timesheets | Live |
 | **My timesheets** ÔÇö view and submit hours | Support workers | Hours ready for approval | Live |
-| **My leave** ÔÇö request leave | All staff | Request enters approval queue | Live |
+| **My leave** — request leave | All staff | Request enters approval queue; blocked inside minimum notice window (phone HR instead) | Live |
 | **My credentials** ÔÇö submit WWCC, NDIS screening, training evidence | All staff | Compliance docs for HR review | Live |
 | **My contracts** ÔÇö view generated HR documents | All staff | Access to offer/contract copies | Live |
 | **My availability** ÔÇö set availability patterns | Support workers | Input to roster planning | Live |

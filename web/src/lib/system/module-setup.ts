@@ -128,12 +128,18 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
   workforce: {
     sectionKey: "workforce",
     title: "Workforce planning setup",
-    summary: "Leave types and statuses. Position tree is in workspace Workforce planning → Organisation structure.",
+    summary: "Leave types, self-service notice, and statuses. Position tree is in workspace Workforce planning → Organisation structure.",
     checklist: [
       "Set leave type and leave request status options.",
+      "Configure minimum notice (hours) for My workplace leave submit.",
       "Configure org chart tiers in System, then maintain positions under Organisation structure.",
     ],
     setupLinks: [
+      {
+        href: "/system/settings/leave",
+        label: "Leave self-service",
+        description: "Minimum hours before shift when staff must phone instead of submitting online.",
+      },
       {
         href: "/workforce-planning/organisation",
         label: "Organisation structure",

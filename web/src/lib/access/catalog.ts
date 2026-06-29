@@ -649,6 +649,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "system-leave-policy",
+    label: "Leave self-service",
+    group: "Admin",
+    surface: "system",
+    href: "/system/settings/leave",
+    abilityErpName: "Leave self-service",
+    showInSidebar: false,
+  },
+  {
     key: "system-price-update-review",
     label: "Price Dependant Updater",
     group: "Services",

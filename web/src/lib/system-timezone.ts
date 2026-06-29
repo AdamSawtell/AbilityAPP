@@ -72,3 +72,42 @@ export function organizationTodayIso(timeZone: string, now = new Date()): string
   const day = parts.find((p) => p.type === "day")?.value ?? "01";
   return `${year}-${month}-${day}`;
 }
+
+function formatOrganizationLocalDateTime(ms: number, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: normalizeOrganizationTimezone(timeZone),
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(ms));
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}`;
+}
+
+/** Parse calendar date + `HH:mm` in the organisation timezone to a UTC instant. */
+export function organizationLocalDateTimeToUtc(
+  dateIso: string,
+  timeHm: string,
+  timeZone: string
+): Date {
+  const date = dateIso.slice(0, 10);
+  const time = (timeHm || "00:00").slice(0, 5);
+  const target = `${date} ${time}`;
+  const [y, m, d] = date.split("-").map(Number);
+  let low = Date.UTC(y, m - 2, d, 0, 0);
+  let high = Date.UTC(y, m, d + 1, 23, 59);
+  while (high - low > 60_000) {
+    const mid = Math.floor((low + high) / 2);
+    if (formatOrganizationLocalDateTime(mid, timeZone) < target) low = mid;
+    else high = mid;
+  }
+  return new Date(high);
+}
+
+/** Whole hours from `from` until `to` (negative when `to` is in the past). */
+export function hoursBetween(from: Date, to: Date): number {
+  return (to.getTime() - from.getTime()) / (1000 * 60 * 60);
+}

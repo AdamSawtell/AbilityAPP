@@ -17,7 +17,7 @@ function moduleSetupArticle(
     keywords: [slug, "system setup", "reference data", "module setup"],
     relatedRoutes: [setupRoute, `/system/reference-data/${refSection}`],
     windowKeys: [],
-    lastUpdated: "2026-06-26",
+    lastUpdated: "2026-06-29",
     sections: [
       {
         id: "open",
@@ -104,11 +104,12 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
   moduleSetupArticle(
     "workforce-setup",
     "Workforce planning setup",
-    "Leave types and organisation structure pointers.",
+    "Leave types, self-service notice, and organisation structure pointers.",
     "/system/setup/workforce",
     "workforce",
     [
       "Set leave type and leave request status options.",
+      "Configure minimum notice (hours) under System → Workforce planning → Leave self-service (default 76 hours before first affected shift).",
       "Configure org chart tiers under Organisation.",
       "Maintain positions under Workforce planning → Organisation structure.",
       "Seed task automations for leave and credential review (see Task automations guide).",

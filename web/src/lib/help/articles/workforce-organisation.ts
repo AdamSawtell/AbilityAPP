@@ -25,7 +25,7 @@ export const workforceLeaveCalendarArticle: HelpArticle = {
   ],
   relatedRoutes: ["/workforce-planning", "/workforce-planning#reviews", "/workforce-planning#submit-leave", "/workforce-planning#fill-board", "/rostering"],
   windowKeys: ["workforce-planning", "rostering"],
-  lastUpdated: "2026-06-27",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "open",
@@ -117,6 +117,13 @@ export const workforceLeaveCalendarArticle: HelpArticle = {
       title: "Configure leave types",
       body: "Leave type and status lists are maintained in System setup. See [Workforce planning setup](/system/guides/workforce-setup).",
       relatedRoutes: ["/system/setup/workforce", "/system/guides/workforce-setup"],
+    },
+    {
+      id: "leave-notice",
+      title: "Leave self-service notice",
+      body: "Set how many hours before their first affected roster shift staff must submit leave online (System → Workforce planning → Leave self-service). Inside that window they must phone HR or their manager — My workplace blocks online submit. Managers with submit on behalf can still enter leave for staff.",
+      relatedRoutes: ["/system/settings/leave", "/my/leave"],
+      windowKeys: ["system-leave-policy", "my-leave"],
     },
   ],
 };

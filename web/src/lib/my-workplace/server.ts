@@ -31,6 +31,7 @@ import {
 import { persistMyCredential, persistMyLeaveRequest, persistMyProfile } from "@/lib/my-workplace/persist";
 import { buildCheckInUpdate, buildCheckOutUpdate } from "@/lib/roster-shift-checkin";
 import { normalizeGeoInput, geoToDbNumber, type GeoCoordinates } from "@/lib/geolocation";
+import { assertLeaveSelfServiceAllowed } from "@/lib/leave-self-service-policy";
 import { normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
 import {
   rosterShiftFromRow,
@@ -248,6 +249,7 @@ export async function submitMyLeave(
   const leaveType = payload.leaveType.trim();
   const daysRequested = countWeekdaysInclusive(payload.startDate, payload.endDate);
   assertLeaveBalance(employee, leaveType, daysRequested);
+  await assertLeaveSelfServiceAllowed(ctx.employeeId, payload.startDate, payload.endDate);
 
   const now = new Date().toISOString();
   const lineNo = employee.leaveRequests.length + 1;

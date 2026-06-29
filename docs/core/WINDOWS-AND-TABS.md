@@ -536,6 +536,7 @@ System routes use **System** sign-in (`/system/...`). Navigation: `web/src/lib/s
 |---------------|-------|------------------|
 | Organisation profile | `/system/organization` | Organisation |
 | Time & date | `/system/settings/time-and-date` | Organisation |
+| Leave self-service | `/system/settings/leave` | Workforce planning |
 | Incident management | `/system/settings/incident-management` | Incident reports |
 | Buddy shifts | `/system/settings/buddy-shifts` | Organisation |
 | Org chart tiers | `/system/org-chart-tiers` | Organisation |

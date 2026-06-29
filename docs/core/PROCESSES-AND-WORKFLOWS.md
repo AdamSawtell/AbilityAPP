@@ -167,7 +167,7 @@ Fleet booking conflict rule: same vehicle + non-cancelled booking + overlapping 
 
 | Process ID | Trigger | Workflow |
 |------------|---------|----------|
-| `submit-leave-request` | Submit on `/my/leave` | Leave row → entitlement check → **task** to manager/HR → `approve-leave-request` closes loop |
+| `submit-leave-request` | Submit on `/my/leave` | Minimum notice check (system setting, hours before first affected shift) → leave row → entitlement check → **task** to manager/HR → `approve-leave-request` closes loop |
 | `submit-employee-credential` | Submit on `/my/credentials` | Credential row pending → task → `review-employee-credential` |
 | `submit-leave-on-behalf` | Workforce planning form | Same as leave submit for chosen employee |
 | `approve-leave-request` | Workforce review queue | Approve/decline → balance update → releases rolled shifts in leave range (vacant fill + leave-pay line; skips check-in) → task complete |

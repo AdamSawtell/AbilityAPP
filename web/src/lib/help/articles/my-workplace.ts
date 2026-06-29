@@ -36,7 +36,7 @@ export const myWorkplaceArticle: HelpArticle = {
   ],
   relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/timesheets", "/my/contracts", "/my/credentials"],
   windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-timesheets", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-28",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "overview",
@@ -56,7 +56,8 @@ export const myWorkplaceArticle: HelpArticle = {
       steps: [
         "Open My workplace → Leave.",
         "Choose leave type, start and end dates, and optional notes.",
-        "The system checks your leave balance before submit.",
+        "The system checks your leave balance and minimum notice before submit.",
+        "Submit at least the configured hours before your first affected roster shift (see the notice on the form). Inside that window you must phone HR or your manager — online submit is blocked.",
         "Submit — status shows as Requested until a manager or HR approves or declines.",
         "A task is assigned to your reports-to manager (or HR manager as fallback).",
         "When approved, your leave balance is reduced by the days requested.",

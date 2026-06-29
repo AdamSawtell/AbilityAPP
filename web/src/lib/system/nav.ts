@@ -168,7 +168,13 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     key: "workforce",
     label: "Workforce planning",
     icon: "workforce",
-    links: withModuleNav("workforce", []),
+    links: withModuleNav("workforce", [
+      {
+        href: "/system/settings/leave",
+        label: "Leave self-service",
+        match: (p) => p.startsWith("/system/settings/leave"),
+      },
+    ]),
   },
   {
     key: "incidents",

@@ -1,6 +1,6 @@
 # UAT window inventory (generated)
 
-**Generated:** 2026-06-28
+**Generated:** 2026-06-29
 **Do not edit by hand.** Regenerate with `npm run uat:inventory`.
 
 Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | Fail | Skip | N/A.
@@ -9,8 +9,8 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | Metric | Count |
 |--------|------:|
-| App windows (incl. tabs) | 156 |
-| System windows | 14 |
+| App windows (incl. tabs) | 163 |
+| System windows | 15 |
 | Access processes | 48 |
 | Reports | 10 |
 
@@ -71,6 +71,7 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-02-W-022 | `client-service-bookings` | Service bookings | tab: Service bookings | clients | |
 | UAT-02-W-023 | `client-roster-of-care` | Roster of care | tab: Roster of care | clients | |
 | UAT-02-W-024 | `client-support-receiver-needs-and-rules` | Support Receiver Needs and Rules | tab: Support Receiver Needs and Rules | clients | |
+| UAT-02-W-025 | `client-animal-and-pet` | Animal and Pet | tab: Animal and Pet | clients | |
 
 ## UAT-03
 
@@ -84,20 +85,21 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-03-W-006 | `location-clients` | Clients | tab: Clients | locations | |
 | UAT-03-W-007 | `location-employees` | Employees | tab: Employees | locations | |
 | UAT-03-W-008 | `location-incidents` | Incidents | tab: Incidents | locations | |
-| UAT-03-W-009 | `location-site-orientation` | Site orientation | tab: Site orientation | locations | |
-| UAT-03-W-010 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
-| UAT-03-W-011 | `locations` | Locations | /locations | — | |
-| UAT-03-W-012 | `locations-see-all` | Unrestricted location access (can see all) | /locations | locations | |
-| UAT-03-W-013 | `business-partners` | Business partners | /business-partners | — | |
-| UAT-03-W-014 | `products` | Products | /products | — | |
-| UAT-03-W-015 | `product-overview` | Overview | tab: Overview | products | |
-| UAT-03-W-016 | `product-pricing` | Pricing | tab: Pricing | products | |
-| UAT-03-W-017 | `price-lists` | Price lists | /price-lists | — | |
-| UAT-03-W-018 | `price-list-overview` | Overview | tab: Overview | price-lists | |
-| UAT-03-W-019 | `price-list-lines` | Lines | tab: Lines | price-lists | |
-| UAT-03-W-020 | `contracts` | Contracts | /contracts | — | |
-| UAT-03-W-021 | `contract-overview` | Overview | tab: Overview | contracts | |
-| UAT-03-W-022 | `contract-audit` | Audit | tab: Audit | contracts | |
+| UAT-03-W-009 | `location-maintenance` | Maintenance | tab: Maintenance | locations | |
+| UAT-03-W-010 | `location-site-orientation` | Site orientation | tab: Site orientation | locations | |
+| UAT-03-W-011 | `location-products-and-services` | Products & services | tab: Products & services | locations | |
+| UAT-03-W-012 | `locations` | Locations | /locations | — | |
+| UAT-03-W-013 | `locations-see-all` | Unrestricted location access (can see all) | /locations | locations | |
+| UAT-03-W-014 | `business-partners` | Business partners | /business-partners | — | |
+| UAT-03-W-015 | `products` | Products | /products | — | |
+| UAT-03-W-016 | `product-overview` | Overview | tab: Overview | products | |
+| UAT-03-W-017 | `product-pricing` | Pricing | tab: Pricing | products | |
+| UAT-03-W-018 | `price-lists` | Price lists | /price-lists | — | |
+| UAT-03-W-019 | `price-list-overview` | Overview | tab: Overview | price-lists | |
+| UAT-03-W-020 | `price-list-lines` | Lines | tab: Lines | price-lists | |
+| UAT-03-W-021 | `contracts` | Contracts | /contracts | — | |
+| UAT-03-W-022 | `contract-overview` | Overview | tab: Overview | contracts | |
+| UAT-03-W-023 | `contract-audit` | Audit | tab: Audit | contracts | |
 
 ## UAT-04
 
@@ -235,10 +237,11 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-13-W-014 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
 | UAT-13-W-015 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
 | UAT-13-W-016 | `system-incident-management` | Incident management | /system/settings/incident-management | — | |
-| UAT-13-W-017 | `system-price-update-review` | Price Dependant Updater | /system/services/price-update-review | — | |
-| UAT-13-W-018 | `system-ndis-price-importer` | NDIS Price Guide Importer | /system/services/ndis-price-importer | — | |
-| UAT-13-W-019 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
-| UAT-13-W-020 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
+| UAT-13-W-017 | `system-leave-policy` | Leave self-service | /system/settings/leave | — | |
+| UAT-13-W-018 | `system-price-update-review` | Price Dependant Updater | /system/services/price-update-review | — | |
+| UAT-13-W-019 | `system-ndis-price-importer` | NDIS Price Guide Importer | /system/services/ndis-price-importer | — | |
+| UAT-13-W-020 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
+| UAT-13-W-021 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
 
 ## UAT-99
 
@@ -254,10 +257,15 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-99-W-008 | `fleet-accessibility-and-compliance` | Accessibility & compliance | tab: Accessibility & compliance | fleet | |
 | UAT-99-W-009 | `fleet-incidents` | Incidents | tab: Incidents | fleet | |
 | UAT-99-W-010 | `fleet` | Fleet | /fleet | — | |
-| UAT-99-W-011 | `agency-workers` | Agency workers | /agency-workers | — | |
-| UAT-99-W-012 | `agency-timesheets` | Agency timesheets | /agency-timesheets | — | |
-| UAT-99-W-013 | `generate-agency-timesheets` | Generate agency timesheets | /generate-agency-timesheets | — | |
-| UAT-99-W-014 | `vendor-invoices` | Vendor invoices | /vendor-invoices | — | |
+| UAT-99-W-011 | `maintenance-overview` | Overview | tab: Overview | maintenance | |
+| UAT-99-W-012 | `maintenance-assignment` | Assignment | tab: Assignment | maintenance | |
+| UAT-99-W-013 | `maintenance-costs` | Costs | tab: Costs | maintenance | |
+| UAT-99-W-014 | `maintenance-photos` | Photos | tab: Photos | maintenance | |
+| UAT-99-W-015 | `maintenance` | Maintenance | /maintenance | — | |
+| UAT-99-W-016 | `agency-workers` | Agency workers | /agency-workers | — | |
+| UAT-99-W-017 | `agency-timesheets` | Agency timesheets | /agency-timesheets | — | |
+| UAT-99-W-018 | `generate-agency-timesheets` | Generate agency timesheets | /generate-agency-timesheets | — | |
+| UAT-99-W-019 | `vendor-invoices` | Vendor invoices | /vendor-invoices | — | |
 
 ## Processes (UAT-15)
 

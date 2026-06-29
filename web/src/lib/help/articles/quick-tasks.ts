@@ -332,7 +332,7 @@ export const quickTaskArticles: HelpArticle[] = [
     keywords: ["leave", "my workplace", "annual leave", "sick leave", "how do i", "submit leave"],
     relatedRoutes: ["/my/leave", "/workforce-planning#reviews"],
     windowKeys: ["my-leave"],
-    lastUpdated: "2026-06-19",
+    lastUpdated: "2026-06-29",
     sections: [
       {
         id: "steps",
@@ -341,6 +341,7 @@ export const quickTaskArticles: HelpArticle[] = [
           "Open My workplace → Leave.",
           "Choose leave type and date range.",
           "Confirm you have enough balance for the leave type.",
+          "Check the notice on the form — leave must start at least the configured hours (default 76) before your first affected shift. If it is closer than that, phone HR or your manager instead; online submit is blocked.",
           "Submit — status becomes Requested.",
           "Your manager receives an Approve task; track status on this page.",
         ],

@@ -23,6 +23,7 @@ export function MyLeavePage() {
 
   const [leaveRequests, setLeaveRequests] = useState<EmployeeLeaveRequestRow[]>([]);
   const [entitlements, setEntitlements] = useState(localEmployee?.leaveEntitlements ?? []);
+  const [policyHint, setPolicyHint] = useState("");
   const [leaveType, setLeaveType] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -37,11 +38,16 @@ export function MyLeavePage() {
     void fetch("/api/my/leave", { credentials: "include" })
       .then(async (res) => {
         if (!res.ok) throw new Error("Could not load leave");
-        return res.json() as Promise<{ leaveRequests: EmployeeLeaveRequestRow[]; entitlements: typeof entitlements }>;
+        return res.json() as Promise<{
+          leaveRequests: EmployeeLeaveRequestRow[];
+          entitlements: typeof entitlements;
+          selfServicePolicyHint?: string;
+        }>;
       })
       .then((data) => {
         setLeaveRequests(data.leaveRequests);
         setEntitlements(data.entitlements);
+        setPolicyHint(data.selfServicePolicyHint ?? "");
       })
       .catch((err: Error) => setError(err.message));
   }, []);
@@ -106,6 +112,7 @@ export function MyLeavePage() {
         {canSubmit ? (
           <form onSubmit={submitLeave} className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Submit leave</h2>
+            {policyHint ? <p className="mt-2 text-sm text-slate-600">{policyHint}</p> : null}
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="sm:col-span-2">
                 <span className="mb-1.5 block text-xs font-medium text-slate-600">Leave type</span>
