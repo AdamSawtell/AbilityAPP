@@ -184,7 +184,7 @@ values
   ('role-admin', 'client-progress-review', 'write'),
   ('role-admin', 'client-contact-activity', 'write'),
   ('role-admin', 'client-risks', 'write'),
-write
+  ('role-admin', 'client-animal-and-pet', 'write'),
   ('role-admin', 'client-service-agreements', 'write'),
   ('role-admin', 'client-service-bookings', 'write'),
   ('role-admin', 'client-roster-of-care', 'write'),
@@ -350,7 +350,7 @@ write
   ('role-ceo', 'client-progress-review', 'write'),
   ('role-ceo', 'client-contact-activity', 'write'),
   ('role-ceo', 'client-risks', 'write'),
-write
+  ('role-ceo', 'client-animal-and-pet', 'write'),
   ('role-ceo', 'client-service-agreements', 'write'),
   ('role-ceo', 'client-service-bookings', 'write'),
   ('role-ceo', 'client-roster-of-care', 'write'),
@@ -467,7 +467,7 @@ write
   ('role-exec-operations', 'client-progress-review', 'write'),
   ('role-exec-operations', 'client-contact-activity', 'write'),
   ('role-exec-operations', 'client-risks', 'write'),
-write
+  ('role-exec-operations', 'client-animal-and-pet', 'write'),
   ('role-exec-operations', 'client-service-agreements', 'write'),
   ('role-exec-operations', 'client-service-bookings', 'write'),
   ('role-exec-operations', 'client-roster-of-care', 'write'),
@@ -584,7 +584,7 @@ write
   ('role-exec-hr', 'client-progress-review', 'write'),
   ('role-exec-hr', 'client-contact-activity', 'write'),
   ('role-exec-hr', 'client-risks', 'write'),
-write
+  ('role-exec-hr', 'client-animal-and-pet', 'write'),
   ('role-exec-hr', 'client-service-agreements', 'write'),
   ('role-exec-hr', 'client-service-bookings', 'write'),
   ('role-exec-hr', 'client-roster-of-care', 'write'),
@@ -701,7 +701,7 @@ write
   ('role-exec-finance', 'client-progress-review', 'write'),
   ('role-exec-finance', 'client-contact-activity', 'write'),
   ('role-exec-finance', 'client-risks', 'write'),
-write
+  ('role-exec-finance', 'client-animal-and-pet', 'write'),
   ('role-exec-finance', 'client-service-agreements', 'write'),
   ('role-exec-finance', 'client-service-bookings', 'write'),
   ('role-exec-finance', 'client-roster-of-care', 'write'),
@@ -818,7 +818,7 @@ write
   ('role-exec-ict', 'client-progress-review', 'write'),
   ('role-exec-ict', 'client-contact-activity', 'write'),
   ('role-exec-ict', 'client-risks', 'write'),
-write
+  ('role-exec-ict', 'client-animal-and-pet', 'write'),
   ('role-exec-ict', 'client-service-agreements', 'write'),
   ('role-exec-ict', 'client-service-bookings', 'write'),
   ('role-exec-ict', 'client-roster-of-care', 'write'),
@@ -935,7 +935,7 @@ write
   ('role-exec-quality', 'client-progress-review', 'write'),
   ('role-exec-quality', 'client-contact-activity', 'write'),
   ('role-exec-quality', 'client-risks', 'write'),
-write
+  ('role-exec-quality', 'client-animal-and-pet', 'write'),
   ('role-exec-quality', 'client-service-agreements', 'write'),
   ('role-exec-quality', 'client-service-bookings', 'write'),
   ('role-exec-quality', 'client-roster-of-care', 'write'),
@@ -1051,7 +1051,7 @@ write
   ('role-hr-manager', 'client-progress-review', 'write'),
   ('role-hr-manager', 'client-contact-activity', 'write'),
   ('role-hr-manager', 'client-risks', 'write'),
-write
+  ('role-hr-manager', 'client-animal-and-pet', 'write'),
   ('role-hr-manager', 'client-service-agreements', 'write'),
   ('role-hr-manager', 'client-service-bookings', 'write'),
   ('role-hr-manager', 'client-roster-of-care', 'write'),
@@ -1143,7 +1143,7 @@ write
   ('role-hr-officer', 'client-progress-review', 'write'),
   ('role-hr-officer', 'client-contact-activity', 'write'),
   ('role-hr-officer', 'client-risks', 'write'),
-write
+  ('role-hr-officer', 'client-animal-and-pet', 'write'),
   ('role-hr-officer', 'client-service-agreements', 'write'),
   ('role-hr-officer', 'client-service-bookings', 'write'),
   ('role-hr-officer', 'client-roster-of-care', 'write'),
@@ -1211,7 +1211,7 @@ write
   ('role-ict-manager', 'client-progress-review', 'write'),
   ('role-ict-manager', 'client-contact-activity', 'write'),
   ('role-ict-manager', 'client-risks', 'write'),
-write
+  ('role-ict-manager', 'client-animal-and-pet', 'write'),
   ('role-ict-manager', 'client-service-agreements', 'write'),
   ('role-ict-manager', 'client-service-bookings', 'write'),
   ('role-ict-manager', 'client-roster-of-care', 'write'),
@@ -1300,7 +1300,7 @@ write
   ('role-ict-officer', 'client-progress-review', 'write'),
   ('role-ict-officer', 'client-contact-activity', 'write'),
   ('role-ict-officer', 'client-risks', 'write'),
-write
+  ('role-ict-officer', 'client-animal-and-pet', 'write'),
   ('role-ict-officer', 'client-service-agreements', 'write'),
   ('role-ict-officer', 'client-service-bookings', 'write'),
   ('role-ict-officer', 'client-roster-of-care', 'write'),
@@ -1370,7 +1370,7 @@ write
   ('role-finance-manager', 'client-progress-review', 'write'),
   ('role-finance-manager', 'client-contact-activity', 'write'),
   ('role-finance-manager', 'client-risks', 'write'),
-write
+  ('role-finance-manager', 'client-animal-and-pet', 'write'),
   ('role-finance-manager', 'client-service-agreements', 'write'),
   ('role-finance-manager', 'client-service-bookings', 'write'),
   ('role-finance-manager', 'client-roster-of-care', 'write'),
@@ -1470,7 +1470,7 @@ write
   ('role-finance-officer', 'client-progress-review', 'write'),
   ('role-finance-officer', 'client-contact-activity', 'write'),
   ('role-finance-officer', 'client-risks', 'write'),
-write
+  ('role-finance-officer', 'client-animal-and-pet', 'write'),
   ('role-finance-officer', 'client-service-agreements', 'write'),
   ('role-finance-officer', 'client-service-bookings', 'write'),
   ('role-finance-officer', 'client-roster-of-care', 'write'),
@@ -1540,7 +1540,7 @@ write
   ('role-quality-manager', 'client-progress-review', 'write'),
   ('role-quality-manager', 'client-contact-activity', 'write'),
   ('role-quality-manager', 'client-risks', 'write'),
-write
+  ('role-quality-manager', 'client-animal-and-pet', 'write'),
   ('role-quality-manager', 'client-service-agreements', 'write'),
   ('role-quality-manager', 'client-service-bookings', 'write'),
   ('role-quality-manager', 'client-roster-of-care', 'write'),
@@ -1629,7 +1629,7 @@ write
   ('role-quality-officer', 'client-progress-review', 'write'),
   ('role-quality-officer', 'client-contact-activity', 'write'),
   ('role-quality-officer', 'client-risks', 'write'),
-write
+  ('role-quality-officer', 'client-animal-and-pet', 'write'),
   ('role-quality-officer', 'client-service-agreements', 'write'),
   ('role-quality-officer', 'client-service-bookings', 'write'),
   ('role-quality-officer', 'client-roster-of-care', 'write'),
@@ -1709,7 +1709,7 @@ write
   ('role-rostering-manager', 'client-progress-review', 'write'),
   ('role-rostering-manager', 'client-contact-activity', 'write'),
   ('role-rostering-manager', 'client-risks', 'write'),
-write
+  ('role-rostering-manager', 'client-animal-and-pet', 'write'),
   ('role-rostering-manager', 'client-service-agreements', 'write'),
   ('role-rostering-manager', 'client-service-bookings', 'write'),
   ('role-rostering-manager', 'client-roster-of-care', 'write'),
@@ -1823,7 +1823,7 @@ write
   ('role-rostering-officer', 'client-progress-review', 'write'),
   ('role-rostering-officer', 'client-contact-activity', 'write'),
   ('role-rostering-officer', 'client-risks', 'write'),
-write
+  ('role-rostering-officer', 'client-animal-and-pet', 'write'),
   ('role-rostering-officer', 'client-service-agreements', 'write'),
   ('role-rostering-officer', 'client-service-bookings', 'write'),
   ('role-rostering-officer', 'client-roster-of-care', 'write'),
@@ -1908,7 +1908,7 @@ write
   ('role-intake', 'client-progress-review', 'write'),
   ('role-intake', 'client-contact-activity', 'write'),
   ('role-intake', 'client-risks', 'write'),
-write
+  ('role-intake', 'client-animal-and-pet', 'write'),
   ('role-intake', 'client-service-agreements', 'write'),
   ('role-intake', 'client-service-bookings', 'write'),
   ('role-intake', 'client-roster-of-care', 'write'),
@@ -1982,7 +1982,7 @@ write
   ('role-coordinator', 'client-progress-review', 'write'),
   ('role-coordinator', 'client-contact-activity', 'write'),
   ('role-coordinator', 'client-risks', 'write'),
-write
+  ('role-coordinator', 'client-animal-and-pet', 'write'),
   ('role-coordinator', 'client-service-agreements', 'write'),
   ('role-coordinator', 'client-service-bookings', 'write'),
   ('role-coordinator', 'client-roster-of-care', 'write'),
@@ -2084,7 +2084,7 @@ write
   ('role-team-leader', 'client-progress-review', 'write'),
   ('role-team-leader', 'client-contact-activity', 'write'),
   ('role-team-leader', 'client-risks', 'write'),
-write
+  ('role-team-leader', 'client-animal-and-pet', 'write'),
   ('role-team-leader', 'client-service-agreements', 'write'),
   ('role-team-leader', 'client-service-bookings', 'write'),
   ('role-team-leader', 'client-roster-of-care', 'write'),
@@ -2168,7 +2168,7 @@ write
   ('role-support-worker', 'client-progress-review', 'write'),
   ('role-support-worker', 'client-contact-activity', 'write'),
   ('role-support-worker', 'client-risks', 'write'),
-write
+  ('role-support-worker', 'client-animal-and-pet', 'write'),
   ('role-support-worker', 'client-service-agreements', 'write'),
   ('role-support-worker', 'client-service-bookings', 'write'),
   ('role-support-worker', 'client-roster-of-care', 'write'),
