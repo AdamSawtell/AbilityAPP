@@ -12,6 +12,7 @@ import { lifecycleLabel, normalizeLifecycleStatus } from "@/lib/client-lifecycle
 import { useData } from "@/lib/data-store";
 import type { ClientRecord } from "@/lib/client";
 import { formatLocationAddress } from "@/lib/client-line-tables";
+import { clientHasActiveAssistanceAnimal } from "@/lib/client-animal";
 
 function statusLabel(status: string) {
   return status.replace(/^\d+_/, "").replace(/_/g, " ");
@@ -71,6 +72,22 @@ export function ClientCoreSummary({ client, saved }: { client: ClientRecord; sav
     });
   }
   if (client.riskAlerts?.trim()) badges.push({ key: "risk", label: "Risk noted", tone: "warning" });
+  if (clientHasActiveAssistanceAnimal(client.animals ?? [])) {
+    badges.push({
+      key: "assistance-animal",
+      label: "Assistance animal on site",
+      tone: "info",
+      href: `/clients/${client.id}?tab=${encodeURIComponent("Animal and Pet")}`,
+    });
+  }
+  if (client.animalAllergyAlert?.trim()) {
+    badges.push({
+      key: "animal-allergy",
+      label: "Animal allergy alert",
+      tone: "danger",
+      href: `/clients/${client.id}?tab=${encodeURIComponent("Animal and Pet")}`,
+    });
+  }
   if (supportPlan) {
     badges.push({
       key: "support-plan",

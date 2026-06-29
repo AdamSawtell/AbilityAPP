@@ -275,6 +275,7 @@ export type ClientRow = {
   invoice_delivery_method: string;
   statement_delivery_method: string;
   picture_url: string;
+  animal_allergy_alert: string;
   created_by: string;
   updated_by: string;
 };
@@ -402,6 +403,75 @@ export function planBudgetFromRow(row: ClientPlanBudgetRowDb): ClientPlanBudgetR
   };
 }
 
+export type ClientAnimalRowDb = {
+  id: string;
+  client_id: string;
+  line_no: number;
+  display_priority: number;
+  animal_type: string;
+  name: string;
+  breed: string;
+  role: string;
+  status: string;
+  assistance_registration: string;
+  assistance_tasks: string;
+  assistance_provider: string;
+  care_notes: string;
+  feeding_schedule: string;
+  walking_requirements: string;
+  medication_details: string;
+  vet_name: string;
+  vet_phone: string;
+  vet_address: string;
+  vet_after_hours: string;
+  medical_conditions: string;
+  allergies: string;
+  photo_url: string;
+  care_responsibility: string;
+  accompanies_to_program: string;
+  transport_notes: string;
+  vaccination_up_to_date: string;
+  last_vaccination_date: string | null;
+  next_vaccination_due: string | null;
+  health_certificate_expiry: string | null;
+  microchip_number: string;
+};
+
+export function clientAnimalFromRow(row: ClientAnimalRowDb): import("@/lib/client-line-tables").ClientAnimalRow {
+  return {
+    id: row.id,
+    lineNo: row.line_no,
+    displayPriority: row.display_priority,
+    animalType: row.animal_type,
+    name: row.name,
+    breed: row.breed,
+    role: row.role,
+    status: row.status,
+    assistanceRegistration: row.assistance_registration,
+    assistanceTasks: row.assistance_tasks,
+    assistanceProvider: row.assistance_provider,
+    careNotes: row.care_notes,
+    feedingSchedule: row.feeding_schedule,
+    walkingRequirements: row.walking_requirements,
+    medicationDetails: row.medication_details,
+    vetName: row.vet_name,
+    vetPhone: row.vet_phone,
+    vetAddress: row.vet_address,
+    vetAfterHours: row.vet_after_hours,
+    medicalConditions: row.medical_conditions,
+    allergies: row.allergies,
+    photoUrl: row.photo_url,
+    careResponsibility: row.care_responsibility,
+    accompaniesToProgram: row.accompanies_to_program,
+    transportNotes: row.transport_notes,
+    vaccinationUpToDate: row.vaccination_up_to_date,
+    lastVaccinationDate: strDate(row.last_vaccination_date),
+    nextVaccinationDue: strDate(row.next_vaccination_due),
+    healthCertificateExpiry: strDate(row.health_certificate_expiry),
+    microchipNumber: row.microchip_number,
+  };
+}
+
 export type ClientActivityRowDb = {
   id: string;
   client_id: string;
@@ -493,6 +563,7 @@ export function clientFromRow(
     invoiceDeliveryMethod: row.invoice_delivery_method ?? "",
     statementDeliveryMethod: row.statement_delivery_method ?? "",
     pictureUrl: row.picture_url ?? "",
+    animalAllergyAlert: row.animal_allergy_alert ?? "",
     createdBy: row.created_by,
     updatedBy: row.updated_by,
     alerts: alerts.map((a) => ({
@@ -612,6 +683,7 @@ export function clientFromRow(
       validTo: strDate(n.valid_to),
     })),
     planBudgets: [],
+    animals: [],
   };
 }
 
@@ -657,6 +729,7 @@ export function clientToRow(record: ClientRecord): ClientRow {
     invoice_delivery_method: record.invoiceDeliveryMethod ?? "",
     statement_delivery_method: record.statementDeliveryMethod ?? "",
     picture_url: record.pictureUrl ?? "",
+    animal_allergy_alert: record.animalAllergyAlert ?? "",
     created_by: record.createdBy,
     updated_by: record.updatedBy,
   };
@@ -2563,6 +2636,7 @@ export type IncidentRow = {
   primary_location_id: string | null;
   vehicle_id: string | null;
   linked_restrictive_practice_id: string | null;
+  linked_animal_id: string | null;
   manager_reviewed_at: string | null;
   manager_reviewed_by: string;
   description: string;
@@ -2652,6 +2726,7 @@ export function incidentFromRow(
     primaryLocationId: row.primary_location_id ?? "",
     vehicleId: row.vehicle_id ?? "",
     linkedRestrictivePracticeId: row.linked_restrictive_practice_id ?? "",
+    linkedAnimalId: row.linked_animal_id ?? "",
     managerReviewedAt: row.manager_reviewed_at ?? "",
     managerReviewedBy: row.manager_reviewed_by ?? "",
     description: row.description,
@@ -2739,6 +2814,7 @@ export function incidentToRow(record: IncidentRecord): IncidentRow {
     linked_restrictive_practice_id: normalized.linkedRestrictivePracticeId?.trim()
       ? normalized.linkedRestrictivePracticeId
       : null,
+    linked_animal_id: normalized.linkedAnimalId?.trim() ? normalized.linkedAnimalId : null,
     manager_reviewed_at: normalized.managerReviewedAt || null,
     manager_reviewed_by: normalized.managerReviewedBy,
     description: normalized.description,

@@ -47,6 +47,11 @@ import { useSystemTimezoneOptional } from "@/lib/system-timezone-store";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import type { ClientRecord } from "@/lib/client";
 import type { LocationRecord } from "@/lib/location";
+import {
+  animalShiftAlerts,
+  animalSummaryForShift,
+  sortClientAnimals,
+} from "@/lib/client-animal";
 
 function statusBadgeClass(status: ReturnType<typeof shiftCheckInStatus>): string {
   switch (status) {
@@ -599,6 +604,7 @@ function MyShiftCard({
       ) : null}
       <ShiftGeoLinks shift={shift} />
       <ShiftGeofenceAlerts alerts={shiftGeofenceAlerts(shift, location)} />
+      {client ? <ShiftAnimalSummary client={client} /> : null}
 
       {delivery.message ? (
         <p className="mt-3 text-sm text-slate-600">
@@ -649,5 +655,70 @@ function MyShiftCard({
         </div>
       )}
     </li>
+  );
+}
+
+function ShiftAnimalSummary({ client }: { client: ClientRecord }) {
+  const [expanded, setExpanded] = useState(false);
+  const summary = animalSummaryForShift(client.animals ?? [], client.animalAllergyAlert ?? "");
+  const alerts = animalShiftAlerts(client.animals ?? [], client.animalAllergyAlert ?? "");
+  if (!summary) return null;
+
+  const active = sortClientAnimals((client.animals ?? []).filter((a) => a.status === "active"));
+
+  return (
+    <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/80 p-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Animals & pets</p>
+          <p className="mt-1 text-sm font-medium text-slate-900">{summary}</p>
+          {alerts.length ? (
+            <ul className="mt-2 space-y-1">
+              {alerts.map((alert) => (
+                <li
+                  key={alert}
+                  className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-950"
+                >
+                  {alert}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          onClick={() => setExpanded((open) => !open)}
+          className="shrink-0 text-xs font-medium text-[#b51266] hover:underline"
+        >
+          {expanded ? "Hide details" : "Show details"}
+        </button>
+      </div>
+      {expanded ? (
+        <ul className="mt-3 space-y-2 border-t border-slate-200 pt-3 text-sm text-slate-700">
+          {active.map((animal) => (
+            <li key={animal.id}>
+              <span className="font-medium">{animal.name || animal.animalType}</span>
+              {" · "}
+              {animal.role}
+              {animal.careResponsibility ? ` · care: ${animal.careResponsibility}` : ""}
+              {animal.feedingSchedule?.trim() ? (
+                <p className="mt-0.5 text-xs text-slate-600">Feeding: {animal.feedingSchedule.trim()}</p>
+              ) : null}
+              {animal.transportNotes?.trim() ? (
+                <p className="mt-0.5 text-xs text-slate-600">{animal.transportNotes.trim()}</p>
+              ) : null}
+            </li>
+          ))}
+          <li>
+            <Link
+              href={`/clients/${client.id}?tab=${encodeURIComponent("Animal and Pet")}`}
+              className="text-xs font-medium text-[#b51266] hover:underline"
+            >
+              Open full animal tab
+            </Link>
+          </li>
+        </ul>
+      ) : null}
+    </div>
   );
 }

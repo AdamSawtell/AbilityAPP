@@ -228,6 +228,7 @@ export function IncidentTabbedView({
   const primaryEmployee = employees.find((e) => e.id === record.primaryEmployeeId);
   const primaryLocation = locations.find((l) => l.id === record.primaryLocationId);
   const clientRestrictivePractices = primaryClient?.restrictivePractices ?? [];
+  const clientAnimals = primaryClient?.animals ?? [];
 
   function setActiveTab(tab: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -588,6 +589,25 @@ export function IncidentTabbedView({
                       </select>
                       <p className="mt-1 text-xs text-slate-500">
                         Links this incident to the client&apos;s restrictive practice register for audit traceability.
+                      </p>
+                    </Field>
+                  ) : null}
+                  {primaryClient && clientAnimals.length ? (
+                    <Field label="Linked animal (client register)" className="sm:col-span-2">
+                      <select
+                        className={inputClass}
+                        value={record.linkedAnimalId}
+                        onChange={(e) => onChange("linkedAnimalId", e.target.value)}
+                      >
+                        <option value="">Select animal or pet row…</option>
+                        {clientAnimals.map((animal) => (
+                          <option key={animal.id} value={animal.id}>
+                            {animal.name || animal.animalType} ({animal.role})
+                          </option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Links this incident to the client&apos;s Animal and Pet tab for audit traceability.
                       </p>
                     </Field>
                   ) : null}

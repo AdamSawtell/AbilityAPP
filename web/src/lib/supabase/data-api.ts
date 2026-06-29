@@ -63,6 +63,7 @@ import {
   clientFromRow,
   clientToRow,
   planBudgetFromRow,
+  clientAnimalFromRow,
   contractFromRow,
   contractToRow,
   businessPartnerFromRow,
@@ -146,6 +147,7 @@ import {
   type ClientContactActivityRowDb,
   type ClientNeedRuleRowDb,
   type ClientPlanBudgetRowDb,
+  type ClientAnimalRowDb,
   type ClientRestrictivePracticeRowDb,
   type ClientRiskRowDb,
   type ClientLocationRowDb,
@@ -550,6 +552,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     contactActivityRes,
     needsAndRulesRes,
     planBudgetsRes,
+    clientAnimalsRes,
     productsRes,
     priceListsRes,
     priceLinesRes,
@@ -637,6 +640,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     supabase.from("client_contact_activity").select("*").order("line_no"),
     supabase.from("client_support_receiver_need_rule").select("*").order("line_no"),
     supabase.from("client_plan_budget_line").select("*").order("line_no"),
+    supabase.from("client_animal").select("*").order("line_no"),
     supabase.from("product").select("*").order("search_key"),
     supabase.from("price_list").select("*").order("name"),
     supabase.from("price_list_line").select("*").order("line_no"),
@@ -726,6 +730,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
     contactActivityRes.error ??
     needsAndRulesRes.error ??
     planBudgetsRes.error ??
+    clientAnimalsRes.error ??
     productsRes.error ??
     priceListsRes.error ??
     priceLinesRes.error ??
@@ -817,6 +822,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
   const contactActivityByClient = groupBy(contactActivityRes.data as ClientContactActivityRowDb[], "client_id");
   const needsAndRulesByClient = groupBy(needsAndRulesRes.data as ClientNeedRuleRowDb[], "client_id");
   const planBudgetsByClient = groupBy(planBudgetsRes.data as ClientPlanBudgetRowDb[], "client_id");
+  const animalsByClient = groupBy(clientAnimalsRes.data as ClientAnimalRowDb[], "client_id");
   const linesByPriceList = groupBy(priceLinesRes.data as PriceListLineRow[], "price_list_id");
   const linesByAgreement = groupBy(agreementLinesRes.data as ServiceAgreementLineRow[], "service_agreement_id");
   const linesByBooking = groupBy(bookingLinesRes.data as ServiceBookingLineRowDb[], "service_booking_id");
@@ -909,6 +915,7 @@ export async function fetchAllData(supabase: SupabaseClient): Promise<AppData> {
           needsAndRulesByClient.get(row.id) ?? []
         ),
         planBudgets: (planBudgetsByClient.get(row.id) ?? []).map(planBudgetFromRow),
+        animals: (animalsByClient.get(row.id) ?? []).map(clientAnimalFromRow),
       })
     ),
     businessPartners: ((businessPartnersRes.data ?? []) as BusinessPartnerRow[]).map((row) =>
@@ -1213,6 +1220,7 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
   await replaceChildRows(supabase, "client_contact_activity", "client_id", client.id);
   await replaceChildRows(supabase, "client_support_receiver_need_rule", "client_id", client.id);
   await replaceChildRows(supabase, "client_plan_budget_line", "client_id", client.id);
+  await replaceChildRows(supabase, "client_animal", "client_id", client.id);
 
   if (client.alerts.length) {
     const { error: alertError } = await supabase.from("client_alert").insert(
@@ -1409,6 +1417,45 @@ export async function saveClient(supabase: SupabaseClient, record: ClientRecord)
       }))
     );
     if (budgetError) throw budgetError;
+  }
+
+  if (client.animals.length) {
+    const { error: animalError } = await supabase.from("client_animal").insert(
+      client.animals.map((a) => ({
+        id: a.id,
+        client_id: client.id,
+        line_no: a.lineNo,
+        display_priority: a.displayPriority,
+        animal_type: a.animalType,
+        name: a.name,
+        breed: a.breed,
+        role: a.role,
+        status: a.status,
+        assistance_registration: a.assistanceRegistration,
+        assistance_tasks: a.assistanceTasks,
+        assistance_provider: a.assistanceProvider,
+        care_notes: a.careNotes,
+        feeding_schedule: a.feedingSchedule,
+        walking_requirements: a.walkingRequirements,
+        medication_details: a.medicationDetails,
+        vet_name: a.vetName,
+        vet_phone: a.vetPhone,
+        vet_address: a.vetAddress,
+        vet_after_hours: a.vetAfterHours,
+        medical_conditions: a.medicalConditions,
+        allergies: a.allergies,
+        photo_url: a.photoUrl,
+        care_responsibility: a.careResponsibility,
+        accompanies_to_program: a.accompaniesToProgram,
+        transport_notes: a.transportNotes,
+        vaccination_up_to_date: a.vaccinationUpToDate,
+        last_vaccination_date: a.lastVaccinationDate || null,
+        next_vaccination_due: a.nextVaccinationDue || null,
+        health_certificate_expiry: a.healthCertificateExpiry || null,
+        microchip_number: a.microchipNumber,
+      }))
+    );
+    if (animalError) throw animalError;
   }
 }
 

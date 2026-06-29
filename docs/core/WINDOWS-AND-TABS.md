@@ -170,6 +170,7 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Restrictive Practices | `client-restrictive-practices` |
 | Consents and Legal Orders | `client-consents-and-legal-orders` |
 | Risks | `client-risks` |
+| Animal and Pet | `client-animal-and-pet` |
 
 **Planning**
 

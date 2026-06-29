@@ -19,6 +19,7 @@ import { ClientServiceBookingsPanel } from "@/components/service-booking-pages";
 import { ClientPlanAssessmentPanel, ClientSupportPlanPanel } from "@/components/support-plan-panels";
 import { LineItemTable } from "@/components/line-item-table";
 import { ClientPortalRequestsPanel } from "@/components/client-portal-requests-panel";
+import { ClientAnimalsPanel } from "@/components/client-animals-panel";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { RecordIncidentsPanel } from "@/components/record-incidents-panel";
 import { RecordCalendarPanel } from "@/components/record-calendar-panel";
@@ -252,6 +253,7 @@ function tabCount(
   if (tab === "BP Associations") return client.bpAssociations?.length ?? 0;
   if (tab === "Contact Activity") return client.contactActivity?.length ?? 0;
   if (tab === "Support Receiver Needs and Rules") return client.needsAndRules?.length ?? 0;
+  if (tab === "Animal and Pet") return client.animals?.length ?? 0;
   if (tab === "Plan budget") return client.planBudgets?.length ?? 0;
   if (tab === "Monthly service plan") return monthlyPlanCount ?? 0;
   if (tab === "Roster of care") return rocCount ?? 0;
@@ -626,6 +628,21 @@ export function ClientTabbedView({
               rows={client.needsAndRules ?? []}
               readOnly={!canWriteClientTab("Support Receiver Needs and Rules")}
               onChange={(rows) => onLineItemsChange("needsAndRules", rows)}
+            />
+          </>
+        ) : null}
+
+        {tableTab === "Animal and Pet" && canClientTab("Animal and Pet") ? (
+          <>
+            <ClientTabIntro
+              title="Animal and pet"
+              description="Register assistance animals and companion pets, care requirements, vet contacts, and allergy alerts for support workers."
+            />
+            <ClientAnimalsPanel
+              client={client}
+              readOnly={!canWriteClientTab("Animal and Pet")}
+              onLineItemsChange={(rows) => onLineItemsChange("animals", rows)}
+              onAllergyAlertChange={(value) => onChange("animalAllergyAlert", value)}
             />
           </>
         ) : null}

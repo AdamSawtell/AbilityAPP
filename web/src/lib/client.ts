@@ -10,13 +10,15 @@ import type {
   ClientPlanBudgetRow,
   ClientRestrictivePracticeRow,
   ClientRiskRow,
+  ClientAnimalRow,
 } from "@/lib/client-line-tables";
-import { normalizeConsentStatus, normalizeConsentType } from "@/lib/client-consent";
 import {
   buildConsentAlertList,
   buildRiskAlertsSummary,
   transferActivitiesToClient,
 } from "@/lib/client-line-tables";
+import { defaultAnimalDisplayPriority, sortClientAnimals } from "@/lib/client-animal";
+import { normalizeConsentStatus, normalizeConsentType } from "@/lib/client-consent";
 import { inferLifecycleFromLegacyStatus, normalizeLifecycleStatus } from "@/lib/client-lifecycle";
 import { clientDropdowns } from "@/lib/reference-data";
 
@@ -33,6 +35,7 @@ export type ClientRisk = ClientRiskRow;
 export type ClientBpAssociation = ClientBpAssociationRow;
 export type ClientContactActivity = ClientContactActivityRow;
 export type ClientNeedRule = ClientNeedRuleRow;
+export type ClientAnimal = ClientAnimalRow;
 
 export type ClientLocation = ClientLocationRow;
 
@@ -89,6 +92,8 @@ export type ClientRecord = {
   contactActivity: ClientContactActivity[];
   needsAndRules: ClientNeedRule[];
   planBudgets: ClientPlanBudgetRow[];
+  animalAllergyAlert: string;
+  animals: ClientAnimal[];
 };
 
 export const clientTabs = [
@@ -115,6 +120,7 @@ export const clientTabs = [
   "Service bookings",
   "Roster of care",
   "Support Receiver Needs and Rules",
+  "Animal and Pet",
 ] as const;
 
 export const initialClients: ClientRecord[] = [
@@ -332,6 +338,41 @@ export const initialClients: ClientRecord[] = [
         validTo: "",
       },
     ],
+    animalAllergyAlert: "",
+    animals: [
+      {
+        id: "animal-bern-guide",
+        lineNo: 1,
+        displayPriority: 1,
+        animalType: "dog",
+        name: "Scout",
+        breed: "Labrador",
+        role: "assistance",
+        status: "active",
+        assistanceRegistration: "AD-2022-8841",
+        assistanceTasks: "Mobility assistance, item retrieval, anxiety alert",
+        assistanceProvider: "Guide Dogs SA/NT",
+        careNotes: "Scout works on harness only during support sessions. Off-duty at home is family-managed.",
+        feedingSchedule: "Morning and evening — 1 cup dry food",
+        walkingRequirements: "Two 20-minute walks daily when weather permits",
+        medicationDetails: "",
+        vetName: "Glenelg Vet Clinic",
+        vetPhone: "08 8294 2200",
+        vetAddress: "45 Jetty Road, Glenelg SA 5045",
+        vetAfterHours: "1300 PET 24HR",
+        medicalConditions: "",
+        allergies: "",
+        photoUrl: "",
+        careResponsibility: "external",
+        accompaniesToProgram: "Yes",
+        transportNotes: "Scout travels in approved harness in rear seat. Notify day program 24h ahead.",
+        vaccinationUpToDate: "Yes",
+        lastVaccinationDate: "2025-11-10",
+        nextVaccinationDue: "2026-11-10",
+        healthCertificateExpiry: "2026-06-30",
+        microchipNumber: "956000012345678",
+      },
+    ],
     planBudgets: [
       {
         id: "budget-bern-core-daily",
@@ -537,7 +578,7 @@ export const clientTabGroups: ClientTabGroup[] = [
   },
   {
     label: "Care & compliance",
-    tabs: ["Requests", "Restrictive Practices", "Consents and Legal Orders", "Risks"],
+    tabs: ["Requests", "Restrictive Practices", "Consents and Legal Orders", "Risks", "Animal and Pet"],
   },
   {
     label: "Planning",
@@ -609,6 +650,13 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
     allocatedAmount: Number(row.allocatedAmount) || 0,
     claimedAmount: Number(row.claimedAmount) || 0,
   }));
+  const animals = sortClientAnimals(
+    (client.animals ?? []).map((row, index) => ({
+      ...row,
+      lineNo: row.lineNo ?? index + 1,
+      displayPriority: row.displayPriority || defaultAnimalDisplayPriority(row.role),
+    }))
+  );
   const consentAlertList = buildConsentAlertList(consents) || client.consentAlertList;
   const riskAlerts = buildRiskAlertsSummary(risks) || client.riskAlerts;
   const lifecycleStatus = client.lifecycleStatus?.trim()
@@ -630,6 +678,8 @@ export function normalizeClient(client: ClientRecord): ClientRecord {
     contactActivity,
     needsAndRules,
     planBudgets,
+    animals,
+    animalAllergyAlert: client.animalAllergyAlert ?? "",
     consentAlertList,
     riskAlerts,
     preferredCommunicationMethod: client.preferredCommunicationMethod ?? "",
@@ -728,6 +778,8 @@ export function emptyClientRecord(
     contactActivity: [],
     needsAndRules: [],
     planBudgets: [],
+    animalAllergyAlert: "",
+    animals: [],
   });
 }
 
@@ -811,5 +863,7 @@ export function emptyClientFromEnquiry(enquiry: EnquiryRecord, searchKey: string
     contactActivity: [],
     needsAndRules: [],
     planBudgets: [],
+    animalAllergyAlert: "",
+    animals: [],
   };
 }

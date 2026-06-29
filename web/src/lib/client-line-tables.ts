@@ -115,6 +115,39 @@ export type ClientNeedRuleRow = {
   validTo: string;
 };
 
+export type ClientAnimalRow = {
+  id: string;
+  lineNo: number;
+  displayPriority: number;
+  animalType: string;
+  name: string;
+  breed: string;
+  role: string;
+  status: string;
+  assistanceRegistration: string;
+  assistanceTasks: string;
+  assistanceProvider: string;
+  careNotes: string;
+  feedingSchedule: string;
+  walkingRequirements: string;
+  medicationDetails: string;
+  vetName: string;
+  vetPhone: string;
+  vetAddress: string;
+  vetAfterHours: string;
+  medicalConditions: string;
+  allergies: string;
+  photoUrl: string;
+  careResponsibility: string;
+  accompaniesToProgram: string;
+  transportNotes: string;
+  vaccinationUpToDate: string;
+  lastVaccinationDate: string;
+  nextVaccinationDue: string;
+  healthCertificateExpiry: string;
+  microchipNumber: string;
+};
+
 export type ClientPlanBudgetRow = {
   id: string;
   lineNo: number;
@@ -163,7 +196,8 @@ export type ClientLineCollectionKey =
   | "bpAssociations"
   | "contactActivity"
   | "needsAndRules"
-  | "planBudgets";
+  | "planBudgets"
+  | "animals";
 
 import type { LineDeletePolicy } from "@/lib/activity-line-policy";
 
@@ -483,6 +517,78 @@ export const planBudgetTableConfig: ClientTabTableConfig<ClientPlanBudgetRow> = 
   }),
 };
 
+export const animalTableConfig: ClientTabTableConfig<ClientAnimalRow> = {
+  collectionKey: "animals",
+  addLabel: "Add animal or pet",
+  emptyMessage: "No animals recorded. Log assistance animals, companion pets, and care requirements for support workers.",
+  layout: "list-drawer",
+  drawerTitle: "Animal or pet",
+  listColumnKeys: ["name", "animalType", "role", "status"],
+  columns: [
+    { key: "lineNo", label: "Line", type: "number", className: "w-14" },
+    { key: "displayPriority", label: "Display priority", type: "number", className: "w-24" },
+    { key: "name", label: "Name", type: "text", required: true },
+    { key: "animalType", label: "Type", type: "select", optionsKey: "animalType", required: true },
+    { key: "breed", label: "Breed", type: "text" },
+    { key: "role", label: "Role", type: "select", optionsKey: "animalRole", required: true },
+    { key: "status", label: "Status", type: "select", optionsKey: "animalStatus", required: true },
+    { key: "assistanceRegistration", label: "Assistance registration", type: "text" },
+    { key: "assistanceTasks", label: "Assistance tasks", type: "textarea", className: "min-w-[180px]" },
+    { key: "assistanceProvider", label: "Assistance provider", type: "text" },
+    { key: "careResponsibility", label: "Care responsibility", type: "select", optionsKey: "animalCareResponsibility" },
+    { key: "feedingSchedule", label: "Feeding schedule", type: "textarea", className: "min-w-[160px]" },
+    { key: "walkingRequirements", label: "Walking / exercise", type: "textarea", className: "min-w-[160px]" },
+    { key: "medicationDetails", label: "Medication", type: "textarea", className: "min-w-[160px]" },
+    { key: "careNotes", label: "Care notes", type: "textarea", className: "min-w-[180px]" },
+    { key: "vetName", label: "Vet clinic", type: "text" },
+    { key: "vetPhone", label: "Vet phone", type: "text" },
+    { key: "vetAddress", label: "Vet address", type: "textarea", className: "min-w-[160px]" },
+    { key: "vetAfterHours", label: "Vet after hours", type: "text" },
+    { key: "medicalConditions", label: "Medical conditions", type: "textarea", className: "min-w-[160px]" },
+    { key: "allergies", label: "Allergies / risks", type: "textarea", className: "min-w-[160px]" },
+    { key: "vaccinationUpToDate", label: "Vaccinations up to date", type: "select", optionsKey: "yesNo" },
+    { key: "lastVaccinationDate", label: "Last vaccination", type: "date" },
+    { key: "nextVaccinationDue", label: "Next vaccination due", type: "date" },
+    { key: "healthCertificateExpiry", label: "Health certificate expiry", type: "date" },
+    { key: "microchipNumber", label: "Microchip number", type: "text" },
+    { key: "photoUrl", label: "Photo URL", type: "text" },
+    { key: "accompaniesToProgram", label: "Accompanies to programs", type: "select", optionsKey: "yesNo" },
+    { key: "transportNotes", label: "Transport / day program notes", type: "textarea", className: "min-w-[180px]" },
+  ],
+  emptyRow: (lineNo) => ({
+    id: newLineId("animal"),
+    lineNo,
+    displayPriority: 10,
+    animalType: "dog",
+    name: "",
+    breed: "",
+    role: "companion",
+    status: "active",
+    assistanceRegistration: "",
+    assistanceTasks: "",
+    assistanceProvider: "",
+    careNotes: "",
+    feedingSchedule: "",
+    walkingRequirements: "",
+    medicationDetails: "",
+    vetName: "",
+    vetPhone: "",
+    vetAddress: "",
+    vetAfterHours: "",
+    medicalConditions: "",
+    allergies: "",
+    photoUrl: "",
+    careResponsibility: "",
+    accompaniesToProgram: "No",
+    transportNotes: "",
+    vaccinationUpToDate: "",
+    lastVaccinationDate: "",
+    nextVaccinationDue: "",
+    healthCertificateExpiry: "",
+    microchipNumber: "",
+  }),
+};
+
 export const clientTabTableConfigs = {
   Alerts: alertTableConfig,
   Activity: activityTableConfig,
@@ -493,6 +599,7 @@ export const clientTabTableConfigs = {
   "BP Associations": bpAssociationTableConfig,
   "Contact Activity": contactActivityTableConfig,
   "Support Receiver Needs and Rules": needRuleTableConfig,
+  "Animal and Pet": animalTableConfig,
 } as const;
 
 export function formatLocationAddress(loc: Pick<ClientLocationRow, "address1" | "address2" | "address3" | "city" | "state" | "postcode" | "country">) {

@@ -45,7 +45,7 @@ export const clientsArticle: HelpArticle = {
       bullets: [
         "Core: Overview, Alerts, Activity, Calendar, Full profile, Service agreements, Service bookings",
         "Relationships: BP Associations, Locations, Contact Activity",
-        "Care and compliance: Requests, Restrictive Practices, Consents and Legal Orders, Risks, Incidents",
+        "Care and compliance: Requests, Restrictive Practices, Consents and Legal Orders, Risks, Animal and Pet, Incidents",
         "Planning: Plan budget, Plan and Assessment, Support Plan, Goals, Progress Review, Support Receiver Needs and Rules",
       ],
     },
@@ -179,6 +179,12 @@ export const clientsArticle: HelpArticle = {
       title: "Risks tab",
       body: "Formal risk register separate from Alerts. Mark Show as alert to roll up to the risk alerts field on Overview.",
       windowKeys: ["client-risks"],
+    },
+    {
+      id: "animal-pet-tab",
+      title: "Animal and Pet tab",
+      body: "Register assistance animals and companion pets with care requirements, vet contacts, vaccination dates, and transport notes. Set an animal allergy alert for the profile header. Assistance and therapy roles may be NDIS-billable when in the support plan; companion pets are never billable. Use Report animal-related incident to open a draft incident linked to the animal. Support workers see a compact summary on My shifts.",
+      windowKeys: ["client-animal-and-pet"],
     },
     {
       id: "billing-communication",

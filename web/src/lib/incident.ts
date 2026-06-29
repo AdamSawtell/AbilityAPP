@@ -88,6 +88,7 @@ export type IncidentRecord = {
   primaryLocationId: string;
   vehicleId?: string;
   linkedRestrictivePracticeId: string;
+  linkedAnimalId: string;
   managerReviewedAt: string;
   managerReviewedBy: string;
   description: string;
@@ -287,6 +288,7 @@ export function normalizeIncident(record: IncidentRecord): IncidentRecord {
   return {
     ...record,
     vehicleId: record.vehicleId ?? "",
+    linkedAnimalId: record.linkedAnimalId ?? "",
     reportDeadlineAt,
     parties: renumberParties(record.parties ?? []),
     actions: renumberActions(record.actions ?? []),
@@ -318,6 +320,7 @@ export function emptyIncident(): IncidentRecord {
     primaryEmployeeId: "",
     primaryLocationId: "",
     linkedRestrictivePracticeId: "",
+    linkedAnimalId: "",
     managerReviewedAt: "",
     managerReviewedBy: "",
     description: "",
@@ -377,6 +380,7 @@ export const initialIncidents: IncidentRecord[] = [
     primaryEmployeeId: "emp-isla",
     primaryLocationId: "",
     linkedRestrictivePracticeId: "",
+    linkedAnimalId: "",
     managerReviewedAt: "",
     managerReviewedBy: "",
     description:

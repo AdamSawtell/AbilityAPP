@@ -276,6 +276,8 @@ function clientFromRowMinimal(
     contactActivity: [],
     needsAndRules: [],
     planBudgets: [],
+    animalAllergyAlert: String(row.animal_allergy_alert ?? ""),
+    animals: [],
   };
 }
 

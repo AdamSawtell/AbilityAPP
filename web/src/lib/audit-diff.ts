@@ -77,6 +77,8 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     alerts: "Alerts",
     activity: "Activity",
     locations: "Locations",
+    animals: "Animals and pets",
+    animalAllergyAlert: "Animal allergy alert",
   },
   employee: {
     searchKey: "Search key",
@@ -525,6 +527,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     primaryEmployeeId: "Primary employee",
     primaryLocationId: "Primary location",
     linkedRestrictivePracticeId: "Linked restrictive practice",
+    linkedAnimalId: "Linked animal",
     managerReviewedAt: "Manager reviewed at",
     managerReviewedBy: "Manager reviewed by",
     description: "Description",

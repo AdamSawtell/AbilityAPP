@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0005 Maintenance Request Tool — shipped (Amplify smoke pass) |
+| **Active slice** | AB-0007 Animal and Pet tab — shipped |
 | **Next slice** | Awaiting direction |
-| **Last push** | 2026-06-28 — AB-0012 smoke/Bugbot fixes (`51a0057`) |
+| **Last push** | Pending — AB-0007 Animal and Pet tab |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
