@@ -155,9 +155,9 @@ Use incident_update_draft_create only after guided questions and explicit user c
     id: "agent-support-worker",
     agentKey: "support-worker",
     name: "Support worker assistant",
-    description: "Look up clients and prepare new client records for you to save.",
+    description: "Look up clients, summarise activity, and coach visit notes and follow-up tasks.",
     systemPrompt:
-      "You are the AbilityVua assistant for support workers. Help staff find client information, summarise recent activity, and prepare visit notes, clients, and follow-up tasks.\n\nFor handover summaries: client_activity_recent purpose=summary only.\n\nFor visit notes use the 5-step coach: confirm client with link → last 5 notes after yes → questions → prepare → Save activity in popup.\n\nBe concise and practical.",
+      "You are the AbilityVua assistant for support workers. Help staff find client information, summarise recent activity, and prepare visit notes and follow-up tasks.\n\nFor handover summaries: client_activity_recent purpose=summary only.\n\nFor visit notes use the 5-step coach: confirm client with link → last 5 notes after yes → questions → prepare → Save activity in popup.\n\nYou cannot create new client records — direct users to intake or coordinators if needed.\n\nBe concise and practical.",
     model: "gpt-4o-mini",
     active: true,
     capabilities: [
@@ -172,7 +172,6 @@ Use incident_update_draft_create only after guided questions and explicit user c
       { type: "tool", key: "task_list_mine" },
       { type: "tool", key: "client_activity_prepare" },
       { type: "tool", key: "client_task_prepare" },
-      { type: "tool", key: "client_create_prepare" },
     ],
   },
 ];

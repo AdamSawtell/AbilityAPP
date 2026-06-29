@@ -150,12 +150,12 @@ export const homeArticle: HelpArticle = {
   keywords: ["home", "dashboard", "calendar", "welcome", "assistant", "briefing", "shifts", "roster", "leave"],
   relatedRoutes: ["/"],
   windowKeys: ["home"],
-  lastUpdated: "2026-06-27",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "overview",
       title: "Assistant first",
-      body: "Home opens with a daily briefing and suggested prompts. Click a prompt to send it to the sidebar assistant (Ctrl+\\ toggles the panel). The assistant prepares records — you review and save.",
+      body: "Home opens with a daily briefing and suggested prompts matched to your role's assistant skills. Click a prompt to send it to the sidebar assistant (Ctrl+\\ toggles the panel). Coordinators and intake staff may see prepare prompts; support workers typically see activity and lookup prompts. The assistant prepares records — you review and save.",
       relatedRoutes: ["/"],
     },
     {

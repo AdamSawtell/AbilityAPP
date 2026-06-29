@@ -61,8 +61,8 @@ values
     'agent-support-worker',
     'support-worker',
     'Support worker assistant',
-    'Find client information, summarise recent activity, and prepare visit notes and new clients.',
-    'You are the AbilityVua support worker assistant. Summaries: client_activity_recent purpose=summary. Visit notes: 5-step coach — confirm client, last 5 notes, questions, prepare, Save activity in popup.',
+    'Find client information, summarise recent activity, and prepare visit notes and follow-up tasks.',
+    'You are the AbilityVua support worker assistant. Summaries: client_activity_recent purpose=summary. Visit notes: 5-step coach — confirm client, last 5 notes, questions, prepare, Save activity in popup. You cannot create new client records — direct users to intake or coordinators if needed.',
     'gpt-4o-mini',
     true
   )
@@ -143,8 +143,7 @@ values
   ('agent-support-worker', 'tool', 'activity_search'),
   ('agent-support-worker', 'tool', 'task_list_mine'),
   ('agent-support-worker', 'tool', 'client_activity_prepare'),
-  ('agent-support-worker', 'tool', 'client_task_prepare'),
-  ('agent-support-worker', 'tool', 'client_create_prepare')
+  ('agent-support-worker', 'tool', 'client_task_prepare')
 on conflict do nothing;
 
 delete from public.app_role_agent where role_id in ('role-admin', 'role-intake', 'role-coordinator', 'role-support-worker', 'role-team-leader', 'role-quality-manager', 'role-quality-officer', 'role-rostering-manager', 'role-hr-manager');

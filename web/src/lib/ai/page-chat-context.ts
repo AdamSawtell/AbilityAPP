@@ -57,8 +57,18 @@ export function resolvePageChatContext(pathname: string, lookup: RecordLookup): 
       systemLine: "The user is on Home.",
       viewingLabel: "Home",
       moduleLabel: "Home",
-      capabilities: ["Search records", "Prepare new clients", "Ask how-to questions"],
-      suggestions: ["Show recent client activity", "Who was updated most recently?", "Prepare a new client"],
+      capabilities: [
+        "Search records",
+        "Coach activity notes (confirm client → last 5 notes → questions → save)",
+        "Prepare new clients",
+        "Ask how-to questions",
+      ],
+      suggestions: [
+        "Show recent client activity",
+        "Who was updated most recently?",
+        "Help me write today's activity update",
+        "Prepare a new client",
+      ],
       preferredAgentId: "agent-workspace",
     };
   }

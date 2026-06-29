@@ -17,6 +17,7 @@ import {
   saveHomeChatSession,
 } from "@/lib/ai/chat-session-storage";
 import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
+import { filterPageChatContextForRole, resolveAgentForSuggestion } from "@/lib/ai/suggestion-access";
 import { prefetchCoachNotesFromClients } from "@/lib/ai/activity-coach-prefetch";
 import { savedActivityCardAttachment, clientActivityCoachSaveHrefFromHref } from "@/lib/ai/activity-coach-display";
 
@@ -73,8 +74,12 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const lastPathRef = useRef("");
 
   const pageCtx = useMemo(
-    () => resolvePageChatContext(pathname, { clients, enquiries, tasks, incidents }),
-    [pathname, clients, enquiries, tasks, incidents]
+    () =>
+      filterPageChatContextForRole(
+        resolvePageChatContext(pathname, { clients, enquiries, tasks, incidents }),
+        session?.agentIds
+      ),
+    [pathname, clients, enquiries, tasks, incidents, session?.agentIds]
   );
 
   useEffect(() => {
@@ -227,7 +232,15 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
   const sendMessage = useCallback(
     async (textOverride?: string) => {
       const text = (textOverride ?? input).trim();
-      if (!text || !agentId || loading) return;
+      if (!text || loading) return;
+
+      const routedAgentId =
+        textOverride && session?.agentIds?.length
+          ? resolveAgentForSuggestion(text, session.agentIds, agentId) ?? agentId
+          : agentId;
+      if (!routedAgentId) return;
+
+      if (routedAgentId !== agentId) setAgentId(routedAgentId);
 
       setError("");
       setLoading(true);
@@ -244,7 +257,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            agentId,
+            agentId: routedAgentId,
             messages: nextMessages,
             threadState: threadStateRef.current,
             pagePath: pathname,
@@ -281,7 +294,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         setLoading(false);
       }
     },
-    [agentId, input, loading, pathname]
+    [agentId, input, loading, pathname, session?.agentIds]
   );
 
   const applyPromptIfAny = useCallback(() => {

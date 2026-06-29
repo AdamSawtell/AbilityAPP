@@ -14,6 +14,7 @@ import { useData } from "@/lib/data-store";
 import { useAiChatShell } from "@/lib/ai/chat-shell-store";
 import { queueChatPrompt } from "@/lib/ai/chat-session-storage";
 import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
+import { filterPageChatContextForRole } from "@/lib/ai/suggestion-access";
 import { buildHomeBriefing, type HomeAttentionItem } from "@/lib/home-briefing";
 import { isNdisReportOverdue } from "@/lib/incident";
 import { incidentHomeStats, recentIncidents } from "@/lib/incident-hub";
@@ -250,8 +251,12 @@ export function HomeDashboard() {
   const latestIncidents = useMemo(() => recentIncidents(incidents, 5), [incidents]);
 
   const pageCtx = useMemo(
-    () => resolvePageChatContext("/", { clients, enquiries, tasks, incidents }),
-    [clients, enquiries, tasks, incidents]
+    () =>
+      filterPageChatContextForRole(
+        resolvePageChatContext("/", { clients, enquiries, tasks, incidents }),
+        session?.agentIds
+      ),
+    [clients, enquiries, tasks, incidents, session?.agentIds]
   );
 
   const timesheetApprovalSummary = useMemo(() => {
