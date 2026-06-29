@@ -10,10 +10,9 @@
  *   npm run supabase:seed-demo-once -- --all                            (FULL destructive manifest)
  *
  * SAFETY: running with no target now ERRORS instead of silently applying the
- * entire manifest. The full manifest is destructive (it deletes + reinserts
- * support_location_employee and all role grants), so it must be opted into with
- * --all. Any argument ending in .sql is treated as a target file, so the npm
- * "--file" flag being stripped can no longer trigger an accidental full reseed.
+ * entire manifest. seed-access.sql and seed-locations.sql are ADDITIVE (upsert
+ * demo rows only; user-entered role grants and location links are preserved).
+ * Use --all only when resetting a fresh demo environment.
  */
 
 import { readFileSync, existsSync } from "node:fs";

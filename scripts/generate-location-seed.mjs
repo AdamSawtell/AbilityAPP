@@ -1,6 +1,8 @@
 /**
  * Generates supabase/seed-locations.sql from location.ts seed data.
  * Run: npm run supabase:seed-locations
+ *
+ * ADDITIVE: upserts demo rows by id only — never deletes user-added location links.
  */
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -22,9 +24,6 @@ function sqlDate(value) {
   return sqlString(value);
 }
 
-const ids = initialLocations.map((l) => l.id);
-const idList = ids.map((id) => sqlString(id)).join(", ");
-
 function sqlNum(value) {
   if (value === null || value === undefined || value === "") return "null";
   const n = Number(value);
@@ -32,8 +31,9 @@ function sqlNum(value) {
 }
 
 const lines = [
-  "-- Support location seed (generated)",
+  "-- Support location seed (generated, ADDITIVE)",
   "-- Re-run: npm run supabase:seed-locations",
+  "-- Upserts demo rows by id; user-added staff/client links are preserved.",
   "",
   "insert into public.support_location (",
   "  id, search_key, name, description, location_type, status,",
@@ -58,62 +58,68 @@ const lines = [
   "",
 ];
 
-function deleteInsert(table, rows, columns, mapRow) {
-  lines.push(`delete from public.${table} where location_id in (${idList});`);
+function upsertInsert(table, rows, columns, mapRow, updateSet) {
   if (!rows.length) {
+    lines.push(`-- ${table}: no demo rows in seed source`);
     lines.push("");
     return;
   }
   lines.push(`insert into public.${table} (${columns.join(", ")})`);
   lines.push("values");
-  lines.push(rows.map(mapRow).join(",\n") + ";");
+  lines.push(rows.map(mapRow).join(",\n"));
+  lines.push(`on conflict (id) do update set ${updateSet};`);
   lines.push("");
 }
 
 const allAlerts = initialLocations.flatMap((l) => (l.alerts ?? []).map((a) => ({ ...a, locationId: l.id })));
-deleteInsert(
+upsertInsert(
   "support_location_alert",
   allAlerts,
   ["id", "location_id", "line_no", "alert_type", "show_as_alert", "name", "description", "valid_from"],
   (a) =>
     `  (${sqlString(a.id)}, ${sqlString(a.locationId)}, ${a.lineNo}, ${sqlString(a.alertType)}, ${sqlString(a.showAsAlert)}, ${sqlString(a.name)}, ${sqlString(a.description)}, ${sqlDate(a.validFrom)})`,
+  "location_id = excluded.location_id, line_no = excluded.line_no, alert_type = excluded.alert_type, show_as_alert = excluded.show_as_alert, name = excluded.name, description = excluded.description, valid_from = excluded.valid_from"
 );
 
 const allClients = initialLocations.flatMap((l) => (l.clientLinks ?? []).map((c) => ({ ...c, locationId: l.id })));
-deleteInsert(
+upsertInsert(
   "support_location_client",
   allClients,
   ["id", "location_id", "line_no", "client_id", "assignment_role", "primary_assignment", "valid_from", "notes"],
   (c) =>
     `  (${sqlString(c.id)}, ${sqlString(c.locationId)}, ${c.lineNo}, ${sqlString(c.clientId)}, ${sqlString(c.assignmentRole)}, ${sqlString(c.primaryAssignment)}, ${sqlDate(c.validFrom)}, ${sqlString(c.notes)})`,
+  "location_id = excluded.location_id, line_no = excluded.line_no, client_id = excluded.client_id, assignment_role = excluded.assignment_role, primary_assignment = excluded.primary_assignment, valid_from = excluded.valid_from, notes = excluded.notes"
 );
 
 const allEmployees = initialLocations.flatMap((l) => (l.employeeLinks ?? []).map((e) => ({ ...e, locationId: l.id })));
-deleteInsert(
+upsertInsert(
   "support_location_employee",
   allEmployees,
   ["id", "location_id", "line_no", "employee_id", "assignment_role", "primary_assignment", "valid_from", "notes"],
   (e) =>
     `  (${sqlString(e.id)}, ${sqlString(e.locationId)}, ${e.lineNo}, ${sqlString(e.employeeId)}, ${sqlString(e.assignmentRole)}, ${sqlString(e.primaryAssignment)}, ${sqlDate(e.validFrom)}, ${sqlString(e.notes)})`,
+  "location_id = excluded.location_id, line_no = excluded.line_no, employee_id = excluded.employee_id, assignment_role = excluded.assignment_role, primary_assignment = excluded.primary_assignment, valid_from = excluded.valid_from, notes = excluded.notes"
 );
 
 const allActivities = initialLocations.flatMap((l) => (l.activities ?? []).map((a) => ({ ...a, locationId: l.id })));
-deleteInsert(
+upsertInsert(
   "support_location_activity",
   allActivities,
   ["id", "location_id", "line_no", "activity_date", "activity_type", "subject", "description", "created_by"],
   (a) =>
     `  (${sqlString(a.id)}, ${sqlString(a.locationId)}, ${a.lineNo}, ${sqlDate(a.date)}, ${sqlString(a.activityType)}, ${sqlString(a.subject)}, ${sqlString(a.description)}, ${sqlString(a.createdBy)})`,
+  "location_id = excluded.location_id, line_no = excluded.line_no, activity_date = excluded.activity_date, activity_type = excluded.activity_type, subject = excluded.subject, description = excluded.description, created_by = excluded.created_by"
 );
 
 const allProducts = initialLocations.flatMap((l) => (l.productLinks ?? []).map((p) => ({ ...p, locationId: l.id })));
-deleteInsert(
+upsertInsert(
   "support_location_product",
   allProducts,
   ["id", "location_id", "line_no", "product_id", "active", "valid_from", "notes"],
   (p) =>
     `  (${sqlString(p.id)}, ${sqlString(p.locationId)}, ${p.lineNo}, ${sqlString(p.productId)}, ${sqlString(p.active)}, ${sqlDate(p.validFrom)}, ${sqlString(p.notes)})`,
+  "location_id = excluded.location_id, line_no = excluded.line_no, product_id = excluded.product_id, active = excluded.active, valid_from = excluded.valid_from, notes = excluded.notes"
 );
 
 writeFileSync(join(root, "supabase", "seed-locations.sql"), lines.join("\n"), "utf8");
-console.log(`Wrote supabase/seed-locations.sql (${initialLocations.length} locations)`);
+console.log(`Wrote supabase/seed-locations.sql (${initialLocations.length} locations, additive)`);

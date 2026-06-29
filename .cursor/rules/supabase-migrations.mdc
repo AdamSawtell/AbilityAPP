@@ -15,11 +15,13 @@ From repo root:
 npm run supabase:push-remote
 ```
 
-When access or demo seeds changed (run the file you touched):
+When access or demo seeds changed (run the file you touched — **additive**, safe on production):
 
 ```powershell
-npm run supabase:seed-demo-once -- --file supabase/seed-access.sql
+node scripts/run-all-remote-seeds.mjs supabase/seed-access.sql
 ```
+
+Never run the full manifest (`--all`) on production unless the user explicitly asks to reset demo data. Full reseed used to wipe role grants and location staff links.
 
 Run **after** Tier 1 build passes and **before** Tier 2 browser smoke that depends on new tables/columns.
 

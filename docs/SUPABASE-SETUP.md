@@ -124,8 +124,11 @@ npm run supabase:seed-demo-once -- --all
 ```
 
 > Safety: running `supabase:seed-demo-once` with no target now errors instead of
-> silently applying the full manifest. Any `.sql` path is treated as the target,
-> so a stripped `--file` flag can no longer trigger an accidental full reseed.
+> silently applying the full manifest. Any `.sql` path is treated as the target.
+>
+> **Production data:** `seed-access.sql` and `seed-locations.sql` are **additive**
+> — they upsert demo rows only and do **not** delete your role grants or location
+> staff links. Re-running them is safe while you configure the app.
 
 Or from GitHub: **Actions → Supabase seed demo data → Run workflow**.
 

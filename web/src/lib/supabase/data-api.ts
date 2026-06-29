@@ -357,6 +357,32 @@ async function replaceChildRows(
   if (error) throw error;
 }
 
+function inList(values: string[]): string {
+  return `(${values.map((v) => `"${v}"`).join(",")})`;
+}
+
+/** Upsert child rows first, then prune removed ids — failed writes cannot wipe existing rows. */
+async function replaceChildRowsById(
+  supabase: SupabaseClient,
+  table: string,
+  parentColumn: string,
+  parentId: string,
+  rows: Record<string, unknown>[]
+) {
+  if (rows.length) {
+    const { error: writeErr } = await supabase.from(table).upsert(rows as never);
+    if (writeErr) throw writeErr;
+  }
+
+  let pruneQuery = supabase.from(table).delete().eq(parentColumn, parentId);
+  const keepIds = rows.map((row) => String(row.id));
+  if (keepIds.length) {
+    pruneQuery = pruneQuery.not("id", "in", inList(keepIds));
+  }
+  const { error: pruneErr } = await pruneQuery;
+  if (pruneErr) throw pruneErr;
+}
+
 function uniqueNonEmpty(values: Array<string | null | undefined>): string[] {
   return [...new Set(values.map((value) => value?.trim() ?? "").filter(Boolean))];
 }
@@ -2238,93 +2264,93 @@ export async function saveLocation(supabase: SupabaseClient, record: LocationRec
   const { error } = await supabase.from("support_location").upsert(locationToRow(normalized));
   if (error) throw error;
 
-  await replaceChildRows(supabase, "support_location_alert", "location_id", normalized.id);
-  if (normalized.alerts.length) {
-    const { error: alertError } = await supabase.from("support_location_alert").insert(
-      normalized.alerts.map((a) => ({
-        id: a.id,
-        location_id: normalized.id,
-        line_no: a.lineNo,
-        alert_type: a.alertType,
-        show_as_alert: a.showAsAlert,
-        name: a.name,
-        description: a.description,
-        valid_from: a.validFrom || null,
-        valid_to: a.validTo || null,
-      }))
-    );
-    if (alertError) throw alertError;
-  }
+  await replaceChildRowsById(
+    supabase,
+    "support_location_alert",
+    "location_id",
+    normalized.id,
+    normalized.alerts.map((a) => ({
+      id: a.id,
+      location_id: normalized.id,
+      line_no: a.lineNo,
+      alert_type: a.alertType,
+      show_as_alert: a.showAsAlert,
+      name: a.name,
+      description: a.description,
+      valid_from: a.validFrom || null,
+      valid_to: a.validTo || null,
+    }))
+  );
 
-  await replaceChildRows(supabase, "support_location_client", "location_id", normalized.id);
-  if (normalized.clientLinks.length) {
-    const { error: clientError } = await supabase.from("support_location_client").insert(
-      normalized.clientLinks.map((l) => ({
-        id: l.id,
-        location_id: normalized.id,
-        line_no: l.lineNo,
-        client_id: l.clientId,
-        assignment_role: l.assignmentRole,
-        primary_assignment: l.primaryAssignment,
-        valid_from: l.validFrom || null,
-        valid_to: l.validTo || null,
-        notes: l.notes,
-      }))
-    );
-    if (clientError) throw clientError;
-  }
+  await replaceChildRowsById(
+    supabase,
+    "support_location_client",
+    "location_id",
+    normalized.id,
+    normalized.clientLinks.map((l) => ({
+      id: l.id,
+      location_id: normalized.id,
+      line_no: l.lineNo,
+      client_id: l.clientId,
+      assignment_role: l.assignmentRole,
+      primary_assignment: l.primaryAssignment,
+      valid_from: l.validFrom || null,
+      valid_to: l.validTo || null,
+      notes: l.notes,
+    }))
+  );
 
-  await replaceChildRows(supabase, "support_location_employee", "location_id", normalized.id);
-  if (normalized.employeeLinks.length) {
-    const { error: employeeError } = await supabase.from("support_location_employee").insert(
-      normalized.employeeLinks.map((l) => ({
-        id: l.id,
-        location_id: normalized.id,
-        line_no: l.lineNo,
-        employee_id: l.employeeId,
-        assignment_role: l.assignmentRole,
-        primary_assignment: l.primaryAssignment,
-        valid_from: l.validFrom || null,
-        valid_to: l.validTo || null,
-        notes: l.notes,
-      }))
-    );
-    if (employeeError) throw employeeError;
-  }
+  await replaceChildRowsById(
+    supabase,
+    "support_location_employee",
+    "location_id",
+    normalized.id,
+    normalized.employeeLinks.map((l) => ({
+      id: l.id,
+      location_id: normalized.id,
+      line_no: l.lineNo,
+      employee_id: l.employeeId,
+      assignment_role: l.assignmentRole,
+      primary_assignment: l.primaryAssignment,
+      valid_from: l.validFrom || null,
+      valid_to: l.validTo || null,
+      notes: l.notes,
+    }))
+  );
 
-  await replaceChildRows(supabase, "support_location_product", "location_id", normalized.id);
-  if (normalized.productLinks.length) {
-    const { error: productError } = await supabase.from("support_location_product").insert(
-      normalized.productLinks.map((l) => ({
-        id: l.id,
-        location_id: normalized.id,
-        line_no: l.lineNo,
-        product_id: l.productId,
-        active: l.active,
-        valid_from: l.validFrom || null,
-        valid_to: l.validTo || null,
-        notes: l.notes,
-      }))
-    );
-    if (productError) throw productError;
-  }
+  await replaceChildRowsById(
+    supabase,
+    "support_location_product",
+    "location_id",
+    normalized.id,
+    normalized.productLinks.map((l) => ({
+      id: l.id,
+      location_id: normalized.id,
+      line_no: l.lineNo,
+      product_id: l.productId,
+      active: l.active,
+      valid_from: l.validFrom || null,
+      valid_to: l.validTo || null,
+      notes: l.notes,
+    }))
+  );
 
-  await replaceChildRows(supabase, "support_location_activity", "location_id", normalized.id);
-  if (normalized.activities.length) {
-    const { error: activityError } = await supabase.from("support_location_activity").insert(
-      normalized.activities.map((a) => ({
-        id: a.id,
-        location_id: normalized.id,
-        line_no: a.lineNo,
-        activity_date: a.date || null,
-        activity_type: a.activityType,
-        subject: a.subject,
-        description: a.description,
-        created_by: a.createdBy,
-      }))
-    );
-    if (activityError) throw activityError;
-  }
+  await replaceChildRowsById(
+    supabase,
+    "support_location_activity",
+    "location_id",
+    normalized.id,
+    normalized.activities.map((a) => ({
+      id: a.id,
+      location_id: normalized.id,
+      line_no: a.lineNo,
+      activity_date: a.date || null,
+      activity_type: a.activityType,
+      subject: a.subject,
+      description: a.description,
+      created_by: a.createdBy,
+    }))
+  );
 }
 
 type TaskRow = {

@@ -1,5 +1,6 @@
--- Support location seed (generated)
+-- Support location seed (generated, ADDITIVE)
 -- Re-run: npm run supabase:seed-locations
+-- Upserts demo rows by id; user-added staff/client links are preserved.
 
 insert into public.support_location (
   id, search_key, name, description, location_type, status,
@@ -21,20 +22,19 @@ on conflict (id) do update set
   picture_url = excluded.picture_url, capacity = excluded.capacity, valid_from = excluded.valid_from,
   updated_by = excluded.updated_by;
 
-delete from public.support_location_alert where location_id in ('loc-glenelg-sil', 'loc-adelaide-hub', 'loc-northern-sil', 'loc-southern-respite', 'loc-murray-bridge-day');
 insert into public.support_location_alert (id, location_id, line_no, alert_type, show_as_alert, name, description, valid_from)
 values
   ('loc-alert-glen-fire', 'loc-glenelg-sil', 1, 'Safety', 'Yes', 'Fire drill quarterly', 'Residents require verbal prompting during evacuations.', '2024-01-01'),
   ('loc-alert-loc-northern-sil', 'loc-northern-sil', 1, 'Operational', 'Yes', 'Roster coverage check', 'Verify minimum staffing before public holiday weekends.', '2025-01-01'),
   ('loc-alert-loc-southern-respite', 'loc-southern-respite', 1, 'Operational', 'Yes', 'Roster coverage check', 'Verify minimum staffing before public holiday weekends.', '2025-01-01'),
-  ('loc-alert-loc-murray-bridge-day', 'loc-murray-bridge-day', 1, 'Operational', 'Yes', 'Roster coverage check', 'Verify minimum staffing before public holiday weekends.', '2025-01-01');
+  ('loc-alert-loc-murray-bridge-day', 'loc-murray-bridge-day', 1, 'Operational', 'Yes', 'Roster coverage check', 'Verify minimum staffing before public holiday weekends.', '2025-01-01')
+on conflict (id) do update set location_id = excluded.location_id, line_no = excluded.line_no, alert_type = excluded.alert_type, show_as_alert = excluded.show_as_alert, name = excluded.name, description = excluded.description, valid_from = excluded.valid_from;
 
-delete from public.support_location_client where location_id in ('loc-glenelg-sil', 'loc-adelaide-hub', 'loc-northern-sil', 'loc-southern-respite', 'loc-murray-bridge-day');
 insert into public.support_location_client (id, location_id, line_no, client_id, assignment_role, primary_assignment, valid_from, notes)
 values
-  ('loc-cli-bern', 'loc-glenelg-sil', 1, 'bp-bern', 'Resident', 'Yes', '2022-03-01', 'Primary SIL placement');
+  ('loc-cli-bern', 'loc-glenelg-sil', 1, 'bp-bern', 'Resident', 'Yes', '2022-03-01', 'Primary SIL placement')
+on conflict (id) do update set location_id = excluded.location_id, line_no = excluded.line_no, client_id = excluded.client_id, assignment_role = excluded.assignment_role, primary_assignment = excluded.primary_assignment, valid_from = excluded.valid_from, notes = excluded.notes;
 
-delete from public.support_location_employee where location_id in ('loc-glenelg-sil', 'loc-adelaide-hub', 'loc-northern-sil', 'loc-southern-respite', 'loc-murray-bridge-day');
 insert into public.support_location_employee (id, location_id, line_no, employee_id, assignment_role, primary_assignment, valid_from, notes)
 values
   ('loc-emp-isla', 'loc-glenelg-sil', 1, 'emp-isla', 'Site manager', 'Yes', '2022-03-01', ''),
@@ -74,14 +74,14 @@ values
   ('loc-emp-loc-murray-bridge-day-sw-29', 'loc-murray-bridge-day', 8, 'emp-sw-029', 'Support worker', 'No', '2022-09-01', 'Regular weekday shifts'),
   ('loc-emp-loc-murray-bridge-day-sw-30', 'loc-murray-bridge-day', 9, 'emp-sw-030', 'Support worker', 'No', '2022-09-01', 'Weekend roster'),
   ('loc-emp-loc-murray-bridge-day-sw-31', 'loc-murray-bridge-day', 10, 'emp-sw-031', 'Support worker', 'No', '2022-09-01', 'Relief pool'),
-  ('loc-emp-loc-murray-bridge-day-sw-32', 'loc-murray-bridge-day', 11, 'emp-sw-032', 'Support worker', 'No', '2022-09-01', 'Regular weekday shifts');
+  ('loc-emp-loc-murray-bridge-day-sw-32', 'loc-murray-bridge-day', 11, 'emp-sw-032', 'Support worker', 'No', '2022-09-01', 'Regular weekday shifts')
+on conflict (id) do update set location_id = excluded.location_id, line_no = excluded.line_no, employee_id = excluded.employee_id, assignment_role = excluded.assignment_role, primary_assignment = excluded.primary_assignment, valid_from = excluded.valid_from, notes = excluded.notes;
 
-delete from public.support_location_activity where location_id in ('loc-glenelg-sil', 'loc-adelaide-hub', 'loc-northern-sil', 'loc-southern-respite', 'loc-murray-bridge-day');
 insert into public.support_location_activity (id, location_id, line_no, activity_date, activity_type, subject, description, created_by)
 values
-  ('loc-act-glen-1', 'loc-glenelg-sil', 1, '2025-05-10', 'Site visit', 'Quarterly safety walkthrough', 'Checked exits, fire equipment, and access ramp condition.', 'Isla Robinson');
+  ('loc-act-glen-1', 'loc-glenelg-sil', 1, '2025-05-10', 'Site visit', 'Quarterly safety walkthrough', 'Checked exits, fire equipment, and access ramp condition.', 'Isla Robinson')
+on conflict (id) do update set location_id = excluded.location_id, line_no = excluded.line_no, activity_date = excluded.activity_date, activity_type = excluded.activity_type, subject = excluded.subject, description = excluded.description, created_by = excluded.created_by;
 
-delete from public.support_location_product where location_id in ('loc-glenelg-sil', 'loc-adelaide-hub', 'loc-northern-sil', 'loc-southern-respite', 'loc-murray-bridge-day');
 insert into public.support_location_product (id, location_id, line_no, product_id, active, valid_from, notes)
 values
   ('loc-prod-glen-sil', 'loc-glenelg-sil', 1, 'prod-sil-wd', 'Yes', '2022-03-01', 'Primary SIL weekday service'),
@@ -89,4 +89,5 @@ values
   ('loc-prod-hub-cp', 'loc-adelaide-hub', 1, 'prod-cp', 'Yes', '2021-01-15', 'Core day program offering'),
   ('loc-prod-loc-northern-sil-1', 'loc-northern-sil', 1, 'prod-sil-wd', 'Yes', '2023-04-01', 'Northern SIL weekday service'),
   ('loc-prod-loc-southern-respite-1', 'loc-southern-respite', 1, 'prod-sil-wd', 'Yes', '2024-01-15', 'Short-term accommodation / respite'),
-  ('loc-prod-loc-murray-bridge-day-1', 'loc-murray-bridge-day', 1, 'prod-cp', 'Yes', '2022-09-01', 'Regional community participation');
+  ('loc-prod-loc-murray-bridge-day-1', 'loc-murray-bridge-day', 1, 'prod-cp', 'Yes', '2022-09-01', 'Regional community participation')
+on conflict (id) do update set location_id = excluded.location_id, line_no = excluded.line_no, product_id = excluded.product_id, active = excluded.active, valid_from = excluded.valid_from, notes = excluded.notes;

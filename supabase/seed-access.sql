@@ -1,5 +1,6 @@
--- Users, roles, and access seed
+-- Users, roles, and access seed (ADDITIVE — does not delete custom role grants)
 -- Re-run: npm run supabase:seed-access
+-- Upserts demo grants only; Admin changes and extra windows/processes are preserved.
 
 insert into public.app_role (id, role_key, name, description, active)
 values
@@ -137,7 +138,6 @@ values
   ('user-sw-10', 'role-support-worker')
 on conflict do nothing;
 
-delete from public.app_role_window where role_id in ('role-admin', 'role-board', 'role-ceo', 'role-exec-operations', 'role-exec-hr', 'role-exec-finance', 'role-exec-ict', 'role-exec-quality', 'role-hr-manager', 'role-hr-officer', 'role-ict-manager', 'role-ict-officer', 'role-finance-manager', 'role-finance-officer', 'role-quality-manager', 'role-quality-officer', 'role-rostering-manager', 'role-rostering-officer', 'role-intake', 'role-coordinator', 'role-team-leader', 'role-support-worker', 'role-security-admin', 'role-audit-viewer');
 insert into public.app_role_window (role_id, window_key, access_level)
 values
   ('role-admin', 'home', 'write'),
@@ -184,11 +184,11 @@ values
   ('role-admin', 'client-progress-review', 'write'),
   ('role-admin', 'client-contact-activity', 'write'),
   ('role-admin', 'client-risks', 'write'),
-  ('role-admin', 'client-animal-and-pet', 'write'),
   ('role-admin', 'client-service-agreements', 'write'),
   ('role-admin', 'client-service-bookings', 'write'),
   ('role-admin', 'client-roster-of-care', 'write'),
   ('role-admin', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-admin', 'client-animal-and-pet', 'write'),
   ('role-admin', 'incidents', 'write'),
   ('role-admin', 'incident-overview', 'write'),
   ('role-admin', 'incident-parties-and-links', 'write'),
@@ -207,11 +207,11 @@ values
   ('role-admin', 'location-clients', 'write'),
   ('role-admin', 'location-employees', 'write'),
   ('role-admin', 'location-incidents', 'write'),
+  ('role-admin', 'location-maintenance', 'write'),
   ('role-admin', 'location-site-orientation', 'write'),
   ('role-admin', 'location-products-and-services', 'write'),
   ('role-admin', 'locations', 'write'),
   ('role-admin', 'locations-see-all', 'write'),
-  ('role-admin', 'fleet', 'write'),
   ('role-admin', 'fleet-overview', 'write'),
   ('role-admin', 'fleet-calendar', 'write'),
   ('role-admin', 'fleet-registration-and-insurance', 'write'),
@@ -221,12 +221,12 @@ values
   ('role-admin', 'fleet-fuel-and-mileage', 'write'),
   ('role-admin', 'fleet-accessibility-and-compliance', 'write'),
   ('role-admin', 'fleet-incidents', 'write'),
-  ('role-admin', 'maintenance', 'write'),
+  ('role-admin', 'fleet', 'write'),
   ('role-admin', 'maintenance-overview', 'write'),
   ('role-admin', 'maintenance-assignment', 'write'),
   ('role-admin', 'maintenance-costs', 'write'),
   ('role-admin', 'maintenance-photos', 'write'),
-  ('role-admin', 'location-maintenance', 'write'),
+  ('role-admin', 'maintenance', 'write'),
   ('role-admin', 'employee-overview', 'write'),
   ('role-admin', 'employee-activity', 'write'),
   ('role-admin', 'employee-calendar', 'write'),
@@ -350,11 +350,11 @@ values
   ('role-ceo', 'client-progress-review', 'write'),
   ('role-ceo', 'client-contact-activity', 'write'),
   ('role-ceo', 'client-risks', 'write'),
-  ('role-ceo', 'client-animal-and-pet', 'write'),
   ('role-ceo', 'client-service-agreements', 'write'),
   ('role-ceo', 'client-service-bookings', 'write'),
   ('role-ceo', 'client-roster-of-care', 'write'),
   ('role-ceo', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-ceo', 'client-animal-and-pet', 'write'),
   ('role-ceo', 'incidents', 'write'),
   ('role-ceo', 'incident-overview', 'write'),
   ('role-ceo', 'incident-parties-and-links', 'write'),
@@ -369,6 +369,7 @@ values
   ('role-ceo', 'location-clients', 'write'),
   ('role-ceo', 'location-employees', 'write'),
   ('role-ceo', 'location-incidents', 'write'),
+  ('role-ceo', 'location-maintenance', 'write'),
   ('role-ceo', 'location-site-orientation', 'write'),
   ('role-ceo', 'location-products-and-services', 'write'),
   ('role-ceo', 'employees', 'write'),
@@ -467,11 +468,11 @@ values
   ('role-exec-operations', 'client-progress-review', 'write'),
   ('role-exec-operations', 'client-contact-activity', 'write'),
   ('role-exec-operations', 'client-risks', 'write'),
-  ('role-exec-operations', 'client-animal-and-pet', 'write'),
   ('role-exec-operations', 'client-service-agreements', 'write'),
   ('role-exec-operations', 'client-service-bookings', 'write'),
   ('role-exec-operations', 'client-roster-of-care', 'write'),
   ('role-exec-operations', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-exec-operations', 'client-animal-and-pet', 'write'),
   ('role-exec-operations', 'incidents', 'write'),
   ('role-exec-operations', 'incident-overview', 'write'),
   ('role-exec-operations', 'incident-parties-and-links', 'write'),
@@ -486,6 +487,7 @@ values
   ('role-exec-operations', 'location-clients', 'write'),
   ('role-exec-operations', 'location-employees', 'write'),
   ('role-exec-operations', 'location-incidents', 'write'),
+  ('role-exec-operations', 'location-maintenance', 'write'),
   ('role-exec-operations', 'location-site-orientation', 'write'),
   ('role-exec-operations', 'location-products-and-services', 'write'),
   ('role-exec-operations', 'employees', 'write'),
@@ -584,11 +586,11 @@ values
   ('role-exec-hr', 'client-progress-review', 'write'),
   ('role-exec-hr', 'client-contact-activity', 'write'),
   ('role-exec-hr', 'client-risks', 'write'),
-  ('role-exec-hr', 'client-animal-and-pet', 'write'),
   ('role-exec-hr', 'client-service-agreements', 'write'),
   ('role-exec-hr', 'client-service-bookings', 'write'),
   ('role-exec-hr', 'client-roster-of-care', 'write'),
   ('role-exec-hr', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-exec-hr', 'client-animal-and-pet', 'write'),
   ('role-exec-hr', 'incidents', 'write'),
   ('role-exec-hr', 'incident-overview', 'write'),
   ('role-exec-hr', 'incident-parties-and-links', 'write'),
@@ -603,6 +605,7 @@ values
   ('role-exec-hr', 'location-clients', 'write'),
   ('role-exec-hr', 'location-employees', 'write'),
   ('role-exec-hr', 'location-incidents', 'write'),
+  ('role-exec-hr', 'location-maintenance', 'write'),
   ('role-exec-hr', 'location-site-orientation', 'write'),
   ('role-exec-hr', 'location-products-and-services', 'write'),
   ('role-exec-hr', 'employees', 'write'),
@@ -701,11 +704,11 @@ values
   ('role-exec-finance', 'client-progress-review', 'write'),
   ('role-exec-finance', 'client-contact-activity', 'write'),
   ('role-exec-finance', 'client-risks', 'write'),
-  ('role-exec-finance', 'client-animal-and-pet', 'write'),
   ('role-exec-finance', 'client-service-agreements', 'write'),
   ('role-exec-finance', 'client-service-bookings', 'write'),
   ('role-exec-finance', 'client-roster-of-care', 'write'),
   ('role-exec-finance', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-exec-finance', 'client-animal-and-pet', 'write'),
   ('role-exec-finance', 'incidents', 'write'),
   ('role-exec-finance', 'incident-overview', 'write'),
   ('role-exec-finance', 'incident-parties-and-links', 'write'),
@@ -720,6 +723,7 @@ values
   ('role-exec-finance', 'location-clients', 'write'),
   ('role-exec-finance', 'location-employees', 'write'),
   ('role-exec-finance', 'location-incidents', 'write'),
+  ('role-exec-finance', 'location-maintenance', 'write'),
   ('role-exec-finance', 'location-site-orientation', 'write'),
   ('role-exec-finance', 'location-products-and-services', 'write'),
   ('role-exec-finance', 'employees', 'write'),
@@ -818,11 +822,11 @@ values
   ('role-exec-ict', 'client-progress-review', 'write'),
   ('role-exec-ict', 'client-contact-activity', 'write'),
   ('role-exec-ict', 'client-risks', 'write'),
-  ('role-exec-ict', 'client-animal-and-pet', 'write'),
   ('role-exec-ict', 'client-service-agreements', 'write'),
   ('role-exec-ict', 'client-service-bookings', 'write'),
   ('role-exec-ict', 'client-roster-of-care', 'write'),
   ('role-exec-ict', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-exec-ict', 'client-animal-and-pet', 'write'),
   ('role-exec-ict', 'incidents', 'write'),
   ('role-exec-ict', 'incident-overview', 'write'),
   ('role-exec-ict', 'incident-parties-and-links', 'write'),
@@ -837,6 +841,7 @@ values
   ('role-exec-ict', 'location-clients', 'write'),
   ('role-exec-ict', 'location-employees', 'write'),
   ('role-exec-ict', 'location-incidents', 'write'),
+  ('role-exec-ict', 'location-maintenance', 'write'),
   ('role-exec-ict', 'location-site-orientation', 'write'),
   ('role-exec-ict', 'location-products-and-services', 'write'),
   ('role-exec-ict', 'employees', 'write'),
@@ -935,11 +940,11 @@ values
   ('role-exec-quality', 'client-progress-review', 'write'),
   ('role-exec-quality', 'client-contact-activity', 'write'),
   ('role-exec-quality', 'client-risks', 'write'),
-  ('role-exec-quality', 'client-animal-and-pet', 'write'),
   ('role-exec-quality', 'client-service-agreements', 'write'),
   ('role-exec-quality', 'client-service-bookings', 'write'),
   ('role-exec-quality', 'client-roster-of-care', 'write'),
   ('role-exec-quality', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-exec-quality', 'client-animal-and-pet', 'write'),
   ('role-exec-quality', 'incidents', 'write'),
   ('role-exec-quality', 'incident-overview', 'write'),
   ('role-exec-quality', 'incident-parties-and-links', 'write'),
@@ -954,6 +959,7 @@ values
   ('role-exec-quality', 'location-clients', 'write'),
   ('role-exec-quality', 'location-employees', 'write'),
   ('role-exec-quality', 'location-incidents', 'write'),
+  ('role-exec-quality', 'location-maintenance', 'write'),
   ('role-exec-quality', 'location-site-orientation', 'write'),
   ('role-exec-quality', 'location-products-and-services', 'write'),
   ('role-exec-quality', 'employees', 'write'),
@@ -1051,11 +1057,11 @@ values
   ('role-hr-manager', 'client-progress-review', 'write'),
   ('role-hr-manager', 'client-contact-activity', 'write'),
   ('role-hr-manager', 'client-risks', 'write'),
-  ('role-hr-manager', 'client-animal-and-pet', 'write'),
   ('role-hr-manager', 'client-service-agreements', 'write'),
   ('role-hr-manager', 'client-service-bookings', 'write'),
   ('role-hr-manager', 'client-roster-of-care', 'write'),
   ('role-hr-manager', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-hr-manager', 'client-animal-and-pet', 'write'),
   ('role-hr-manager', 'incidents', 'write'),
   ('role-hr-manager', 'incident-overview', 'write'),
   ('role-hr-manager', 'incident-parties-and-links', 'write'),
@@ -1070,6 +1076,7 @@ values
   ('role-hr-manager', 'location-clients', 'write'),
   ('role-hr-manager', 'location-employees', 'write'),
   ('role-hr-manager', 'location-incidents', 'write'),
+  ('role-hr-manager', 'location-maintenance', 'write'),
   ('role-hr-manager', 'location-site-orientation', 'write'),
   ('role-hr-manager', 'location-products-and-services', 'write'),
   ('role-hr-manager', 'employees', 'write'),
@@ -1143,11 +1150,11 @@ values
   ('role-hr-officer', 'client-progress-review', 'write'),
   ('role-hr-officer', 'client-contact-activity', 'write'),
   ('role-hr-officer', 'client-risks', 'write'),
-  ('role-hr-officer', 'client-animal-and-pet', 'write'),
   ('role-hr-officer', 'client-service-agreements', 'write'),
   ('role-hr-officer', 'client-service-bookings', 'write'),
   ('role-hr-officer', 'client-roster-of-care', 'write'),
   ('role-hr-officer', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-hr-officer', 'client-animal-and-pet', 'write'),
   ('role-hr-officer', 'incidents', 'write'),
   ('role-hr-officer', 'incident-overview', 'write'),
   ('role-hr-officer', 'incident-parties-and-links', 'write'),
@@ -1162,6 +1169,7 @@ values
   ('role-hr-officer', 'location-clients', 'write'),
   ('role-hr-officer', 'location-employees', 'write'),
   ('role-hr-officer', 'location-incidents', 'write'),
+  ('role-hr-officer', 'location-maintenance', 'write'),
   ('role-hr-officer', 'location-site-orientation', 'write'),
   ('role-hr-officer', 'location-products-and-services', 'write'),
   ('role-hr-officer', 'employee-incidents', 'write'),
@@ -1211,11 +1219,11 @@ values
   ('role-ict-manager', 'client-progress-review', 'write'),
   ('role-ict-manager', 'client-contact-activity', 'write'),
   ('role-ict-manager', 'client-risks', 'write'),
-  ('role-ict-manager', 'client-animal-and-pet', 'write'),
   ('role-ict-manager', 'client-service-agreements', 'write'),
   ('role-ict-manager', 'client-service-bookings', 'write'),
   ('role-ict-manager', 'client-roster-of-care', 'write'),
   ('role-ict-manager', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-ict-manager', 'client-animal-and-pet', 'write'),
   ('role-ict-manager', 'incidents', 'write'),
   ('role-ict-manager', 'incident-overview', 'write'),
   ('role-ict-manager', 'incident-parties-and-links', 'write'),
@@ -1230,6 +1238,7 @@ values
   ('role-ict-manager', 'location-clients', 'write'),
   ('role-ict-manager', 'location-employees', 'write'),
   ('role-ict-manager', 'location-incidents', 'write'),
+  ('role-ict-manager', 'location-maintenance', 'write'),
   ('role-ict-manager', 'location-site-orientation', 'write'),
   ('role-ict-manager', 'location-products-and-services', 'write'),
   ('role-ict-manager', 'employees', 'write'),
@@ -1300,11 +1309,11 @@ values
   ('role-ict-officer', 'client-progress-review', 'write'),
   ('role-ict-officer', 'client-contact-activity', 'write'),
   ('role-ict-officer', 'client-risks', 'write'),
-  ('role-ict-officer', 'client-animal-and-pet', 'write'),
   ('role-ict-officer', 'client-service-agreements', 'write'),
   ('role-ict-officer', 'client-service-bookings', 'write'),
   ('role-ict-officer', 'client-roster-of-care', 'write'),
   ('role-ict-officer', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-ict-officer', 'client-animal-and-pet', 'write'),
   ('role-ict-officer', 'incidents', 'write'),
   ('role-ict-officer', 'incident-overview', 'write'),
   ('role-ict-officer', 'incident-parties-and-links', 'write'),
@@ -1319,6 +1328,7 @@ values
   ('role-ict-officer', 'location-clients', 'write'),
   ('role-ict-officer', 'location-employees', 'write'),
   ('role-ict-officer', 'location-incidents', 'write'),
+  ('role-ict-officer', 'location-maintenance', 'write'),
   ('role-ict-officer', 'location-site-orientation', 'write'),
   ('role-ict-officer', 'location-products-and-services', 'write'),
   ('role-ict-officer', 'employees', 'write'),
@@ -1370,11 +1380,11 @@ values
   ('role-finance-manager', 'client-progress-review', 'write'),
   ('role-finance-manager', 'client-contact-activity', 'write'),
   ('role-finance-manager', 'client-risks', 'write'),
-  ('role-finance-manager', 'client-animal-and-pet', 'write'),
   ('role-finance-manager', 'client-service-agreements', 'write'),
   ('role-finance-manager', 'client-service-bookings', 'write'),
   ('role-finance-manager', 'client-roster-of-care', 'write'),
   ('role-finance-manager', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-finance-manager', 'client-animal-and-pet', 'write'),
   ('role-finance-manager', 'incidents', 'write'),
   ('role-finance-manager', 'incident-overview', 'write'),
   ('role-finance-manager', 'incident-parties-and-links', 'write'),
@@ -1389,6 +1399,7 @@ values
   ('role-finance-manager', 'location-clients', 'write'),
   ('role-finance-manager', 'location-employees', 'write'),
   ('role-finance-manager', 'location-incidents', 'write'),
+  ('role-finance-manager', 'location-maintenance', 'write'),
   ('role-finance-manager', 'location-site-orientation', 'write'),
   ('role-finance-manager', 'location-products-and-services', 'write'),
   ('role-finance-manager', 'employees', 'write'),
@@ -1470,11 +1481,11 @@ values
   ('role-finance-officer', 'client-progress-review', 'write'),
   ('role-finance-officer', 'client-contact-activity', 'write'),
   ('role-finance-officer', 'client-risks', 'write'),
-  ('role-finance-officer', 'client-animal-and-pet', 'write'),
   ('role-finance-officer', 'client-service-agreements', 'write'),
   ('role-finance-officer', 'client-service-bookings', 'write'),
   ('role-finance-officer', 'client-roster-of-care', 'write'),
   ('role-finance-officer', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-finance-officer', 'client-animal-and-pet', 'write'),
   ('role-finance-officer', 'incidents', 'write'),
   ('role-finance-officer', 'incident-overview', 'write'),
   ('role-finance-officer', 'incident-parties-and-links', 'write'),
@@ -1489,6 +1500,7 @@ values
   ('role-finance-officer', 'location-clients', 'write'),
   ('role-finance-officer', 'location-employees', 'write'),
   ('role-finance-officer', 'location-incidents', 'write'),
+  ('role-finance-officer', 'location-maintenance', 'write'),
   ('role-finance-officer', 'location-site-orientation', 'write'),
   ('role-finance-officer', 'location-products-and-services', 'write'),
   ('role-finance-officer', 'employees', 'write'),
@@ -1540,11 +1552,11 @@ values
   ('role-quality-manager', 'client-progress-review', 'write'),
   ('role-quality-manager', 'client-contact-activity', 'write'),
   ('role-quality-manager', 'client-risks', 'write'),
-  ('role-quality-manager', 'client-animal-and-pet', 'write'),
   ('role-quality-manager', 'client-service-agreements', 'write'),
   ('role-quality-manager', 'client-service-bookings', 'write'),
   ('role-quality-manager', 'client-roster-of-care', 'write'),
   ('role-quality-manager', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-quality-manager', 'client-animal-and-pet', 'write'),
   ('role-quality-manager', 'incidents', 'write'),
   ('role-quality-manager', 'incident-overview', 'write'),
   ('role-quality-manager', 'incident-parties-and-links', 'write'),
@@ -1559,6 +1571,7 @@ values
   ('role-quality-manager', 'location-clients', 'write'),
   ('role-quality-manager', 'location-employees', 'write'),
   ('role-quality-manager', 'location-incidents', 'write'),
+  ('role-quality-manager', 'location-maintenance', 'write'),
   ('role-quality-manager', 'location-site-orientation', 'write'),
   ('role-quality-manager', 'location-products-and-services', 'write'),
   ('role-quality-manager', 'employees', 'write'),
@@ -1629,11 +1642,11 @@ values
   ('role-quality-officer', 'client-progress-review', 'write'),
   ('role-quality-officer', 'client-contact-activity', 'write'),
   ('role-quality-officer', 'client-risks', 'write'),
-  ('role-quality-officer', 'client-animal-and-pet', 'write'),
   ('role-quality-officer', 'client-service-agreements', 'write'),
   ('role-quality-officer', 'client-service-bookings', 'write'),
   ('role-quality-officer', 'client-roster-of-care', 'write'),
   ('role-quality-officer', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-quality-officer', 'client-animal-and-pet', 'write'),
   ('role-quality-officer', 'incidents', 'write'),
   ('role-quality-officer', 'incident-overview', 'write'),
   ('role-quality-officer', 'incident-parties-and-links', 'write'),
@@ -1648,6 +1661,7 @@ values
   ('role-quality-officer', 'location-clients', 'write'),
   ('role-quality-officer', 'location-employees', 'write'),
   ('role-quality-officer', 'location-incidents', 'write'),
+  ('role-quality-officer', 'location-maintenance', 'write'),
   ('role-quality-officer', 'location-site-orientation', 'write'),
   ('role-quality-officer', 'location-products-and-services', 'write'),
   ('role-quality-officer', 'employees', 'write'),
@@ -1709,11 +1723,11 @@ values
   ('role-rostering-manager', 'client-progress-review', 'write'),
   ('role-rostering-manager', 'client-contact-activity', 'write'),
   ('role-rostering-manager', 'client-risks', 'write'),
-  ('role-rostering-manager', 'client-animal-and-pet', 'write'),
   ('role-rostering-manager', 'client-service-agreements', 'write'),
   ('role-rostering-manager', 'client-service-bookings', 'write'),
   ('role-rostering-manager', 'client-roster-of-care', 'write'),
   ('role-rostering-manager', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-rostering-manager', 'client-animal-and-pet', 'write'),
   ('role-rostering-manager', 'incidents', 'write'),
   ('role-rostering-manager', 'incident-overview', 'write'),
   ('role-rostering-manager', 'incident-parties-and-links', 'write'),
@@ -1728,24 +1742,9 @@ values
   ('role-rostering-manager', 'location-clients', 'write'),
   ('role-rostering-manager', 'location-employees', 'write'),
   ('role-rostering-manager', 'location-incidents', 'write'),
+  ('role-rostering-manager', 'location-maintenance', 'write'),
   ('role-rostering-manager', 'location-site-orientation', 'write'),
   ('role-rostering-manager', 'location-products-and-services', 'write'),
-  ('role-rostering-manager', 'fleet', 'write'),
-  ('role-rostering-manager', 'fleet-overview', 'write'),
-  ('role-rostering-manager', 'fleet-calendar', 'write'),
-  ('role-rostering-manager', 'fleet-registration-and-insurance', 'write'),
-  ('role-rostering-manager', 'fleet-servicing', 'write'),
-  ('role-rostering-manager', 'fleet-inspections', 'write'),
-  ('role-rostering-manager', 'fleet-bookings', 'write'),
-  ('role-rostering-manager', 'fleet-fuel-and-mileage', 'write'),
-  ('role-rostering-manager', 'fleet-accessibility-and-compliance', 'write'),
-  ('role-rostering-manager', 'fleet-incidents', 'write'),
-  ('role-rostering-manager', 'maintenance', 'write'),
-  ('role-rostering-manager', 'maintenance-overview', 'write'),
-  ('role-rostering-manager', 'maintenance-assignment', 'write'),
-  ('role-rostering-manager', 'maintenance-costs', 'write'),
-  ('role-rostering-manager', 'maintenance-photos', 'write'),
-  ('role-rostering-manager', 'location-maintenance', 'write'),
   ('role-rostering-manager', 'employees', 'write'),
   ('role-rostering-manager', 'employee-overview', 'write'),
   ('role-rostering-manager', 'employee-activity', 'write'),
@@ -1823,11 +1822,11 @@ values
   ('role-rostering-officer', 'client-progress-review', 'write'),
   ('role-rostering-officer', 'client-contact-activity', 'write'),
   ('role-rostering-officer', 'client-risks', 'write'),
-  ('role-rostering-officer', 'client-animal-and-pet', 'write'),
   ('role-rostering-officer', 'client-service-agreements', 'write'),
   ('role-rostering-officer', 'client-service-bookings', 'write'),
   ('role-rostering-officer', 'client-roster-of-care', 'write'),
   ('role-rostering-officer', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-rostering-officer', 'client-animal-and-pet', 'write'),
   ('role-rostering-officer', 'incidents', 'write'),
   ('role-rostering-officer', 'incident-overview', 'write'),
   ('role-rostering-officer', 'incident-parties-and-links', 'write'),
@@ -1842,18 +1841,9 @@ values
   ('role-rostering-officer', 'location-clients', 'write'),
   ('role-rostering-officer', 'location-employees', 'write'),
   ('role-rostering-officer', 'location-incidents', 'write'),
+  ('role-rostering-officer', 'location-maintenance', 'write'),
   ('role-rostering-officer', 'location-site-orientation', 'write'),
   ('role-rostering-officer', 'location-products-and-services', 'write'),
-  ('role-rostering-officer', 'fleet', 'write'),
-  ('role-rostering-officer', 'fleet-overview', 'write'),
-  ('role-rostering-officer', 'fleet-calendar', 'write'),
-  ('role-rostering-officer', 'fleet-registration-and-insurance', 'write'),
-  ('role-rostering-officer', 'fleet-servicing', 'write'),
-  ('role-rostering-officer', 'fleet-inspections', 'write'),
-  ('role-rostering-officer', 'fleet-bookings', 'write'),
-  ('role-rostering-officer', 'fleet-fuel-and-mileage', 'write'),
-  ('role-rostering-officer', 'fleet-accessibility-and-compliance', 'write'),
-  ('role-rostering-officer', 'fleet-incidents', 'write'),
   ('role-rostering-officer', 'employees', 'write'),
   ('role-rostering-officer', 'employee-overview', 'write'),
   ('role-rostering-officer', 'employee-incidents', 'write'),
@@ -1908,11 +1898,11 @@ values
   ('role-intake', 'client-progress-review', 'write'),
   ('role-intake', 'client-contact-activity', 'write'),
   ('role-intake', 'client-risks', 'write'),
-  ('role-intake', 'client-animal-and-pet', 'write'),
   ('role-intake', 'client-service-agreements', 'write'),
   ('role-intake', 'client-service-bookings', 'write'),
   ('role-intake', 'client-roster-of-care', 'write'),
   ('role-intake', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-intake', 'client-animal-and-pet', 'write'),
   ('role-intake', 'incidents', 'write'),
   ('role-intake', 'incident-overview', 'write'),
   ('role-intake', 'incident-parties-and-links', 'write'),
@@ -1927,6 +1917,7 @@ values
   ('role-intake', 'location-clients', 'write'),
   ('role-intake', 'location-employees', 'write'),
   ('role-intake', 'location-incidents', 'write'),
+  ('role-intake', 'location-maintenance', 'write'),
   ('role-intake', 'location-site-orientation', 'write'),
   ('role-intake', 'location-products-and-services', 'write'),
   ('role-intake', 'employees', 'write'),
@@ -1982,11 +1973,11 @@ values
   ('role-coordinator', 'client-progress-review', 'write'),
   ('role-coordinator', 'client-contact-activity', 'write'),
   ('role-coordinator', 'client-risks', 'write'),
-  ('role-coordinator', 'client-animal-and-pet', 'write'),
   ('role-coordinator', 'client-service-agreements', 'write'),
   ('role-coordinator', 'client-service-bookings', 'write'),
   ('role-coordinator', 'client-roster-of-care', 'write'),
   ('role-coordinator', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-coordinator', 'client-animal-and-pet', 'write'),
   ('role-coordinator', 'incidents', 'write'),
   ('role-coordinator', 'incident-overview', 'write'),
   ('role-coordinator', 'incident-parties-and-links', 'write'),
@@ -2001,6 +1992,7 @@ values
   ('role-coordinator', 'location-clients', 'write'),
   ('role-coordinator', 'location-employees', 'write'),
   ('role-coordinator', 'location-incidents', 'write'),
+  ('role-coordinator', 'location-maintenance', 'write'),
   ('role-coordinator', 'location-site-orientation', 'write'),
   ('role-coordinator', 'location-products-and-services', 'write'),
   ('role-coordinator', 'products', 'write'),
@@ -2084,11 +2076,11 @@ values
   ('role-team-leader', 'client-progress-review', 'write'),
   ('role-team-leader', 'client-contact-activity', 'write'),
   ('role-team-leader', 'client-risks', 'write'),
-  ('role-team-leader', 'client-animal-and-pet', 'write'),
   ('role-team-leader', 'client-service-agreements', 'write'),
   ('role-team-leader', 'client-service-bookings', 'write'),
   ('role-team-leader', 'client-roster-of-care', 'write'),
   ('role-team-leader', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-team-leader', 'client-animal-and-pet', 'write'),
   ('role-team-leader', 'incidents', 'write'),
   ('role-team-leader', 'incident-overview', 'write'),
   ('role-team-leader', 'incident-parties-and-links', 'write'),
@@ -2103,6 +2095,7 @@ values
   ('role-team-leader', 'location-clients', 'write'),
   ('role-team-leader', 'location-employees', 'write'),
   ('role-team-leader', 'location-incidents', 'write'),
+  ('role-team-leader', 'location-maintenance', 'write'),
   ('role-team-leader', 'location-site-orientation', 'write'),
   ('role-team-leader', 'location-products-and-services', 'write'),
   ('role-team-leader', 'employees', 'write'),
@@ -2168,11 +2161,11 @@ values
   ('role-support-worker', 'client-progress-review', 'write'),
   ('role-support-worker', 'client-contact-activity', 'write'),
   ('role-support-worker', 'client-risks', 'write'),
-  ('role-support-worker', 'client-animal-and-pet', 'write'),
   ('role-support-worker', 'client-service-agreements', 'write'),
   ('role-support-worker', 'client-service-bookings', 'write'),
   ('role-support-worker', 'client-roster-of-care', 'write'),
   ('role-support-worker', 'client-support-receiver-needs-and-rules', 'write'),
+  ('role-support-worker', 'client-animal-and-pet', 'write'),
   ('role-support-worker', 'incidents', 'write'),
   ('role-support-worker', 'incident-overview', 'write'),
   ('role-support-worker', 'incident-parties-and-links', 'write'),
@@ -2188,9 +2181,6 @@ values
   ('role-support-worker', 'location-employees', 'write'),
   ('role-support-worker', 'location-incidents', 'write'),
   ('role-support-worker', 'location-maintenance', 'write'),
-  ('role-support-worker', 'maintenance', 'write'),
-  ('role-support-worker', 'maintenance-overview', 'write'),
-  ('role-support-worker', 'maintenance-photos', 'write'),
   ('role-support-worker', 'location-site-orientation', 'write'),
   ('role-support-worker', 'location-products-and-services', 'write'),
   ('role-support-worker', 'employees', 'write'),
@@ -2207,7 +2197,6 @@ values
   ('role-support-worker', 'home-quick-report-incident', 'read')
 on conflict (role_id, window_key) do update set access_level = excluded.access_level;
 
-delete from public.app_role_process where role_id in ('role-admin', 'role-board', 'role-ceo', 'role-exec-operations', 'role-exec-hr', 'role-exec-finance', 'role-exec-ict', 'role-exec-quality', 'role-hr-manager', 'role-hr-officer', 'role-ict-manager', 'role-ict-officer', 'role-finance-manager', 'role-finance-officer', 'role-quality-manager', 'role-quality-officer', 'role-rostering-manager', 'role-rostering-officer', 'role-intake', 'role-coordinator', 'role-team-leader', 'role-support-worker', 'role-security-admin', 'role-audit-viewer');
 insert into public.app_role_process (role_id, process_id)
 values
   ('role-admin', 'ai-prepare-record'),
@@ -2549,7 +2538,6 @@ values
   ('role-security-admin', 'view-ai-query-audit-sensitive')
 on conflict do nothing;
 
-delete from public.app_role_report where role_id in ('role-admin', 'role-board', 'role-ceo', 'role-exec-operations', 'role-exec-hr', 'role-exec-finance', 'role-exec-ict', 'role-exec-quality', 'role-hr-manager', 'role-hr-officer', 'role-ict-manager', 'role-ict-officer', 'role-finance-manager', 'role-finance-officer', 'role-quality-manager', 'role-quality-officer', 'role-rostering-manager', 'role-rostering-officer', 'role-intake', 'role-coordinator', 'role-team-leader', 'role-support-worker', 'role-security-admin', 'role-audit-viewer');
 insert into public.app_role_report (role_id, report_id)
 values
   ('role-admin', 'client-register'),
@@ -2678,7 +2666,6 @@ values
   ('role-support-worker', 'incident-register')
 on conflict do nothing;
 
-delete from public.app_role_task_type where role_id in ('role-admin', 'role-board', 'role-ceo', 'role-exec-operations', 'role-exec-hr', 'role-exec-finance', 'role-exec-ict', 'role-exec-quality', 'role-hr-manager', 'role-hr-officer', 'role-ict-manager', 'role-ict-officer', 'role-finance-manager', 'role-finance-officer', 'role-quality-manager', 'role-quality-officer', 'role-rostering-manager', 'role-rostering-officer', 'role-intake', 'role-coordinator', 'role-team-leader', 'role-support-worker', 'role-security-admin', 'role-audit-viewer');
 insert into public.app_role_task_type (role_id, task_type_id, can_see, can_select, can_create)
 values
   ('role-admin', 'tt-review', true, true, true),
@@ -2788,40 +2775,40 @@ on conflict (role_id, task_type_id) do update set
   can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;
 
 -- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)
-update public.app_user set password = '$2b$10$laEGSFUodLhHEp.5f3wHfO.3oG.dlRCE/V.RHkGe79rTLxCQAfvm2' where username = 'SuperUser';
-update public.app_user set password = '$2b$10$ih/rYK.lRruTArs9pzebBO25tbymw3WoUugPQr9/sX/eSyUJ916Ea' where username = 'PatriciaChen';
-update public.app_user set password = '$2b$10$LyOp2LHIHBjluNctH/Ww0eGNDMeVxwsbWBRjXx3Y96/h7tdiu0fbq' where username = 'MichaelSmith';
-update public.app_user set password = '$2b$10$UYJhAJUA8ApODP.sh8na6OZQrqf4JfPyzrpLJwvRSQ0mzzhxbMxhu' where username = 'PiperCollins';
-update public.app_user set password = '$2b$10$8b947/NCsuwWr0eSU1z/o.u2xqBjlet7mWhn9tcmQT9hAgfQ9Dqoy' where username = 'IslaRobinson';
-update public.app_user set password = '$2b$10$WhNoMWaIpDRaTlMX2YXU9O3lQhd4rSVgnTHKbv9oEK7v6AsCV83Qm' where username = 'GabrielaWilson';
-update public.app_user set password = '$2b$10$v9xYEgmZPst/rTtOm.kUPeoGOc6yGhibUkCl6pOe6kWsiC.rLDAAq' where username = 'DianeFoster';
-update public.app_user set password = '$2b$10$4DnuoHwFnoATgXKKV54C0.2wzomqADQ.SBxrtyYmePHc8z3wig9GK' where username = 'JamesWhitford';
-update public.app_user set password = '$2b$10$pLKgUAftyW.UIWeAIBjwx.7.scJATxTN6Ea54HMP9X99jWIsWd04C' where username = 'SamRivera';
-update public.app_user set password = '$2b$10$hefUVX4SXj1.lbz3aK2MLuJttOTSVEA1602HH1EZeysZ2st8LcdMy' where username = 'MargaretHolt';
-update public.app_user set password = '$2b$10$uWLcnuLC8BNhaAuB5.E5uOYvrOsrcZV9ITOKUSs8NxVMOZyMot7c2' where username = 'RileyShaw';
-update public.app_user set password = '$2b$10$Jw49d2eQt.mNaCkdOiUzYuy3KWB1jRZN5XZxWmoIY5Fk0v/3r0vTi' where username = 'EleanorWright';
-update public.app_user set password = '$2b$10$Qntl6cVEAh0ZGKYvPZZnTeMbUdO3oIH0LmcRhVqePrwfN4v/3JfhS' where username = 'MarcusOBrien';
-update public.app_user set password = '$2b$10$vQQVw2AXpVzy70CCVSmduunpyb.JgYNCgVHe2C/fVEdtlvLSN9y02' where username = 'HelenTran';
-update public.app_user set password = '$2b$10$./n7Zlo3SuBWW5m9hA4a8uwe4OHhwEw.WBD49q1A7xUi/hWrLz7CO' where username = 'DavidOkonkwo';
-update public.app_user set password = '$2b$10$0Ls84oetm47JVmVt2XeE5udCkp1ELgfsCsCg/BkJx7XNbBCa6h0HO' where username = 'SandraBlake';
-update public.app_user set password = '$2b$10$jshw22wKYIeJO6RbZXDqaekBs7kwGn3wS8xNCnOt0ELDn8JqDLzMy' where username = 'CalebMurphy';
-update public.app_user set password = '$2b$10$WCZiuC/Cw9FE.RcR9kClIuMJObB4FWTxTEYUCRi.4BLwH3oc4W5iG' where username = 'AlexKim';
-update public.app_user set password = '$2b$10$ox4u3YlMlvVHIWphIkyhmOn0ShBhEqTSWIg2fzavIxQ1EtEkDGR9u' where username = 'JordanLee';
-update public.app_user set password = '$2b$10$OUBU87lkRdyTzCgiQ.DU4OXh9c5xPuaF7UY5UqCV62iGnzvw3FS9W' where username = 'QuinnTaylor';
-update public.app_user set password = '$2b$10$8SM2wVpnwcIqv1JTb6rLdO19R3jcyXfjMpir.NATz0g6u5DELRouG' where username = 'AudreyPatel';
-update public.app_user set password = '$2b$10$VBzhcPQgaGVTswAKDpR7zu/taXFYgtUtFp/8JcJEbevd4oQRYsl8u' where username = 'MorganBlake';
-update public.app_user set password = '$2b$10$OCH0XD0I7v/uHwGCpQVRTuJUrWEtuZR8kk1IK825h/25dPbmIW5Yu' where username = 'TessaNguyen';
-update public.app_user set password = '$2b$10$Cwyy0p6DmqpejwOUiBFghOG/OQTLWY.zv1sVKGkoKwD/FCmb451yC' where username = 'JessicaHancock';
-update public.app_user set password = '$2b$10$aRq77142Z4ERK1a3ZHZkuOtXVXN4jFE6TujbGP7RE7/bfc0jwr722' where username = 'NaomiSingh';
-update public.app_user set password = '$2b$10$R8ctPztume/fppXugNfMtuuwgsTobwXqBrMuzk9iRX.31b9Co2w3a' where username = 'RoseDash';
-update public.app_user set password = '$2b$10$BdY1agJEIxo3lpdaoWspVeTCLy59krWsIrs34fIhGB71hN/./eUZW' where username = 'OliverWilliams';
-update public.app_user set password = '$2b$10$bw9vYiJq0s1BRgRcVQgB7O6A/SSyW0X4KFL3S0qGrQlziNGiYPJ9y' where username = 'AvaThomas';
-update public.app_user set password = '$2b$10$Vl0pR8cNFi3iXm/UQLfs/O6scQzmr5LckiEx9GnKFEO8uUIOv6Jmu' where username = 'NoahJackson';
-update public.app_user set password = '$2b$10$oze6Nml4kbPMjaaBB2IC4elQW3vLx29x0toNQP.iMzQqf7Pa/whLy' where username = 'MiaWhite';
-update public.app_user set password = '$2b$10$XeEFjTxI7TTMnaX15wCtc.yC.66VAwlNo3w5SGZG/PPL7xSl28RYK' where username = 'LiamHarris';
-update public.app_user set password = '$2b$10$7ZiqYpw6YsnJOO/P4R88iuFAx6AtLEihf3n1W2L6Fkl.v55uTDZs6' where username = 'ZoeMartin';
-update public.app_user set password = '$2b$10$uhUj88zUzFnMj9JQftBBwueIDbnhcqlRKaB4XyLhw5LzdTwfWkWLC' where username = 'EthanThompson';
-update public.app_user set password = '$2b$10$ny4AAmFGmLyKxFxz6MBHuO0FqT2/.lw.yNRtSFb1n1Mhk9utjwB.2' where username = 'ChloeGarcia';
-update public.app_user set password = '$2b$10$LEew355HBgdwghJdxx8bhO.Fma40W9CpKbVbImfQIQ5ku4WuHSRcC' where username = 'MasonRobinson';
-update public.app_user set password = '$2b$10$KT8wuIe/SCMPc02/7jxes.IZk2bIJcTJqdFbpkj3l2SqGc2dxZDuO' where username = 'RubyClark';
-update public.app_user set password = '$2b$10$Owdqnz6mAszvbEsgi1Nzwe6FJF9iwRDF2LgQWEqzbvYPVHOTRbCNi' where username = 'LucasLewis';
+update public.app_user set password = '$2b$10$4Msz2jDr00fHtc99F5KqVOgVOb1d7vXJ1WusLTN636a1ebWILQuea' where username = 'SuperUser';
+update public.app_user set password = '$2b$10$odJ9sr2jFItqZGnXsfzNSe6bfIg/mbDRICfeLicA/voZT5ngpUP9u' where username = 'PatriciaChen';
+update public.app_user set password = '$2b$10$o22VREWS.a.cyZ0adiG5JOK/CaGTTdgLbe3AnfTUhb6xi0NYJDuwm' where username = 'MichaelSmith';
+update public.app_user set password = '$2b$10$RrCMd1NHOm8r9x1/NaIXUeeMH4EGdCVhQwJDLLfxRWWHGQ6j/B0H.' where username = 'PiperCollins';
+update public.app_user set password = '$2b$10$a2KC.UDjZdcoThI1kjJPqOuv//ujh3PXiywMl0j4bjKrG3aqIpCvO' where username = 'IslaRobinson';
+update public.app_user set password = '$2b$10$WRqTRZBGt.qPNVDgopKHBefdefzk2bXHNj.A1b2ycwlcdNr7qxm46' where username = 'GabrielaWilson';
+update public.app_user set password = '$2b$10$BoiKSEwQfHHXqJivei85I.Pb3sHFDmPOuhVBLNxgAiOLWplfzRQBa' where username = 'DianeFoster';
+update public.app_user set password = '$2b$10$5fajwf.0S6kHbnM.zqMsKOpT8dYd3VdnDp.itb8HDGUjrkE.267pe' where username = 'JamesWhitford';
+update public.app_user set password = '$2b$10$v9VcdMDU2aZOIiQHEc8VPuPmcIsKgcJZYMfq6AlQGE5IYzZ8DJ5qi' where username = 'SamRivera';
+update public.app_user set password = '$2b$10$SoHNDxb..9kBqtNRsloW5uvc2A/N7LosdUtH14nHpuopNhcVfiYMC' where username = 'MargaretHolt';
+update public.app_user set password = '$2b$10$B6f8OhAfADMIEX1oTqqcdePJdHKlxwe5odiEiJFySpcWy80qwulia' where username = 'RileyShaw';
+update public.app_user set password = '$2b$10$z0OVMQQbSakRQGhBrhC3/OH7v4cFUuk7T.s4nAyvmY5GkW3xawt8.' where username = 'EleanorWright';
+update public.app_user set password = '$2b$10$rdKWs4Srh47qYhdO9vqPGOAi2i36hEz7E.bcoqufQIiUcAyQB.T1q' where username = 'MarcusOBrien';
+update public.app_user set password = '$2b$10$7bZHZnvBvjAr8sXJCnMEO.QJFmdfjlMdu4kaELG0tKpeAR1pp6q.K' where username = 'HelenTran';
+update public.app_user set password = '$2b$10$IEXmaR6IuyFlGpFKGh1oMeHXcCY39kkMmoyR090EeZEFBFIbd8/0e' where username = 'DavidOkonkwo';
+update public.app_user set password = '$2b$10$umYo2u/BAY18zryEZBXGyO42.usxmfBY.7W0/6620U.owI1F742WK' where username = 'SandraBlake';
+update public.app_user set password = '$2b$10$wkeTRxdohSQzx27xdqzzv.pLT7b8p1SU/lSWk1wjBh/gLkNyIgNFu' where username = 'CalebMurphy';
+update public.app_user set password = '$2b$10$fLIb3RsRSjLqjA4c.4WCsu8z9apwNn3tNLuPlnQZmoNE.sO3qs.7S' where username = 'AlexKim';
+update public.app_user set password = '$2b$10$WKGSxmoOgRsXOYqEeZg5dOtSzj.db0/cb./4kNbh1pTtEAi.cHv2W' where username = 'JordanLee';
+update public.app_user set password = '$2b$10$ekzXkqbXmUosKsTyEUcWDucH0nqh1AjALTCEYDMye04dwLQicTw3y' where username = 'QuinnTaylor';
+update public.app_user set password = '$2b$10$BPhOWZkVjswWXNRSe2lHge7ewsNN/3MJwqe0PqubK4IySA7lnC9rC' where username = 'AudreyPatel';
+update public.app_user set password = '$2b$10$hhSt4Nv4YYSV50Cd9TVWS.Doq.pL6aJXZ5WKg3zjWzkir3nVVogDS' where username = 'MorganBlake';
+update public.app_user set password = '$2b$10$oLBLSMNdEh6RwObGWSS1/ul1IWbOZ1CjbAjHSo9hA9DJZE5k9aFNC' where username = 'TessaNguyen';
+update public.app_user set password = '$2b$10$jbkxDr2BHloYu60FY5y1xOsZCng0YH4J/gZOPhcyI9ep3xhCzaUCi' where username = 'JessicaHancock';
+update public.app_user set password = '$2b$10$Bb7SKXegD.kbjYd2rmsEd.ookXoCV0djjyP4gVSf.ITtDBLg74AOy' where username = 'NaomiSingh';
+update public.app_user set password = '$2b$10$8IAsrfv2eQHWfFSvnYHanuNCVbGTA6TJ0kywXNgQ7yQKPYG.urB96' where username = 'RoseDash';
+update public.app_user set password = '$2b$10$FnUlBOwF1gRA7g4b1IoEgeqWuWjYSsA3DJEqkiVuufLinvXCgRTvq' where username = 'OliverWilliams';
+update public.app_user set password = '$2b$10$9WpnI26.OZTXW4RlXS7iYeQf/YuXQvuqN/OnqLYaqQAyxxNz8cbF2' where username = 'AvaThomas';
+update public.app_user set password = '$2b$10$fbYbWGMnsDLJzMUtKqkaiuQV/PVDIKoFyJuByX5CtkVFzqPmva3rS' where username = 'NoahJackson';
+update public.app_user set password = '$2b$10$nQfbPaLXkJG5xXk6MCN2RuuC7KFh3S3mLzZAvoduJhPp86WwYxngO' where username = 'MiaWhite';
+update public.app_user set password = '$2b$10$BY3JNgTTbA9vcXj9ZXheJO01AxFmz3p6jrvc.WUuyjnVwrJb4ZECC' where username = 'LiamHarris';
+update public.app_user set password = '$2b$10$PUvFk8ewoUjJw3powOWRh.ncU4S6uEDOoBnbVIa6BPwfGGlucG37.' where username = 'ZoeMartin';
+update public.app_user set password = '$2b$10$nhC/iv/8lFFpW/zTPQj59OnY70ZZ0SuHGoyZmdgjKTID86rKjLXYe' where username = 'EthanThompson';
+update public.app_user set password = '$2b$10$0nYVP3rX6uzzcU/3CD/jT.XqYfaJJK2qD2xZCtt1AZ/Ag8jNcS03q' where username = 'ChloeGarcia';
+update public.app_user set password = '$2b$10$tsMPHdVysJPEc8eUxhSb6uxHf3eKrKK26Y6W.fi3uu7RaQqVlW9uS' where username = 'MasonRobinson';
+update public.app_user set password = '$2b$10$PZizUmZFXT0g25dJRdKb.e2Q1nO1aVg4AH9QdBnA19txSty.NYwPq' where username = 'RubyClark';
+update public.app_user set password = '$2b$10$5bfXgyIWpq1kk5bNbD7hreE.aLbgqqhvpZvgHrfCCX9ftMkhVgs.K' where username = 'LucasLewis';

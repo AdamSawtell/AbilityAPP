@@ -24,8 +24,9 @@ function sqlString(value) {
 }
 
 const lines = [
-  "-- Users, roles, and access seed",
+  "-- Users, roles, and access seed (ADDITIVE — does not delete custom role grants)",
   "-- Re-run: npm run supabase:seed-access",
+  "-- Upserts demo grants only; Admin changes and extra windows/processes are preserved.",
   "",
 ];
 
@@ -73,7 +74,6 @@ const roleWindows = SEED_ROLES.flatMap((r) =>
     access_level,
   }))
 );
-lines.push("delete from public.app_role_window where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
 if (roleWindows.length) {
   lines.push("insert into public.app_role_window (role_id, window_key, access_level)");
   lines.push("values");
@@ -87,7 +87,6 @@ if (roleWindows.length) {
 lines.push("");
 
 const roleProcesses = SEED_ROLES.flatMap((r) => r.processIds.map((process_id) => ({ role_id: r.id, process_id })));
-lines.push("delete from public.app_role_process where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
 if (roleProcesses.length) {
   lines.push("insert into public.app_role_process (role_id, process_id)");
   lines.push("values");
@@ -97,7 +96,6 @@ if (roleProcesses.length) {
 lines.push("");
 
 const roleReports = SEED_ROLES.flatMap((r) => (r.reportIds ?? []).map((report_id) => ({ role_id: r.id, report_id })));
-lines.push("delete from public.app_role_report where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
 if (roleReports.length) {
   lines.push("insert into public.app_role_report (role_id, report_id)");
   lines.push("values");
@@ -115,7 +113,6 @@ const roleTaskTypes = SEED_ROLES.flatMap((r) =>
     can_create: p.canCreate,
   }))
 );
-lines.push("delete from public.app_role_task_type where role_id in (" + SEED_ROLES.map((r) => sqlString(r.id)).join(", ") + ");");
 if (roleTaskTypes.length) {
   lines.push("insert into public.app_role_task_type (role_id, task_type_id, can_see, can_select, can_create)");
   lines.push("values");
