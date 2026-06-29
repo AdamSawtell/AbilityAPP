@@ -168,13 +168,16 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 | Step | Action | Pass if |
 |------|--------|---------|
-| 1 | Open the AI assistant and ask to log an activity note for "Bernadette Rose" | Step 1 confirms **Bernadette Rose** — never Henry/another client |
-| 2 | Ask to log a note for a name with a typo ("Bernedette Rose") | Still grounds on Bernadette Rose |
-| 3 | Ask to log a note for a client that does not exist | Assistant asks which client / lists candidates — does not guess or fall back to the open record |
-| 4 | Set My workplace → Availability to a weekday daytime pattern | Availability saved |
-| 5 | My workplace → Open shifts | Matching shifts listed first with "Within your availability" tag |
-| 6 | Claim a shift outside your availability (e.g. overnight 22:00–06:00) | Card warns; button changes to **Claim anyway?**; claim only proceeds on the second confirm |
-| 7 | Confirm the claim, then open My shifts → All | Confirmation names date/time/client/location; claimed shift appears under All |
+| 1 | Open a client record, then ask the Support worker assistant: "Help me write today's activity update" | Assistant uses the visible client context and starts **Step 1 — Confirm client** for that client; it does not ask for the client name |
+| 2 | Reply "yes" to the Step 1 confirmation | Assistant shows the last 5 activity notes (or says there are none) and prompts for the new activity details |
+| 3 | Provide visit details | Assistant prepares a draft and shows the review / **Save activity** action; it does not save automatically |
+| 4 | Open the AI assistant and ask to log an activity note for "Bernadette Rose" | Step 1 confirms **Bernadette Rose** — never Henry/another client |
+| 5 | Ask to log a note for a name with a typo ("Bernedette Rose") | Still grounds on Bernadette Rose |
+| 6 | Ask to log a note for a client that does not exist | Assistant asks which client / lists candidates — does not guess or fall back to the open record |
+| 7 | Set My workplace → Availability to a weekday daytime pattern | Availability saved |
+| 8 | My workplace → Open shifts | Matching shifts listed first with "Within your availability" tag |
+| 9 | Claim a shift outside your availability (e.g. overnight 22:00–06:00) | Card warns; button changes to **Claim anyway?**; claim only proceeds on the second confirm |
+| 10 | Confirm the claim, then open My shifts → All | Confirmation names date/time/client/location; claimed shift appears under All |
 
 Regression: `npm run test:karen` covers the matching/typo/availability logic.
 

@@ -3,6 +3,7 @@ import type { AuthSession } from "@/lib/access/types";
 import type { ChatThreadState } from "@/lib/ai/types";
 import { canAccessWindow } from "@/lib/access/catalog";
 import { resolveClient } from "@/lib/ai/tools/client-resolve";
+import { aiAllowedClientIds, assertAiClientAccessible } from "@/lib/ai/tools/client-location-access";
 
 export type ClientActivityRecentPurpose = "summary" | "coach";
 
@@ -39,14 +40,24 @@ export async function runClientActivityRecent(
     return { found: false, note: "You do not have access to client activity." };
   }
 
-  const client = await resolveClient(supabase, {
-    clientId: args.clientId,
-    searchKey: args.searchKey,
-    name: args.clientName ?? args.name,
-    pagePath: args.pagePath,
-  });
+  const allowedClientIds = await aiAllowedClientIds(supabase, session);
+  const client = await resolveClient(
+    supabase,
+    {
+      clientId: args.clientId,
+      searchKey: args.searchKey,
+      name: args.clientName ?? args.name,
+      pagePath: args.pagePath,
+    },
+    { allowedClientIds }
+  );
   if (!client) {
     return { found: false, error: "Provide clientId, searchKey, or client name." };
+  }
+
+  const access = await assertAiClientAccessible(supabase, session, client.id);
+  if (!access.ok) {
+    return { found: false, note: access.error };
   }
 
   const limit = Math.min(Math.max(Number(args.limit) || 5, 1), 10);

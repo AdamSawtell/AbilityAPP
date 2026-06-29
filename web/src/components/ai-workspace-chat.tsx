@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
+import { findClientByRouteId } from "@/lib/client";
 import type { ChatDisplayAttachment, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
 import { ChatMessageContent } from "@/components/chat-message-content";
 import { PrepareSaveBar } from "@/components/prepare-save-bar";
@@ -81,6 +82,14 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
       ),
     [pathname, clients, enquiries, tasks, incidents, session?.agentIds]
   );
+
+  const pageClient = useMemo(() => {
+    const routeId = pathname.match(/^\/clients\/([^/?#]+)/)?.[1];
+    if (!routeId || routeId === "new") return null;
+    const client = findClientByRouteId(clients, routeId);
+    if (!client) return null;
+    return { id: client.id, name: client.name, searchKey: client.searchKey };
+  }, [pathname, clients]);
 
   useEffect(() => {
     threadStateRef.current = threadState;
@@ -261,6 +270,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
             messages: nextMessages,
             threadState: threadStateRef.current,
             pagePath: pathname,
+            pageClient,
           }),
         });
         const data = (await res.json()) as ChatResponseBody & { error?: string };
@@ -294,7 +304,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         setLoading(false);
       }
     },
-    [agentId, input, loading, pathname, session?.agentIds]
+    [agentId, input, loading, pageClient, pathname, session?.agentIds]
   );
 
   const applyPromptIfAny = useCallback(() => {

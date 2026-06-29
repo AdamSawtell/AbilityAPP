@@ -175,6 +175,12 @@ export type ChatThreadState = {
   } | null;
 };
 
+export type ChatPageClientContext = {
+  id: string;
+  name: string;
+  searchKey: string;
+};
+
 export type AiWriteResult = {
   kind: "client" | "client_prepare" | "client_patch_prepare" | "client_activity_prepare" | "client_task_prepare" | "task" | "task_prepare" | "task_update_prepare" | "client_activity" | "enquiry" | "enquiry_prepare" | "enquiry_task_prepare" | "client_patch" | "enquiry_convert" | "task_update" | "incident" | "incident_prepare" | "incident_task_prepare" | "incident_update";
   label: string;
@@ -221,6 +227,7 @@ export type ChatRequestBody = {
   messages: ChatMessage[];
   threadState?: ChatThreadState;
   pagePath?: string;
+  pageClient?: ChatPageClientContext | null;
 };
 
 export type ChatResponseBody = {

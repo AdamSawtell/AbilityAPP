@@ -85,6 +85,7 @@ export async function POST(request: Request) {
       threadState,
       db,
       pagePath: body.pagePath,
+      pageClient: body.pageClient ?? null,
     });
     return NextResponse.json(result);
   } catch (err) {

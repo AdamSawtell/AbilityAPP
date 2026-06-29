@@ -1,6 +1,13 @@
 import OpenAI from "openai";
 import type { AuthSession } from "@/lib/access/types";
-import type { AiAgentRecord, AiWriteResult, ChatMessage, ChatResponseBody, ChatThreadState } from "@/lib/ai/types";
+import type {
+  AiAgentRecord,
+  AiWriteResult,
+  ChatMessage,
+  ChatPageClientContext,
+  ChatResponseBody,
+  ChatThreadState,
+} from "@/lib/ai/types";
 import { attachmentsFromToolAudit } from "@/lib/ai/display";
 import { previewForWriteResult } from "@/lib/ai/prepare-preview";
 import { attachmentFromWriteResult, isPrepareWriteResult } from "@/lib/ai/prepare-display";
@@ -687,6 +694,7 @@ export async function runChatTurn(options: {
   threadState: ChatThreadState;
   db: AiDatabase | null;
   pagePath?: string;
+  pageClient?: ChatPageClientContext | null;
 }): Promise<ChatResponseBody> {
   const openai = openAiClient();
   const tools = toolsForAgent(options.agent);
@@ -708,7 +716,8 @@ export async function runChatTurn(options: {
       session,
       options.messages,
       threadState,
-      options.pagePath
+      options.pagePath,
+      options.pageClient
     );
     if (propose) {
       threadState = propose.threadState;

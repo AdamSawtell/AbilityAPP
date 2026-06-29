@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatThreadState } from "@/lib/ai/types";
+import type { ChatMessage, ChatPageClientContext, ChatThreadState } from "@/lib/ai/types";
 import type { AuthSession } from "@/lib/access/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
@@ -13,11 +13,11 @@ import {
   clientRecordCardAttachment,
   isActivityCoachIntent,
   isClientRecordConfirmMessage,
-  shouldAutoConfirmCoachOnPage,
   type ActivityCoachClient,
 } from "@/lib/ai/activity-coach-display";
 import { runClientActivityRecent } from "@/lib/ai/tools/client-activity-recent";
 import { resolveClient } from "@/lib/ai/tools/client-resolve";
+import { aiAllowedClientIds } from "@/lib/ai/tools/client-location-access";
 import type { ChatDisplayAttachment } from "@/lib/ai/types";
 
 export type ActivityCoachAdvance = {
@@ -32,26 +32,46 @@ function coachClientHref(client: ActivityCoachClient) {
 
 async function resolveCoachClient(
   supabase: SupabaseClient,
+  session: AuthSession,
   pagePath: string | undefined,
-  userMessage: string
+  userMessage: string,
+  pageClient?: ChatPageClientContext | null
 ): Promise<ResolvedClient | null> {
   const routeId = clientIdFromPagePath(pagePath);
   const nameFromMessage = clientNameFromActivityMessage(userMessage);
+  const allowedClientIds = await aiAllowedClientIds(supabase, session);
 
   // When the user explicitly names a client, that name is the source of truth.
   // Never silently fall back to whatever client page is open — that is how the
   // assistant grounded on the wrong person (KAREN-BUG-0003). A null result asks
   // the user to confirm instead of guessing.
   if (nameFromMessage) {
-    return resolveClient(supabase, { name: nameFromMessage, pagePath });
+    return resolveClient(supabase, { name: nameFromMessage, pagePath }, { allowedClientIds });
+  }
+
+  if (pageClient?.id && pageClient.searchKey && routeId) {
+    const route = decodeURIComponent(routeId).toLowerCase();
+    const hintMatchesRoute =
+      pageClient.id.toLowerCase() === route || pageClient.searchKey.toLowerCase() === route;
+    if (hintMatchesRoute) {
+      return resolveClient(
+        supabase,
+        { clientId: pageClient.id, searchKey: pageClient.searchKey, pagePath },
+        { allowedClientIds }
+      );
+    }
   }
 
   if (routeId) {
-    const fromRoute = await resolveClient(supabase, {
-      clientId: routeId,
-      searchKey: routeId,
-      pagePath,
-    });
+    const fromRoute = await resolveClient(
+      supabase,
+      {
+        clientId: routeId,
+        searchKey: routeId,
+        pagePath,
+      },
+      { allowedClientIds }
+    );
     if (fromRoute) return fromRoute;
   }
 
@@ -182,26 +202,22 @@ function step1Response(
   };
 }
 
-/** Step 1: resolve client; on client page auto-load notes, otherwise ask to confirm. */
+/** Step 1: resolve client and ask the user to confirm before loading notes. */
 export async function tryProposeActivityCoachClient(
   supabase: SupabaseClient,
   session: AuthSession,
   messages: ChatMessage[],
   threadState: ChatThreadState,
-  pagePath?: string
+  pagePath?: string,
+  pageClient?: ChatPageClientContext | null
 ): Promise<ActivityCoachAdvance | null> {
   if (threadState.activityCoachClient) return null;
 
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   if (!lastUser || !isActivityCoachIntent(lastUser.content)) return null;
 
-  const client = await resolveCoachClient(supabase, pagePath, lastUser.content);
+  const client = await resolveCoachClient(supabase, session, pagePath, lastUser.content, pageClient);
   if (!client) return null;
-
-  if (shouldAutoConfirmCoachOnPage(pagePath, lastUser.content, client)) {
-    const activities = await loadCoachActivities(supabase, session, client, pagePath, threadState);
-    return buildNotesAndStep3Advance(threadState, client, activities, { autoFromPage: true });
-  }
 
   return step1Response(threadState, client);
 }
@@ -247,10 +263,6 @@ export async function tryActivityCoachFromClientGet(
   if (nameFromMessage) {
     const byName = await resolveClient(supabase, { name: nameFromMessage, pagePath });
     if (!byName) return null;
-    if (shouldAutoConfirmCoachOnPage(pagePath, lastUser.content, byName)) {
-      const activities = await loadCoachActivities(supabase, session, byName, pagePath, threadState);
-      return buildNotesAndStep3Advance(threadState, byName, activities, { autoFromPage: true });
-    }
     return step1Response(threadState, byName);
   }
 
@@ -262,11 +274,6 @@ export async function tryActivityCoachFromClientGet(
     name: String(row.client.name ?? ""),
     searchKey: String(row.client.searchKey ?? ""),
   };
-
-  if (shouldAutoConfirmCoachOnPage(pagePath, lastUser.content, client)) {
-    const activities = await loadCoachActivities(supabase, session, client, pagePath, threadState);
-    return buildNotesAndStep3Advance(threadState, client, activities, { autoFromPage: true });
-  }
 
   return step1Response(threadState, client);
 }
