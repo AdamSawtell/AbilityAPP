@@ -769,6 +769,8 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 4 | AI chat on client → prepare activity → **Save activity** | Toast **Activity note saved ✓** |
 | 5 | Rapid double-save on same record | Second toast replaces first (no stack) |
 
+**Amplify pass (2026-06-29):** As OliverWilliams, `/my/availability` → edit Monday notes → **Save availability** → green toast **Availability saved ✓** top-right (Sonner); inline confirmation also shown. Deploy commit `d0204ac`.
+
 ---
 
 ## Quick chain (release candidate)

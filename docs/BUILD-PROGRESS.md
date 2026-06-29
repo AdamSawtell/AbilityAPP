@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | AB-0038 Save confirmation toast — implemented (Phase 1 + 2) |
 | **Next slice** | AB-0041 Consistent save UX across line-item tables |
-| **Last push** | 2026-06-29 — AB-0007 Animal and Pet tab (`6b1e4ce`) |
+| **Last push** | 2026-06-29 — AB-0038 Save confirmation toast |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -45,6 +45,8 @@
 **What you can test:** See TEST-065 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0038-save-confirmation-toast-handoff.md`.
 
 **Code review log:** 2026-06-29 — Bugbot 2 Medium: timesheet save bar showed generic toast when status changed to Submitted/Approved (fixed status-aware message); client detail save showed activity-note toast when `aiDraft` query still loaded (fixed — always Client saved ✓ on record save bar; activity toast only on PrepareSaveActions).
+
+**Amplify browser smoke (2026-06-29, TEST-065 step 1):** OliverWilliams → `/my/availability` → save → green **Availability saved ✓** toast top-right on `d0204ac`.
 
 ---
 
