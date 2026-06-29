@@ -179,6 +179,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "Shift check-in monitoring",
         match: (p) => p.startsWith("/system/settings/shift-monitoring"),
       },
+      {
+        href: "/system/settings/availability",
+        label: "Availability hours",
+        match: (p) => p.startsWith("/system/settings/availability"),
+      },
     ]),
   },
   {

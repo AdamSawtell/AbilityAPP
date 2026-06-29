@@ -11,7 +11,7 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | Shift check-in escalation + configurable hours variance — shipped |
+| **Active slice** | My availability hours policy (min contract / max org / over-max approval) — in progress |
 | **Next slice** | Awaiting direction |
 | **Last push** | 2026-06-29 — AB-0007 Animal and Pet tab (`6b1e4ce`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
@@ -25,6 +25,27 @@
 ---
 
 ---
+
+---
+
+## My availability hours policy (2026-06-29)
+
+**Status:** Shipped (slice 1).
+
+**Why:** Staff weekly availability should meet contracted minimum hours and respect an organisation maximum. Workers sometimes need more hours than the cap — that requires manager approval. Overnight spans need configurable counting.
+
+| Area | Change |
+|------|--------|
+| Minimum | From employee **Contracted hours (minimum)** on the employee record (`contractedHoursPerPeriod`) |
+| Maximum | System setting `availability_max_hours_per_period` + period (default 76h fortnight) |
+| Over-max | Approval role setting + `employee_availability_over_max_request` table; Workforce planning review panel |
+| Overnight | System tri-state: include / exclude / ask when end time is before start time |
+| My workplace | Hours summary banner, save validation, approval prompt when above max |
+| System setup | `/system/settings/availability` window `system-availability-policy` |
+
+**Deferred:** Apply same overnight mode to rostered-hours vs contracted shortfall calculations; block roster assignment when availability below minimum.
+
+**What you can test:** System → Workforce planning → **Availability hours** → set max + approval role + overnight mode. As a worker with contracted hours, open **My availability** — summary shows min/max; reduce hours below contract → save blocked; raise above max → approval prompt. As rostering manager, approve on **Workforce planning** → Availability above maximum panel.
 
 ---
 
@@ -2714,6 +2735,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-29 | Availability hours policy uncommitted | 3 High + 2 Medium, all fixed | **Pass** | Fixed: (H) prior approval no longer ignored when a newer pending/declined row exists — approved ceiling now sourced from `loadLatestApprovedOverMaxRequest` and applied regardless of latest status; (H) default availability template (Mon–Fri 09:00–17:00 = 40h/wk) no longer trips over-max — default org maximum raised to 80h/fortnight via fix-forward migration `20260730150000`; (H) over-max approval request now created **before** `saveMyAvailability` so an over-max pattern is never stored without a pending row; (M) summary `approvalStatus` cleared to `none` once the pattern is within the cap; (M) `reviewOverMaxRequest` now guards on `status = 'pending'` to block double-review of stale rows |
 | 2026-06-29 | Hotfix — hydrate seed-fallback | 1 High, fixed | **Pass** | Investigated "added employee keeps disappearing on Amplify". Root cause: the store's initial hydrate fires ~85 parallel Supabase queries in one `Promise.all`; a single transient failure threw the whole batch and silently fell back to **seed-only** data, hiding every live record added after seeding (e.g. Jason Breen `emp-1782473053908`, whose record + 7 shift requests were always intact in the DB). Fix: `fetchAllDataWithRetry` (3 attempts, exponential backoff) before any seed fallback. No deletion/seed-wipe was involved |
 | 2026-06-27 | Roster Sessions v1 + Glenelg roster uncommitted | 4 High + 2 Medium; 4 High + 1 Medium fixed, 1 Medium deferred | **Pass** | Fixed: claim/approve worker no longer dropped on normalize; RoC publish reuses matched shift id (no duplicates) + `skipExisting` covers legacy shifts; only Active peer RoCs merge; weekly Repeat regenerates child line ids. Deferred (Medium): multi-worker discovery in My shifts/check-in/timesheets (broad cross-file change) |
 | 2026-06-27 | Home My calendar uncommitted | 1 Medium, fixed | **Pass** | Pending shift-request chip now suppressed when the linked shift is already allocated to the worker (covers direct fill-board assignment, not just request approval) |

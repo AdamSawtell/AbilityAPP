@@ -94,7 +94,7 @@ export const myWorkplaceArticle: HelpArticle = {
     {
       id: "availability",
       title: "Working availability",
-      body: "Set your preferred weekly pattern so rostering can see when you are available, preferred, or unavailable. The default pattern is Monday to Friday. Save availability stays disabled until your weekly pattern has finished loading, so an empty form can never overwrite and clear your saved days.",
+      body: "Set your preferred weekly pattern so rostering can see when you are available, preferred, or unavailable. The default pattern is Monday to Friday. Save availability stays disabled until your weekly pattern has finished loading, so an empty form can never overwrite and clear your saved days.\n\nYour weekly total must meet or exceed your contracted minimum hours (from your employment contract on your employee record). It must also stay within the organisation maximum unless a manager approves extra hours.\n\nIf a day spans overnight (end time before start time), the organisation setting controls whether those hours count: always included, always excluded, or you are asked each time you save.",
       relatedRoutes: ["/my/availability"],
       windowKeys: ["my-availability"],
     },

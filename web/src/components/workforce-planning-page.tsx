@@ -10,6 +10,7 @@ import type { EmployeeRecord } from "@/lib/employee";
 import { addDays, formatMonthYear, isoFromDate, isSameDay, monthGridDays } from "@/lib/personal-calendar";
 import { WorkforcePlanningSubnav } from "@/components/workforce/workforce-planning-subnav";
 import { WorkforceReviewQueuePanel } from "@/components/workforce/workforce-review-queue";
+import { WorkforceAvailabilityOverMaxPanel } from "@/components/workforce/workforce-availability-over-max-panel";
 import { WorkforceAvailabilityPanel } from "@/components/workforce-availability-panel";
 import { WorkforceFillBoardPanel } from "@/components/workforce-fill-board-panel";
 
@@ -207,6 +208,7 @@ export function WorkforcePlanningPage() {
         </Link>
       </section>
       <WorkforceReviewQueuePanel />
+      <WorkforceAvailabilityOverMaxPanel />
       <div className="mb-8 space-y-8">
         <WorkforceAvailabilityPanel employees={activeEmployees} />
         <WorkforceFillBoardPanel />

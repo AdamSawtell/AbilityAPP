@@ -667,6 +667,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "system-availability-policy",
+    label: "Availability hours",
+    group: "Admin",
+    surface: "system",
+    href: "/system/settings/availability",
+    abilityErpName: "Availability hours",
+    showInSidebar: false,
+  },
+  {
     key: "system-price-update-review",
     label: "Price Dependant Updater",
     group: "Services",

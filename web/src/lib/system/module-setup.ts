@@ -132,6 +132,7 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
     checklist: [
       "Set leave type and leave request status options.",
       "Configure minimum notice (hours) for My workplace leave submit.",
+      "Configure availability maximum, over-max approval role, and overnight counting.",
       "Set shift check-in monitoring — late/missed check-in escalation and timesheet hours variance.",
       "Configure org chart tiers in System, then maintain positions under Organisation structure.",
     ],
@@ -145,6 +146,11 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
         href: "/system/settings/shift-monitoring",
         label: "Shift check-in monitoring",
         description: "Escalation timing for late/missed check-in and timesheet hours variance.",
+      },
+      {
+        href: "/system/settings/availability",
+        label: "Availability hours",
+        description: "Organisation maximum, over-max approval role, and overnight hour counting.",
       },
       {
         href: "/workforce-planning/organisation",

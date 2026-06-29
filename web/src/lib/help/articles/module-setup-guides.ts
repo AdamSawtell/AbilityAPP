@@ -111,6 +111,7 @@ export const moduleSetupGuideArticles: HelpArticle[] = [
       "Set leave type and leave request status options.",
       "Configure minimum notice (hours) under System → Workforce planning → Leave self-service (default 76 hours before first affected shift).",
       "Set shift check-in monitoring under System → Workforce planning → Shift check-in monitoring — late/missed check-in escalation timing, missed check-out grace, and the timesheet hours variance (default 0.25h).",
+      "Configure availability hours under System → Workforce planning → Availability hours — organisation maximum per period, over-maximum approval role, and overnight span counting (include, exclude, or ask).",
       "Configure org chart tiers under Organisation.",
       "Maintain positions under Workforce planning → Organisation structure.",
       "Seed task automations for leave and credential review (see Task automations guide).",
