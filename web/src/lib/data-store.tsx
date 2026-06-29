@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-store";
+import { routePageSkeleton } from "@/components/ui/page-skeletons";
 import {
   applyLocationScopeToView,
   canSeeAllLocations,
@@ -2845,11 +2846,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   if (!hydrated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f6f8] text-sm text-slate-500">
-        Loading…
-      </div>
-    );
+    return routePageSkeleton(pathname);
   }
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

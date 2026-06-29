@@ -18,6 +18,7 @@ import {
   fetchUsers,
   saveRole,
 } from "@/lib/supabase/access-api";
+import { routePageSkeleton } from "@/components/ui/page-skeletons";
 
 const LEGACY_SESSION_KEY = "abilityerp-auth-session";
 
@@ -374,11 +375,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   }, [hydrated, session, pathname, router]);
 
   if (!hydrated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f6f8] text-sm text-slate-500">
-        Loading…
-      </div>
-    );
+    return routePageSkeleton(pathname);
   }
 
   if (pathname.startsWith("/system")) return <>{children}</>;

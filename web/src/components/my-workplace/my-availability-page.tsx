@@ -15,6 +15,7 @@ import {
   type AvailabilityOverMaxApprovalStatus,
 } from "@/lib/availability-hours-policy";
 import type { AvailabilityOverMaxRequest } from "@/lib/availability-hours-policy.server";
+import { MyAvailabilityRowsSkeleton } from "@/components/ui/page-skeletons";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
@@ -228,9 +229,7 @@ export function MyAvailabilityPage() {
             </p>
           </div>
           <div className="divide-y divide-slate-100">
-            {!loaded && !error ? (
-              <p className="px-5 py-6 text-sm text-slate-600">Loading your weekly pattern…</p>
-            ) : null}
+            {!loaded && !error ? <MyAvailabilityRowsSkeleton /> : null}
             {loaded && rows.length === 0 ? (
               <p className="px-5 py-6 text-sm text-amber-800">
                 No weekly pattern rows are available. Reload the page before saving so you don&apos;t clear your

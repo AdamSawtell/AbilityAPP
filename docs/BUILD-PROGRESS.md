@@ -11,7 +11,7 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0038 Save confirmation toast — implemented (Phase 1 + 2) |
+| **Active slice** | AB-0036 Skeleton loaders — implemented (Phase 1) |
 | **Next slice** | AB-0041 Consistent save UX across line-item tables |
 | **Last push** | 2026-06-29 — AB-0038 Save confirmation toast |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
@@ -27,6 +27,29 @@
 ---
 
 ---
+
+---
+
+---
+
+## Skeleton loaders AB-0036 (2026-06-30)
+
+**Status:** Shipped (Phase 1).
+
+**Why:** Blank white screens during data hydrate made users think the app had frozen. Layout-matching grey skeletons give immediate feedback.
+
+| Area | Change |
+|------|--------|
+| Primitives | `Skeleton`, `SkeletonText`, `SkeletonCard`, `SkeletonTable` in `@/components/ui/skeleton` |
+| Route skeletons | `routePageSkeleton()` for AuthGate + DataProvider; content skeletons for My workplace async pages |
+| Theme | `bg-muted` token added to globals.css |
+| Top routes | Dashboard, My workplace, Clients, Locations, Rostering (+ My availability/profile/shifts) |
+
+**What you can test:** See TEST-066 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0036-skeleton-loaders-handoff.md`.
+
+**Code review log:** 2026-06-30 — Bugbot findings fixed before push: My workplace hub content hidden/overlapped during API load, nested availability skeleton chrome, portal routes flashing staff chrome, and missing accessible loading status.
+
+**Browser smoke (2026-06-30, localhost TEST-066):** `/clients`, `/locations`, `/my`, and `/rostering` showed accessible loading status / skeleton state on navigation and resolved to live content without errors.
 
 ---
 

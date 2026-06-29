@@ -754,6 +754,28 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+---
+
+## TEST-066 — Skeleton loaders (AB-0036)
+
+| | |
+|--|--|
+| **User** | Any signed-in role |
+| **Pass if** | Grey pulsing placeholders appear during load, then resolve to real content |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Hard refresh `/` | Dashboard-shaped skeleton (stat cards, panels) before home content |
+| 2 | Hard refresh `/clients` | Stat cards + table-row skeleton before client list |
+| 3 | Hard refresh `/locations` | Same list skeleton pattern before location list |
+| 4 | As OliverWilliams, open `/my` | Hub tile/card skeleton before dashboard tiles |
+| 5 | Open `/my/availability` | Weekly pattern row skeleton before form rows |
+| 6 | Open `/rostering` | Week grid skeleton before roster columns |
+
+**Localhost pass (2026-06-30):** `/clients` hard navigation exposed the accessible loading status, then resolved to list content. `/locations` resolved to list content. `/my` exposed both page and My workplace loading statuses, then resolved to communication panel + hub tiles. `/rostering` exposed loading status, then resolved to week view without errors.
+
+---
+
 ## TEST-065 — Save confirmation toast (AB-0038)
 
 | | |

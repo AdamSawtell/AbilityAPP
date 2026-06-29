@@ -20,6 +20,7 @@ import {
   sortOpenShiftsByAvailability,
 } from "../src/lib/roster-open-shifts.ts";
 import { SAVE_TOAST_MESSAGES, SAVE_SUCCESS_TOAST_ID, showSuccessToast } from "../src/lib/toast.ts";
+import { Skeleton, SkeletonTable, SkeletonText } from "../src/components/ui/skeleton.tsx";
 
 let failures = 0;
 
@@ -206,6 +207,10 @@ checkTruthy("AB-0038 showSuccessToast is exported", typeof showSuccessToast === 
 check("AB-0038 save toast id is stable", SAVE_SUCCESS_TOAST_ID, "save-success");
 checkTruthy("AB-0038 availability toast message", SAVE_TOAST_MESSAGES.availability.includes("✓"));
 checkTruthy("AB-0038 client toast message", SAVE_TOAST_MESSAGES.client.includes("✓"));
+
+checkTruthy("AB-0036 Skeleton export", typeof Skeleton === "function");
+checkTruthy("AB-0036 SkeletonText export", typeof SkeletonText === "function");
+checkTruthy("AB-0036 SkeletonTable export", typeof SkeletonTable === "function");
 
 if (failures > 0) {
   console.error(`\n${failures} regression check(s) failed.`);

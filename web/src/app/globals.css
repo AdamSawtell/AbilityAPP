@@ -17,6 +17,7 @@
   --brand-login-from: color-mix(in srgb, var(--brand-accent) 55%, #1e1b4b);
   --brand-login-via: var(--brand-accent);
   --brand-login-to: color-mix(in srgb, var(--brand-primary) 90%, #be185d);
+  --muted: #e2e8f0;
 }
 
 @theme inline {
@@ -32,6 +33,7 @@
   --color-brand-border-accent: var(--brand-border-accent);
   --color-brand-background: var(--brand-background);
   --color-brand-text: var(--brand-text);
+  --color-muted: var(--muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

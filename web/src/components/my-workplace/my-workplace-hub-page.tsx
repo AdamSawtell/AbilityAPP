@@ -17,6 +17,7 @@ import { isVacantShift } from "@/lib/roster-gap-analysis";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 import { shiftsAssignedToWorker } from "@/lib/roster-shift-checkin";
 import { requestsForEmployee } from "@/lib/roster-shift-request";
+import { MyWorkplaceHubContentSkeleton } from "@/components/ui/page-skeletons";
 
 type HubData = {
   employeeName: string;
@@ -108,6 +109,8 @@ export function MyWorkplaceHubPage() {
         <MyWorkplaceSubnav />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
+        {!data && !error ? <MyWorkplaceHubContentSkeleton showSubnavPills={false} /> : null}
+
         {data?.servicesAdvisory ? (
           <MyWorkplaceServicesAdvisoryPanel advisory={data.servicesAdvisory} />
         ) : null}
@@ -154,43 +157,45 @@ export function MyWorkplaceHubPage() {
           </section>
         ) : null}
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <HubTile
-            title="Credentials"
-            description="Add licences and checks with evidence. Track HR review and expiry."
-            href="/my/credentials"
-            badge={(summary?.overdueCount ?? 0) + (summary?.dueSoonCount ?? 0) + (summary?.credentialsPendingReview ?? 0) || undefined}
-          />
-          <HubTile
-            title="About me"
-            description="Contact details, emergency contacts, and home address."
-            href="/my/profile"
-            badge={summary?.profileGapsCount}
-          />
-          <HubTile
-            title="Leave"
-            description="Submit leave requests and track approval status."
-            href="/my/leave"
-            badge={summary?.pendingLeaveCount}
-          />
-          <HubTile
-            title="Availability"
-            description="Tell us when you are available to work."
-            href="/my/availability"
-            badge={summary && !summary.availabilityConfigured ? 1 : 0}
-          />
-          <HubTile
-            title="My shifts"
-            description="Check in and out of roster shifts assigned to you."
-            href="/my/shifts"
-          />
-          <HubTile
-            title="Contracts & policies"
-            description="View employment documents and acknowledge required items."
-            href="/my/contracts"
-            badge={summary?.contractsToAcknowledge}
-          />
-        </div>
+        {data || error ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <HubTile
+              title="Credentials"
+              description="Add licences and checks with evidence. Track HR review and expiry."
+              href="/my/credentials"
+              badge={(summary?.overdueCount ?? 0) + (summary?.dueSoonCount ?? 0) + (summary?.credentialsPendingReview ?? 0) || undefined}
+            />
+            <HubTile
+              title="About me"
+              description="Contact details, emergency contacts, and home address."
+              href="/my/profile"
+              badge={summary?.profileGapsCount}
+            />
+            <HubTile
+              title="Leave"
+              description="Submit leave requests and track approval status."
+              href="/my/leave"
+              badge={summary?.pendingLeaveCount}
+            />
+            <HubTile
+              title="Availability"
+              description="Tell us when you are available to work."
+              href="/my/availability"
+              badge={summary && !summary.availabilityConfigured ? 1 : 0}
+            />
+            <HubTile
+              title="My shifts"
+              description="Check in and out of roster shifts assigned to you."
+              href="/my/shifts"
+            />
+            <HubTile
+              title="Contracts & policies"
+              description="View employment documents and acknowledge required items."
+              href="/my/contracts"
+              badge={summary?.contractsToAcknowledge}
+            />
+          </div>
+        ) : null}
       </AppShell>
     </MyWorkplaceGuard>
   );

@@ -9,6 +9,7 @@ import { useData } from "@/lib/data-store";
 import type { EmployeeEmergencyContactRow, EmployeeLocationRow, EmployeeRecord } from "@/lib/employee";
 import { emptyEmergencyContactRow, emptyEmployeeLocationRow, renumberLines } from "@/lib/employee-line-tables";
 import type { MyProfileGap } from "@/lib/my-workplace/compliance-dashboard";
+import { MyProfilePageSkeleton } from "@/components/ui/page-skeletons";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -130,7 +131,8 @@ export function MyProfilePage() {
     return (
       <MyWorkplaceGuard windowKey="my-profile">
         <AppShell title="About me" breadcrumbs={myWorkplaceBreadcrumbs("About me")} audit={{ moduleLabel: "About me" }}>
-          <p className="text-sm text-slate-500">{error || "Loading…"}</p>
+          <MyWorkplaceSubnav />
+          {error ? <p className="text-sm text-red-600">{error}</p> : <MyProfilePageSkeleton />}
         </AppShell>
       </MyWorkplaceGuard>
     );
