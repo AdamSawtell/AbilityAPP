@@ -165,6 +165,7 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | **User** | SuperUser / flamingo (assistant) and a worker login linked to an employee (claim) |
 | **DATA** | Client `Bernadette Rose` (`bp-bern`); worker availability set to weekday daytime |
 | **Pass if** | Assistant only grounds on the named client and asks when unsure; open-shift claim warns before an outside-availability claim and the claimed shift is visible in My shifts → All |
+| **Amplify (2026-06-29)** | Steps 1–3 **Pass** on `https://app.abilityvua.com/clients/bp-bern` (SuperUser, Client assistant): activity coach Step 1 → yes → notes + Step 3 → draft review modal with **Save activity** |
 
 | Step | Action | Pass if |
 |------|--------|---------|
