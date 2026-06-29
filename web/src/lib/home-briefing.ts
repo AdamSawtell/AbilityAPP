@@ -34,6 +34,9 @@ export function buildHomeBriefing(input: {
   showWorkforceReviews: boolean;
   /** Org-wide NDIS reporting overdue items require "Can see all incidents". */
   showIncidentCompliance: boolean;
+  /** Shift check-in escalations require rostering/workforce access. */
+  showShiftMonitoring: boolean;
+  shiftAttentionItems: HomeAttentionItem[];
   openTaskCount: number;
   taskStats: TaskDashboardStats | null;
   myActionItems: MyActionItem[];
@@ -60,6 +63,12 @@ export function buildHomeBriefing(input: {
         title: `${input.overdueIncidents.length - 3} more reportable incident${input.overdueIncidents.length - 3 === 1 ? "" : "s"} overdue`,
         href: "/incidents/compliance",
       });
+    }
+  }
+
+  if (input.showShiftMonitoring && input.shiftAttentionItems.length > 0) {
+    for (const item of input.shiftAttentionItems.slice(0, 5)) {
+      items.push(item);
     }
   }
 

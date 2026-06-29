@@ -8,6 +8,7 @@ import { fetchUsers } from "@/lib/supabase/access-api";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { saveTimesheet } from "@/lib/supabase/data-api";
 import { closeWorkforceAutomationTasks } from "@/lib/task-automation/run-server";
+import { getShiftCheckinMonitoringSettings } from "@/lib/shift-checkin-monitoring-server";
 import {
   rosterShiftFromRow,
   timesheetFromRow,
@@ -148,10 +149,19 @@ async function loadApprovalData(): Promise<{
 async function buildContext(session: AuthSession): Promise<TimesheetApprovalContext> {
   const reviewerEmployeeId = await resolveEmployeeId(session);
   const data = await loadApprovalData();
+  let varianceThreshold: number | undefined;
+  if (isSupabaseConfigured()) {
+    try {
+      varianceThreshold = (await getShiftCheckinMonitoringSettings()).hoursVarianceThreshold;
+    } catch {
+      varianceThreshold = undefined;
+    }
+  }
   return {
     ...data,
     reviewerEmployeeId,
     seesAll: seesAllTimesheetApprovals(session),
+    varianceThreshold,
   };
 }
 

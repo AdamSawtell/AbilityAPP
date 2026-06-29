@@ -3,6 +3,7 @@ import { getAuthSessionFromRequest } from "@/lib/auth/session.server";
 import { sessionHasWindow } from "@/lib/auth/session.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { runServerScheduledAutomations } from "@/lib/task-automation/run-server";
+import { runServerShiftCheckinEscalation } from "@/lib/shift-checkin-monitoring-server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 function serviceClient() {
@@ -27,8 +28,10 @@ export async function POST() {
   }
 
   try {
-    const created = await runServerScheduledAutomations(serviceClient());
-    return NextResponse.json({ created });
+    const supabase = serviceClient();
+    const created = await runServerScheduledAutomations(supabase);
+    const shiftEscalations = await runServerShiftCheckinEscalation(supabase);
+    return NextResponse.json({ created: created + shiftEscalations, shiftEscalations });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Scheduled automation run failed";
     return NextResponse.json({ error: message }, { status: 500 });

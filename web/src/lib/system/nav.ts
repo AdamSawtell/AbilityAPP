@@ -174,6 +174,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "Leave self-service",
         match: (p) => p.startsWith("/system/settings/leave"),
       },
+      {
+        href: "/system/settings/shift-monitoring",
+        label: "Shift check-in monitoring",
+        match: (p) => p.startsWith("/system/settings/shift-monitoring"),
+      },
     ]),
   },
   {

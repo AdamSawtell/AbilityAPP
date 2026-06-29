@@ -20,7 +20,7 @@ export const deliveryArticle: HelpArticle = {
     "marketplace",
     "approve shift request",
   ],
-  lastUpdated: "2026-06-28",
+  lastUpdated: "2026-06-29",
   sections: [
     {
       id: "overview",
@@ -138,6 +138,22 @@ export const deliveryArticle: HelpArticle = {
       ],
       relatedRoutes: ["/rostering"],
       windowKeys: ["rostering"],
+    },
+    {
+      id: "shift-checkin-monitoring",
+      title: "Shift check-in escalation and hours variance",
+      body: "Late and missed shift check-ins escalate so coordinators can act before a participant is left without support. Timing and the timesheet hours variance are centrally managed in System → Workforce planning → Shift check-in monitoring.",
+      steps: [
+        "Late check-in grace (minutes): how long after the shift start before a worker who has not checked in is flagged as a late check-in (Home warning only).",
+        "Missed check-in escalation (minutes): how long after the shift start with no check-in before the shift escalates — a High follow-up task is raised for the worker's manager (coordinator role if no manager) and a critical Home alert shows for rostering.",
+        "Missed check-out grace (minutes): how long after the shift end with no check-out before a forgotten check-out is flagged as a task and Home warning.",
+        "Hours variance threshold (hours): the difference between actual (check-in to check-out) and rostered hours that blocks timesheet approval — default 0.25 (15 minutes).",
+        "Escalation tasks appear in Tasks linked to the roster shift; they are de-duplicated so each shift/worker/breach raises one open task. Late check-ins are advisory only and do not create tasks.",
+        "Coordinators with Rostering or Workforce planning access see live escalation items in the Home dashboard 'Needs attention' panel; staff without that access do not.",
+        "Escalation tasks are created when the scheduled workforce automations run (cron or the admin trigger).",
+      ],
+      relatedRoutes: ["/rostering", "/system/settings/shift-monitoring"],
+      windowKeys: ["rostering", "system-shift-monitoring"],
     },
     {
       id: "open-shift-requests",

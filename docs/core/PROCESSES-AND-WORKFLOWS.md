@@ -172,7 +172,8 @@ Fleet booking conflict rule: same vehicle + non-cancelled booking + overlapping 
 | `submit-leave-on-behalf` | Workforce planning form | Same as leave submit for chosen employee |
 | `approve-leave-request` | Workforce review queue | Approve/decline → balance update → releases rolled shifts in leave range (vacant fill + leave-pay line; skips check-in) → task complete |
 | `review-employee-credential` | Workforce review queue | Approve/reject → HR file updated |
-| `approve-timesheet` | Timesheet approval page | Submitted → Approved/Rejected; blocks if workflow rules fail |
+| `approve-timesheet` | Timesheet approval page | Submitted → Approved/Rejected; blocks if workflow rules fail (hours variance over configured threshold — System → Shift check-in monitoring, default 0.25h) |
+| Shift check-in escalation | Scheduled workforce automations (`/api/workforce/automation/scheduled`) | Sweeps active shifts (last 2 days); late check-in = Home warning only; missed check-in (no check-in past escalation minutes) and missed check-out raise a de-dup'd **task** for the worker's reports-to manager (coordinator fallback) + Home alert. Timing centrally set in System → Workforce planning → Shift check-in monitoring |
 
 | Workflow | Trigger | Side effects |
 |----------|---------|--------------|

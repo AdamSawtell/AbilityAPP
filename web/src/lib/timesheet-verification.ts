@@ -175,11 +175,12 @@ export function timesheetApprovalBlocked(
   rosterShifts: RosterShiftRecord[],
   nextStatus: string,
   previousStatus?: string,
-  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = []
+  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = [],
+  varianceThreshold = DEFAULT_VARIANCE_THRESHOLD_HOURS
 ): string | null {
   if (nextStatus !== "Approved") return null;
   if (previousStatus === "Approved") return null;
-  return verifyTimesheet(sheet, rosterShifts, locations).blockReason;
+  return verifyTimesheet(sheet, rosterShifts, locations, varianceThreshold).blockReason;
 }
 
 export function verificationStatusLabel(status: TimesheetLineVerificationStatus): string {

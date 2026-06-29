@@ -19,6 +19,13 @@ import { buildHomeBriefing, type HomeAttentionItem } from "@/lib/home-briefing";
 import { isNdisReportOverdue } from "@/lib/incident";
 import { canSeeAllIncidents, visibleIncidentsForSession } from "@/lib/incident-list-access";
 import { incidentHomeStats, recentIncidents } from "@/lib/incident-hub";
+import {
+  describeShiftEscalation,
+  evaluateShiftCheckinEscalations,
+  shiftEscalationLabel,
+  shiftEscalationSeverity,
+  type ShiftCheckinMonitoringSettings,
+} from "@/lib/shift-checkin-monitoring";
 import { taskCountsForSession, visibleTaskViews } from "@/lib/task-access";
 import { taskDashboardStats } from "@/lib/task-hub";
 import type { MyWorkplaceSummary } from "@/lib/my-workplace/types";
@@ -205,6 +212,7 @@ export function HomeDashboard() {
   const canReportIncident = canProcess("report-incident") || canWindow("incidents");
   const showIncidents = canWindow("incidents");
   const showIncidentCompliance = canSeeAllIncidents(canWindow);
+  const showShiftMonitoring = canWindow("rostering") || canWindow("workforce-planning");
   const taskViews = session ? visibleTaskViews(session.windowKeys) : [];
   const taskCounts = session ? taskCountsForSession(tasks, session) : null;
   const taskStats = session ? taskDashboardStats(tasks, session) : null;
@@ -218,6 +226,10 @@ export function HomeDashboard() {
   const [mySummary, setMySummary] = useState<MyWorkplaceSummary | null>(null);
   const [myActionItems, setMyActionItems] = useState<MyActionItem[]>([]);
   const [reviewSummary, setReviewSummary] = useState<WorkforceReviewSummary | null>(null);
+  const [shiftMonitoring, setShiftMonitoring] = useState<{
+    settings: ShiftCheckinMonitoringSettings;
+    timeZone: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!showMyWorkplace) return;
@@ -239,6 +251,21 @@ export function HomeDashboard() {
       })
       .catch(() => undefined);
   }, [showWorkforceReviews]);
+
+  useEffect(() => {
+    if (!showShiftMonitoring) return;
+    void fetch("/api/system/settings/shift-monitoring", { credentials: "include" })
+      .then(async (res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.settings) {
+          setShiftMonitoring({
+            settings: data.settings as ShiftCheckinMonitoringSettings,
+            timeZone: typeof data.timeZone === "string" ? data.timeZone : "",
+          });
+        }
+      })
+      .catch(() => undefined);
+  }, [showShiftMonitoring]);
 
   const myAttentionCount = mySummary?.actionItemsCount ?? 0;
   const visibleIncidents = useMemo(
@@ -287,6 +314,24 @@ export function HomeDashboard() {
     };
   }, [showTimesheetApprovals, session, users, timesheets, employees, rosterShifts, locations]);
 
+  const shiftAttentionItems = useMemo<HomeAttentionItem[]>(() => {
+    if (!showShiftMonitoring || !shiftMonitoring) return [];
+    const nameById = new Map(employees.map((e) => [e.id, e.name]));
+    const escalations = evaluateShiftCheckinEscalations({
+      shifts: rosterShifts,
+      settings: shiftMonitoring.settings,
+      timeZone: shiftMonitoring.timeZone || undefined,
+      fromDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+    });
+    return escalations.map((escalation) => ({
+      id: `shift-${escalation.shiftId}-${escalation.employeeId}-${escalation.kind}`,
+      severity: shiftEscalationSeverity(escalation.kind),
+      title: `${shiftEscalationLabel(escalation.kind)} — ${escalation.shiftRef}`,
+      description: describeShiftEscalation(escalation, nameById.get(escalation.employeeId) ?? ""),
+      href: "/rostering",
+    }));
+  }, [showShiftMonitoring, shiftMonitoring, employees, rosterShifts]);
+
   const briefing = useMemo(
     () =>
       buildHomeBriefing({
@@ -295,6 +340,8 @@ export function HomeDashboard() {
         showMyWorkplace,
         showWorkforceReviews,
         showIncidentCompliance,
+        showShiftMonitoring,
+        shiftAttentionItems,
         openTaskCount,
         taskStats,
         myActionItems,
@@ -308,6 +355,8 @@ export function HomeDashboard() {
       showMyWorkplace,
       showWorkforceReviews,
       showIncidentCompliance,
+      showShiftMonitoring,
+      shiftAttentionItems,
       openTaskCount,
       taskStats,
       myActionItems,

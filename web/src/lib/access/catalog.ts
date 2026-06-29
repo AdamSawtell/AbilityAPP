@@ -658,6 +658,15 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "system-shift-monitoring",
+    label: "Shift check-in monitoring",
+    group: "Admin",
+    surface: "system",
+    href: "/system/settings/shift-monitoring",
+    abilityErpName: "Shift check-in monitoring",
+    showInSidebar: false,
+  },
+  {
     key: "system-price-update-review",
     label: "Price Dependant Updater",
     group: "Services",

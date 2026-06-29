@@ -64,6 +64,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/system/admin/ai-query-audit", slug: "ai-query-audit", surface: "system" },
   { prefix: "/system/settings/time-and-date", slug: "time-and-date", surface: "system" },
   { prefix: "/system/settings/leave", slug: "workforce-setup", surface: "system" },
+  { prefix: "/system/settings/shift-monitoring", slug: "workforce-setup", surface: "system" },
   { prefix: "/system/settings/incident-management", slug: "incidents-setup", surface: "system" },
   { prefix: "/system/settings/buddy-shifts", slug: "delivery", surface: "system" },
   { prefix: "/system/settings/record-retention", slug: "record-retention", surface: "system" },

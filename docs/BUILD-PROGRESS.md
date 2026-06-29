@@ -11,7 +11,7 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | Leave self-service minimum notice — shipped (local, not pushed) |
+| **Active slice** | Shift check-in escalation + configurable hours variance — shipped |
 | **Next slice** | Awaiting direction |
 | **Last push** | 2026-06-29 — AB-0007 Animal and Pet tab (`6b1e4ce`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
@@ -25,6 +25,25 @@
 ---
 
 ---
+
+---
+
+## Shift check-in escalation + configurable hours variance (2026-06-29)
+
+**Status:** Shipped.
+
+**Why:** Late or missed shift check-ins left participants without support and no one was alerted; timesheet hours variance was a hardcoded 0.25h. Both are now centrally configurable with an escalation process.
+
+| Area | Change |
+|------|--------|
+| Settings | `system_setting` keys: late check-in grace, missed check-in escalation, missed check-out grace, hours variance threshold — System → Workforce planning → **Shift check-in monitoring** |
+| Escalation | Scheduled workforce automations sweep active shifts (last 2 days): missed check-in / missed check-out raise a de-dup'd task for the worker's reports-to manager (coordinator fallback); late check-in is Home warning only |
+| Home | Rostering / workforce coordinators see escalation items in **Needs attention** (access-gated; staff without rostering/workforce access do not) |
+| Variance | Timesheet approval gate uses the configured hours variance threshold (default 0.25h) |
+| Access | New window `system-shift-monitoring` granted to workforce-planning / rostering roles + admin |
+| Docs | Delivery help article (Shift check-in escalation section), workforce setup guide, core docs (Windows, Processes, System function) |
+
+**What you can test:** System → Workforce planning → **Shift check-in monitoring** → adjust grace/escalation minutes and hours variance → Save. With a published shift past its start and no check-in, run the scheduled workforce automations → a follow-up task appears for the worker's manager and a critical item shows on a coordinator's Home **Needs attention**. Sign in as a Support Worker → escalation items are not shown. Submit a timesheet with hours over the configured variance → approval is blocked.
 
 ---
 

@@ -209,7 +209,8 @@ Pair with [WINDOWS-AND-TABS.md](./WINDOWS-AND-TABS.md) for routes, window keys, 
 |----------|-----|---------|--------|
 | **Timesheet register** ÔÇö list by period, client, worker | Team leads+ | Organisation-wide hours view | Live |
 | **Generate timesheets from roster** — preview then create | Team leads+ | Timesheets pre-filled from shifts for the selected pay period | Live |
-| **Timesheet approval** ÔÇö approve or reject submitted sheets | Team leads+ | Verified hours for billing | Live |
+| **Timesheet approval** ÔÇö approve or reject submitted sheets | Team leads+ | Verified hours for billing; blocks when actual-vs-rostered hours exceed the configured variance (System ÔåÆ Shift check-in monitoring, default 0.25h) | Live |
+| **Shift check-in escalation** ÔÇö late/missed check-in and missed check-out | Rostering / coordinators | Missed check-in and check-out raise a manager task + Home alert; timing and timesheet hours variance centrally configured | Live |
 | **Lock after claim generation** | Billing | Prevents change after claims built | Live |
 
 ---

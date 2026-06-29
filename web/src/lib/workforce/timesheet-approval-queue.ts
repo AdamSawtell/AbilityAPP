@@ -66,6 +66,8 @@ export type TimesheetApprovalContext = {
   locations: LocationRecord[];
   reviewerEmployeeId: string | null;
   seesAll: boolean;
+  /** Configurable hours variance that blocks approval; defaults applied when omitted. */
+  varianceThreshold?: number;
 };
 
 export function canApproveTimesheet(session: Pick<AuthSession, "processIds">): boolean {
@@ -170,13 +172,18 @@ export function employeeInApprovalScope(
   return false;
 }
 
-function classifyBucket(sheet: TimesheetRecord, rosterShifts: RosterShiftRecord[], locations: LocationRecord[]): {
+function classifyBucket(
+  sheet: TimesheetRecord,
+  rosterShifts: RosterShiftRecord[],
+  locations: LocationRecord[],
+  varianceThreshold?: number
+): {
   bucket: TimesheetApprovalBucket;
   blockReason: string | null;
   manualReviewCount: number;
 } {
-  const verification = verifyTimesheet(sheet, rosterShifts, locations);
-  const approveBlock = timesheetApproveBlocked(sheet, rosterShifts, "Approved", sheet.status, locations);
+  const verification = verifyTimesheet(sheet, rosterShifts, locations, varianceThreshold);
+  const approveBlock = timesheetApproveBlocked(sheet, rosterShifts, "Approved", sheet.status, locations, varianceThreshold);
   const manualReviewCount = verification.lines.filter((line) => line.status === "no-roster-link").length;
 
   if (approveBlock) {
@@ -225,7 +232,12 @@ export function buildTimesheetApprovalQueue(
     if (sheet.status !== "Submitted") continue;
     if (!employeeInApprovalScope(sheet.employeeId, sheet, scope, ctx, locationId)) continue;
 
-    const { bucket, blockReason, manualReviewCount } = classifyBucket(sheet, ctx.rosterShifts, ctx.locations);
+    const { bucket, blockReason, manualReviewCount } = classifyBucket(
+      sheet,
+      ctx.rosterShifts,
+      ctx.locations,
+      ctx.varianceThreshold
+    );
     const { name, searchKey } = employeeLabel(ctx.employees, sheet.employeeId);
     const locIds = timesheetLocationIds(sheet, ctx.rosterShifts);
     const locationLabels = [...locIds].map((id) => locationLabelById.get(id) ?? id).sort();
@@ -292,7 +304,14 @@ export function assertTimesheetApprovalAllowed(
   if (!employeeInApprovalScope(sheet.employeeId, sheet, scope, ctx, locationId)) {
     throw new Error("This timesheet is outside your approval scope.");
   }
-  const approveBlock = timesheetApproveBlocked(sheet, ctx.rosterShifts, "Approved", sheet.status, ctx.locations);
+  const approveBlock = timesheetApproveBlocked(
+    sheet,
+    ctx.rosterShifts,
+    "Approved",
+    sheet.status,
+    ctx.locations,
+    ctx.varianceThreshold
+  );
   if (approveBlock) {
     throw new Error(approveBlock);
   }

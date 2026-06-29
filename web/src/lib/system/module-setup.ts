@@ -132,6 +132,7 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
     checklist: [
       "Set leave type and leave request status options.",
       "Configure minimum notice (hours) for My workplace leave submit.",
+      "Set shift check-in monitoring — late/missed check-in escalation and timesheet hours variance.",
       "Configure org chart tiers in System, then maintain positions under Organisation structure.",
     ],
     setupLinks: [
@@ -139,6 +140,11 @@ export const MODULE_SETUP_CONFIG: Record<SystemReferenceSectionKey, ModuleSetupC
         href: "/system/settings/leave",
         label: "Leave self-service",
         description: "Minimum hours before shift when staff must phone instead of submitting online.",
+      },
+      {
+        href: "/system/settings/shift-monitoring",
+        label: "Shift check-in monitoring",
+        description: "Escalation timing for late/missed check-in and timesheet hours variance.",
       },
       {
         href: "/workforce-planning/organisation",

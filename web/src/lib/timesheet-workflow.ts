@@ -18,7 +18,8 @@ export function timesheetApproveBlocked(
   rosterShifts: RosterShiftRecord[],
   nextStatus: string,
   previousStatus?: string,
-  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = []
+  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = [],
+  varianceThreshold?: number
 ): string | null {
   if (nextStatus !== "Approved") return null;
   if (previousStatus === "Approved") return null;
@@ -28,7 +29,7 @@ export function timesheetApproveBlocked(
   if (previousStatus !== "Submitted" && sheet.status !== "Submitted") {
     return "Timesheet must be in Submitted status before approval.";
   }
-  return timesheetApprovalBlocked(sheet, rosterShifts, nextStatus, previousStatus, locations);
+  return timesheetApprovalBlocked(sheet, rosterShifts, nextStatus, previousStatus, locations, varianceThreshold);
 }
 
 export function timesheetRevertToDraftBlocked(sheet: TimesheetRecord, nextStatus: string): string | null {
@@ -42,11 +43,12 @@ export function timesheetRevertToDraftBlocked(sheet: TimesheetRecord, nextStatus
 export function timesheetWorkflowSummary(
   sheet: TimesheetRecord,
   rosterShifts: RosterShiftRecord[],
-  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = []
+  locations: Pick<LocationRecord, "id" | "latitude" | "longitude" | "geofenceRadiusM" | "name">[] = [],
+  varianceThreshold?: number
 ): { canSubmit: boolean; canApprove: boolean; submitBlock: string | null; approveBlock: string | null } {
-  const verification = verifyTimesheet(sheet, rosterShifts, locations);
+  const verification = verifyTimesheet(sheet, rosterShifts, locations, varianceThreshold);
   const submitBlock = timesheetSubmitBlocked(sheet);
-  const approveBlock = timesheetApproveBlocked(sheet, rosterShifts, "Approved", sheet.status, locations);
+  const approveBlock = timesheetApproveBlocked(sheet, rosterShifts, "Approved", sheet.status, locations, varianceThreshold);
   return {
     canSubmit: !submitBlock,
     canApprove: sheet.status === "Submitted" && !approveBlock && verification.canApprove,

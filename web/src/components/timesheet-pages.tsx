@@ -25,6 +25,7 @@ import {
   type TimesheetRecord,
 } from "@/lib/timesheet";
 import { verifyTimesheet } from "@/lib/timesheet-verification";
+import { useShiftVarianceThreshold } from "@/lib/use-shift-variance-threshold";
 import {
   timesheetApproveBlocked,
   timesheetRevertToDraftBlocked,
@@ -54,6 +55,7 @@ function employeeLabel(employees: { id: string; searchKey: string; name: string 
 
 export function TimesheetListView() {
   const { timesheets, employees, rosterShifts, locations } = useData();
+  const varianceThreshold = useShiftVarianceThreshold();
   const { canWindow } = useAuth();
   const [statusFilter, setStatusFilter] = useState("");
   const [reconcileFilter, setReconcileFilter] = useState("");
@@ -75,10 +77,10 @@ export function TimesheetListView() {
   const verificationById = useMemo(() => {
     const map = new Map<string, ReturnType<typeof verifyTimesheet>>();
     for (const sheet of rows) {
-      map.set(sheet.id, verifyTimesheet(sheet, rosterShifts, locations));
+      map.set(sheet.id, verifyTimesheet(sheet, rosterShifts, locations, varianceThreshold));
     }
     return map;
-  }, [rows, rosterShifts, locations]);
+  }, [rows, rosterShifts, locations, varianceThreshold]);
 
   return (
     <div className="space-y-4">
@@ -394,6 +396,7 @@ export function GenerateTimesheetsView() {
 export function TimesheetDetailView({ id }: { id: string }) {
   const { timesheets, employees, clients, locations, serviceBookings, rosterShifts, upsertTimesheet } = useData();
   const { session, canWriteWindow } = useAuth();
+  const varianceThreshold = useShiftVarianceThreshold();
   const canEdit = canWriteWindow("timesheets");
   const stored = timesheets.find((t) => t.id === id);
   const [draft, setDraft] = useState<TimesheetRecord | null>(null);
@@ -404,13 +407,13 @@ export function TimesheetDetailView({ id }: { id: string }) {
   const employee = employees.find((e) => e.id === record?.employeeId);
 
   const verification = useMemo(
-    () => (record ? verifyTimesheet(record, rosterShifts, locations) : null),
-    [record, rosterShifts, locations]
+    () => (record ? verifyTimesheet(record, rosterShifts, locations, varianceThreshold) : null),
+    [record, rosterShifts, locations, varianceThreshold]
   );
 
   const workflow = useMemo(
-    () => (record ? timesheetWorkflowSummary(record, rosterShifts, locations) : null),
-    [record, rosterShifts, locations]
+    () => (record ? timesheetWorkflowSummary(record, rosterShifts, locations, varianceThreshold) : null),
+    [record, rosterShifts, locations, varianceThreshold]
   );
 
   const lineDropdowns = useMemo(

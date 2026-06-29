@@ -10,7 +10,7 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | Metric | Count |
 |--------|------:|
 | App windows (incl. tabs) | 163 |
-| System windows | 15 |
+| System windows | 16 |
 | Access processes | 48 |
 | Reports | 10 |
 
@@ -238,10 +238,11 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 | UAT-13-W-015 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
 | UAT-13-W-016 | `system-incident-management` | Incident management | /system/settings/incident-management | — | |
 | UAT-13-W-017 | `system-leave-policy` | Leave self-service | /system/settings/leave | — | |
-| UAT-13-W-018 | `system-price-update-review` | Price Dependant Updater | /system/services/price-update-review | — | |
-| UAT-13-W-019 | `system-ndis-price-importer` | NDIS Price Guide Importer | /system/services/ndis-price-importer | — | |
-| UAT-13-W-020 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
-| UAT-13-W-021 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
+| UAT-13-W-018 | `system-shift-monitoring` | Shift check-in monitoring | /system/settings/shift-monitoring | — | |
+| UAT-13-W-019 | `system-price-update-review` | Price Dependant Updater | /system/services/price-update-review | — | |
+| UAT-13-W-020 | `system-ndis-price-importer` | NDIS Price Guide Importer | /system/services/ndis-price-importer | — | |
+| UAT-13-W-021 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
+| UAT-13-W-022 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
 
 ## UAT-99
 
