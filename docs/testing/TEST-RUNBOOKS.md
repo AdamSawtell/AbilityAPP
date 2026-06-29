@@ -774,6 +774,8 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 **Localhost pass (2026-06-30):** `/clients` hard navigation exposed the accessible loading status, then resolved to list content. `/locations` resolved to list content. `/my` exposed both page and My workplace loading statuses, then resolved to communication panel + hub tiles. `/rostering` exposed loading status, then resolved to week view without errors.
 
+**Amplify pass (2026-06-30):** After push, OliverWilliams opened `/clients`, `/my`, and `/rostering` on `app.abilityvua.com`; each resolved to live content without error banners or broken loading states.
+
 ---
 
 ## TEST-065 — Save confirmation toast (AB-0038)

@@ -51,6 +51,8 @@
 
 **Browser smoke (2026-06-30, localhost TEST-066):** `/clients`, `/locations`, `/my`, and `/rostering` showed accessible loading status / skeleton state on navigation and resolved to live content without errors.
 
+**Amplify smoke (2026-06-30, post-push):** `/clients`, `/my`, and `/rostering` resolved on `app.abilityvua.com` as OliverWilliams after `de25489` / `e7ececf`; no error banners or broken loading states observed.
+
 ---
 
 ## Save confirmation toast AB-0038 (2026-06-29)
