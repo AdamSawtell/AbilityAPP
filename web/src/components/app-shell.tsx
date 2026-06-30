@@ -1,12 +1,10 @@
 "use client";
 
 import { WorkspaceChrome } from "@/components/workspace-chrome";
+import type { BreadcrumbItem } from "@/lib/breadcrumbs/types";
 import type { AppShellAuditProps } from "@/lib/audit";
 
-export type Breadcrumb = {
-  label: string;
-  href?: string;
-};
+export type Breadcrumb = BreadcrumbItem;
 
 export function AppShell({
   title,

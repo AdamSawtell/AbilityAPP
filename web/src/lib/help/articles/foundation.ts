@@ -68,7 +68,7 @@ export const navigationArticle: HelpArticle = {
   keywords: ["sidebar", "tabs", "workspace", "navigate", "open records", "save", "unsaved", "banner", "record header"],
   relatedRoutes: ["/"],
   windowKeys: [],
-  lastUpdated: "2026-06-26",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "sidebar",
@@ -136,7 +136,7 @@ export const navigationArticle: HelpArticle = {
     {
       id: "breadcrumbs",
       title: "Breadcrumbs and list links",
-      body: "Detail pages show breadcrumbs back to the list. Record links in tables for search keys and document numbers open the related record in the workspace.",
+      body: "Every workspace page shows a breadcrumb trail below the tab bar — for example **Home > My workplace > My availability**. Click any segment to jump back; the current page is plain text. Record tabs (such as Activity on a client) add one more segment when you switch tabs. Detail pages still include list links in tables for search keys and document numbers.",
     },
   ],
 };

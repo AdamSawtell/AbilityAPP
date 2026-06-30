@@ -1,13 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { useAutoBreadcrumbs } from "@/lib/breadcrumbs/use-auto-breadcrumbs";
+import type { BreadcrumbItem } from "@/lib/breadcrumbs/types";
 import type { AppShellAuditProps } from "@/lib/audit";
 import { RecordAuditFooter } from "@/components/record-audit-footer";
 import { HowToGuideFooter } from "@/components/how-to-guide-footer";
 import { SystemHeaderBrand, SystemNav } from "@/components/system/system-nav";
 
-type Breadcrumb = { label: string; href?: string };
+type Breadcrumb = BreadcrumbItem;
 
 export function SystemShell({
   title,
@@ -24,6 +26,9 @@ export function SystemShell({
   audit?: AppShellAuditProps;
   children: ReactNode;
 }) {
+  const autoBreadcrumbs = useAutoBreadcrumbs();
+  const resolvedBreadcrumbs = breadcrumbs ?? autoBreadcrumbs;
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#f4f6f8] text-slate-900">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white">
@@ -37,22 +42,7 @@ export function SystemShell({
 
       <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden pl-64">
         <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 py-8 pb-24 lg:px-10">
-          {breadcrumbs?.length ? (
-            <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
-              {breadcrumbs.map((crumb, index) => (
-                <span key={`${crumb.label}-${index}`} className="inline-flex items-center gap-1.5">
-                  {index > 0 ? <span className="text-slate-300">/</span> : null}
-                  {crumb.href ? (
-                    <Link href={crumb.href} className="hover:text-[#b51266]">
-                      {crumb.label}
-                    </Link>
-                  ) : (
-                    <span className="text-slate-700">{crumb.label}</span>
-                  )}
-                </span>
-              ))}
-            </nav>
-          ) : null}
+          <Breadcrumbs items={resolvedBreadcrumbs} />
 
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>

@@ -29,6 +29,9 @@ import {
   routePageSkeleton,
 } from "../src/components/ui/page-skeletons.tsx";
 import { EmptyState, EmptyStateRow, emptyStateIcons } from "../src/components/ui/empty-state.tsx";
+import { Breadcrumbs } from "../src/components/ui/breadcrumbs.tsx";
+import { buildBreadcrumbs, createDefaultBreadcrumbContext } from "../src/lib/breadcrumbs/build-breadcrumbs.ts";
+import { buildRouteLabelMap } from "../src/lib/breadcrumbs/route-labels.ts";
 
 let failures = 0;
 
@@ -229,6 +232,24 @@ checkTruthy("AB-0036 routePageSkeleton incidents detail", routePageSkeleton("/in
 checkTruthy("AB-0037 EmptyState export", typeof EmptyState === "function");
 checkTruthy("AB-0037 EmptyStateRow export", typeof EmptyStateRow === "function");
 checkTruthy("AB-0037 emptyStateIcons clients", typeof emptyStateIcons.clients === "function");
+
+checkTruthy("AB-0039 Breadcrumbs export", typeof Breadcrumbs === "function");
+checkTruthy("AB-0039 route label map has clients", buildRouteLabelMap().has("/clients"));
+const ab39Context = createDefaultBreadcrumbContext();
+const ab39MyAvailability = buildBreadcrumbs({ pathname: "/my/availability" }, ab39Context);
+checkTruthy(
+  "AB-0039 my availability trail",
+  ab39MyAvailability.some((item) => item.label === "My workplace") &&
+    ab39MyAvailability.at(-1)?.label === "My availability"
+);
+const ab39ClientTab = buildBreadcrumbs(
+  { pathname: "/clients/cl-demo", searchParams: { get: (key) => (key === "tab" ? "Activity" : null) } },
+  ab39Context
+);
+checkTruthy(
+  "AB-0039 client tab segment",
+  ab39ClientTab.at(-1)?.label === "Activity" && ab39ClientTab.some((item) => item.label === "Clients")
+);
 
 if (failures > 0) {
   console.error(`\n${failures} regression check(s) failed.`);

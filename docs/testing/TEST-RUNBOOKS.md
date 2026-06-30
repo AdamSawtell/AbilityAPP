@@ -802,6 +802,26 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-068 — Breadcrumb navigation (AB-0039)
+
+| | |
+|--|--|
+| **User** | Any signed-in role |
+| **Pass if** | Breadcrumb strip below tabs; parent segments are links; current page is plain text |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/` | Breadcrumb shows **Home** (current, not a link) |
+| 2 | `/my/availability` | **Home > My workplace > My availability**; click **My workplace** → `/my` |
+| 3 | Open any client record | Trail includes **Clients** and client name/search key |
+| 4 | On client, switch to **Activity** tab | Last segment **Activity** |
+| 5 | `/rostering` (no manual breadcrumbs before) | **Home > Rostering** appears |
+| 6 | Sidebar links still navigate normally | No regression |
+
+**Regression:** `npm run test:karen` includes AB-0039 route-builder checks.
+
+---
+
 ## TEST-065 — Save confirmation toast (AB-0038)
 
 | | |

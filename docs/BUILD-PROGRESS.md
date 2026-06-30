@@ -11,7 +11,7 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0037 Empty state pages — Phase 1 |
+| **Active slice** | AB-0039 Breadcrumb navigation |
 | **Next slice** | AB-0041 Consistent save UX across line-item tables |
 | **Last push** | 2026-06-30 — AB-0037 empty state pages Phase 1 (`c770e93`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
@@ -76,6 +76,24 @@
 **What you can test:** TEST-067 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0037-empty-state-pages-handoff.md`.
 
 **Amplify smoke (2026-06-30):** PASS — `/clients` and `/employees` with `zzzz-no-match` show no-results heading + **Clear filters** after deploy `c770e93`.
+
+---
+
+## Breadcrumb navigation AB-0039 (2026-06-30)
+
+**Status:** Shipped.
+
+**Why:** Deep pages had no persistent “you are here” indicator beyond sidebar highlighting. Breadcrumbs show the full path and let users click back to parent sections.
+
+| Area | Change |
+|------|--------|
+| Component | `Breadcrumbs` in `@/components/ui/breadcrumbs` |
+| Route map | `buildRouteLabelMap()` from access catalog + system nav |
+| Auto-derive | `useAutoBreadcrumbs()` in `WorkspaceChrome` + `SystemShell` |
+| Dynamic IDs | Client, employee, location, invoice, task, etc. resolve to display names |
+| Tabs | `?tab=` appends record tab label (e.g. Activity) |
+
+**What you can test:** TEST-068 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0039-breadcrumb-navigation-handoff.md`.
 
 ---
 

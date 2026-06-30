@@ -1,6 +1,8 @@
 "use client";
 
 import { AiWorkspaceChat } from "@/components/ai-workspace-chat";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { useAutoBreadcrumbs } from "@/lib/breadcrumbs/use-auto-breadcrumbs";
 import { useAuth } from "@/lib/auth-store";
 import { useAiChatShell } from "@/lib/ai/chat-shell-store";
 import { usePathname } from "next/navigation";
@@ -9,8 +11,8 @@ import { SessionFooter } from "@/components/session-footer";
 import { WorkspaceTabs } from "@/components/workspace-tabs";
 import { HowToGuideFooter } from "@/components/how-to-guide-footer";
 import { RecordAuditFooter } from "@/components/record-audit-footer";
+import type { BreadcrumbItem } from "@/lib/breadcrumbs/types";
 import type { AppShellAuditProps } from "@/lib/audit";
-import type { Breadcrumb } from "@/components/app-shell";
 import Link from "next/link";
 import { OrgLogo } from "@/components/organization-landing";
 import { SystemClock } from "@/components/system-clock";
@@ -70,7 +72,7 @@ export function WorkspaceChrome({
 }: {
   title: string;
   subtitle?: string;
-  breadcrumbs?: Breadcrumb[];
+  breadcrumbs?: BreadcrumbItem[];
   actions?: React.ReactNode;
   audit?: AppShellAuditProps;
   children: React.ReactNode;
@@ -78,6 +80,8 @@ export function WorkspaceChrome({
   const { organization } = useOrganization();
   const orgName = organizationDisplayName(organization);
   const pathname = usePathname();
+  const autoBreadcrumbs = useAutoBreadcrumbs();
+  const resolvedBreadcrumbs = breadcrumbs ?? autoBreadcrumbs;
   const { session } = useAuth();
   const { collapsed, panelWidth, toggleCollapsed, setPanelWidth, setCollapsed } = useAiChatShell();
   const showChat = Boolean(session) && pathname !== "/login";
@@ -120,22 +124,7 @@ export function WorkspaceChrome({
             <WorkspaceTabs />
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
               <main className="px-6 py-8 pb-24 lg:px-10">
-              {breadcrumbs?.length ? (
-                <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
-                  {breadcrumbs.map((crumb, index) => (
-                    <span key={`${crumb.label}-${index}`} className="inline-flex items-center gap-1.5">
-                      {index > 0 ? <span className="text-slate-300">/</span> : null}
-                      {crumb.href ? (
-                        <Link href={crumb.href} className="hover:text-brand-link">
-                          {crumb.label}
-                        </Link>
-                      ) : (
-                        <span className="text-slate-700">{crumb.label}</span>
-                      )}
-                    </span>
-                  ))}
-                </nav>
-              ) : null}
+              <Breadcrumbs items={resolvedBreadcrumbs} />
 
               <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
