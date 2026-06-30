@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | AB-0036 Skeleton loaders — Phase 2 complete |
 | **Next slice** | AB-0041 Consistent save UX across line-item tables |
-| **Last push** | 2026-06-30 — AB-0036 skeleton loaders Phase 2 (pending) |
+| **Last push** | 2026-06-30 — AB-0036 skeleton loaders Phase 2 (`2da5eda`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -56,7 +56,7 @@
 
 **Browser smoke (2026-06-30, localhost TEST-066):** `/clients`, `/locations`, `/my`, and `/rostering` showed accessible loading status / skeleton state on navigation and resolved to live content without errors.
 
-**Amplify smoke (2026-06-30, post-push):** `/clients`, `/my`, and `/rostering` resolved on `app.abilityvua.com` as OliverWilliams after `de25489` / `e7ececf`; no error banners or broken loading states observed.
+**Amplify smoke (2026-06-30, post-push `2da5eda`):** `/`, `/locations`, and `/employees` exposed accessible loading status on navigation; `/my/availability` resolved to weekly form; `/portal/login` resolved without staff sidebar flash.
 
 ---
 
