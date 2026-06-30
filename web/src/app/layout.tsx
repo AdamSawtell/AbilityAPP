@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AdminCommunicationsGate } from "@/components/communications/admin-communications-gate";
+import { SessionIdleGate } from "@/components/session-idle-gate";
 import { AuthGate, AuthProvider } from "@/lib/auth-store";
 import { DataProvider } from "@/lib/data-store";
 import { ReferenceDataProvider } from "@/lib/config-store";
@@ -49,23 +50,25 @@ export default function RootLayout({
               <TaskTypeProvider>
                 <DataProvider>
                   <OrganizationProvider>
-                    <OrgThemePreviewStateProvider>
-                    <OrgThemeProvider>
-                    <DocumentPlatformProvider>
-                    <SystemTimezoneProvider>
-                    <OrgChartTierConfigProvider>
-                      <OrgStructureProvider>
-                      <OrgAutomationContextBridge />
-                      <TaskAutomationRunner />
-                      <WorkspaceProvider>
-                        <AiChatShellProvider>{children}</AiChatShellProvider>
-                      </WorkspaceProvider>
-                      </OrgStructureProvider>
-                    </OrgChartTierConfigProvider>
-                    </SystemTimezoneProvider>
-                    </DocumentPlatformProvider>
-                    </OrgThemeProvider>
-                    </OrgThemePreviewStateProvider>
+                    <SessionIdleGate>
+                      <OrgThemePreviewStateProvider>
+                      <OrgThemeProvider>
+                      <DocumentPlatformProvider>
+                      <SystemTimezoneProvider>
+                      <OrgChartTierConfigProvider>
+                        <OrgStructureProvider>
+                        <OrgAutomationContextBridge />
+                        <TaskAutomationRunner />
+                        <WorkspaceProvider>
+                          <AiChatShellProvider>{children}</AiChatShellProvider>
+                        </WorkspaceProvider>
+                        </OrgStructureProvider>
+                      </OrgChartTierConfigProvider>
+                      </SystemTimezoneProvider>
+                      </DocumentPlatformProvider>
+                      </OrgThemeProvider>
+                      </OrgThemePreviewStateProvider>
+                    </SessionIdleGate>
                   </OrganizationProvider>
                 </DataProvider>
               </TaskTypeProvider>

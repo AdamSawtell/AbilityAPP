@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoginBackdrop, OrgLogo } from "@/components/organization-landing";
 import { useAuth } from "@/lib/auth-store";
@@ -17,6 +17,7 @@ export function LoginView() {
   const [userId, setUserId] = useState("");
   const [roleId, setRoleId] = useState("");
   const [error, setError] = useState("");
+  const [sessionMessage, setSessionMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const orgName = organizationDisplayName(organization);
@@ -30,6 +31,16 @@ export function LoginView() {
     [userId, availableRolesForUser]
   );
   const showRoleStep = Boolean(userId);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setSessionMessage(
+      params.get("expired") === "inactivity"
+        ? "Your session expired due to inactivity. Sign in again to continue."
+        : ""
+    );
+  }, []);
 
   async function onCredentialsSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -115,6 +126,11 @@ export function LoginView() {
         {!showRoleStep ? (
           <p className="mt-2 text-center text-[11px] text-slate-400">
             Username or full name — e.g. JasonBrown or Jason Brown
+          </p>
+        ) : null}
+        {sessionMessage ? (
+          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-sm text-amber-900">
+            {sessionMessage}
           </p>
         ) : null}
 

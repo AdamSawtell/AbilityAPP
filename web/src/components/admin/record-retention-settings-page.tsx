@@ -181,7 +181,7 @@ export function RecordRetentionSettingsView() {
             </select>
           </label>
           <label className="text-xs font-medium text-slate-600">
-            Session idle timeout (minutes)
+            Stale session close threshold (minutes)
             <input
               type="number"
               min={15}
@@ -189,6 +189,9 @@ export function RecordRetentionSettingsView() {
               defaultValue={settings.session_timeout_minutes ?? "480"}
               onBlur={(e) => void saveSetting("session_timeout_minutes", e.target.value)}
             />
+            <span className="mt-1 block text-[11px] font-normal text-slate-500">
+              This closes old session audit rows. Live workspace idle sign-out is under Admin &gt; Security settings.
+            </span>
           </label>
           <label className="text-xs font-medium text-slate-600 sm:col-span-2">
             <span className="font-medium text-slate-700">Organisation timezone</span>

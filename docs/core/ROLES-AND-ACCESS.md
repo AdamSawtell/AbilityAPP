@@ -170,6 +170,7 @@ Aligned with [SYSTEM-FUNCTION-GUIDE.md](./SYSTEM-FUNCTION-GUIDE.md) sections.
 | Document registry | System operator | System → Document registry |
 | AI prepare record | Write on target module | Process `ai-prepare-record` |
 | Workspace roles admin | Admin | `admin-roles` |
+| Workspace security settings | Admin | `admin-security` (write) sets the organisation idle timeout from 5 to 120 minutes |
 | Admin communications hub | Admin | `admin-communications` (write) — compose, close/reopen, register, CSV export |
 | Fleet management | Admin / Rostering | `fleet` + `fleet-*` tab windows — Admin, Rostering Manager, and Rostering Officer in seed |
 | Maintenance requests | All staff (create); Admin / Rostering (assign, costs, close) | `maintenance` + `maintenance-*` tab windows; `location-maintenance` on location record — Admin, Rostering Manager, Support Worker in seed |

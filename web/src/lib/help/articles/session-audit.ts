@@ -1,5 +1,40 @@
 import type { HelpArticle } from "@/lib/help/types";
 
+export const securitySettingsArticle: HelpArticle = {
+  id: "article-security-settings",
+  slug: "security-settings",
+  title: "Security settings",
+  summary: "Set the idle timeout that protects unattended workspace sessions.",
+  category: "Admin",
+  keywords: ["security", "session", "timeout", "idle", "sign out", "admin"],
+  relatedRoutes: ["/admin/security", "/login"],
+  windowKeys: ["admin-security"],
+  lastUpdated: "2026-06-30",
+  sections: [
+    {
+      id: "overview",
+      title: "What Security settings controls",
+      body: "Security settings controls the workspace idle timeout. When a staff session is inactive for the configured number of minutes, AbilityVua shows a 2-minute warning. If the user does not click Stay signed in, the app logs them out and records the session as timed out.",
+    },
+    {
+      id: "configure-timeout",
+      title: "Set the idle timeout",
+      steps: [
+        "Open Admin > Security settings.",
+        "Enter a whole number of minutes from 5 to 120.",
+        "Click Save security settings.",
+        "Ask signed-in users to refresh or sign in again if you need the new value applied immediately.",
+      ],
+      relatedRoutes: ["/admin/security"],
+    },
+    {
+      id: "user-warning",
+      title: "What staff see",
+      body: "Staff see a centred Session expiring modal with a countdown and a Stay signed in button. The modal does not close from Escape or backdrop click. If the countdown reaches zero, the login page shows that the session expired due to inactivity.",
+    },
+  ],
+};
+
 export const userSessionAuditArticle: HelpArticle = {
   id: "article-user-session-audit",
   slug: "user-session-audit",
@@ -85,7 +120,7 @@ export const recordRetentionArticle: HelpArticle = {
   keywords: ["retention", "session", "process", "ai query", "settings", "compliance", "delete"],
   relatedRoutes: ["/system/settings/record-retention"],
   windowKeys: ["admin-record-retention"],
-  lastUpdated: "2026-06-20",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "overview",
@@ -100,8 +135,14 @@ export const recordRetentionArticle: HelpArticle = {
         "Process audit data retention (days)",
         "AI query audit metadata retention (days)",
         "Allow multiple concurrent sessions per user — Allow, Warn, or Prevent",
-        "Session idle timeout (minutes)",
+        "Session audit stale-session timeout for closing old monitoring rows",
       ],
+    },
+    {
+      id: "workspace-idle-timeout",
+      title: "Workspace idle timeout",
+      body: "The live user warning and automatic workspace sign-out are configured separately under Admin > Security settings.",
+      relatedRoutes: ["/admin/security"],
     },
     {
       id: "timezone",

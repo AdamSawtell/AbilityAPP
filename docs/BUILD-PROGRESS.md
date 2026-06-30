@@ -32,6 +32,36 @@
 
 ---
 
+## Session timeout AB-0040 (2026-06-30)
+
+**Status:** Shipped (2026-06-30).
+
+**Why:** Shared devices can expose participant data when staff leave the workspace open. Idle timeout gives every signed-in user a warning before AbilityVua logs them out.
+
+| Area | Change |
+|------|--------|
+| Workspace sessions | `SessionIdleGate` tracks mouse, click, key, and touch activity; after the org timeout it shows a 2-minute warning modal |
+| Inactivity logout | No-action countdown calls logout with `reason=inactivity`, records the user session as timed out, and redirects to `/login?expired=inactivity` |
+| Admin settings | New `/admin/security` page and `admin-security` window set `app_organization.idle_timeout_minutes` from 5 to 120 minutes |
+| Backend | `/api/admin/security/idle-timeout` GET/PATCH and `/api/auth/session/health` added; server auth checks stale active sessions against the org timeout |
+| Docs/tests | Security settings help article, TEST-103, UAT-13-S-017, core docs, database changes, and handoff updated |
+
+**What you can test:** TEST-103 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0040-session-timeout-handoff.md`.
+
+**Verification (2026-06-30):**
+- `npm run build` — exit 0
+- `npm run page-guides:check` — exit 0 (142 routes, 0 article gaps)
+- `npx tsc --noEmit` — exit 0
+- `npm run uat:inventory` — exit 0 (181 windows, 48 processes, 10 reports)
+- `npm run supabase:push-remote` — exit 0 (`20260630171200_session_idle_timeout`)
+- `node scripts/run-all-remote-seeds.mjs supabase/seed-access.sql` — exit 0
+
+**Browser smoke (2026-06-30, localhost TEST-103 partial):** PASS — SuperUser / AbilityVua Admin opened `/admin/security`; Admin sidebar showed Security settings; page loaded with audit footer and direct **How to guide: Security settings** link; save 15 -> 16 showed success message and updated org audit metadata; value restored to 15 and saved; simulated inactivity logout via `/api/auth/session?reason=inactivity` returned 200; `/login?expired=inactivity` displayed the inactivity message. Note: Cursor browser instrumentation added `data-cursor-ref` attributes to the loading skeleton and triggered a dev hydration warning; functional page behaviour passed.
+
+**Code review log:** 2026-06-30 — Bugbot on AB-0040 found server/client idle desync, warning grace mismatch, cross-tab logout, role-switch bypass, modal dismiss on mousemove, and org-timeout cache staleness; remediated before commit (2-minute server grace, Stay signed in health touch, BroadcastChannel activity sync, token/org effective timeout min(), System route skip restored, cache invalidation on save).
+
+---
+
 ## Skeleton loaders AB-0036 (2026-06-30)
 
 **Status:** Shipped (Phase 1 + Phase 2).

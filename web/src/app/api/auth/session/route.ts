@@ -4,6 +4,7 @@ import {
   buildAuthSession,
   createSessionToken,
   getAuthSessionFromRequest,
+  readIdleTimeoutMinutes,
   readSessionTokenFromCookies,
   sessionCookieOptions,
   SESSION_COOKIE,
@@ -28,10 +29,11 @@ async function attachSessionCookie(
   roleId: string,
   sessionId: string
 ) {
-  const token = createSessionToken(userId, roleId, sessionId);
+  const idleTimeoutMinutes = await readIdleTimeoutMinutes();
+  const token = createSessionToken(userId, roleId, sessionId, idleTimeoutMinutes);
   const jar = await cookies();
   jar.set(sessionCookieOptions(token));
-  return NextResponse.json({ session: { ...session, sessionId } });
+  return NextResponse.json({ session: { ...session, sessionId, idleTimeoutMinutes } });
 }
 
 export async function GET() {
@@ -91,11 +93,12 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   try {
+    const reason = new URL(request.url).searchParams.get("reason");
     const token = await readSessionTokenFromCookies();
     if (token?.sessionId) {
-      await recordLogout(token.sessionId, "logged_out");
+      await recordLogout(token.sessionId, reason === "inactivity" ? "timed_out" : "logged_out");
     }
     const res = NextResponse.json({ ok: true });
     res.cookies.set({
@@ -115,8 +118,9 @@ export async function DELETE() {
 
 /** Switch active role while keeping the same signed-in user. */
 export async function PATCH(request: Request) {
+  const currentSession = await getAuthSessionFromRequest();
   const current = await readSessionTokenFromCookies();
-  if (!current) {
+  if (!currentSession || !current) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 

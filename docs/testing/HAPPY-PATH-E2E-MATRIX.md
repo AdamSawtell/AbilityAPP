@@ -574,6 +574,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-432 | Client prefs | Billing + comms + BP link | Client Billing tab | Coordinator+ | Live | HP-032, HP-042 |
 | FUNC-433 | Business partners | Plan manager registry | `/business-partners` | Admin+ | Live | HP-034 |
 | FUNC-434 | Page guides | Help drawer on route | Any route | All | Live | — |
+| FUNC-435 | Security | Idle session timeout | `/admin/security` + session warning modal | Admin config; all staff affected | Live | TEST-103 |
 
 ---
 

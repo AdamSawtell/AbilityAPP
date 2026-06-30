@@ -42,6 +42,7 @@ export type AuthSession = {
   activeRoleId: string;
   activeRoleName: string;
   sessionId: string;
+  idleTimeoutMinutes?: number;
   windowKeys: string[];
   windowAccess: WindowAccessMap;
   processIds: string[];

@@ -637,6 +637,25 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-103 — Session timeout (AB-0040)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **Routes** | `/admin/security`, `/login`, any workspace route |
+| **Pass if** | Admin can save 5 to 120 minutes; idle warning appears; no-action logout redirects with inactivity message; audit footer records the org setting change |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Sign in as SuperUser and open `/admin/security` | Security settings page loads with audit footer and help link |
+| 2 | Change idle timeout to a whole number between 5 and 120, then Save | Green confirmation appears; value persists after refresh; Full audit trail shows Idle session timeout change |
+| 3 | Leave a workspace page idle until the configured timeout | Session expiring modal appears with 2-minute countdown and Stay signed in button |
+| 4 | Click Stay signed in | Modal closes; form/page state remains |
+| 5 | Let the next warning countdown reach zero | User is redirected to `/login?expired=inactivity`; login page says the session expired due to inactivity |
+| 6 | Open User Session Audit | The session status/event is timed out / session timeout |
+
+---
+
 | | |
 |--|--|
 | **Users** | Support worker with assignment + credentials + site orientation (`IslaRobinson` / `welcome`) |

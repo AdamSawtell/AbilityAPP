@@ -9,6 +9,8 @@ import { agentIdsForRole } from "@/lib/ai/seed";
 import { SEED_ROLES, SEED_USERS, withSeedTaskAccess, ALL_TASK_TYPE_IDS } from "@/lib/access/seed";
 import { ensureAdminRoleAccess, isAdminRole } from "@/lib/access/role-access-templates";
 import { userHasRole } from "@/lib/access/superuser";
+import { normalizeIdleTimeoutMinutes, ORGANIZATION_ID } from "@/lib/organization";
+import { recordLogout } from "@/lib/session-audit/server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import {
@@ -20,11 +22,26 @@ import { resolveRoleAgentIds } from "@/lib/ai/agents-api";
 
 export const SESSION_COOKIE = "abilityvua_session";
 const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
+const IDLE_WARNING_GRACE_MS = 2 * 60 * 1000;
+const SESSION_TOUCH_INTERVAL_MS = 30 * 1000;
+
+let idleTimeoutCache: { value: number; expiresAt: number } | null = null;
+
+export function invalidateIdleTimeoutCache() {
+  idleTimeoutCache = null;
+}
+
+function effectiveIdleTimeoutMinutes(tokenMinutes: number | undefined, orgMinutes: number): number {
+  const org = normalizeIdleTimeoutMinutes(orgMinutes);
+  const token = normalizeIdleTimeoutMinutes(tokenMinutes ?? org);
+  return Math.min(token, org);
+}
 
 export type SessionTokenPayload = {
   userId: string;
   roleId: string;
   sessionId: string;
+  idleTimeoutMinutes?: number;
   exp: number;
 };
 
@@ -68,11 +85,17 @@ function verifyToken(token: string): SessionTokenPayload | null {
   }
 }
 
-export function createSessionToken(userId: string, roleId: string, sessionId: string): string {
+export function createSessionToken(
+  userId: string,
+  roleId: string,
+  sessionId: string,
+  idleTimeoutMinutes = 15
+): string {
   const payload: SessionTokenPayload = {
     userId,
     roleId,
     sessionId,
+    idleTimeoutMinutes: normalizeIdleTimeoutMinutes(idleTimeoutMinutes),
     exp: Date.now() + SESSION_MAX_AGE_SEC * 1000,
   };
   return signPayload(payload);
@@ -102,6 +125,58 @@ function serviceClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url?.trim() || !key?.trim()) throw new Error("Supabase not configured");
   return createSupabaseClient(url, key, { auth: { persistSession: false } });
+}
+
+export async function readIdleTimeoutMinutes(): Promise<number> {
+  if (!isSupabaseConfigured()) return 15;
+  if (idleTimeoutCache && idleTimeoutCache.expiresAt > Date.now()) return idleTimeoutCache.value;
+  try {
+    const supabase = serviceClient();
+    const { data, error } = await supabase
+      .from("app_organization")
+      .select("idle_timeout_minutes")
+      .eq("id", ORGANIZATION_ID)
+      .maybeSingle();
+    if (error) return 15;
+    const value = normalizeIdleTimeoutMinutes(data?.idle_timeout_minutes);
+    idleTimeoutCache = { value, expiresAt: Date.now() + 60_000 };
+    return value;
+  } catch {
+    return 15;
+  }
+}
+
+async function validateAndTouchIdleSession(token: SessionTokenPayload): Promise<boolean> {
+  if (!isSupabaseConfigured() || !token.sessionId) return true;
+  try {
+    const supabase = serviceClient();
+    const { data, error } = await supabase
+      .from("user_session")
+      .select("status, updated_at")
+      .eq("id", token.sessionId)
+      .maybeSingle();
+    if (error || !data) return true;
+    if (data.status !== "active") return false;
+
+    const orgMinutes = await readIdleTimeoutMinutes();
+    const timeoutMinutes = effectiveIdleTimeoutMinutes(token.idleTimeoutMinutes, orgMinutes);
+    const updatedAt = Date.parse(String(data.updated_at ?? ""));
+    if (updatedAt && Date.now() - updatedAt > timeoutMinutes * 60 * 1000 + IDLE_WARNING_GRACE_MS) {
+      await recordLogout(token.sessionId, "timed_out");
+      return false;
+    }
+
+    if (!updatedAt || Date.now() - updatedAt > SESSION_TOUCH_INTERVAL_MS) {
+      await supabase
+        .from("user_session")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", token.sessionId)
+        .eq("status", "active");
+    }
+    return true;
+  } catch {
+    return !isSupabaseConfigured();
+  }
 }
 
 export async function buildAuthSession(userId: string, roleId: string): Promise<AuthSession | null> {
@@ -191,7 +266,16 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
 export async function getAuthSessionFromRequest(): Promise<AuthSession | null> {
   const token = await readSessionTokenFromCookies();
   if (!token) return null;
-  return buildAuthSession(token.userId, token.roleId);
+  if (!(await validateAndTouchIdleSession(token))) return null;
+  const session = await buildAuthSession(token.userId, token.roleId);
+  const orgMinutes = await readIdleTimeoutMinutes();
+  return session
+    ? {
+        ...session,
+        sessionId: token.sessionId,
+        idleTimeoutMinutes: effectiveIdleTimeoutMinutes(token.idleTimeoutMinutes, orgMinutes),
+      }
+    : null;
 }
 
 export function sessionHasWindow(session: AuthSession, windowKey: string): boolean {

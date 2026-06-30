@@ -19,7 +19,7 @@ import { financeArticle } from "@/lib/help/articles/finance";
 import { fleetArticle } from "@/lib/help/articles/fleet";
 import { maintenanceArticle } from "@/lib/help/articles/maintenance";
 import { trainingMeetingsArticle, workforceLeaveCalendarArticle, workforceOrganisationArticle } from "@/lib/help/articles/workforce-organisation";
-import { recordRetentionArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle, timeAndDateArticle } from "@/lib/help/articles/session-audit";
+import { recordRetentionArticle, securitySettingsArticle, userSessionAuditArticle, processAuditArticle, aiQueryAuditArticle, timeAndDateArticle } from "@/lib/help/articles/session-audit";
 import { ndisPriceImporterArticle } from "@/lib/help/articles/ndis-price-importer";
 import { priceUpdateReviewArticle } from "@/lib/help/articles/price-update-review";
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
@@ -54,6 +54,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   maintenanceArticle,
   reportsArticle,
   adminArticle,
+  securitySettingsArticle,
   adminCommunicationsArticle,
   taskAutomationsArticle,
   documentTemplatesArticle,

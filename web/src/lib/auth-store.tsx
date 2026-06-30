@@ -30,7 +30,7 @@ type AuthStore = {
   source: "supabase" | "local";
   login: (userId: string, roleId: string) => Promise<void>;
   authenticate: (username: string, password: string) => Promise<AppUserRecord>;
-  logout: () => Promise<void>;
+  logout: (options?: { reason?: "inactivity" | "manual" }) => Promise<void>;
   switchRole: (roleId: string) => Promise<void>;
   canWindow: (key: string) => boolean;
   canWriteWindow: (key: string) => boolean;
@@ -99,8 +99,9 @@ async function switchSessionRoleViaApi(roleId: string): Promise<AuthSession> {
   return normalizeSession(data.session);
 }
 
-async function clearSessionViaApi(): Promise<void> {
-  await fetch("/api/auth/session", { method: "DELETE", credentials: "include" });
+async function clearSessionViaApi(reason: "inactivity" | "manual" = "manual"): Promise<void> {
+  const suffix = reason === "inactivity" ? "?reason=inactivity" : "";
+  await fetch(`/api/auth/session${suffix}`, { method: "DELETE", credentials: "include" });
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -186,8 +187,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const logout = useCallback(async () => {
-    await clearSessionViaApi();
+  const logout = useCallback(async (options?: { reason?: "inactivity" | "manual" }) => {
+    await clearSessionViaApi(options?.reason ?? "manual");
     setSession(null);
   }, []);
 

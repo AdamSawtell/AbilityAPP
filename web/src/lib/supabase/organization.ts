@@ -40,6 +40,7 @@ export type OrganizationRow = {
   theme_accent_colour: string;
   theme_background_colour: string;
   theme_text_colour: string;
+  idle_timeout_minutes: number;
   notes: string;
   created_by: string;
   updated_by: string;
@@ -87,6 +88,7 @@ export function organizationFromRow(row: OrganizationRow): OrganizationRecord {
     themeAccentColour: row.theme_accent_colour ?? "",
     themeBackgroundColour: row.theme_background_colour ?? "",
     themeTextColour: row.theme_text_colour ?? "",
+    idleTimeoutMinutes: row.idle_timeout_minutes ?? 15,
     notes: row.notes ?? "",
     createdBy: row.created_by ?? "",
     updatedBy: row.updated_by ?? "",
@@ -134,6 +136,7 @@ export function organizationToRow(record: OrganizationRecord): OrganizationRow {
     theme_accent_colour: record.themeAccentColour ?? "",
     theme_background_colour: record.themeBackgroundColour ?? "",
     theme_text_colour: record.themeTextColour ?? "",
+    idle_timeout_minutes: record.idleTimeoutMinutes ?? 15,
     notes: record.notes,
     created_by: record.createdBy,
     updated_by: record.updatedBy,

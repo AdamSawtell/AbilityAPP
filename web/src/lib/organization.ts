@@ -52,6 +52,8 @@ export type OrganizationRecord = AuditStampable & {
   themeBackgroundColour: string;
   /** Optional primary text colour (#RRGGBB). Empty = default. */
   themeTextColour: string;
+  /** Idle workspace timeout in minutes before the 2-minute warning appears. */
+  idleTimeoutMinutes: number;
   notes: string;
   createdBy: string;
   updatedBy: string;
@@ -230,10 +232,17 @@ export function defaultOrganization(): OrganizationRecord {
     themeAccentColour: "",
     themeBackgroundColour: "",
     themeTextColour: "",
+    idleTimeoutMinutes: 15,
     notes: "",
     createdBy: "SuperUser",
     updatedBy: "SuperUser",
   };
+}
+
+export function normalizeIdleTimeoutMinutes(value: unknown): number {
+  const minutes = Number(value);
+  if (!Number.isFinite(minutes)) return 15;
+  return Math.max(5, Math.min(120, Math.round(minutes)));
 }
 
 export function normalizeOrganization(record: OrganizationRecord): OrganizationRecord {
@@ -263,6 +272,7 @@ export function normalizeOrganization(record: OrganizationRecord): OrganizationR
     themeAccentColour: normalizeHexColour(record.themeAccentColour),
     themeBackgroundColour: normalizeHexColour(record.themeBackgroundColour),
     themeTextColour: normalizeHexColour(record.themeTextColour),
+    idleTimeoutMinutes: normalizeIdleTimeoutMinutes(record.idleTimeoutMinutes),
   };
 }
 

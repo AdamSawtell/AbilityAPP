@@ -527,6 +527,14 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     showInSidebar: false,
   },
   {
+    key: "admin-security",
+    label: "Security settings",
+    group: "Admin",
+    href: "/admin/security",
+    abilityErpName: "Security settings",
+    showInSidebar: true,
+  },
+  {
     key: "admin-reference-data",
     label: "Reference data",
     group: "Admin",

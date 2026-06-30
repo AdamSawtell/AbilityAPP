@@ -516,6 +516,7 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 | Function area | Window key | Route | Surface |
 |---------------|------------|-------|---------|
 | Organisation (workspace) | `admin-organization` | `/admin/organization` | Workspace |
+| Security settings | `admin-security` | `/admin/security` | Workspace |
 | Reference data | `admin-reference-data` | `/admin/reference-data` | Workspace |
 | Pay periods | `admin-pay-periods` | `/admin/pay-periods` | Workspace |
 | Roles | `admin-roles` | `/admin/roles` | Workspace |

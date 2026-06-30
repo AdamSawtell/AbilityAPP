@@ -115,6 +115,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/workforce-planning/training", slug: "training-meetings", surface: "app" },
   { prefix: "/workforce-planning/organisation", slug: "workforce-organisation", surface: "app" },
   { prefix: "/workforce-planning", slug: "workforce-leave-calendar", surface: "app" },
+  { prefix: "/admin/security", slug: "security-settings", surface: "app" },
   { prefix: "/admin/roles", slug: "roles-and-access", surface: "app" },
   { prefix: "/admin/communications", slug: "admin-communications", surface: "app" },
   { prefix: "/admin/reference-data", slug: "reference-data", surface: "system" },

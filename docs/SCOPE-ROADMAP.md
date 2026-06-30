@@ -31,7 +31,7 @@ The largest greenfield work is **Chunk 4 (Rostering)**. Upstream modules must be
 
 | Area | Status | Notes |
 |------|--------|-------|
-| Auth, org, roles | ✅ Live | Off / Read / Write per window |
+| Auth, org, roles | ✅ Live | Off / Read / Write per window; AB-0040 idle workspace timeout |
 | Enquiries | ✅ Live | Pipeline, qualification, convert, HubSpot sync |
 | Clients | ✅ Live | Full tabs, plan budget import, lifecycle, portal email |
 | Employees | ✅ Live | Credentials, leave, My workplace, HR documents, training/meeting scheduling |
@@ -391,4 +391,5 @@ After WP-A/B/C, begin **Chunk 4a** (roster data model + read-only calendar).
 
 | Date | Change |
 |------|--------|
+| 2026-06-30 | AB-0040 session timeout added organisation idle timeout and Admin Security settings |
 | 2026-06-18 | Initial roadmap from scope doc review; baseline inventory |

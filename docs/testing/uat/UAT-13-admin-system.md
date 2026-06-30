@@ -24,6 +24,7 @@
 | UAT-13-S-014 | NDIS Price Guide Importer | `/system/services/ndis-price-importer` | Upload CSV, preview, apply, import history | **Pass** — Amplify 2026-06-28; sample 2026–27 CSV applied; history + revert visible |
 | UAT-13-S-015 | Price Dependant Updater | `/system/services/price-update-review` | Select applied batch, analyse impacts, consent gate, apply | **Pass** — Amplify 2026-06-28; 108 scanned / 81 impacts; Active agreements consent-required; 0 ready without evidence |
 | UAT-13-S-016 | Availability hours policy | `/system/settings/availability` | Configure maximum hours per period, max period, over-maximum approval role, overnight hours mode | **Pass** (2026-06-29, localhost) — settings page renders; defaults max 80h/fortnight, approval role Rostering Manager, overnight = include; default availability template sits within the cap |
+| UAT-13-S-017 | Security settings | `/admin/security` | Configure idle workspace timeout 5 to 120 minutes | Pending AB-0040 smoke |
 
 ## Window checklist
 

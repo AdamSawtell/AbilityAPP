@@ -83,6 +83,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `employee` contracted/SCHADS columns (20260702151000) | `contracted_hours_per_period`, `contracted_hours_period`, `schads_classification_level`, `schads_pay_point`, `super_rate` (AB-0032 / AB-0031) |
 | `roster_shift` profitability columns (20260702152000) | `pay_period_instance_id`, `calculated_cost`, `calculated_income`, `calculated_margin` (AB-0031) |
 | `app_organization` theme columns (AB-0017) | `theme_primary_colour`, `theme_accent_colour`, `theme_background_colour`, `theme_text_colour` — empty = AbilityVua defaults |
+| `app_organization.idle_timeout_minutes` (20260630171200) | Organisation workspace idle timeout, 5 to 120 minutes; default 15 (AB-0040) |
 
 ## Not built yet (needs migration when added)
 

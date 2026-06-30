@@ -506,6 +506,7 @@ const FIELD_LABELS: Partial<Record<AuditEntityType, Record<string, string>>> = {
     themeAccentColour: "Theme accent colour",
     themeBackgroundColour: "Theme background colour",
     themeTextColour: "Theme text colour",
+    idleTimeoutMinutes: "Idle session timeout",
   },
   incident: {
     documentNo: "Document no.",

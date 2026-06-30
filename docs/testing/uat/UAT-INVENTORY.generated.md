@@ -1,6 +1,6 @@
 # UAT window inventory (generated)
 
-**Generated:** 2026-06-29
+**Generated:** 2026-06-30
 **Do not edit by hand.** Regenerate with `npm run uat:inventory`.
 
 Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | Fail | Skip | N/A.
@@ -9,8 +9,8 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | Metric | Count |
 |--------|------:|
-| App windows (incl. tabs) | 163 |
-| System windows | 16 |
+| App windows (incl. tabs) | 164 |
+| System windows | 17 |
 | Access processes | 48 |
 | Reports | 10 |
 
@@ -223,26 +223,28 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 |--------|------------|-------|-------------|--------|--------|
 | UAT-13-W-001 | `reports-advance` | Reports Advance | /system/admin/reports-advance | reports | |
 | UAT-13-W-002 | `admin-organization` | Organisation | /admin/organization | — | |
-| UAT-13-W-003 | `admin-reference-data` | Reference data | /admin/reference-data | — | |
-| UAT-13-W-004 | `admin-pay-periods` | Pay periods | /admin/pay-periods | — | |
-| UAT-13-W-005 | `admin-roles` | Roles | /admin/roles | — | |
-| UAT-13-W-006 | `admin-communications` | Communications | /admin/communications | — | |
-| UAT-13-W-007 | `admin-task-management` | Task management | /system/admin/task-management | — | |
-| UAT-13-W-008 | `admin-task-automations` | Task automations | /system/admin/task-automations | — | |
-| UAT-13-W-009 | `admin-document-templates` | Document templates | /system/admin/document-templates | — | |
-| UAT-13-W-010 | `admin-document-email` | Email content | /system/admin/document-email | — | |
-| UAT-13-W-011 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | |
-| UAT-13-W-012 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | |
-| UAT-13-W-013 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | |
-| UAT-13-W-014 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
-| UAT-13-W-015 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
-| UAT-13-W-016 | `system-incident-management` | Incident management | /system/settings/incident-management | — | |
-| UAT-13-W-017 | `system-leave-policy` | Leave self-service | /system/settings/leave | — | |
-| UAT-13-W-018 | `system-shift-monitoring` | Shift check-in monitoring | /system/settings/shift-monitoring | — | |
-| UAT-13-W-019 | `system-price-update-review` | Price Dependant Updater | /system/services/price-update-review | — | |
-| UAT-13-W-020 | `system-ndis-price-importer` | NDIS Price Guide Importer | /system/services/ndis-price-importer | — | |
-| UAT-13-W-021 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
-| UAT-13-W-022 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
+| UAT-13-W-003 | `admin-security` | Security settings | /admin/security | — | |
+| UAT-13-W-004 | `admin-reference-data` | Reference data | /admin/reference-data | — | |
+| UAT-13-W-005 | `admin-pay-periods` | Pay periods | /admin/pay-periods | — | |
+| UAT-13-W-006 | `admin-roles` | Roles | /admin/roles | — | |
+| UAT-13-W-007 | `admin-communications` | Communications | /admin/communications | — | |
+| UAT-13-W-008 | `admin-task-management` | Task management | /system/admin/task-management | — | |
+| UAT-13-W-009 | `admin-task-automations` | Task automations | /system/admin/task-automations | — | |
+| UAT-13-W-010 | `admin-document-templates` | Document templates | /system/admin/document-templates | — | |
+| UAT-13-W-011 | `admin-document-email` | Email content | /system/admin/document-email | — | |
+| UAT-13-W-012 | `admin-document-registry` | Document registry | /system/admin/document-registry | — | |
+| UAT-13-W-013 | `admin-user-session-audit` | User Session Audit | /system/admin/user-session-audit | — | |
+| UAT-13-W-014 | `admin-process-audit` | Process Audit | /system/admin/process-audit | — | |
+| UAT-13-W-015 | `admin-ai-query-audit` | AI Query Audit | /system/admin/ai-query-audit | — | |
+| UAT-13-W-016 | `system-time-and-date` | Time & date | /system/settings/time-and-date | — | |
+| UAT-13-W-017 | `system-incident-management` | Incident management | /system/settings/incident-management | — | |
+| UAT-13-W-018 | `system-leave-policy` | Leave self-service | /system/settings/leave | — | |
+| UAT-13-W-019 | `system-shift-monitoring` | Shift check-in monitoring | /system/settings/shift-monitoring | — | |
+| UAT-13-W-020 | `system-availability-policy` | Availability hours | /system/settings/availability | — | |
+| UAT-13-W-021 | `system-price-update-review` | Price Dependant Updater | /system/services/price-update-review | — | |
+| UAT-13-W-022 | `system-ndis-price-importer` | NDIS Price Guide Importer | /system/services/ndis-price-importer | — | |
+| UAT-13-W-023 | `admin-record-retention` | Record retention settings | /system/settings/record-retention | — | |
+| UAT-13-W-024 | `admin-ai-agents` | AI assistants | /admin/ai-agents | — | |
 
 ## UAT-99
 
