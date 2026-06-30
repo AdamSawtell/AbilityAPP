@@ -219,6 +219,8 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 
 **Processes:** `assign-location-client`, `assign-location-employee`, `assign-location-product`.
 
+**Line editor pattern:** The location Activity tab uses the shared summary list + side drawer pattern (date, type, subject, created by columns). Rows open into `RecordLineDrawer` for full fields including description; Copy and Request deletion live inside the drawer. Parent location save persists changes. This matches the client Activity tab.
+
 ### Maintenance request record tabs
 
 | Tab | Window key |

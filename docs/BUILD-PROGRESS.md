@@ -32,6 +32,24 @@
 
 ---
 
+## Location activities UI consistency (2026-06-30)
+
+**Status:** Shipped (2026-06-30).
+
+**Backlog:** "AB-0036 — Location Activities UI Consistency" (note: the AB-0036 number already names the shipped Skeleton loaders slice in this log; this slice is tracked by its title to avoid clobbering that entry).
+
+**Why:** The location Activity tab used inline-editable cells (live dropdowns, text fields, pencils) with per-row Copy and Request deletion links, while the client Activity tab used the agreed read-only summary list + drawer editor. The inconsistency confused users.
+
+| Area | Change |
+|------|--------|
+| Location activity config | `locationActivityTableConfig` now sets `layout: "list-drawer"`, `drawerTitle: "Activity"`, and `listColumnKeys: ["date", "activityType", "subject", "createdBy"]` so it renders the same read-only list + `RecordLineDrawer` editor as the client Activity tab |
+| Behaviour | Rows are read-only and clickable; editing (Type, Subject, Description, Date), Copy, and Request deletion move into the drawer; inline cells and per-row action links are removed |
+| Preserved | Existing activity data, admin-only delete policy, search, Add activity, and parent-record save are unchanged |
+
+**What you can test:** TEST-104 in `docs/testing/TEST-RUNBOOKS.md`.
+
+---
+
 ## Session timeout AB-0040 (2026-06-30)
 
 **Status:** Shipped (2026-06-30).

@@ -61,6 +61,26 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-104 — Location activity line drawer (AB-0036 Location Activities UI Consistency)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **DATA** | `loc-glenelg-sil` |
+| **Pass if** | Location Activity tab matches client pattern: read-only summary list + drawer editor; no inline fields |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/locations/loc-glenelg-sil?tab=Activity` | Summary columns only: Date, Type, Subject, Created by — no inline dropdown/text/pencil cells, no per-row Copy/Request deletion links |
+| 2 | Click a row | Line drawer opens with Type, Subject, Description, Date editable |
+| 3 | Edit description in drawer; close; Save location | Persists after refresh |
+| 4 | Add activity | Drawer opens; new row in list after close |
+| 5 | Footer text | Reads "N rows · Click a row to open the editor. Changes save with the parent record." |
+| 6 | Search bar | Filters rows |
+| 7 | Copy / Request deletion | Available inside the drawer (Copy duplicates; non-admin sees Request deletion) |
+
+---
+
 ## TEST-020 — Flow 2 convert to client
 
 | | |

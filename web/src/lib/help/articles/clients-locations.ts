@@ -237,10 +237,10 @@ export const locationsArticle: HelpArticle = {
   title: "Locations",
   summary: "Manage SIL houses, day programs, and other sites with linked clients, staff, and services.",
   category: "Core",
-  keywords: ["location", "support location", "SIL", "address", "assign client", "assign employee"],
+  keywords: ["location", "support location", "SIL", "address", "assign client", "assign employee", "activity"],
   relatedRoutes: ["/locations", "/locations/new"],
   windowKeys: ["locations"],
-  lastUpdated: "2026-06-29",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "location-list",
@@ -268,6 +268,12 @@ export const locationsArticle: HelpArticle = {
         "Services: Products and services",
         "History: Activity, Calendar",
       ],
+    },
+    {
+      id: "location-activity",
+      title: "Activity tab",
+      body: "Log visits, maintenance, and operational notes for this location. The Activity tab uses the same summary list and line drawer pattern as client records: the table shows date, type, subject, and created by — click a row to open the editor for the full fields, including description. Use Add activity to create a new entry. Activity lines can only be removed by an administrator; other roles use Request deletion inside the editor to send a task to the admin team. Changes save with the parent location record.",
+      windowKeys: ["location-activity"],
     },
     {
       id: "assignments",
