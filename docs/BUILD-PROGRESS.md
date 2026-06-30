@@ -32,6 +32,42 @@
 
 ---
 
+## Side panel UI consistency AB-0037 (2026-06-30)
+
+**Status:** Shipped (2026-06-30).
+
+**Why:** After AB-0036 set the side-panel pattern (read-only summary list + click-to-edit side panel) on Location Activity, a UX audit found 16 line tables still using the old inline-editable grid (live dropdowns, textareas, per-row Copy/Remove). This slice extends the gold-standard pattern across all of them for consistency.
+
+| Group | Tables converted |
+|------|--------|
+| Location tabs | Alerts, Clients, Employees, Products and services |
+| Support Plan | Goals, Medications, Diagnoses, Health plans, Support requirements, Assistive technology |
+| Business records | Contract Audit, Price list Lines, Service Agreement schedule of supports, Service Booking Lines, Monthly Service Plan lines, Client Plan budget goals |
+
+**How:** Config-only change — each table config gains `layout: "list-drawer"`, `drawerTitle`, and `listColumnKeys`; the generic `LineItemTable` already renders the read-only list + `RecordLineDrawer` editor with Copy/Remove inside the panel. Contract Audit's `ContractTabTableConfig` type was extended with the optional layout fields. No schema, data-api, or component changes; existing data preserved.
+
+**What you can test:** TEST-105 in `docs/testing/TEST-RUNBOOKS.md`; FUNC-437 in the happy-path matrix.
+
+---
+
+## Startup performance AB-0042 (2026-06-30)
+
+**Status:** In verification.
+
+**Why:** Users reported slower page loads after recent deploys. The startup path was doing broad access/data hydrates before pages could render.
+
+| Area | Change |
+|------|--------|
+| Server session | `/api/auth/session` now builds the active session from the current user, active role, and that role's grants instead of fetching all users and every role grant |
+| Client auth | `AuthProvider` renders after the active session is known; full users/roles load in the background and are explicitly requested by Roles/System access screens |
+| Data hydrate | `/login`, `/system`, participant portal, and agency portal skip the workspace `fetchAllData()` hydrate |
+| Workspace cache | `DataProvider` uses a 5-minute `sessionStorage` snapshot for faster refresh/back-navigation, then refreshes Supabase in the background |
+| Diagnostics | Dev builds log auth directory and remote data hydrate timings in the browser console |
+
+**What you can test:** TEST-106 in `docs/testing/TEST-RUNBOOKS.md`.
+
+---
+
 ## Security settings moved to System (2026-06-30)
 
 **Status:** Shipped (2026-06-30).

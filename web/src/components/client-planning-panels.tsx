@@ -11,6 +11,9 @@ import { showSuccessToast, SAVE_TOAST_MESSAGES } from "@/lib/toast";
 import type { SupportPlanGoalLine, SupportPlanProgressReviewLine, SupportPlanRecord } from "@/lib/support-plan";
 
 const goalTableConfig: GenericTableConfig<SupportPlanGoalLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Goal",
+  listColumnKeys: ["name", "goalNumber", "goalTerm", "goalType"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "name", label: "Name", type: "text" },

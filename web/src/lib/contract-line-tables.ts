@@ -18,12 +18,19 @@ export type ContractTabTableConfig<TRow extends { id: string }> = {
   emptyRow: (lineNo: number) => TRow;
   addLabel?: string;
   emptyMessage?: string;
+  /** Summary list + side drawer for record child lines (AB-0037). */
+  layout?: "table" | "list-drawer";
+  listColumnKeys?: (keyof TRow & string)[];
+  drawerTitle?: string;
 };
 
 export const auditTableConfig: ContractTabTableConfig<ContractAuditRow> = {
   collectionKey: "audit",
   addLabel: "Add audit entry",
   emptyMessage: "No audit history yet.",
+  layout: "list-drawer",
+  drawerTitle: "Audit entry",
+  listColumnKeys: ["auditDate", "changedBy", "action"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "auditDate", label: "Date", type: "date", required: true },

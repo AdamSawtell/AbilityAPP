@@ -18,6 +18,9 @@ const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
 
 const priceLineConfig: GenericTableConfig<PriceListLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Product price",
+  listColumnKeys: ["productId", "listPrice", "standardPrice", "limitPrice"],
   columns: [
     { key: "lineNo", label: "Line", type: "number" as const, className: "w-14" },
     { key: "productId", label: "Product", type: "select" as const, optionsKey: "productId" },

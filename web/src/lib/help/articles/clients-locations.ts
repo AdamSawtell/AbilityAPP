@@ -17,7 +17,7 @@ export const clientsArticle: HelpArticle = {
   ],
   relatedRoutes: ["/clients", "/service-agreements"],
   windowKeys: ["clients"],
-  lastUpdated: "2026-06-29",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "client-list",
@@ -151,7 +151,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "support-plan-tab",
       title: "Support Plan tab",
-      body: "The Support Plan tab holds the participant care plan: About me, communication, health, behaviour, daily living sections, goals, health records, support requirements, assistive technology, emergency procedures, and worker instructions. Use the sidebar to switch sections. Save support plan after edits — changes audit on the client record.",
+      body: "The Support Plan tab holds the participant care plan: About me, communication, health, behaviour, daily living sections, goals, health records, support requirements, assistive technology, emergency procedures, and worker instructions. Use the sidebar to switch sections. Line sections — Goals, Medications, Diagnoses, Health plans, Support requirements, and Assistive technology — use a read-only summary list: click a row (or Add) to open the side panel with the full form, including Copy and Remove. Save support plan after edits — changes audit on the client record.",
       steps: [
         "Open the client → Support Plan.",
         "Pick a section from the sidebar (About me, Communication and language, Health records, Goals, and so on).",
@@ -207,7 +207,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "goals-tab",
       title: "Goals tab",
-      body: "View and edit goals from the active support plan without opening the full Support Plan panel. Save updates the support plan record.",
+      body: "View and edit goals from the active support plan without opening the full Support Plan panel. Goals show as a read-only summary list — click a row (or Add goal) to open the side panel with the full form. Save updates the support plan record.",
       windowKeys: ["client-goals"],
     },
     {
@@ -278,7 +278,7 @@ export const locationsArticle: HelpArticle = {
     {
       id: "assignments",
       title: "Link clients, staff, and services",
-      body: "Use the Clients, Employees, and Products and services tabs to assign who receives support at this site and which products are delivered there. Your role needs the matching assign-location process.",
+      body: "Use the Clients, Employees, and Products and services tabs to assign who receives support at this site and which products are delivered there. The Alerts, Clients, Employees, and Products and services tabs all use the same summary list and side panel as Activity: the table is read-only, and clicking a row (or Add) opens the side panel with the full form, including Copy and Remove. Search still works, and changes save with the parent location record. Your role needs the matching assign-location process.",
       bullets: [
         "assign-location-client: link support receivers",
         "assign-location-employee: link staff",

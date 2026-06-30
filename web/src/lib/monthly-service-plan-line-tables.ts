@@ -4,6 +4,9 @@ import { emptyMonthlyServicePlanLine, type MonthlyServicePlanLine } from "@/lib/
 export const monthlyServicePlanLineTableConfig: GenericTableConfig<MonthlyServicePlanLine> = {
   addLabel: "Add plan line",
   emptyMessage: "No plan lines yet. Generate from plan budget or add lines manually.",
+  layout: "list-drawer",
+  drawerTitle: "Plan line",
+  listColumnKeys: ["supportCategory", "description", "plannedHours", "plannedAmount"],
   columns: [
     { key: "supportBudget", label: "Support budget", type: "select", optionsKey: "ndisSupportBudget", required: true },
     {

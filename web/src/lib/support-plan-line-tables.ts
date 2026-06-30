@@ -9,6 +9,9 @@ import type {
 } from "@/lib/support-plan";
 
 export const medicationTableConfig: GenericTableConfig<SupportPlanMedicationLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Medication",
+  listColumnKeys: ["medicationName", "dosage"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "medicationName", label: "Medication name", type: "text", required: true },
@@ -29,6 +32,9 @@ export const medicationTableConfig: GenericTableConfig<SupportPlanMedicationLine
 };
 
 export const diagnosisTableConfig: GenericTableConfig<SupportPlanDiagnosisLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Diagnosis",
+  listColumnKeys: ["diagnosis", "condition", "treatingPractitioner"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "diagnosis", label: "Diagnosis", type: "text", required: true },
@@ -49,6 +55,9 @@ export const diagnosisTableConfig: GenericTableConfig<SupportPlanDiagnosisLine> 
 };
 
 export const healthPlanTableConfig: GenericTableConfig<SupportPlanHealthPlanLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Health plan",
+  listColumnKeys: ["planType", "attachmentReference"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "planType", label: "Plan type", type: "select", optionsKey: "healthPlanType", required: true },
@@ -67,6 +76,9 @@ export const healthPlanTableConfig: GenericTableConfig<SupportPlanHealthPlanLine
 };
 
 export const supportRequirementTableConfig: GenericTableConfig<SupportPlanSupportRequirementLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Support requirement",
+  listColumnKeys: ["supportArea", "supportRequirement", "levelOfAssistance", "frequency"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "supportArea", label: "Support area", type: "select", optionsKey: "supportRequirementArea", required: true },
@@ -89,6 +101,9 @@ export const supportRequirementTableConfig: GenericTableConfig<SupportPlanSuppor
 };
 
 export const assistiveTechnologyTableConfig: GenericTableConfig<SupportPlanAssistiveTechnologyLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Equipment",
+  listColumnKeys: ["equipment", "serialNumber", "maintenanceSchedule"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "equipment", label: "Equipment", type: "text", required: true },

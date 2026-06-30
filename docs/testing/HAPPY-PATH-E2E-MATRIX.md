@@ -576,6 +576,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-434 | Page guides | Help drawer on route | Any route | All | Live | — |
 | FUNC-435 | Security | Idle session timeout | `/system/settings/security` + session warning modal | System operator config; all staff affected | Live | TEST-103 |
 | FUNC-436 | Location Activity | Line list + drawer CRUD (matches client pattern) | Location → Activity | Worker+ / Admin | Live | TEST-104 |
+| FUNC-437 | Side panel UI consistency | Read-only list + side panel editor across Location tabs, Support Plan sections, and business record line tables | Locations, Support Plans, Contracts, Pricing, Service Bookings | Worker+ / Admin | Live | TEST-105 |
 
 ---
 

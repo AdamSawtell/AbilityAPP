@@ -44,6 +44,9 @@ const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
 
 const goalTableConfig: GenericTableConfig<SupportPlanGoalLine> = {
+  layout: "list-drawer",
+  drawerTitle: "Goal",
+  listColumnKeys: ["name", "goalNumber", "goalTerm", "goalType"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "name", label: "Name", type: "text" },

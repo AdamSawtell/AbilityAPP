@@ -20,7 +20,7 @@ export const deliveryArticle: HelpArticle = {
     "marketplace",
     "approve shift request",
   ],
-  lastUpdated: "2026-06-29",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "overview",
@@ -30,7 +30,7 @@ export const deliveryArticle: HelpArticle = {
     {
       id: "service-bookings",
       title: "Service bookings",
-      body: "Each booking links to a client (business partner) and service agreement. Open from Delivery → Service bookings or from the client’s Service bookings tab. Lines hold products, weekly periods, quantities, and amounts — matching AbilityERP Service Booking Line.",
+      body: "Each booking links to a client (business partner) and service agreement. Open from Delivery → Service bookings or from the client’s Service bookings tab. Lines hold products, weekly periods, quantities, and amounts — matching AbilityERP Service Booking Line. The line table is a read-only summary: click a row (or Add service booking line) to open the side panel with the full form, including Copy and Remove.",
       relatedRoutes: ["/service-bookings", "/service-bookings/new"],
       windowKeys: ["service-bookings"],
     },
@@ -501,7 +501,7 @@ export const servicePlanningArticle: HelpArticle = {
   keywords: ["service planning", "monthly plan", "utilisation", "budget", "NDIS"],
   relatedRoutes: ["/service-planning", "/plan-reconciliation", "/clients"],
   windowKeys: ["service-planning", "plan-reconciliation", "client-monthly-service-plan", "client-plan-budget"],
-  lastUpdated: "2026-06-21",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "overview",
@@ -528,6 +528,7 @@ export const servicePlanningArticle: HelpArticle = {
         "Generate from plan budget for a new month (requires Plan budget lines first).",
         "Select an existing plan from the dropdown or open the full plan view.",
       ],
+      body: "Plan lines and Plan budget goals show as a read-only summary list — click a row (or Add) to open the side panel with the full form, including Copy and Remove.",
       relatedRoutes: ["/clients"],
     },
     {

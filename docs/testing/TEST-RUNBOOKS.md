@@ -81,6 +81,26 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 
 ---
 
+## TEST-105 — Side panel line tables (AB-0037 Side Panel UI Consistency)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **Scope** | Location Alerts/Clients/Employees/Products; Support Plan Goals/Medications/Diagnoses/Health plans/Support requirements/Assistive technology; Contract Audit; Price list Lines; Service Agreement schedule; Service Booking Lines; Monthly Service Plan lines; Client Plan budget goals |
+| **Pass if** | Every listed table is a read-only summary list; clicking a row (or Add) opens a side panel with the full form, Copy, and Remove; search works; data persists |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/locations/loc-glenelg-sil?tab=Alerts` (then Clients, Employees, Products and services) | Read-only summary columns only — no inline dropdown/text/textarea cells, no per-row Copy/Remove links |
+| 2 | Click a row | Side panel opens with the full form editable; Copy and Remove inside the panel |
+| 3 | Open a client → Support Plan → Goals (then Medications, Diagnoses, Health plans, Support requirements, Assistive technology) | Each section is a read-only list + side panel editor |
+| 4 | Open a client → Plan budget goals and Monthly service plan lines | Read-only list + side panel editor |
+| 5 | Open a price list → Lines; a service agreement → schedule of supports; a service booking → Lines; a contract → Audit | Each is a read-only list + side panel editor |
+| 6 | Edit a field in the panel; close; Save the parent record | Change persists after refresh (no data loss) |
+| 7 | Add a row, then search | Add opens the panel; new row appears in the list after close; search filters rows |
+
+---
+
 ## TEST-020 — Flow 2 convert to client
 
 | | |
@@ -654,6 +674,24 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 5 | Wait 3s → **I have read and understood** | Modal closes; app usable |
 | 6 | Refresh home | Modal does not re-show |
 | 7 | Admin → export CSV | Download contains Ava acknowledged row |
+
+---
+
+## TEST-106 — Startup hydrate performance (AB-0042)
+
+| | |
+|--|--|
+| **User** | SuperUser / flamingo |
+| **DATA** | Remote Supabase demo data |
+| **Pass if** | Login/system routes do not wait for workspace data hydrate; workspace refresh renders from cache on second load and refreshes in background |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Open `/login` in a fresh tab | Login form appears without waiting for client/roster/finance data hydrate |
+| 2 | Sign in as SuperUser / AbilityVua Admin | Home loads; no error banner |
+| 3 | Open `/clients`, then refresh the page once | First load may show skeleton; second load reuses the short session cache and resolves faster while remote data refreshes |
+| 4 | Open `/system/admin/roles` | Roles page shows either the role editor or "Loading role configuration..." until the access directory is ready; role list then loads |
+| 5 | Open `/system` or `/portal/login` | Route resolves without triggering workspace data hydrate |
 
 ---
 

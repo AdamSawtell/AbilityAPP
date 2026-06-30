@@ -6,10 +6,10 @@ export const servicesArticle: HelpArticle = {
   title: "Services catalog",
   summary: "Products, price lists, contracts, and service agreements for NDIS billing and delivery.",
   category: "Services",
-  keywords: ["product", "price list", "contract", "service agreement", "NDIS", "pricing", "lines"],
+  keywords: ["product", "price list", "contract", "service agreement", "NDIS", "pricing", "lines", "side panel"],
   relatedRoutes: ["/products", "/price-lists", "/contracts", "/service-agreements"],
   windowKeys: ["products", "price-lists", "contracts", "service-agreements"],
-  lastUpdated: "2025-06-15",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "products",
@@ -21,7 +21,7 @@ export const servicesArticle: HelpArticle = {
     {
       id: "price-lists",
       title: "Price lists",
-      body: "Price lists group product lines with effective dates and amounts. Use Overview for header fields and Lines for the rate table.",
+      body: "Price lists group product lines with effective dates and amounts. Use Overview for header fields and Lines for the rate table. The Lines table is a read-only summary: click a row (or Add product price) to open the side panel with the full form, including Copy and Remove. The schedule of supports on service agreements and the audit log on contracts use the same side panel pattern.",
       relatedRoutes: ["/price-lists"],
       windowKeys: ["price-lists"],
     },

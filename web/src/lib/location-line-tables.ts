@@ -13,6 +13,9 @@ export { renumberLines };
 export const locationAlertTableConfig: GenericTableConfig<LocationAlertRow> = {
   addLabel: "Add alert",
   emptyMessage: "No alerts on this location. Add safety, access, or operational flags for staff.",
+  layout: "list-drawer",
+  drawerTitle: "Alert",
+  listColumnKeys: ["alertType", "name", "validFrom", "validTo"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "alertType", label: "Alert type", type: "select", optionsKey: "locationAlertType", required: true },
@@ -37,6 +40,9 @@ export const locationAlertTableConfig: GenericTableConfig<LocationAlertRow> = {
 export const locationClientLinkTableConfig: GenericTableConfig<LocationClientLinkRow> = {
   addLabel: "Assign client",
   emptyMessage: "No clients linked to this location. Assign support receivers who use this site.",
+  layout: "list-drawer",
+  drawerTitle: "Client link",
+  listColumnKeys: ["clientId", "assignmentRole", "primaryAssignment", "validFrom"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "clientId", label: "Client", type: "select", optionsKey: "clientId", required: true },
@@ -61,6 +67,9 @@ export const locationClientLinkTableConfig: GenericTableConfig<LocationClientLin
 export const locationEmployeeLinkTableConfig: GenericTableConfig<LocationEmployeeLinkRow> = {
   addLabel: "Assign employee",
   emptyMessage: "No employees linked to this location. Assign staff who work at this site.",
+  layout: "list-drawer",
+  drawerTitle: "Employee link",
+  listColumnKeys: ["employeeId", "assignmentRole", "primaryAssignment", "validFrom"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "employeeId", label: "Employee", type: "select", optionsKey: "employeeId", required: true },
@@ -85,6 +94,9 @@ export const locationEmployeeLinkTableConfig: GenericTableConfig<LocationEmploye
 export const locationProductLinkTableConfig: GenericTableConfig<LocationProductLinkRow> = {
   addLabel: "Add product or service",
   emptyMessage: "No products linked yet. Add services offered at this location from the product catalog.",
+  layout: "list-drawer",
+  drawerTitle: "Product",
+  listColumnKeys: ["productId", "active", "validFrom", "validTo"],
   columns: [
     { key: "lineNo", label: "Line", type: "number", className: "w-14" },
     { key: "productId", label: "Product", type: "select", optionsKey: "productId", required: true },
