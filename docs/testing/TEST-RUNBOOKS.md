@@ -840,6 +840,8 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 **Regression:** `npm run test:karen` includes AB-0041 dirty-row count checks.
 
+**Result (2026-06-30, Amplify `01c7e81`):** Steps 1–3 **Pass** on `/clients/bp-bulk-20?tab=Goals` (OliverWilliams): **1 goal changed** amber bar; **Save** → **Saved — 1 goal updated** + tab link; **Discard** tested earlier in session. Step 4 not verified on Amplify (Alerts read-only for Support Worker).
+
 ---
 
 ## TEST-065 — Save confirmation toast (AB-0038)

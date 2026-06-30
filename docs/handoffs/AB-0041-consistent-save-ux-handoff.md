@@ -1,7 +1,7 @@
 # AB-0041 — Consistent save UX across line-item tables (handoff)
 
 **Status:** Shipped (Phase 1 + Phase 2)  
-**Commit:** _(filled on push)_  
+**Commit:** `01c7e81`  
 **Backlog:** AB-0041 Consistent Save UX Across Line-Item Tables
 
 ## Summary
@@ -45,3 +45,5 @@ npm run page-guides:check
 1. Open a client → **Goals** tab → edit a goal row → amber save bar appears
 2. Click **Save** → green confirmation + **Goals saved ✓** toast → data persists after refresh
 3. Edit client **Alerts** tab → bottom **UnsavedChangesBar** → Save → green confirmation with tab link
+
+**Amplify (2026-06-30, post-push `01c7e81`):** Steps 1–3 **Pass** on `https://app.abilityvua.com/clients/bp-bulk-20?tab=Goals` as OliverWilliams (Support Worker): amber **1 goal changed** bar, **Save** → green **Saved — 1 goal updated** + **View on Goals tab →** link; **Discard** reverts draft. Step 4 not run on Amplify (Alerts read-only for Support Worker; requires client-write role).

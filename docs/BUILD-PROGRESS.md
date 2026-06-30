@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0041 Consistent save UX across line-item tables |
-| **Next slice** | _(see SCOPE-ROADMAP)_ |
-| **Last push** | 2026-06-30 — AB-0039 breadcrumb navigation (`bdc2156`) |
+| **Active slice** | _(see SCOPE-ROADMAP)_ |
+| **Next slice** | AB-0041 Phase 3 (contract/employee inline save) or next backlog item |
+| **Last push** | 2026-06-30 — AB-0041 consistent save UX (`01c7e81`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -114,6 +114,8 @@
 | Toast | `SAVE_TOAST_MESSAGES.goals`, `progressReviews` |
 
 **What you can test:** TEST-069 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0041-consistent-save-ux-handoff.md`.
+
+**Amplify smoke (2026-06-30, post-push `01c7e81`):** PASS (steps 1–3) — Goals tab on `bp-bulk-20`: inline dirty bar, save confirmation + tab link, discard reverts. Footer copy **Use the save bar below to persist changes.** confirms deploy. Step 4 (Alerts + bottom bar) deferred — Support Worker read-only on Alerts.
 
 ---
 
