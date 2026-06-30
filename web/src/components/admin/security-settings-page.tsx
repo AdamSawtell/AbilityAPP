@@ -1,26 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AppShell } from "@/components/app-shell";
+import { SystemShell } from "@/components/system/system-shell";
+import { useAdminPageAccess } from "@/lib/access/window-surface";
 import { auditMetaFrom } from "@/lib/audit";
-import { useAuth } from "@/lib/auth-store";
 import { ORGANIZATION_ID, normalizeIdleTimeoutMinutes } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
+import { useSystemAuthOptional } from "@/lib/system-auth-store";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20";
 
 export function SecuritySettingsView() {
-  const { session, canWindow, canWriteWindow } = useAuth();
+  const systemAuth = useSystemAuthOptional();
+  const { hasAccess } = useAdminPageAccess("system");
+  const hasPageAccess = hasAccess("admin-security");
   const { organization, updateOrganization } = useOrganization();
   const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState(organization.idleTimeoutMinutes);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
-  const hasAccess = canWindow("admin-security");
-  const canSave = canWriteWindow("admin-security");
 
   useEffect(() => {
     setIdleTimeoutMinutes(normalizeIdleTimeoutMinutes(organization.idleTimeoutMinutes));
@@ -37,7 +37,7 @@ export function SecuritySettingsView() {
     setError("");
     setMessage("");
     try {
-      const res = await fetch("/api/admin/security/idle-timeout", {
+      const res = await fetch("/api/system/settings/security", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -50,7 +50,7 @@ export function SecuritySettingsView() {
       updateOrganization({
         ...organization,
         idleTimeoutMinutes: normalized,
-        updatedBy: session?.displayName ?? session?.username ?? "System",
+        updatedBy: systemAuth?.session?.displayName ?? systemAuth?.session?.username ?? "System",
       });
       setMessage("Security settings saved.");
       showSuccessToast(SAVE_TOAST_MESSAGES.settings);
@@ -61,25 +61,21 @@ export function SecuritySettingsView() {
     }
   }
 
-  if (!hasAccess) {
+  if (!hasPageAccess) {
     return (
-      <AppShell
-        title="Security settings"
-        subtitle="Configure workspace session controls."
-        audit={{ moduleLabel: "Security settings" }}
-      >
-        <p className="text-sm text-slate-600">You do not have access to Security settings.</p>
-      </AppShell>
+      <SystemShell title="Security settings" audit={{ moduleLabel: "Security settings" }}>
+        <p className="text-sm text-slate-600">Sign in to System setup to configure security settings.</p>
+      </SystemShell>
     );
   }
 
   return (
-    <AppShell
+    <SystemShell
       title="Security settings"
       subtitle="Set the idle timeout used to protect unattended workspace sessions."
       breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Admin", href: "/admin/security" },
+        { label: "System", href: "/system" },
+        { label: "System settings", href: "/system/settings/record-retention" },
         { label: "Security settings" },
       ]}
       audit={{
@@ -113,7 +109,7 @@ export function SecuritySettingsView() {
             max={120}
             step={1}
             value={idleTimeoutMinutes}
-            disabled={!canSave || saving}
+            disabled={saving}
             onChange={(e) => setIdleTimeoutMinutes(Number(e.target.value))}
             className={`${inputClass} mt-1`}
           />
@@ -121,14 +117,13 @@ export function SecuritySettingsView() {
         <p className="mt-2 text-xs text-slate-500">Allowed range: 5 to 120 minutes. Default: 15 minutes.</p>
         <button
           type="button"
-          disabled={!canSave || saving}
+          disabled={saving}
           onClick={() => void saveIdleTimeout()}
           className="mt-5 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save security settings"}
         </button>
-        {!canSave ? <p className="mt-3 text-xs text-slate-500">Your role can view this page but cannot save changes.</p> : null}
       </section>
-    </AppShell>
+    </SystemShell>
   );
 }

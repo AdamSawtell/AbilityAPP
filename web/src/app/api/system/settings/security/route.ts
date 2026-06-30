@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import {
-  getAuthSessionFromRequest,
-  invalidateIdleTimeoutCache,
-  sessionCanWriteWindow,
-  sessionHasWindow,
-} from "@/lib/auth/session.server";
+import { invalidateIdleTimeoutCache } from "@/lib/auth/session.server";
 import {
   defaultOrganization,
   normalizeIdleTimeoutMinutes,
   type OrganizationRecord,
 } from "@/lib/organization";
+import { resolveSystemOperatorAccess } from "@/lib/system/request-access.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { fetchOrganization, saveOrganization } from "@/lib/supabase/organization-api";
 
@@ -19,16 +15,6 @@ function serviceClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url?.trim() || !key?.trim()) throw new Error("Supabase not configured");
   return createSupabaseClient(url, key, { auth: { persistSession: false } });
-}
-
-async function canReadSecurity() {
-  const session = await getAuthSessionFromRequest();
-  return session ? sessionHasWindow(session, "admin-security") : false;
-}
-
-async function canWriteSecurity() {
-  const session = await getAuthSessionFromRequest();
-  return session ? sessionCanWriteWindow(session, "admin-security") : false;
 }
 
 async function readOrganization(): Promise<OrganizationRecord> {
@@ -44,7 +30,8 @@ function parseTimeout(value: unknown): number | null {
 }
 
 export async function GET() {
-  if (!(await canReadSecurity())) {
+  const systemOp = await resolveSystemOperatorAccess();
+  if (!systemOp.allowed) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const organization = await readOrganization();
@@ -54,8 +41,12 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  if (!(await canWriteSecurity())) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const systemOp = await resolveSystemOperatorAccess();
+  if (!systemOp.allowed) {
+    return NextResponse.json(
+      { error: "Sign in to System setup to change security settings." },
+      { status: 403 }
+    );
   }
 
   let body: { idleTimeoutMinutes?: unknown };
@@ -71,7 +62,7 @@ export async function PATCH(request: Request) {
   }
 
   const organization = await readOrganization();
-  const next = { ...organization, idleTimeoutMinutes };
+  const next = { ...organization, idleTimeoutMinutes, updatedBy: systemOp.actorName };
   if (isSupabaseConfigured()) {
     await saveOrganization(serviceClient(), next);
     invalidateIdleTimeoutCache();

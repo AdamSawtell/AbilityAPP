@@ -5,9 +5,9 @@ export const securitySettingsArticle: HelpArticle = {
   slug: "security-settings",
   title: "Security settings",
   summary: "Set the idle timeout that protects unattended workspace sessions.",
-  category: "Admin",
-  keywords: ["security", "session", "timeout", "idle", "sign out", "admin"],
-  relatedRoutes: ["/admin/security", "/login"],
+  category: "System setup",
+  keywords: ["security", "session", "timeout", "idle", "sign out", "system"],
+  relatedRoutes: ["/system/settings/security", "/login"],
   windowKeys: ["admin-security"],
   lastUpdated: "2026-06-30",
   sections: [
@@ -20,12 +20,13 @@ export const securitySettingsArticle: HelpArticle = {
       id: "configure-timeout",
       title: "Set the idle timeout",
       steps: [
-        "Open Admin > Security settings.",
+        "Sign in to System setup.",
+        "Open System settings → Security settings.",
         "Enter a whole number of minutes from 5 to 120.",
         "Click Save security settings.",
         "Ask signed-in users to refresh or sign in again if you need the new value applied immediately.",
       ],
-      relatedRoutes: ["/admin/security"],
+      relatedRoutes: ["/system/settings/security"],
     },
     {
       id: "user-warning",
@@ -141,8 +142,8 @@ export const recordRetentionArticle: HelpArticle = {
     {
       id: "workspace-idle-timeout",
       title: "Workspace idle timeout",
-      body: "The live user warning and automatic workspace sign-out are configured separately under Admin > Security settings.",
-      relatedRoutes: ["/admin/security"],
+      body: "The live user warning and automatic workspace sign-out are configured separately under System settings → Security settings.",
+      relatedRoutes: ["/system/settings/security"],
     },
     {
       id: "timezone",

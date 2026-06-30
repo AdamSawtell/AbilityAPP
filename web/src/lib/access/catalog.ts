@@ -530,9 +530,10 @@ const ADMIN_WINDOWS: AccessWindow[] = [
     key: "admin-security",
     label: "Security settings",
     group: "Admin",
-    href: "/admin/security",
+    surface: "system",
+    href: "/system/settings/security",
     abilityErpName: "Security settings",
-    showInSidebar: true,
+    showInSidebar: false,
   },
   {
     key: "admin-reference-data",

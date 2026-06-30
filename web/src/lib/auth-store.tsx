@@ -20,6 +20,13 @@ import {
 } from "@/lib/supabase/access-api";
 import { routePageSkeleton } from "@/components/ui/page-skeletons";
 
+/** Legacy workspace Admin URLs that immediately redirect into System setup. */
+const ADMIN_SYSTEM_REDIRECT_PREFIXES = ["/admin/organization", "/admin/security"] as const;
+
+function isAdminSystemRedirect(pathname: string): boolean {
+  return ADMIN_SYSTEM_REDIRECT_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
 const LEGACY_SESSION_KEY = "abilityerp-auth-session";
 
 type AuthStore = {
@@ -365,6 +372,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     if (pathname.startsWith("/system")) return;
+    if (isAdminSystemRedirect(pathname)) return;
     if (pathname.startsWith("/portal")) return;
     if (pathname.startsWith("/agency-portal")) return;
     if (!session && pathname !== "/login") {
@@ -380,6 +388,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   }
 
   if (pathname.startsWith("/system")) return <>{children}</>;
+  if (isAdminSystemRedirect(pathname)) return <>{children}</>;
   if (pathname.startsWith("/portal")) return <>{children}</>;
   if (pathname.startsWith("/agency-portal")) return <>{children}</>;
   if (!session && pathname !== "/login") return null;

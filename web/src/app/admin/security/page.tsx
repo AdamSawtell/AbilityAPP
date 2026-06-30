@@ -1,5 +1,5 @@
-import { SecuritySettingsView } from "@/components/admin/security-settings-page";
+import { redirect } from "next/navigation";
 
-export default function SecuritySettingsPage() {
-  return <SecuritySettingsView />;
+export default function AdminSecurityRedirectPage() {
+  redirect("/system/settings/security");
 }

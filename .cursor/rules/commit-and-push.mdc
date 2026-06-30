@@ -1,17 +1,28 @@
 ---
-description: Commit and push completed work without asking for permission
+description: Always commit and push completed work — never ask permission
 alwaysApply: true
 ---
 
-# Commit and push when work is done
+# Commit and push — mandatory
 
-When you finish a task that changes the repo:
+When you finish a task that changes the repo, **commit and push in the same session**. This is not optional and not the user's job to request.
 
-1. **Verify and test** — follow `.cursor/rules/push-and-test.mdc` (build, smoke test for UI, Bugbot before push to `main`).
-2. **Commit and push automatically** — do not ask "should I commit?" or wait for confirmation.
-2. **Scope** — only files for the completed task; never commit secrets (`.env`, credentials).
-3. **Message** — 1–2 sentences, focus on why; match recent repo style.
-4. **Hooks** — never skip hooks (`--no-verify`). If a hook fails, fix and create a **new** commit (no amend unless hook-only fix rules apply).
-5. **Push** — push to the current branch after a successful commit unless the user said not to push.
+## Required
 
-Exception: user explicitly says "don't commit" or "don't push" in that turn.
+1. **Verify and test first** — follow `.cursor/rules/push-and-test.mdc` (build, **browser smoke** for UI, Bugbot before push to `main`).
+2. **Commit automatically** — do not ask "should I commit?" or wait for confirmation.
+3. **Push automatically** — push to the current branch after a successful commit. Do not ask "should I push?"
+4. **Scope** — only files for the completed task; never commit secrets (`.env`, credentials).
+5. **Message** — 1–2 sentences, focus on why; match recent repo style.
+6. **Hooks** — never skip hooks (`--no-verify`). If a hook fails, fix and create a **new** commit.
+
+## Never
+
+- Hand off with uncommitted changes from the slice you just finished.
+- Say "say if you want this committed" or "I can push when you're ready."
+- Stop after implementation without commit + push unless blocked (see exceptions).
+
+## Exceptions
+
+- User explicitly says **"don't commit"** or **"don't push"** in that turn.
+- Pure question/review tasks with no repo changes.

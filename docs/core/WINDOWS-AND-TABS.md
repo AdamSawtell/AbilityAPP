@@ -518,7 +518,6 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 | Function area | Window key | Route | Surface |
 |---------------|------------|-------|---------|
 | Organisation (workspace) | `admin-organization` | `/admin/organization` | Workspace |
-| Security settings | `admin-security` | `/admin/security` | Workspace |
 | Reference data | `admin-reference-data` | `/admin/reference-data` | Workspace |
 | Pay periods | `admin-pay-periods` | `/admin/pay-periods` | Workspace |
 | Roles | `admin-roles` | `/admin/roles` | Workspace |
@@ -559,6 +558,7 @@ System routes use **System** sign-in (`/system/...`). Navigation: `web/src/lib/s
 | Process Audit | `/system/admin/process-audit` | Admin |
 | AI Query Audit | `/system/admin/ai-query-audit` | Admin |
 | Record retention | `/system/settings/record-retention` | System Settings |
+| Security settings | `/system/settings/security` | System Settings |
 | How-to guides | `/system/guides` | — |
 
 Catalog window keys for System pages use `admin-*` or `system-*` prefixes (see `catalog.ts`).

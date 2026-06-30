@@ -190,7 +190,7 @@ export function RecordRetentionSettingsView() {
               onBlur={(e) => void saveSetting("session_timeout_minutes", e.target.value)}
             />
             <span className="mt-1 block text-[11px] font-normal text-slate-500">
-              This closes old session audit rows. Live workspace idle sign-out is under Admin &gt; Security settings.
+              This closes old session audit rows. Live workspace idle sign-out is under System settings → Security settings.
             </span>
           </label>
           <label className="text-xs font-medium text-slate-600 sm:col-span-2">

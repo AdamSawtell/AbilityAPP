@@ -298,7 +298,6 @@ values
   ('role-admin', 'service-booking-lines', 'write'),
   ('role-admin', 'reports', 'write'),
   ('role-admin', 'admin-organization', 'write'),
-  ('role-admin', 'admin-security', 'write'),
   ('role-admin', 'admin-reference-data', 'write'),
   ('role-admin', 'admin-pay-periods', 'write'),
   ('role-admin', 'admin-roles', 'write'),

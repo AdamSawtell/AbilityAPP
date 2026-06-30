@@ -1,30 +1,37 @@
 ---
-description: Always push completed work and run verification tests before handoff
+description: Always push, browser-test UI changes, and verify before handoff
 alwaysApply: true
 ---
 
 # Push and test — always
 
-When you finish a task that changes the repo, **do not hand off without pushing and testing**. Do not ask the user for permission to push or test unless they explicitly said "don't push" or "don't commit" in that turn.
+When you finish a task that changes the repo, **do not hand off without pushing, browser testing, and committing**. Do not ask the user for permission to push, test, or commit unless they explicitly said "don't push" or "don't commit" in that turn.
 
 ## Required sequence
 
 1. **Verify** — run Tier 1 from `.cursor/commands/test-before-handoff.md` (`npm run build`, `npm run page-guides:check`; `npx tsc --noEmit` when types changed).
 2. **Supabase** — if `supabase/migrations/` or remote seed SQL changed: **`npm run supabase:push-remote`** (agent runs this — see `.cursor/rules/supabase-migrations.mdc`). Never tell the user to apply migrations.
 3. **Docs** — follow `.cursor/rules/docs-and-testing.mdc` (help articles + testing docs updated before commit).
-4. **Smoke test** — for UI changes, test on **localhost** (Tier 2): open the affected route, exercise the feature, confirm no error banners and audit footer where applicable. Log pass/fail.
+4. **Browser smoke (mandatory for UI)** — use the **browser MCP tools** (not "you can test locally"):
+   - Navigate to the affected route(s).
+   - Exercise the feature (save, tab switch, modal, etc.).
+   - Confirm no error banners; audit footer / help link where applicable.
+   - Log **pass/fail** with route and what you checked.
+   - Prefer localhost when dev server is running; use Amplify (`app.abilityvua.com`) after push when the slice is deploy-dependent.
 5. **Review** — run Bugbot on uncommitted changes before push to `main` (see `bugbot-commit.mdc`).
 6. **Commit and push** — follow `.cursor/rules/commit-and-push.mdc`; push to the current branch after a successful commit.
-7. **Handoff** — end with a **Verification** block listing commands (with exit codes), browser smoke result, **migrations applied**, and **docs updated**.
+7. **Handoff** — end with a **Verification** block listing commands (with exit codes), **browser smoke result**, migrations applied, and docs updated.
 
 ## Never
 
 - Stop after implementation without push and test.
 - Ask "Should I push?" or "Want me to test?" when this rule applies.
-- Ask the user to run `supabase:push-remote` or apply migrations — that is always the agent's job (`.cursor/rules/supabase-migrations.mdc`).
-- Mark work done with only "you can test locally" and no agent-run verification.
+- Hand off with "you can verify in the browser" instead of running browser smoke yourself.
+- Ask the user to run `supabase:push-remote` or apply migrations — that is always the agent's job.
+- Mark work done without agent-run browser verification for UI changes.
 
 ## Exceptions
 
 - User explicitly says not to push or not to commit in that message.
 - Pure question/review tasks with no repo changes.
+- Non-UI backend-only changes: browser smoke may be skipped if no user-visible route changed.

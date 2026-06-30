@@ -9,8 +9,8 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 
 | Metric | Count |
 |--------|------:|
-| App windows (incl. tabs) | 164 |
-| System windows | 17 |
+| App windows (incl. tabs) | 163 |
+| System windows | 18 |
 | Access processes | 48 |
 | Reports | 10 |
 
@@ -223,7 +223,7 @@ Use with [UAT-INDEX.md](../UAT-INDEX.md) module packs. Mark **Result**: Pass | F
 |--------|------------|-------|-------------|--------|--------|
 | UAT-13-W-001 | `reports-advance` | Reports Advance | /system/admin/reports-advance | reports | |
 | UAT-13-W-002 | `admin-organization` | Organisation | /admin/organization | — | |
-| UAT-13-W-003 | `admin-security` | Security settings | /admin/security | — | |
+| UAT-13-W-003 | `admin-security` | Security settings | /system/settings/security | — | |
 | UAT-13-W-004 | `admin-reference-data` | Reference data | /admin/reference-data | — | |
 | UAT-13-W-005 | `admin-pay-periods` | Pay periods | /admin/pay-periods | — | |
 | UAT-13-W-006 | `admin-roles` | Roles | /admin/roles | — | |

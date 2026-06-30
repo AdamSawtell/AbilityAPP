@@ -32,7 +32,29 @@
 
 ---
 
-## Location activities UI consistency (2026-06-30)
+## Security settings moved to System (2026-06-30)
+
+**Status:** Shipped (2026-06-30).
+
+**Why:** Idle session timeout is organisation-wide security configuration and belongs with other System settings (record retention, time and date), not the workspace Admin sidebar.
+
+| Area | Change |
+|------|--------|
+| Route | `/system/settings/security` under System settings; `/admin/security` redirects |
+| Shell | `SystemShell` + System operator access via `resolveSystemOperatorAccess()` |
+| API | `/api/system/settings/security` GET/PATCH replaces `/api/admin/security/idle-timeout` |
+| Catalog | `admin-security` window is `surface: "system"`; removed from workspace Admin sidebar and role seeds |
+| Nav | System settings sidebar lists Security settings above Record retention |
+
+**What you can test:** TEST-103 in `docs/testing/TEST-RUNBOOKS.md` (step 1 uses System setup).
+
+**Verification (2026-06-30):**
+- `npm run build` — exit 0
+- `npm run page-guides:check` — exit 0 (143 routes)
+- `node scripts/run-all-remote-seeds.mjs supabase/seed-access.sql` — exit 0
+- Browser smoke — PASS on `/system/settings/security` (System shell, save, help, audit footer; `/admin/security` redirect)
+
+---
 
 **Status:** Shipped (2026-06-30).
 

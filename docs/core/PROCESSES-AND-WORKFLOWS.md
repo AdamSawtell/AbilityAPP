@@ -327,7 +327,7 @@ Window `admin-communications` (workspace Admin, write). Messages are **immutable
 |------|---------|--------------|---------|
 | Idle warning | No workspace activity for `app_organization.idle_timeout_minutes` | Non-dismissible modal starts a 2-minute countdown | User can click Stay signed in |
 | Inactivity logout | Warning countdown reaches zero | `/api/auth/session?reason=inactivity` records `user_session.status = timed_out` and redirects to `/login?expired=inactivity` | Session closes and login shows the inactivity message |
-| Security setting save | Admin > Security settings | Updates `app_organization.idle_timeout_minutes`; organisation audit trail records the field change | New sessions use the configured timeout |
+| Security setting save | System settings → Security settings | Updates `app_organization.idle_timeout_minutes`; organisation audit trail records the field change | New sessions use the configured timeout |
 
 ---
 

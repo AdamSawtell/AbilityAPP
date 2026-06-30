@@ -273,6 +273,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
     icon: "admin",
     links: [
       {
+        href: "/system/settings/security",
+        label: "Security settings",
+        match: (p) => p.startsWith("/system/settings/security"),
+      },
+      {
         href: "/system/settings/record-retention",
         label: "Record retention settings",
         match: (p) => p.startsWith("/system/settings/record-retention"),
@@ -383,6 +388,12 @@ export const SYSTEM_HOME_LINKS: {
     href: "/system/settings/incident-management",
     title: "Incident management",
     description: "Investigation SLA days for the incident dashboard and task automations.",
+  },
+  {
+    sectionKey: "system-settings",
+    href: "/system/settings/security",
+    title: "Security settings",
+    description: "Workspace idle timeout before the inactivity warning and automatic sign-out.",
   },
   {
     sectionKey: "system-settings",

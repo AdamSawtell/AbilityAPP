@@ -148,7 +148,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | Recurrence | `roster_shift` recurrence fields |
 | Buddy pay policy | `organization.buddy_shift_pay_policy` (`always_pay` \| `dont_pay` \| `ask`) | System → Organisation → Buddy shifts |
 | RoC rollover defaults | `organization.roster_rollover_*` | Manual bulk publish defaults for RoC → live roster; future scheduler can reuse |
-| Idle session timeout | `app_organization.idle_timeout_minutes` | Admin > Security settings; 5 to 120 minutes before the 2-minute inactivity warning |
+| Idle session timeout | `app_organization.idle_timeout_minutes` | System settings → Security settings; 5 to 120 minutes before the 2-minute inactivity warning |
 | Training/meeting grouping | `roster_shift.training_session_group_id` | One row per attendee; group id ties rows into the session for cost and attendance reporting |
 
 ---
