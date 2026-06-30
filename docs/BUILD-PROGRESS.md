@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | AB-0039 Breadcrumb navigation |
 | **Next slice** | AB-0041 Consistent save UX across line-item tables |
-| **Last push** | 2026-06-30 — AB-0037 empty state pages Phase 1 (`c770e93`) |
+| **Last push** | 2026-06-30 — AB-0039 breadcrumb navigation (`bdc2156`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -94,6 +94,8 @@
 | Tabs | `?tab=` appends record tab label (e.g. Activity) |
 
 **What you can test:** TEST-068 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0039-breadcrumb-navigation-handoff.md`.
+
+**Amplify smoke (2026-06-30, post-push `bdc2156`):** PASS — `/rostering` → **Home > Rostering**; `/my/availability` → **Home > My workplace > Availability**; `/system/organization` → **System > Organisation > Organisation profile**; client record keeps explicit trail (`Home > Clients > AVSI20`); clicking **My workplace** crumb navigated to `/my`.
 
 ---
 

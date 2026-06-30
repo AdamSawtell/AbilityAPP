@@ -1,7 +1,7 @@
 # AB-0039 — Breadcrumb navigation (handoff)
 
 **Status:** Shipped (Phase 1 + Phase 2)  
-**Commit:** _(filled on push)_  
+**Commit:** `bdc2156`  
 **Backlog:** AB-0039 Breadcrumb Navigation
 
 ## Summary

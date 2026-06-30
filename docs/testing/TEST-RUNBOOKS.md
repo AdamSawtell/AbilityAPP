@@ -820,6 +820,8 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 **Regression:** `npm run test:karen` includes AB-0039 route-builder checks.
 
+**Result (2026-06-30, Amplify `bdc2156`):** PASS — steps 1, 2, 5 verified live; step 2 crumb click navigated to `/my`; System surface trail (`System > Organisation > Organisation profile`) also confirmed.
+
 ---
 
 ## TEST-065 — Save confirmation toast (AB-0038)
