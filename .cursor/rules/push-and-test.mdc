@@ -20,7 +20,12 @@ When you finish a task that changes the repo, **do not hand off without pushing,
    - Prefer localhost when dev server is running; use Amplify (`app.abilityvua.com`) after push when the slice is deploy-dependent.
 5. **Review** — run Bugbot on uncommitted changes before push to `main` (see `bugbot-commit.mdc`).
 6. **Commit and push** — follow `.cursor/rules/commit-and-push.mdc`; push to the current branch after a successful commit.
-7. **Handoff** — end with a **Verification** block listing commands (with exit codes), **browser smoke result**, migrations applied, and docs updated.
+7. **Amplify post-deploy smoke (mandatory after push to `main`)** — pushing to `main` triggers an Amplify build:
+   - **Wait 5 minutes** after the push for the deploy to finish (use a background sleep, then continue).
+   - Then run a browser MCP smoke on the affected route(s) at **`app.abilityvua.com`** — same checks as step 4.
+   - Log **pass/fail** with route, what you checked, and the deployed commit hash.
+   - If the route still shows old behaviour, wait and retry once before reporting a deploy issue.
+8. **Handoff** — end with a **Verification** block listing commands (with exit codes), **localhost + Amplify smoke results**, migrations applied, and docs updated.
 
 ## Never
 
@@ -29,6 +34,7 @@ When you finish a task that changes the repo, **do not hand off without pushing,
 - Hand off with "you can verify in the browser" instead of running browser smoke yourself.
 - Ask the user to run `supabase:push-remote` or apply migrations — that is always the agent's job.
 - Mark work done without agent-run browser verification for UI changes.
+- Skip the Amplify post-deploy smoke after pushing UI changes to `main`.
 
 ## Exceptions
 
