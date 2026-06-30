@@ -95,7 +95,7 @@
 | Maintain vehicle record | Fleet → vehicle detail save | Updates `fleet_vehicle`; audit event on `fleet-vehicle` |
 | Add service record | Fleet → Servicing tab | Replaces `fleet_service_record` lines for the vehicle |
 | Complete pre-start inspection | Fleet → Inspections tab | Saves `fleet_inspection`; failed inspection sets `fleet_vehicle.status = off_road` |
-| Book vehicle | Fleet → Bookings tab | Saves `fleet_booking` when the vehicle is active and no overlapping booking exists |
+| Book vehicle | Fleet → Bookings tab, Maintenance → Assignment, or Location → Vehicle bookings tab (location prefilled) | Saves `fleet_booking` when the vehicle is active and no overlapping booking exists; gated by `fleet-bookings` write |
 | Track mileage | Fleet → Fuel & mileage tab | Saves odometer readings in `fleet_fuel_log`; fuel card/procurement is Phase 2 |
 
 Fleet booking conflict rule: same vehicle + non-cancelled booking + overlapping start/end blocks save. Driver checks use employee licence/NDIS/WWCC expiry fields where available.

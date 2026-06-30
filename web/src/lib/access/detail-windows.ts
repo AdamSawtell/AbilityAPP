@@ -184,7 +184,10 @@ const LOCATION_TAB_KEY_OVERRIDES: Record<string, string> = {
   "Products & services": "location-products-and-services",
 };
 
-export const LOCATION_DETAIL_TABS = [...locationTabs];
+// "Vehicle bookings" is a location tab but reuses the existing `fleet-bookings`
+// window for access (see DETAIL_TAB_KEY_OVERRIDES), so it is not generated as a
+// standalone `location-vehicle-bookings` window and needs no separate role grant.
+export const LOCATION_DETAIL_TABS = locationTabs.filter((tab) => tab !== "Vehicle bookings");
 
 export const LOCATION_DEPENDENT_WINDOWS = buildDetailWindows(
   "locations",

@@ -151,7 +151,7 @@ export const clientsArticle: HelpArticle = {
     {
       id: "support-plan-tab",
       title: "Support Plan tab",
-      body: "The Support Plan tab holds the participant care plan: About me, communication, health, behaviour, daily living sections, goals, health records, support requirements, assistive technology, emergency procedures, and worker instructions. Use the sidebar to switch sections. Line sections — Goals, Medications, Diagnoses, Health plans, Support requirements, and Assistive technology — use a read-only summary list: click a row (or Add) to open the side panel with the full form, including Copy and Remove. Save support plan after edits — changes audit on the client record.",
+      body: "The Support Plan tab holds the participant care plan: About me, communication, health, behaviour, daily living sections, goals, health records, support requirements, assistive technology, emergency procedures, and worker instructions. Use the sidebar to switch sections. Line sections — Goals, Medications, Diagnoses, Health plans, Support requirements, and Assistive technology — use a read-only summary list: click a row (or Add) to open the side panel with the full form, **Save** and **Cancel** in the panel footer, and Copy and Remove below. Save persists the support plan — you do not need to scroll to the page save bar.",
       steps: [
         "Open the client → Support Plan.",
         "Pick a section from the sidebar (About me, Communication and language, Health records, Goals, and so on).",
@@ -237,7 +237,7 @@ export const locationsArticle: HelpArticle = {
   title: "Locations",
   summary: "Manage SIL houses, day programs, and other sites with linked clients, staff, and services.",
   category: "Core",
-  keywords: ["location", "support location", "SIL", "address", "assign client", "assign employee", "activity"],
+  keywords: ["location", "support location", "SIL", "address", "assign client", "assign employee", "activity", "vehicle booking", "fleet", "transport"],
   relatedRoutes: ["/locations", "/locations/new"],
   windowKeys: ["locations"],
   lastUpdated: "2026-06-30",
@@ -264,7 +264,7 @@ export const locationsArticle: HelpArticle = {
       title: "Location tabs",
       bullets: [
         "Location: Overview, Contact and address",
-        "Relationships: Alerts, Clients, Employees",
+        "Relationships: Alerts, Clients, Employees, Incidents, Maintenance, Vehicle bookings",
         "Services: Products and services",
         "History: Activity, Calendar",
       ],
@@ -278,12 +278,26 @@ export const locationsArticle: HelpArticle = {
     {
       id: "assignments",
       title: "Link clients, staff, and services",
-      body: "Use the Clients, Employees, and Products and services tabs to assign who receives support at this site and which products are delivered there. The Alerts, Clients, Employees, and Products and services tabs all use the same summary list and side panel as Activity: the table is read-only, and clicking a row (or Add) opens the side panel with the full form, including Copy and Remove. Search still works, and changes save with the parent location record. Your role needs the matching assign-location process.",
+      body: "The Alerts, Clients, Employees, and Products and services tabs all use the same summary list and side panel as Activity: the table is read-only, and clicking a row (or Add) opens the side panel with the full form, **Save** and **Cancel** in the panel footer, and Copy and Remove below. Save persists the parent location record — you do not need to scroll to the page save bar. Search still works, and changes save with the parent location record. Your role needs the matching assign-location process.",
       bullets: [
         "assign-location-client: link support receivers",
         "assign-location-employee: link staff",
         "assign-location-product: link products and services",
       ],
+    },
+    {
+      id: "location-vehicle-bookings",
+      title: "Book a vehicle for this site",
+      body: "The Vehicle bookings tab reserves a fleet vehicle for this location without leaving the record. It uses the same form as Fleet → Bookings, with this location prefilled. Pick a vehicle, driver, optional client, start/end times, and purpose, then Save booking. Overlapping confirmed bookings for the same vehicle are blocked, and vehicle/driver compliance is checked before saving. Saved bookings appear in the list below the form and on this location's Calendar tab (tick Show vehicle bookings). The tab is shown to roles with Fleet → Bookings access.",
+      steps: [
+        "Open the location → Vehicle bookings (under Relationships).",
+        "Pick a vehicle and driver; the location is prefilled. Add an optional client and a purpose.",
+        "Set the start and end times for the reservation.",
+        "Click Save booking. A clash with another confirmed booking or a compliance issue is shown inline.",
+        "Open the Calendar tab and tick Show vehicle bookings to see it alongside shifts and maintenance.",
+      ],
+      relatedRoutes: ["/fleet"],
+      windowKeys: ["fleet-bookings"],
     },
   ],
 };

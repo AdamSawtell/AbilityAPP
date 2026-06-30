@@ -100,6 +100,7 @@ export const locationTabs = [
   "Employees",
   "Incidents",
   "Maintenance",
+  "Vehicle bookings",
   "Site orientation",
   "Products & services",
 ] as const;
@@ -113,7 +114,7 @@ export type LocationTabGroup = {
 
 export const locationTabGroups: LocationTabGroup[] = [
   { label: "Core", tabs: ["Overview", "Activity", "Calendar", "Alerts", "Contact & address"] },
-  { label: "Relationships", tabs: ["Clients", "Employees", "Incidents", "Maintenance", "Site orientation"] },
+  { label: "Relationships", tabs: ["Clients", "Employees", "Incidents", "Maintenance", "Vehicle bookings", "Site orientation"] },
   { label: "Services", tabs: ["Products & services"] },
 ];
 

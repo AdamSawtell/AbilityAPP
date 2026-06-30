@@ -1153,6 +1153,7 @@ const DETAIL_TAB_KEY_OVERRIDES: Record<string, Record<string, string>> = {
   locations: {
     "Contact & address": "location-contact-and-address",
     "Products & services": "location-products-and-services",
+    "Vehicle bookings": "fleet-bookings",
   },
 };
 

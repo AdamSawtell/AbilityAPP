@@ -445,7 +445,7 @@ Columns: **FUNC ID** | **Module** | **Function** | **Route / entry** | **Roles**
 | FUNC-131 | Admin | Role document print/send | `/admin/roles` | Admin | Live | UAT-13-S-003 |
 | FUNC-132 | Documents | Record Documents section | Record detail tabs | Coordinator+ | Live | TEST-033 |
 | FUNC-133 | Fleet | Vehicle register | `/fleet` | Admin / Rostering | Live | TEST-096 |
-| FUNC-134 | Fleet | Vehicle booking + conflict prevention | Fleet → Bookings | Admin / Rostering | Live | TEST-096 |
+| FUNC-134 | Fleet | Vehicle booking + conflict prevention | Fleet → Bookings; Maintenance → Assignment; Location → Vehicle bookings | Admin / Rostering | Live | TEST-096 |
 | FUNC-135 | Fleet | Pre-start inspection + off-road status | Fleet → Inspections | Admin / Driver | Live | TEST-096 |
 | FUNC-136 | Maintenance | Central register + filters | `/maintenance` | All staff | Live | TEST-102 |
 | FUNC-137 | Maintenance | Create and lifecycle save | `/maintenance/new`, detail | All staff / Admin | Live | TEST-102 |

@@ -32,6 +32,22 @@
 
 ---
 
+## Book a vehicle from a location (2026-06-30)
+
+**Status:** Shipped (2026-06-30).
+
+**Why:** Users could reserve a fleet vehicle for a site only via Fleet → Bookings or a maintenance request. Coordinators working from a location record had no direct way to book transport for that site.
+
+**What changed:** Added a **Vehicle bookings** tab to the location record (Relationships group). It embeds the shared `FleetBookingForm` with the location prefilled and the booking list filtered to that site, matching the maintenance → Assignment booking embed. The tab reuses the existing `fleet-bookings` window key — no new role grant or Supabase seed — so it appears for roles that already have Fleet → Bookings. Overlap and vehicle/driver compliance checks are unchanged; saved bookings show on the location Calendar (Show vehicle bookings).
+
+**What you can test:** Open a location → Vehicle bookings; pick a vehicle and driver (location prefilled), save, and confirm the booking appears in the site list and on the Calendar. Try an overlapping booking — it is blocked.
+
+**Files:** `web/src/lib/location.ts` (tab + group), `web/src/lib/access/detail-windows.ts` (exclude generated window), `web/src/lib/access/catalog.ts` (tab → `fleet-bookings` override), `web/src/components/fleet-booking-form.tsx` (location list filter), `web/src/components/location-view.tsx` (tab UI + count).
+
+**Docs:** locations help article, WINDOWS-AND-TABS, SYSTEM-FUNCTION-GUIDE, PROCESSES-AND-WORKFLOWS, ENTITY-AND-DATA-MODEL, TEST-096 runbook, HAPPY-PATH FUNC-134.
+
+---
+
 ## Side panel UI consistency AB-0037 (2026-06-30)
 
 **Status:** Shipped (2026-06-30).
@@ -50,6 +66,24 @@
 
 ---
 
+## Side panel Save UX (2026-06-30)
+
+**Status:** Implemented — pending commit.
+
+**Why:** After AB-0037, users still had to scroll to the page **Save changes** bar after editing a line in the side panel. Save and Cancel now live in the panel footer on every `list-drawer` line table.
+
+| Area | Change |
+|------|--------|
+| `RecordLineDrawer` | Footer **Save** (primary) and **Cancel**; close/backdrop/Escape confirms when the open line is dirty |
+| `LineItemTable` | Wires drawer save from parent `RecordLineSaveProvider` or inline `saveable` tables; per-line discard on Cancel |
+| Record pages | `RecordLineSaveProvider` wraps location, client, employee, contract, fleet, incident, enquiry, price list, service agreement/booking, support plan, monthly service plan editors |
+
+**What you can test:** TEST-105 steps 2–3 — edit a location alert in the panel, **Save** in the panel, refresh; drawer closes and change persists without using the bottom bar.
+
+**Local smoke (2026-06-30):** `/locations/loc-glenelg-sil?tab=Alerts` — row opens drawer with Save/Cancel; panel Save persisted description after refresh — **Pass**
+
+---
+
 ## Startup performance AB-0042 (2026-06-30)
 
 **Status:** In verification.
@@ -60,8 +94,8 @@
 |------|--------|
 | Server session | `/api/auth/session` now builds the active session from the current user, active role, and that role's grants instead of fetching all users and every role grant |
 | Client auth | `AuthProvider` renders after the active session is known; full users/roles load in the background and are explicitly requested by Roles/System access screens |
-| Data hydrate | `/login`, `/system`, participant portal, and agency portal skip the workspace `fetchAllData()` hydrate |
-| Workspace cache | `DataProvider` uses a 5-minute `sessionStorage` snapshot for faster refresh/back-navigation, then refreshes Supabase in the background |
+| Data hydrate | `/login`, participant portal, and agency portal skip the workspace `fetchAllData()` hydrate |
+| Workspace cache | `DataProvider` uses a 5-minute `sessionStorage` snapshot for faster refresh/back-navigation; fresh remote hydrate resumes when the cache expires |
 | Diagnostics | Dev builds log auth directory and remote data hydrate timings in the browser console |
 
 **What you can test:** TEST-106 in `docs/testing/TEST-RUNBOOKS.md`.

@@ -26,7 +26,7 @@ export type FleetBookingFormProps = {
   /** Heading for the form card — defaults to "Book this vehicle". */
   formTitle?: string;
   /** Filter the booking list below the form. */
-  listFilter?: { vehicleId?: string; maintenanceRequestId?: string };
+  listFilter?: { vehicleId?: string; maintenanceRequestId?: string; locationId?: string };
 };
 
 export function FleetBookingForm({
@@ -110,6 +110,8 @@ export function FleetBookingForm({
       rows = rows.filter((row) => row.maintenanceRequestId === listFilter.maintenanceRequestId);
     } else if (listFilter?.vehicleId) {
       rows = rows.filter((row) => row.vehicleId === listFilter.vehicleId);
+    } else if (listFilter?.locationId) {
+      rows = rows.filter((row) => row.locationId === listFilter.locationId);
     } else if (fixedVehicle) {
       rows = rows.filter((row) => row.vehicleId === fixedVehicle.id);
     }

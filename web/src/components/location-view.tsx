@@ -14,6 +14,7 @@ import { RecordPhotoPanel } from "@/components/record-photo-panel";
 import { SiteOrientationPanel } from "@/components/site-orientation-panel";
 import { LocationAnimalsPanel } from "@/components/location-animals-panel";
 import { RecordCalendarPanel } from "@/components/record-calendar-panel";
+import { FleetBookingForm } from "@/components/fleet-booking-form";
 import { orientationsForLocation } from "@/lib/site-orientation";
 import {
   locationActivityTableConfig,
@@ -180,13 +181,19 @@ function FieldGrid({
   );
 }
 
-function tabCount(location: LocationRecord, tab: string, siteOrientationCount?: number): number | null {
+function tabCount(
+  location: LocationRecord,
+  tab: string,
+  siteOrientationCount?: number,
+  vehicleBookingCount?: number
+): number | null {
   if (tab === "Alerts") return location.alerts.length;
   if (tab === "Clients") return location.clientLinks.length;
   if (tab === "Employees") return location.employeeLinks.length;
   if (tab === "Products & services") return location.productLinks.length;
   if (tab === "Activity") return location.activities.length;
   if (tab === "Site orientation") return siteOrientationCount ?? null;
+  if (tab === "Vehicle bookings") return vehicleBookingCount ?? null;
   if (tab === "Incidents") return null;
   return null;
 }
@@ -214,10 +221,14 @@ export function LocationTabbedView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { session, canWindow, canWriteWindow, canProcess } = useAuth();
-  const { clients, employees, products, siteOrientations } = useData();
+  const { clients, employees, products, siteOrientations, fleetBookings } = useData();
   const siteOrientationCount = useMemo(
     () => orientationsForLocation(siteOrientations, location.id).length,
     [siteOrientations, location.id]
+  );
+  const vehicleBookingCount = useMemo(
+    () => fleetBookings.filter((row) => row.locationId === location.id && row.status !== "cancelled").length,
+    [fleetBookings, location.id]
   );
   const { getOptions } = useReferenceData();
 
@@ -288,7 +299,7 @@ export function LocationTabbedView({
               </p>
               <div className="space-y-0.5">
                 {group.tabs.map((tab) => {
-                  const count = tabCount(location, tab, siteOrientationCount);
+                  const count = tabCount(location, tab, siteOrientationCount, vehicleBookingCount);
                   const active = activeTab === tab;
                   return (
                     <button
@@ -608,6 +619,26 @@ export function LocationTabbedView({
             activities={location.activities}
             description="Fortnight view of tasks, live roster shifts, and activity notes. Toggle Show RoC templates to overlay master roster lines delivered at this site."
           />
+        ) : null}
+
+        {activeTab === "Vehicle bookings" && canWindow("fleet-bookings") ? (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+              <h3 className="text-sm font-semibold text-slate-900">Vehicle bookings</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                Reserve a fleet vehicle for this site. The location is prefilled — pick a vehicle, driver, and time
+                window. Overlapping confirmed bookings for the same vehicle are blocked, and the booking appears on
+                this location&apos;s calendar.
+              </p>
+            </div>
+            <FleetBookingForm
+              key={location.id}
+              prefill={{ locationId: location.id }}
+              readOnly={!canWriteLocationTab("Vehicle bookings")}
+              formTitle="Book a vehicle for this site"
+              listFilter={{ locationId: location.id }}
+            />
+          </div>
         ) : null}
 
         {allowedTabs.length === 0 ? (

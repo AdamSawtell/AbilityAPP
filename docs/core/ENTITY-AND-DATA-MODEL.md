@@ -257,7 +257,7 @@ Stored on client or child tables; loaded via `data-api` + mappers.
 | `fleet_service_record` | `vehicle_id` → `fleet_vehicle` | Service and repair history, provider, odometer, cost status, next due date |
 | `fleet_inspection` | `vehicle_id`, optional `employee_id`, optional `shift_id` | Pre-start pass/fail inspection; failed inspections set the vehicle off road in the app |
 | `fleet_fuel_log` | `vehicle_id`, optional `employee_id` | MVP odometer readings and optional fuel/mileage notes |
-| `fleet_booking` | `vehicle_id`, optional driver/client/location/shift | Vehicle availability bookings with overlap prevention |
+| `fleet_booking` | `vehicle_id`, optional driver/client/location/shift | Vehicle availability bookings with overlap prevention. Created from Fleet → Bookings, a maintenance request → Assignment, or a location → Vehicle bookings tab (location prefilled, filtered to that site) |
 
 ### Maintenance requests (AB-0005)
 
@@ -310,7 +310,7 @@ Additional links: `roster_shift.vehicle_id` and `incident.vehicle_id` let roster
 | Service agreement | client, price list | Client → Service agreements | lifecycle validation |
 | Service booking | client; agreement when funded | Client → Service bookings | `booking-compliance.ts` |
 | Incident | client | Client → Incidents | workflow rules |
-| Fleet vehicle | location, driver, bookings, service/inspection/fuel lines | Fleet register; roster shift and incident links | booking overlap + off-road status checks |
+| Fleet vehicle | location, driver, bookings, service/inspection/fuel lines | Fleet register; roster shift and incident links; Location → Vehicle bookings (bookings for the site) | booking overlap + off-road status checks |
 | Task | entityType + entityId | Client → Requests | — |
 | Timesheet / roster shift | employee **or** agency worker + vendor, client, location, booking (typical) | Roster week view | `roster-shift-compliance.ts` |
 | Agency shift request | roster shift, vendor; worker when proposed | Gaps drawer | `agency-shift-workflow.ts` |

@@ -214,12 +214,15 @@ Tab window keys follow `{parent}-{slug}` (e.g. `client-support-plan`). Slugs com
 | Clients | `location-clients` |
 | Employees | `location-employees` |
 | Incidents | `location-incidents` |
+| Vehicle bookings | `fleet-bookings` (reused) |
 | Site orientation | `location-site-orientation` |
 | Products & services | `location-products-and-services` |
 
 **Processes:** `assign-location-client`, `assign-location-employee`, `assign-location-product`.
 
-**Line editor pattern:** The location Activity tab uses the shared summary list + side drawer pattern (date, type, subject, created by columns). Rows open into `RecordLineDrawer` for full fields including description; Copy and Request deletion live inside the drawer. Parent location save persists changes. This matches the client Activity tab.
+**Vehicle bookings tab:** Shown only to roles with Fleet → Bookings access. It reuses the existing `fleet-bookings` window key (no separate `location-vehicle-bookings` window or role grant) and embeds the shared `FleetBookingForm` with the location prefilled, matching the maintenance request → Assignment booking embed. Saved bookings appear on the location Calendar (Show vehicle bookings).
+
+**Line editor pattern:** The location Activity tab uses the shared summary list + side drawer pattern (date, type, subject, created by columns). Rows open into `RecordLineDrawer` for full fields including description; **Save** and **Cancel** in the panel footer persist the parent location record; Copy and Request deletion live inside the drawer. This matches the client Activity tab.
 
 ### Maintenance request record tabs
 
@@ -476,7 +479,7 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 
 **Documents (Documents tab, bottom):** Generate / Print / PDF / HTML — offer, contract, separation (`print-employee-offer`, `print-employee-contract`, `print-employee-separation`).
 
-**Line editor pattern:** Employee child collections (Leave entitlements/requests, Credentials Assigned, Alerts, Documents, Skills & languages, Activity) use the shared summary list + side drawer pattern. Rows open into `RecordLineDrawer`; parent employee save persists changes and writes the record audit.
+**Line editor pattern:** Employee child collections (Leave entitlements/requests, Credentials Assigned, Alerts, Documents, Skills & languages, Activity) use the shared summary list + side drawer pattern. Rows open into `RecordLineDrawer` with **Save** and **Cancel** in the panel footer; parent employee save (panel or page bar) persists changes and writes the record audit.
 
 **Processes:** `assign-employee-credential`, `submit-leave-on-behalf`, `review-employee-credential`, `approve-leave-request`.
 
@@ -505,7 +508,7 @@ Agency workers routes: `/agency-workers/new`, `/agency-workers/{id}`. Agency tim
 
 **Documents (bottom):** Print notification — `print-incident-notification`.
 
-**Line editor pattern:** Incident child collections (Parties & links, Investigation actions, Evidence, Notifications) use the shared summary list + side drawer pattern. Rows open into `RecordLineDrawer`; parent incident save persists changes and writes the record audit.
+**Line editor pattern:** Incident child collections (Parties & links, Investigation actions, Evidence, Notifications) use the shared summary list + side drawer pattern. Rows open into `RecordLineDrawer` with **Save** and **Cancel** in the panel footer; parent incident save (panel or page bar) persists changes and writes the record audit.
 
 **Processes:** `report-incident`, `notify-ndis-reportable`.
 

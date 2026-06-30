@@ -92,9 +92,9 @@ Step-by-step smokes for [HAPPY-PATH-E2E-MATRIX.md](./HAPPY-PATH-E2E-MATRIX.md). 
 | Step | Action | Pass if |
 |------|--------|---------|
 | 1 | Open `/locations/loc-glenelg-sil?tab=Alerts` (then Clients, Employees, Products and services) | Read-only summary columns only — no inline dropdown/text/textarea cells, no per-row Copy/Remove links |
-| 2 | Click a row | Side panel opens with the full form editable; Copy and Remove inside the panel |
-| 3 | Open a client → Support Plan → Goals (then Medications, Diagnoses, Health plans, Support requirements, Assistive technology) | Each section is a read-only list + side panel editor |
-| 4 | Open a client → Plan budget goals and Monthly service plan lines | Read-only list + side panel editor |
+| 2 | Click a row | Side panel opens with the full form editable; **Save** and **Cancel** in the panel footer; Copy and Remove below |
+| 3 | Edit a field; click **Save** in the panel | Persists with the parent record; drawer closes; no need to scroll to the page save bar |
+| 4 | Open a client → Support Plan → Goals (then Medications, Diagnoses, Health plans, Support requirements, Assistive technology) | Each section is a read-only list + side panel editor with Save in the panel |
 | 5 | Open a price list → Lines; a service agreement → schedule of supports; a service booking → Lines; a contract → Audit | Each is a read-only list + side panel editor |
 | 6 | Edit a field in the panel; close; Save the parent record | Change persists after refresh (no data loss) |
 | 7 | Add a row, then search | Add opens the panel; new row appears in the list after close; search filters rows |
@@ -683,15 +683,15 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 |--|--|
 | **User** | SuperUser / flamingo |
 | **DATA** | Remote Supabase demo data |
-| **Pass if** | Login/system routes do not wait for workspace data hydrate; workspace refresh renders from cache on second load and refreshes in background |
+| **Pass if** | Login and portal routes do not wait for workspace data hydrate; workspace refresh renders from cache on second load |
 
 | Step | Action | Pass if |
 |------|--------|---------|
 | 1 | Open `/login` in a fresh tab | Login form appears without waiting for client/roster/finance data hydrate |
 | 2 | Sign in as SuperUser / AbilityVua Admin | Home loads; no error banner |
-| 3 | Open `/clients`, then refresh the page once | First load may show skeleton; second load reuses the short session cache and resolves faster while remote data refreshes |
+| 3 | Open `/clients`, then refresh the page once | First load may show skeleton; second load reuses the short session cache and resolves faster |
 | 4 | Open `/system/admin/roles` | Roles page shows either the role editor or "Loading role configuration..." until the access directory is ready; role list then loads |
-| 5 | Open `/system` or `/portal/login` | Route resolves without triggering workspace data hydrate |
+| 5 | Open `/portal/login` or `/agency-portal/login` | Route resolves without triggering workspace data hydrate |
 
 ---
 
@@ -805,6 +805,8 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 5 | Open the Calendar tab and navigate to the booking date | Booking shows as a **Vehicle booking** chip on each day it covers; cancelled bookings do not appear |
 | 6 | Add another booking with overlapping start/end for the same vehicle | Save is blocked with an overlap/conflict message |
 | 7 | Add a failed inspection and save the vehicle | Vehicle status changes to `off_road` |
+| 8 | Open a location (`/locations/[id]`) → **Vehicle bookings** tab (Relationships) | Tab is visible for Fleet → Bookings roles; booking form shows with this location prefilled, and the list below is filtered to bookings for this site |
+| 9 | Pick a vehicle and driver, set times, Save booking | Booking saves, appears in the location list, and shows on the location Calendar when Show vehicle bookings is ticked |
 
 ---
 
