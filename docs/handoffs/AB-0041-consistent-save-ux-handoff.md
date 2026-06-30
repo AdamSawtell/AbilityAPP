@@ -1,7 +1,7 @@
 # AB-0041 — Consistent save UX across line-item tables (handoff)
 
 **Status:** Shipped (Phase 1 + Phase 2 + Phase 3)  
-**Commit:** `01c7e81` (Phase 1+2), Phase 3 _(filled on push)_  
+**Commit:** `01c7e81` (Phase 1+2), `2094e29` (Phase 3)  
 **Backlog:** AB-0041 Consistent Save UX Across Line-Item Tables
 
 ## Summary
@@ -41,6 +41,8 @@ Green save confirmation + AB-0038 toast added to the page-level `UnsavedChangesB
 | `admin/document-templates-admin-page.tsx` | `Saved — {name} updated` + toast + `saving` state |
 
 Pattern: `saveConfirmation` state set in the save handler, cleared in discard, passed to `UnsavedChangesBar` with `onConfirmationDismiss`. Auto-dismiss after 5s (bar) + 3s toast.
+
+**Amplify (2026-06-30, post-push `2094e29`):** PASS — employee `emp-jason-brown` as SuperUser → AbilityVua Admin: edit Notes → **Save changes** → green **✓ Saved — Jason Brown updated** bottom bar + audit footer updated; revert saved cleanly. Other Phase 3 surfaces share the same component/pattern.
 
 ## Verification
 

@@ -118,6 +118,8 @@
 
 **Amplify smoke (2026-06-30, post-push `01c7e81`):** PASS (steps 1–3) — Goals tab on `bp-bulk-20`: inline dirty bar, save confirmation + tab link, discard reverts. Footer copy **Use the save bar below to persist changes.** confirms deploy. Step 4 (Alerts + bottom bar) deferred — Support Worker read-only on Alerts.
 
+**Amplify smoke Phase 3 (2026-06-30, post-push `2094e29`):** PASS — employee `emp-jason-brown` (SuperUser → AbilityVua Admin): edit Notes → **Save changes** → green **✓ Saved — Jason Brown updated** bottom bar + audit footer updated; revert saved cleanly.
+
 ---
 
 ## Save confirmation toast AB-0038 (2026-06-29)
