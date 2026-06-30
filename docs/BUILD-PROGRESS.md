@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
 | **Next slice** | AB-0041 Phase 3 (contract/employee inline save) or next backlog item |
-| **Last push** | 2026-06-30 — AB-0041 consistent save UX (`01c7e81`) |
+| **Last push** | 2026-06-30 — AB-0042 perf + side panel Save UX (`cbdece1`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -68,7 +68,7 @@
 
 ## Side panel Save UX (2026-06-30)
 
-**Status:** Implemented — pending commit.
+**Status:** Shipped (2026-06-30, commit `4bc6a56`).
 
 **Why:** After AB-0037, users still had to scroll to the page **Save changes** bar after editing a line in the side panel. Save and Cancel now live in the panel footer on every `list-drawer` line table.
 
