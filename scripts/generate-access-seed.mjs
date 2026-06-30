@@ -24,11 +24,36 @@ function sqlString(value) {
 }
 
 const lines = [
-  "-- Users, roles, and access seed (ADDITIVE — does not delete custom role grants)",
+  "-- Users, roles, and access seed (BOOTSTRAP-ONLY — never reverts UI role config)",
   "-- Re-run: npm run supabase:seed-access",
-  "-- Upserts demo grants only; Admin changes and extra windows/processes are preserved.",
+  "--",
+  "-- Role grant tables (app_role_window / _process / _report / _task_type) are seeded",
+  "-- ONLY for roles that currently have no rows in that table. Once a role has any",
+  "-- grant — including edits made in the Roles admin UI — the seed skips it entirely,",
+  "-- so re-running this file can never revert a configured role (e.g. Support Worker)",
+  "-- back to the seed default. Grant NEW feature windows to existing roles via a",
+  "-- migration, not by re-running this seed.",
   "",
 ];
+
+// Emit a per-role bootstrap-only grant insert: rows are only applied for roles that
+// have NO existing rows in the target table, so UI-managed role config is preserved
+// across seed re-runs. `valueRows` are pre-rendered `(...)` tuples.
+function pushBootstrapInsert(table, columns, valueRows, conflictTarget) {
+  if (!valueRows.length) return;
+  const colList = columns.join(", ");
+  const selectList = columns.map((c) => `v.${c}`).join(", ");
+  lines.push(`insert into public.${table} (${colList})`);
+  lines.push(`select ${selectList}`);
+  lines.push("from (values");
+  lines.push(valueRows.join(",\n"));
+  lines.push(`) as v(${colList})`);
+  lines.push("-- Bootstrap only: skip roles that already have grants (preserve UI config).");
+  lines.push("where not exists (");
+  lines.push(`  select 1 from public.${table} existing where existing.role_id = v.role_id`);
+  lines.push(")");
+  lines.push(`on conflict ${conflictTarget} do nothing;`);
+}
 
 lines.push("insert into public.app_role (id, role_key, name, description, active)");
 lines.push("values");
@@ -74,34 +99,32 @@ const roleWindows = SEED_ROLES.flatMap((r) =>
     access_level,
   }))
 );
-if (roleWindows.length) {
-  lines.push("insert into public.app_role_window (role_id, window_key, access_level)");
-  lines.push("values");
-  lines.push(
-    roleWindows
-      .map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.window_key)}, ${sqlString(r.access_level)})`)
-      .join(",\n")
-  );
-  lines.push("on conflict (role_id, window_key) do update set access_level = excluded.access_level;");
-}
+pushBootstrapInsert(
+  "app_role_window",
+  ["role_id", "window_key", "access_level"],
+  roleWindows.map(
+    (r) => `  (${sqlString(r.role_id)}, ${sqlString(r.window_key)}, ${sqlString(r.access_level)})`
+  ),
+  "(role_id, window_key)"
+);
 lines.push("");
 
 const roleProcesses = SEED_ROLES.flatMap((r) => r.processIds.map((process_id) => ({ role_id: r.id, process_id })));
-if (roleProcesses.length) {
-  lines.push("insert into public.app_role_process (role_id, process_id)");
-  lines.push("values");
-  lines.push(roleProcesses.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.process_id)})`).join(",\n"));
-  lines.push("on conflict do nothing;");
-}
+pushBootstrapInsert(
+  "app_role_process",
+  ["role_id", "process_id"],
+  roleProcesses.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.process_id)})`),
+  ""
+);
 lines.push("");
 
 const roleReports = SEED_ROLES.flatMap((r) => (r.reportIds ?? []).map((report_id) => ({ role_id: r.id, report_id })));
-if (roleReports.length) {
-  lines.push("insert into public.app_role_report (role_id, report_id)");
-  lines.push("values");
-  lines.push(roleReports.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.report_id)})`).join(",\n"));
-  lines.push("on conflict do nothing;");
-}
+pushBootstrapInsert(
+  "app_role_report",
+  ["role_id", "report_id"],
+  roleReports.map((r) => `  (${sqlString(r.role_id)}, ${sqlString(r.report_id)})`),
+  ""
+);
 lines.push("");
 
 const roleTaskTypes = SEED_ROLES.flatMap((r) =>
@@ -113,20 +136,15 @@ const roleTaskTypes = SEED_ROLES.flatMap((r) =>
     can_create: p.canCreate,
   }))
 );
-if (roleTaskTypes.length) {
-  lines.push("insert into public.app_role_task_type (role_id, task_type_id, can_see, can_select, can_create)");
-  lines.push("values");
-  lines.push(
-    roleTaskTypes
-      .map(
-        (r) =>
-          `  (${sqlString(r.role_id)}, ${sqlString(r.task_type_id)}, ${r.can_see}, ${r.can_select}, ${r.can_create})`
-      )
-      .join(",\n")
-  );
-  lines.push("on conflict (role_id, task_type_id) do update set");
-  lines.push("  can_see = excluded.can_see, can_select = excluded.can_select, can_create = excluded.can_create;");
-}
+pushBootstrapInsert(
+  "app_role_task_type",
+  ["role_id", "task_type_id", "can_see", "can_select", "can_create"],
+  roleTaskTypes.map(
+    (r) =>
+      `  (${sqlString(r.role_id)}, ${sqlString(r.task_type_id)}, ${r.can_see}, ${r.can_select}, ${r.can_create})`
+  ),
+  "(role_id, task_type_id)"
+);
 lines.push("");
 
 lines.push("-- Bcrypt passwords for seed logins (default password: welcome; SuperUser: flamingo)");
