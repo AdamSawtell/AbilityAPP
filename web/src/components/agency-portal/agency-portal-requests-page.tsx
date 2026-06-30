@@ -9,6 +9,7 @@ import {
 import { AgencyPortalNav, AgencyPortalShell } from "@/components/agency-portal/agency-portal-shell";
 import { formatDayHeading, formatShiftTimeRange } from "@/lib/roster-shift";
 import type { AgencyPortalRequestItem } from "@/lib/agency-portal/types";
+import { SkeletonTable } from "@/components/ui/skeleton";
 
 const statusTone: Record<string, string> = {
   Sent: "bg-amber-100 text-amber-900",
@@ -43,7 +44,7 @@ export function AgencyPortalRequestsPage() {
 
           {error ? <p className="text-sm text-red-700">{error}</p> : null}
           {!requests ? (
-            <p className="text-sm text-slate-500">Loading…</p>
+            <SkeletonTable rows={4} columns={4} />
           ) : requests.length === 0 ? (
             <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center text-sm text-slate-600">
               No shift requests yet. Your provider will email a shift pack when coverage is needed.

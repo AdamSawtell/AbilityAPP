@@ -6,6 +6,7 @@ import { SystemShell } from "@/components/system/system-shell";
 import { useAdminPageAccess } from "@/lib/access/window-surface";
 import { DOCUMENT_CLASS_LABELS } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { TableRowsSkeleton } from "@/components/ui/page-skeletons";
 
 export function DocumentRegistryAdminPage() {
   const { hasAnyAccess } = useAdminPageAccess("system");
@@ -64,11 +65,7 @@ export function DocumentRegistryAdminPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                  Loading…
-                </td>
-              </tr>
+              <TableRowsSkeleton rows={6} columns={6} />
             ) : filtered.length ? (
               filtered.map((doc) => (
                 <tr key={doc.id} className="border-t border-slate-100">

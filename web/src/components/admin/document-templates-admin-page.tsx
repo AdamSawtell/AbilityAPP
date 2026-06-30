@@ -28,6 +28,7 @@ import {
   type DocumentTemplateRecord,
 } from "@/lib/document-template";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
+import { SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 import { renderDocument } from "@/lib/document-render";
 import { useOrganization } from "@/lib/organization-store";
 import { useData } from "@/lib/data-store";
@@ -408,7 +409,7 @@ export function DocumentTemplatesAdminPage() {
       <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
           <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Templates</p>
-          {loading ? <p className="px-2 text-sm text-slate-500">Loading…</p> : null}
+          {loading ? <SettingsFormSkeleton rows={5} /> : null}
           <ul className="space-y-1">
             {sorted.map((template) => (
               <li key={template.id}>

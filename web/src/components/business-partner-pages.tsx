@@ -11,6 +11,7 @@ import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 import { agencyWorkersForVendor, isAgencyVendorPartner } from "@/lib/agency-worker";
 import {
   businessPartnerSections,
@@ -192,7 +193,7 @@ function BusinessPartnerAgencyWorkersPanel({
 }
 
 function BusinessPartnerDetailFallback() {
-  return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
+  return <ClientDetailSkeleton />;
 }
 
 export function BusinessPartnerListView() {

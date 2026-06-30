@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   defaultReferenceData,
   referenceDataMeta,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/reference-data";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { fetchReferenceCatalog, replaceReferenceOptions } from "@/lib/supabase/reference-data";
+import { routePageSkeleton } from "@/components/ui/page-skeletons";
 
 type ReferenceDataStore = {
   catalog: ReferenceDataCatalog;
@@ -82,6 +84,7 @@ function loadOverrides(): ReferenceDataCatalog {
 }
 
 export function ReferenceDataProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [remoteCatalog, setRemoteCatalog] = useState<ReferenceDataCatalog | null>(null);
   const [overrides, setOverrides] = useState<ReferenceDataCatalog>({});
   const [hydrated, setHydrated] = useState(false);
@@ -189,11 +192,7 @@ export function ReferenceDataProvider({ children }: { children: React.ReactNode 
   );
 
   if (!hydrated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f6f8] text-sm text-slate-500">
-        Loading…
-      </div>
-    );
+    return routePageSkeleton(pathname ?? "");
   }
 
   return <ReferenceDataContext.Provider value={value}>{children}</ReferenceDataContext.Provider>;

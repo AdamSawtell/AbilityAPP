@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0036 Skeleton loaders — implemented (Phase 1) |
+| **Active slice** | AB-0036 Skeleton loaders — Phase 2 complete |
 | **Next slice** | AB-0041 Consistent save UX across line-item tables |
-| **Last push** | 2026-06-30 — AB-0036 Skeleton loaders (`de25489`) |
+| **Last push** | 2026-06-30 — AB-0036 skeleton loaders Phase 2 (pending) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -34,20 +34,25 @@
 
 ## Skeleton loaders AB-0036 (2026-06-30)
 
-**Status:** Shipped (Phase 1).
+**Status:** Shipped (Phase 1 + Phase 2).
 
 **Why:** Blank white screens during data hydrate made users think the app had frozen. Layout-matching grey skeletons give immediate feedback.
 
 | Area | Change |
 |------|--------|
 | Primitives | `Skeleton`, `SkeletonText`, `SkeletonCard`, `SkeletonTable` in `@/components/ui/skeleton` |
-| Route skeletons | `routePageSkeleton()` for AuthGate + DataProvider; content skeletons for My workplace async pages |
+| Phase 2 helpers | `SettingsFormSkeleton`, `TableRowsSkeleton`, `InlineListSkeleton`, `PortalGuardSkeleton` |
+| Route skeletons | `routePageSkeleton()` for AuthGate + DataProvider; extended to employees, incidents, enquiries, tasks, contracts, business partners |
 | Theme | `bg-muted` token added to globals.css |
 | Top routes | Dashboard, My workplace, Clients, Locations, Rostering (+ My availability/profile/shifts) |
+| Record detail | All tabbed record views (incident, contract, enquiry, employee, business partner, client new) |
+| Admin / System | Settings panels, AI agents, document registry/templates/email, session audit, process investigation modal |
+| Portals | Participant + agency portal guards, auth landing, list/detail async pages |
+| Inline async | AI chat agents, record documents saved files + print log, config store hydrate |
 
 **What you can test:** See TEST-066 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0036-skeleton-loaders-handoff.md`.
 
-**Code review log:** 2026-06-30 — Bugbot findings fixed before push: My workplace hub content hidden/overlapped during API load, nested availability skeleton chrome, portal routes flashing staff chrome, and missing accessible loading status.
+**Code review log:** 2026-06-30 — Bugbot Phase 2: config-store uses `routePageSkeleton(pathname)` for portal-safe hydrate; `ClientDetailSkeleton` + `TableRowsSkeleton` sr-only status; document-email form gated while loading; enquiry/task draft load uses `SettingsFormSkeleton` not record tabs.
 
 **Browser smoke (2026-06-30, localhost TEST-066):** `/clients`, `/locations`, `/my`, and `/rostering` showed accessible loading status / skeleton state on navigation and resolved to live content without errors.
 

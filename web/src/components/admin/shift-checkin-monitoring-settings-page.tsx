@@ -8,6 +8,7 @@ import {
   SHIFT_CHECKIN_MONITORING_FIELDS,
   type ShiftCheckinMonitoringSettings,
 } from "@/lib/shift-checkin-monitoring";
+import { SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 
 const inputClass =
@@ -138,7 +139,7 @@ export function ShiftCheckinMonitoringSettingsView() {
         <p className="mt-1 text-sm text-slate-500">{SHIFT_CHECKIN_MONITORING_FIELDS.description}</p>
 
         {loading ? (
-          <p className="mt-4 text-sm text-slate-500">Loading…</p>
+          <SettingsFormSkeleton rows={5} />
         ) : (
           <>
             <div className="mt-4 grid gap-5 sm:grid-cols-2">

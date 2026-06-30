@@ -9,6 +9,7 @@ import { AgencyPortalNav, AgencyPortalShell } from "@/components/agency-portal/a
 import { formatAgencyTimesheetPeriod } from "@/lib/agency-timesheet";
 import { formatDisplayDate } from "@/lib/enquiry";
 import type { AgencyPortalInvoiceItem, AgencyPortalTimesheetItem } from "@/lib/agency-portal/types";
+import { SkeletonTable } from "@/components/ui/skeleton";
 
 function formatMoney(value: number): string {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(value || 0);
@@ -227,7 +228,7 @@ export function AgencyPortalInvoicesPage() {
           ) : null}
 
           {loading ? (
-            <p className="text-sm text-slate-500">Loading…</p>
+            <SkeletonTable rows={5} columns={7} />
           ) : invoices && invoices.length > 0 ? (
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <table className="min-w-full divide-y divide-slate-100 text-sm">

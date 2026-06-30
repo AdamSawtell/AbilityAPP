@@ -12,6 +12,7 @@ import {
   SESSION_EVENT_LABELS,
   SESSION_STATUS_LABELS,
 } from "@/lib/session-audit/constants";
+import { TableRowsSkeleton } from "@/components/ui/page-skeletons";
 import { summarizeAuditForSession } from "@/lib/session-audit/audit-bridge.client";
 import type {
   SessionDashboardMetrics,
@@ -388,7 +389,7 @@ export function UserSessionAuditView() {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {loading ? (
-              <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-500">Loading…</td></tr>
+              <TableRowsSkeleton rows={8} columns={8} />
             ) : sessions.length === 0 ? (
               <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-500">No sessions match your filters.</td></tr>
             ) : (

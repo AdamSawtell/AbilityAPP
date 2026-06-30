@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { TaskActivityTimeline } from "@/components/task-activity-timeline";
 import { TaskForm, type TaskFormValues } from "@/components/task-form";
 import { TaskHubView } from "@/components/task-hub-view";
+import { ClientDetailSkeleton, SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 import { TaskUpdatePanel, type TaskUpdatePayload } from "@/components/task-update-panel";
 import { PortalServiceRequestPanel } from "@/components/portal/portal-service-request-panel";
 import { useAuth } from "@/lib/auth-store";
@@ -83,7 +84,7 @@ export function TaskListView({ view }: { view: TaskListView }) {
 
 export function TaskCreateView() {
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-slate-500">Loading…</p>}>
+    <Suspense fallback={<div className="p-8"><ClientDetailSkeleton /></div>}>
       <TaskCreateViewInner />
     </Suspense>
   );
@@ -198,20 +199,22 @@ function TaskCreateViewInner() {
           Prepared by your AI assistant. Check every field, then create the task.
         </p>
       ) : null}
-      {draftLoad.loading ? <p className="mb-4 text-sm text-slate-500">Loading draft…</p> : null}
+      {draftLoad.loading ? <SettingsFormSkeleton rows={5} /> : null}
+      {!draftLoad.loading ? (
       <TaskForm
         initialValues={initialValues}
         highlightFields={highlightFields}
         onSubmit={handleCreate}
         onCancel={() => router.push("/tasks")}
       />
+      ) : null}
     </AppShell>
   );
 }
 
 export function TaskDetailView({ id }: { id: string }) {
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-slate-500">Loading…</p>}>
+    <Suspense fallback={<div className="p-8"><ClientDetailSkeleton /></div>}>
       <TaskDetailViewInner id={id} />
     </Suspense>
   );

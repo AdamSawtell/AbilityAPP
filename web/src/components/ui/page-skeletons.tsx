@@ -237,6 +237,9 @@ export function MyProfilePageSkeleton() {
 export function ClientDetailSkeleton() {
   return (
     <div className="space-y-4">
+      <p role="status" className="sr-only">
+        Loading record…
+      </p>
       <div className="flex flex-wrap gap-2">
         {Array.from({ length: 8 }, (_, index) => (
           <Skeleton key={index} className="h-8 w-24 rounded-full" />
@@ -275,6 +278,65 @@ export function MyProfileFullPageSkeleton() {
   );
 }
 
+/** Label + input field rows for admin settings panels while config loads. */
+export function SettingsFormSkeleton({ rows = 3 }: { rows?: number }) {
+  return (
+    <div className="mt-4 max-w-xl space-y-4">
+      <p role="status" className="sr-only">
+        Loading settings…
+      </p>
+      {Array.from({ length: rows }, (_, index) => (
+        <div key={index}>
+          <Skeleton className="mb-1.5 h-4 w-32" />
+          <Skeleton className="h-10 w-full rounded-lg" />
+        </div>
+      ))}
+      <Skeleton className="h-10 w-32 rounded-lg" />
+    </div>
+  );
+}
+
+/** `<tr>` placeholder rows for loaders rendered inside an existing `<tbody>`. */
+export function TableRowsSkeleton({ rows = 6, columns = 5 }: { rows?: number; columns?: number }) {
+  return (
+    <>
+      <tr>
+        <td colSpan={columns} className="sr-only">
+          <span role="status">Loading table…</span>
+        </td>
+      </tr>
+      {Array.from({ length: rows }, (_, rowIndex) => (
+        <tr key={rowIndex} aria-hidden>
+          {Array.from({ length: columns }, (_, colIndex) => (
+            <td key={colIndex} className="px-4 py-3.5">
+              <Skeleton className={`h-4 ${colIndex === 0 ? "w-28" : "w-full"}`} />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+}
+
+/** Stacked block placeholders for inline async lists (chat history, document lists). */
+export function InlineListSkeleton({ rows = 4, className = "" }: { rows?: number; className?: string }) {
+  return (
+    <div className={`space-y-3 ${className}`.trim()}>
+      <p role="status" className="sr-only">
+        Loading…
+      </p>
+      {Array.from({ length: rows }, (_, index) => (
+        <Skeleton key={index} className="h-10 w-full rounded-lg" />
+      ))}
+    </div>
+  );
+}
+
+/** Centred full-screen portal/agency-portal session-guard placeholder. */
+export function PortalGuardSkeleton() {
+  return <PortalPageSkeleton />;
+}
+
 /** Pick a layout-matching skeleton from the current pathname. */
 export function routePageSkeleton(pathname: string) {
   if (pathname === "/login") {
@@ -292,5 +354,17 @@ export function routePageSkeleton(pathname: string) {
   if (pathname === "/locations") return <RecordListPageSkeleton titleWidth="w-36" />;
   if (pathname.startsWith("/locations/")) return <RecordDetailPageSkeleton />;
   if (pathname.startsWith("/rostering")) return <RosteringPageSkeleton />;
+  if (pathname === "/employees") return <RecordListPageSkeleton titleWidth="w-32" />;
+  if (pathname.startsWith("/employees/")) return <RecordDetailPageSkeleton />;
+  if (pathname === "/incidents") return <RecordListPageSkeleton titleWidth="w-32" />;
+  if (pathname.startsWith("/incidents/")) return <RecordDetailPageSkeleton />;
+  if (pathname === "/enquiries") return <RecordListPageSkeleton titleWidth="w-32" />;
+  if (pathname.startsWith("/enquiries/")) return <RecordDetailPageSkeleton />;
+  if (pathname === "/tasks") return <RecordListPageSkeleton titleWidth="w-24" />;
+  if (pathname.startsWith("/tasks/")) return <RecordDetailPageSkeleton />;
+  if (pathname === "/contracts") return <RecordListPageSkeleton titleWidth="w-32" />;
+  if (pathname.startsWith("/contracts/")) return <RecordDetailPageSkeleton />;
+  if (pathname === "/business-partners") return <RecordListPageSkeleton titleWidth="w-40" />;
+  if (pathname.startsWith("/business-partners/")) return <RecordDetailPageSkeleton />;
   return <GenericPageSkeleton />;
 }

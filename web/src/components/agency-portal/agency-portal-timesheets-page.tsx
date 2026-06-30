@@ -8,6 +8,7 @@ import {
 import { AgencyPortalNav, AgencyPortalShell } from "@/components/agency-portal/agency-portal-shell";
 import { formatAgencyTimesheetPeriod } from "@/lib/agency-timesheet";
 import type { AgencyPortalTimesheetItem } from "@/lib/agency-portal/types";
+import { SkeletonTable } from "@/components/ui/skeleton";
 
 function formatMoney(value: number): string {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(value || 0);
@@ -39,7 +40,7 @@ export function AgencyPortalTimesheetsPage() {
 
           {error ? <p className="text-sm text-red-700">{error}</p> : null}
           {!timesheets ? (
-            <p className="text-sm text-slate-500">Loading…</p>
+            <SkeletonTable rows={5} columns={5} />
           ) : timesheets.length === 0 ? (
             <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center text-sm text-slate-600">
               No approved timesheets yet. Your provider generates these after completed agency shifts.

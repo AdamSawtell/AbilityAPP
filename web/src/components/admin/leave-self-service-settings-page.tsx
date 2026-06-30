@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { SystemShell } from "@/components/system/system-shell";
 import { useAdminPageAccess } from "@/lib/access/window-surface";
 import { LEAVE_SELF_SERVICE_SETTINGS } from "@/lib/leave-self-service-policy";
+import { SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 
 const inputClass =
   "w-full max-w-xs rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -103,7 +104,7 @@ export function LeaveSelfServiceSettingsView() {
         <p className="mt-1 text-sm text-slate-500">{LEAVE_SELF_SERVICE_SETTINGS.description}</p>
 
         {loading ? (
-          <p className="mt-4 text-sm text-slate-500">Loading…</p>
+          <SettingsFormSkeleton rows={4} />
         ) : (
           <>
             <label className="mt-4 block max-w-xs text-sm">

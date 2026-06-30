@@ -9,6 +9,7 @@ import {
   type AvailabilityHoursPolicy,
   type OvernightHoursMode,
 } from "@/lib/availability-hours-policy";
+import { SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { CONTRACTED_HOURS_PERIOD_OPTIONS } from "@/lib/contracted-hours";
 
@@ -130,7 +131,7 @@ export function AvailabilityHoursSettingsView() {
           maximum and approval role apply when they need to offer more hours.
         </p>
 
-        {loading ? <p className="mt-6 text-sm text-slate-600">Loading…</p> : null}
+        {loading ? <SettingsFormSkeleton rows={4} /> : null}
 
         {!loading ? (
           <div className="mt-6 space-y-5">

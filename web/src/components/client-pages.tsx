@@ -358,7 +358,7 @@ function ClientNewViewInner({ aiDraftId }: { aiDraftId: string | null }) {
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Clients", href: "/clients" }, { label: "New" }]}
         audit={{ moduleLabel: "Clients" }}
       >
-        <p className="text-sm text-slate-500">Loading…</p>
+        <ClientDetailSkeleton />
       </AppShell>
     );
   }

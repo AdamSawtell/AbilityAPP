@@ -21,6 +21,7 @@ import { resolvePageChatContext } from "@/lib/ai/page-chat-context";
 import { filterPageChatContextForRole, resolveAgentForSuggestion } from "@/lib/ai/suggestion-access";
 import { prefetchCoachNotesFromClients } from "@/lib/ai/activity-coach-prefetch";
 import { savedActivityCardAttachment, clientActivityCoachSaveHrefFromHref } from "@/lib/ai/activity-coach-display";
+import { InlineListSkeleton } from "@/components/ui/page-skeletons";
 
 type AgentSummary = {
   id: string;
@@ -448,7 +449,7 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
         aria-busy={loading}
       >
         {agentsLoading ? (
-          <p className="py-6 text-center text-xs text-slate-500">Loading…</p>
+          <InlineListSkeleton rows={3} className="py-6" />
         ) : !messages.length ? (
           <div className="space-y-2">
             <p className="text-xs font-medium text-slate-600">Try on this page:</p>

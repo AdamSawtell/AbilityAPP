@@ -10,6 +10,7 @@ import { formatAuditDateTime } from "@/lib/audit";
 import { PROCESS_OUTCOME_LABELS, PROCESS_STATUS_LABELS } from "@/lib/process-audit/constants";
 import { RISK_SEVERITY_LABELS, RISK_STATUS_LABELS } from "@/lib/session-audit/constants";
 import type { ProcessAuditRecord, ProcessDashboardMetrics, ProcessInvestigationDetail } from "@/lib/process-audit/types";
+import { SkeletonCard, SkeletonText } from "@/components/ui/skeleton";
 
 function InvestigationPanel({
   id,
@@ -54,7 +55,13 @@ function InvestigationPanel({
   if (loading || !detail) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
-        <div className="rounded-xl bg-white p-8 text-sm text-slate-500">Loading…</div>
+        <div className="w-full max-w-lg rounded-xl bg-white p-8 shadow-xl">
+          <p role="status" className="sr-only">
+            Loading investigation…
+          </p>
+          <SkeletonCard className="mb-4 border-0 shadow-none" />
+          <SkeletonText lines={4} />
+        </div>
       </div>
     );
   }

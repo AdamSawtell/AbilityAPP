@@ -10,6 +10,7 @@ import {
 import { AgencyPortalNav, AgencyPortalShell } from "@/components/agency-portal/agency-portal-shell";
 import { formatDayHeading, formatShiftTimeRange } from "@/lib/roster-shift";
 import type { AgencyPortalRequestItem } from "@/lib/agency-portal/types";
+import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
 export function AgencyPortalRequestDetailPage() {
   const params = useParams();
@@ -88,7 +89,7 @@ export function AgencyPortalRequestDetailPage() {
           </p>
 
           {loading ? (
-            <p className="text-sm text-slate-500">Loading…</p>
+            <ClientDetailSkeleton />
           ) : error && !request ? (
             <p className="text-sm text-red-700">{error}</p>
           ) : request ? (

@@ -16,9 +16,10 @@ import type { ContractLineCollectionKey } from "@/lib/contract-line-tables";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
 function ContractFormFallback() {
-  return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
+  return <ClientDetailSkeleton />;
 }
 
 export function ContractListView() {

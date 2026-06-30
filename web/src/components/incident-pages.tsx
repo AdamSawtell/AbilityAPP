@@ -14,6 +14,7 @@ import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { canSeeAllIncidents, canViewIncidentRecord } from "@/lib/incident-list-access";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
+import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
 import { downloadDocumentPdf, pdfFileName } from "@/lib/document-pdf.client";
 import { useDocumentPlatform } from "@/lib/document-platform-store";
@@ -42,7 +43,7 @@ const toneClasses: Record<string, string> = {
 };
 
 function IncidentTabbedViewFallback() {
-  return <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Loading…</div>;
+  return <ClientDetailSkeleton />;
 }
 
 export function IncidentDetailView({ id }: { id: string }) {

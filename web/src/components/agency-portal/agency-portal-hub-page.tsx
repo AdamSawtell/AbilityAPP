@@ -9,6 +9,7 @@ import type {
   AgencyPortalRequestItem,
   AgencyPortalTimesheetItem,
 } from "@/lib/agency-portal/types";
+import { PortalGuardSkeleton } from "@/components/ui/page-skeletons";
 
 type AgencyPortalSessionView = {
   vendorBpId: string;
@@ -42,7 +43,7 @@ export function AgencyPortalGuard({
   }, [session, router]);
 
   if (session === undefined) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">Loading…</div>;
+    return <PortalGuardSkeleton />;
   }
 
   if (!session) return null;

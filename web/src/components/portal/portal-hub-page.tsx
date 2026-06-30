@@ -8,6 +8,7 @@ import { formatDisplayDate } from "@/lib/enquiry";
 import { formatPlanBudgetCurrency } from "@/lib/client-plan-budget";
 import type { PortalBudgetView, PortalServiceItem } from "@/lib/portal/types";
 import type { PortalServiceRequestRecord } from "@/lib/portal/service-request";
+import { PortalGuardSkeleton } from "@/components/ui/page-skeletons";
 
 type PortalSessionView = {
   clientId: string;
@@ -42,7 +43,7 @@ export function PortalGuard({
   }, [session, router]);
 
   if (session === undefined) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">Loading…</div>;
+    return <PortalGuardSkeleton />;
   }
 
   if (!session) return null;

@@ -8,6 +8,7 @@ import {
   organizationAddressLine,
   organizationDisplayName,
 } from "@/lib/organization";
+import { PortalPageSkeleton } from "@/components/ui/page-skeletons";
 import { useOrganization } from "@/lib/organization-store";
 
 export type PortalAuthConfig = {
@@ -214,7 +215,7 @@ function PortalAuthForm({ config }: { config: PortalAuthConfig }) {
 
 export function PortalAuthLanding({ config }: { config: PortalAuthConfig }) {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-sm text-slate-500">Loading…</div>}>
+    <Suspense fallback={<PortalPageSkeleton />}>
       <PortalAuthForm config={config} />
     </Suspense>
   );

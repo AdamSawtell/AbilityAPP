@@ -21,6 +21,13 @@ import {
 } from "../src/lib/roster-open-shifts.ts";
 import { SAVE_TOAST_MESSAGES, SAVE_SUCCESS_TOAST_ID, showSuccessToast } from "../src/lib/toast.ts";
 import { Skeleton, SkeletonTable, SkeletonText } from "../src/components/ui/skeleton.tsx";
+import {
+  SettingsFormSkeleton,
+  TableRowsSkeleton,
+  InlineListSkeleton,
+  PortalGuardSkeleton,
+  routePageSkeleton,
+} from "../src/components/ui/page-skeletons.tsx";
 
 let failures = 0;
 
@@ -211,6 +218,12 @@ checkTruthy("AB-0038 client toast message", SAVE_TOAST_MESSAGES.client.includes(
 checkTruthy("AB-0036 Skeleton export", typeof Skeleton === "function");
 checkTruthy("AB-0036 SkeletonText export", typeof SkeletonText === "function");
 checkTruthy("AB-0036 SkeletonTable export", typeof SkeletonTable === "function");
+checkTruthy("AB-0036 Phase 2 SettingsFormSkeleton export", typeof SettingsFormSkeleton === "function");
+checkTruthy("AB-0036 Phase 2 TableRowsSkeleton export", typeof TableRowsSkeleton === "function");
+checkTruthy("AB-0036 Phase 2 InlineListSkeleton export", typeof InlineListSkeleton === "function");
+checkTruthy("AB-0036 Phase 2 PortalGuardSkeleton export", typeof PortalGuardSkeleton === "function");
+checkTruthy("AB-0036 routePageSkeleton employees list", routePageSkeleton("/employees") != null);
+checkTruthy("AB-0036 routePageSkeleton incidents detail", routePageSkeleton("/incidents/inc-1") != null);
 
 if (failures > 0) {
   console.error(`\n${failures} regression check(s) failed.`);

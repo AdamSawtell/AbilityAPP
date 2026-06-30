@@ -11,6 +11,7 @@ import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
 import { draftHighlightKeys } from "@/lib/ai/draft-field-highlight";
 import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { emptyIncident, type IncidentRecord } from "@/lib/incident";
+import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
 function NewIncidentPageInner() {
   const router = useRouter();
@@ -121,7 +122,7 @@ function NewIncidentPageInner() {
 
 export default function NewIncidentPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-slate-500">Loading…</p>}>
+    <Suspense fallback={<div className="p-8"><ClientDetailSkeleton /></div>}>
       <NewIncidentPageInner />
     </Suspense>
   );

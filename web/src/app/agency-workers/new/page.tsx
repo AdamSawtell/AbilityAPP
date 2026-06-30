@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { NewAgencyWorkerView } from "@/components/agency-worker-pages";
+import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
 function NewAgencyWorkerPageInner() {
   const vendorBpId = useSearchParams().get("vendorBpId") ?? undefined;
@@ -11,7 +12,7 @@ function NewAgencyWorkerPageInner() {
 
 export default function NewAgencyWorkerPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-sm text-slate-500">Loading…</div>}>
+    <Suspense fallback={<div className="p-8"><ClientDetailSkeleton /></div>}>
       <NewAgencyWorkerPageInner />
     </Suspense>
   );

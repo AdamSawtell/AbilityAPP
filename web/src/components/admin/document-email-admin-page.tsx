@@ -13,6 +13,7 @@ import {
   type DocumentEmailTemplateRecord,
 } from "@/lib/document-email-template";
 import { useOrganization } from "@/lib/organization-store";
+import { SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 import { organizationDisplayName } from "@/lib/organization";
 
 const inputClass =
@@ -150,7 +151,10 @@ export function DocumentEmailAdminPage() {
 
           {record ? (
             <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              {loading ? <p className="text-sm text-slate-500">Loading…</p> : null}
+              {loading ? (
+                <SettingsFormSkeleton rows={3} />
+              ) : (
+                <>
               <label className="block text-sm">
                 <span className="mb-1 block font-medium text-slate-700">Subject</span>
                 <input
@@ -191,6 +195,8 @@ export function DocumentEmailAdminPage() {
               {saveError ? (
                 <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{saveError}</p>
               ) : null}
+                </>
+              )}
             </div>
           ) : null}
         </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { recordDocumentHelpHref } from "@/lib/record-document-help";
+import { InlineListSkeleton } from "@/components/ui/page-skeletons";
 
 export type RecordDocumentAction = {
   processId: string;
@@ -161,7 +162,7 @@ export function RecordDocumentsSection({
         {showFiles ? (
           <div className="overflow-hidden rounded-lg border border-slate-100 bg-slate-50/60">
             {historyLoading && !files.length ? (
-              <p className="px-3 py-2 text-sm text-slate-500">Loading…</p>
+              <InlineListSkeleton rows={3} className="px-3 py-2" />
             ) : files.length ? (
               <ul className="divide-y divide-slate-100">
                 {files.map((file) => (
@@ -200,7 +201,7 @@ export function RecordDocumentsSection({
         {showActivity ? (
           <div className="overflow-hidden rounded-lg border border-slate-100 bg-slate-50/60">
             {historyLoading && !activity.length ? (
-              <p className="px-3 py-2 text-sm text-slate-500">Loading…</p>
+              <InlineListSkeleton rows={3} className="px-3 py-2" />
             ) : activity.length ? (
               <ul className="divide-y divide-slate-100">
                 {activity.map((row) => (

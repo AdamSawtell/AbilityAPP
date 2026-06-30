@@ -1,7 +1,7 @@
 # AB-0036 — Skeleton Loaders — implementation handoff
 
 **Date:** 2026-06-30  
-**Status:** Shipped (Phase 1)  
+**Status:** Shipped (Phase 1 + Phase 2)  
 **Backlog:** AB-0036
 
 ## Summary
@@ -56,11 +56,27 @@ Grey pulsing skeleton placeholders now appear during initial app/data load and o
 - Portal/agency portal hydration uses neutral portal skeletons instead of staff workspace chrome.
 - Route skeletons include accessible loading status text.
 
-## Phase 2 (deferred)
+## Phase 2 coverage (2026-06-30)
 
-- Remaining admin/async panels still using inline "Loading…"
-- Modal/overlay skeletons
-- Refetch skeletons (FR-006 — may be noisy)
+| Surface | Skeleton |
+|---------|----------|
+| Record detail fallbacks | `ClientDetailSkeleton` on incident, contract, enquiry, employee, business partner, client new |
+| Admin settings | `SettingsFormSkeleton` on time/date, leave, shift check-in, availability hours, document email/templates |
+| Admin tables | `SkeletonTable` / `TableRowsSkeleton` on AI agents, document registry, session audit |
+| Process investigation modal | `SkeletonCard` + `SkeletonText` overlay |
+| Portal guards | `PortalGuardSkeleton` on participant + agency portal session check |
+| Portal auth Suspense | `PortalPageSkeleton` |
+| Agency portal lists | `SkeletonTable` on requests, timesheets, invoices; `ClientDetailSkeleton` on request detail |
+| Task / new record Suspense | `ClientDetailSkeleton` on tasks, enquiries/new, incidents/new, agency-workers/new |
+| Config hydrate | `GenericPageSkeleton` in ReferenceDataProvider |
+| Inline async | `InlineListSkeleton` on AI chat agents, record documents saved files + print log |
+| Extended routes | `routePageSkeleton` for employees, incidents, enquiries, tasks, contracts, business partners |
+
+## Phase 2 (complete)
+
+- ~~Remaining admin/async panels still using inline "Loading…"~~ — done
+- ~~Modal/overlay skeletons~~ — process investigation modal done
+- Refetch skeletons (FR-006 — may be noisy) — intentionally deferred; button labels like "Loading…" on save/digest actions remain as inline button state, not page loaders
 
 ## Usage
 

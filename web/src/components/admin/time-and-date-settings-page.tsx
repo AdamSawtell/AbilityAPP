@@ -10,6 +10,7 @@ import {
   DEFAULT_ORGANIZATION_TIMEZONE,
   normalizeOrganizationTimezone,
 } from "@/lib/system-timezone";
+import { SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 
 const inputClass =
   "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -116,7 +117,7 @@ export function TimeAndDateSettingsView() {
           the display timezone changes.
         </p>
 
-        {loading ? <p className="mt-4 text-sm text-slate-500">Loading…</p> : null}
+        {loading ? <SettingsFormSkeleton rows={1} /> : null}
         {error ? (
           <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{error}</p>
         ) : null}

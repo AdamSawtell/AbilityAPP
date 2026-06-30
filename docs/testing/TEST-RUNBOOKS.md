@@ -771,10 +771,15 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 4 | As OliverWilliams, open `/my` | Hub tile/card skeleton before dashboard tiles |
 | 5 | Open `/my/availability` | Weekly pattern row skeleton before form rows |
 | 6 | Open `/rostering` | Week grid skeleton before roster columns |
+| 7 | Open `/employees`, `/incidents`, `/enquiries` | List or detail skeleton on navigation |
+| 8 | System → AI agents (admin) | Table skeleton before agent list |
+| 9 | Open `/portal/login` (signed out) | Neutral portal skeleton, not staff sidebar |
 
-**Localhost pass (2026-06-30):** `/clients` hard navigation exposed the accessible loading status, then resolved to list content. `/locations` resolved to list content. `/my` exposed both page and My workplace loading statuses, then resolved to communication panel + hub tiles. `/rostering` exposed loading status, then resolved to week view without errors.
+**Localhost pass (2026-06-30, Phase 1):** `/clients` hard navigation exposed the accessible loading status, then resolved to list content. `/locations` resolved to list content. `/my` exposed both page and My workplace loading statuses, then resolved to communication panel + hub tiles. `/rostering` exposed loading status, then resolved to week view without errors.
 
-**Amplify pass (2026-06-30):** After push, OliverWilliams opened `/clients`, `/my`, and `/rostering` on `app.abilityvua.com`; each resolved to live content without error banners or broken loading states.
+**Amplify pass (2026-06-30, Phase 1):** After push, OliverWilliams opened `/clients`, `/my`, and `/rostering` on `app.abilityvua.com`; each resolved to live content without error banners or broken loading states.
+
+**Phase 2 (2026-06-30):** All remaining page-level `Loading…` text replaced with layout-matching skeletons across record detail, admin, portals, Suspense fallbacks, and inline async panels. Button-state labels (save disabled, digest preview) unchanged.
 
 ---
 

@@ -11,6 +11,7 @@ import { useAiDraftLoader } from "@/lib/ai/use-ai-draft";
 import { draftHighlightKeys } from "@/lib/ai/draft-field-highlight";
 import { trackAiPrepareSaved } from "@/lib/ai/prepare-audit.client";
 import { emptyEnquiry, formSections, type EnquiryRecord } from "@/lib/enquiry";
+import { ClientDetailSkeleton, SettingsFormSkeleton } from "@/components/ui/page-skeletons";
 
 function NewEnquiryPageInner() {
   const router = useRouter();
@@ -121,15 +122,17 @@ function NewEnquiryPageInner() {
       {error ? (
         <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>
       ) : null}
-      {draftLoad.loading ? <p className="text-sm text-slate-500">Loading draft…</p> : null}
-      <EnquiryForm record={record} sections={formSections} onChange={onChange} highlightFields={highlightFields} />
+      {draftLoad.loading ? <SettingsFormSkeleton rows={6} /> : null}
+      {!draftLoad.loading ? (
+        <EnquiryForm record={record} sections={formSections} onChange={onChange} highlightFields={highlightFields} />
+      ) : null}
     </AppShell>
   );
 }
 
 export default function NewEnquiryPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-slate-500">Loading…</p>}>
+    <Suspense fallback={<div className="p-8"><ClientDetailSkeleton /></div>}>
       <NewEnquiryPageInner />
     </Suspense>
   );
