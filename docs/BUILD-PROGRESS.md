@@ -107,7 +107,7 @@
 - `npm run page-guides:check` — exit 0 (143 routes)
 - Bugbot — 1 High fixed (drawer save forwards parent `false`); 1 Medium accepted (cache intentionally skips background refetch to avoid clobbering unsaved edits)
 - Browser smoke localhost — PASS `/login`, home after role select, `/clients` + refresh, `/admin/roles`, `/portal/login`
-- Browser smoke Amplify — see post-push verification below
+- Browser smoke Amplify (`4bc6a56`) — PASS `/`, `/clients`, `/admin/roles` (deployed 2026-06-30)
 
 **Code review log:** 2026-06-30 — Bugbot AB-0042: High drawer closed on failed parent save (fixed — `line-item-table` forwards `onSave()` return value); Medium stale cache without background refetch (accepted — intentional to protect unsaved edits).
 
