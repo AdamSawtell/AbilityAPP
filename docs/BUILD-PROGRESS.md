@@ -101,7 +101,7 @@
 
 ## Consistent save UX AB-0041 (2026-06-30)
 
-**Status:** Shipped (Phase 1 + Phase 2).
+**Status:** Shipped (Phase 1 + Phase 2 + Phase 3).
 
 **Why:** Goals and other line-item tables had no save confirmation — the save button vanished with no feedback. Activity-style inline save bars with dirty counts and green confirmation restore user confidence.
 
@@ -112,6 +112,7 @@
 | Goals / reviews | `client-planning-panels.tsx` — replaces `PlanSaveBar` |
 | Client record | Enhanced `UnsavedChangesBar` confirmation + tab link |
 | Toast | `SAVE_TOAST_MESSAGES.goals`, `progressReviews` |
+| Phase 3 record/admin pages | Green confirmation + toast on `UnsavedChangesBar` for employee, contract, business partner, board report, admin organisation, document templates |
 
 **What you can test:** TEST-069 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0041-consistent-save-ux-handoff.md`.
 

@@ -1,7 +1,7 @@
 # AB-0041 — Consistent save UX across line-item tables (handoff)
 
-**Status:** Shipped (Phase 1 + Phase 2)  
-**Commit:** `01c7e81`  
+**Status:** Shipped (Phase 1 + Phase 2 + Phase 3)  
+**Commit:** `01c7e81` (Phase 1+2), Phase 3 _(filled on push)_  
 **Backlog:** AB-0041 Consistent Save UX Across Line-Item Tables
 
 ## Summary
@@ -27,10 +27,20 @@ Line-item tables and page-level save bars now give clear feedback after save —
 - **Error:** Red inline message; data retained; buttons re-enabled
 - **Audit:** Support plan saves already call `persistRecordAudit` via `upsertSupportPlan` in data-store
 
-## Phase 3 (deferred)
+## Phase 3 (shipped)
 
-- `contract-view.tsx`, `employee-view.tsx` inline save bars
-- Remaining `UnsavedChangesBar` consumers (board reporting, business partners, admin org, document templates)
+Green save confirmation + AB-0038 toast added to the page-level `UnsavedChangesBar` on record/admin pages so they match the client record experience:
+
+| Page | Confirmation message |
+|------|----------------------|
+| `employee-pages.tsx` | `Saved — {name} updated` |
+| `contract-pages.tsx` | `Saved — Contract {documentNo} updated` |
+| `business-partner-pages.tsx` | `Saved — {name} updated` |
+| `board-reporting-pages.tsx` | `Saved — {title} updated` + toast |
+| `admin/organization-page.tsx` | `Saved — organisation profile updated` |
+| `admin/document-templates-admin-page.tsx` | `Saved — {name} updated` + toast + `saving` state |
+
+Pattern: `saveConfirmation` state set in the save handler, cleared in discard, passed to `UnsavedChangesBar` with `onConfirmationDismiss`. Auto-dismiss after 5s (bar) + 3s toast.
 
 ## Verification
 

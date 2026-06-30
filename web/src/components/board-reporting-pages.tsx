@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { UnsavedChangesBar, type SaveConfirmation } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import { buildBoardReportEvalContext, refreshBoardReportPackSections } from "@/lib/board-report-evaluators";
 import {
   boardReportPackIsLocked,
@@ -224,6 +225,7 @@ export function BoardReportingDetailView({ id }: { id: string }) {
   const stored = data.boardReportPacks.find((p) => p.id === id);
   const [draft, setDraft] = useState<BoardReportPackRecord | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [saveConfirmation, setSaveConfirmation] = useState<SaveConfirmation | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("overview");
   const [printError, setPrintError] = useState("");
@@ -289,11 +291,14 @@ export function BoardReportingDetailView({ id }: { id: string }) {
     data.upsertBoardReportPack({ ...record, updatedBy: actor });
     setDraft(null);
     setDirty(false);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
+    setSaveConfirmation({ message: `Saved — ${record.title} updated` });
   };
 
   const handleDiscard = () => {
     setDraft(null);
     setDirty(false);
+    setSaveConfirmation(null);
   };
 
   const handleStatus = (status: BoardReportPackRecord["status"]) => {
@@ -606,7 +611,13 @@ export function BoardReportingDetailView({ id }: { id: string }) {
           />
         ) : null}
       </AppShell>
-      <UnsavedChangesBar visible={dirty && canEdit} onSave={handleSave} onDiscard={handleDiscard} />
+      <UnsavedChangesBar
+        visible={dirty && canEdit}
+        confirmation={saveConfirmation}
+        onConfirmationDismiss={() => setSaveConfirmation(null)}
+        onSave={handleSave}
+        onDiscard={handleDiscard}
+      />
     </>
   );
 }

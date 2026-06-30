@@ -837,6 +837,7 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 | 2 | Click **Save** | Green **Saved — N goals updated** + link; **Goals saved ✓** toast; refresh shows change |
 | 3 | Click **Discard** after an edit (don't save) | Draft reverts; save bar disappears |
 | 4 | **Alerts** tab → edit a row → Save via bottom bar | Green confirmation with tab link; toast **Client saved ✓** |
+| 5 | Edit an **employee**, **contract**, **business partner**, **board report**, **admin organisation**, or **document template** → Save | Green **Saved — … updated** bottom bar + success toast; auto-dismiss ~5s |
 
 **Regression:** `npm run test:karen` includes AB-0041 dirty-row count checks.
 

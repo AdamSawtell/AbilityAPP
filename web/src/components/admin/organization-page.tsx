@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
-import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { UnsavedChangesBar, type SaveConfirmation } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { useSystemAuthOptional } from "@/lib/system-auth-store";
 import { auditMetaFrom } from "@/lib/audit";
@@ -101,6 +101,7 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
   const session = variant === "system" ? systemAuth?.session : workspaceSession;
   const [draft, setDraft] = useState<OrganizationRecord | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saveConfirmation, setSaveConfirmation] = useState<SaveConfirmation | null>(null);
 
   const record = draft ?? organization;
   const hasUnsavedChanges = Boolean(draft);
@@ -135,12 +136,14 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
     setDraft(null);
     setSaved(true);
     showSuccessToast(SAVE_TOAST_MESSAGES.settings);
+    setSaveConfirmation({ message: "Saved — organisation profile updated" });
   }
 
   function onDiscard() {
     setDraft(null);
     setSaved(false);
     setPreview(null);
+    setSaveConfirmation(null);
   }
 
   const Shell = variant === "system" ? SystemShell : AppShell;
@@ -222,7 +225,13 @@ export function OrganizationAdminView({ variant = "workspace" }: { variant?: "wo
         </div>
       </Shell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar
+        visible={hasUnsavedChanges}
+        confirmation={saveConfirmation}
+        onConfirmationDismiss={() => setSaveConfirmation(null)}
+        onSave={onSave}
+        onDiscard={onDiscard}
+      />
     </>
   );
 }

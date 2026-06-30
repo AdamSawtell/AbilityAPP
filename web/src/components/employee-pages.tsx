@@ -7,7 +7,7 @@ import { EmployeeCoreSummary } from "@/components/employee-core-summary";
 import { EmployeeList } from "@/components/employee-list";
 import { EmployeeTabbedView } from "@/components/employee-view";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
-import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { UnsavedChangesBar, type SaveConfirmation } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -34,6 +34,7 @@ export function EmployeeDetailView({ id }: { id: string }) {
   const stored = employees.find((e) => e.id === id);
   const [draft, setDraft] = useState<EmployeeRecord | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saveConfirmation, setSaveConfirmation] = useState<SaveConfirmation | null>(null);
 
   const employee = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
@@ -95,15 +96,18 @@ export function EmployeeDetailView({ id }: { id: string }) {
 
   function onSave() {
     if (!employee) return;
-    upsertEmployee(employee);
+    const record = employee;
+    upsertEmployee(record);
     setDraft(null);
     setSaved(true);
     showSuccessToast(SAVE_TOAST_MESSAGES.staff);
+    setSaveConfirmation({ message: `Saved — ${record.name} updated` });
   }
 
   function onDiscard() {
     setDraft(null);
     setSaved(false);
+    setSaveConfirmation(null);
   }
 
   return (
@@ -155,7 +159,13 @@ export function EmployeeDetailView({ id }: { id: string }) {
         </div>
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveEmployee} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar
+        visible={hasUnsavedChanges && canSaveEmployee}
+        confirmation={saveConfirmation}
+        onConfirmationDismiss={() => setSaveConfirmation(null)}
+        onSave={onSave}
+        onDiscard={onDiscard}
+      />
     </>
   );
 }

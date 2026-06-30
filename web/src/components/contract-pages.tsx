@@ -8,7 +8,7 @@ import { ContractDateTimeline } from "@/components/contract-date-timeline";
 import { ContractTabbedView } from "@/components/contract-view";
 import { RecordTasksPanel } from "@/components/record-tasks-panel";
 import { ClientRecordLink } from "@/components/record-link";
-import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { UnsavedChangesBar, type SaveConfirmation } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { formatContractDate, type ContractRecord } from "@/lib/contract";
@@ -158,6 +158,7 @@ export function ContractDetailView({ id }: { id: string }) {
   const stored = contracts.find((c) => c.id === id);
   const [draft, setDraft] = useState<ContractRecord | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saveConfirmation, setSaveConfirmation] = useState<SaveConfirmation | null>(null);
 
   const contract = draft ?? stored ?? null;
   const client = contract?.clientId ? clients.find((c) => c.id === contract.clientId) : null;
@@ -193,15 +194,18 @@ export function ContractDetailView({ id }: { id: string }) {
 
   function onSave() {
     if (!contract) return;
-    upsertContract(contract);
+    const record = contract;
+    upsertContract(record);
     setDraft(null);
     setSaved(true);
     showSuccessToast(SAVE_TOAST_MESSAGES.saved);
+    setSaveConfirmation({ message: `Saved — Contract ${record.documentNo} updated` });
   }
 
   function onDiscard() {
     setDraft(null);
     setSaved(false);
+    setSaveConfirmation(null);
   }
 
   return (
@@ -256,7 +260,13 @@ export function ContractDetailView({ id }: { id: string }) {
           />
         </div>
       </AppShell>
-      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveContract} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar
+        visible={hasUnsavedChanges && canSaveContract}
+        confirmation={saveConfirmation}
+        onConfirmationDismiss={() => setSaveConfirmation(null)}
+        onSave={onSave}
+        onDiscard={onDiscard}
+      />
     </>
   );
 }

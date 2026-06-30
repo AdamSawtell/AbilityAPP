@@ -6,7 +6,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { AgencyWorkerListView } from "@/components/agency-worker-pages";
 import { AppShell } from "@/components/app-shell";
 import { BusinessPartnerCoreSummary } from "@/components/business-partner-core-summary";
-import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { UnsavedChangesBar, type SaveConfirmation } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
@@ -218,6 +218,7 @@ function BusinessPartnerDetailViewInner({ id }: { id: string }) {
   const stored = businessPartners.find((p) => p.id === id);
   const [draft, setDraft] = useState<BusinessPartnerRecord | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saveConfirmation, setSaveConfirmation] = useState<SaveConfirmation | null>(null);
 
   const partner = draft ?? stored ?? null;
   const hasUnsavedChanges = Boolean(draft);
@@ -270,11 +271,13 @@ function BusinessPartnerDetailViewInner({ id }: { id: string }) {
 
   function onSave() {
     if (!partner) return;
+    const record = partner;
     try {
-      upsertBusinessPartner(partner);
+      upsertBusinessPartner(record);
       setDraft(null);
       setSaved(true);
       showSuccessToast(SAVE_TOAST_MESSAGES.saved);
+      setSaveConfirmation({ message: `Saved — ${record.name} updated` });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Could not save business partner.");
     }
@@ -283,6 +286,7 @@ function BusinessPartnerDetailViewInner({ id }: { id: string }) {
   function onDiscard() {
     setDraft(null);
     setSaved(false);
+    setSaveConfirmation(null);
   }
 
   return (
@@ -318,7 +322,13 @@ function BusinessPartnerDetailViewInner({ id }: { id: string }) {
         )}
       </AppShell>
       {activeTab === "Overview" ? (
-        <UnsavedChangesBar visible={hasUnsavedChanges && canSave} onSave={onSave} onDiscard={onDiscard} />
+        <UnsavedChangesBar
+          visible={hasUnsavedChanges && canSave}
+          confirmation={saveConfirmation}
+          onConfirmationDismiss={() => setSaveConfirmation(null)}
+          onSave={onSave}
+          onDiscard={onDiscard}
+        />
       ) : null}
     </>
   );

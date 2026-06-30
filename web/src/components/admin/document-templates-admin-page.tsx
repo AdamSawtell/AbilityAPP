@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { SystemShell } from "@/components/system/system-shell";
 import { DocumentTemplateBlocksPanel } from "@/components/admin/document-template-blocks-panel";
-import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { UnsavedChangesBar, type SaveConfirmation } from "@/components/unsaved-changes-bar";
 import { useAdminPageAccess } from "@/lib/access/window-surface";
+import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
 import {
   DOCUMENT_CLASS_LABELS,
   DOCUMENT_PRINT_PROCESSES,
@@ -49,6 +50,7 @@ export function DocumentTemplatesAdminPage() {
   const [activeId, setActiveId] = useState<string | null>(sorted[0]?.id ?? null);
   const [draft, setDraft] = useState<DocumentTemplateRecord | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveConfirmation, setSaveConfirmation] = useState<SaveConfirmation | null>(null);
   const [saveError, setSaveError] = useState("");
   const [bindingError, setBindingError] = useState("");
   const [bindingBusy, setBindingBusy] = useState(false);
@@ -337,6 +339,8 @@ export function DocumentTemplatesAdminPage() {
       await upsertTemplate({ ...record, updatedBy: "System operator" });
       setDraft(null);
       setSaveState("saved");
+      showSuccessToast(SAVE_TOAST_MESSAGES.saved);
+      setSaveConfirmation({ message: `Saved — ${record.name} updated` });
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Could not save template");
       setSaveState("idle");
@@ -535,13 +539,17 @@ export function DocumentTemplatesAdminPage() {
 
             <UnsavedChangesBar
               visible={isDirty}
+              confirmation={saveConfirmation}
+              onConfirmationDismiss={() => setSaveConfirmation(null)}
               onSave={() => void handleSave()}
               onDiscard={() => {
                 setDraft(null);
                 setSaveState("idle");
+                setSaveConfirmation(null);
               }}
+              saving={saveState === "saving"}
               saveDisabled={saveState === "saving"}
-              message={saveState === "saved" ? "Template saved" : "You have unsaved template changes"}
+              message="You have unsaved template changes"
             />
           </div>
         ) : (
