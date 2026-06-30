@@ -8,7 +8,7 @@ import { ClientCoreSummary } from "@/components/client-core-summary";
 import { ClientList } from "@/components/client-list";
 import { ClientTabbedView } from "@/components/client-view";
 import { ClientRecordLink, EnquiryRecordLink } from "@/components/record-link";
-import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { UnsavedChangesBar, type SaveConfirmation } from "@/components/unsaved-changes-bar";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -54,6 +54,8 @@ function ClientDetailViewInner({ id }: { id: string }) {
   const [draft, setDraft] = useState<ClientRecord | null>(null);
   const [saved, setSaved] = useState(false);
   const [draftApplied, setDraftApplied] = useState(false);
+  const [saveConfirmation, setSaveConfirmation] = useState<SaveConfirmation | null>(null);
+  const activeTab = searchParams.get("tab") ?? "Overview";
 
   const client = draft ?? stored ?? null;
   const enquiryLink = client?.enquiryId;
@@ -190,11 +192,19 @@ function ClientDetailViewInner({ id }: { id: string }) {
     setDraft(null);
     setSaved(true);
     showSuccessToast(SAVE_TOAST_MESSAGES.client);
+    setSaveConfirmation({
+      message: `Saved — ${normalized.name} updated`,
+      link: {
+        label: `View on ${activeTab} tab`,
+        href: `${pathname}?tab=${encodeURIComponent(activeTab)}`,
+      },
+    });
   }
 
   function onDiscard() {
     setDraft(null);
     setSaved(false);
+    setSaveConfirmation(null);
   }
 
   return (
@@ -257,7 +267,13 @@ function ClientDetailViewInner({ id }: { id: string }) {
         </Suspense>
       </AppShell>
 
-      <UnsavedChangesBar visible={hasUnsavedChanges && canSaveClient} onSave={onSave} onDiscard={onDiscard} />
+      <UnsavedChangesBar
+        visible={hasUnsavedChanges && canSaveClient}
+        confirmation={saveConfirmation}
+        onConfirmationDismiss={() => setSaveConfirmation(null)}
+        onSave={onSave}
+        onDiscard={onDiscard}
+      />
     </>
   );
 }

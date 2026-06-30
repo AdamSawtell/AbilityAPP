@@ -2,6 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { LineCellInput, formatLineCellValue } from "@/components/line-cell-input";
+import {
+  LineItemSaveBar,
+  type LineItemSaveConfirmation,
+  type LineItemSaveStatus,
+} from "@/components/line-item-save-bar";
 import { RecordLineDrawer } from "@/components/record-line-drawer";
 import { useReferenceData } from "@/lib/config-store";
 import { clientDropdowns } from "@/lib/client";
@@ -19,6 +24,7 @@ import {
   type ActivityLineDeleteContext,
 } from "@/lib/activity-line-policy";
 import { trackProcessExecution } from "@/lib/process-audit/track.client";
+import { countDirtyRows, isRowDirty } from "@/lib/use-dirty-tracking";
 
 import type { LineDeletePolicy } from "@/lib/activity-line-policy";
 
@@ -44,6 +50,7 @@ type GenericTableConfig<TRow extends RowBase> = {
 };
 
 export type { GenericTableConfig, GenericColumn, ActivityLineDeleteContext };
+export type { LineItemSaveConfirmation, LineItemSaveStatus } from "@/components/line-item-save-bar";
 
 /** Internal row keys — kept on data for ordering/persistence but not shown in volume tables. */
 const HIDDEN_LINE_TABLE_COLUMN_KEYS = new Set(["lineNo"]);
@@ -81,6 +88,17 @@ export function LineItemTable<TRow extends RowBase>({
   readOnly = false,
   layout: layoutProp,
   activityDeleteContext,
+  saveable = false,
+  referenceRows,
+  dirty,
+  dirtyCount,
+  saveStatus = "idle",
+  saveError,
+  saveConfirmation,
+  saveItemLabel = "row",
+  onSave,
+  onDiscard,
+  onSaveConfirmationDismiss,
 }: {
   config: GenericTableConfig<TRow> | ClientTabTableConfig<TRow>;
   rows: TRow[];
@@ -88,10 +106,19 @@ export function LineItemTable<TRow extends RowBase>({
   dropdowns?: DropdownMap;
   optionLabels?: Record<string, string>;
   readOnly?: boolean;
-  /** Override config.layout — `list-drawer` shows summary list + side drawer. */
   layout?: LineItemTableLayout;
-  /** Required when deletePolicy is admin-only — links deletion requests to the parent record. */
   activityDeleteContext?: ActivityLineDeleteContext;
+  saveable?: boolean;
+  referenceRows?: TRow[];
+  dirty?: boolean;
+  dirtyCount?: number;
+  saveStatus?: LineItemSaveStatus;
+  saveError?: string;
+  saveConfirmation?: LineItemSaveConfirmation;
+  saveItemLabel?: string;
+  onSave?: () => void | Promise<void>;
+  onDiscard?: () => void;
+  onSaveConfirmationDismiss?: () => void;
 }) {
   const layout = layoutProp ?? ("layout" in config ? config.layout : undefined) ?? "table";
   const { catalog } = useReferenceData();
@@ -143,6 +170,17 @@ export function LineItemTable<TRow extends RowBase>({
   }, [rows, search, config.columns]);
 
   const drawerRow = drawerRowId ? rows.find((row) => row.id === drawerRowId) ?? null : null;
+
+  const baselineRows = referenceRows ?? rows;
+  const computedDirtyCount = useMemo(
+    () => (referenceRows ? countDirtyRows(rows, referenceRows) : 0),
+    [referenceRows, rows]
+  );
+  const resolvedDirtyCount = dirtyCount ?? computedDirtyCount;
+  const isDirty = dirty ?? (referenceRows ? computedDirtyCount > 0 : resolvedDirtyCount > 0);
+  const showInlineSave = saveable && !readOnly && Boolean(onSave && onDiscard);
+  const showSaveBar =
+    showInlineSave && (saveStatus === "saved" || saveStatus === "error" || saveStatus === "saving" || isDirty);
 
   const actorName = session?.displayName?.trim() || "Unknown user";
 
@@ -221,8 +259,9 @@ export function LineItemTable<TRow extends RowBase>({
     if (layout === "list-drawer") setDrawerRowId(copy.id);
   }
 
-  const footerNote =
-    layout === "list-drawer"
+  const footerNote = showInlineSave
+    ? "Use the save bar below to persist changes."
+    : layout === "list-drawer"
       ? "Click a row to open the editor. Changes save with the parent record."
       : "Changes save with the parent record.";
 
@@ -281,7 +320,12 @@ export function LineItemTable<TRow extends RowBase>({
                     </td>
                   </tr>
                 ) : (
-                  <tr key={row.id} className="align-top hover:bg-slate-50/80">
+                  <tr
+                    key={row.id}
+                    className={`align-top hover:bg-slate-50/80 ${
+                      referenceRows && isRowDirty(row, baselineRows) ? "bg-amber-50/50" : ""
+                    }`}
+                  >
                     {tableColumns.map((col) => (
                       <td key={col.key} className={`px-3 py-2 ${col.className ?? ""}`}>
                         <LineCellInput
@@ -364,6 +408,19 @@ export function LineItemTable<TRow extends RowBase>({
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900" role="status">
           {requestMessage}
         </p>
+      ) : null}
+
+      {showSaveBar && onSave && onDiscard ? (
+        <LineItemSaveBar
+          dirtyCount={resolvedDirtyCount || dirtyCount || 1}
+          saveStatus={saveStatus}
+          saveError={saveError}
+          itemLabel={saveItemLabel}
+          confirmation={saveConfirmation}
+          onSave={onSave}
+          onDiscard={onDiscard}
+          onConfirmationDismiss={onSaveConfirmationDismiss}
+        />
       ) : null}
 
       {layout === "list-drawer" ? (

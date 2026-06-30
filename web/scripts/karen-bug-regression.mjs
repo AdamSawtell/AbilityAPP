@@ -32,6 +32,7 @@ import { EmptyState, EmptyStateRow, emptyStateIcons } from "../src/components/ui
 import { Breadcrumbs } from "../src/components/ui/breadcrumbs.tsx";
 import { buildBreadcrumbs, createDefaultBreadcrumbContext } from "../src/lib/breadcrumbs/build-breadcrumbs.ts";
 import { buildRouteLabelMap } from "../src/lib/breadcrumbs/route-labels.ts";
+import { countDirtyRows, isDirtyCollection } from "../src/lib/use-dirty-tracking.ts";
 
 let failures = 0;
 
@@ -250,6 +251,11 @@ checkTruthy(
   "AB-0039 client tab segment",
   ab39ClientTab.at(-1)?.label === "Activity" && ab39ClientTab.some((item) => item.label === "Clients")
 );
+
+const ab41Baseline = [{ id: "a", lineNo: 1, name: "One" }];
+const ab41Changed = [{ id: "a", lineNo: 1, name: "Two" }, { id: "b", lineNo: 2, name: "New" }];
+check("AB-0041 dirty row count", countDirtyRows(ab41Changed, ab41Baseline), 2);
+checkTruthy("AB-0041 isDirtyCollection", isDirtyCollection(ab41Changed, ab41Baseline));
 
 if (failures > 0) {
   console.error(`\n${failures} regression check(s) failed.`);

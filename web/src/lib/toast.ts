@@ -23,4 +23,6 @@ export const SAVE_TOAST_MESSAGES = {
   staff: "Staff saved ✓",
   documentUpload: "Document uploaded ✓",
   saved: "Saved ✓",
+  goals: "Goals saved ✓",
+  progressReviews: "Progress reviews saved ✓",
 } as const;

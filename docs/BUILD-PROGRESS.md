@@ -11,8 +11,8 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0039 Breadcrumb navigation |
-| **Next slice** | AB-0041 Consistent save UX across line-item tables |
+| **Active slice** | AB-0041 Consistent save UX across line-item tables |
+| **Next slice** | _(see SCOPE-ROADMAP)_ |
 | **Last push** | 2026-06-30 — AB-0039 breadcrumb navigation (`bdc2156`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
@@ -96,6 +96,24 @@
 **What you can test:** TEST-068 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0039-breadcrumb-navigation-handoff.md`.
 
 **Amplify smoke (2026-06-30, post-push `bdc2156`):** PASS — `/rostering` → **Home > Rostering**; `/my/availability` → **Home > My workplace > Availability**; `/system/organization` → **System > Organisation > Organisation profile**; client record keeps explicit trail (`Home > Clients > AVSI20`); clicking **My workplace** crumb navigated to `/my`.
+
+---
+
+## Consistent save UX AB-0041 (2026-06-30)
+
+**Status:** Shipped (Phase 1 + Phase 2).
+
+**Why:** Goals and other line-item tables had no save confirmation — the save button vanished with no feedback. Activity-style inline save bars with dirty counts and green confirmation restore user confidence.
+
+| Area | Change |
+|------|--------|
+| Primitives | `use-dirty-tracking`, `LineItemSaveBar` |
+| LineItemTable | Optional inline save bar props (backward compatible) |
+| Goals / reviews | `client-planning-panels.tsx` — replaces `PlanSaveBar` |
+| Client record | Enhanced `UnsavedChangesBar` confirmation + tab link |
+| Toast | `SAVE_TOAST_MESSAGES.goals`, `progressReviews` |
+
+**What you can test:** TEST-069 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0041-consistent-save-ux-handoff.md`.
 
 ---
 

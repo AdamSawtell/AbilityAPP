@@ -824,6 +824,24 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-069 — Consistent save UX (AB-0041)
+
+| | |
+|--|--|
+| **User** | Role with client write access |
+| **Pass if** | Inline save bar on Goals; green confirmation + toast after save; client tab save shows bottom confirmation |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | Client record → **Goals** tab → edit a goal field | Amber bar: **N goals changed** + Save / Discard |
+| 2 | Click **Save** | Green **Saved — N goals updated** + link; **Goals saved ✓** toast; refresh shows change |
+| 3 | Click **Discard** after an edit (don't save) | Draft reverts; save bar disappears |
+| 4 | **Alerts** tab → edit a row → Save via bottom bar | Green confirmation with tab link; toast **Client saved ✓** |
+
+**Regression:** `npm run test:karen` includes AB-0041 dirty-row count checks.
+
+---
+
 ## TEST-065 — Save confirmation toast (AB-0038)
 
 | | |

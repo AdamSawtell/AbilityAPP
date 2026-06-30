@@ -1,10 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
+import { LineItemTable, type GenericTableConfig, type LineItemSaveStatus } from "@/components/line-item-table";
+import { useAuth } from "@/lib/auth-store";
 import { useReferenceData } from "@/lib/config-store";
 import { newLineId } from "@/lib/client-line-tables";
 import { useData } from "@/lib/data-store";
+import { countDirtyRows } from "@/lib/use-dirty-tracking";
+import { showSuccessToast, SAVE_TOAST_MESSAGES } from "@/lib/toast";
 import type { SupportPlanGoalLine, SupportPlanProgressReviewLine, SupportPlanRecord } from "@/lib/support-plan";
 
 const goalTableConfig: GenericTableConfig<SupportPlanGoalLine> = {
@@ -71,64 +74,83 @@ const progressReviewTableConfig: GenericTableConfig<SupportPlanProgressReviewLin
   emptyMessage: "No progress reviews recorded for this client's goals.",
 };
 
-function PlanSaveBar({
-  dirty,
-  onSave,
-  onDiscard,
-}: {
-  dirty: boolean;
-  onSave: () => void;
-  onDiscard: () => void;
-}) {
-  if (!dirty) return null;
-  return (
-    <div className="flex gap-2">
-      <button
-        type="button"
-        onClick={onSave}
-        className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
-      >
-        Save support plan
-      </button>
-      <button
-        type="button"
-        onClick={onDiscard}
-        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-      >
-        Discard
-      </button>
-    </div>
-  );
-}
-
 function useSupportPlanDraft(clientId: string) {
   const { getSupportPlanByClientId, upsertSupportPlan } = useData();
   const stored = getSupportPlanByClientId(clientId);
   const [draft, setDraft] = useState<SupportPlanRecord | null>(null);
+  const [saveStatus, setSaveStatus] = useState<LineItemSaveStatus>("idle");
+  const [saveError, setSaveError] = useState<string | undefined>();
+  const [lastSavedCount, setLastSavedCount] = useState(0);
   const plan = draft ?? stored ?? null;
 
   function onChange<K extends keyof SupportPlanRecord>(key: K, value: SupportPlanRecord[K]) {
     const base = draft ?? stored;
     if (!base) return;
+    setSaveStatus("idle");
+    setSaveError(undefined);
     setDraft({ ...base, [key]: value, updatedBy: "SuperUser" });
   }
 
-  function save() {
+  async function save(toastMessage: string, countRows: () => number) {
     if (!plan) return;
-    upsertSupportPlan(plan);
-    setDraft(null);
+    const changedCount = countRows();
+    setLastSavedCount(changedCount);
+    setSaveStatus("saving");
+    setSaveError(undefined);
+    try {
+      upsertSupportPlan(plan);
+      setDraft(null);
+      setSaveStatus("saved");
+      showSuccessToast(toastMessage);
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveError(error instanceof Error ? error.message : "Save failed — try again.");
+    }
   }
 
   function discard() {
     setDraft(null);
+    setSaveStatus("idle");
+    setSaveError(undefined);
   }
 
-  return { plan, draft: Boolean(draft), onChange, save, discard };
+  function dismissSaveConfirmation() {
+    setSaveStatus("idle");
+  }
+
+  return {
+    plan,
+    stored,
+    draft: Boolean(draft),
+    saveStatus,
+    saveError,
+    lastSavedCount,
+    onChange,
+    save,
+    discard,
+    dismissSaveConfirmation,
+  };
 }
 
 export function ClientGoalsPanel({ clientId }: { clientId: string }) {
   const { getOptions } = useReferenceData();
-  const { plan, draft, onChange, save, discard } = useSupportPlanDraft(clientId);
+  const {
+    plan,
+    stored,
+    saveStatus,
+    saveError,
+    lastSavedCount,
+    onChange,
+    save,
+    discard,
+    dismissSaveConfirmation,
+  } = useSupportPlanDraft(clientId);
+
+  const referenceGoals = stored?.goals ?? [];
+  const dirtyCount = useMemo(
+    () => (plan && stored ? countDirtyRows(plan.goals, referenceGoals) : 0),
+    [plan, stored, referenceGoals]
+  );
 
   const referenceDropdowns = useMemo(
     () => ({
@@ -151,17 +173,26 @@ export function ClientGoalsPanel({ clientId }: { clientId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-600">
-          Goals from support plan <span className="font-medium text-slate-900">{plan.documentNo}</span>
-        </p>
-        <PlanSaveBar dirty={draft} onSave={save} onDiscard={discard} />
-      </div>
+      <p className="text-sm text-slate-600">
+        Goals from support plan <span className="font-medium text-slate-900">{plan.documentNo}</span>
+      </p>
       <LineItemTable
         config={goalTableConfig}
         rows={plan.goals}
         dropdowns={referenceDropdowns}
         onChange={(rows) => onChange("goals", rows)}
+        saveable
+        referenceRows={referenceGoals}
+        saveStatus={saveStatus}
+        saveError={saveError}
+        saveItemLabel="goal"
+        saveConfirmation={{
+          message: `Saved — ${lastSavedCount || dirtyCount} goal${(lastSavedCount || dirtyCount) === 1 ? "" : "s"} updated`,
+          link: { label: "View on Goals tab", href: `/clients/${clientId}?tab=Goals` },
+        }}
+        onSave={() => save(SAVE_TOAST_MESSAGES.goals, () => dirtyCount)}
+        onDiscard={discard}
+        onSaveConfirmationDismiss={dismissSaveConfirmation}
       />
     </div>
   );
@@ -169,7 +200,23 @@ export function ClientGoalsPanel({ clientId }: { clientId: string }) {
 
 export function ClientProgressReviewPanel({ clientId }: { clientId: string }) {
   const { getOptions } = useReferenceData();
-  const { plan, draft, onChange, save, discard } = useSupportPlanDraft(clientId);
+  const {
+    plan,
+    stored,
+    saveStatus,
+    saveError,
+    lastSavedCount,
+    onChange,
+    save,
+    discard,
+    dismissSaveConfirmation,
+  } = useSupportPlanDraft(clientId);
+
+  const referenceReviews = stored?.progressReviews ?? [];
+  const dirtyCount = useMemo(
+    () => (plan && stored ? countDirtyRows(plan.progressReviews ?? [], referenceReviews) : 0),
+    [plan, stored, referenceReviews]
+  );
 
   const goalDropdowns = useMemo(() => {
     if (!plan) return { clientGoalIds: [] as string[] };
@@ -208,10 +255,7 @@ export function ClientProgressReviewPanel({ clientId }: { clientId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-600">Progress reviews across all goals on plan {plan.documentNo}</p>
-        <PlanSaveBar dirty={draft} onSave={save} onDiscard={discard} />
-      </div>
+      <p className="text-sm text-slate-600">Progress reviews across all goals on plan {plan.documentNo}</p>
       {plan.goals.length === 0 ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Add goals first on the Goals tab or Support Plan panel.
@@ -223,6 +267,18 @@ export function ClientProgressReviewPanel({ clientId }: { clientId: string }) {
           dropdowns={{ ...referenceDropdowns, ...goalDropdowns }}
           optionLabels={goalLabels}
           onChange={onReviewsChange}
+          saveable
+          referenceRows={referenceReviews}
+          saveStatus={saveStatus}
+          saveError={saveError}
+          saveItemLabel="progress review"
+          saveConfirmation={{
+            message: `Saved — ${lastSavedCount || dirtyCount} progress review${(lastSavedCount || dirtyCount) === 1 ? "" : "s"} updated`,
+            link: { label: "View on Progress Review tab", href: `/clients/${clientId}?tab=Progress Review` },
+          }}
+          onSave={() => save(SAVE_TOAST_MESSAGES.progressReviews, () => dirtyCount)}
+          onDiscard={discard}
+          onSaveConfirmationDismiss={dismissSaveConfirmation}
         />
       )}
     </div>

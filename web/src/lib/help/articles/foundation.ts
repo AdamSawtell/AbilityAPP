@@ -131,7 +131,7 @@ export const navigationArticle: HelpArticle = {
     {
       id: "save-and-audit",
       title: "Save, discard, and audit trail",
-      body: "Edit fields on a record and a bar appears at the bottom with Save and Discard. Line tables save with the record. The audit footer on each page shows who created and last updated the record.",
+      body: "Edit fields on a record and a bar appears at the bottom with Save and Discard. Line tables on Goals, Progress Reviews, and other tabs show their own inline save bar when rows change — you see how many rows changed, then a green Saved confirmation with a link back to the tab. A brief toast also confirms the save. The audit footer on each page shows who created and last updated the record.",
     },
     {
       id: "breadcrumbs",
