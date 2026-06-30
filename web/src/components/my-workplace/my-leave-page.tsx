@@ -11,6 +11,7 @@ import { useData } from "@/lib/data-store";
 import { useReferenceData } from "@/lib/config-store";
 import type { EmployeeLeaveRequestRow, EmployeeRecord } from "@/lib/employee";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -160,7 +161,13 @@ export function MyLeavePage() {
           </div>
           <div className="divide-y divide-slate-100">
             {sortedRequests.length === 0 ? (
-              <p className="px-5 py-8 text-sm text-slate-500">No leave requests yet.</p>
+              <EmptyState
+                variant="empty"
+                icon="clock"
+                heading="No leave requests yet"
+                message="Submit a request above when you need time away from rostered shifts."
+                className="py-10"
+              />
             ) : (
               sortedRequests.map((row) => (
                 <div key={row.id} className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">

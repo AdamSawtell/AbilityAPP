@@ -9,6 +9,7 @@ import {
   RecordListTableCard,
   recordListSelectClass,
 } from "@/components/record-list-shell";
+import { EmptyStateRow } from "@/components/ui/empty-state";
 import { useAuth } from "@/lib/auth-store";
 import { businessPartnerStatusOptions, businessPartnerTypeOptions, type BusinessPartnerRecord } from "@/lib/business-partner";
 
@@ -65,6 +66,13 @@ export function BusinessPartnerList({ records }: { records: BusinessPartnerRecor
 
     return rows;
   }, [records, scope, search, typeFilter, statusFilter]);
+
+  function clearFilters() {
+    setSearch("");
+    setTypeFilter("All");
+    setStatusFilter("All");
+    setScope("all");
+  }
 
   const resultSummary =
     filtered.length === 1 ? "1 business partner" : `${filtered.length} business partners`;
@@ -164,11 +172,27 @@ export function BusinessPartnerList({ records }: { records: BusinessPartnerRecor
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                    No business partners match your search or filters.
-                  </td>
-                </tr>
+                records.length === 0 ? (
+                  <EmptyStateRow
+                    colSpan={6}
+                    variant="empty"
+                    icon="briefcase"
+                    heading="No business partners yet"
+                    message="Add plan managers, vendors, or referrers used across billing and rostering."
+                    action={
+                      canCreate ? { label: "Add partner", href: "/business-partners/new" } : undefined
+                    }
+                  />
+                ) : (
+                  <EmptyStateRow
+                    colSpan={6}
+                    variant="no-results"
+                    icon="search"
+                    heading="No partners match your search"
+                    message="Try a different search term or clear your filters."
+                    action={{ label: "Clear filters", onClick: clearFilters }}
+                  />
+                )
               ) : (
                 filtered.map((p) => (
                   <tr key={p.id} className="group hover:bg-[#fdf2f8]/40">

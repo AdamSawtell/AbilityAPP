@@ -36,12 +36,12 @@ export const myWorkplaceArticle: HelpArticle = {
   ],
   relatedRoutes: ["/my", "/my/leave", "/my/profile", "/my/availability", "/my/open-shifts", "/my/shifts", "/my/timesheets", "/my/contracts", "/my/credentials"],
   windowKeys: ["my-workplace", "my-leave", "my-profile", "my-availability", "my-open-shifts", "my-shifts", "my-timesheets", "my-contracts", "my-credentials"],
-  lastUpdated: "2026-06-29",
+  lastUpdated: "2026-06-30",
   sections: [
     {
       id: "overview",
       title: "What My workplace is",
-      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, contracts needing acknowledgement, and items awaiting HR review.\n\nAt the top of the overview, **Services I can work at** lists sites where you are assigned, credentialed, and site-oriented. High-demand services are highlighted with a friendly prompt to contact rostering — use **Contact Rostering** below to start a conversation.\n\nAbilityVua does not send workforce notifications by email. When you submit leave or a credential, the system creates a task for your manager or HR. You can track status on My workplace and in your Tasks list.",
+      body: "My workplace is the staff self-service hub. The overview dashboard shows credentials and documents expiring or overdue, profile gaps, contracts needing acknowledgement, and items awaiting HR review.\n\nWhen a list has no rows yet (for example no assigned shifts or timesheets), you see a short empty-state message with a suggested next step — such as **View open shifts** — instead of a blank screen.\n\nAt the top of the overview, **Services I can work at** lists sites where you are assigned, credentialed, and site-oriented. High-demand services are highlighted with a friendly prompt to contact rostering — use **Contact Rostering** below to start a conversation.\n\nAbilityVua does not send workforce notifications by email. When you submit leave or a credential, the system creates a task for your manager or HR. You can track status on My workplace and in your Tasks list.",
       relatedRoutes: ["/my"],
     },
     {

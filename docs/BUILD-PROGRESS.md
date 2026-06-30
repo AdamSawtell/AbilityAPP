@@ -11,9 +11,9 @@
 |--------|-------|
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
-| **Active slice** | AB-0036 Skeleton loaders — Phase 2 complete |
+| **Active slice** | AB-0037 Empty state pages — Phase 1 |
 | **Next slice** | AB-0041 Consistent save UX across line-item tables |
-| **Last push** | 2026-06-30 — AB-0036 skeleton loaders Phase 2 (`2da5eda`) |
+| **Last push** | 2026-06-30 — AB-0036 skeleton loaders Phase 2 (`9e19f20`) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -57,6 +57,23 @@
 **Browser smoke (2026-06-30, localhost TEST-066):** `/clients`, `/locations`, `/my`, and `/rostering` showed accessible loading status / skeleton state on navigation and resolved to live content without errors.
 
 **Amplify smoke (2026-06-30, post-push `2da5eda`):** `/`, `/locations`, and `/employees` exposed accessible loading status on navigation; `/my/availability` resolved to weekly form; `/portal/login` resolved without staff sidebar flash.
+
+---
+
+## Empty state pages AB-0037 (2026-06-30)
+
+**Status:** Shipped (Phase 1).
+
+**Why:** Plain "No data" text left users unsure what to do next. Empty states add icon, heading, message, and a contextual CTA; search zero-results offer **Clear filters**.
+
+| Area | Change |
+|------|--------|
+| Component | `EmptyState`, `EmptyStateRow`, inline SVG icons in `@/components/ui/empty-state` |
+| Lists | Clients, Locations, Employees, Enquiries, Bookings, Agreements, Partners |
+| My workplace | My Shifts, Timesheets, Leave |
+| Admin | Timesheets register, Rostering week (no shifts) |
+
+**What you can test:** TEST-067 in `docs/testing/TEST-RUNBOOKS.md`. Handoff: `docs/handoffs/AB-0037-empty-state-pages-handoff.md`.
 
 ---
 

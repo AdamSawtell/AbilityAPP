@@ -10,6 +10,7 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { EmptyState } from "@/components/ui/empty-state";
 import { localDateIso } from "@/lib/booking-cancellation";
 import { useData } from "@/lib/data-store";
 import { defaultPayPeriodRange } from "@/lib/pay-period";
@@ -234,12 +235,13 @@ export function TimesheetListView() {
           </table>
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-10 text-center">
-          <p className="text-sm text-slate-600">No timesheets yet.</p>
-          <Link href="/generate-timesheets" className="mt-3 inline-flex text-sm font-medium text-[#b51266] hover:underline">
-            Generate from roster shifts
-          </Link>
-        </div>
+        <EmptyState
+          variant="empty"
+          icon="document"
+          heading="No timesheets yet"
+          message="Generate timesheets from published roster shifts for a pay period."
+          action={{ label: "Generate timesheets", href: "/generate-timesheets" }}
+        />
       )}
     </div>
   );

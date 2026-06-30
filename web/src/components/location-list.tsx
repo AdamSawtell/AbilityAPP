@@ -10,6 +10,8 @@ import {
   RecordListTableCard,
   recordListSelectClass,
 } from "@/components/record-list-shell";
+import { EmptyStateRow } from "@/components/ui/empty-state";
+import { useAuth } from "@/lib/auth-store";
 import {
   locationStatusOptions,
   locationTypeOptions,
@@ -37,6 +39,8 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export function LocationList({ records }: { records: LocationRecord[] }) {
+  const { canWriteWindow } = useAuth();
+  const canCreateLocation = canWriteWindow("locations");
   const [scope, setScope] = useState<LocationListScope>("all");
   const [search, setSearch] = useState("");
   const [locationType, setLocationType] = useState("All");
@@ -87,6 +91,14 @@ export function LocationList({ records }: { records: LocationRecord[] }) {
 
   function onSearchChange(value: string) {
     setSearch(value);
+    setPage(0);
+  }
+
+  function clearFilters() {
+    setSearch("");
+    setLocationType("All");
+    setStatus("All");
+    setScope("all");
     setPage(0);
   }
 
@@ -201,6 +213,27 @@ export function LocationList({ records }: { records: LocationRecord[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
+              {pageRows.length === 0 ? (
+                records.length === 0 ? (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="empty"
+                    icon="locations"
+                    heading="No locations set up"
+                    message="Add your first support site — SIL house, day program, or community hub."
+                    action={canCreateLocation ? { label: "Add location", href: "/locations/new" } : undefined}
+                  />
+                ) : (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="no-results"
+                    icon="search"
+                    heading="No locations match your search"
+                    message="Try a different search term or clear your filters."
+                    action={{ label: "Clear filters", onClick: clearFilters }}
+                  />
+                )
+              ) : null}
               {pageRows.map((loc) => (
                 <tr key={loc.id} className="hover:bg-[#fdf2f8]/40">
                   <td className="px-4 py-3">
@@ -238,13 +271,6 @@ export function LocationList({ records }: { records: LocationRecord[] }) {
                   </td>
                 </tr>
               ))}
-              {pageRows.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
-                    No locations match your filters.
-                  </td>
-                </tr>
-              ) : null}
             </tbody>
           </table>
         </div>

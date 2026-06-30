@@ -10,6 +10,7 @@ import {
   RecordListTableCard,
   recordListSelectClass,
 } from "@/components/record-list-shell";
+import { EmptyStateRow } from "@/components/ui/empty-state";
 import { useAuth } from "@/lib/auth-store";
 import type { ClientRecord } from "@/lib/client";
 import {
@@ -105,6 +106,12 @@ export function ServiceBookingList({
     return rows;
   }, [records, clients, scope, search, statusFilter]);
 
+  function clearFilters() {
+    setSearch("");
+    setStatusFilter("All");
+    setScope("all");
+  }
+
   const resultSummary =
     filtered.length === 1 ? "1 service booking" : `${filtered.length} service bookings`;
 
@@ -190,11 +197,29 @@ export function ServiceBookingList({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
-                    No service bookings match your search or filters.
-                  </td>
-                </tr>
+                records.length === 0 ? (
+                  <EmptyStateRow
+                    colSpan={8}
+                    variant="empty"
+                    icon="document"
+                    heading="No service bookings yet"
+                    message="Create a booking to schedule NDIS supports against a client agreement."
+                    action={
+                      canCreateBooking
+                        ? { label: "Add booking", href: "/service-bookings/new" }
+                        : undefined
+                    }
+                  />
+                ) : (
+                  <EmptyStateRow
+                    colSpan={8}
+                    variant="no-results"
+                    icon="search"
+                    heading="No bookings match your search"
+                    message="Try a different search term or clear your filters."
+                    action={{ label: "Clear filters", onClick: clearFilters }}
+                  />
+                )
               ) : (
                 filtered.map((booking) => {
                   const client = clients.find((c) => c.id === booking.clientId);

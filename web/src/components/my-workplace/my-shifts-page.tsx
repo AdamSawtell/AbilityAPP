@@ -10,6 +10,7 @@ import { MyWorkplaceSubnav } from "@/components/my-workplace/my-workplace-subnav
 import { RosteringCommunicationPanel } from "@/components/my-workplace/rostering-communication-panel";
 import { ShiftGeoLinks } from "@/components/shift-geo-links";
 import { ShiftGeofenceAlerts } from "@/components/shift-geofence-alerts";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import {
@@ -369,22 +370,40 @@ export function MyShiftsPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="text-sm text-slate-600">
-            <p>
-              {view === "today"
-                ? "No shifts scheduled for today (organisation time)."
+          <EmptyState
+            variant={view === "all" && allAssigned.length === 0 ? "empty" : "no-results"}
+            icon="shifts"
+            heading={
+              view === "today"
+                ? "No shifts today"
                 : view === "upcoming"
-                  ? "No upcoming shifts in the next two weeks."
-                  : "No shifts are assigned to you yet."}
-            </p>
-            {employeeId ? (
-              <ul className="mt-3 list-inside list-disc space-y-1 text-slate-500">
-                <li>Sign in as the worker linked to the shift (not SuperUser unless linked).</li>
-                <li>Shift must be assigned to you and status Published (Draft shifts appear once saved).</li>
-                <li>Coordinator publishes on Rostering → edit shift → status Published, or Publish week.</li>
-              </ul>
-            ) : null}
-          </div>
+                  ? "No upcoming shifts"
+                  : allAssigned.length === 0
+                    ? "No shifts assigned yet"
+                    : "No shifts in this view"
+            }
+            message={
+              view === "all" && allAssigned.length === 0
+                ? "Browse open shifts to pick up coverage, or ask rostering to assign you."
+                : view === "today"
+                  ? "Nothing is scheduled for today in organisation time."
+                  : view === "upcoming"
+                    ? "No published shifts in the next two weeks."
+                    : "Try another tab or check open shifts."
+            }
+            action={
+              view === "all" && allAssigned.length === 0
+                ? { label: "View open shifts", href: "/my/open-shifts" }
+                : view !== "all"
+                  ? { label: "View all shifts", onClick: () => setView("all") }
+                  : undefined
+            }
+            secondaryAction={
+              view === "all" && allAssigned.length === 0
+                ? undefined
+                : { label: "View open shifts", href: "/my/open-shifts" }
+            }
+          />
         ) : layout === "week" ? (
           <div className="grid grid-cols-2 gap-2 pb-8 sm:grid-cols-4 lg:grid-cols-7">
             {weekDays.map((day) => (

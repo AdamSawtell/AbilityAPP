@@ -10,6 +10,8 @@ import {
   RecordListTableCard,
   recordListSelectClass,
 } from "@/components/record-list-shell";
+import { EmptyStateRow } from "@/components/ui/empty-state";
+import { useAuth } from "@/lib/auth-store";
 import { formatContractDate } from "@/lib/contract";
 import {
   formatRecordMoneyCompact,
@@ -43,6 +45,8 @@ export function ServiceAgreementList({
   records: ServiceAgreementRecord[];
   clients: ClientRecord[];
 }) {
+  const { canWriteWindow } = useAuth();
+  const canCreateAgreement = canWriteWindow("service-agreements");
   const [scope, setScope] = useState<ServiceAgreementListScope>("all");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -89,6 +93,12 @@ export function ServiceAgreementList({
 
     return rows;
   }, [records, clients, scope, search, statusFilter]);
+
+  function clearFilters() {
+    setSearch("");
+    setStatusFilter("All");
+    setScope("all");
+  }
 
   const resultSummary =
     filtered.length === 1 ? "1 service agreement" : `${filtered.length} service agreements`;
@@ -167,11 +177,25 @@ export function ServiceAgreementList({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
-                    No service agreements match your search or filters.
-                  </td>
-                </tr>
+                records.length === 0 ? (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="empty"
+                    icon="handshake"
+                    heading="No service agreements yet"
+                    message="Create an agreement to link NDIS supports and pricing to a client."
+                    action={canCreateAgreement ? { label: "Add agreement", href: "/service-agreements/new" } : undefined}
+                  />
+                ) : (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="no-results"
+                    icon="search"
+                    heading="No agreements match your search"
+                    message="Try a different search term or clear your filters."
+                    action={{ label: "Clear filters", onClick: clearFilters }}
+                  />
+                )
               ) : (
                 filtered.map((sa) => {
                   const client = clients.find((c) => c.id === sa.clientId);

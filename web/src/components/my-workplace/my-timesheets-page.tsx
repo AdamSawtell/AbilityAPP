@@ -10,6 +10,7 @@ import { useData } from "@/lib/data-store";
 import { formatTimesheetPeriod, type TimesheetRecord } from "@/lib/timesheet";
 import { timesheetSubmitBlocked } from "@/lib/timesheet-workflow";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const statusTone: Record<string, string> = {
   Draft: "bg-slate-100 text-slate-700",
@@ -129,9 +130,13 @@ export function MyTimesheetsPage() {
                 </table>
               </div>
             ) : (
-              <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-10 text-center text-sm text-slate-600">
-                No timesheets for your employee record yet.
-              </p>
+              <EmptyState
+                variant="empty"
+                icon="document"
+                heading="No timesheets yet"
+                message="Timesheets appear here after your roster shifts are generated and assigned to you."
+                action={{ label: "View my shifts", href: "/my/shifts" }}
+              />
             )}
           </div>
         )}

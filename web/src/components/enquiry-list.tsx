@@ -9,6 +9,7 @@ import {
   RecordListStatCard,
   RecordListTableCard,
 } from "@/components/record-list-shell";
+import { EmptyStateRow } from "@/components/ui/empty-state";
 import { formatDisplayDate, type EnquiryRecord } from "@/lib/enquiry";
 import {
   ENQUIRY_PIPELINE_LABELS,
@@ -23,7 +24,7 @@ import { StatusBadge } from "./status-badge";
 
 export type EnquiryListScope = "active" | "all" | "overdue";
 
-export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
+export function EnquiryList({ records, canCreate = false }: { records: EnquiryRecord[]; canCreate?: boolean }) {
   const searchParams = useSearchParams();
   const initialScope =
     searchParams.get("scope") === "all"
@@ -85,6 +86,16 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
 
     return rows;
   }, [records, scope, stageFilter, tierFilter, search]);
+
+  function clearFilters() {
+    setSearch("");
+    setStageFilter("");
+    setTierFilter("");
+    setScope("all");
+  }
+
+  const hasSearchOrFilter = search.trim() !== "" || stageFilter !== "" || tierFilter !== "";
+  const isScopeOnlyEmpty = records.length > 0 && filtered.length === 0 && !hasSearchOrFilter && scope !== "all";
 
   const resultSummary = filtered.length === 1 ? "1 record" : `${filtered.length} records`;
 
@@ -235,16 +246,37 @@ export function EnquiryList({ records }: { records: EnquiryRecord[] }) {
                     </td>
                   </tr>
                 ))
+              ) : records.length === 0 ? (
+                <EmptyStateRow
+                  colSpan={8}
+                  variant="empty"
+                  icon="inbox"
+                  heading="No enquiries yet"
+                  message="Capture your first intake to start the pipeline toward a client record."
+                  action={canCreate ? { label: "Add enquiry", href: "/enquiries/new" } : undefined}
+                />
+              ) : isScopeOnlyEmpty ? (
+                <EmptyStateRow
+                  colSpan={8}
+                  variant="empty"
+                  icon="inbox"
+                  heading={scope === "active" ? "No active enquiries" : "No overdue follow-ups"}
+                  message={
+                    scope === "active"
+                      ? "All enquiries in this view are closed or converted. View all enquiries to see the full register."
+                      : "There are no open enquiries past their next action date."
+                  }
+                  action={{ label: "View all enquiries", onClick: clearFilters }}
+                />
               ) : (
-                <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
-                    {scope === "active"
-                      ? "No active enquiries match your search."
-                      : scope === "overdue"
-                        ? "No overdue follow-ups match your search."
-                        : "No enquiries match your search."}
-                  </td>
-                </tr>
+                <EmptyStateRow
+                  colSpan={8}
+                  variant="no-results"
+                  icon="search"
+                  heading="No enquiries match your search"
+                  message="Try a different search term or clear your filters."
+                  action={{ label: "Clear filters", onClick: clearFilters }}
+                />
               )}
             </tbody>
           </table>

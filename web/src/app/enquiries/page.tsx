@@ -37,7 +37,7 @@ export default function EnquiriesPage() {
     >
       {canViewCrossSell ? <EnquiriesCrossSellPanel clients={clients} /> : null}
       <Suspense fallback={<EnquiryListFallback />}>
-        <EnquiryList records={enquiries} />
+        <EnquiryList records={enquiries} canCreate={canCreateEnquiry} />
       </Suspense>
     </AppShell>
   );

@@ -10,6 +10,8 @@ import {
   RecordListTableCard,
   recordListSelectClass,
 } from "@/components/record-list-shell";
+import { EmptyStateRow } from "@/components/ui/empty-state";
+import { useAuth } from "@/lib/auth-store";
 import { complianceSummary } from "@/lib/employee-compliance";
 import {
   departmentOptions,
@@ -64,6 +66,8 @@ function needsComplianceAttention(employee: EmployeeRecord) {
 }
 
 export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
+  const { canWriteWindow } = useAuth();
+  const canCreateEmployee = canWriteWindow("employees");
   const [scope, setScope] = useState<EmployeeListScope>("all");
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("All");
@@ -130,6 +134,14 @@ export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
 
   function onStatusChange(value: string) {
     setStatus(value);
+    setPage(0);
+  }
+
+  function clearFilters() {
+    setSearch("");
+    setDepartment("All");
+    setStatus("All");
+    setScope("all");
     setPage(0);
   }
 
@@ -225,11 +237,25 @@ export function EmployeeList({ records }: { records: EmployeeRecord[] }) {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {pageRows.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
-                    No employees match your filters.
-                  </td>
-                </tr>
+                records.length === 0 ? (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="empty"
+                    icon="briefcase"
+                    heading="No staff added"
+                    message="Add your first employee to manage credentials, leave, and rostering."
+                    action={canCreateEmployee ? { label: "Add staff", href: "/employees/new" } : undefined}
+                  />
+                ) : (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="no-results"
+                    icon="search"
+                    heading="No staff match your search"
+                    message="Try a different search term or clear your filters."
+                    action={{ label: "Clear filters", onClick: clearFilters }}
+                  />
+                )
               ) : (
                 pageRows.map((record) => (
                   <tr key={record.id} className="group hover:bg-[#fdf2f8]/40">

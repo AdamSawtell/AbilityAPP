@@ -783,6 +783,25 @@ Seeded for the automated browser tester (re-runnable, fixed ids):
 
 ---
 
+## TEST-067 — Empty state pages (AB-0037)
+
+| | |
+|--|--|
+| **User** | Any signed-in role (demo seed has data — use search/filters to trigger `no-results`) |
+| **Pass if** | Centred empty state with icon, heading, message, and CTA; no plain "No data" text |
+
+| Step | Action | Pass if |
+|------|--------|---------|
+| 1 | `/clients` → search `zzzz-no-match` | `No clients match your search` + **Clear filters** |
+| 2 | `/employees` → search `zzzz-no-match` | `No staff match your search` + **Clear filters** |
+| 3 | `/my/shifts` as worker with no assigned shifts (or Today tab when empty) | Friendly empty state + **View open shifts** when applicable |
+| 4 | `/my/timesheets` when employee has no sheets | `No timesheets yet` + link to My shifts |
+| 5 | `/rostering` → navigate to empty week (if none) | `No shifts scheduled this week` + **Create shift** (coordinator) |
+
+**Note:** Demo seed usually has clients/staff — step 1–2 validate `no-results`. Module-empty states need a fresh org or filtered scope with zero underlying records.
+
+---
+
 ## TEST-065 — Save confirmation toast (AB-0038)
 
 | | |

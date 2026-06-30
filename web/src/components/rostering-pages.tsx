@@ -13,6 +13,7 @@ import { RosterFortnightReviewPanel } from "@/components/roster-fortnight-review
 import { RosterPublishWeekPanel } from "@/components/roster-publish-week-panel";
 import { RosterRocPanel } from "@/components/roster-roc-panel";
 import { PayPeriodSelector } from "@/components/pay-period-admin-panel";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ContractedHoursPanel } from "@/components/contracted-hours-panel";
 import { RosterShiftEditor } from "@/components/roster-shift-editor";
 import { ClientRecordLink, EmployeeRecordLink } from "@/components/record-link";
@@ -530,6 +531,21 @@ export function RosteringWeekView() {
           <p className="mb-3 text-xs text-slate-500">
             Drag a shift card to another day to reschedule. Published shifts still enforce conflict rules on drop.
           </p>
+        ) : null}
+
+        {shifts.length === 0 ? (
+          <EmptyState
+            variant="empty"
+            icon="shifts"
+            heading="No shifts scheduled this week"
+            message="Create a shift to start building the roster for this week."
+            action={
+              canEditRoster
+                ? { label: "Create shift", onClick: () => openNewShift(weekStart) }
+                : undefined
+            }
+            className="mb-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/40"
+          />
         ) : null}
 
         <div className="grid gap-3 lg:grid-cols-7">

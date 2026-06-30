@@ -28,6 +28,7 @@ import {
   PortalGuardSkeleton,
   routePageSkeleton,
 } from "../src/components/ui/page-skeletons.tsx";
+import { EmptyState, EmptyStateRow, emptyStateIcons } from "../src/components/ui/empty-state.tsx";
 
 let failures = 0;
 
@@ -224,6 +225,10 @@ checkTruthy("AB-0036 Phase 2 InlineListSkeleton export", typeof InlineListSkelet
 checkTruthy("AB-0036 Phase 2 PortalGuardSkeleton export", typeof PortalGuardSkeleton === "function");
 checkTruthy("AB-0036 routePageSkeleton employees list", routePageSkeleton("/employees") != null);
 checkTruthy("AB-0036 routePageSkeleton incidents detail", routePageSkeleton("/incidents/inc-1") != null);
+
+checkTruthy("AB-0037 EmptyState export", typeof EmptyState === "function");
+checkTruthy("AB-0037 EmptyStateRow export", typeof EmptyStateRow === "function");
+checkTruthy("AB-0037 emptyStateIcons clients", typeof emptyStateIcons.clients === "function");
 
 if (failures > 0) {
   console.error(`\n${failures} regression check(s) failed.`);

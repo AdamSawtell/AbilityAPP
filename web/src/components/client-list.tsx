@@ -11,6 +11,8 @@ import {
   RecordListTableCard,
   recordListSelectClass,
 } from "@/components/record-list-shell";
+import { EmptyStateRow } from "@/components/ui/empty-state";
+import { useAuth } from "@/lib/auth-store";
 import { clientDropdowns, type ClientRecord } from "@/lib/client";
 import { CLIENT_LIFECYCLE_STATUSES, CLIENT_LIFECYCLE_LABELS, isActiveLifecycle } from "@/lib/client-lifecycle";
 
@@ -36,6 +38,8 @@ function hasActiveAlert(client: ClientRecord) {
 }
 
 export function ClientList({ records }: { records: ClientRecord[] }) {
+  const { canWriteWindow } = useAuth();
+  const canCreateClient = canWriteWindow("clients");
   const [scope, setScope] = useState<ClientListScope>("all");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -99,6 +103,14 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
 
   function onLifecycleChange(value: string) {
     setLifecycleFilter(value);
+    setPage(0);
+  }
+
+  function clearFilters() {
+    setSearch("");
+    setStatusFilter("All");
+    setLifecycleFilter("All");
+    setScope("all");
     setPage(0);
   }
 
@@ -196,11 +208,25 @@ export function ClientList({ records }: { records: ClientRecord[] }) {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {pageRows.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
-                    No clients match your search or filters.
-                  </td>
-                </tr>
+                records.length === 0 ? (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="empty"
+                    icon="clients"
+                    heading="No clients yet"
+                    message="Add your first client to start tracking support, agreements, and bookings."
+                    action={canCreateClient ? { label: "Add client", href: "/clients/new" } : undefined}
+                  />
+                ) : (
+                  <EmptyStateRow
+                    colSpan={7}
+                    variant="no-results"
+                    icon="search"
+                    heading="No clients match your search"
+                    message="Try a different search term or clear your filters."
+                    action={{ label: "Clear filters", onClick: clearFilters }}
+                  />
+                )
               ) : (
                 pageRows.map((client) => (
                   <tr key={client.id} className="group hover:bg-[#fdf2f8]/40">
