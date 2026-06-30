@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { IncidentTabbedView } from "@/components/incident-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
@@ -250,7 +251,13 @@ export function IncidentDetailView({ id }: { id: string }) {
 
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveIncident}
+      >
+        <AppShell
         title={`${record.documentNo}${record.title ? ` — ${record.title}` : ""}`}
         subtitle="Incident tracking and NDIS safeguard reporting"
         breadcrumbs={[
@@ -334,6 +341,7 @@ export function IncidentDetailView({ id }: { id: string }) {
           />
         ) : null}
       </AppShell>
+      </RecordLineSaveProvider>
 
       <UnsavedChangesBar visible={hasUnsavedChanges && canSaveIncident} onSave={onSave} onDiscard={onDiscard} />
     </>

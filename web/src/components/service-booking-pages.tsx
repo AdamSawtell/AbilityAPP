@@ -10,6 +10,7 @@ import { ServiceBookingList } from "@/components/service-booking-list";
 import { BookingCompliancePanel } from "@/components/booking-compliance-panel";
 import { BookingCancellationPanel } from "@/components/booking-cancellation-panel";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { useAuth } from "@/lib/auth-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { evaluateCancellationPolicy, localDateIso } from "@/lib/booking-cancellation";
@@ -213,9 +214,19 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
     setDraft(null);
   }
 
+  function onDiscard() {
+    setDraft(null);
+  }
+
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={save}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveBooking && !saveBlocked}
+      >
+        <AppShell
         title={`Service booking ${record.documentNo}`}
         subtitle={`${record.description || "Service booking"} · ${record.documentStatus}`}
         breadcrumbs={[
@@ -538,13 +549,14 @@ export function ServiceBookingDetailView({ id }: { id: string }) {
           />
         )}
       </AppShell>
+      </RecordLineSaveProvider>
 
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSaveBooking}
         saveDisabled={saveBlocked}
         message={saveBlocked ? "Fix compliance errors before saving" : "You have unsaved changes"}
         onSave={save}
-        onDiscard={() => setDraft(null)}
+        onDiscard={onDiscard}
       />
     </>
   );

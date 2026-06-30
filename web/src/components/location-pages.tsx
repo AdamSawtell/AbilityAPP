@@ -13,6 +13,7 @@ import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { LocationRecord } from "@/lib/location";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 
 import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
@@ -94,7 +95,13 @@ export function LocationDetailView({ id }: { id: string }) {
 
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveLocation}
+      >
+        <AppShell
         title={location.name}
         subtitle={`${location.searchKey} · ${location.locationType}`}
         breadcrumbs={[
@@ -127,6 +134,7 @@ export function LocationDetailView({ id }: { id: string }) {
           />
         </Suspense>
       </AppShell>
+      </RecordLineSaveProvider>
       <UnsavedChangesBar visible={hasUnsavedChanges && canSaveLocation} onSave={onSave} onDiscard={onDiscard} />
     </>
   );

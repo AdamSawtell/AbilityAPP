@@ -20,6 +20,7 @@ import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { ClientLineCollectionKey } from "@/lib/client-line-tables";
 import { emptyClientRecord, findClientByRouteId, normalizeClient, type ClientRecord } from "@/lib/client";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 
 import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
@@ -209,7 +210,13 @@ function ClientDetailViewInner({ id }: { id: string }) {
 
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveClient}
+      >
+        <AppShell
         title={client.name}
         subtitle={`${client.searchKey}${enquiryLink ? ` · enquiry ${enquiryLink}` : ""}`}
         breadcrumbs={[
@@ -266,6 +273,7 @@ function ClientDetailViewInner({ id }: { id: string }) {
           />
         </Suspense>
       </AppShell>
+      </RecordLineSaveProvider>
 
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSaveClient}

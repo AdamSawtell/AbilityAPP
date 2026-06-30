@@ -85,6 +85,8 @@ function loadOverrides(): ReferenceDataCatalog {
 
 export function ReferenceDataProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const skipRemoteHydrate =
+    pathname === "/login" || pathname.startsWith("/portal") || pathname.startsWith("/agency-portal");
   const [remoteCatalog, setRemoteCatalog] = useState<ReferenceDataCatalog | null>(null);
   const [overrides, setOverrides] = useState<ReferenceDataCatalog>({});
   const [hydrated, setHydrated] = useState(false);
@@ -96,6 +98,13 @@ export function ReferenceDataProvider({ children }: { children: React.ReactNode 
     async function hydrate() {
       const localOverrides = loadOverrides();
       setOverrides(localOverrides);
+
+      if (skipRemoteHydrate) {
+        setRemoteCatalog(null);
+        setSource("local");
+        setHydrated(true);
+        return;
+      }
 
       if (isSupabaseConfigured()) {
         try {
@@ -126,7 +135,7 @@ export function ReferenceDataProvider({ children }: { children: React.ReactNode 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [skipRemoteHydrate]);
 
   useEffect(() => {
     if (!hydrated || source === "supabase") return;

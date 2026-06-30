@@ -17,6 +17,7 @@ import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
 import { exportServiceAgreementHtml, printServiceAgreement } from "@/lib/agreement-print";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { useAuth } from "@/lib/auth-store";
 import { RecordDocumentsSection } from "@/components/record-documents-section";
 import { auditDocumentProcess, registerDocumentWithAudit } from "@/lib/document-print-audit";
@@ -312,9 +313,29 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
     }
   };
 
+  function onSave() {
+    const current = record;
+    if (!current || saveBlocked) return;
+    upsertServiceAgreement(current);
+    setDraft(null);
+    setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
+  }
+
+  function onDiscard() {
+    setDraft(null);
+    setSaved(false);
+  }
+
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveAgreement && !saveBlocked}
+      >
+        <AppShell
         title={record.name}
         subtitle={`${record.searchKey} · ${record.status}`}
         breadcrumbs={[
@@ -514,21 +535,13 @@ export function ServiceAgreementDetailView({ id }: { id: string }) {
           />
         </div>
       </AppShell>
+      </RecordLineSaveProvider>
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSaveAgreement}
         saveDisabled={saveBlocked}
         message={saveBlocked ? "Fix lifecycle errors before saving" : "You have unsaved changes"}
-        onSave={() => {
-          if (saveBlocked) return;
-          upsertServiceAgreement(record);
-          setDraft(null);
-          setSaved(true);
-          showSuccessToast(SAVE_TOAST_MESSAGES.saved);
-        }}
-        onDiscard={() => {
-          setDraft(null);
-          setSaved(false);
-        }}
+        onSave={onSave}
+        onDiscard={onDiscard}
       />
     </>
   );

@@ -6,6 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { FleetVehicleList } from "@/components/fleet-vehicle-list";
 import { FleetVehicleTabbedView } from "@/components/fleet-vehicle-view";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
@@ -84,7 +85,13 @@ export function FleetVehicleDetailView({ id }: { id: string }) {
 
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveVehicle}
+      >
+        <AppShell
         title={vehicle.name}
         subtitle={`${vehicle.searchKey} · ${vehicle.registrationNumber || "No registration"} · ${vehicle.status.replace("_", " ")}`}
         breadcrumbs={[
@@ -110,6 +117,7 @@ export function FleetVehicleDetailView({ id }: { id: string }) {
           readOnly={!canSaveVehicle}
         />
       </AppShell>
+      </RecordLineSaveProvider>
       <UnsavedChangesBar visible={hasUnsavedChanges} onSave={onSave} onDiscard={onDiscard} saveDisabled={!canSaveVehicle} />
     </>
   );

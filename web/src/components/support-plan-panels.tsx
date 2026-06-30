@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { LineItemTable, type GenericTableConfig } from "@/components/line-item-table";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { useAuth } from "@/lib/auth-store";
 import type { ClientRecord } from "@/lib/client";
 import { useReferenceData } from "@/lib/config-store";
@@ -428,8 +429,9 @@ export function ClientSupportPlanPanel({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-[#f9a8d4]/60 bg-gradient-to-br from-[#fdf2f8] to-white p-5 shadow-sm">
+    <RecordLineSaveProvider onSave={save} onDiscard={discard} dirty={Boolean(draft)} canSave>
+      <div className="space-y-4">
+        <div className="rounded-xl border border-[#f9a8d4]/60 bg-gradient-to-br from-[#fdf2f8] to-white p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#b51266]">Support plan</p>
@@ -589,7 +591,8 @@ export function ClientSupportPlanPanel({
           ]}
         />
       ) : null}
-    </div>
+      </div>
+    </RecordLineSaveProvider>
   );
 }
 

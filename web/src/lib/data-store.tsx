@@ -454,6 +454,8 @@ function readInvestigationSlaDays(): number {
 
 const DataContext = createContext<DataStore | null>(null);
 const STORAGE_KEY = "abilityerp-clone-data";
+const SESSION_CACHE_KEY = "abilityerp-session-data-cache";
+const SESSION_CACHE_TTL_MS = 5 * 60 * 1000;
 
 function useSyncRef<T>(value: T) {
   const ref = useRef(value);
@@ -613,6 +615,53 @@ async function fetchAllDataWithRetry(
   throw lastError;
 }
 
+function normalizePersistedData(parsed: Persisted): Required<Persisted> {
+  return {
+    enquiries: parsed.enquiries.map(normalizeEnquiry),
+    incidents: (parsed.incidents ?? seedIncidents).map(normalizeIncident),
+    clients: parsed.clients.map(normalizeClient),
+    businessPartners: (parsed.businessPartners ?? seedBusinessPartners).map(normalizeBusinessPartner),
+    contracts: (parsed.contracts ?? seedContracts).map(normalizeContract),
+    products: parsed.products ?? seedProducts,
+    priceLists: (parsed.priceLists ?? seedPriceLists).map(normalizePriceList),
+    serviceAgreements: (parsed.serviceAgreements ?? seedServiceAgreements).map(normalizeServiceAgreement),
+    serviceBookings: (parsed.serviceBookings ?? seedServiceBookings).map(normalizeServiceBooking),
+    rosterShifts: (parsed.rosterShifts ?? seedRosterShifts).map(normalizeRosterShift),
+    rosterShiftRequests: (parsed.rosterShiftRequests ?? []).map(normalizeShiftRequest),
+    agencyWorkers: (parsed.agencyWorkers ?? seedAgencyWorkers).map(normalizeAgencyWorker),
+    agencyShiftRequests: (parsed.agencyShiftRequests ?? seedAgencyShiftRequests).map(normalizeAgencyShiftRequest),
+    siteOrientations: (parsed.siteOrientations ?? seedSiteOrientations).map(normalizeSiteOrientation),
+    agencyTimesheets: (parsed.agencyTimesheets ?? seedAgencyTimesheets).map(normalizeAgencyTimesheet),
+    vendorInvoices: (parsed.vendorInvoices ?? seedVendorInvoices).map(normalizeVendorInvoice),
+    rosterOfCares: (parsed.rosterOfCares ?? seedRosterOfCares).map(normalizeRosterOfCare),
+    monthlyServicePlans: (parsed.monthlyServicePlans ?? seedMonthlyServicePlans).map(normalizeMonthlyServicePlan),
+    timesheets: (parsed.timesheets ?? seedTimesheets).map(normalizeTimesheet),
+    claims: (parsed.claims ?? seedClaims).map(normalizeClaim),
+    claimRemittances: (parsed.claimRemittances ?? []).map(normalizeRemittance),
+    invoices: (parsed.invoices ?? seedInvoices).map(normalizeInvoice),
+    payrollClosedPeriods: parsed.payrollClosedPeriods ?? [],
+    payPeriodDefinitions: (parsed.payPeriodDefinitions ?? [defaultPayPeriodDefinitionSeed()]).map(
+      normalizePayPeriodDefinition
+    ),
+    payPeriodInstances: (parsed.payPeriodInstances ?? defaultPayPeriodInstancesSeed()).map(
+      normalizePayPeriodInstance
+    ),
+    financialClosedMonths: parsed.financialClosedMonths ?? [],
+    boardReportTemplates: (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()]).length
+      ? (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()])
+      : [defaultBoardReportTemplate()],
+    boardReportPacks: (parsed.boardReportPacks ?? []).map(normalizeBoardReportPack),
+    supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
+    planDocuments: parsed.planDocuments ?? seedPlanDocuments,
+    employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
+    locations: (parsed.locations ?? seedLocations).map(normalizeLocation),
+    fleetVehicles: (parsed.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle),
+    fleetBookings: parsed.fleetBookings ?? [],
+    maintenanceRequests: parsed.maintenanceRequests ?? [],
+    tasks: (parsed.tasks ?? seedTasks).map(normalizeTask),
+  };
+}
+
 function loadLocal(): Required<Persisted> {
   const defaults = seedData();
   if (typeof window === "undefined") return defaults;
@@ -624,53 +673,73 @@ function loadLocal(): Required<Persisted> {
       localStorage.removeItem(STORAGE_KEY);
       return defaults;
     }
-    return {
-      enquiries: parsed.enquiries.map(normalizeEnquiry),
-      incidents: (parsed.incidents ?? seedIncidents).map(normalizeIncident),
-      clients: parsed.clients.map(normalizeClient),
-      businessPartners: (parsed.businessPartners ?? seedBusinessPartners).map(normalizeBusinessPartner),
-      contracts: (parsed.contracts ?? seedContracts).map(normalizeContract),
-      products: parsed.products ?? seedProducts,
-      priceLists: (parsed.priceLists ?? seedPriceLists).map(normalizePriceList),
-      serviceAgreements: (parsed.serviceAgreements ?? seedServiceAgreements).map(normalizeServiceAgreement),
-      serviceBookings: (parsed.serviceBookings ?? seedServiceBookings).map(normalizeServiceBooking),
-      rosterShifts: (parsed.rosterShifts ?? seedRosterShifts).map(normalizeRosterShift),
-      rosterShiftRequests: (parsed.rosterShiftRequests ?? []).map(normalizeShiftRequest),
-      agencyWorkers: (parsed.agencyWorkers ?? seedAgencyWorkers).map(normalizeAgencyWorker),
-      agencyShiftRequests: (parsed.agencyShiftRequests ?? seedAgencyShiftRequests).map(normalizeAgencyShiftRequest),
-      siteOrientations: (parsed.siteOrientations ?? seedSiteOrientations).map(normalizeSiteOrientation),
-      agencyTimesheets: (parsed.agencyTimesheets ?? seedAgencyTimesheets).map(normalizeAgencyTimesheet),
-      vendorInvoices: (parsed.vendorInvoices ?? seedVendorInvoices).map(normalizeVendorInvoice),
-      rosterOfCares: (parsed.rosterOfCares ?? seedRosterOfCares).map(normalizeRosterOfCare),
-      monthlyServicePlans: (parsed.monthlyServicePlans ?? seedMonthlyServicePlans).map(normalizeMonthlyServicePlan),
-      timesheets: (parsed.timesheets ?? seedTimesheets).map(normalizeTimesheet),
-      claims: (parsed.claims ?? seedClaims).map(normalizeClaim),
-      claimRemittances: (parsed.claimRemittances ?? []).map(normalizeRemittance),
-      invoices: (parsed.invoices ?? seedInvoices).map(normalizeInvoice),
-      payrollClosedPeriods: parsed.payrollClosedPeriods ?? [],
-      payPeriodDefinitions: (parsed.payPeriodDefinitions ?? [defaultPayPeriodDefinitionSeed()]).map(
-        normalizePayPeriodDefinition
-      ),
-      payPeriodInstances: (parsed.payPeriodInstances ?? defaultPayPeriodInstancesSeed()).map(
-        normalizePayPeriodInstance
-      ),
-      financialClosedMonths: parsed.financialClosedMonths ?? [],
-      boardReportTemplates: (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()]).length
-        ? (parsed.boardReportTemplates ?? [defaultBoardReportTemplate()])
-        : [defaultBoardReportTemplate()],
-      boardReportPacks: (parsed.boardReportPacks ?? []).map(normalizeBoardReportPack),
-      supportPlans: (parsed.supportPlans ?? seedSupportPlans).map(normalizeSupportPlan),
-      planDocuments: parsed.planDocuments ?? seedPlanDocuments,
-      employees: (parsed.employees ?? seedEmployees).map(normalizeEmployee),
-      locations: (parsed.locations ?? seedLocations).map(normalizeLocation),
-      fleetVehicles: (parsed.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle),
-      fleetBookings: parsed.fleetBookings ?? [],
-      maintenanceRequests: parsed.maintenanceRequests ?? [],
-      tasks: (parsed.tasks ?? seedTasks).map(normalizeTask),
-    };
+    return normalizePersistedData(parsed);
   } catch {
     localStorage.removeItem(STORAGE_KEY);
     return defaults;
+  }
+}
+
+type SessionCacheOwner = { userId: string; activeRoleId: string } | null | undefined;
+
+type SessionCacheEntry = {
+  data: Required<Persisted>;
+  automations?: TaskAutomationRecord[];
+};
+
+function loadSessionCache(owner: SessionCacheOwner): SessionCacheEntry | null {
+  if (!owner) return null;
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_CACHE_KEY);
+    if (!raw?.trim()) return null;
+    const parsed = JSON.parse(raw) as {
+      savedAt?: number;
+      userId?: string;
+      roleId?: string;
+      data?: unknown;
+      automations?: TaskAutomationRecord[];
+    };
+    if (
+      !parsed.savedAt ||
+      parsed.userId !== owner.userId ||
+      parsed.roleId !== owner.activeRoleId ||
+      Date.now() - parsed.savedAt > SESSION_CACHE_TTL_MS ||
+      !isPersisted(parsed.data)
+    ) {
+      sessionStorage.removeItem(SESSION_CACHE_KEY);
+      return null;
+    }
+    return {
+      data: normalizePersistedData(parsed.data),
+      automations: Array.isArray(parsed.automations) ? parsed.automations : undefined,
+    };
+  } catch {
+    sessionStorage.removeItem(SESSION_CACHE_KEY);
+    return null;
+  }
+}
+
+function persistSessionCache(
+  data: Required<Persisted>,
+  owner: SessionCacheOwner,
+  automations?: TaskAutomationRecord[]
+) {
+  if (!owner) return;
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(
+      SESSION_CACHE_KEY,
+      JSON.stringify({
+        savedAt: Date.now(),
+        userId: owner.userId,
+        roleId: owner.activeRoleId,
+        data,
+        automations,
+      })
+    );
+  } catch {
+    // Ignore quota errors; cache is a performance hint only.
   }
 }
 
@@ -685,8 +754,11 @@ function persistLocal(data: Required<Persisted>) {
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const portalOnly = pathname.startsWith("/portal");
-  const defaults = portalOnly ? portalEmptyData() : seedData();
+  const skipWorkspaceHydrate =
+    pathname === "/login" ||
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/agency-portal");
+  const defaults = skipWorkspaceHydrate ? portalEmptyData() : seedData();
   const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(defaults.enquiries);
   const [incidents, setIncidents] = useState<IncidentRecord[]>(defaults.incidents);
   const [clients, setClients] = useState<ClientRecord[]>(defaults.clients);
@@ -746,15 +818,68 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [source, setSource] = useState<"supabase" | "local">("local");
   const { session, canWindow } = useAuth();
 
+  const applyPersistedState = useCallback(
+    (
+      data: Required<Persisted>,
+      options: {
+        tasks?: TaskRecord[];
+        automations?: TaskAutomationRecord[];
+        source: "supabase" | "local";
+      }
+    ) => {
+      setEnquiries(data.enquiries);
+      setIncidents(data.incidents);
+      setClients(data.clients);
+      setBusinessPartners(data.businessPartners ?? seedBusinessPartners.map(normalizeBusinessPartner));
+      setContracts(data.contracts);
+      setProducts(data.products);
+      setPriceLists(data.priceLists);
+      setServiceAgreements(data.serviceAgreements);
+      setServiceBookings(data.serviceBookings);
+      setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
+      setRosterShiftRequests((data.rosterShiftRequests ?? []).map(normalizeShiftRequest));
+      setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
+      setAgencyShiftRequests(data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest));
+      setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
+      setAgencyTimesheets(data.agencyTimesheets ?? seedAgencyTimesheets.map(normalizeAgencyTimesheet));
+      setVendorInvoices(data.vendorInvoices ?? seedVendorInvoices.map(normalizeVendorInvoice));
+      setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
+      setMonthlyServicePlans(data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan));
+      setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
+      setClaims(data.claims ?? seedClaims.map(normalizeClaim));
+      setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
+      setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
+      setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
+      setPayPeriodDefinitions(
+        (data.payPeriodDefinitions ?? [defaultPayPeriodDefinitionSeed()]).map(normalizePayPeriodDefinition)
+      );
+      setPayPeriodInstances((data.payPeriodInstances ?? defaultPayPeriodInstancesSeed()).map(normalizePayPeriodInstance));
+      setFinancialClosedMonths(data.financialClosedMonths ?? []);
+      setBoardReportTemplates(data.boardReportTemplates?.length ? data.boardReportTemplates : [defaultBoardReportTemplate()]);
+      setBoardReportPacks((data.boardReportPacks ?? []).map(normalizeBoardReportPack));
+      setSupportPlans(data.supportPlans);
+      setPlanDocuments(data.planDocuments);
+      setEmployees(data.employees);
+      setLocations(data.locations ?? seedLocations.map(normalizeLocation));
+      setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
+      setFleetBookings(data.fleetBookings ?? []);
+      setMaintenanceRequests(data.maintenanceRequests ?? []);
+      setTasks(options.tasks ?? data.tasks);
+      setTaskAutomations(options.automations ?? initialTaskAutomations);
+      setSource(options.source);
+    },
+    []
+  );
+
   const locationScope = useMemo(
     () =>
       computeLocationScope(
         locations,
         session?.employeeBpId ?? "",
-        Boolean(session) && !portalOnly && canSeeAllLocations(canWindow),
-        Boolean(session) && !portalOnly
+        Boolean(session) && !skipWorkspaceHydrate && canSeeAllLocations(canWindow),
+        Boolean(session) && !skipWorkspaceHydrate
       ),
-    [locations, session, portalOnly, canWindow]
+    [locations, session, skipWorkspaceHydrate, canWindow]
   );
 
   const scopedView = useMemo(
@@ -831,6 +956,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const maintenanceRequestsRef = useSyncRef(maintenanceRequests);
   const tasksRef = useSyncRef(tasks);
   const automationsRef = useSyncRef(taskAutomations);
+  const sessionRef = useSyncRef(session);
+  const sourceRef = useSyncRef(source);
 
   const refreshFromRemote = useCallback(async () => {
     if (!isSupabaseConfigured()) return;
@@ -908,16 +1035,26 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function hydrate() {
-      if (portalOnly) {
+      if (skipWorkspaceHydrate) {
         if (!cancelled) {
-          setSource("local");
           setHydrated(true);
         }
         return;
       }
 
       if (isSupabaseConfigured()) {
+        const cached = loadSessionCache(sessionRef.current);
+        if (cached && !cancelled) {
+          applyPersistedState(cached.data, { automations: cached.automations, source: "supabase" });
+          setHydrated(true);
+          if (process.env.NODE_ENV !== "production") {
+            console.debug("[DataStore] session cache hydrate");
+          }
+          return;
+        }
+
         try {
+          const startedAt = performance.now();
           const supabase = createClient();
           const data = await fetchAllDataWithRetry(supabase);
           let loadedTasks = loadLocal().tasks;
@@ -935,49 +1072,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             // keep seed automations
           }
           if (!cancelled) {
-            setEnquiries(data.enquiries);
-            setIncidents(data.incidents);
-            setClients(data.clients);
-            setBusinessPartners(data.businessPartners ?? seedBusinessPartners.map(normalizeBusinessPartner));
-            setContracts(data.contracts);
-            setProducts(data.products);
-            setPriceLists(data.priceLists);
-            setServiceAgreements(data.serviceAgreements);
-            setServiceBookings(data.serviceBookings);
-            setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
-            setRosterShiftRequests((data.rosterShiftRequests ?? []).map(normalizeShiftRequest));
-            setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
-            setAgencyShiftRequests(
-              data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest)
-            );
-            setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
-      setAgencyTimesheets(data.agencyTimesheets ?? seedAgencyTimesheets.map(normalizeAgencyTimesheet));
-      setVendorInvoices(data.vendorInvoices ?? seedVendorInvoices.map(normalizeVendorInvoice));
-            setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
-            setMonthlyServicePlans(
-              data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan)
-            );
-            setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
-            setClaims(data.claims ?? seedClaims.map(normalizeClaim));
-            setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
-            setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
-            setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
-            setFinancialClosedMonths(data.financialClosedMonths ?? []);
-            setBoardReportTemplates(
-              data.boardReportTemplates?.length ? data.boardReportTemplates : [defaultBoardReportTemplate()]
-            );
-            setBoardReportPacks((data.boardReportPacks ?? []).map(normalizeBoardReportPack));
-            setSupportPlans(data.supportPlans);
-            setPlanDocuments(data.planDocuments);
-            setEmployees(data.employees);
-            setLocations(data.locations ?? seedLocations.map(normalizeLocation));
-            setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
-            setFleetBookings(data.fleetBookings ?? []);
-            setMaintenanceRequests(data.maintenanceRequests ?? []);
-            setTasks(loadedTasks);
-            setTaskAutomations(loadedAutomations);
-            setSource("supabase");
+            applyPersistedState(data as Required<Persisted>, {
+              tasks: loadedTasks,
+              automations: loadedAutomations,
+              source: "supabase",
+            });
+            persistSessionCache({
+              ...(data as Required<Persisted>),
+              tasks: loadedTasks,
+            }, sessionRef.current, loadedAutomations);
             setHydrated(true);
+            if (process.env.NODE_ENV !== "production") {
+              console.debug(`[DataStore] remote hydrate ${Math.round(performance.now() - startedAt)}ms`);
+            }
             return;
           }
         } catch (err) {
@@ -985,52 +1092,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             "[DataStore] Supabase hydrate failed — using local seed. Check Amplify env vars (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY) and redeploy.",
             err
           );
+          if (sourceRef.current === "supabase") {
+            if (!cancelled) setHydrated(true);
+            return;
+          }
         }
       }
 
       if (!cancelled) {
         const data = loadLocal();
-        setEnquiries(data.enquiries);
-        setIncidents(data.incidents);
-        setClients(data.clients);
-        setBusinessPartners(data.businessPartners ?? seedBusinessPartners.map(normalizeBusinessPartner));
-        setContracts(data.contracts);
-        setProducts(data.products);
-        setPriceLists(data.priceLists);
-        setServiceAgreements(data.serviceAgreements);
-        setServiceBookings(data.serviceBookings);
-        setRosterShifts(data.rosterShifts ?? seedRosterShifts.map(normalizeRosterShift));
-        setAgencyWorkers(data.agencyWorkers ?? seedAgencyWorkers.map(normalizeAgencyWorker));
-        setAgencyShiftRequests(
-          data.agencyShiftRequests ?? seedAgencyShiftRequests.map(normalizeAgencyShiftRequest)
-        );
-        setSiteOrientations(data.siteOrientations ?? seedSiteOrientations.map(normalizeSiteOrientation));
-      setAgencyTimesheets(data.agencyTimesheets ?? seedAgencyTimesheets.map(normalizeAgencyTimesheet));
-      setVendorInvoices(data.vendorInvoices ?? seedVendorInvoices.map(normalizeVendorInvoice));
-        setRosterOfCares(data.rosterOfCares ?? seedRosterOfCares.map(normalizeRosterOfCare));
-        setMonthlyServicePlans(data.monthlyServicePlans ?? seedMonthlyServicePlans.map(normalizeMonthlyServicePlan));
-        setTimesheets(data.timesheets ?? seedTimesheets.map(normalizeTimesheet));
-        setClaims(data.claims ?? seedClaims.map(normalizeClaim));
-        setClaimRemittances((data.claimRemittances ?? []).map(normalizeRemittance));
-        setInvoices(data.invoices ?? seedInvoices.map(normalizeInvoice));
-        setPayrollClosedPeriods(data.payrollClosedPeriods ?? []);
-        setPayPeriodDefinitions(
-          (data.payPeriodDefinitions ?? [defaultPayPeriodDefinitionSeed()]).map(normalizePayPeriodDefinition)
-        );
-        setPayPeriodInstances(
-          (data.payPeriodInstances ?? defaultPayPeriodInstancesSeed()).map(normalizePayPeriodInstance)
-        );
-        setFinancialClosedMonths(data.financialClosedMonths ?? []);
-        setSupportPlans(data.supportPlans);
-        setPlanDocuments(data.planDocuments);
-        setEmployees(data.employees);
-        setLocations(data.locations);
-        setFleetVehicles((data.fleetVehicles ?? seedFleetVehicles).map(normalizeFleetVehicle));
-        setFleetBookings(data.fleetBookings ?? []);
-        setMaintenanceRequests(data.maintenanceRequests ?? []);
-        setTasks(data.tasks);
-        setTaskAutomations(initialTaskAutomations);
-        setSource("local");
+        applyPersistedState(data, { source: "local" });
         setHydrated(true);
       }
     }
@@ -1042,11 +1113,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [portalOnly]);
+  }, [applyPersistedState, sessionRef, skipWorkspaceHydrate]);
 
   useEffect(() => {
-    if (!hydrated || source === "supabase") return;
-    persistLocal({
+    if (!hydrated || skipWorkspaceHydrate) return;
+    const snapshot = {
       enquiries,
       incidents,
       clients,
@@ -1083,7 +1154,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       fleetBookings,
       maintenanceRequests,
       tasks,
-    });
+    };
+    if (source === "supabase") {
+      persistSessionCache(snapshot, session, taskAutomations);
+    } else {
+      persistLocal(snapshot);
+    }
   }, [
     enquiries,
     incidents,
@@ -1121,8 +1197,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     fleetBookings,
     maintenanceRequests,
     tasks,
+    taskAutomations,
     hydrated,
     source,
+    session,
+    skipWorkspaceHydrate,
   ]);
 
   const persistRemote = useCallback(

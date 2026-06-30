@@ -86,7 +86,7 @@
 
 ## Startup performance AB-0042 (2026-06-30)
 
-**Status:** In verification.
+**Status:** Shipped (2026-06-30).
 
 **Why:** Users reported slower page loads after recent deploys. The startup path was doing broad access/data hydrates before pages could render.
 
@@ -94,11 +94,22 @@
 |------|--------|
 | Server session | `/api/auth/session` now builds the active session from the current user, active role, and that role's grants instead of fetching all users and every role grant |
 | Client auth | `AuthProvider` renders after the active session is known; full users/roles load in the background and are explicitly requested by Roles/System access screens |
-| Data hydrate | `/login`, participant portal, and agency portal skip the workspace `fetchAllData()` hydrate |
+| Data hydrate | `/login`, participant portal, and agency portal skip the workspace `fetchAllData()` hydrate (System routes still hydrate workspace data) |
 | Workspace cache | `DataProvider` uses a 5-minute `sessionStorage` snapshot for faster refresh/back-navigation; fresh remote hydrate resumes when the cache expires |
+| Line drawers | `RecordLineSaveProvider` wires parent save into list-drawer line editors; failed validation keeps the drawer open |
 | Diagnostics | Dev builds log auth directory and remote data hydrate timings in the browser console |
 
 **What you can test:** TEST-106 in `docs/testing/TEST-RUNBOOKS.md`.
+
+**Verification (2026-06-30):**
+- `npm run build` — exit 0
+- `npx tsc --noEmit` — exit 0
+- `npm run page-guides:check` — exit 0 (143 routes)
+- Bugbot — 1 High fixed (drawer save forwards parent `false`); 1 Medium accepted (cache intentionally skips background refetch to avoid clobbering unsaved edits)
+- Browser smoke localhost — PASS `/login`, home after role select, `/clients` + refresh, `/admin/roles`, `/portal/login`
+- Browser smoke Amplify — see post-push verification below
+
+**Code review log:** 2026-06-30 — Bugbot AB-0042: High drawer closed on failed parent save (fixed — `line-item-table` forwards `onSave()` return value); Medium stale cache without background refetch (accepted — intentional to protect unsaved edits).
 
 ---
 
@@ -2991,6 +3002,7 @@ Each row is what end users and system administrators need. In-app: workspace foo
 
 | Date | Commit range | Findings | Result | Notes |
 |------|--------------|----------|--------|-------|
+| 2026-06-30 | AB-0042 startup performance | 1 High fixed, 1 Medium accepted | **Pass** | High: list-drawer parent save did not forward `false` from record save handlers (fixed in `line-item-table.tsx`). Medium: sessionStorage cache skips background refetch (accepted — avoids clobbering unsaved edits). Localhost TEST-106 smoke PASS |
 | 2026-06-29 | Support worker assistant — visible-client activity coach | 1 behaviour bug, fixed | **Pass** | When a support worker was already viewing a client record and clicked **Help me write today's activity update**, the backend only received `pagePath`; if route grounding did not resolve, the model asked for a client name and stopped at client lookup. Chat now sends the resolved visible client context (`id`, `name`, `searchKey`) to `/api/ai/chat`, and the coach always starts with **Step 1 — Confirm client** before loading notes. **Amplify browser test (2026-06-29):** `https://app.abilityvua.com/clients/bp-bern` → **Help me write today's activity update** → Step 1 Bernadette card (no name prompt) → **yes** → last activity notes + Step 3 prompt → visit details → **Review activity before saving** modal with **Save activity** (commit `b627965`) |
 | 2026-06-29 | Support worker assistant — activity coach intent | 1 behaviour bug, fixed | **Pass** | Asking the assistant to **"add an activity"** stopped after the client lookup instead of running the guided coach. Root cause: `ACTIVITY_INTENT_RE` matched "log/create/write activity" and "add a note" but not "add/record/enter/new activit(y\|ies)", so `isActivityCoachIntent` returned false and the deterministic coach never started. Broadened the verb set (kept word-boundary safety so read-only queries like "what activities does Karen have?" do not trigger) and added regression coverage in `karen-bug-regression.mjs`. Localhost browser smoke (Oliver Williams, support worker) confirmed "add an activity for Grace Garcia" now starts Step 1 (confirm client) → promises last 5 notes |
 | 2026-06-29 | Availability hours policy uncommitted | 3 High + 2 Medium, all fixed | **Pass** | Fixed: (H) prior approval no longer ignored when a newer pending/declined row exists — approved ceiling now sourced from `loadLatestApprovedOverMaxRequest` and applied regardless of latest status; (H) default availability template (Mon–Fri 09:00–17:00 = 40h/wk) no longer trips over-max — default org maximum raised to 80h/fortnight via fix-forward migration `20260730150000`; (H) over-max approval request now created **before** `saveMyAvailability` so an over-max pattern is never stored without a pending row; (M) summary `approvalStatus` cleared to `none` once the pattern is within the cap; (M) `reviewOverMaxRequest` now guards on `status = 'pending'` to block double-review of stale rows |

@@ -13,6 +13,7 @@ import { useReferenceData } from "@/lib/config-store";
 import { useData } from "@/lib/data-store";
 import { formatPlanBudgetCurrency } from "@/lib/client-plan-budget";
 import { monthlyServicePlanLineTableConfig } from "@/lib/monthly-service-plan-line-tables";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import {
   buildMonthlyPlanBurnAlerts,
   hasServicePlanBurnWarnings,
@@ -70,6 +71,12 @@ export function MonthlyServicePlanEditor({
     [client]
   );
 
+  const normalizedStored = useMemo(() => normalizeMonthlyServicePlan(plan), [plan]);
+  const dirty = useMemo(
+    () => JSON.stringify(draft) !== JSON.stringify(normalizedStored),
+    [draft, normalizedStored]
+  );
+
   function onChange<K extends keyof MonthlyServicePlanRecord>(key: K, value: MonthlyServicePlanRecord[K]) {
     setDraft((prev) => normalizeMonthlyServicePlan({ ...prev, [key]: value, updatedBy: actor }));
   }
@@ -94,8 +101,15 @@ export function MonthlyServicePlanEditor({
     }
   }
 
+  function discard() {
+    setDraft(normalizedStored);
+    setMessage("");
+    setError("");
+  }
+
   return (
-    <div className="space-y-4">
+    <RecordLineSaveProvider onSave={save} onDiscard={discard} dirty={dirty} canSave={!readOnly}>
+      <div className="space-y-4">
       {client ? (
         <section className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
           <h3 className="text-sm font-semibold text-slate-900">Burn rate and forecast</h3>
@@ -191,7 +205,8 @@ export function MonthlyServicePlanEditor({
           </button>
         </div>
       ) : null}
-    </div>
+      </div>
+    </RecordLineSaveProvider>
   );
 }
 

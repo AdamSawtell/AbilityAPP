@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
-import type { AuthSession } from "@/lib/access/types";
+import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
 import { canAccessWindow, sanitizeAppWindowKeys } from "@/lib/access/catalog";
 import { canRunProcess } from "@/lib/access/process-access";
@@ -13,11 +13,7 @@ import { normalizeIdleTimeoutMinutes, ORGANIZATION_ID } from "@/lib/organization
 import { recordLogout } from "@/lib/session-audit/server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import {
-  fetchRoles,
-  fetchUsers,
-  resolveRoleAccess,
-} from "@/lib/supabase/access-api";
+import { resolveRoleAccess } from "@/lib/supabase/access-api";
 import { resolveRoleAgentIds } from "@/lib/ai/agents-api";
 
 export const SESSION_COOKIE = "abilityvua_session";
@@ -127,6 +123,54 @@ function serviceClient() {
   return createSupabaseClient(url, key, { auth: { persistSession: false } });
 }
 
+type SessionUserRow = {
+  id: string;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  active: boolean;
+  employee_bp_id: string | null;
+};
+
+type SessionRoleRow = {
+  id: string;
+  role_key: string;
+  name: string;
+  description: string;
+  active: boolean;
+};
+
+function sessionUserFromRow(row: SessionUserRow, roleIds: string[]): AppUserRecord {
+  return {
+    id: row.id,
+    username: row.username,
+    email: row.email,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    phone: "",
+    active: row.active,
+    employeeBpId: row.employee_bp_id ?? "",
+    notes: "",
+    roleIds,
+  };
+}
+
+function sessionRoleFromRow(row: SessionRoleRow, access: Awaited<ReturnType<typeof resolveRoleAccess>>): AppRoleRecord {
+  return normalizeRoleWindowAccess({
+    id: row.id,
+    roleKey: row.role_key,
+    name: row.name,
+    description: row.description,
+    active: row.active,
+    windowKeys: access.windowKeys,
+    windowAccess: access.windowAccess,
+    processIds: access.processIds,
+    reportIds: access.reportIds,
+    taskTypePermissions: access.taskTypePermissions,
+  });
+}
+
 export async function readIdleTimeoutMinutes(): Promise<number> {
   if (!isSupabaseConfigured()) return 15;
   if (idleTimeoutCache && idleTimeoutCache.expiresAt > Date.now()) return idleTimeoutCache.value;
@@ -183,13 +227,27 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
   if (isSupabaseConfigured()) {
     try {
       const supabase = serviceClient();
-      const [users, roles] = await Promise.all([fetchUsers(supabase), fetchRoles(supabase)]);
-      const user = users.find((u) => u.id === userId);
-      const role = roles.find((r) => r.id === roleId);
-      const allRoleIds = roles.filter((r) => r.active).map((r) => r.id);
-      if (!user?.active || !role?.active || !userHasRole(user, roleId, allRoleIds)) return null;
+      const [userRes, roleRes, userRolesRes, activeRolesRes, access, agentIds] = await Promise.all([
+        supabase
+          .from("app_user")
+          .select("id, username, email, first_name, last_name, active, employee_bp_id")
+          .eq("id", userId)
+          .maybeSingle(),
+        supabase.from("app_role").select("id, role_key, name, description, active").eq("id", roleId).maybeSingle(),
+        supabase.from("app_user_role").select("role_id").eq("user_id", userId),
+        supabase.from("app_role").select("id").eq("active", true),
+        resolveRoleAccess(supabase, roleId),
+        resolveRoleAgentIds(supabase, roleId),
+      ]);
 
-      const agentIds = await resolveRoleAgentIds(supabase, roleId);
+      if (userRes.error || roleRes.error || userRolesRes.error || activeRolesRes.error) return null;
+      if (!userRes.data || !roleRes.data) return null;
+
+      const userRoleIds = (userRolesRes.data ?? []).map((row) => row.role_id);
+      const allRoleIds = (activeRolesRes.data ?? []).map((row) => row.id);
+      const user = sessionUserFromRow(userRes.data as SessionUserRow, userRoleIds);
+      const role = sessionRoleFromRow(roleRes.data as SessionRoleRow, access);
+      if (!user?.active || !role?.active || !userHasRole(user, roleId, allRoleIds)) return null;
 
       if (isAdminRole(role)) {
         const normalized = normalizeRoleWindowAccess(
@@ -214,9 +272,7 @@ export async function buildAuthSession(userId: string, roleId: string): Promise<
         };
       }
 
-      const mergedRole = withSeedTaskAccess(role);
-      const access = await resolveRoleAccess(supabase, roleId);
-      const merged = withSeedTaskAccess({ ...mergedRole, ...access });
+      const merged = withSeedTaskAccess(role);
       const normalized = normalizeRoleWindowAccess(merged);
       const resolvedAgentIds = agentIds.length ? agentIds : agentIdsForRole(roleId);
       return {

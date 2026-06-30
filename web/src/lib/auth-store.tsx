@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { AppRoleRecord, AppUserRecord, AuthSession } from "@/lib/access/types";
 import { userInitials } from "@/lib/access/types";
@@ -28,12 +28,15 @@ function isAdminSystemRedirect(pathname: string): boolean {
 }
 
 const LEGACY_SESSION_KEY = "abilityerp-auth-session";
+const WORKSPACE_SESSION_CACHE_KEY = "abilityerp-session-data-cache";
 
 type AuthStore = {
   session: AuthSession | null;
   users: AppUserRecord[];
   roles: AppRoleRecord[];
   hydrated: boolean;
+  accessDirectoryHydrated: boolean;
+  accessDirectoryError: string | null;
   source: "supabase" | "local";
   login: (userId: string, roleId: string) => Promise<void>;
   authenticate: (username: string, password: string) => Promise<AppUserRecord>;
@@ -48,6 +51,7 @@ type AuthStore = {
   canAgent: (agentId: string) => boolean;
   upsertUser: (user: AppUserRecord, options?: { password?: string }) => Promise<void>;
   upsertRole: (role: AppRoleRecord) => Promise<void>;
+  ensureAccessDirectory: () => Promise<void>;
   userInitials: string;
   availableRolesForUser: (userId: string) => AppRoleRecord[];
 };
@@ -109,6 +113,9 @@ async function switchSessionRoleViaApi(roleId: string): Promise<AuthSession> {
 async function clearSessionViaApi(reason: "inactivity" | "manual" = "manual"): Promise<void> {
   const suffix = reason === "inactivity" ? "?reason=inactivity" : "";
   await fetch(`/api/auth/session${suffix}`, { method: "DELETE", credentials: "include" });
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem(WORKSPACE_SESSION_CACHE_KEY);
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -116,7 +123,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [roles, setRoles] = useState<AppRoleRecord[]>(SEED_ROLES);
   const [session, setSession] = useState<AuthSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [accessDirectoryHydrated, setAccessDirectoryHydrated] = useState(false);
+  const [accessDirectoryError, setAccessDirectoryError] = useState<string | null>(null);
   const [source, setSource] = useState<"supabase" | "local">("local");
+  const accessDirectoryPromise = useRef<Promise<void> | null>(null);
+
+  const ensureAccessDirectory = useCallback(async () => {
+    if (!isSupabaseConfigured()) {
+      setUsers(SEED_USERS);
+      setRoles(SEED_ROLES.map(withSeedTaskAccess));
+      setSource("local");
+      setAccessDirectoryHydrated(true);
+      setAccessDirectoryError(null);
+      return;
+    }
+
+    if (accessDirectoryPromise.current) {
+      await accessDirectoryPromise.current;
+      return;
+    }
+
+    accessDirectoryPromise.current = (async () => {
+      const startedAt = performance.now();
+      let error: string | null = null;
+      try {
+        const supabase = createClient();
+        const [dbUsers, dbRoles] = await Promise.all([fetchUsers(supabase), fetchRoles(supabase)]);
+        if (dbUsers.length) {
+          setUsers(dbUsers);
+          setRoles(dbRoles.map(withSeedTaskAccess));
+          setSource("supabase");
+        } else {
+          error = "Could not load live users and roles.";
+        }
+      } catch (err) {
+        error = err instanceof Error ? err.message : "Could not load live users and roles.";
+        // Keep seed data; admin screens can still surface save/load failures.
+      } finally {
+        setAccessDirectoryError(error);
+        setAccessDirectoryHydrated(true);
+        if (process.env.NODE_ENV !== "production") {
+          console.debug(`[AuthStore] access directory hydrate ${Math.round(performance.now() - startedAt)}ms`);
+        }
+        accessDirectoryPromise.current = null;
+      }
+    })();
+
+    await accessDirectoryPromise.current;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -127,26 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (isSupabaseConfigured()) {
-        try {
-          const supabase = createClient();
-          const [dbUsers, dbRoles] = await Promise.all([fetchUsers(supabase), fetchRoles(supabase)]);
-          if (!cancelled && dbUsers.length) {
-            setUsers(dbUsers);
-            setRoles(dbRoles.map(withSeedTaskAccess));
-            setSource("supabase");
-          }
-        } catch {
-          // fall through to seed data
-        }
-      }
-
-      if (!cancelled) {
-        if (!isSupabaseConfigured()) {
-          setUsers(SEED_USERS);
-          setRoles(SEED_ROLES.map(withSeedTaskAccess));
-          setSource("local");
-        }
-
+        setSource("supabase");
         try {
           const active = await fetchSessionFromApi();
           if (!cancelled && active) setSession(active);
@@ -155,6 +190,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!cancelled) setHydrated(true);
+        void ensureAccessDirectory();
+        return;
+      }
+
+      if (!cancelled) {
+        setUsers(SEED_USERS);
+        setRoles(SEED_ROLES.map(withSeedTaskAccess));
+        setSource("local");
+        setAccessDirectoryHydrated(true);
+        setAccessDirectoryError(null);
+        setHydrated(true);
       }
     }
 
@@ -165,7 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [ensureAccessDirectory]);
 
   const login = useCallback(async (userId: string, roleId: string) => {
     const next = await createSessionViaApi(userId, roleId);
@@ -185,13 +231,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       const data = (await res.json()) as { user: AppUserRecord };
       const user = data.user;
+      await ensureAccessDirectory();
       setUsers((prev) => {
         const exists = prev.some((u) => u.id === user.id);
         return exists ? prev.map((u) => (u.id === user.id ? user : u)) : [...prev, user];
       });
       return user;
     },
-    []
+    [ensureAccessDirectory]
   );
 
   const logout = useCallback(async (options?: { reason?: "inactivity" | "manual" }) => {
@@ -246,6 +293,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const upsertUser = useCallback(
     async (user: AppUserRecord, options?: { password?: string }) => {
+      if (source === "supabase" && (!accessDirectoryHydrated || accessDirectoryError)) {
+        throw new Error("Live access directory is not loaded.");
+      }
       // SuperUser is persisted with every active role; mirror that in client state
       // so the UI never shows fewer roles than were saved.
       const allRoleIds = roles.filter((r) => r.active).map((r) => r.id);
@@ -266,11 +316,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!res.ok) throw new Error("Could not save system access");
       }
     },
-    [source, roles]
+    [source, roles, accessDirectoryHydrated, accessDirectoryError]
   );
 
   const upsertRole = useCallback(
     async (role: AppRoleRecord) => {
+      if (source === "supabase" && (!accessDirectoryHydrated || accessDirectoryError)) {
+        throw new Error("Live role configuration is not loaded.");
+      }
       const toSave = ensureAdminRoleAccess(withSeedTaskAccess(role), ALL_TASK_TYPE_IDS);
       setRoles((prev) => {
         const exists = prev.some((r) => r.id === toSave.id);
@@ -288,7 +341,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [source, session?.activeRoleId]
+    [source, session?.activeRoleId, accessDirectoryHydrated, accessDirectoryError]
   );
 
   const availableRolesForUser = useCallback(
@@ -314,6 +367,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       users,
       roles,
       hydrated,
+      accessDirectoryHydrated,
+      accessDirectoryError,
       source,
       login,
       authenticate,
@@ -328,6 +383,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canAgent,
       upsertUser,
       upsertRole,
+      ensureAccessDirectory,
       userInitials: initials,
       availableRolesForUser,
     }),
@@ -336,6 +392,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       users,
       roles,
       hydrated,
+      accessDirectoryHydrated,
+      accessDirectoryError,
       source,
       login,
       authenticate,
@@ -350,6 +408,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       canAgent,
       upsertUser,
       upsertRole,
+      ensureAccessDirectory,
       initials,
       availableRolesForUser,
     ]

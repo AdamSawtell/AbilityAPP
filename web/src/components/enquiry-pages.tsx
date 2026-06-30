@@ -11,6 +11,7 @@ import { EnquiryPipelinePanel } from "@/components/enquiry-pipeline-panel";
 import { EnquiryTabbedView } from "@/components/enquiry-view";
 import { ClientRecordLink } from "@/components/record-link";
 import { UnsavedChangesBar } from "@/components/unsaved-changes-bar";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { useModuleSaveAccess } from "@/lib/access/use-detail-write-access";
 import { useConvertEnquiry, useData } from "@/lib/data-store";
 import { useAuth } from "@/lib/auth-store";
@@ -225,7 +226,13 @@ export function EnquiryDetailView({ id }: { id: string }) {
 
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveEnquiry && !saveBlocked}
+      >
+        <AppShell
         title={`Enquiry ${record.documentNo}`}
         subtitle={participantName || "Participant details"}
         breadcrumbs={[
@@ -327,6 +334,7 @@ export function EnquiryDetailView({ id }: { id: string }) {
           />
         ) : null}
       </AppShell>
+      </RecordLineSaveProvider>
 
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSaveEnquiry}

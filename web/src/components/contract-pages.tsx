@@ -16,6 +16,7 @@ import type { ContractLineCollectionKey } from "@/lib/contract-line-tables";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
 function ContractFormFallback() {
@@ -210,7 +211,13 @@ export function ContractDetailView({ id }: { id: string }) {
 
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveContract}
+      >
+        <AppShell
         title={`Contract ${contract.documentNo}`}
         subtitle={contract.contractType}
         breadcrumbs={[
@@ -260,6 +267,7 @@ export function ContractDetailView({ id }: { id: string }) {
           />
         </div>
       </AppShell>
+      </RecordLineSaveProvider>
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSaveContract}
         confirmation={saveConfirmation}

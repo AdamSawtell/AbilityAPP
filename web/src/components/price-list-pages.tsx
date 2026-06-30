@@ -13,6 +13,7 @@ import type { PriceListLine, PriceListRecord } from "@/lib/product";
 import { useData } from "@/lib/data-store";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-[#d4147a] focus:ring-2 focus:ring-[#d4147a]/20";
@@ -111,9 +112,28 @@ export function PriceListDetailView({ id }: { id: string }) {
     setSaved(false);
   }
 
+  function onSave() {
+    if (!list) return;
+    upsertPriceList(list);
+    setDraft(null);
+    setSaved(true);
+    showSuccessToast(SAVE_TOAST_MESSAGES.saved);
+  }
+
+  function onDiscard() {
+    setDraft(null);
+    setSaved(false);
+  }
+
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSavePriceList}
+      >
+        <AppShell
         title={list.name}
         subtitle={`Valid from ${formatContractDate(list.validFrom)} · ${list.lines.length} product prices`}
         breadcrumbs={[
@@ -165,18 +185,11 @@ export function PriceListDetailView({ id }: { id: string }) {
           <RecordTasksPanel entityType="price-list" entityId={list.id} entityLabel={list.name} />
         </div>
       </AppShell>
+      </RecordLineSaveProvider>
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSavePriceList}
-        onSave={() => {
-          upsertPriceList(list);
-          setDraft(null);
-          setSaved(true);
-          showSuccessToast(SAVE_TOAST_MESSAGES.saved);
-        }}
-        onDiscard={() => {
-          setDraft(null);
-          setSaved(false);
-        }}
+        onSave={onSave}
+        onDiscard={onDiscard}
       />
     </>
   );

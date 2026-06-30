@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { SystemShell } from "@/components/system/system-shell";
 import { appChildWindows, appRoleWindows } from "@/lib/access/catalog";
@@ -356,11 +356,19 @@ function HomePanelTile({
 }
 
 export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace" | "system" }) {
-  const { roles, upsertRole } = useAuth();
+  const { roles, upsertRole, accessDirectoryHydrated, accessDirectoryError, ensureAccessDirectory } = useAuth();
   const [activeId, setActiveId] = useState<string | null>(roles[0]?.id ?? null);
   const [draft, setDraft] = useState<AppRoleRecord | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void ensureAccessDirectory();
+  }, [ensureAccessDirectory]);
+
+  useEffect(() => {
+    if (!activeId && roles[0]) setActiveId(roles[0].id);
+  }, [activeId, roles]);
 
   const record = draft ?? roles.find((r) => r.id === activeId) ?? null;
   const windowsByGroup = useMemo(() => {
@@ -463,6 +471,11 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
   }
 
   async function save() {
+    if (accessDirectoryError) {
+      setSaveError("Live role configuration is not loaded. Retry when the connection recovers.");
+      setSaveState("error");
+      return;
+    }
     if (!record?.roleKey.trim() || !record.name.trim()) {
       setSaveError("Role key and name are required before saving.");
       setSaveState("error");
@@ -505,12 +518,24 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
         <button
           type="button"
           onClick={addRole}
+          disabled={Boolean(accessDirectoryError)}
           className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266]"
         >
           Add role
         </button>
       }
     >
+      {!accessDirectoryHydrated ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-600 shadow-sm">
+          Loading role configuration...
+        </div>
+      ) : (
+      <>
+      {accessDirectoryError ? (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Live role configuration could not be loaded. Showing bundled defaults until the connection recovers.
+        </div>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-2 lg:col-span-1">
           {roles.map((r) => (
@@ -736,7 +761,7 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
               ) : null}
               <button
                 type="button"
-                disabled={saveState === "saving"}
+                disabled={saveState === "saving" || Boolean(accessDirectoryError)}
                 onClick={() => void save()}
                 className="rounded-lg bg-[#d4147a] px-4 py-2 text-sm font-medium text-white hover:bg-[#b51266] disabled:opacity-60"
               >
@@ -748,6 +773,8 @@ export function RolesAdminView({ variant = "workspace" }: { variant?: "workspace
           )}
         </div>
       </div>
+      </>
+      )}
     </Shell>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AppUserRecord } from "@/lib/access/types";
 import { displayName } from "@/lib/access/types";
 import type { EmployeeRecord } from "@/lib/employee";
@@ -48,7 +48,7 @@ export function EmployeeSystemAccessPanel({
   employee: EmployeeRecord;
   linkedUser?: AppUserRecord;
 }) {
-  const { roles, upsertUser } = useAuth();
+  const { roles, upsertUser, accessDirectoryHydrated, accessDirectoryError, ensureAccessDirectory } = useAuth();
   const [draft, setDraft] = useState<AppUserRecord | null>(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -61,6 +61,10 @@ export function EmployeeSystemAccessPanel({
   const isNew = !linkedUser;
   const roleNameById = useMemo(() => new Map(roles.map((r) => [r.id, r.name])), [roles]);
   const activeRoles = useMemo(() => roles.filter((r) => r.active), [roles]);
+
+  useEffect(() => {
+    void ensureAccessDirectory();
+  }, [ensureAccessDirectory]);
 
   function startSetup() {
     setDraft(userFromEmployee(employee));
@@ -186,26 +190,39 @@ export function EmployeeSystemAccessPanel({
 
           <div>
             <p className="mb-2 text-sm font-medium text-slate-700">Assigned roles</p>
-            <div className="flex flex-wrap gap-2">
-              {activeRoles.map((r) => (
-                <label
-                  key={r.id}
-                  className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
-                    record!.roleIds.includes(r.id)
-                      ? "border-[#d4147a] bg-[#fdf2f8] text-[#b51266]"
-                      : "border-slate-200 text-slate-600"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={record!.roleIds.includes(r.id)}
-                    onChange={() => toggleRole(r.id)}
-                  />
-                  {r.name}
-                </label>
-              ))}
-            </div>
+            {!accessDirectoryHydrated ? (
+              <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+                Loading live role list...
+              </p>
+            ) : (
+              <>
+                {accessDirectoryError ? (
+                  <p className="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                    Live role list could not be loaded. Showing bundled defaults until the connection recovers.
+                  </p>
+                ) : null}
+                <div className="flex flex-wrap gap-2">
+                  {activeRoles.map((r) => (
+                    <label
+                      key={r.id}
+                      className={`cursor-pointer rounded-lg border px-3 py-2 text-sm ${
+                        record!.roleIds.includes(r.id)
+                          ? "border-[#d4147a] bg-[#fdf2f8] text-[#b51266]"
+                          : "border-slate-200 text-slate-600"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={record!.roleIds.includes(r.id)}
+                        onChange={() => toggleRole(r.id)}
+                      />
+                      {r.name}
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
             {record!.roleIds.length === 0 ? (
               <p className="mt-2 text-xs text-amber-600">Assign at least one role so this user can sign in.</p>
             ) : (

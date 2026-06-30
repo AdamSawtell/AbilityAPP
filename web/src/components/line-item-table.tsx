@@ -25,6 +25,7 @@ import {
 } from "@/lib/activity-line-policy";
 import { trackProcessExecution } from "@/lib/process-audit/track.client";
 import { countDirtyRows, isRowDirty } from "@/lib/use-dirty-tracking";
+import { useRecordLineSaveOptional } from "@/lib/record-line-save-context";
 
 import type { LineDeletePolicy } from "@/lib/activity-line-policy";
 
@@ -65,6 +66,10 @@ function resolveListColumns<TRow extends RowBase>(
       .filter((col): col is GenericColumn<TRow> => Boolean(col));
   }
   return visibleColumns.filter((col) => col.type !== "textarea").slice(0, 4);
+}
+
+function rowsEqual<TRow extends RowBase>(a: TRow, b: TRow): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function drawerHeading<TRow extends RowBase>(
@@ -140,8 +145,11 @@ export function LineItemTable<TRow extends RowBase>({
     ) as DropdownMap;
     return { ...fromCatalog, ...clientDropdowns, ...dropdowns };
   }, [catalog, dropdowns]);
+  const recordSave = useRecordLineSaveOptional();
   const [search, setSearch] = useState("");
   const [drawerRowId, setDrawerRowId] = useState<string | null>(null);
+  const [drawerRowSnapshot, setDrawerRowSnapshot] = useState<TRow | null>(null);
+  const [drawerAddedRowId, setDrawerAddedRowId] = useState<string | null>(null);
   const [requestMessage, setRequestMessage] = useState<string | null>(null);
 
   const visibleColumns = useMemo(
@@ -171,6 +179,12 @@ export function LineItemTable<TRow extends RowBase>({
 
   const drawerRow = drawerRowId ? rows.find((row) => row.id === drawerRowId) ?? null : null;
 
+  const drawerLineDirty = useMemo(() => {
+    if (!drawerRow || !drawerRowSnapshot) return false;
+    if (drawerAddedRowId === drawerRow.id) return true;
+    return !rowsEqual(drawerRow, drawerRowSnapshot);
+  }, [drawerAddedRowId, drawerRow, drawerRowSnapshot]);
+
   const baselineRows = referenceRows ?? rows;
   const computedDirtyCount = useMemo(
     () => (referenceRows ? countDirtyRows(rows, referenceRows) : 0),
@@ -181,6 +195,87 @@ export function LineItemTable<TRow extends RowBase>({
   const showInlineSave = saveable && !readOnly && Boolean(onSave && onDiscard);
   const showSaveBar =
     showInlineSave && (saveStatus === "saved" || saveStatus === "error" || saveStatus === "saving" || isDirty);
+
+  const inlineDrawerSave = saveable && !readOnly && Boolean(onSave && onDiscard);
+  const parentDrawerSave = Boolean(recordSave && !readOnly && layout === "list-drawer");
+  const drawerSaveEnabled = layout === "list-drawer" && (inlineDrawerSave || parentDrawerSave);
+
+  const drawerSaveActions = useMemo(() => {
+    if (!drawerSaveEnabled) return undefined;
+    if (inlineDrawerSave && onSave && onDiscard) {
+      return {
+        onSave: async () => {
+          if (!isDirty) return false;
+          return await onSave();
+        },
+        onDiscardLineChanges: () => {
+          if (drawerRowId && drawerRowSnapshot) {
+            if (drawerAddedRowId === drawerRowId) {
+              onChange(renumberLines(rows.filter((row) => row.id !== drawerRowId)));
+            } else {
+              onChange(rows.map((row) => (row.id === drawerRowId ? drawerRowSnapshot : row)));
+            }
+          }
+        },
+        dirty: drawerLineDirty,
+        canSave: isDirty,
+        saving: saveStatus === "saving",
+        saveError: saveStatus === "error" ? saveError : undefined,
+        saveLabel: "Save",
+      };
+    }
+    if (recordSave) {
+      return {
+        onSave: async () => {
+          if (!(recordSave.dirty || drawerLineDirty) || recordSave.canSave === false) return false;
+          return await recordSave.onSave();
+        },
+        onDiscardLineChanges: () => {
+          if (!drawerRowId || !drawerRowSnapshot) return;
+          if (drawerAddedRowId === drawerRowId) {
+            onChange(renumberLines(rows.filter((row) => row.id !== drawerRowId)));
+          } else {
+            onChange(rows.map((row) => (row.id === drawerRowId ? drawerRowSnapshot : row)));
+          }
+        },
+        dirty: drawerLineDirty,
+        canSave: (recordSave.dirty || drawerLineDirty) && recordSave.canSave !== false,
+        saving: recordSave.saving,
+        saveError: recordSave.saveError,
+        saveLabel: "Save",
+      };
+    }
+    return undefined;
+  }, [
+    drawerSaveEnabled,
+    inlineDrawerSave,
+    onSave,
+    onDiscard,
+    drawerRowId,
+    drawerRowSnapshot,
+    drawerAddedRowId,
+    drawerLineDirty,
+    isDirty,
+    saveStatus,
+    saveError,
+    recordSave,
+    rows,
+    onChange,
+  ]);
+
+  function openDrawerRow(id: string, added = false, pendingRow?: TRow) {
+    const row = pendingRow ?? rows.find((item) => item.id === id);
+    if (!row) return;
+    setDrawerRowId(id);
+    setDrawerRowSnapshot({ ...row });
+    setDrawerAddedRowId(added ? id : null);
+  }
+
+  function closeDrawer() {
+    setDrawerRowId(null);
+    setDrawerRowSnapshot(null);
+    setDrawerAddedRowId(null);
+  }
 
   const actorName = session?.displayName?.trim() || "Unknown user";
 
@@ -212,13 +307,13 @@ export function LineItemTable<TRow extends RowBase>({
   function addRow() {
     const next = stampActor(config.emptyRow(rows.length + 1));
     onChange(renumberLines([...rows, next]));
-    if (layout === "list-drawer") setDrawerRowId(next.id);
+    if (layout === "list-drawer") openDrawerRow(next.id, true, next);
   }
 
   function removeRow(id: string) {
     if (!canDelete) return;
     onChange(renumberLines(rows.filter((row) => row.id !== id)));
-    if (drawerRowId === id) setDrawerRowId(null);
+    if (drawerRowId === id) closeDrawer();
   }
 
   function requestDeletion(row: TRow) {
@@ -256,13 +351,17 @@ export function LineItemTable<TRow extends RowBase>({
     if (!source) return;
     const copy = stampActor({ ...source, id: config.emptyRow(rows.length + 1).id });
     onChange(renumberLines([...rows, copy]));
-    if (layout === "list-drawer") setDrawerRowId(copy.id);
+    if (layout === "list-drawer") openDrawerRow(copy.id, true, copy);
   }
 
   const footerNote = showInlineSave
-    ? "Use the save bar below to persist changes."
+    ? drawerSaveEnabled
+      ? "Use Save in the line editor or the save bar below to persist changes."
+      : "Use the save bar below to persist changes."
     : layout === "list-drawer"
-      ? "Click a row to open the editor. Changes save with the parent record."
+      ? drawerSaveEnabled
+        ? "Click a row to open the editor. Save from the side panel when you are done."
+        : "Click a row to open the editor. Changes save with the parent record."
       : "Changes save with the parent record.";
 
   return (
@@ -306,7 +405,7 @@ export function LineItemTable<TRow extends RowBase>({
                   <tr
                     key={row.id}
                     className="cursor-pointer align-top hover:bg-slate-50/80"
-                    onClick={() => setDrawerRowId(row.id)}
+                    onClick={() => openDrawerRow(row.id)}
                   >
                     {tableColumns.map((col) => (
                       <td key={col.key} className={`px-3 py-2.5 text-slate-700 ${col.className ?? ""}`}>
@@ -433,7 +532,8 @@ export function LineItemTable<TRow extends RowBase>({
           dropdowns={resolvedDropdowns}
           optionLabels={optionLabels}
           readOnly={readOnly}
-          onClose={() => setDrawerRowId(null)}
+          saveActions={drawerSaveActions}
+          onClose={closeDrawer}
           onChange={(key, value) => {
             if (!drawerRow) return;
             updateRow(drawerRow.id, key, value);

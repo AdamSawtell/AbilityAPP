@@ -15,6 +15,7 @@ import { useWorkspace, workspaceKey } from "@/lib/workspace-store";
 import type { EmployeeRecord } from "@/lib/employee";
 import { auditMetaFrom } from "@/lib/audit";
 import { SAVE_TOAST_MESSAGES, showSuccessToast } from "@/lib/toast";
+import { RecordLineSaveProvider } from "@/lib/record-line-save-context";
 import { ClientDetailSkeleton } from "@/components/ui/page-skeletons";
 
 function EmployeeTabbedViewFallback() {
@@ -112,7 +113,13 @@ export function EmployeeDetailView({ id }: { id: string }) {
 
   return (
     <>
-      <AppShell
+      <RecordLineSaveProvider
+        onSave={onSave}
+        onDiscard={onDiscard}
+        dirty={hasUnsavedChanges}
+        canSave={canSaveEmployee}
+      >
+        <AppShell
         title={employee.name}
         subtitle={`${employee.searchKey} · ${employee.jobTitle || "Employee"}`}
         breadcrumbs={[
@@ -158,6 +165,7 @@ export function EmployeeDetailView({ id }: { id: string }) {
           />
         </div>
       </AppShell>
+      </RecordLineSaveProvider>
 
       <UnsavedChangesBar
         visible={hasUnsavedChanges && canSaveEmployee}
