@@ -40,6 +40,7 @@ type AuthStore = {
   accessDirectoryError: string | null;
   source: "supabase" | "local";
   login: (userId: string, roleId: string) => Promise<void>;
+  refreshSession: () => Promise<AuthSession | null>;
   authenticate: (username: string, password: string) => Promise<AppUserRecord>;
   logout: (options?: { reason?: "inactivity" | "manual" }) => Promise<void>;
   switchRole: (roleId: string) => Promise<void>;
@@ -219,6 +220,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(next);
   }, []);
 
+  const refreshSession = useCallback(async () => {
+    const next = await fetchSessionFromApi();
+    setSession(next);
+    return next;
+  }, []);
+
   const authenticate = useCallback(
     async (username: string, password: string): Promise<AppUserRecord> => {
       const res = await fetch("/api/auth/login", {
@@ -372,6 +379,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       accessDirectoryError,
       source,
       login,
+      refreshSession,
       authenticate,
       logout,
       switchRole,
@@ -397,6 +405,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       accessDirectoryError,
       source,
       login,
+      refreshSession,
       authenticate,
       logout,
       switchRole,

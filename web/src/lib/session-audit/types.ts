@@ -24,7 +24,7 @@ export type RiskSeverity = "low" | "medium" | "high" | "critical";
 export type RiskStatus = "new" | "under_review" | "accepted" | "resolved";
 export type LoginResult = "success" | "failed";
 export type ConcurrentSessionsMode = "allow" | "warn" | "prevent";
-export type AuthMethod = "password" | "sso" | "password_reset";
+export type AuthMethod = "password" | "sso" | "password_reset" | "passkey";
 
 export type UserSessionRecord = {
   id: string;

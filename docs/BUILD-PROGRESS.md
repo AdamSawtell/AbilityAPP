@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
 | **Next slice** | _(AB-0004 PWA MVP complete — see roadmap)_ |
-| **Last push** | 2026-07-01 — AB-0004 Phase D My Workplace mobile + rebrand |
+| **Last push** | 2026-07-01 — My Workplace Face ID passkeys |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -31,6 +31,24 @@
 ---
 
 ---
+
+---
+
+---
+
+## My Workplace Face ID passkeys (2026-07-01)
+
+**Status:** Shipped.
+
+**Why:** Workers want quick re-login with Face ID / fingerprint after session expiry — not username/password every time.
+
+| Area | Change |
+|------|--------|
+| Migration | `20260701160000_app_passkey` — `app_passkey`, `app_user.webauthn_user_id` |
+| API | `/api/mobile/passkey/register`, `/api/mobile/passkey/login`, `/api/mobile/passkey/status` |
+| UI | Sign in with Face ID on `/m/login`; enable in More after password sign-in |
+
+**What you can test:** Sign in with password → Enable Face ID → Sign out → Sign in with Face ID. iPhone: home-screen install required.
 
 ---
 

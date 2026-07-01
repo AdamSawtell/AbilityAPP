@@ -114,6 +114,12 @@ export const employeeMobileArticle: HelpArticle = {
       ],
     },
     {
+      id: "passkey",
+      title: "Face ID / fingerprint sign-in",
+      body: "After your first password sign-in, tap **Enable Face ID** (or Fingerprint on Android). Next time your session expires, use **Sign in with Face ID** on the sign-in screen — no password needed.\n\nOn iPhone, add My Workplace to your home screen first for reliable biometrics. If you have more than one role, sign in with password once and pick your role so Face ID remembers it.",
+      relatedRoutes: ["/m/login", "/m/more"],
+    },
+    {
       id: "push",
       title: "Push notifications",
       body: "From **More** or **Notifications**, tap **Enable notifications** and allow the browser prompt. Choose shift reminders and credential expiry alerts.\n\nOn iPhone you must add the app to your home screen first (Safari → Share → Add to Home Screen). Push may not work in a normal Safari tab.",

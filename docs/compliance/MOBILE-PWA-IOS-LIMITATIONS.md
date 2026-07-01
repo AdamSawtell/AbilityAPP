@@ -39,7 +39,8 @@ GPS is requested **only** at check-in and check-out, not continuously. iOS may s
 
 - Continuous background GPS tracking
 - Guaranteed instant push delivery when the device is in low-power mode
-- Full parity with a native App Store app (biometrics, deep OS integrations)
+- Full parity with a native App Store app (some deep OS integrations)
+- **Face ID / Touch ID** works via passkeys when the app is installed to the home screen (iOS 16+). It may not work in a normal Safari tab.
 
 ## Operations
 

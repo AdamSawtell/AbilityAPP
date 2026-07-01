@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MobileAuthGuard } from "@/components/mobile/mobile-auth-guard";
 import { MobileEmployeeShell } from "@/components/mobile/mobile-employee-shell";
+import { MobilePasskeySettings } from "@/components/mobile/mobile-passkey-settings";
 import { MobilePushSettings } from "@/components/mobile/mobile-push-settings";
 import { useAuth } from "@/lib/auth-store";
 
@@ -26,6 +27,9 @@ export function MobileMorePage() {
     <MobileAuthGuard>
       <MobileEmployeeShell title="More" subtitle="Profile, leave, and settings">
         <MobilePushSettings />
+        <div className="mt-4">
+          <MobilePasskeySettings />
+        </div>
 
         <ul className="mt-6 space-y-2">
           {LINKS.map((item) => (
