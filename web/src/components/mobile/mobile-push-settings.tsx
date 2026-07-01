@@ -9,12 +9,14 @@ import {
   updatePushPreferences,
   type PushPreferences,
 } from "@/lib/mobile/push-client";
+import { pushSupportHint } from "@/lib/mobile/push-support";
 
 export function MobilePushSettings() {
   const [prefs, setPrefs] = useState<PushPreferences | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const supportHint = pushSupportHint();
 
   useEffect(() => {
     void fetchPushPreferences().then(setPrefs);
@@ -64,6 +66,9 @@ export function MobilePushSettings() {
         </Link>
         .
       </p>
+      {supportHint ? (
+        <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">{supportHint}</p>
+      ) : null}
 
       <div className="mt-4 flex flex-col gap-2">
         {prefs?.subscribed ? (

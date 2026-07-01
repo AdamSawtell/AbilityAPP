@@ -13,10 +13,10 @@ const LINKS = [
   { href: "/m/leave", label: "Leave", desc: "Submit and track leave requests" },
   { href: "/m/availability", label: "Availability", desc: "Set when you can work" },
   { href: "/m/notifications", label: "Notifications", desc: "Shift and credential reminders" },
-  { href: "/my/credentials", label: "Credentials", desc: "Upload compliance documents" },
-  { href: "/my/profile", label: "Personal info", desc: "Update contact details" },
+  { href: "/m/credentials", label: "Credentials", desc: "Upload compliance documents" },
+  { href: "/m/profile", label: "Personal info", desc: "Update contact details" },
   { href: "/m/install", label: "Install on iPhone", desc: "Add to home screen" },
-  { href: "/help/employee-mobile", label: "How-to guide", desc: "Worker app help" },
+  { href: "/help/employee-mobile", label: "How-to guide", desc: "My Workplace help" },
 ] as const;
 
 export function MobileMorePage() {

@@ -139,7 +139,7 @@ export function MobileLeavePage() {
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
           </form>
         ) : (
-          <p className="mb-4 text-sm text-slate-600">Your role cannot submit leave from the worker app.</p>
+          <p className="mb-4 text-sm text-slate-600">Your role cannot submit leave from My Workplace.</p>
         )}
 
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">

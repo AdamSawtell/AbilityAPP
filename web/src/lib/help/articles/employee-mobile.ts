@@ -1,16 +1,17 @@
 import type { HelpArticle } from "@/lib/help/types";
+import { MOBILE_APP_NAME } from "@/lib/mobile/constants";
 
 export const employeeMobileArticle: HelpArticle = {
   id: "article-employee-mobile",
   slug: "employee-mobile",
-  title: "Employee mobile app (PWA)",
+  title: `${MOBILE_APP_NAME} (PWA)`,
   summary:
-    "Install AbilityVua on your phone for today's shifts, check-in with GPS, pay-period schedule, timesheets, assigned tasks, and your Digital Worker ID.",
+    `Install ${MOBILE_APP_NAME} on your phone for today's shifts, check-in with GPS, pay-period schedule, timesheets, assigned tasks, credentials, profile updates, and your Digital Worker ID.`,
   category: "People",
   keywords: [
     "mobile",
     "pwa",
-    "worker app",
+    "my workplace",
     "check in",
     "check out",
     "gps",
@@ -22,6 +23,8 @@ export const employeeMobileArticle: HelpArticle = {
     "home screen",
     "tasks",
     "animal alert",
+    "credentials",
+    "profile",
   ],
   relatedRoutes: [
     "/m/today",
@@ -36,14 +39,26 @@ export const employeeMobileArticle: HelpArticle = {
     "/m/leave",
     "/m/availability",
     "/m/notifications",
+    "/m/credentials",
+    "/m/profile",
   ],
-  windowKeys: ["my-workplace", "my-shifts", "my-timesheets", "tasks-assigned-to-me", "my-open-shifts", "my-leave", "my-availability"],
+  windowKeys: [
+    "my-workplace",
+    "my-shifts",
+    "my-timesheets",
+    "tasks-assigned-to-me",
+    "my-open-shifts",
+    "my-leave",
+    "my-availability",
+    "my-credentials",
+    "my-profile",
+  ],
   lastUpdated: "2026-07-01",
   sections: [
     {
       id: "open",
-      title: "Open the worker app",
-      body: "Go to **/m/today** on your phone (or tap the link from My workplace). Sign in with your usual AbilityVua login. You need My workplace access and an employee link on your user record.",
+      title: `Open ${MOBILE_APP_NAME}`,
+      body: `Go to **/m/today** on your phone (or tap the link from My workplace). Sign in with your usual AbilityVua login. You need My workplace access and an employee link on your user record.`,
       relatedRoutes: ["/m/today"],
     },
     {
@@ -85,8 +100,17 @@ export const employeeMobileArticle: HelpArticle = {
     {
       id: "more",
       title: "More — leave, open shifts, and messages",
-      body: "Open **More** for self-service pages that stay in the worker app:\n\n- **Messages** — contact rostering about a shift\n- **Open shifts** — browse vacant shifts and apply\n- **Leave** — submit and track leave requests\n- **Availability** — set your weekly pattern\n- **Notifications** — enable push reminders for shifts and credentials",
-      relatedRoutes: ["/m/more", "/m/messages", "/m/open-shifts", "/m/leave", "/m/availability", "/m/notifications"],
+      body: `Open **More** for self-service pages that stay in ${MOBILE_APP_NAME}:\n\n- **Messages** — contact rostering about a shift\n- **Open shifts** — browse vacant shifts and apply\n- **Leave** — submit and track leave requests\n- **Availability** — set your weekly pattern\n- **Credentials** — submit licences and evidence for HR review\n- **Personal info** — update contact details and emergency contacts\n- **Notifications** — enable push reminders for shifts and credentials`,
+      relatedRoutes: [
+        "/m/more",
+        "/m/messages",
+        "/m/open-shifts",
+        "/m/leave",
+        "/m/availability",
+        "/m/credentials",
+        "/m/profile",
+        "/m/notifications",
+      ],
     },
     {
       id: "push",

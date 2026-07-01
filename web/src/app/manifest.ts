@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
+import { MOBILE_APP_NAME, MOBILE_APP_SHORT_NAME } from "@/lib/mobile/constants";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "AbilityVua Worker",
-    short_name: "AbilityVua",
+    name: MOBILE_APP_NAME,
+    short_name: MOBILE_APP_SHORT_NAME,
     description: "Shifts, check-in, timesheets, and tasks for support workers in the field.",
     start_url: "/m/today",
     scope: "/m",

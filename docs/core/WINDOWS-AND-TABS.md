@@ -355,9 +355,9 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 | My timesheets | `my-timesheets` | `/my/timesheets` |
 | My credentials | `my-credentials` | `/my/credentials` |
 
-### Employee mobile PWA (AB-0004 Phase A)
+### AbilityVua My Workplace — mobile PWA (AB-0004)
 
-Separate mobile shell at `/m/*` — not the desktop `AppShell`. Bottom tabs: Today, Schedule, Timesheets, Tasks, More. Uses existing `my-shifts`, `my-timesheets`, and `tasks-assigned-to-me` window grants.
+Separate mobile shell at `/m/*` — not the desktop `AppShell`. Installed name: **AbilityVua My Workplace** (short: **My Workplace**). Bottom tabs: Today, Schedule, Timesheets, Tasks, More. Uses existing `my-shifts`, `my-timesheets`, and `tasks-assigned-to-me` window grants.
 
 | Function area | Route | Notes |
 |---------------|-------|-------|
@@ -371,6 +371,8 @@ Separate mobile shell at `/m/*` — not the desktop `AppShell`. Bottom tabs: Tod
 | Leave | `/m/leave` | Submit and track leave requests |
 | Availability | `/m/availability` | Weekly availability pattern |
 | Notifications | `/m/notifications` | Push subscription and preferences |
+| Credentials | `/m/credentials` | Submit licences and evidence (`my-credentials`) |
+| Personal info | `/m/profile` | Contact details and emergency contacts (`my-profile`) |
 | Digital Worker ID | `/m/id` | Photo, name, role, employee ID |
 | iOS install guide | `/m/install` | Add to Home Screen steps |
 | Mobile sync reconciliation | `/system/reports/mobile-sync` | System → Reports — offline sync audit (CFO C-02) |

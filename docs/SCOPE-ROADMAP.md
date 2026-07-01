@@ -175,7 +175,7 @@ Legend: ✅ Live · 🟡 Partial / MVP · ⬜ Not started · 🔵 In progress
 | Employee schedule tab + My shifts calendar | ✅ | Yes — WP-G.2/G.3 |
 | Agency worker register + coverage workflow | ✅ | Yes — WP-AG.1 (AB-0019) |
 | Training and meeting scheduling | ✅ | AB-0021 v1 — roster-visible sessions, cost allocation, attendance |
-| Mobile worker app | ⬜ | Phase 2 (PWA or native) |
+| Mobile worker app (My Workplace PWA) | ✅ | AB-0004 — `/m/*` PWA MVP (phases A–D) |
 | RoC import | ✅ | Yes — WP-D.13 |
 
 **Prerequisites:** Chunks 1–3 stable (client, agreement, booking data model).

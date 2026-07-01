@@ -12,8 +12,8 @@
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
-| **Next slice** | AB-0004 Phase D (credentials/profile mobile, polish) |
-| **Last push** | 2026-07-01 — AB-0004 Phase C push + mobile self-service |
+| **Next slice** | _(AB-0004 PWA MVP complete — see roadmap)_ |
+| **Last push** | 2026-07-01 — AB-0004 Phase D My Workplace mobile + rebrand |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -29,6 +29,26 @@
 ---
 
 ---
+
+---
+
+---
+
+## AB-0004 Phase D — Credentials, profile, rebrand (2026-07-01)
+
+**Status:** Shipped (Phase D — PWA MVP complete).
+
+**Why:** Workers need credentials and personal-info self-service inside the mobile shell, and a consistent **AbilityVua My Workplace** brand on home screen, manifest, and in-app chrome.
+
+| Area | Change |
+|------|--------|
+| Routes | `/m/credentials`, `/m/profile` — mobile forms wired to existing `/api/my/*` APIs |
+| More | Credentials and Personal info link to `/m/*` (not desktop `/my/*`) |
+| Rebrand | `MOBILE_APP_NAME` = AbilityVua My Workplace; manifest, layout, shell header, auth guard |
+| SW | Cache bump `abilityvua-mobile-v4` |
+| Help | `employee-mobile` article — credentials, profile, My Workplace naming |
+
+**What you can test:** `/m/more` → Credentials (list + submit) → Personal info (save contact) → home-screen icon shows **My Workplace**.
 
 ---
 

@@ -1,12 +1,12 @@
 # Mobile PWA — iOS limitations (CFO C-04)
 
-AbilityVua’s employee worker app is a **Progressive Web App (PWA)**. On iPhone and iPad, behaviour differs from Android and from a native App Store app.
+AbilityVua **My Workplace** mobile app is a **Progressive Web App (PWA)**. On iPhone and iPad, behaviour differs from Android and from a native App Store app.
 
 ## Cache after deploy
 
 iOS home-screen PWAs can keep an old **service worker** or page snapshot longer than Safari tabs.
 
-If the worker app looks outdated after a release:
+If My Workplace looks outdated after a release:
 
 1. Force-quit the home-screen app (swipe it away).
 2. Open `https://app.abilityvua.com/m/more` once in **Safari** (not the icon).

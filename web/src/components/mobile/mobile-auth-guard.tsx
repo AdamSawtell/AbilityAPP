@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-store";
 import { canAccessWindow } from "@/lib/access/catalog";
 import { useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
+import { MOBILE_APP_NAME } from "@/lib/mobile/constants";
 import { mobileLoginHref } from "@/lib/mobile/login-redirect";
 
 export function MobileAuthGuard({
@@ -20,7 +21,7 @@ export function MobileAuthGuard({
     return (
       <MobileErrorScreen
         title="Sign in required"
-        message="Open AbilityVua in your browser and sign in to use the worker app."
+        message="Sign in to use My Workplace on your phone."
         action={{ label: "Sign in", href: mobileLoginHref() }}
       />
     );
@@ -61,7 +62,7 @@ function MobileErrorScreen({
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-[#fdf2f8]/50 px-6 py-12">
       <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#b51266]">AbilityVua Worker</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#b51266]">{MOBILE_APP_NAME}</p>
         <h1 className="mt-2 text-xl font-semibold text-slate-900">{title}</h1>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">{message}</p>
         <Link

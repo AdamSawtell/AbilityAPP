@@ -1,3 +1,7 @@
+/** Installed PWA display name (home screen, header). */
+export const MOBILE_APP_NAME = "AbilityVua My Workplace";
+export const MOBILE_APP_SHORT_NAME = "My Workplace";
+
 /** Field workers — 14 hour idle before session warning (FR-026). */
 export const MOBILE_IDLE_TIMEOUT_MINUTES = 14 * 60;
 

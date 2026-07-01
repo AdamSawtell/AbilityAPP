@@ -1,14 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { MobilePrivacyGate } from "@/components/mobile/mobile-privacy-gate";
 import { MobileSwRegister } from "@/components/mobile/mobile-sw-register";
+import { MOBILE_APP_NAME, MOBILE_APP_SHORT_NAME } from "@/lib/mobile/constants";
 
 export const metadata: Metadata = {
-  title: "AbilityVua Worker",
+  title: MOBILE_APP_NAME,
   description: "Mobile shifts, check-in, timesheets, and tasks for support workers.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "AbilityVua",
+    title: MOBILE_APP_SHORT_NAME,
   },
   icons: {
     apple: "/icons/icon-192.svg",

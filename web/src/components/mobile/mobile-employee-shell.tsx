@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MOBILE_TABS, type MobileTabId } from "@/lib/mobile/constants";
+import { MOBILE_TABS, MOBILE_APP_NAME, type MobileTabId } from "@/lib/mobile/constants";
 import { RecordAuditFooter } from "@/components/record-audit-footer";
 
 function tabActive(pathname: string, tab: MobileTabId): boolean {
@@ -18,7 +18,9 @@ function tabActive(pathname: string, tab: MobileTabId): boolean {
     pathname.startsWith("/m/open-shifts") ||
     pathname.startsWith("/m/leave") ||
     pathname.startsWith("/m/availability") ||
-    pathname.startsWith("/m/notifications")
+    pathname.startsWith("/m/notifications") ||
+    pathname.startsWith("/m/credentials") ||
+    pathname.startsWith("/m/profile")
   );
 }
 
@@ -40,7 +42,7 @@ export function MobileEmployeeShell({
   return (
     <div className="flex min-h-[100dvh] flex-col bg-gradient-to-br from-slate-50 via-white to-[#fdf2f8]/30">
       <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#b51266]">AbilityVua Worker</p>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#b51266]">{MOBILE_APP_NAME}</p>
         <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
         {subtitle ? <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p> : null}
       </header>
@@ -48,7 +50,7 @@ export function MobileEmployeeShell({
       <main className={`flex-1 px-4 py-4 ${hideNav ? "pb-6" : "pb-24"} ${floatingAction ? "pb-32" : ""}`}>
         {children}
         <footer className="mt-8 border-t border-slate-100 pt-4">
-          <RecordAuditFooter moduleLabel="Employee mobile" />
+          <RecordAuditFooter moduleLabel="My Workplace mobile" />
         </footer>
       </main>
 
@@ -61,7 +63,7 @@ export function MobileEmployeeShell({
       {!hideNav ? (
         <nav
           className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
-          aria-label="Worker app navigation"
+          aria-label="My Workplace navigation"
         >
           <ul className="mx-auto flex max-w-lg">
             {MOBILE_TABS.map((tab) => {

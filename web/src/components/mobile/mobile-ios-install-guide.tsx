@@ -1,8 +1,10 @@
+import { MOBILE_APP_NAME } from "@/lib/mobile/constants";
+
 export function MobileIosInstallGuide() {
   return (
     <div className="space-y-4 text-sm text-slate-600">
       <p>
-        On iPhone and iPad, install AbilityVua Worker to your home screen for quick access — like a native app, without
+        On iPhone and iPad, install {MOBILE_APP_NAME} to your home screen for quick access — like a native app, without
         the App Store.
       </p>
       <ol className="list-decimal space-y-3 pl-5">
