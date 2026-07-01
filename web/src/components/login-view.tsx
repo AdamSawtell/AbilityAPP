@@ -7,6 +7,7 @@ import { LoginBackdrop, OrgLogo } from "@/components/organization-landing";
 import { useAuth } from "@/lib/auth-store";
 import { organizationAddressLine, organizationDisplayName } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
+import { safePostLoginPath } from "@/lib/mobile/login-redirect";
 
 export function LoginView() {
   const { authenticate, login, availableRolesForUser } = useAuth();
@@ -31,6 +32,11 @@ export function LoginView() {
     [userId, availableRolesForUser]
   );
   const showRoleStep = Boolean(userId);
+
+  function postLoginDestination(): string {
+    if (typeof window === "undefined") return "/";
+    return safePostLoginPath(new URLSearchParams(window.location.search).get("next"));
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -58,7 +64,7 @@ export function LoginView() {
       if (user.roleIds.length === 1) {
         try {
           await login(user.id, user.roleIds[0]);
-          router.replace("/");
+          router.replace(postLoginDestination());
         } catch (sessionErr) {
           setError(
             sessionErr instanceof Error
@@ -86,7 +92,7 @@ export function LoginView() {
     setSubmitting(true);
     try {
       await login(userId, roleId);
-      router.replace("/");
+      router.replace(postLoginDestination());
     } catch (sessionErr) {
       setError(
         sessionErr instanceof Error

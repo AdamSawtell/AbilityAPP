@@ -1,5 +1,7 @@
 "use client";
 
+import { MOBILE_SW_SCOPE } from "@/lib/mobile/login-redirect";
+
 export type PushPreferences = {
   notifyShiftChanges: boolean;
   notifyCredentials: boolean;
@@ -56,7 +58,7 @@ export async function subscribeToPushNotifications(): Promise<{ ok: boolean; err
     return { ok: false, error: "Push is not configured on this server yet." };
   }
 
-  const registration = await navigator.serviceWorker.register("/sw.js");
+  const registration = await navigator.serviceWorker.register("/sw.js", { scope: MOBILE_SW_SCOPE });
   await navigator.serviceWorker.ready;
 
   let subscription = await registration.pushManager.getSubscription();
@@ -88,7 +90,7 @@ export async function subscribeToPushNotifications(): Promise<{ ok: boolean; err
 
 export async function unsubscribeFromPush(): Promise<boolean> {
   if (!("serviceWorker" in navigator)) return false;
-  const registration = await navigator.serviceWorker.getRegistration("/sw.js");
+  const registration = await navigator.serviceWorker.getRegistration(MOBILE_SW_SCOPE);
   const subscription = await registration?.pushManager.getSubscription();
   if (!subscription) return true;
 

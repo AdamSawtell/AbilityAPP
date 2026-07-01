@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-store";
 import { canAccessWindow } from "@/lib/access/catalog";
 import { useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
+import { mobileLoginHref } from "@/lib/mobile/login-redirect";
 
 export function MobileAuthGuard({
   windowKey = "my-workplace",
@@ -20,7 +21,7 @@ export function MobileAuthGuard({
       <MobileErrorScreen
         title="Sign in required"
         message="Open AbilityVua in your browser and sign in to use the worker app."
-        action={{ label: "Sign in", href: "/login?next=/m/today" }}
+        action={{ label: "Sign in", href: mobileLoginHref() }}
       />
     );
   }

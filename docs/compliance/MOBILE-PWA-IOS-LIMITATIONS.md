@@ -14,6 +14,8 @@ If the worker app looks outdated after a release:
 
 Deploys bump the service worker cache name so new installs pick up fresh assets automatically.
 
+**Login stuck on desktop:** Older builds redirected `/m/*` to the staff desktop login. After deploy, open `/m/today` in Safari once so the scoped service worker (`/m/` only) replaces any root-scope worker, then re-open from the home-screen icon.
+
 ## Install required for reliable push
 
 Apple supports web push for PWAs added to the **home screen** (iOS 16.4+). Push is **not** reliable in a normal Safari tab.

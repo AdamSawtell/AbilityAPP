@@ -1,5 +1,5 @@
 /* AbilityVua employee mobile PWA — shell assets only (do not cache HTML — iOS keeps it too long). */
-const CACHE = "abilityvua-mobile-v2";
+const CACHE = "abilityvua-mobile-v3";
 const SHELL = ["/manifest.webmanifest", "/icons/icon-192.svg"];
 
 function isCacheableAsset(url) {
