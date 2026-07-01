@@ -2,6 +2,18 @@
 
 AbilityVua’s employee worker app is a **Progressive Web App (PWA)**. On iPhone and iPad, behaviour differs from Android and from a native App Store app.
 
+## Cache after deploy
+
+iOS home-screen PWAs can keep an old **service worker** or page snapshot longer than Safari tabs.
+
+If the worker app looks outdated after a release:
+
+1. Force-quit the home-screen app (swipe it away).
+2. Open `https://app.abilityvua.com/m/more` once in **Safari** (not the icon).
+3. If still stale: **Settings → Safari → Advanced → Website Data** → remove `abilityvua.com`, then re-add to home screen.
+
+Deploys bump the service worker cache name so new installs pick up fresh assets automatically.
+
 ## Install required for reliable push
 
 Apple supports web push for PWAs added to the **home screen** (iOS 16.4+). Push is **not** reliable in a normal Safari tab.

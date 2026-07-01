@@ -1,18 +1,13 @@
-/* AbilityVua employee mobile PWA — minimal shell cache (Phase A). */
-const CACHE = "abilityvua-mobile-v1";
-const SHELL = [
-  "/m/today",
-  "/m/schedule",
-  "/m/timesheets",
-  "/m/tasks",
-  "/m/more",
-  "/m/messages",
-  "/m/open-shifts",
-  "/m/leave",
-  "/m/availability",
-  "/m/notifications",
-  "/manifest.webmanifest",
-];
+/* AbilityVua employee mobile PWA — shell assets only (do not cache HTML — iOS keeps it too long). */
+const CACHE = "abilityvua-mobile-v2";
+const SHELL = ["/manifest.webmanifest", "/icons/icon-192.svg"];
+
+function isCacheableAsset(url) {
+  if (url.pathname.startsWith("/_next/static/")) return true;
+  if (url.pathname === "/manifest.webmanifest") return true;
+  if (url.pathname.startsWith("/icons/")) return true;
+  return SHELL.includes(url.pathname);
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL).catch(() => undefined)));
@@ -33,18 +28,32 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  if (!url.pathname.startsWith("/m")) return;
+
+  /* Never cache navigations or RSC/HTML — fixes stale iPhone home-screen UI after deploy. */
+  if (request.mode === "navigate" || request.headers.get("accept")?.includes("text/html")) {
+    return;
+  }
+  if (url.pathname.startsWith("/api/")) return;
+
+  if (!isCacheableAsset(url) && !url.pathname.startsWith("/m")) return;
+
+  if (!isCacheableAsset(url)) {
+    /* /m/* non-asset requests: network only. */
+    return;
+  }
 
   event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok && response.type === "basic") {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(request, copy));
-        }
-        return response;
-      })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("/m/today")))
+    caches.match(request).then(
+      (cached) =>
+        cached ||
+        fetch(request).then((response) => {
+          if (response.ok && response.type === "basic") {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+    )
   );
 });
 
