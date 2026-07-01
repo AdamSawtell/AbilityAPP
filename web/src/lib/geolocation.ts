@@ -70,6 +70,34 @@ export function googleMapsUrl(latitude: string, longitude: string): string {
   return `https://www.google.com/maps?q=${encodeURIComponent(`${latitude},${longitude}`)}`;
 }
 
+export type MapsNavigateInput = {
+  latitude?: string;
+  longitude?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  suburb?: string;
+  state?: string;
+  postcode?: string;
+  name?: string;
+};
+
+export function formatLocationAddress(input: MapsNavigateInput): string {
+  const line = [input.address1, input.address2, input.address3].filter((v) => v?.trim()).join(", ");
+  const locality = [input.suburb, input.state, input.postcode].filter((v) => v?.trim()).join(" ");
+  return [line, locality].filter(Boolean).join(", ") || input.name?.trim() || "";
+}
+
+/** Opens Google Maps (or Apple Maps on iOS via universal link behaviour). */
+export function mapsNavigateUrl(input: MapsNavigateInput): string {
+  const lat = input.latitude?.trim();
+  const lng = input.longitude?.trim();
+  if (lat && lng) return googleMapsUrl(lat, lng);
+  const query = formatLocationAddress(input);
+  if (!query) return "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
 /** Browser geolocation — returns null when unavailable or denied (check-in still proceeds). */
 export function captureGeolocation(timeoutMs = 12000): Promise<GeoCoordinates | null> {
   if (typeof window === "undefined" || !navigator.geolocation) {

@@ -355,6 +355,20 @@ Rostering uses `?week=` query for the roster week. Tabs: **Week**, **Forward pla
 | My timesheets | `my-timesheets` | `/my/timesheets` |
 | My credentials | `my-credentials` | `/my/credentials` |
 
+### Employee mobile PWA (AB-0004 Phase A)
+
+Separate mobile shell at `/m/*` — not the desktop `AppShell`. Bottom tabs: Today, Schedule, Timesheets, Tasks, More. Uses existing `my-shifts`, `my-timesheets`, and `tasks-assigned-to-me` window grants.
+
+| Function area | Route | Notes |
+|---------------|-------|-------|
+| Today (shifts + check-in) | `/m/today` | Default; floating check-in CTA |
+| Pay period schedule | `/m/schedule` | Fortnight aligned to active pay period |
+| My timesheets | `/m/timesheets` | Submit draft timesheets |
+| Assigned tasks | `/m/tasks` | `tasks-assigned-to-me` only |
+| More menu | `/m/more` | Links to desktop self-service pages |
+| Digital Worker ID | `/m/id` | Photo, name, role, employee ID |
+| iOS install guide | `/m/install` | Add to Home Screen steps |
+
 **Open shift requests:** Worker submits from Open shifts; tracks on My shifts → Shift requests. Coordinator review on Rostering → Open shifts and Workforce planning fill board.
 
 **Contact Rostering:** Open shifts and My shifts show a prominent **Contact Rostering** panel. Submissions create `tt-rostering-communication` tasks assigned to the Rostering Officer role; the employee sees the communication history on the same My Workplace pages and can open the task conversation.

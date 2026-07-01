@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { SessionExpiryModal } from "@/components/session-expiry-modal";
 import { useAuth } from "@/lib/auth-store";
+import { MOBILE_IDLE_TIMEOUT_MINUTES } from "@/lib/mobile/constants";
 import { normalizeIdleTimeoutMinutes } from "@/lib/organization";
 import { useOrganization } from "@/lib/organization-store";
 import { useIdleTimer } from "@/lib/use-idle-timer";
@@ -24,12 +25,16 @@ export function SessionIdleGate({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/agency-portal") ||
     pathname.startsWith("/system");
 
-  const timeoutMinutes = normalizeIdleTimeoutMinutes(
-    Math.min(
-      session?.idleTimeoutMinutes ?? organization.idleTimeoutMinutes,
-      organization.idleTimeoutMinutes
-    )
-  );
+  const isMobileWorker = pathname.startsWith("/m");
+
+  const timeoutMinutes = isMobileWorker
+    ? MOBILE_IDLE_TIMEOUT_MINUTES
+    : normalizeIdleTimeoutMinutes(
+        Math.min(
+          session?.idleTimeoutMinutes ?? organization.idleTimeoutMinutes,
+          organization.idleTimeoutMinutes
+        )
+      );
 
   useEffect(() => {
     if (session?.sessionId) expiring.current = false;

@@ -189,7 +189,7 @@ Legend: ✅ Live · 🟡 Partial / MVP · ⬜ Not started · 🔵 In progress
 | 4c | Conflict engine + matching | Compliance blocks |
 | 4d | Master roster + gap analysis | Forward planning |
 | 4d+ | RoC on client + worker templates + fill board | WP-G/H — demand/supply/assignment on records |
-| 4e | Worker mobile MVP | Check-in, notes, sign-off |
+| 4e | Worker mobile MVP | 🟡 Phase A live — PWA `/m/*`, check-in, schedule, tasks, Digital ID; Phase B offline + push |
 | 4f | Marketplace + notifications | Fill vacant shifts |
 
 **User input needed:** RoC template sample; mobile PWA vs native; notification provider (Twilio).

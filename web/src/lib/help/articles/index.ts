@@ -12,6 +12,7 @@ import { complaintsFeedbackArticle } from "@/lib/help/articles/complaints";
 import { gettingStartedArticle, homeArticle, navigationArticle } from "@/lib/help/articles/foundation";
 import { employeesArticle, businessPartnersArticle, agencyWorkersArticle } from "@/lib/help/articles/people";
 import { myWorkplaceArticle } from "@/lib/help/articles/my-workplace";
+import { employeeMobileArticle } from "@/lib/help/articles/employee-mobile";
 import { participantPortalArticle } from "@/lib/help/articles/participant-portal";
 import { participantPortalGuideArticle } from "@/lib/help/articles/participant-portal-guide";
 import { agencyVendorPortalArticle } from "@/lib/help/articles/agency-vendor-portal";
@@ -40,6 +41,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   businessPartnersArticle,
   agencyWorkersArticle,
   myWorkplaceArticle,
+  employeeMobileArticle,
   participantPortalArticle,
   participantPortalGuideArticle,
   agencyVendorPortalArticle,

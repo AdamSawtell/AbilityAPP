@@ -12,8 +12,8 @@
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
-| **Next slice** | AB-0041 Phase 3 (contract/employee inline save) or next backlog item |
-| **Last push** | 2026-06-30 — AB-0042 perf + side panel Save UX (`cbdece1`) |
+| **Next slice** | AB-0004 Phase B (offline sync + push) |
+| **Last push** | 2026-07-01 — AB-0004 Phase A employee mobile PWA |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -32,7 +32,30 @@
 
 ---
 
-## Book a vehicle from a location (2026-06-30)
+## AB-0004 Phase A — Employee mobile PWA (2026-07-01)
+
+**Status:** Shipped (Phase A — field MVP).
+
+**Why:** Support workers need a phone-first AbilityVua experience on Amplify — today’s shifts, check-in/out with GPS, pay-period schedule, timesheets, assigned tasks, Digital Worker ID, and animal alerts — without the desktop workspace.
+
+**What changed:**
+
+| Area | Change |
+|------|--------|
+| PWA | `manifest.ts`, `public/sw.js`, icons, service worker registration |
+| Routes | `/m/today`, `/m/schedule`, `/m/timesheets`, `/m/tasks`, `/m/more`, `/m/id`, `/m/install` |
+| Shell | `MobileEmployeeShell` bottom tabs, `MobileAuthGuard`, privacy notice, 14h mobile idle session |
+| Shifts | Today-first view, floating check-in, navigate, geofence, **animal alerts**, handover notes on card |
+| Tasks | Assigned-to-me only (`tasks-assigned-to-me`) — not compliance action list |
+| Digital ID | Full-screen worker card with photo, name, role, employee ID |
+
+**What you can test:** Sign in → open `/m/today` → privacy notice once → Today tab with shifts → Check in → Schedule tab (pay period) → Tasks tab → More → Digital Worker ID → Install guide. Mobile viewport 390×844.
+
+**Phase B (not in this slice):** Offline IndexedDB sync, push notifications, reconciliation report.
+
+**Files:** `web/src/app/m/*`, `web/src/components/mobile/*`, `web/src/lib/mobile/*`, `web/public/sw.js`, help article `employee-mobile`.
+
+---
 
 **Status:** Shipped (2026-06-30).
 
