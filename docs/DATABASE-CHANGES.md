@@ -73,6 +73,8 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `agency_timesheet` / `agency_timesheet_line` | Vendor timesheet header + lines from completed agency shifts |
 | `site_orientation` | Site orientation per worker (agency or employee) and location |
 | `roster_shift` AB-0021 fields | Training/meeting grouping, cost allocation, cost centre, estimated cost, attendance sign-off |
+| `mobile_offline_sync` | AB-0004 Phase B — idempotent offline check-in/out sync audit (`sync_id`, status, rejection_reason) |
+| `roster_shift.check_in_voided_at` / `roster_shift_worker_line.check_in_voided_at` | Coordinator void check-in (CFO C-01) |
 | `roster_shift` session fields (20260702120000) | `session_key`, `required_worker_count` — groups master/live session blocks |
 | `roster_shift_client_line` | Billable client participants per session (ratio, booking link) |
 | `roster_shift_worker_line` | Paid workers per session (role, status, check-in/out); `coverage_role` (`fill` \| `leave_pay`) and `leave_request_id` (20260702140000) for leave-aware rollover |

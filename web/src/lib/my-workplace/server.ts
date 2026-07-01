@@ -479,7 +479,8 @@ export async function submitMyCredential(
 export async function performMyShiftCheckIn(
   ctx: MyWorkplaceContext,
   shiftId: string,
-  geo: GeoCoordinates | null = null
+  geo: GeoCoordinates | null = null,
+  at?: Date
 ): Promise<RosterShiftRecord> {
   const supabase = isSupabaseConfigured() ? serviceClient() : null;
   const { data: row, error } = supabase
@@ -492,7 +493,7 @@ export async function performMyShiftCheckIn(
     : null;
   if (!shift) throw new Error("Shift not found.");
 
-  const built = buildCheckInUpdate(shift, ctx.employeeId, ctx.session.displayName, new Date(), geo);
+  const built = buildCheckInUpdate(shift, ctx.employeeId, ctx.session.displayName, at ?? new Date(), geo);
   if (!built.ok) throw new Error(built.message);
 
   if (supabase) {
@@ -560,7 +561,8 @@ export async function performMyShiftCheckOut(
   ctx: MyWorkplaceContext,
   shiftId: string,
   notes: string,
-  geo: GeoCoordinates | null = null
+  geo: GeoCoordinates | null = null,
+  at?: Date
 ): Promise<RosterShiftRecord> {
   const supabase = isSupabaseConfigured() ? serviceClient() : null;
   const { data: row, error } = supabase
@@ -573,7 +575,7 @@ export async function performMyShiftCheckOut(
     : null;
   if (!shift) throw new Error("Shift not found.");
 
-  const built = buildCheckOutUpdate(shift, ctx.employeeId, ctx.session.displayName, notes, new Date(), geo);
+  const built = buildCheckOutUpdate(shift, ctx.employeeId, ctx.session.displayName, notes, at ?? new Date(), geo);
   if (!built.ok) throw new Error(built.message);
 
   if (supabase) {
@@ -651,6 +653,65 @@ export async function performMyShiftCheckOut(
   }
 
   return built.shift;
+}
+
+/** Coordinator void — clears check-in so the worker can check in again (CFO C-01). */
+export async function performVoidShiftCheckIn(
+  shiftId: string,
+  employeeId: string,
+  voidedBy: string
+): Promise<RosterShiftRecord> {
+  const supabase = isSupabaseConfigured() ? serviceClient() : null;
+  if (!supabase) throw new Error("Supabase not configured");
+
+  const { data: row, error } = await supabase.from("roster_shift").select("*").eq("id", shiftId).maybeSingle();
+  if (error || !row) throw new Error("Shift not found.");
+  const shift = await loadRosterShiftWithSessionLines(supabase, row as RosterShiftRow);
+  const now = new Date().toISOString();
+  const workerLine = (shift.workerLines ?? []).find((line) => line.employeeId.trim() === employeeId.trim());
+
+  if (workerLine) {
+    if (!workerLine.checkedInAt?.trim()) throw new Error("This worker has not checked in.");
+    if (workerLine.checkedOutAt?.trim()) throw new Error("Cannot void after check-out.");
+    const { data: updated, error: lineError } = await supabase
+      .from("roster_shift_worker_line")
+      .update({
+        checked_in_at: null,
+        check_in_voided_at: now,
+        check_in_voided_by: voidedBy,
+      })
+      .eq("id", workerLine.id)
+      .select("*");
+    if (lineError) throw lineError;
+    if (!updated?.length) throw new Error("Could not void check-in.");
+  } else if (shift.employeeId?.trim() === employeeId.trim()) {
+    if (!shift.checkedInAt?.trim()) throw new Error("This worker has not checked in.");
+    if (shift.checkedOutAt?.trim()) throw new Error("Cannot void after check-out.");
+    const { data: updated, error: headerError } = await supabase
+      .from("roster_shift")
+      .update({
+        checked_in_at: null,
+        check_in_latitude: null,
+        check_in_longitude: null,
+        check_in_voided_at: now,
+        check_in_voided_by: voidedBy,
+        updated_by: voidedBy,
+      })
+      .eq("id", shiftId)
+      .select("*");
+    if (headerError) throw headerError;
+    if (!updated?.length) throw new Error("Could not void check-in.");
+  } else {
+    throw new Error("Employee is not assigned to this shift.");
+  }
+
+  const { data: nextRow, error: reloadError } = await supabase
+    .from("roster_shift")
+    .select("*")
+    .eq("id", shiftId)
+    .maybeSingle();
+  if (reloadError || !nextRow) throw reloadError ?? new Error("Shift not found.");
+  return loadRosterShiftWithSessionLines(supabase, nextRow as RosterShiftRow);
 }
 
 export async function submitLeaveOnBehalf(

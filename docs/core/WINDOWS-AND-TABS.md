@@ -368,6 +368,7 @@ Separate mobile shell at `/m/*` — not the desktop `AppShell`. Bottom tabs: Tod
 | More menu | `/m/more` | Links to desktop self-service pages |
 | Digital Worker ID | `/m/id` | Photo, name, role, employee ID |
 | iOS install guide | `/m/install` | Add to Home Screen steps |
+| Mobile sync reconciliation | `/system/reports/mobile-sync` | System → Reports — offline sync audit (CFO C-02) |
 
 **Open shift requests:** Worker submits from Open shifts; tracks on My shifts → Shift requests. Coordinator review on Rostering → Open shifts and Workforce planning fill board.
 

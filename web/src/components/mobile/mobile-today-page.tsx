@@ -4,6 +4,7 @@ import Link from "next/link";
 import { MobileAuthGuard } from "@/components/mobile/mobile-auth-guard";
 import { MobileEmployeeShell } from "@/components/mobile/mobile-employee-shell";
 import { MobileFloatingCheckIn } from "@/components/mobile/mobile-floating-check-in";
+import { MobileOfflineBanner } from "@/components/mobile/mobile-offline-banner";
 import { MobileShiftCard } from "@/components/mobile/mobile-shift-card";
 import { useMobileShifts } from "@/lib/mobile/use-mobile-shifts";
 import { formatDayHeading } from "@/lib/roster-shift";
@@ -22,6 +23,8 @@ export function MobileTodayPage() {
     handleCheckIn,
     handleCheckOut,
     shiftContext,
+    online,
+    sync,
   } = useMobileShifts();
 
   const greeting = actionShift
@@ -60,6 +63,14 @@ export function MobileTodayPage() {
         {error ? (
           <p className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-950">{error}</p>
         ) : null}
+
+        <MobileOfflineBanner
+          online={online}
+          pending={sync.pending}
+          syncing={sync.syncing}
+          syncError={sync.syncError}
+          onSyncNow={() => void sync.syncNow()}
+        />
 
         {!employeeId ? (
           <p className="text-sm text-slate-500">Link your user to an employee record to see shifts.</p>

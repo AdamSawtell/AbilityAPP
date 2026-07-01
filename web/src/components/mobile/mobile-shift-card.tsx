@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isBuddyShift } from "@/lib/buddy-shift";
 import type { ClientRecord } from "@/lib/client";
 import type { LocationRecord } from "@/lib/location";
@@ -66,8 +66,18 @@ export function MobileShiftCard({
   const isDraft = shift.status === "Draft";
   const navigateUrl = location ? mapsNavigateUrl(location) : "";
 
-  const priorNotes = workerLine?.notes?.trim() || shift.checkInNotes?.trim() || "";
+  const [handoverNotes, setHandoverNotes] = useState("");
   const [handoverOpen, setHandoverOpen] = useState(false);
+
+  useEffect(() => {
+    if (!shift.id) return;
+    void fetch(`/api/mobile/shifts/${encodeURIComponent(shift.id)}/handover`, { credentials: "include" })
+      .then(async (res) => (res.ok ? res.json() : { notes: "" }))
+      .then((data: { notes?: string }) => setHandoverNotes(data.notes?.trim() ?? ""))
+      .catch(() => setHandoverNotes(""));
+  }, [shift.id]);
+
+  const priorNotes = workerLine?.notes?.trim() || shift.checkInNotes?.trim() || "";
 
   return (
     <article
@@ -113,6 +123,21 @@ export function MobileShiftCard({
 
       {!canIn && !canOut && !checkInGate.ok ? (
         <p className="mt-2 text-xs text-slate-500">{checkInGate.message}</p>
+      ) : null}
+
+      {handoverNotes ? (
+        <div className="mt-3 rounded-lg border border-sky-200 bg-sky-50/80 p-3">
+          <button
+            type="button"
+            onClick={() => setHandoverOpen((v) => !v)}
+            className="text-xs font-semibold text-sky-900"
+          >
+            {handoverOpen ? "Hide prior handover" : "Prior worker handover"}
+          </button>
+          {handoverOpen ? (
+            <p className="mt-1 whitespace-pre-line text-sm text-sky-950">{handoverNotes}</p>
+          ) : null}
+        </div>
       ) : null}
 
       {priorNotes ? (

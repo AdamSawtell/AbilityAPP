@@ -225,6 +225,11 @@ export const SYSTEM_NAV_SECTIONS: SystemNavSection[] = [
         label: "Reports Advance",
         match: (p) => p.startsWith("/system/admin/reports-advance"),
       },
+      {
+        href: "/system/reports/mobile-sync",
+        label: "Mobile sync reconciliation",
+        match: (p) => p.startsWith("/system/reports/mobile-sync"),
+      },
     ]),
   },
   {

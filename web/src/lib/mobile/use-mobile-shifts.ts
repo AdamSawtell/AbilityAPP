@@ -1,10 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
-import { captureGeolocation } from "@/lib/geolocation";
+import { captureMobileGeolocation } from "@/lib/mobile/geo-cache";
+import { idbGetAllShifts } from "@/lib/mobile/idb";
+import { enqueueOfflineWrite } from "@/lib/mobile/offline-sync";
+import { useMobileOnline } from "@/lib/mobile/use-mobile-online";
+import { useMobileShiftCache } from "@/lib/mobile/use-mobile-shift-cache";
+import { useMobileSyncState } from "@/lib/mobile/use-mobile-sync";
 import {
   filterMyShiftsView,
   groupShiftsByDate,
@@ -24,19 +29,34 @@ export function useMobileShifts() {
   const { employee } = useMyEmployee();
   const { clients, locations, rosterShifts, payPeriodInstances, checkInRosterShift, checkOutRosterShift } =
     useData();
+  const online = useMobileOnline();
+  const sync = useMobileSyncState();
   const timezoneCtx = useSystemTimezoneOptional();
   const timezone = timezoneCtx?.timezone ?? DEFAULT_ORGANIZATION_TIMEZONE;
   const orgToday = useMemo(() => organizationTodayIso(timezone), [timezone]);
   const employeeId = employee?.id?.trim() ?? session?.employeeBpId?.trim() ?? "";
   const updatedBy = session?.displayName ?? "Self-service";
 
+  const [cachedShifts, setCachedShifts] = useState<RosterShiftRecord[]>([]);
+
+  useEffect(() => {
+    if (online) return;
+    void idbGetAllShifts()
+      .then(setCachedShifts)
+      .catch(() => setCachedShifts([]));
+  }, [online]);
+
+  const sourceShifts = online && rosterShifts.length ? rosterShifts : cachedShifts.length ? cachedShifts : rosterShifts;
+
+  useMobileShiftCache(employeeId, rosterShifts, orgToday);
+
   const scheduleShifts = useMemo(
-    () => shiftsForWorkerSchedule(rosterShifts, employeeId, orgToday),
-    [rosterShifts, employeeId, orgToday]
+    () => shiftsForWorkerSchedule(sourceShifts, employeeId, orgToday),
+    [sourceShifts, employeeId, orgToday]
   );
   const allAssigned = useMemo(
-    () => shiftsAssignedToWorker(rosterShifts, employeeId),
-    [rosterShifts, employeeId]
+    () => shiftsAssignedToWorker(sourceShifts, employeeId),
+    [sourceShifts, employeeId]
   );
 
   const payPeriod = useMemo(
@@ -69,19 +89,77 @@ export function useMobileShifts() {
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients]);
   const locationById = useMemo(() => new Map(locations.map((l) => [l.id, l])), [locations]);
 
+  const runCheckIn = useCallback(
+    async (shiftId: string) => {
+      const geoResult = await captureMobileGeolocation(!online);
+      const payload = {
+        timestamp: new Date().toISOString(),
+        latitude: geoResult.coords?.latitude,
+        longitude: geoResult.coords?.longitude,
+        geoApproximate: geoResult.approximate,
+      };
+
+      if (!online) {
+        await enqueueOfflineWrite({
+          shiftId,
+          employeeId,
+          actionType: "checkin",
+          payload,
+        });
+        await sync.refreshPending();
+        return;
+      }
+
+      const message = await checkInRosterShift(shiftId, employeeId, updatedBy, geoResult.coords);
+      if (message) setError(message);
+      await sync.syncNow();
+    },
+    [checkInRosterShift, employeeId, online, sync, updatedBy]
+  );
+
+  const runCheckOut = useCallback(
+    async (shiftId: string) => {
+      const geoResult = await captureMobileGeolocation(!online);
+      const notes = notesByShift[shiftId] ?? "";
+      const payload = {
+        timestamp: new Date().toISOString(),
+        latitude: geoResult.coords?.latitude,
+        longitude: geoResult.coords?.longitude,
+        notes,
+        geoApproximate: geoResult.approximate,
+      };
+
+      if (!online) {
+        await enqueueOfflineWrite({
+          shiftId,
+          employeeId,
+          actionType: "checkout",
+          payload,
+        });
+        await sync.refreshPending();
+        return;
+      }
+
+      const message = await checkOutRosterShift(shiftId, employeeId, updatedBy, notes, geoResult.coords);
+      if (message) setError(message);
+      await sync.syncNow();
+    },
+    [checkOutRosterShift, employeeId, notesByShift, online, sync, updatedBy]
+  );
+
   const handleCheckIn = useCallback(
     async (shiftId: string) => {
       setError("");
       setBusyId(shiftId);
       try {
-        const geo = await captureGeolocation();
-        const message = await checkInRosterShift(shiftId, employeeId, updatedBy, geo);
-        if (message) setError(message);
+        await runCheckIn(shiftId);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Check-in failed");
       } finally {
         setBusyId(null);
       }
     },
-    [checkInRosterShift, employeeId, updatedBy]
+    [runCheckIn]
   );
 
   const handleCheckOut = useCallback(
@@ -89,20 +167,14 @@ export function useMobileShifts() {
       setError("");
       setBusyId(shiftId);
       try {
-        const geo = await captureGeolocation();
-        const message = await checkOutRosterShift(
-          shiftId,
-          employeeId,
-          updatedBy,
-          notesByShift[shiftId] ?? "",
-          geo
-        );
-        if (message) setError(message);
+        await runCheckOut(shiftId);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Check-out failed");
       } finally {
         setBusyId(null);
       }
     },
-    [checkOutRosterShift, employeeId, notesByShift, updatedBy]
+    [runCheckOut]
   );
 
   function shiftContext(shift: RosterShiftRecord) {
@@ -130,5 +202,7 @@ export function useMobileShifts() {
     handleCheckIn,
     handleCheckOut,
     shiftContext,
+    online,
+    sync,
   };
 }

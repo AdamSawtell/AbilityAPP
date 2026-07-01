@@ -63,5 +63,11 @@ export const employeeMobileArticle: HelpArticle = {
       body: "On first open you see a one-time notice: location is used only at check-in and check-out to verify attendance at the support site.",
       relatedRoutes: ["/m/today"],
     },
+    {
+      id: "offline",
+      title: "Offline check-in",
+      body: "When you have no signal, check-in and check-out are saved on your phone and sync automatically when you reconnect. Use **Sync now** on the banner if needed. Approximate location may be used when offline (up to 30 minutes old).",
+      relatedRoutes: ["/m/today", "/m/schedule"],
+    },
   ],
 };

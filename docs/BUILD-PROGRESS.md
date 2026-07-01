@@ -12,7 +12,7 @@
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
-| **Next slice** | AB-0004 Phase B (offline sync + push) |
+| **Next slice** | AB-0004 Phase C (push notifications + mobile messaging) |
 | **Last push** | 2026-07-01 — AB-0004 Phase A employee mobile PWA |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
@@ -32,7 +32,25 @@
 
 ---
 
-## AB-0004 Phase A — Employee mobile PWA (2026-07-01)
+## AB-0004 Phase B — Offline sync + reconciliation (2026-07-01)
+
+**Status:** Shipped (Phase B).
+
+**Why:** Field workers need reliable offline check-in with payroll-grade idempotency, prior-worker handover notes, coordinator void check-in, and a finance reconciliation view (CFO C-02).
+
+| Area | Change |
+|------|--------|
+| Migration | `20260701140000_mobile_offline_sync` — `mobile_offline_sync` audit table, void check-in columns |
+| Offline | IndexedDB queue, geo cache (5m online / 30m offline), sync on reconnect |
+| API | `POST /api/mobile/sync`, `GET /api/mobile/shifts/[id]/handover`, `POST /api/roster/shifts/void-checkin` |
+| System | `/system/reports/mobile-sync` reconciliation report |
+| UI | Offline banner, prior handover on shift cards, void check-in on roster shift editor |
+
+**What you can test:** `/m/today` offline banner → airplane mode check-in → reconnect → Sync now → System → Reports → Mobile sync reconciliation shows accepted row.
+
+**Phase C (next):** Push notifications, messaging mobile, vacant shifts mobile layouts.
+
+---
 
 **Status:** Shipped (Phase A — field MVP).
 

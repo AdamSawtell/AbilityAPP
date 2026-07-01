@@ -665,6 +665,9 @@ export function RosterShiftEditor({
                 locations.find((l) => l.id === draft.locationId)
               )}
             />
+            {draft.checkedInAt && !draft.checkedOutAt && draft.employeeId ? (
+              <VoidCheckInButton shiftId={draft.id} employeeId={draft.employeeId} onVoided={onSaved} />
+            ) : null}
           </div>
         ) : null}
 
@@ -704,6 +707,55 @@ export function RosterShiftEditor({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function VoidCheckInButton({
+  shiftId,
+  employeeId,
+  onVoided,
+}: {
+  shiftId: string;
+  employeeId: string;
+  onVoided?: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  async function voidCheckIn() {
+    if (!window.confirm("Void this check-in? The worker can check in again from mobile.")) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/roster/shifts/void-checkin", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shiftId, employeeId }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Could not void check-in");
+      setMessage("Check-in voided.");
+      onVoided?.();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Could not void check-in");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 border-t border-slate-200 pt-3">
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => void voidCheckIn()}
+        className="text-xs font-semibold text-rose-700 hover:underline disabled:opacity-60"
+      >
+        {busy ? "Voiding…" : "Void check-in (allow re-check-in)"}
+      </button>
+      {message ? <p className="mt-1 text-xs text-slate-600">{message}</p> : null}
     </div>
   );
 }
