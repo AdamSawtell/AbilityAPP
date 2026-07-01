@@ -10,7 +10,10 @@
 import { dayLabels, DEFAULT_AVAILABILITY_WEEKDAYS } from "../src/lib/my-workplace/types.ts";
 import {
   clientNameFromActivityMessage,
+  clientNameFromFollowUpMessage,
   isActivityCoachIntent,
+  isActivityCoachThread,
+  isClientRecordConfirmMessage,
 } from "../src/lib/ai/activity-coach-display.ts";
 import { pickBestMatch, scoreClientMatch } from "../src/lib/ai/tools/client-resolve.ts";
 import { shiftsAssignedToWorker } from "../src/lib/roster-shift-checkin.ts";
@@ -96,6 +99,30 @@ check("INTENT 'log an activity' still starts coach", isActivityCoachIntent("log 
 check("INTENT 'create activity note' still starts coach", isActivityCoachIntent("create an activity note"), true);
 check("INTENT plain question does not start coach", isActivityCoachIntent("what activities does Karen have?"), false);
 
+check(
+  "COACH follow-up extracts standalone name",
+  clientNameFromFollowUpMessage("bernedette"),
+  "bernedette"
+);
+check(
+  "COACH follow-up extracts search key",
+  clientNameFromFollowUpMessage("Bern"),
+  "Bern"
+);
+check("COACH follow-up rejects confirm reply", clientNameFromFollowUpMessage("yes"), null);
+checkTruthy(
+  "COACH thread persists after first intent",
+  isActivityCoachThread(
+    [{ role: "user", content: "Help me write today's activity update" }, { role: "user", content: "bernedette" }],
+    {}
+  )
+);
+checkTruthy(
+  "COACH thread from threadState flag",
+  isActivityCoachThread([], { activityCoachStarted: true })
+);
+checkTruthy("COACH confirm message accepted", isClientRecordConfirmMessage("yes, confirm this client"));
+
 // ---- KAREN-BUG-0003 (match grounding) -------------------------------------
 const bernadette = {
   id: "client-bern",
@@ -120,6 +147,11 @@ check("BUG-0003 picks the requested client, not first row", best?.id, "client-be
 check(
   "BUG-0003 typo-tolerant match still grounds on Bernadette ('Bernedette Rose')",
   pickBestMatch([henry, bernadette], "Bernedette Rose")?.id,
+  "client-bern"
+);
+check(
+  "COACH single-token typo grounds with relaxed score ('bernedette')",
+  pickBestMatch([henry, bernadette], "bernedette", 12)?.id,
   "client-bern"
 );
 

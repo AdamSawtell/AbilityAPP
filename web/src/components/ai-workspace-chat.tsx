@@ -32,7 +32,13 @@ type AgentSummary = {
 
 type UiMessage = ChatMessage & { attachments?: ChatDisplayAttachment[] };
 
-function MessageBubble({ message }: { message: UiMessage }) {
+function MessageBubble({
+  message,
+  onConfirmClient,
+}: {
+  message: UiMessage;
+  onConfirmClient?: () => void;
+}) {
   const isUser = message.role === "user";
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -44,7 +50,11 @@ function MessageBubble({ message }: { message: UiMessage }) {
         {isUser ? (
           <div className="whitespace-pre-wrap">{message.content}</div>
         ) : (
-          <ChatMessageContent content={message.content} attachments={message.attachments} />
+          <ChatMessageContent
+            content={message.content}
+            attachments={message.attachments}
+            onConfirmClient={onConfirmClient}
+          />
         )}
       </div>
     </div>
@@ -465,7 +475,13 @@ export function AiWorkspaceChat({ className = "" }: { className?: string }) {
             ))}
           </div>
         ) : (
-          messages.map((m, i) => <MessageBubble key={`${m.role}-${i}-${m.content.slice(0, 24)}`} message={m} />)
+          messages.map((m, i) => (
+            <MessageBubble
+              key={`${m.role}-${i}-${m.content.slice(0, 24)}`}
+              message={m}
+              onConfirmClient={() => void sendMessage("yes, confirm this client")}
+            />
+          ))
         )}
         {loading ? (
           <div className="flex justify-start">

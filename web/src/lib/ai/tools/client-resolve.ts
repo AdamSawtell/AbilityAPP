@@ -85,6 +85,8 @@ export type RankedClientMatch = { row: ClientRow; score: number };
 export type ResolveClientOptions = {
   /** When set, only clients in this id set may be returned. */
   allowedClientIds?: Set<string> | null;
+  /** Override minimum score (default MIN_CONFIDENT_CLIENT_SCORE). Coach follow-ups use a lower bar for typos. */
+  minMatchScore?: number;
 };
 
 function filterPoolByAllowed(rows: ClientRow[], allowed?: Set<string> | null): ClientRow[] {
@@ -108,10 +110,18 @@ export function rankClientMatches(rows: ClientRow[], term: string): RankedClient
 // Return null instead of an arbitrary row when nothing actually matches the
 // query — this prevents the assistant from grounding on the wrong client
 // (KAREN-BUG-0003). Callers treat null as "ask the user which client".
-export function pickBestMatch(rows: ClientRow[], term: string): ClientRow | null {
+export function pickBestMatch(
+  rows: ClientRow[],
+  term: string,
+  minScore = MIN_CONFIDENT_CLIENT_SCORE
+): ClientRow | null {
   const ranked = rankClientMatches(rows, term);
   const best = ranked[0];
-  if (!best || best.score < MIN_CONFIDENT_CLIENT_SCORE) return null;
+  const second = ranked[1];
+  if (!best || best.score < minScore) return null;
+  if (minScore < MIN_CONFIDENT_CLIENT_SCORE && second && second.score >= best.score - 4) {
+    return null;
+  }
   return best.row;
 }
 
@@ -231,7 +241,8 @@ export async function resolveClient(
 
   const pools = await fetchClientPool(supabase, name, options);
 
-  const match = pickBestMatch(pools, name);
+  const minScore = options?.minMatchScore ?? MIN_CONFIDENT_CLIENT_SCORE;
+  const match = pickBestMatch(pools, name, minScore);
   if (match) return guardResolved({ id: match.id, name: match.name, searchKey: match.search_key }, allowed);
 
   // A name was explicitly requested but nothing matched confidently. Do NOT fall

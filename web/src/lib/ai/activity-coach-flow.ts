@@ -9,9 +9,11 @@ import {
   activityNotesTableAttachment,
   clientIdFromPagePath,
   clientNameFromActivityMessage,
+  clientNameFromFollowUpMessage,
   coachStepPromptAttachment,
   clientRecordCardAttachment,
   isActivityCoachIntent,
+  isActivityCoachThread,
   isClientRecordConfirmMessage,
   type ActivityCoachClient,
 } from "@/lib/ai/activity-coach-display";
@@ -35,31 +37,39 @@ async function resolveCoachClient(
   session: AuthSession,
   pagePath: string | undefined,
   userMessage: string,
-  pageClient?: ChatPageClientContext | null
+  pageClient?: ChatPageClientContext | null,
+  options?: { allowFollowUpName?: boolean }
 ): Promise<ResolvedClient | null> {
   const routeId = clientIdFromPagePath(pagePath);
   const nameFromMessage = clientNameFromActivityMessage(userMessage);
+  const followUpName =
+    options?.allowFollowUpName ? clientNameFromFollowUpMessage(userMessage) : null;
+  const explicitName = nameFromMessage ?? followUpName;
   const allowedClientIds = await aiAllowedClientIds(supabase, session);
 
   // When the user explicitly names a client, that name is the source of truth.
   // Never silently fall back to whatever client page is open — that is how the
   // assistant grounded on the wrong person (KAREN-BUG-0003). A null result asks
   // the user to confirm instead of guessing.
-  if (nameFromMessage) {
-    return resolveClient(supabase, { name: nameFromMessage, pagePath }, { allowedClientIds });
+  if (explicitName) {
+    return resolveClient(
+      supabase,
+      { name: explicitName, pagePath },
+      {
+        allowedClientIds,
+        minMatchScore: options?.allowFollowUpName ? 12 : undefined,
+      }
+    );
   }
 
-  if (pageClient?.id && pageClient.searchKey && routeId) {
-    const route = decodeURIComponent(routeId).toLowerCase();
-    const hintMatchesRoute =
-      pageClient.id.toLowerCase() === route || pageClient.searchKey.toLowerCase() === route;
-    if (hintMatchesRoute) {
-      return resolveClient(
-        supabase,
-        { clientId: pageClient.id, searchKey: pageClient.searchKey, pagePath },
-        { allowedClientIds }
-      );
-    }
+  // Visible client on a record page — pageClient is sent because the user is viewing it.
+  if (pageClient?.id && routeId) {
+    const fromPage = await resolveClient(
+      supabase,
+      { clientId: pageClient.id, searchKey: pageClient.searchKey, pagePath },
+      { allowedClientIds }
+    );
+    if (fromPage) return fromPage;
   }
 
   if (routeId) {
@@ -171,6 +181,7 @@ function buildNotesAndStep3Advance(
   return {
     threadState: {
       ...threadState,
+      activityCoachStarted: true,
       activityCoachClient: client,
       activityCoachClientConfirmed: true,
       activityCoachNotesReviewed: true,
@@ -187,18 +198,65 @@ function step1Response(
   return {
     threadState: {
       ...threadState,
+      activityCoachStarted: true,
       activityCoachClient: client,
       activityCoachClientConfirmed: false,
       activityCoachNotesReviewed: false,
     },
-    assistantText: `I'll help you log an activity note for **${client.name}** (${client.searchKey}).\n\n**Step 1 — Confirm client:** Use the **Open record** card below to check this is the right person, then reply **yes** when confirmed. I'll show the last 5 activity notes next.`,
+    assistantText: `I'll help you log an activity note for **${client.name}** (${client.searchKey}).\n\n**Step 1 — Confirm client:** Check the record card below, then click **Confirm this client** or reply **yes**. I'll show the last 5 activity notes next.`,
     attachments: [
       clientRecordCardAttachment({
         ...client,
         href: `/clients/${client.id}`,
-        status: "Tap Open record to verify",
+        status: "Confirm this client",
       }),
     ],
+  };
+}
+
+/** Recover staged client from visible record context when the model found the person but thread state was not updated. */
+export async function ensureActivityCoachClient(
+  supabase: SupabaseClient,
+  session: AuthSession,
+  threadState: ChatThreadState,
+  messages: ChatMessage[],
+  pagePath?: string,
+  pageClient?: ChatPageClientContext | null
+): Promise<ChatThreadState> {
+  if (threadState.activityCoachClient) return threadState;
+  if (!isActivityCoachThread(messages, threadState)) return threadState;
+
+  const allowedClientIds = await aiAllowedClientIds(supabase, session);
+
+  const routeId = clientIdFromPagePath(pagePath);
+  const prefetchedId = threadState.activityCoachPrefetchedNotes?.clientId;
+  if (prefetchedId && routeId && pageClient?.id === prefetchedId) {
+    const fromPrefetch = await resolveClient(
+      supabase,
+      { clientId: prefetchedId, pagePath },
+      { allowedClientIds }
+    );
+    if (fromPrefetch) {
+      return {
+        ...threadState,
+        activityCoachStarted: true,
+        activityCoachClient: fromPrefetch,
+        activityCoachClientConfirmed: false,
+        activityCoachNotesReviewed: false,
+      };
+    }
+  }
+
+  return threadState;
+}
+
+export function coachClientFromToolResult(result: unknown): ActivityCoachClient | null {
+  const row = result as { found?: boolean; client?: { id?: string; name?: string; searchKey?: string } };
+  if (!row?.found || !row.client?.id) return null;
+  return {
+    id: String(row.client.id),
+    name: String(row.client.name ?? ""),
+    searchKey: String(row.client.searchKey ?? ""),
   };
 }
 
@@ -214,12 +272,45 @@ export async function tryProposeActivityCoachClient(
   if (threadState.activityCoachClient) return null;
 
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
-  if (!lastUser || !isActivityCoachIntent(lastUser.content)) return null;
+  if (!lastUser) return null;
 
-  const client = await resolveCoachClient(supabase, session, pagePath, lastUser.content, pageClient);
-  if (!client) return null;
+  const coachThread = isActivityCoachThread(messages, threadState);
+  const activityIntent = isActivityCoachIntent(lastUser.content);
+  const followUpName = clientNameFromFollowUpMessage(lastUser.content);
 
-  return step1Response(threadState, client);
+  if (!activityIntent && !(coachThread && followUpName)) return null;
+
+  const client = await resolveCoachClient(
+    supabase,
+    session,
+    pagePath,
+    lastUser.content,
+    pageClient,
+    { allowFollowUpName: coachThread }
+  );
+
+  if (client) {
+    return step1Response(threadState, client);
+  }
+
+  if (activityIntent && !threadState.activityCoachStarted) {
+    return {
+      threadState: { ...threadState, activityCoachStarted: true },
+      assistantText:
+        "I'll help you log an activity note.\n\n**Which client** is this for? Reply with their name or search key — I'll confirm the record, show their last 5 activity notes, then ask a few questions before preparing the note.",
+      attachments: [],
+    };
+  }
+
+  if (coachThread && followUpName) {
+    return {
+      threadState: { ...threadState, activityCoachStarted: true },
+      assistantText: `I couldn't find a client matching **${followUpName}**. Check the spelling or try their search key, then send the name again.`,
+      attachments: [],
+    };
+  }
+
+  return null;
 }
 
 /** Step 2: after client confirmed, load and show last 5 notes. */
@@ -228,16 +319,22 @@ export async function tryConfirmActivityCoachClient(
   session: AuthSession,
   messages: ChatMessage[],
   threadState: ChatThreadState,
-  pagePath?: string
+  pagePath?: string,
+  pageClient?: ChatPageClientContext | null
 ): Promise<ActivityCoachAdvance | null> {
-  const client = threadState.activityCoachClient;
-  if (!client || threadState.activityCoachClientConfirmed) return null;
+  let state = threadState;
+  if (!state.activityCoachClient) {
+    state = await ensureActivityCoachClient(supabase, session, state, messages, pagePath, pageClient);
+  }
+
+  const client = state.activityCoachClient;
+  if (!client || state.activityCoachClientConfirmed) return null;
 
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   if (!lastUser || !isClientRecordConfirmMessage(lastUser.content)) return null;
 
-  const activities = await loadCoachActivities(supabase, session, client, pagePath, threadState);
-  return buildNotesAndStep3Advance(threadState, client, activities);
+  const activities = await loadCoachActivities(supabase, session, client, pagePath, state);
+  return buildNotesAndStep3Advance(state, client, activities);
 }
 
 /** If the model called client_get during activity coach, replace its reply with Step 1 UI. */
@@ -247,35 +344,34 @@ export async function tryActivityCoachFromClientGet(
   messages: ChatMessage[],
   threadState: ChatThreadState,
   pagePath: string | undefined,
-  clientGetResult: unknown,
-  coachStartedThisTurn: boolean
+  clientGetResult: unknown
 ): Promise<ActivityCoachAdvance | null> {
-  if (threadState.activityCoachClient && !coachStartedThisTurn) return null;
+  if (threadState.activityCoachClientConfirmed) return null;
 
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
-  if (!lastUser || !isActivityCoachIntent(lastUser.content)) return null;
+  if (!lastUser || !isActivityCoachThread(messages, threadState)) return null;
+  if (isClientRecordConfirmMessage(lastUser.content)) return null;
 
-  // If the user named a client, re-resolve by that name and treat it as the
-  // source of truth. Do not trust the model's client_get row for a named client:
-  // when the name cannot be confidently resolved, ask rather than ground on
-  // whatever the model fetched (KAREN-BUG-0003).
-  const nameFromMessage = clientNameFromActivityMessage(lastUser.content);
+  const nameFromMessage =
+    clientNameFromActivityMessage(lastUser.content) ??
+    clientNameFromFollowUpMessage(lastUser.content);
   if (nameFromMessage) {
-    const byName = await resolveClient(supabase, { name: nameFromMessage, pagePath });
+    const allowedClientIds = await aiAllowedClientIds(supabase, session);
+    const byName = await resolveClient(
+      supabase,
+      { name: nameFromMessage, pagePath },
+      { allowedClientIds, minMatchScore: 12 }
+    );
     if (!byName) return null;
     return step1Response(threadState, byName);
   }
 
-  const row = clientGetResult as { found?: boolean; client?: { id?: string; name?: string; searchKey?: string } };
-  if (!row?.found || !row.client?.id) return null;
+  const fromTool = coachClientFromToolResult(clientGetResult);
+  if (fromTool) {
+    return step1Response({ ...threadState, activityCoachStarted: true }, fromTool);
+  }
 
-  const client: ActivityCoachClient = {
-    id: String(row.client.id),
-    name: String(row.client.name ?? ""),
-    searchKey: String(row.client.searchKey ?? ""),
-  };
-
-  return step1Response(threadState, client);
+  return null;
 }
 
 export function coachClientReadyForPrepare(threadState: ChatThreadState): boolean {

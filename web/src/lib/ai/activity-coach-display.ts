@@ -70,6 +70,31 @@ function looksLikePersonName(candidate: string): boolean {
 const NAME_TOKEN = "[A-Za-z][A-Za-z']*(?:-[A-Za-z']+)?";
 const NAME_CAPTURE = `(${NAME_TOKEN}(?:\\s+${NAME_TOKEN}){0,2})`;
 
+/** True when any user message in the thread started the activity-note coach. */
+export function isActivityCoachThread(
+  messages: { role: string; content: string }[],
+  threadState: { activityCoachStarted?: boolean }
+): boolean {
+  if (threadState.activityCoachStarted) return true;
+  return messages.some((m) => m.role === "user" && isActivityCoachIntent(m.content));
+}
+
+/** Standalone name reply during coach (e.g. "bernedette", "Bern") — not a confirm/cancel. */
+export function clientNameFromFollowUpMessage(text: string): string | null {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.length < 3) return null;
+  if (isClientRecordConfirmMessage(trimmed)) return null;
+  if (/^(no|nope|cancel|wrong|different)\b/i.test(trimmed)) return null;
+
+  const fromPattern = clientNameFromActivityMessage(trimmed);
+  if (fromPattern) return fromPattern;
+
+  if (looksLikePersonName(trimmed) && trimmed.split(/\s+/).length <= 3) {
+    return trimmed;
+  }
+  return null;
+}
+
 export function clientNameFromActivityMessage(text: string): string | null {
   const trimmed = text.trim();
   const patterns = [

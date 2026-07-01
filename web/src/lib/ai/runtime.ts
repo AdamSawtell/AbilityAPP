@@ -48,12 +48,13 @@ import { runTaskCreatePrepare } from "@/lib/ai/tools/task-create-prepare";
 import { runIncidentCreatePrepare } from "@/lib/ai/tools/incident-create-prepare";
 import { buildPageContext } from "@/lib/ai/page-context";
 import {
+  coachClientFromToolResult,
   coachClientReadyForPrepare,
   tryActivityCoachFromClientGet,
   tryConfirmActivityCoachClient,
   tryProposeActivityCoachClient,
 } from "@/lib/ai/activity-coach-flow";
-import { isActivityCoachIntent, stripInventedRecordLinks } from "@/lib/ai/activity-coach-display";
+import { isActivityCoachThread, isClientRecordConfirmMessage, stripInventedRecordLinks } from "@/lib/ai/activity-coach-display";
 import {
   runClientActivityDraftConfirm,
   runClientActivityDraftCreate,
@@ -290,10 +291,18 @@ async function executeTool(
         name: args.name as string | undefined,
       });
       let nextState = threadState;
-      if (forActivity && result.found && result.client) {
+      const inCoachContext = forActivity || threadState.activityCoachStarted;
+      const shouldStageCoachClient =
+        inCoachContext &&
+        result.found &&
+        result.client &&
+        !threadState.activityCoachClientConfirmed &&
+        (forActivity || !threadState.activityCoachClient);
+      if (shouldStageCoachClient) {
         const c = result.client as { id: string; name: string; searchKey: string };
         nextState = {
           ...threadState,
+          activityCoachStarted: true,
           activityCoachClient: { id: c.id, name: c.name, searchKey: c.searchKey },
           activityCoachClientConfirmed: false,
           activityCoachNotesReviewed: false,
@@ -710,6 +719,10 @@ export async function runChatTurn(options: {
   const supabase = options.db?.client ?? null;
   const session = options.db?.session;
 
+  if (isActivityCoachThread(options.messages, threadState)) {
+    threadState = { ...threadState, activityCoachStarted: true };
+  }
+
   if (supabase && session) {
     const propose = await tryProposeActivityCoachClient(
       supabase,
@@ -737,7 +750,8 @@ export async function runChatTurn(options: {
       session,
       options.messages,
       threadState,
-      options.pagePath
+      options.pagePath,
+      options.pageClient
     );
     if (confirmClient) {
       threadState = confirmClient.threadState;
@@ -854,9 +868,32 @@ export async function runChatTurn(options: {
       supabase &&
       session &&
       lastUser &&
-      isActivityCoachIntent(lastUser.content) &&
-      !options.threadState.activityCoachClient
+      isActivityCoachThread(options.messages, threadState) &&
+      !threadState.activityCoachClientConfirmed
     ) {
+      if (isClientRecordConfirmMessage(lastUser.content)) {
+        const confirmLate = await tryConfirmActivityCoachClient(
+          supabase,
+          session,
+          options.messages,
+          threadState,
+          options.pagePath,
+          options.pageClient
+        );
+        if (confirmLate) {
+          threadState = confirmLate.threadState;
+          const assistantMessage: ChatMessage = { role: "assistant", content: confirmLate.assistantText };
+          return {
+            message: assistantMessage,
+            messages: [...options.messages, assistantMessage],
+            threadState,
+            agentId: options.agent.id,
+            agentName: options.agent.name,
+            attachments: confirmLate.attachments,
+          };
+        }
+      }
+
       const clientGet = auditTools.find((t) => t.name === "client_get");
       if (clientGet) {
         const coach = await tryActivityCoachFromClientGet(
@@ -865,13 +902,23 @@ export async function runChatTurn(options: {
           options.messages,
           threadState,
           options.pagePath,
-          clientGet.result,
-          !options.threadState.activityCoachClient
+          clientGet.result
         );
         if (coach) {
           threadState = coach.threadState;
           assistantText = coach.assistantText;
           turnAttachments = coach.attachments;
+        } else {
+          const staged = coachClientFromToolResult(clientGet.result);
+          if (staged && !threadState.activityCoachClient) {
+            threadState = {
+              ...threadState,
+              activityCoachStarted: true,
+              activityCoachClient: staged,
+              activityCoachClientConfirmed: false,
+              activityCoachNotesReviewed: false,
+            };
+          }
         }
       }
     }

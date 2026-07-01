@@ -62,8 +62,17 @@ function PrepareReviewCard({ attachment }: { attachment: ChatDisplayAttachment }
   );
 }
 
-function RecordCards({ attachment }: { attachment: ChatDisplayAttachment }) {
+function RecordCards({
+  attachment,
+  onConfirmClient,
+}: {
+  attachment: ChatDisplayAttachment;
+  onConfirmClient?: () => void;
+}) {
   if (!attachment.cards?.length) return null;
+  const showConfirm = attachment.cards.some((card) =>
+    String(card.meta ?? "").toLowerCase().includes("confirm this client")
+  );
   return (
     <div className="space-y-2">
       {attachment.cards.map((card, i) => (
@@ -87,6 +96,15 @@ function RecordCards({ attachment }: { attachment: ChatDisplayAttachment }) {
           <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-[#b51266]">Open record</p>
         </Link>
       ))}
+      {showConfirm && onConfirmClient ? (
+        <button
+          type="button"
+          onClick={onConfirmClient}
+          className="w-full rounded-lg border border-[#d4147a] bg-[#fdf2f8] px-3 py-2 text-sm font-medium text-[#b51266] hover:bg-[#fce7f3]"
+        >
+          Confirm this client
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -94,9 +112,11 @@ function RecordCards({ attachment }: { attachment: ChatDisplayAttachment }) {
 export function ChatMessageContent({
   content,
   attachments,
+  onConfirmClient,
 }: {
   content: string;
   attachments?: ChatDisplayAttachment[];
+  onConfirmClient?: () => void;
 }) {
   return (
     <div className="space-y-3">
@@ -110,7 +130,7 @@ export function ChatMessageContent({
             {attachment.type === "prepare" ? (
               <PrepareReviewCard attachment={attachment} />
             ) : attachment.type === "cards" ? (
-              <RecordCards attachment={attachment} />
+              <RecordCards attachment={attachment} onConfirmClient={onConfirmClient} />
             ) : attachment.type === "prompt" && attachment.prompt ? (
               <p className="rounded-lg border border-[#f9a8d4] bg-[#fdf2f8] px-3 py-2.5 text-sm leading-relaxed text-slate-800">
                 {attachment.prompt.body}
