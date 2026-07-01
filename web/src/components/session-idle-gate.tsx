@@ -45,8 +45,8 @@ export function SessionIdleGate({ children }: { children: React.ReactNode }) {
     if (expiring.current) return;
     expiring.current = true;
     await logout({ reason: "inactivity" });
-    router.replace(isMobileWorker ? mobileLoginHref({ expired: true }) : "/login?expired=inactivity");
-  }, [logout, router, isMobileWorker]);
+    router.replace(isMobileWorker ? mobileLoginHref({ expired: true, next: pathname }) : "/login?expired=inactivity");
+  }, [logout, router, isMobileWorker, pathname]);
 
   const touchServerSession = useCallback(async () => {
     if (skip) return;
@@ -57,12 +57,12 @@ export function SessionIdleGate({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/auth/session/health", { credentials: "include" });
       if (res.status === 401) {
         await logout({ reason: "inactivity" });
-        router.replace(isMobileWorker ? mobileLoginHref({ expired: true }) : "/login?expired=inactivity");
+        router.replace(isMobileWorker ? mobileLoginHref({ expired: true, next: pathname }) : "/login?expired=inactivity");
       }
     } catch {
       // Local UI activity still resets the warning; the next successful request will re-check the server session.
     }
-  }, [logout, router, skip, isMobileWorker]);
+  }, [logout, router, skip, isMobileWorker, pathname]);
 
   const { warningOpen, remainingSeconds, reset } = useIdleTimer({
     enabled: !skip,
@@ -76,7 +76,7 @@ export function SessionIdleGate({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/auth/session/health", { credentials: "include" });
       if (res.status === 401) {
         await logout({ reason: "inactivity" });
-        router.replace(isMobileWorker ? mobileLoginHref({ expired: true }) : "/login?expired=inactivity");
+        router.replace(isMobileWorker ? mobileLoginHref({ expired: true, next: pathname }) : "/login?expired=inactivity");
         return;
       }
     } catch {
@@ -93,7 +93,7 @@ export function SessionIdleGate({ children }: { children: React.ReactNode }) {
         const res = await fetch("/api/auth/session/health", { credentials: "include" });
         if (res.status === 401) {
           await logout({ reason: "inactivity" });
-          router.replace(isMobileWorker ? mobileLoginHref({ expired: true }) : "/login?expired=inactivity");
+          router.replace(isMobileWorker ? mobileLoginHref({ expired: true, next: pathname }) : "/login?expired=inactivity");
         }
       } catch {
         // Stay on the current page when offline; normal API calls will re-check the session.
@@ -109,7 +109,7 @@ export function SessionIdleGate({ children }: { children: React.ReactNode }) {
       window.removeEventListener("focus", checkSessionHealth);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [logout, router, skip, isMobileWorker]);
+  }, [logout, router, skip, isMobileWorker, pathname]);
 
   return (
     <>

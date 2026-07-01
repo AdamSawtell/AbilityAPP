@@ -19,7 +19,7 @@ import {
   saveRole,
 } from "@/lib/supabase/access-api";
 import { routePageSkeleton } from "@/components/ui/page-skeletons";
-import { safePostLoginPath } from "@/lib/mobile/login-redirect";
+import { safeMobilePostLoginPath, safePostLoginPath } from "@/lib/mobile/login-redirect";
 
 /** Legacy workspace Admin URLs that immediately redirect into System setup. */
 const ADMIN_SYSTEM_REDIRECT_PREFIXES = ["/admin/organization", "/admin/security"] as const;
@@ -439,10 +439,12 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     if (!session && pathname !== "/login") {
       router.replace("/login");
     }
-    if (session && pathname === "/login") {
+    if (session && (pathname === "/login" || pathname === "/m/login")) {
       const next =
         typeof window !== "undefined"
-          ? safePostLoginPath(new URLSearchParams(window.location.search).get("next"))
+          ? pathname === "/m/login"
+            ? safeMobilePostLoginPath(new URLSearchParams(window.location.search).get("next"))
+            : safePostLoginPath(new URLSearchParams(window.location.search).get("next"))
           : "/";
       router.replace(next);
     }

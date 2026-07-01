@@ -41,6 +41,7 @@ export const employeeMobileArticle: HelpArticle = {
     "/m/notifications",
     "/m/credentials",
     "/m/profile",
+    "/m/login",
   ],
   windowKeys: [
     "my-workplace",
@@ -58,8 +59,8 @@ export const employeeMobileArticle: HelpArticle = {
     {
       id: "open",
       title: `Open ${MOBILE_APP_NAME}`,
-      body: `Go to **/m/today** on your phone (or tap the link from My workplace). Sign in with your usual AbilityVua login. You need My workplace access and an employee link on your user record.`,
-      relatedRoutes: ["/m/today"],
+      body: `Go to **/m/today** on your phone (or tap the link from My workplace). Sign in with your usual AbilityVua username and password — the sign-in form stays in the mobile app. You need My workplace access and an employee link on your user record.`,
+      relatedRoutes: ["/m/today", "/m/login"],
     },
     {
       id: "install",
