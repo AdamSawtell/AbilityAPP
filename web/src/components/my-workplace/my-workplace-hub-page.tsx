@@ -69,6 +69,12 @@ export function MyWorkplaceHubPage() {
   const [error, setError] = useState("");
   const employeeId = session?.employeeBpId?.trim() ?? "";
   const employeeName = data?.employeeName ?? session?.displayName ?? "Employee";
+  const loadingOverview = !data && !error;
+
+  const shiftById = useMemo(
+    () => new Map(allRosterShifts.map((shift) => [shift.id, shift])),
+    [allRosterShifts]
+  );
 
   const relatedCommunicationShifts = useMemo(() => {
     const byId = new Map<string, RosterShiftRecord>();
@@ -79,24 +85,72 @@ export function MyWorkplaceHubPage() {
       byId.set(shift.id, shift);
     }
     for (const request of requestsForEmployee(rosterShiftRequests, employeeId)) {
-      const shift = allRosterShifts.find((row) => row.id === request.rosterShiftId);
+      const shift = shiftById.get(request.rosterShiftId);
       if (shift) byId.set(shift.id, shift);
     }
     return [...byId.values()];
-  }, [allRosterShifts, rosterShifts, rosterShiftRequests, employeeId]);
+  }, [allRosterShifts, rosterShifts, rosterShiftRequests, employeeId, shiftById]);
 
   useEffect(() => {
-    void fetch("/api/my", { credentials: "include" })
+    const controller = new AbortController();
+    void fetch("/api/my", { credentials: "include", signal: controller.signal })
       .then(async (res) => {
         if (!res.ok) throw new Error("Could not load My workplace");
         return res.json() as Promise<HubData>;
       })
       .then(setData)
-      .catch((err: Error) => setError(err.message));
+      .catch((err: Error) => {
+        if (err.name !== "AbortError") setError(err.message);
+      });
+    return () => controller.abort();
   }, []);
 
   const summary = data?.summary;
   const actionCount = summary?.actionItemsCount ?? 0;
+
+  const hubTiles = (
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <HubTile
+        title="Credentials"
+        description="Add licences and checks with evidence. Track HR review and expiry."
+        href="/my/credentials"
+        badge={
+          summary
+            ? (summary.overdueCount ?? 0) + (summary.dueSoonCount ?? 0) + (summary.credentialsPendingReview ?? 0) || undefined
+            : undefined
+        }
+      />
+      <HubTile
+        title="About me"
+        description="Contact details, emergency contacts, and home address."
+        href="/my/profile"
+        badge={summary?.profileGapsCount}
+      />
+      <HubTile
+        title="Leave"
+        description="Submit leave requests and track approval status."
+        href="/my/leave"
+        badge={summary?.pendingLeaveCount}
+      />
+      <HubTile
+        title="Availability"
+        description="Tell us when you are available to work."
+        href="/my/availability"
+        badge={summary && !summary.availabilityConfigured ? 1 : 0}
+      />
+      <HubTile
+        title="My shifts"
+        description="Check in and out of roster shifts assigned to you."
+        href="/my/shifts"
+      />
+      <HubTile
+        title="Contracts & policies"
+        description="View employment documents and acknowledge required items."
+        href="/my/contracts"
+        badge={summary?.contractsToAcknowledge}
+      />
+    </div>
+  );
 
   return (
     <MyWorkplaceGuard windowKey="my-workplace">
@@ -108,8 +162,6 @@ export function MyWorkplaceHubPage() {
       >
         <MyWorkplaceSubnav />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-        {!data && !error ? <MyWorkplaceHubContentSkeleton showSubnavPills={false} /> : null}
 
         {data?.servicesAdvisory ? (
           <MyWorkplaceServicesAdvisoryPanel advisory={data.servicesAdvisory} />
@@ -124,6 +176,8 @@ export function MyWorkplaceHubPage() {
             locations={locations}
           />
         ) : null}
+
+        {loadingOverview ? <MyWorkplaceHubContentSkeleton showSubnavPills={false} /> : null}
 
         {data ? (
           <section className="mb-8 rounded-2xl border border-[#f9a8d4]/30 bg-gradient-to-br from-[#fdf2f8]/80 to-white p-5 shadow-sm">
@@ -157,45 +211,7 @@ export function MyWorkplaceHubPage() {
           </section>
         ) : null}
 
-        {data || error ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <HubTile
-              title="Credentials"
-              description="Add licences and checks with evidence. Track HR review and expiry."
-              href="/my/credentials"
-              badge={(summary?.overdueCount ?? 0) + (summary?.dueSoonCount ?? 0) + (summary?.credentialsPendingReview ?? 0) || undefined}
-            />
-            <HubTile
-              title="About me"
-              description="Contact details, emergency contacts, and home address."
-              href="/my/profile"
-              badge={summary?.profileGapsCount}
-            />
-            <HubTile
-              title="Leave"
-              description="Submit leave requests and track approval status."
-              href="/my/leave"
-              badge={summary?.pendingLeaveCount}
-            />
-            <HubTile
-              title="Availability"
-              description="Tell us when you are available to work."
-              href="/my/availability"
-              badge={summary && !summary.availabilityConfigured ? 1 : 0}
-            />
-            <HubTile
-              title="My shifts"
-              description="Check in and out of roster shifts assigned to you."
-              href="/my/shifts"
-            />
-            <HubTile
-              title="Contracts & policies"
-              description="View employment documents and acknowledge required items."
-              href="/my/contracts"
-              badge={summary?.contractsToAcknowledge}
-            />
-          </div>
-        ) : null}
+        {hubTiles}
       </AppShell>
     </MyWorkplaceGuard>
   );

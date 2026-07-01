@@ -113,12 +113,7 @@ export function MyWorkplaceHubContentSkeleton({ showSubnavPills = true }: { show
           ))}
         </div>
       ) : null}
-      <Skeleton className="mb-6 h-40 w-full rounded-2xl" />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }, (_, index) => (
-          <SkeletonCard key={index} />
-        ))}
-      </div>
+      <Skeleton className="mb-8 h-56 w-full rounded-2xl" />
     </>
   );
 }

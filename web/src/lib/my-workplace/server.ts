@@ -59,7 +59,12 @@ import {
   myWorkplaceLeaveRequestedEvent,
 } from "@/lib/task-automation/employee-triggers";
 import { closeWorkforceAutomationTasks, runServerAutomationEvents } from "@/lib/task-automation/run-server";
-import { buildMyWorkplaceServicesAdvisory, type MyWorkplaceServicesAdvisory } from "@/lib/my-workplace/services-advisory";
+import {
+  buildMyWorkplaceServicesAdvisory,
+  HIGH_DEMAND_LOOKAHEAD_DAYS,
+  type MyWorkplaceServicesAdvisory,
+} from "@/lib/my-workplace/services-advisory";
+import { addDaysIso } from "@/lib/roster-shift";
 
 import type {
   MyContractView,
@@ -727,39 +732,61 @@ const EMPTY_ADVISORY: MyWorkplaceServicesAdvisory = {
   advisoryMessage: null,
 };
 
+function isAssignmentActiveOnDate(validFrom: string, validTo: string, day: string): boolean {
+  if (validFrom?.trim() && day < validFrom.slice(0, 10)) return false;
+  if (validTo?.trim() && day > validTo.slice(0, 10)) return false;
+  return true;
+}
+
 /**
- * Loads only the tables the services advisory needs (locations + employee
- * assignment lines, site orientations, roster shifts) rather than the whole
- * organisation dataset.
+ * Loads only the employee's assigned locations, orientations, and upcoming
+ * roster shifts (high-demand lookahead window) — not the whole organisation.
  */
-async function loadServicesAdvisorySupportData(supabase: SupabaseClient) {
-  const [locationsRes, locationEmployeesRes, siteOrientationsRes, rosterShiftsRes] = await Promise.all([
-    supabase.from("support_location").select("*").order("search_key"),
-    supabase.from("support_location_employee").select("*").order("line_no"),
-    supabase.from("site_orientation").select("*"),
-    supabase.from("roster_shift").select("*"),
+async function loadServicesAdvisorySupportData(supabase: SupabaseClient, employeeId: string, today: string) {
+  const rangeEnd = addDaysIso(today, HIGH_DEMAND_LOOKAHEAD_DAYS);
+
+  const { data: employeeLinkRows, error: linksError } = await supabase
+    .from("support_location_employee")
+    .select("*")
+    .eq("employee_id", employeeId)
+    .order("line_no");
+  if (linksError) throw linksError;
+
+  const activeLinks = ((employeeLinkRows ?? []) as SupportLocationEmployeeRowDb[]).filter((row) =>
+    isAssignmentActiveOnDate(row.valid_from ?? "", row.valid_to ?? "", today)
+  );
+  const locationIds = [...new Set(activeLinks.map((row) => row.location_id).filter(Boolean))];
+  if (!locationIds.length) {
+    return { locations: [], siteOrientations: [], rosterShifts: [] };
+  }
+
+  const linksByLocation = new Map<string, SupportLocationEmployeeRowDb[]>();
+  for (const row of activeLinks) {
+    const list = linksByLocation.get(row.location_id) ?? [];
+    list.push(row);
+    linksByLocation.set(row.location_id, list);
+  }
+
+  const [locationsRes, siteOrientationsRes, rosterShiftsRes] = await Promise.all([
+    supabase.from("support_location").select("*").in("id", locationIds).order("search_key"),
+    supabase.from("site_orientation").select("*").in("location_id", locationIds),
+    supabase
+      .from("roster_shift")
+      .select("*")
+      .in("location_id", locationIds)
+      .gte("shift_date", today)
+      .lte("shift_date", rangeEnd),
   ]);
 
-  const firstError =
-    locationsRes.error ??
-    locationEmployeesRes.error ??
-    siteOrientationsRes.error ??
-    rosterShiftsRes.error;
+  const firstError = locationsRes.error ?? siteOrientationsRes.error ?? rosterShiftsRes.error;
   if (firstError) throw firstError;
-
-  const employeesByLocation = new Map<string, SupportLocationEmployeeRowDb[]>();
-  for (const row of (locationEmployeesRes.data ?? []) as SupportLocationEmployeeRowDb[]) {
-    const list = employeesByLocation.get(row.location_id) ?? [];
-    list.push(row);
-    employeesByLocation.set(row.location_id, list);
-  }
 
   const locations = ((locationsRes.data ?? []) as SupportLocationRow[]).map((row) =>
     normalizeLocation(
       locationFromRow(row, {
         alerts: [],
         clientLinks: [],
-        employeeLinks: employeesByLocation.get(row.id) ?? [],
+        employeeLinks: linksByLocation.get(row.id) ?? [],
         productLinks: [],
         activities: [],
       })
@@ -773,21 +800,26 @@ async function loadServicesAdvisorySupportData(supabase: SupabaseClient) {
   return { locations, siteOrientations, rosterShifts };
 }
 
-export async function loadMyServicesAdvisory(ctx: MyWorkplaceContext): Promise<MyWorkplaceServicesAdvisory> {
-  const employee = await loadMyEmployee(ctx.employeeId);
-  if (!employee) return EMPTY_ADVISORY;
+export async function loadMyServicesAdvisory(
+  ctx: MyWorkplaceContext,
+  employee?: EmployeeRecord | null
+): Promise<MyWorkplaceServicesAdvisory> {
+  const resolvedEmployee = employee ?? (await loadMyEmployee(ctx.employeeId));
+  if (!resolvedEmployee) return EMPTY_ADVISORY;
 
   if (isSupabaseConfigured()) {
     // Live employee data must pair with live support data — never mix the live
     // employee record with bundled demo seeds. On query failure, degrade to an
     // empty advisory rather than showing stale/seed sites.
     try {
-      const data = await loadServicesAdvisorySupportData(serviceClient());
+      const today = new Date().toISOString().slice(0, 10);
+      const data = await loadServicesAdvisorySupportData(serviceClient(), ctx.employeeId, today);
       return buildMyWorkplaceServicesAdvisory({
-        employee,
+        employee: resolvedEmployee,
         locations: data.locations,
         siteOrientations: data.siteOrientations,
         rosterShifts: data.rosterShifts,
+        today,
       });
     } catch {
       return EMPTY_ADVISORY;
@@ -799,7 +831,7 @@ export async function loadMyServicesAdvisory(ctx: MyWorkplaceContext): Promise<M
   const { initialRosterShifts } = await import("@/lib/roster-shift");
 
   return buildMyWorkplaceServicesAdvisory({
-    employee,
+    employee: resolvedEmployee,
     locations: initialLocations,
     siteOrientations: initialSiteOrientations,
     rosterShifts: initialRosterShifts,

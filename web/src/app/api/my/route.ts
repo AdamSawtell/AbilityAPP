@@ -21,7 +21,7 @@ export async function GET() {
   const [availability, acknowledgements, servicesAdvisory] = await Promise.all([
     loadMyAvailability(ctx.employeeId),
     loadMyAcknowledgements(ctx.employeeId),
-    loadMyServicesAdvisory(ctx),
+    loadMyServicesAdvisory(ctx, employee),
   ]);
   const contracts = buildMyContracts(employee.documents, acknowledgements);
   const dashboard = buildMyWorkplaceDashboard({ employee, availability, contracts });

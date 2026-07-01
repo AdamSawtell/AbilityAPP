@@ -110,20 +110,18 @@ export function RosteringCommunicationPanel({
       .map((shift) => ({ shift, label: shiftLabel(shift, clients, locations) }));
   }, [relatedShifts, clients, locations]);
 
-  const communications = useMemo(
-    () =>
-      tasks
-        .filter(
-          (task) =>
-            task.taskTypeId === ROSTERING_COMMUNICATION_TASK_TYPE_ID &&
-            session &&
-            canSeeTaskType(session, task.taskTypeId) &&
-            (task.createdByUserId === session.userId ||
-              (employeeId && task.entityType === "employee" && task.entityId === employeeId))
-        )
-        .sort((a, b) => latestUpdateAt(b).localeCompare(latestUpdateAt(a))),
-    [tasks, session, employeeId]
-  );
+  const communications = useMemo(() => {
+    if (!session) return [];
+    const rosteringTasks = tasks.filter((task) => task.taskTypeId === ROSTERING_COMMUNICATION_TASK_TYPE_ID);
+    return rosteringTasks
+      .filter(
+        (task) =>
+          canSeeTaskType(session, task.taskTypeId) &&
+          (task.createdByUserId === session.userId ||
+            (employeeId && task.entityType === "employee" && task.entityId === employeeId))
+      )
+      .sort((a, b) => latestUpdateAt(b).localeCompare(latestUpdateAt(a)));
+  }, [tasks, session, employeeId]);
 
   function resetForm() {
     setSubject("");
