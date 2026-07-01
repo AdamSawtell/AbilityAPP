@@ -26,6 +26,10 @@ applications:
               OPENAI_API_KEY=${OPENAI_API_KEY}
               NODE_OPTIONS=${NODE_OPTIONS_VAL}
               PORTAL_DEMO_EXPOSE_LINK=${PORTAL_DEMO_VAL}
+              NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+              VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+              VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+              VAPID_SUBJECT=${VAPID_SUBJECT}
               EOF
               echo "Wrote .env.production for Next.js (AUTH_SESSION_SECRET length: ${#AUTH_SESSION_SECRET})"
         build:

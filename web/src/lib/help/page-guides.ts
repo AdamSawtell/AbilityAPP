@@ -90,6 +90,12 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   // App — my workplace
   { prefix: "/my/open-shifts", slug: "my-workplace", surface: "app" },
   { prefix: "/system/reports/mobile-sync", slug: "employee-mobile", surface: "system" },
+  { prefix: "/m/more", slug: "employee-mobile", surface: "app" },
+  { prefix: "/m/notifications", slug: "employee-mobile", surface: "app" },
+  { prefix: "/m/availability", slug: "employee-mobile", surface: "app" },
+  { prefix: "/m/leave", slug: "employee-mobile", surface: "app" },
+  { prefix: "/m/open-shifts", slug: "employee-mobile", surface: "app" },
+  { prefix: "/m/messages", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/install", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/id", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/tasks", slug: "employee-mobile", surface: "app" },

@@ -23,8 +23,21 @@ export const employeeMobileArticle: HelpArticle = {
     "tasks",
     "animal alert",
   ],
-  relatedRoutes: ["/m/today", "/m/schedule", "/m/timesheets", "/m/tasks", "/m/more", "/m/id", "/m/install"],
-  windowKeys: ["my-workplace", "my-shifts", "my-timesheets", "tasks-assigned-to-me"],
+  relatedRoutes: [
+    "/m/today",
+    "/m/schedule",
+    "/m/timesheets",
+    "/m/tasks",
+    "/m/more",
+    "/m/id",
+    "/m/install",
+    "/m/messages",
+    "/m/open-shifts",
+    "/m/leave",
+    "/m/availability",
+    "/m/notifications",
+  ],
+  windowKeys: ["my-workplace", "my-shifts", "my-timesheets", "tasks-assigned-to-me", "my-open-shifts", "my-leave", "my-availability"],
   lastUpdated: "2026-07-01",
   sections: [
     {
@@ -68,6 +81,18 @@ export const employeeMobileArticle: HelpArticle = {
       title: "Offline check-in",
       body: "When you have no signal, check-in and check-out are saved on your phone and sync automatically when you reconnect. Use **Sync now** on the banner if needed. Approximate location may be used when offline (up to 30 minutes old).",
       relatedRoutes: ["/m/today", "/m/schedule"],
+    },
+    {
+      id: "more",
+      title: "More — leave, open shifts, and messages",
+      body: "Open **More** for self-service pages that stay in the worker app:\n\n- **Messages** — contact rostering about a shift\n- **Open shifts** — browse vacant shifts and apply\n- **Leave** — submit and track leave requests\n- **Availability** — set your weekly pattern\n- **Notifications** — enable push reminders for shifts and credentials",
+      relatedRoutes: ["/m/more", "/m/messages", "/m/open-shifts", "/m/leave", "/m/availability", "/m/notifications"],
+    },
+    {
+      id: "push",
+      title: "Push notifications",
+      body: "From **More** or **Notifications**, tap **Enable notifications** and allow the browser prompt. Choose shift reminders and credential expiry alerts.\n\nOn iPhone you must add the app to your home screen first (Safari → Share → Add to Home Screen). Push may not work in a normal Safari tab.",
+      relatedRoutes: ["/m/notifications", "/m/install"],
     },
   ],
 };

@@ -1,6 +1,18 @@
 /* AbilityVua employee mobile PWA — minimal shell cache (Phase A). */
 const CACHE = "abilityvua-mobile-v1";
-const SHELL = ["/m/today", "/m/schedule", "/m/timesheets", "/m/tasks", "/m/more", "/manifest.webmanifest"];
+const SHELL = [
+  "/m/today",
+  "/m/schedule",
+  "/m/timesheets",
+  "/m/tasks",
+  "/m/more",
+  "/m/messages",
+  "/m/open-shifts",
+  "/m/leave",
+  "/m/availability",
+  "/m/notifications",
+  "/manifest.webmanifest",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL).catch(() => undefined)));
@@ -36,7 +48,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-/* Push handler — subscription wired in Phase C */
+/* Push handler — subscription via /api/mobile/push/subscribe */
 self.addEventListener("push", (event) => {
   const data = event.data?.json?.() ?? { title: "AbilityVua", body: "You have an update." };
   event.waitUntil(

@@ -10,7 +10,16 @@ function tabActive(pathname: string, tab: MobileTabId): boolean {
   if (tab === "schedule") return pathname.startsWith("/m/schedule");
   if (tab === "timesheets") return pathname.startsWith("/m/timesheets");
   if (tab === "tasks") return pathname.startsWith("/m/tasks");
-  return pathname.startsWith("/m/more") || pathname.startsWith("/m/id") || pathname.startsWith("/m/install");
+  return (
+    pathname.startsWith("/m/more") ||
+    pathname.startsWith("/m/id") ||
+    pathname.startsWith("/m/install") ||
+    pathname.startsWith("/m/messages") ||
+    pathname.startsWith("/m/open-shifts") ||
+    pathname.startsWith("/m/leave") ||
+    pathname.startsWith("/m/availability") ||
+    pathname.startsWith("/m/notifications")
+  );
 }
 
 export function MobileEmployeeShell({

@@ -365,7 +365,12 @@ Separate mobile shell at `/m/*` — not the desktop `AppShell`. Bottom tabs: Tod
 | Pay period schedule | `/m/schedule` | Fortnight aligned to active pay period |
 | My timesheets | `/m/timesheets` | Submit draft timesheets |
 | Assigned tasks | `/m/tasks` | `tasks-assigned-to-me` only |
-| More menu | `/m/more` | Links to desktop self-service pages |
+| More menu | `/m/more` | Self-service links, push settings, install guide |
+| Messages | `/m/messages` | Rostering communication (contact rostering) |
+| Open shifts | `/m/open-shifts` | Vacant shift marketplace (worker mode) |
+| Leave | `/m/leave` | Submit and track leave requests |
+| Availability | `/m/availability` | Weekly availability pattern |
+| Notifications | `/m/notifications` | Push subscription and preferences |
 | Digital Worker ID | `/m/id` | Photo, name, role, employee ID |
 | iOS install guide | `/m/install` | Add to Home Screen steps |
 | Mobile sync reconciliation | `/system/reports/mobile-sync` | System → Reports — offline sync audit (CFO C-02) |

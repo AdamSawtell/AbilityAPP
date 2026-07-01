@@ -12,8 +12,8 @@
 | **Overall completion** | **100%** |
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
-| **Next slice** | AB-0004 Phase C (push notifications + mobile messaging) |
-| **Last push** | 2026-07-01 — AB-0004 Phase A employee mobile PWA |
+| **Next slice** | AB-0004 Phase D (credentials/profile mobile, polish) |
+| **Last push** | 2026-07-01 — AB-0004 Phase C push + mobile self-service |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -32,6 +32,24 @@
 
 ---
 
+## AB-0004 Phase C — Push + mobile self-service (2026-07-01)
+
+**Status:** Shipped (Phase C).
+
+**Why:** Workers need push reminders, rostering messages, and self-service (open shifts, leave, availability) inside the mobile shell — not desktop `/my/*` links.
+
+| Area | Change |
+|------|--------|
+| Migration | `20260701150000_app_push_subscription` — `app_push_subscription`, `mobile_push_log` |
+| Push | `web-push`, VAPID env in Amplify, subscribe/preferences APIs, SW handlers |
+| Scheduled | Credential expiry + shift-start reminders via workforce automation |
+| Routes | `/m/messages`, `/m/open-shifts`, `/m/leave`, `/m/availability`, `/m/notifications` |
+| More | Links updated to `/m/*`; push settings on More and Notifications |
+
+**What you can test:** `/m/more` → Open shifts, Leave, Messages → `/m/notifications` enable push (after VAPID keys in Amplify). iOS: install to home screen first — see `docs/compliance/MOBILE-PWA-IOS-LIMITATIONS.md`.
+
+---
+
 ## AB-0004 Phase B — Offline sync + reconciliation (2026-07-01)
 
 **Status:** Shipped (Phase B).
@@ -47,8 +65,6 @@
 | UI | Offline banner, prior handover on shift cards, void check-in on roster shift editor |
 
 **What you can test:** `/m/today` offline banner → airplane mode check-in → reconnect → Sync now → System → Reports → Mobile sync reconciliation shows accepted row.
-
-**Phase C (next):** Push notifications, messaging mobile, vacant shifts mobile layouts.
 
 ---
 

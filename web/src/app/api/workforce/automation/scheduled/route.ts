@@ -4,6 +4,7 @@ import { sessionHasWindow } from "@/lib/auth/session.server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { runServerScheduledAutomations } from "@/lib/task-automation/run-server";
 import { runServerShiftCheckinEscalation } from "@/lib/shift-checkin-monitoring-server";
+import { runScheduledMobilePushNotifications } from "@/lib/mobile/push-scheduled";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 function serviceClient() {
@@ -51,12 +52,20 @@ export async function POST() {
     errors.push(`shift-checkin: ${detail}`);
   }
 
-  if (errors.length === 2) {
+  let mobilePushes = 0;
+  try {
+    mobilePushes = await runScheduledMobilePushNotifications(supabase);
+  } catch (err) {
+    errors.push(`mobile-push: ${err instanceof Error ? err.message : "failed"}`);
+  }
+
+  if (errors.length === 3) {
     return NextResponse.json({ error: errors.join("; ") }, { status: 500 });
   }
   return NextResponse.json({
     created: created + shiftEscalations,
     shiftEscalations,
+    mobilePushes,
     ...(errors.length ? { warnings: errors } : {}),
   });
 }
