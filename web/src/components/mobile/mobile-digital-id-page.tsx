@@ -14,13 +14,22 @@ export function MobileDigitalIdPage() {
     [employee?.firstName, employee?.lastName].filter(Boolean).join(" ") ||
     session?.displayName ||
     "Employee";
-  const role = employee?.jobTitle?.trim() || "Support worker";
+  const role =
+    session?.activeRoleName?.trim() ||
+    employee?.jobTitle?.trim() ||
+    "Support Worker";
   const employeeNo = employee?.searchKey?.trim() || employee?.id || "—";
   const photo = employee?.pictureUrl?.trim();
 
   return (
     <MobileAuthGuard>
-      <MobileEmployeeShell title="Digital Worker ID" subtitle="Present when asked on site" hideNav>
+      <MobileEmployeeShell
+        title="Digital Worker ID"
+        subtitle="Present when asked on site"
+        backHref="/m/more"
+        backLabel="More"
+        hideNav
+      >
         <div className="mx-auto max-w-sm pt-4">
           <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-[#b51266] to-[#7c0f48] p-1 shadow-xl">
             <div className="rounded-[1.35rem] bg-white p-6 text-center">
@@ -37,7 +46,7 @@ export function MobileDigitalIdPage() {
                 </div>
               )}
               <p className="mt-4 text-xl font-bold text-slate-900">{name}</p>
-              <p className="mt-1 text-sm font-medium text-[#b51266]">{role}</p>
+              <p className="mt-1 text-sm font-semibold text-[#b51266]">{role}</p>
               <p className="mt-4 text-xs uppercase tracking-widest text-slate-400">Employee ID</p>
               <p className="font-mono text-lg font-semibold text-slate-800">{employeeNo}</p>
             </div>

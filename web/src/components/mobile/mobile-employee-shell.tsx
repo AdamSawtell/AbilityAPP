@@ -29,12 +29,16 @@ export function MobileEmployeeShell({
   subtitle,
   children,
   hideNav,
+  backHref,
+  backLabel = "Back",
   floatingAction,
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
   hideNav?: boolean;
+  backHref?: string;
+  backLabel?: string;
   floatingAction?: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -42,6 +46,15 @@ export function MobileEmployeeShell({
   return (
     <div className="flex min-h-[100dvh] flex-col bg-gradient-to-br from-slate-50 via-white to-[#fdf2f8]/30">
       <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur">
+        {backHref ? (
+          <Link
+            href={backHref}
+            className="mb-2 inline-flex min-h-10 items-center gap-1 text-sm font-medium text-[#b51266]"
+          >
+            <span aria-hidden>←</span>
+            {backLabel}
+          </Link>
+        ) : null}
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#b51266]">{MOBILE_APP_NAME}</p>
         <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
         {subtitle ? <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p> : null}
