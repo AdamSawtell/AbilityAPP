@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
 | **Next slice** | _(AB-0004 PWA MVP complete — see roadmap)_ |
-| **Last push** | 2026-07-01 — Mobile services, shift request push, offline schedule browse |
+| **Last push** | 2026-07-01 — Mobile profile photo upload |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -120,6 +120,20 @@
 | Offline | Pay-period shift cache + saved-at banner on Today/Schedule |
 
 **What you can test:** Apply for open shift → rostering approves/rejects → worker push + My applications updates. More → Services shows qualified sites. Go offline after opening Schedule → saved schedule with staleness banner.
+
+---
+
+## AB-0004 — Mobile profile photo upload (2026-07-01)
+
+**Status:** Shipped.
+
+| Area | Change |
+|------|--------|
+| API | `POST/DELETE /api/my/profile/photo` — upload to `employee-evidence`, update `employee.picture_url` |
+| Mobile | **Personal info** photo section; **Digital Worker ID** link to update |
+| Desktop | Employee record header already reads `pictureUrl` — updates appear after refresh |
+
+**What you can test:** `/m/profile` → Upload photo → `/m/id` shows image → `/employees/{id}` header shows same photo.
 
 ---
 

@@ -24,6 +24,7 @@ export async function GET() {
     jobTitle: employee.jobTitle,
     department: employee.department,
     employmentType: employee.employmentType,
+    pictureUrl: employee.pictureUrl ?? "",
     emergencyContacts: employee.emergencyContacts,
     locations: employee.locations,
     profileGaps,

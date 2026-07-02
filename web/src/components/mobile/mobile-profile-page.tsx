@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MobileAuthGuard } from "@/components/mobile/mobile-auth-guard";
 import { MobileEmployeeShell } from "@/components/mobile/mobile-employee-shell";
+import { EmployeePhotoUpload } from "@/components/my-workplace/employee-photo-upload";
+import { useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
 import { useData } from "@/lib/data-store";
 import type { EmployeeEmergencyContactRow, EmployeeLocationRow, EmployeeRecord } from "@/lib/employee";
 import { emptyEmergencyContactRow, emptyEmployeeLocationRow, renumberLines } from "@/lib/employee-line-tables";
@@ -23,6 +25,7 @@ type ProfileData = {
   jobTitle: string;
   department: string;
   employmentType: string;
+  pictureUrl: string;
   emergencyContacts: EmployeeEmergencyContactRow[];
   locations: EmployeeLocationRow[];
   profileGaps: MyProfileGap[];
@@ -30,6 +33,7 @@ type ProfileData = {
 
 export function MobileProfilePage() {
   const { upsertEmployee } = useData();
+  const { employee: linkedEmployee } = useMyEmployee();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -129,6 +133,15 @@ export function MobileProfilePage() {
 
         {profile ? (
           <form onSubmit={saveProfile} className="space-y-4">
+            <EmployeePhotoUpload
+              pictureUrl={profile.pictureUrl || linkedEmployee?.pictureUrl}
+              displayName={profile.preferredName || `${profile.firstName} ${profile.lastName}`.trim()}
+              onUpdated={(employee) => {
+                upsertEmployee(employee);
+                setProfile((current) => (current ? { ...current, pictureUrl: employee.pictureUrl ?? "" } : current));
+              }}
+            />
+
             {profile.profileGaps.length > 0 ? (
               <section className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
                 <h2 className="text-sm font-semibold text-amber-900">Complete your profile</h2>

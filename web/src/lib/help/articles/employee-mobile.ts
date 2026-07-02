@@ -128,6 +128,12 @@ export const employeeMobileArticle: HelpArticle = {
       relatedRoutes: ["/m/open-shifts", "/m/notifications"],
     },
     {
+      id: "profile-photo",
+      title: "Profile photo",
+      body: "From **More → Personal info**, upload or change your profile photo. It appears on your **Digital Worker ID** and on your employee record in the main app.\n\nUse a clear head-and-shoulders photo. JPG, PNG, or WebP up to 5 MB.",
+      relatedRoutes: ["/m/profile", "/m/id"],
+    },
+    {
       id: "passkey",
       title: "Face ID / fingerprint sign-in",
       body: "After your first password sign-in, tap **Enable Face ID** (or Fingerprint on Android). Next time your session expires, use **Sign in with Face ID** on the sign-in screen — no password needed.\n\nOn iPhone, add My Workplace to your home screen first for reliable biometrics. If you have more than one role, sign in with password once and pick your role so Face ID remembers it.",

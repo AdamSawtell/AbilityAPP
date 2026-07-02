@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { MobileAuthGuard } from "@/components/mobile/mobile-auth-guard";
 import { MobileEmployeeShell } from "@/components/mobile/mobile-employee-shell";
 import { useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
@@ -53,6 +54,11 @@ export function MobileDigitalIdPage() {
           </div>
           <p className="mt-6 text-center text-xs text-slate-500">
             This card confirms your identity as an AbilityVua worker. It is not a government-issued ID.
+          </p>
+          <p className="mt-4 text-center">
+            <Link href="/m/profile#profile-photo" className="text-sm font-semibold text-[#b51266] underline">
+              Update profile photo
+            </Link>
           </p>
         </div>
       </MobileEmployeeShell>
