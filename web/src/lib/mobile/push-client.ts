@@ -9,6 +9,7 @@ export type PushPreferences = {
   notifyCredentials: boolean;
   notifyCriticalShifts: boolean;
   notifyRosteringReplies: boolean;
+  notifyShiftRequests: boolean;
   subscribed: boolean;
 };
 
@@ -30,6 +31,7 @@ export async function updatePushPreferences(prefs: {
   notifyCredentials?: boolean;
   notifyCriticalShifts?: boolean;
   notifyRosteringReplies?: boolean;
+  notifyShiftRequests?: boolean;
 }): Promise<PushPreferences | null> {
   const res = await fetch("/api/mobile/push/preferences", {
     method: "PATCH",

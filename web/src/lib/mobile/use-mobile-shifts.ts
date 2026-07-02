@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
 import { useMyEmployee } from "@/components/my-workplace/my-workplace-guard";
 import { captureMobileGeolocation } from "@/lib/mobile/geo-cache";
-import { idbGetAllShifts } from "@/lib/mobile/idb";
+import { idbGetAllShifts, idbGetShiftCacheMeta } from "@/lib/mobile/idb";
 import { enqueueOfflineWrite } from "@/lib/mobile/offline-sync";
 import { useMobileOnline } from "@/lib/mobile/use-mobile-online";
 import { useMobileShiftCache } from "@/lib/mobile/use-mobile-shift-cache";
@@ -22,6 +22,7 @@ import {
 } from "@/lib/system-timezone";
 import { useSystemTimezoneOptional } from "@/lib/system-timezone-store";
 import { defaultPayPeriodRange } from "@/lib/pay-period";
+import type { ShiftCacheMeta } from "@/lib/mobile/constants";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 
 export function useMobileShifts() {
@@ -38,17 +39,31 @@ export function useMobileShifts() {
   const updatedBy = session?.displayName ?? "Self-service";
 
   const [cachedShifts, setCachedShifts] = useState<RosterShiftRecord[]>([]);
+  const [cacheMeta, setCacheMeta] = useState<ShiftCacheMeta | null>(null);
 
   useEffect(() => {
     if (online) return;
-    void idbGetAllShifts()
-      .then(setCachedShifts)
-      .catch(() => setCachedShifts([]));
+    void Promise.all([idbGetAllShifts(), idbGetShiftCacheMeta()])
+      .then(([shifts, meta]) => {
+        setCachedShifts(shifts);
+        setCacheMeta(meta);
+      })
+      .catch(() => {
+        setCachedShifts([]);
+        setCacheMeta(null);
+      });
   }, [online]);
 
-  const sourceShifts = online && rosterShifts.length ? rosterShifts : cachedShifts.length ? cachedShifts : rosterShifts;
+  const payPeriod = useMemo(
+    () => defaultPayPeriodRange(payPeriodInstances, orgToday),
+    [payPeriodInstances, orgToday]
+  );
 
-  useMobileShiftCache(employeeId, rosterShifts, orgToday);
+  const usingCachedSchedule = !online && cachedShifts.length > 0;
+  const sourceShifts =
+    online && rosterShifts.length ? rosterShifts : cachedShifts.length ? cachedShifts : rosterShifts;
+
+  useMobileShiftCache(employeeId, rosterShifts, orgToday, payPeriod);
 
   const scheduleShifts = useMemo(
     () => shiftsForWorkerSchedule(sourceShifts, employeeId, orgToday),
@@ -57,11 +72,6 @@ export function useMobileShifts() {
   const allAssigned = useMemo(
     () => shiftsAssignedToWorker(sourceShifts, employeeId),
     [sourceShifts, employeeId]
-  );
-
-  const payPeriod = useMemo(
-    () => defaultPayPeriodRange(payPeriodInstances, orgToday),
-    [payPeriodInstances, orgToday]
   );
 
   const periodShifts = useMemo(() => {
@@ -204,5 +214,7 @@ export function useMobileShifts() {
     shiftContext,
     online,
     sync,
+    usingCachedSchedule,
+    scheduleCachedAt: cacheMeta?.cachedAt ?? null,
   };
 }

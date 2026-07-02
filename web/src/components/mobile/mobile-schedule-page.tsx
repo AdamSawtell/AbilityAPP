@@ -22,6 +22,8 @@ export function MobileSchedulePage() {
     shiftContext,
     online,
     sync,
+    usingCachedSchedule,
+    scheduleCachedAt,
   } = useMobileShifts();
 
   return (
@@ -47,7 +49,15 @@ export function MobileSchedulePage() {
           syncing={sync.syncing}
           syncError={sync.syncError}
           onSyncNow={() => void sync.syncNow()}
+          usingCachedSchedule={usingCachedSchedule}
+          scheduleCachedAt={scheduleCachedAt}
         />
+
+        {!online && !usingCachedSchedule ? (
+          <p className="mb-4 rounded-xl border border-dashed border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
+            Connect once while online to save this pay period for offline browsing.
+          </p>
+        ) : null}
 
         {!employeeId ? (
           <p className="text-sm text-slate-500">No employee link.</p>

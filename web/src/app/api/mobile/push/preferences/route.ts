@@ -18,6 +18,7 @@ function prefsFromSubs(
     notify_credentials: boolean;
     notify_critical_shifts: boolean;
     notify_rostering_replies: boolean;
+    notify_shift_requests: boolean;
   }[]
 ) {
   if (!subs.length) {
@@ -26,6 +27,7 @@ function prefsFromSubs(
       notifyCredentials: true,
       notifyCriticalShifts: true,
       notifyRosteringReplies: true,
+      notifyShiftRequests: true,
       subscribed: false,
     };
   }
@@ -34,6 +36,7 @@ function prefsFromSubs(
     notifyCredentials: subs.every((s) => s.notify_credentials),
     notifyCriticalShifts: subs.every((s) => s.notify_critical_shifts),
     notifyRosteringReplies: subs.every((s) => s.notify_rostering_replies),
+    notifyShiftRequests: subs.every((s) => s.notify_shift_requests),
     subscribed: true,
   };
 }
@@ -64,6 +67,7 @@ export async function PATCH(request: Request) {
     notifyCredentials?: boolean;
     notifyCriticalShifts?: boolean;
     notifyRosteringReplies?: boolean;
+    notifyShiftRequests?: boolean;
   };
   try {
     body = (await request.json()) as typeof body;

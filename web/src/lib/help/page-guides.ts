@@ -97,6 +97,7 @@ const ROUTE_GUIDE_RULES: RouteGuideRule[] = [
   { prefix: "/m/notifications", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/availability", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/leave", slug: "employee-mobile", surface: "app" },
+  { prefix: "/m/services", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/open-shifts", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/messages", slug: "employee-mobile", surface: "app" },
   { prefix: "/m/install", slug: "employee-mobile", surface: "app" },

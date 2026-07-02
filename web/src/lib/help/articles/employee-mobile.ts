@@ -36,6 +36,7 @@ export const employeeMobileArticle: HelpArticle = {
     "/m/install",
     "/m/messages",
     "/m/open-shifts",
+    "/m/services",
     "/m/leave",
     "/m/availability",
     "/m/notifications",
@@ -77,8 +78,8 @@ export const employeeMobileArticle: HelpArticle = {
     {
       id: "schedule",
       title: "Pay period schedule",
-      body: "The **Schedule** tab lists all shifts in the current pay period. Swipe from Today via **Pay period →** at the top of the Today screen.",
-      relatedRoutes: ["/m/schedule"],
+      body: "The **Schedule** tab lists all shifts in the current pay period. Swipe from Today via **Pay period →** at the top of the Today screen.\n\nWhen you are offline, the app shows the last saved copy of your schedule with a timestamp. Times and assignments may be out of date — connect to refresh before relying on it.",
+      relatedRoutes: ["/m/schedule", "/m/today"],
     },
     {
       id: "tasks",
@@ -95,15 +96,16 @@ export const employeeMobileArticle: HelpArticle = {
     {
       id: "offline",
       title: "Offline check-in",
-      body: "When you have no signal, check-in and check-out are saved on your phone and sync automatically when you reconnect. Use **Sync now** on the banner if needed. Approximate location may be used when offline (up to 30 minutes old).",
+      body: "When you have no signal, check-in and check-out are saved on your phone and sync automatically when you reconnect. Use **Sync now** on the banner if needed. Approximate location may be used when offline (up to 30 minutes old).\n\nOpen the app while online at least once so your pay-period schedule is saved for offline browsing.",
       relatedRoutes: ["/m/today", "/m/schedule"],
     },
     {
       id: "more",
       title: "More — leave, open shifts, and messages",
-      body: `Open **More** for self-service pages that stay in ${MOBILE_APP_NAME}:\n\n- **Messages** — contact rostering about a shift\n- **Open shifts** — browse vacant shifts and apply\n- **Leave** — submit and track leave requests\n- **Availability** — set your weekly pattern\n- **Credentials** — submit licences and evidence for HR review\n- **Personal info** — update contact details and emergency contacts\n- **Notifications** — enable push reminders for shifts and credentials`,
+      body: `Open **More** for self-service pages that stay in ${MOBILE_APP_NAME}:\n\n- **Services I can work at** — qualified sites and high-demand advisory\n- **Messages** — contact rostering about a shift\n- **Open shifts** — browse vacant shifts, apply, and track application status\n- **Leave** — submit and track leave requests\n- **Availability** — set your weekly pattern\n- **Credentials** — submit licences and evidence for HR review\n- **Personal info** — update contact details and emergency contacts\n- **Notifications** — enable push reminders for shifts and credentials`,
       relatedRoutes: [
         "/m/more",
+        "/m/services",
         "/m/messages",
         "/m/open-shifts",
         "/m/leave",
@@ -114,6 +116,18 @@ export const employeeMobileArticle: HelpArticle = {
       ],
     },
     {
+      id: "services",
+      title: "Services I can work at",
+      body: "From **More → Services I can work at**, see sites where you have an active assignment, current mandatory credentials, and site orientation. High-demand services are highlighted with a prompt to contact rostering. The list is read-only.",
+      relatedRoutes: ["/m/services", "/m/more"],
+    },
+    {
+      id: "open-shift-applications",
+      title: "Open shift applications",
+      body: "On **Open shifts**, **My applications** lists your recent requests with status (Applied, Approved, Rejected). Rejection reasons appear in the app only — not on the lock screen. Enable **Open shift applications** under Notifications for a push when rostering decides.",
+      relatedRoutes: ["/m/open-shifts", "/m/notifications"],
+    },
+    {
       id: "passkey",
       title: "Face ID / fingerprint sign-in",
       body: "After your first password sign-in, tap **Enable Face ID** (or Fingerprint on Android). Next time your session expires, use **Sign in with Face ID** on the sign-in screen — no password needed.\n\nOn iPhone, add My Workplace to your home screen first for reliable biometrics. If you have more than one role, sign in with password once and pick your role so Face ID remembers it.",
@@ -122,7 +136,7 @@ export const employeeMobileArticle: HelpArticle = {
     {
       id: "push",
       title: "Push notifications",
-      body: "From **More** or **Notifications**, tap **Enable notifications** and allow the browser prompt. You can turn on:\n\n- **Critical shifts available** — when rostering marks an open shift as critical at your location\n- **Rostering replies** — when rostering responds to a message you sent\n- **Shift updates and reminders** — when your assigned shift changes, plus upcoming shift reminders\n- **Credential expiry** — before a licence or check expires\n\nOn iPhone you must add the app to your home screen first (Safari → Share → Add to Home Screen). Push may not work in a normal Safari tab.",
+      body: "From **More** or **Notifications**, tap **Enable notifications** and allow the browser prompt. You can turn on:\n\n- **Critical shifts available** — when rostering marks an open shift as critical at your location\n- **Open shift applications** — when rostering approves or updates your application (details stay in the app)\n- **Rostering replies** — when rostering responds to a message you sent\n- **Shift updates and reminders** — when your assigned shift changes, plus upcoming shift reminders\n- **Credential expiry** — before a licence or check expires\n\nOn iPhone you must add the app to your home screen first (Safari → Share → Add to Home Screen). Push may not work in a normal Safari tab.",
       relatedRoutes: ["/m/notifications", "/m/install"],
     },
   ],

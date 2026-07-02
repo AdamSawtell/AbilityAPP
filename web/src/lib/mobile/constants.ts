@@ -13,13 +13,23 @@ export const OFFLINE_GEO_MAX_AGE_MS = 300_000;
 /** Offline — allow cached GPS up to 30 minutes with approximate label. */
 export const OFFLINE_GEO_MAX_AGE_OFFLINE_MS = 1_800_000;
 
-/** Bounded shift window cached in IndexedDB for offline check-in. */
+/** Bounded shift window cached in IndexedDB for offline check-in and schedule browse. */
 export const MOBILE_SHIFT_CACHE_HOURS = 72;
 
 export const MOBILE_IDB_NAME = "abilityvua-mobile";
+export const MOBILE_IDB_VERSION = 2;
 export const MOBILE_IDB_WRITES_STORE = "offline-writes";
 export const MOBILE_IDB_SHIFTS_STORE = "shift-cache";
 export const MOBILE_IDB_GEO_STORE = "geo-cache";
+export const MOBILE_IDB_META_STORE = "meta";
+
+export type ShiftCacheMeta = {
+  key: "schedule";
+  cachedAt: string;
+  payPeriodStart: string;
+  payPeriodEnd: string;
+  shiftCount: number;
+};
 
 export const MOBILE_SYNC_MAX_RETRIES = 3;
 

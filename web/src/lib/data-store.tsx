@@ -74,6 +74,19 @@ import {
   type ShiftRequestResponseType,
 } from "@/lib/roster-shift-request";
 import { buildClaimedShift } from "@/lib/roster-open-shifts";
+
+function emitShiftRequestStatusPushes(requests: RosterShiftRequestRecord[]) {
+  for (const request of requests) {
+    if (request.status !== "approved" && request.status !== "rejected") continue;
+    emitMobilePushEvent({
+      kind: "shift_request_status",
+      requestId: request.id,
+      employeeId: request.employeeId,
+      status: request.status,
+      dedupeKey: `${request.id}:${request.status}`,
+    });
+  }
+}
 import {
   rosterShiftSaveBlocked,
   rosterValidationMode,
@@ -1882,6 +1895,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         for (const row of built.otherUpdates) byId.set(row.id, row);
         return [...byId.values()];
       });
+      emitShiftRequestStatusPushes([built.request, ...built.otherUpdates]);
       return null;
     },
     [rosterShiftsRef, rosterShiftRequestsRef, source]
@@ -1898,6 +1912,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         await persistRemote((supabase) => saveRosterShiftRequest(supabase, updated));
       }
       setRosterShiftRequests((current) => current.map((r) => (r.id === requestId ? updated : r)));
+      emitShiftRequestStatusPushes([updated]);
       return null;
     },
     [persistRemote, rosterShiftRequestsRef, source]

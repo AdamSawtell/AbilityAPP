@@ -25,6 +25,8 @@ export function MobileTodayPage() {
     shiftContext,
     online,
     sync,
+    usingCachedSchedule,
+    scheduleCachedAt,
   } = useMobileShifts();
 
   const greeting = actionShift
@@ -70,6 +72,8 @@ export function MobileTodayPage() {
           syncing={sync.syncing}
           syncError={sync.syncError}
           onSyncNow={() => void sync.syncNow()}
+          usingCachedSchedule={usingCachedSchedule}
+          scheduleCachedAt={scheduleCachedAt}
         />
 
         {!employeeId ? (
@@ -77,7 +81,7 @@ export function MobileTodayPage() {
         ) : todayGroups.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
             <p className="text-sm text-slate-600">No shifts today.</p>
-            <Link href="/my/open-shifts" className="mt-3 inline-block text-sm font-semibold text-[#b51266]">
+            <Link href="/m/open-shifts" className="mt-3 inline-block text-sm font-semibold text-[#b51266]">
               Browse open shifts
             </Link>
           </div>

@@ -123,6 +123,36 @@ export async function emitShiftChangedPush(
   return sent;
 }
 
+export async function emitShiftRequestStatusPush(
+  supabase: SupabaseClient,
+  input: {
+    employeeId: string;
+    status: "approved" | "rejected";
+    dedupeKey: string;
+  }
+): Promise<number> {
+  const userId = await userIdForEmployee(supabase, input.employeeId);
+  if (!userId) return 0;
+  const body =
+    input.status === "approved"
+      ? "Your open shift application was approved. Open Schedule to view details."
+      : "Your open shift application was updated. Open Open shifts for details.";
+  return sendPushToUser(
+    supabase,
+    userId,
+    {
+      title: input.status === "approved" ? "Shift application approved" : "Shift application updated",
+      body,
+      url: input.status === "approved" ? "/m/schedule" : "/m/open-shifts",
+    },
+    {
+      preference: "shift_request",
+      pushType: "shift_request_status",
+      dedupeKey: input.dedupeKey,
+    }
+  );
+}
+
 export async function emitRosteringReplyPush(
   supabase: SupabaseClient,
   input: {
@@ -168,9 +198,29 @@ export async function handlePushEmit(
     notePreview?: string;
     employeeUserId?: string;
     dedupeKey?: string;
+    requestId?: string;
+    employeeId?: string;
+    status?: "approved" | "rejected";
   }
 ): Promise<{ sent: number }> {
   const supabase = serviceClient();
+
+  if (body.kind === "shift_request_status") {
+    if (!canEmitRosterPush(session)) throw new Error("Not allowed to send shift request alerts");
+    if (!body.requestId || !body.employeeId || !body.status) {
+      throw new Error("Request, employee, and status required");
+    }
+    if (body.status !== "approved" && body.status !== "rejected") {
+      throw new Error("Invalid shift request status");
+    }
+    return {
+      sent: await emitShiftRequestStatusPush(supabase, {
+        employeeId: body.employeeId,
+        status: body.status,
+        dedupeKey: body.dedupeKey ?? `${body.requestId}:${body.status}`,
+      }),
+    };
+  }
 
   if (body.kind === "critical_shift") {
     if (!canEmitRosterPush(session)) throw new Error("Not allowed to send critical shift alerts");

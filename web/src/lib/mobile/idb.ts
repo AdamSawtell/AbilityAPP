@@ -1,9 +1,12 @@
 import {
   MOBILE_IDB_GEO_STORE,
+  MOBILE_IDB_META_STORE,
   MOBILE_IDB_NAME,
   MOBILE_IDB_SHIFTS_STORE,
+  MOBILE_IDB_VERSION,
   MOBILE_IDB_WRITES_STORE,
   type MobileOfflineWrite,
+  type ShiftCacheMeta,
 } from "@/lib/mobile/constants";
 import type { RosterShiftRecord } from "@/lib/roster-shift";
 
@@ -13,8 +16,8 @@ function openDb(): Promise<IDBDatabase> {
       reject(new Error("IndexedDB unavailable"));
       return;
     }
-    const req = indexedDB.open(MOBILE_IDB_NAME, 1);
-    req.onupgradeneeded = () => {
+    const req = indexedDB.open(MOBILE_IDB_NAME, MOBILE_IDB_VERSION);
+    req.onupgradeneeded = (event) => {
       const db = req.result;
       if (!db.objectStoreNames.contains(MOBILE_IDB_WRITES_STORE)) {
         db.createObjectStore(MOBILE_IDB_WRITES_STORE, { keyPath: "syncId" });
@@ -24,6 +27,9 @@ function openDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(MOBILE_IDB_GEO_STORE)) {
         db.createObjectStore(MOBILE_IDB_GEO_STORE, { keyPath: "key" });
+      }
+      if (event.oldVersion < 2 && !db.objectStoreNames.contains(MOBILE_IDB_META_STORE)) {
+        db.createObjectStore(MOBILE_IDB_META_STORE, { keyPath: "key" });
       }
     };
     req.onsuccess = () => resolve(req.result);
@@ -86,6 +92,15 @@ export async function idbPutShifts(shifts: RosterShiftRecord[]): Promise<void> {
 
 export async function idbGetAllShifts(): Promise<RosterShiftRecord[]> {
   return tx<RosterShiftRecord[]>(MOBILE_IDB_SHIFTS_STORE, "readonly", (s) => s.getAll());
+}
+
+export async function idbPutShiftCacheMeta(meta: ShiftCacheMeta): Promise<void> {
+  await tx(MOBILE_IDB_META_STORE, "readwrite", (s) => s.put(meta));
+}
+
+export async function idbGetShiftCacheMeta(): Promise<ShiftCacheMeta | null> {
+  const row = await tx<ShiftCacheMeta | undefined>(MOBILE_IDB_META_STORE, "readonly", (s) => s.get("schedule"));
+  return row ?? null;
 }
 
 export type GeoCacheEntry = {

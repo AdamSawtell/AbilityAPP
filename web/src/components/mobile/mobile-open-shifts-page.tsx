@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { MobileAuthGuard } from "@/components/mobile/mobile-auth-guard";
 import { MobileEmployeeShell } from "@/components/mobile/mobile-employee-shell";
+import { MobileMyShiftRequestsPanel } from "@/components/mobile/mobile-my-shift-requests-panel";
 import { OpenShiftsMarketplacePanel } from "@/components/open-shifts-marketplace-panel";
 import { useAuth } from "@/lib/auth-store";
 import { useData } from "@/lib/data-store";
@@ -69,6 +70,15 @@ export function MobileOpenShiftsPage() {
           <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
             Your login is not linked to an employee record.
           </p>
+        ) : null}
+        {employeeId ? (
+          <MobileMyShiftRequestsPanel
+            employeeId={employeeId}
+            requests={rosterShiftRequests}
+            shifts={allRosterShifts}
+            locations={locations}
+            clients={clients}
+          />
         ) : null}
         <OpenShiftsMarketplacePanel
           rosterShifts={rosterShifts}

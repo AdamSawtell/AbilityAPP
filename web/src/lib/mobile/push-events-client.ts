@@ -11,6 +11,9 @@ export function emitMobilePushEvent(payload: {
   notePreview?: string;
   employeeUserId?: string;
   dedupeKey?: string;
+  requestId?: string;
+  employeeId?: string;
+  status?: "approved" | "rejected";
 }): void {
   void fetch("/api/mobile/push/emit", {
     method: "POST",

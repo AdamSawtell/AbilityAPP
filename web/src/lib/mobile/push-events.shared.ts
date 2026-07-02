@@ -1,7 +1,7 @@
 import { assignedWorkerIdsForShift, isFillWorkerLine } from "@/lib/roster-session";
 import { normalizeRosterShift, type RosterShiftRecord } from "@/lib/roster-shift";
 
-export type PushEmitKind = "critical_shift" | "shift_changed" | "rostering_reply";
+export type PushEmitKind = "critical_shift" | "shift_changed" | "rostering_reply" | "shift_request_status";
 
 type ShiftSnapshot = {
   id: string;

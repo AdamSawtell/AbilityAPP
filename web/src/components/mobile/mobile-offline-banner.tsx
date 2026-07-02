@@ -1,19 +1,25 @@
 "use client";
 
+import { formatScheduleCacheAge } from "@/lib/mobile/schedule-cache";
+
 export function MobileOfflineBanner({
   online,
   pending,
   syncing,
   syncError,
   onSyncNow,
+  usingCachedSchedule = false,
+  scheduleCachedAt = null,
 }: {
   online: boolean;
   pending: number;
   syncing: boolean;
   syncError: string;
   onSyncNow: () => void;
+  usingCachedSchedule?: boolean;
+  scheduleCachedAt?: string | null;
 }) {
-  if (online && !pending && !syncError) return null;
+  if (online && !pending && !syncError && !usingCachedSchedule) return null;
 
   return (
     <div
@@ -24,7 +30,9 @@ export function MobileOfflineBanner({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-medium">
           {!online
-            ? "You're offline — check-ins will sync when connected."
+            ? usingCachedSchedule
+              ? "You're offline — showing saved schedule."
+              : "You're offline — check-ins will sync when connected."
             : pending
               ? `${pending} check-in action${pending === 1 ? "" : "s"} waiting to sync`
               : "Sync issue"}
@@ -40,6 +48,17 @@ export function MobileOfflineBanner({
           </button>
         ) : null}
       </div>
+      {!online && usingCachedSchedule ? (
+        <p className="mt-1 text-xs opacity-90">
+          Saved {formatScheduleCacheAge(scheduleCachedAt)} — times and assignments may be out of date. Connect to
+          refresh before relying on this schedule.
+        </p>
+      ) : null}
+      {!online && !usingCachedSchedule ? (
+        <p className="mt-1 text-xs opacity-90">
+          Open the app while online once to save your schedule for offline browsing.
+        </p>
+      ) : null}
       {syncError ? <p className="mt-1 text-xs opacity-90">{syncError}</p> : null}
       {!online && pending > 0 ? (
         <p className="mt-1 text-xs opacity-80">{pending} queued — will upload automatically.</p>

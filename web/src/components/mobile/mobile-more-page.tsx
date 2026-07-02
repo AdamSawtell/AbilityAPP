@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-store";
 const LINKS = [
   { href: "/m/id", label: "Digital Worker ID", desc: "Show your photo and role" },
   { href: "/m/messages", label: "Messages", desc: "Contact rostering about shifts" },
+  { href: "/m/services", label: "Services I can work at", desc: "Qualified sites and high-demand advisory" },
   { href: "/m/open-shifts", label: "Open shifts", desc: "Browse and apply for vacant shifts" },
   { href: "/m/leave", label: "Leave", desc: "Submit and track leave requests" },
   { href: "/m/availability", label: "Availability", desc: "Set when you can work" },

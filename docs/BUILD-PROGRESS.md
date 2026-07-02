@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
 | **Next slice** | _(AB-0004 PWA MVP complete — see roadmap)_ |
-| **Last push** | 2026-07-01 — Event-driven mobile push (critical shifts, rostering replies, shift changes) |
+| **Last push** | 2026-07-01 — Mobile services, shift request push, offline schedule browse |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -102,6 +102,24 @@
 | Prefs | `/m/notifications` toggles for critical shifts, rostering replies, shift updates |
 
 **What you can test:** Enable push on a worker device at a location → mark a published vacant shift critical → worker gets alert. Change an assigned shift time → assigned worker push. Reply on a rostering communication task → employee push.
+
+---
+
+## AB-0004 Phase C++ — Services, applications, offline schedule (2026-07-01)
+
+**Status:** Shipped.
+
+**Why:** Workers need application status tracking, qualified services on mobile, and safe offline schedule browsing.
+
+| Area | Change |
+|------|--------|
+| Migration | `20260701180000_app_push_shift_request_pref` — `notify_shift_requests` |
+| Push | Open shift application approved/rejected alerts (generic lock-screen copy) |
+| Routes | `/m/services` — Services I can work at |
+| Open shifts | **My applications** list with status and rejection reason in-app |
+| Offline | Pay-period shift cache + saved-at banner on Today/Schedule |
+
+**What you can test:** Apply for open shift → rostering approves/rejects → worker push + My applications updates. More → Services shows qualified sites. Go offline after opening Schedule → saved schedule with staleness banner.
 
 ---
 

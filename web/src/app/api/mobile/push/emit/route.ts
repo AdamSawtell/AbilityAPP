@@ -18,6 +18,9 @@ export async function POST(request: Request) {
     notePreview?: string;
     employeeUserId?: string;
     dedupeKey?: string;
+    requestId?: string;
+    employeeId?: string;
+    status?: "approved" | "rejected";
   };
 
   try {
