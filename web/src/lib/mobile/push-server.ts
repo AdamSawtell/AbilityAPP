@@ -11,6 +11,8 @@ export type PushSubscriptionRow = {
   device_label: string;
   notify_shift_changes: boolean;
   notify_credentials: boolean;
+  notify_critical_shifts: boolean;
+  notify_rostering_replies: boolean;
   active: boolean;
 };
 
@@ -93,11 +95,18 @@ export async function deactivatePushSubscription(
 export async function updatePushPreferences(
   supabase: SupabaseClient,
   userId: string,
-  prefs: { notifyShiftChanges?: boolean; notifyCredentials?: boolean }
+  prefs: {
+    notifyShiftChanges?: boolean;
+    notifyCredentials?: boolean;
+    notifyCriticalShifts?: boolean;
+    notifyRosteringReplies?: boolean;
+  }
 ): Promise<void> {
   const patch: Record<string, boolean | string> = { updated_at: new Date().toISOString() };
   if (typeof prefs.notifyShiftChanges === "boolean") patch.notify_shift_changes = prefs.notifyShiftChanges;
   if (typeof prefs.notifyCredentials === "boolean") patch.notify_credentials = prefs.notifyCredentials;
+  if (typeof prefs.notifyCriticalShifts === "boolean") patch.notify_critical_shifts = prefs.notifyCriticalShifts;
+  if (typeof prefs.notifyRosteringReplies === "boolean") patch.notify_rostering_replies = prefs.notifyRosteringReplies;
   const { error } = await supabase.from("app_push_subscription").update(patch).eq("user_id", userId).eq("active", true);
   if (error) throw new Error(error.message);
 }
@@ -136,7 +145,7 @@ export async function sendPushToUser(
   userId: string,
   payload: MobilePushPayload,
   options?: {
-    preference?: "shift" | "credential";
+    preference?: "shift" | "credential" | "critical" | "rostering";
     pushType?: string;
     dedupeKey?: string;
   }
@@ -152,6 +161,8 @@ export async function sendPushToUser(
   const eligible = subs.filter((sub) => {
     if (options?.preference === "shift" && !sub.notify_shift_changes) return false;
     if (options?.preference === "credential" && !sub.notify_credentials) return false;
+    if (options?.preference === "critical" && !sub.notify_critical_shifts) return false;
+    if (options?.preference === "rostering" && !sub.notify_rostering_replies) return false;
     return true;
   });
 

@@ -74,7 +74,7 @@ Do **not** rely on the Supabase SQL editor for routine schema work. Migrations i
 | `site_orientation` | Site orientation per worker (agency or employee) and location |
 | `roster_shift` AB-0021 fields | Training/meeting grouping, cost allocation, cost centre, estimated cost, attendance sign-off |
 | `mobile_offline_sync` | AB-0004 Phase B — idempotent offline check-in/out sync audit (`sync_id`, status, rejection_reason) |
-| `app_push_subscription` | AB-0004 Phase C — web push endpoints per device (`endpoint`, `p256dh`, `auth`, preference flags) |
+| `app_push_subscription` | AB-0004 Phase C — web push endpoints per device (`endpoint`, `p256dh`, `auth`, preference flags); `notify_critical_shifts`, `notify_rostering_replies` (20260701170000) for event-driven alerts |
 | `app_passkey` | My Workplace Face ID — WebAuthn credentials per device (`credential_id`, `public_key`, `last_role_id`) |
 | `app_user.webauthn_user_id` | Stable WebAuthn user handle for passkey registration |
 | `mobile_push_log` | AB-0004 Phase C — idempotent scheduled push dedupe (`user_id`, `push_type`, `dedupe_key`) |

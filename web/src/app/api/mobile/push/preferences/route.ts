@@ -12,13 +12,28 @@ function serviceClient() {
   return createSupabaseClient(url, key, { auth: { persistSession: false } });
 }
 
-function prefsFromSubs(subs: { notify_shift_changes: boolean; notify_credentials: boolean }[]) {
+function prefsFromSubs(
+  subs: {
+    notify_shift_changes: boolean;
+    notify_credentials: boolean;
+    notify_critical_shifts: boolean;
+    notify_rostering_replies: boolean;
+  }[]
+) {
   if (!subs.length) {
-    return { notifyShiftChanges: true, notifyCredentials: true, subscribed: false };
+    return {
+      notifyShiftChanges: true,
+      notifyCredentials: true,
+      notifyCriticalShifts: true,
+      notifyRosteringReplies: true,
+      subscribed: false,
+    };
   }
   return {
     notifyShiftChanges: subs.every((s) => s.notify_shift_changes),
     notifyCredentials: subs.every((s) => s.notify_credentials),
+    notifyCriticalShifts: subs.every((s) => s.notify_critical_shifts),
+    notifyRosteringReplies: subs.every((s) => s.notify_rostering_replies),
     subscribed: true,
   };
 }
@@ -44,7 +59,12 @@ export async function PATCH(request: Request) {
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   if (!isSupabaseConfigured()) return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
 
-  let body: { notifyShiftChanges?: boolean; notifyCredentials?: boolean };
+  let body: {
+    notifyShiftChanges?: boolean;
+    notifyCredentials?: boolean;
+    notifyCriticalShifts?: boolean;
+    notifyRosteringReplies?: boolean;
+  };
   try {
     body = (await request.json()) as typeof body;
   } catch {

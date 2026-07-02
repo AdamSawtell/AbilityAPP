@@ -7,6 +7,8 @@ import { isIosDevice, isStandaloneMobileApp } from "@/lib/mobile/push-support";
 export type PushPreferences = {
   notifyShiftChanges: boolean;
   notifyCredentials: boolean;
+  notifyCriticalShifts: boolean;
+  notifyRosteringReplies: boolean;
   subscribed: boolean;
 };
 
@@ -26,6 +28,8 @@ export async function fetchPushPreferences(): Promise<PushPreferences | null> {
 export async function updatePushPreferences(prefs: {
   notifyShiftChanges?: boolean;
   notifyCredentials?: boolean;
+  notifyCriticalShifts?: boolean;
+  notifyRosteringReplies?: boolean;
 }): Promise<PushPreferences | null> {
   const res = await fetch("/api/mobile/push/preferences", {
     method: "PATCH",

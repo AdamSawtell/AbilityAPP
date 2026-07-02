@@ -60,6 +60,8 @@ import {
   type ServiceBookingRecord,
 } from "@/lib/service-booking";
 import { isVacantShift } from "@/lib/roster-gap-analysis";
+import { emitMobilePushEvent } from "@/lib/mobile/push-events-client";
+import { rosterShiftChangedNotifiable } from "@/lib/mobile/push-events.shared";
 import {
   buildApproveShiftRequest,
   buildRejectShiftRequest,
@@ -196,6 +198,7 @@ import {
   type TaskRecord,
 } from "@/lib/task";
 import { initialTaskAutomations, sortTaskAutomations, type TaskAutomationRecord } from "@/lib/task-automation";
+import { ROSTERING_COMMUNICATION_TASK_TYPE_ID } from "@/lib/task-type";
 import { evaluateAutomationEvents, type AutomationTaskDraft } from "@/lib/task-automation/engine";
 import { clientEventsFromSave } from "@/lib/task-automation/client-triggers";
 import { employeeEventsFromSave } from "@/lib/task-automation/employee-triggers";
@@ -1634,6 +1637,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
       void persistRemote((supabase) => saveRosterShift(supabase, stamped));
+      if (before && rosterShiftChangedNotifiable(before, stamped)) {
+        emitMobilePushEvent({ kind: "shift_changed", before, after: stamped });
+      }
       return null;
     },
     [persistRemote, rosterShiftsRef, clientsRef, employeesRef, payPeriodInstancesRef, serviceBookingsRef]
@@ -1914,6 +1920,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setRosterShifts((current) => current.map((r) => (r.id === shiftId ? stamped : r)));
       if (source === "supabase" && isSupabaseConfigured()) {
         void persistRemote((supabase) => saveRosterShift(supabase, stamped));
+      }
+      if (criticalFill && !shift.criticalFill && isVacantShift(stamped) && stamped.status === "Published") {
+        emitMobilePushEvent({ kind: "critical_shift", after: stamped });
       }
       return null;
     },
@@ -2625,18 +2634,39 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const mutateTask = useCallback((id: string, mutator: (task: TaskRecord) => TaskRecord) => {
     let updated!: TaskRecord;
+    let before!: TaskRecord | undefined;
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
+        before = t;
         const next = normalizeTask(mutator(t));
         updated = stampRecordAudit(next, false);
         return updated;
       })
     );
-    if (updated) {
+    if (updated && before) {
       void persistRemote((supabase) => saveTask(supabase, updated));
+      const actorId = sessionRef.current?.userId;
+      if (
+        before.taskTypeId === ROSTERING_COMMUNICATION_TASK_TYPE_ID &&
+        before.createdByUserId &&
+        actorId &&
+        actorId !== before.createdByUserId &&
+        updated.updates.length > before.updates.length
+      ) {
+        const latestUpdate = updated.updates[updated.updates.length - 1];
+        if (latestUpdate.byUserId === actorId) {
+          emitMobilePushEvent({
+            kind: "rostering_reply",
+            taskId: updated.id,
+            employeeUserId: before.createdByUserId,
+            notePreview: latestUpdate.detail || latestUpdate.summary,
+            dedupeKey: `${updated.id}:${latestUpdate.id}`,
+          });
+        }
+      }
     }
-  }, [persistRemote]);
+  }, [persistRemote, sessionRef]);
 
   const relinkEntityTasks = useCallback(
     (

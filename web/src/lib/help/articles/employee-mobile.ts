@@ -122,7 +122,7 @@ export const employeeMobileArticle: HelpArticle = {
     {
       id: "push",
       title: "Push notifications",
-      body: "From **More** or **Notifications**, tap **Enable notifications** and allow the browser prompt. Choose shift reminders and credential expiry alerts.\n\nOn iPhone you must add the app to your home screen first (Safari → Share → Add to Home Screen). Push may not work in a normal Safari tab.",
+      body: "From **More** or **Notifications**, tap **Enable notifications** and allow the browser prompt. You can turn on:\n\n- **Critical shifts available** — when rostering marks an open shift as critical at your location\n- **Rostering replies** — when rostering responds to a message you sent\n- **Shift updates and reminders** — when your assigned shift changes, plus upcoming shift reminders\n- **Credential expiry** — before a licence or check expires\n\nOn iPhone you must add the app to your home screen first (Safari → Share → Add to Home Screen). Push may not work in a normal Safari tab.",
       relatedRoutes: ["/m/notifications", "/m/install"],
     },
   ],

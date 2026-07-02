@@ -13,7 +13,7 @@
 | **Current work package** | All scoped work packages Live (AB-0021 Training and meeting scheduling shipped 2026-06-25) |
 | **Active slice** | _(see SCOPE-ROADMAP)_ |
 | **Next slice** | _(AB-0004 PWA MVP complete — see roadmap)_ |
-| **Last push** | 2026-07-01 — My Workplace Face ID passkeys |
+| **Last push** | 2026-07-01 — Event-driven mobile push (critical shifts, rostering replies, shift changes) |
 | **Agency vendor portal** | [Amplify sign-in](https://app.abilityvua.com/agency-portal/login) — `roster@staffplus.example` → demo **Open agency portal** link |
 | **Participant portal** | [Amplify sign-in](https://app.abilityvua.com/portal/login) — `Bernie@email` → demo **Open portal** link (not in staff sidebar) |
 | **Chunk D tracker** | [plans/document-platform/README.md](./plans/document-platform/README.md) |
@@ -85,6 +85,23 @@
 | More | Links updated to `/m/*`; push settings on More and Notifications |
 
 **What you can test:** `/m/more` → Open shifts, Leave, Messages → `/m/notifications` enable push (after VAPID keys in Amplify). iOS: install to home screen first — see `docs/compliance/MOBILE-PWA-IOS-LIMITATIONS.md`.
+
+---
+
+## AB-0004 Phase C+ — Event-driven push (2026-07-01)
+
+**Status:** Shipped.
+
+**Why:** Workers should get immediate alerts when rostering marks a critical vacant shift, replies to a message, or changes an assigned shift — not only scheduled reminders.
+
+| Area | Change |
+|------|--------|
+| Migration | `20260701170000_app_push_notify_prefs` — `notify_critical_shifts`, `notify_rostering_replies` |
+| Emit API | `POST /api/mobile/push/emit` — critical shift, shift changed, rostering reply |
+| Producers | `setShiftCriticalFill`, `upsertRosterShift`, rostering task updates in data store |
+| Prefs | `/m/notifications` toggles for critical shifts, rostering replies, shift updates |
+
+**What you can test:** Enable push on a worker device at a location → mark a published vacant shift critical → worker gets alert. Change an assigned shift time → assigned worker push. Reply on a rostering communication task → employee push.
 
 ---
 

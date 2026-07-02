@@ -46,6 +46,16 @@ export function MobilePushSettings() {
     setBusy(false);
   }
 
+  async function toggleCritical(enabled: boolean) {
+    const next = await updatePushPreferences({ notifyCriticalShifts: enabled });
+    if (next) setPrefs(next);
+  }
+
+  async function toggleRostering(enabled: boolean) {
+    const next = await updatePushPreferences({ notifyRosteringReplies: enabled });
+    if (next) setPrefs(next);
+  }
+
   async function toggleShift(enabled: boolean) {
     const next = await updatePushPreferences({ notifyShiftChanges: enabled });
     if (next) setPrefs(next);
@@ -60,7 +70,8 @@ export function MobilePushSettings() {
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <h2 className="text-base font-semibold text-slate-900">Push notifications</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Get reminders for upcoming shifts and credential expiry. On iPhone, install the app to your home screen first — see{" "}
+        Get alerts for critical open shifts, roster updates, rostering replies, shift reminders, and credential expiry.
+        On iPhone, install the app to your home screen first — see{" "}
         <Link href="/m/install" className="font-medium text-[#b51266] underline">
           Install on iPhone
         </Link>
@@ -95,7 +106,25 @@ export function MobilePushSettings() {
       {prefs?.subscribed ? (
         <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
           <label className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-slate-700">Shift reminders</span>
+            <span className="text-slate-700">Critical shifts available</span>
+            <input
+              type="checkbox"
+              checked={prefs.notifyCriticalShifts}
+              onChange={(e) => void toggleCritical(e.target.checked)}
+              className="h-5 w-5 rounded border-slate-300"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-slate-700">Rostering replies</span>
+            <input
+              type="checkbox"
+              checked={prefs.notifyRosteringReplies}
+              onChange={(e) => void toggleRostering(e.target.checked)}
+              className="h-5 w-5 rounded border-slate-300"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-slate-700">Shift updates and reminders</span>
             <input
               type="checkbox"
               checked={prefs.notifyShiftChanges}
